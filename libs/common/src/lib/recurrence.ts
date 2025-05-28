@@ -2,8 +2,11 @@ import {
     addDays,
     addMonths,
     addWeeks,
+    addYears,
+    endOfDay,
     endOfMonth,
     endOfWeek,
+    getUnixTime,
     startOfDay,
 } from 'date-fns';
 import { RecurrenceDetails } from './formatting';
@@ -217,7 +220,10 @@ export function fromBookingRecurrence(r: BookingRecurrence): Recurrence {
     return recurr;
 }
 
-export function toBookingRecurrence(r: Recurrence): BookingRecurrence {
+export function toBookingRecurrence(
+    r: Recurrence,
+    date: number = Date.now(),
+): BookingRecurrence {
     if (r.type === 'none') return { recurrence_type: 'none' };
 
     const booking: BookingRecurrence = {
@@ -227,7 +233,17 @@ export function toBookingRecurrence(r: Recurrence): BookingRecurrence {
     };
 
     if (r.end_type === 'date' && r.end_date) {
-        booking.recurrence_end = Math.floor(r.end_date / 1000); // Convert from milliseconds to seconds
+        booking.recurrence_end = getUnixTime(r.end_date); // Convert from milliseconds to seconds
+    } else if (r.end_type === 'instances') {
+        booking.recurrence_end = getUnixTime(
+            r.type === 'daily'
+                ? endOfDay(addDays(date, r.end_instances))
+                : r.type === 'weekly'
+                  ? endOfWeek(addWeeks(date, r.end_instances))
+                  : r.type === 'monthly'
+                    ? endOfMonth(addMonths(date, r.end_instances))
+                    : addYears(date, 1),
+        );
     }
 
     if (r.type === 'weekly' && r.weekdays) {

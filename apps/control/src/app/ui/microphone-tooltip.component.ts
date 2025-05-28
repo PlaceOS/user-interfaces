@@ -212,10 +212,10 @@ export class MicrophoneTooltipComponent extends AsyncHandler {
         super();
     }
 
-    public setRoomMute(mic: string, room: string, state: string) {
+    public setRoomMute(mic_name: string, room_name: string, state: string) {
         const mod = getModule(this.id, 'System');
         if (!mod) return;
-        mod.execute('mic_room_selection', [mic, room, state]);
+        mod.execute('mic_room_selection', [mic_name, room_name, state]);
     }
 
     public setVolume(idx: number, value: number) {
