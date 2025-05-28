@@ -188,6 +188,7 @@ export class BookingFormService extends AsyncHandler {
         this.options,
         this.resources,
         this.booking_rules,
+        merge(this.form.get('user').valueChanges, timer(1000)),
         merge(this.form.get('date').valueChanges, timer(1000)),
         merge(this.form.get('duration').valueChanges, timer(1000)),
     ]).pipe(
