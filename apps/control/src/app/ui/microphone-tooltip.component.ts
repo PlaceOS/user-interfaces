@@ -29,13 +29,13 @@ import { ControlStateService } from '../control-state.service';
                                     binding
                                     [sys]="id"
                                     [mod]="mic.module_id || mic.mod"
-                                    [bind]="room.ids[0]"
+                                    [bind]="mic.binding"
                                     [(model)]="room.muted"
                                 ></i>
                             </div>
                             <settings-toggle
                                 [toggle]="true"
-                                [ngModel]="!room.muted"
+                                [ngModel]="room.muted !== mic.falsy_value"
                                 (ngModelChange)="
                                     setRoomMute(
                                         mic.module_id || mic.mod,
