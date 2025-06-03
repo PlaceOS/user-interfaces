@@ -194,7 +194,7 @@ export function fromBookingRecurrence(r: BookingRecurrence): Recurrence {
         const weekdays = new Set<DayIndex>();
         // Convert bit flags to day indices (0-6)
         for (let i = 0; i < 7; i++) {
-            if (r.recurrence_days & (1 << (6 - i))) {
+            if (r.recurrence_days & (1 << i)) {
                 weekdays.add(i as DayIndex);
             }
         }
