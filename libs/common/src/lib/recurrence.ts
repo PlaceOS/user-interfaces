@@ -32,6 +32,7 @@ export enum RecurrDays {
     THURSDAY = 1 << 4,
     FRIDAY = 1 << 5,
     SATURDAY = 1 << 6,
+    ALL = (1 << 7) - 1,
 }
 
 export const DAYS_OF_WEEK_INDEX = [
@@ -134,7 +135,7 @@ export function toEventRecurrence(
             end: date,
         };
     }
-    let date_obj = new Date(date);
+    const date_obj = new Date(date);
     let end = addMonths(date, 6).valueOf();
     if (r.end_type === 'date' && r.end_date) {
         end = r.end_date;
@@ -198,6 +199,7 @@ export function fromBookingRecurrence(r: BookingRecurrence): Recurrence {
             }
         }
         recurr.weekdays = weekdays;
+        if (weekdays.size < 7) recurr.type = 'weekly';
     }
 
     if (r.recurrence_type === 'monthly') {
@@ -244,6 +246,10 @@ export function toBookingRecurrence(
                     ? endOfMonth(addMonths(date, r.end_instances))
                     : addYears(date, 1),
         );
+    }
+
+    if (r.type === 'daily') {
+        booking.recurrence_days = RecurrDays.ALL;
     }
 
     if (r.type === 'weekly' && r.weekdays) {
