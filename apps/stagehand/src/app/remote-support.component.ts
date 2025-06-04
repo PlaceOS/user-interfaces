@@ -1,5 +1,10 @@
 import { Component } from '@angular/core';
 import { BehaviorSubject, combineLatest, map } from 'rxjs';
+import { SupportService } from './support.service';
+
+function contains(str: string, substr: string) {
+    return str.toLowerCase().includes(substr.toLowerCase());
+}
 
 @Component({
     selector: 'stagehand-remote-support',
@@ -15,7 +20,49 @@ import { BehaviorSubject, combineLatest, map } from 'rxjs';
                     </h1>
                 </header>
                 <main class="w-full flex-1 overflow-auto">
-                    <div class="flex items-center space-x-4 p-4">
+                    <div
+                        class="grid w-full flex-1 grid-cols-1 gap-4 p-4 sm:grid-cols-2 lg:grid-cols-3"
+                    >
+                        <div
+                            class="rounded-lg border border-base-300 bg-base-100 p-4 shadow"
+                        >
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-xl font-medium">Total Rooms</h3>
+                                <icon class="text-3xl text-info">sensors</icon>
+                            </div>
+                            <div class="text-4xl font-bold">
+                                {{ (room_list | async).length || '0' }}
+                            </div>
+                            <div class="text-sm opacity-40">+2 this month</div>
+                        </div>
+                        <div
+                            class="rounded-lg border border-base-300 bg-base-100 p-4 shadow"
+                        >
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-xl font-medium">
+                                    Active Alerts
+                                </h3>
+                                <icon class="text-3xl text-error">warning</icon>
+                            </div>
+                            <div class="text-4xl font-bold">3</div>
+                            <div class="text-sm opacity-40">2 critical</div>
+                        </div>
+                        <div
+                            class="rounded-lg border border-base-300 bg-base-100 p-4 shadow"
+                        >
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-xl font-medium">
+                                    System Uptime
+                                </h3>
+                                <icon class="text-3xl text-success"
+                                    >show_chart</icon
+                                >
+                            </div>
+                            <div class="text-4xl font-bold">99.9%</div>
+                            <div class="text-sm opacity-40">Last 30 days</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-4 px-4">
                         <mat-form-field
                             appearance="outline"
                             class="no-subscript flex-1 bg-base-100"
@@ -25,7 +72,8 @@ import { BehaviorSubject, combineLatest, map } from 'rxjs';
                             >
                             <input
                                 matInput
-                                [(ngModel)]="search"
+                                [ngModel]="search.getValue()"
+                                (ngModelChange)="search.next($event)"
                                 placeholder="Search rooms..."
                             />
                         </mat-form-field>
@@ -53,10 +101,10 @@ import { BehaviorSubject, combineLatest, map } from 'rxjs';
                         <simple-table
                             class="block w-full min-w-[88rem] overflow-hidden bg-base-100 text-sm"
                             [data]="filtered_rooms"
-                            [filter]="search"
+                            [filter]="search.getValue()"
                             [columns]="[
                                 {
-                                    key: 'name',
+                                    key: 'display_name',
                                     name: 'Room',
                                 },
                                 {
@@ -79,13 +127,6 @@ import { BehaviorSubject, combineLatest, map } from 'rxjs';
                                     content: mics_template,
                                 },
                                 {
-                                    key: 'feed',
-                                    name: 'Camera Feed',
-                                    content: feed_template,
-                                    size: '8rem',
-                                    sortable: false,
-                                },
-                                {
                                     key: 'issues',
                                     name: 'Issues',
                                     content: issue_template,
@@ -101,21 +142,55 @@ import { BehaviorSubject, combineLatest, map } from 'rxjs';
                             [sortable]="true"
                             empty_message="No rooms able to be remotely supported"
                         ></simple-table>
-                        <ng-template #status_template let-data="data">
+                        <ng-template #status_template let-space="row">
+                            <i
+                                binding
+                                [(model)]="status[space.id]"
+                                [sys]="space.id"
+                                mod="Bookings"
+                                bind="status"
+                            ></i>
                             <div class="flex items-center space-x-2 p-4">
                                 <div
                                     class="h-3 w-3 rounded-full"
-                                    [class.bg-error]="!data"
-                                    [class.bg-success]="data"
+                                    [class.bg-error]="
+                                        status[space.id] === 'busy'
+                                    "
+                                    [class.bg-warning]="
+                                        status[space.id] !== 'busy' &&
+                                        status[space.id] !== 'free'
+                                    "
+                                    [class.bg-success]="
+                                        status[space.id] === 'free'
+                                    "
                                 ></div>
-                                <div>{{ data ? 'Available' : 'In Use' }}</div>
+                                <div>
+                                    {{
+                                        status[space.id] === 'free'
+                                            ? 'Available'
+                                            : status[space.id] === 'busy'
+                                              ? 'In Use'
+                                              : 'Pending'
+                                    }}
+                                </div>
                             </div>
                         </ng-template>
-                        <ng-template #event_template let-data="data">
+                        <ng-template #event_template let-space="row">
+                            <i
+                                binding
+                                [(model)]="next[space.id]"
+                                [sys]="space.id"
+                                mod="Bookings"
+                                bind="next_booking"
+                            ></i>
                             <div class="p-4">
-                                @if (data) {
-                                    {{ data.date | date: 'shortTime' }} &ndash;
-                                    {{ data.title }}
+                                @if (next[space.id]) {
+                                    {{
+                                        next[space.id].event_start * 1000
+                                            | date: 'shortTime'
+                                    }}
+                                    &ndash;
+                                    {{ next[space.id].title }}
                                 } @else {
                                     <span class="opacity-30">None</span>
                                 }
@@ -234,7 +309,8 @@ import { BehaviorSubject, combineLatest, map } from 'rxjs';
                                     <a
                                         mat-menu-item
                                         [href]="
-                                            control_link + '#/tabbed/' + row.id
+                                            row.support_url ||
+                                            service_link + '#/tabbed/' + row.id
                                         "
                                         target="_blank"
                                         ref="noopener noreferrer"
@@ -260,67 +336,29 @@ import { BehaviorSubject, combineLatest, map } from 'rxjs';
     standalone: false,
 })
 export class RemoteSupportComponent {
-    public search = '';
+    public search = new BehaviorSubject('');
+    public status: Record<string, string> = {};
+    public next: Record<string, any> = {};
     public readonly state = new BehaviorSubject('');
-    public readonly room_list = new BehaviorSubject([
-        {
-            name: 'Lecture Theatre 1',
-            available: false,
-            event: { date: Date.now(), title: 'COMP201' },
-            source: 'HDMI1 (Lecturn PC)',
-            mic_list: [
-                { icon: 'mic', value: 85 },
-                { icon: 'devices', value: 1 },
-            ],
-            feed: '',
-            issues: [],
-        },
-        {
-            name: 'Collaborative Space A',
-            available: false,
-            event: { date: Date.now(), title: 'MGMT305' },
-            source: 'Wireless Display (Team 2)',
-            mic_list: [
-                { icon: 'mic', value: 40 },
-                { icon: 'devices', value: 67 },
-            ],
-            feed: '',
-            issues: [
-                {
-                    severity: 'warning',
-                    subject: 'Occasional wireless display latency',
-                },
-            ],
-        },
-        {
-            name: 'Science Lab 2B',
-            available: true,
-            event: { date: Date.now(), title: 'CHEM101' },
-            source: '',
-            mic_list: [
-                { icon: 'mic', value: 54 },
-                { icon: 'devices', value: 32 },
-            ],
-            feed: '',
-            issues: [],
-        },
-    ]);
+    public readonly room_list = this._support.space_list;
     public readonly filtered_rooms = combineLatest([
         this.room_list,
         this.state,
+        this.search,
     ]).pipe(
-        map(([list, type]) => {
-            return list.filter((room) => {
+        map(([list, type, search]) => {
+            list = list.filter((room) => {
                 switch (type) {
                     case 'in_use':
-                        return !room.available;
+                        return this.status[room.id] === 'busy';
                     case 'available':
-                        return room.available;
+                        return this.status[room.id] === 'free';
                     case 'issues':
                         return room.issues.length > 0;
                 }
                 return true;
             });
+            return list;
         }),
     );
 
@@ -331,4 +369,6 @@ export class RemoteSupportComponent {
     public get service_link() {
         return `${location.origin}/control/`;
     }
+
+    constructor(private _support: SupportService) {}
 }

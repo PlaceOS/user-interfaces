@@ -45,20 +45,6 @@ let compact_state = false;
                     matRipple
                     class="relative flex w-full items-center space-x-4 p-2"
                     routerLinkActive="bg-secondary-focus"
-                    [routerLink]="['/dashboard']"
-                    [matTooltip]="is_compact ? 'Dashboard' : ''"
-                    matTooltipPosition="right"
-                >
-                    <div
-                        class="absolute inset-0 bg-base-100 opacity-0 hover:opacity-10"
-                    ></div>
-                    <icon class="!ml-0 text-2xl">dashboard</icon>
-                    <span class="truncate" *ngIf="!is_compact">Dashboard</span>
-                </a>
-                <a
-                    matRipple
-                    class="relative flex w-full items-center space-x-4 p-2"
-                    routerLinkActive="bg-secondary-focus"
                     [routerLink]="['/alerts']"
                     [matTooltip]="is_compact ? 'Alerts' : ''"
                     matTooltipPosition="right"

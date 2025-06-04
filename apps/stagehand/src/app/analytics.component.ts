@@ -18,6 +18,46 @@ import Chart from 'chart.js/auto';
                     <button btn matRipple>Generate report</button>
                 </header>
                 <main class="w-full flex-1 overflow-auto">
+                    <div
+                        class="grid w-full flex-1 grid-cols-1 gap-4 p-4 sm:grid-cols-2 lg:grid-cols-3"
+                    >
+                        <div
+                            class="rounded-lg border border-base-300 bg-base-100 p-4 shadow"
+                        >
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-xl font-medium">Total Rooms</h3>
+                                <icon class="text-3xl text-info">sensors</icon>
+                            </div>
+                            <div class="text-4xl font-bold">24</div>
+                            <div class="text-sm opacity-40">+2 this month</div>
+                        </div>
+                        <div
+                            class="rounded-lg border border-base-300 bg-base-100 p-4 shadow"
+                        >
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-xl font-medium">
+                                    Active Alerts
+                                </h3>
+                                <icon class="text-3xl text-error">warning</icon>
+                            </div>
+                            <div class="text-4xl font-bold">3</div>
+                            <div class="text-sm opacity-40">2 critical</div>
+                        </div>
+                        <div
+                            class="rounded-lg border border-base-300 bg-base-100 p-4 shadow"
+                        >
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-xl font-medium">
+                                    System Uptime
+                                </h3>
+                                <icon class="text-3xl text-success"
+                                    >show_chart</icon
+                                >
+                            </div>
+                            <div class="text-4xl font-bold">99.9%</div>
+                            <div class="text-sm opacity-40">Last 30 days</div>
+                        </div>
+                    </div>
                     <div class="flex items-center space-x-4 p-4">
                         <date-range-field class="rounded bg-base-100">
                             <input
@@ -121,7 +161,7 @@ import Chart from 'chart.js/auto';
                         <h3 class="text-xl font-medium">
                             Space Utilization vs Energy Usage
                         </h3>
-                        <div class="mb-4 text-sm">
+                        <div class="mb-4 text-sm opacity-60">
                             Comparing scheduled occupancy, actual occupancy, and
                             energy consumption
                         </div>
@@ -140,7 +180,7 @@ import Chart from 'chart.js/auto';
                             <h3 class="text-xl font-medium">
                                 AV System Usage Distribution
                             </h3>
-                            <div class="mb-4 text-sm">
+                            <div class="mb-4 text-sm opacity-60">
                                 Breakdown of AV input sources used
                             </div>
                             <div class="flex">
@@ -155,7 +195,7 @@ import Chart from 'chart.js/auto';
                             <h3 class="text-xl font-medium">
                                 Room Utilization Analysis
                             </h3>
-                            <div class="mb-4 text-sm">
+                            <div class="mb-4 text-sm opacity-60">
                                 Comparing scheduled vs actual room usage
                             </div>
                             <div class="flex">
@@ -171,7 +211,7 @@ import Chart from 'chart.js/auto';
                         <h3 class="text-xl font-medium">
                             Space Utilisation Insights
                         </h3>
-                        <div class="mb-4 text-sm">
+                        <div class="mb-4 text-sm opacity-60">
                             Key findings from the selected date range
                         </div>
                         <ul class="list-disc pl-6">

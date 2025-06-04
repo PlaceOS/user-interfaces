@@ -283,3 +283,7 @@ span.highlight {
 .text-mono {
     font-family: monospace;
 }
+
+i[binding] {
+    display: none;
+}
