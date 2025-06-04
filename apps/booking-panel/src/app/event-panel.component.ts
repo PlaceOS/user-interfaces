@@ -37,54 +37,55 @@ import { PanelStateService } from './panel-state.service';
                 "
             >
                 <div class="overflow-hidden">
-                    <ng-container
-                        *ngIf="current | async; else current_empty_state"
-                    >
+                    @let current_bkn = current | async;
+                    @if (current_bkn) {
                         <h2 class="text-2xl font-medium">
-                            {{ (current | async)?.title }}
+                            {{ current_bkn?.title }}
                         </h2>
                         <p class="mb-4 text-2xl lowercase">
                             ending &#64;
+                            {{ current_bkn?.event_end * 1000 | date: 'h:mma' }}
+                        </p>
+                        <p class="text-xl" *ngIf="!hide_meeting_details">
+                            {{ 'APP.BOOKING_PANEL.HOST' | translate }}
                             {{
-                                (current | async)?.event_end * 1000
-                                    | date: 'h:mma'
+                                current_bkn?.organiser?.name ||
+                                    current_bkn?.host
                             }}
                         </p>
                         <p
                             class="line-clamp-6 text-base portrait:line-clamp-8"
-                            [innerHTML]="
-                                (current | async)?.body | sanitize: 'html'
-                            "
+                            [innerHTML]="current_bkn?.body | sanitize: 'html'"
                         ></p>
-                    </ng-container>
-                    <ng-template #current_empty_state>
+                    } @else {
                         <p class="text-2xl font-medium opacity-60">
                             {{ 'APP.BOOKING_PANEL.NO_CURRENT' | translate }}
                         </p>
-                    </ng-template>
+                    }
                 </div>
                 <div class="min-w-[40%]">
                     <h2 class="text-2xl font-medium uppercase">
                         {{ 'APP.BOOKING_PANEL.NEXT' | translate }}
                     </h2>
                     <hr class="mb-8" />
-                    <ng-container *ngIf="next | async; else next_empty_state">
+                    @let next_bkn = current | async;
+                    @if (next_bkn) {
                         <h2 class="text-2xl font-medium">
-                            {{ (next | async)?.title }}
+                            {{ next_bkn?.title }}
                         </h2>
                         <p class="text-2xl lowercase">
                             starting &#64;
-                            {{
-                                (next | async)?.event_start * 1000
-                                    | date: 'h:mma'
-                            }}
+                            {{ next_bkn?.event_start * 1000 | date: 'h:mma' }}
                         </p>
-                    </ng-container>
-                    <ng-template #next_empty_state>
+                        <!-- <p class="text-xl" *ngIf="!hide_meeting_details">
+                            {{ 'APP.BOOKING_PANEL.HOST' | translate }}
+                            {{ next_bkn?.organiser?.name || next_bkn?.host }}
+                        </p> -->
+                    } @else {
                         <p class="text-2xl font-medium opacity-60">
                             {{ 'APP.BOOKING_PANEL.NO_UPCOMING' | translate }}
                         </p>
-                    </ng-template>
+                    }
                 </div>
             </main>
             <footer
@@ -100,29 +101,28 @@ import { PanelStateService } from './panel-state.service';
                     {{ time | date: 'shortTime' }}
                 </p>
             </footer>
-            <div
-                class="absolute -right-[2px] top-1/2 -translate-y-1/2"
-                *ngIf="!hide_qr && checkin"
-            >
-                <button
-                    book-tag
-                    matRipple
-                    (click)="toggleQRShow()"
-                    class="absolute left-px top-1/2 z-20 -translate-x-full -translate-y-1/2 rounded-l-lg border-y border-l border-base-300 bg-base-100 px-1 py-4 uppercase"
-                >
-                    {{ 'COMMON.BOOK' | translate }}
-                </button>
-                <div
-                    qr-code-out
-                    class="z-10 overflow-hidden rounded-l-lg border border-base-300 bg-base-100 shadow"
-                    [class.w-0]="!show_qr"
-                    [class.w-56]="show_qr"
-                >
-                    <div qr-checkin class="z-50 w-56 p-3">
-                        <img class="w-full" [src]="qr_code" />
+            @if (!hide_qr && checkin) {
+                <div class="absolute -right-[2px] top-1/2 -translate-y-1/2">
+                    <button
+                        book-tag
+                        matRipple
+                        (click)="toggleQRShow()"
+                        class="absolute left-px top-1/2 z-20 -translate-x-full -translate-y-1/2 rounded-l-lg border-y border-l border-base-300 bg-base-100 px-1 py-4 uppercase"
+                    >
+                        {{ 'COMMON.BOOK' | translate }}
+                    </button>
+                    <div
+                        qr-code-out
+                        class="z-10 overflow-hidden rounded-l-lg border border-base-300 bg-base-100 shadow"
+                        [class.w-0]="!show_qr"
+                        [class.w-56]="show_qr"
+                    >
+                        <div qr-checkin class="z-50 w-56 p-3">
+                            <img class="w-full" [src]="qr_code" />
+                        </div>
                     </div>
                 </div>
-            </div>
+            }
         </div>
     `,
     styles: [
@@ -167,13 +167,17 @@ export class EventPanelComponent extends AsyncHandler implements OnInit {
         return this._settings.get('app.background_image');
     }
 
+    public get hide_meeting_details() {
+        return this._state.setting('hide_meeting_details');
+    }
+
     public readonly logo = this._org.active_building.pipe(
         debounceTime(500),
         map(
             () =>
                 (this._settings.theme
-                    ? this._settings.get('app.logo_dark')
-                    : this._settings.get('app.logo_light')) || {},
+                    ? this._settings.get('app.logo_light')
+                    : this._settings.get('app.logo_dark')) || {},
         ),
     );
 
