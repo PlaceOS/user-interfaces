@@ -16,6 +16,13 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
             bind="join_code"
             [(model)]="join_code"
         ></i>
+        <i
+            binding
+            [sys]="id"
+            mod="HearingAugmentation"
+            bind="has_t_coil"
+            [(model)]="hearing_tloop"
+        ></i>
         <div class="flex h-full w-full flex-col items-center p-1">
             <div
                 class="relative flex w-[calc(100%-1rem)] items-center overflow-hidden px-1 pt-2"
@@ -48,7 +55,11 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
                     >
                         <img
                             class="min-h-[4rem] w-16 overflow-hidden rounded border border-[hsl(217,62%,38%)]"
-                            src="assets/loop.png"
+                            [src]="
+                                hearing_tloop
+                                    ? 'assets/loop_t.png'
+                                    : 'assets/loop.png'
+                            "
                         />
                         <p class="text-center text-base-content">
                             {{ join_code }}
@@ -169,6 +180,7 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
     standalone: false,
 })
 export class TabOutletComponent extends AsyncHandler implements OnInit {
+    public hearing_tloop = false;
     public readonly active_tab = new BehaviorSubject('');
     public readonly system$ = this._service.system;
     public readonly tabs = this._service.tabs;
