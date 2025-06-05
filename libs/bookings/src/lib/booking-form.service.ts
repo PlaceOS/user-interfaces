@@ -21,11 +21,19 @@ import {
     PlaceZone,
     showMetadata,
 } from '@placeos/ts-client';
-import { addMinutes, format, getUnixTime, startOfDay } from 'date-fns';
+import {
+    addDays,
+    addMinutes,
+    endOfDay,
+    format,
+    getUnixTime,
+    startOfDay,
+} from 'date-fns';
 import {
     BehaviorSubject,
     combineLatest,
     forkJoin,
+    lastValueFrom,
     merge,
     Observable,
     of,
@@ -608,35 +616,53 @@ export class BookingFormService extends AsyncHandler {
         if (booking.instance && !value.update_master) {
             q.instance = true;
             q.start_time = booking.booking_start;
-        }
-        const result = await saveBooking(
-            new Booking({
-                ...this._options.getValue(),
-                ...value,
-                description: value.asset_name || value.description,
-                user_name: value.user?.name || value.user_name,
-                user_email: value.user?.email || value.user_email,
-                extension_data: {
-                    ...((value as any).extension_data || {}),
-                    assets: value.assets.map((_) => _.toJSON()),
-                    group: value.group,
-                    phone: value.phone,
-                    department:
-                        value.user?.department || currentUser()?.department,
-                },
-                approved:
-                    this._settings.get('app.bookings.no_approval') === true,
-                zones: unique([...zones, ...(value.zones || [])]).filter(
-                    (_) => _,
+        } else if (
+            booking.recurrence_type &&
+            booking.recurrence_type !== 'none'
+        ) {
+            const available_period = getUnixTime(
+                endOfDay(
+                    addDays(
+                        Date.now(),
+                        this._settings.get('app.desks.available_period') || 90,
+                    ),
                 ),
-            }),
-            q,
-        )
-            .toPromise()
-            .catch((e) => {
-                this._loading.next('');
-                throw e?.error || e;
-            });
+            );
+            if (
+                !booking.recurrence_end ||
+                booking.recurrence_end > available_period
+            ) {
+                (booking as any).recurrence_end = available_period;
+            }
+        }
+        const result = await lastValueFrom(
+            saveBooking(
+                new Booking({
+                    ...this._options.getValue(),
+                    ...value,
+                    description: value.asset_name || value.description,
+                    user_name: value.user?.name || value.user_name,
+                    user_email: value.user?.email || value.user_email,
+                    extension_data: {
+                        ...((value as any).extension_data || {}),
+                        assets: value.assets.map((_) => _.toJSON()),
+                        group: value.group,
+                        phone: value.phone,
+                        department:
+                            value.user?.department || currentUser()?.department,
+                    },
+                    approved:
+                        this._settings.get('app.bookings.no_approval') === true,
+                    zones: unique([...zones, ...(value.zones || [])]).filter(
+                        (_) => _,
+                    ),
+                }),
+                q,
+            ),
+        ).catch((e) => {
+            this._loading.next('');
+            throw e?.error || e;
+        });
         if (value.assets?.length || booking.extension_data.assets?.length) {
             const requests = await validateAssetRequestsForResource(
                 { ...result, from_booking: true },
