@@ -8,6 +8,7 @@ import {
     Output,
     SimpleChanges,
 } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { ImageCarouselComponent } from 'libs/components/src/lib/image-carousel.component';
@@ -114,6 +115,7 @@ import { AssetGroup } from '../asset.class';
         TranslatePipe,
         MatRippleModule,
         CounterComponent,
+        FormsModule,
     ],
 })
 export class NewAssetDetailsComponent implements OnInit, OnChanges {
