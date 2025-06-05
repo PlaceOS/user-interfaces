@@ -322,7 +322,7 @@ export function queryAvailableAssets(
 
 export function queryGroupAvailability(
     query: BookingsQueryParams,
-    ignore?: string[],
+    ignore: string[] = [],
 ) {
     query.type = 'asset-request';
     return combineLatest([
