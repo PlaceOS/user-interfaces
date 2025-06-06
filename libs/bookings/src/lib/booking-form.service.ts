@@ -616,23 +616,23 @@ export class BookingFormService extends AsyncHandler {
         if (booking.instance && !value.update_master) {
             q.instance = true;
             q.start_time = booking.booking_start;
-        } else if (
-            booking.recurrence_type &&
-            booking.recurrence_type !== 'none'
-        ) {
+        }
+        if (value.recurrence_type && value.recurrence_type !== 'none') {
             const available_period = getUnixTime(
                 endOfDay(
                     addDays(
                         Date.now(),
-                        this._settings.get('app.desks.available_period') || 90,
+                        this._settings.get(
+                            `app.${value.booking_type}s.available_period`,
+                        ) || 90,
                     ),
                 ),
             );
             if (
-                !booking.recurrence_end ||
-                booking.recurrence_end > available_period
+                !value.recurrence_end ||
+                value.recurrence_end > available_period
             ) {
-                (booking as any).recurrence_end = available_period;
+                value.recurrence_end = available_period;
             }
         }
         const result = await lastValueFrom(

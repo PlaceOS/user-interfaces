@@ -67,7 +67,7 @@ export async function openConfirmModal(
     selector: 'confirm-modal',
     template: `
         <header
-            class="sticky top-0 z-10 m-2 h-14 w-[calc(100%-1rem)] rounded border-none bg-base-200 p-2"
+            class="sticky top-0 z-10 m-2 h-14 w-[calc(100%-1rem)] min-w-[20rem] rounded border-none bg-base-200 p-2"
         >
             <h2 class="px-2 text-xl font-medium">{{ title }}</h2>
         </header>
