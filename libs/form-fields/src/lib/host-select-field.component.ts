@@ -8,10 +8,10 @@ import {
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { currentUser, nextValueFrom, unique } from '@placeos/common';
+import { showUser } from '@placeos/ts-client';
 import { Calendar } from 'libs/calendar/src/lib/calendar.class';
 import { queryCalendars } from 'libs/calendar/src/lib/calendar.fn';
-import { showStaff } from 'libs/users/src/lib/staff.fn';
-import { User } from 'libs/users/src/lib/user.class';
+import { StaffUser, User } from 'libs/users/src/lib/user.class';
 import { combineLatest, of, zip } from 'rxjs';
 import { catchError, map, shareReplay, switchMap } from 'rxjs/operators';
 
@@ -61,10 +61,11 @@ export class HostSelectFieldComponent implements ControlValueAccessor {
         switchMap(([list]) =>
             zip(
                 ...list.map((_) =>
-                    showStaff(_.id).pipe(catchError(() => of(null))),
+                    showUser(_.id).pipe(catchError(() => of(null))),
                 ),
             ),
         ),
+        map((l) => l.filter((_) => _).map((_) => new StaffUser(_))),
         map((_) => unique([currentUser(), ..._], 'email')),
         shareReplay(1),
     );
