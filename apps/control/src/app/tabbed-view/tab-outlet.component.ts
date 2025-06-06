@@ -49,21 +49,22 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
                         [system_id]="id"
                         [enabled]="(system$ | async)?.voice_control"
                     ></voice-assistant>
-                    <div
-                        class="flex w-20 flex-col rounded bg-base-100 p-2 shadow"
-                        *ngIf="join_code"
-                    >
-                        <img
-                            class="min-h-[4rem] w-16 overflow-hidden rounded border border-[hsl(217,62%,38%)]"
-                            [src]="
-                                hearing_tloop
-                                    ? 'assets/loop_t.png'
-                                    : 'assets/loop.png'
-                            "
-                        />
-                        <p class="text-center text-base-content">
-                            {{ join_code }}
-                        </p>
+                    <div class="max-h-full w-16" *ngIf="join_code">
+                        <div class="space-y-1 rounded bg-base-100 p-2 shadow">
+                            <img
+                                class="w-16 overflow-hidden rounded border border-[hsl(217,62%,38%)]"
+                                [src]="
+                                    hearing_tloop
+                                        ? 'assets/loop_t.png'
+                                        : 'assets/loop.png'
+                                "
+                            />
+                            <p
+                                class="text-center font-mono text-xs text-base-content"
+                            >
+                                {{ join_code || '=CODE=' }}
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
