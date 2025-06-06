@@ -4,6 +4,7 @@ import { Component, EventEmitter, Inject, Output } from '@angular/core';
 import {
     FormControl,
     FormGroup,
+    FormsModule,
     ReactiveFormsModule,
     Validators,
 } from '@angular/forms';
@@ -338,6 +339,7 @@ export interface CateringItemModalData {
         SettingsToggleComponent,
         MatChipsModule,
         ReactiveFormsModule,
+        FormsModule,
     ],
 })
 export class CateringItemModalComponent {
