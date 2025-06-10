@@ -13,6 +13,7 @@ import {
     FormsModule,
     ReactiveFormsModule,
     UntypedFormGroup,
+    Validators,
 } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
@@ -80,8 +81,21 @@ import { forkJoin, lastValueFrom, Observable } from 'rxjs';
                                     @let question = questions[q_id];
                                     @if (question) {
                                         <div class="py-2">
-                                            <h4 class="mb-2 font-medium">
-                                                {{ question.title }}
+                                            <h4
+                                                class="mb-2 flex items-center justify-between"
+                                            >
+                                                <div class="font-medium">
+                                                    {{ question.title }}
+                                                </div>
+                                                @if (question.required) {
+                                                    <span
+                                                        class="rounded bg-warning px-2 py-1 font-mono text-[0.625rem] text-warning-content"
+                                                        >{{
+                                                            'COMMON.REQUIRED'
+                                                                | translate
+                                                        }}</span
+                                                    >
+                                                }
                                             </h4>
                                             @switch (question.type) {
                                                 @case ('rating') {
@@ -94,6 +108,7 @@ import { forkJoin, lastValueFrom, Observable } from 'rxjs';
                                                             track idx
                                                         ) {
                                                             <button
+                                                                matRipple
                                                                 class="h-12 w-12 border-y border-secondary first:rounded-l first:border-l last:rounded-r last:!border-r"
                                                                 [class.bg-secondary]="
                                                                     form.value[
@@ -255,7 +270,7 @@ import { forkJoin, lastValueFrom, Observable } from 'rxjs';
                                     <button
                                         btn
                                         matRipple
-                                        class="inverse w-32"
+                                        class="inverse w-32 bg-base-100"
                                         (click)="previousPage()"
                                     >
                                         {{ 'COMMON.PREVIOUS' | translate }}
@@ -443,22 +458,25 @@ export class SurveyOutletComponent
     private _generateForm() {
         const controls = {};
         for (const q_id in this.questions) {
+            const v = this.questions[q_id].required
+                ? [Validators.required]
+                : [];
             switch (this.questions[q_id].type) {
                 case 'rating':
-                    controls[q_id] = new FormControl<number>(null, []);
+                    controls[q_id] = new FormControl<number>(null, v);
                     break;
                 case 'text':
                 case 'comment':
-                    controls[q_id] = new FormControl<string>('', []);
+                    controls[q_id] = new FormControl<string>('', v);
                     break;
                 case 'dropdown':
-                    controls[q_id] = new FormControl<string>('', []);
+                    controls[q_id] = new FormControl<string>('', v);
                     break;
                 case 'radiogroup':
-                    controls[q_id] = new FormControl<string>('', []);
+                    controls[q_id] = new FormControl<string>('', v);
                     break;
                 case 'checkbox':
-                    controls[q_id] = new FormControl<string[]>([], []);
+                    controls[q_id] = new FormControl<string[]>([], v);
                     break;
             }
         }
