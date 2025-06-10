@@ -2,16 +2,21 @@ import { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { SettingsService } from '@placeos/common';
-import { Question, UISurveyObj, UISurveyPage } from '@placeos/survey-suite';
+import {
+    Question,
+    translateToSurveyPage,
+    UISurveyObj,
+    UISurveyPage,
+} from '@placeos/survey-suite';
+import { Survey } from '@placeos/ts-client';
 import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
-import { Model } from 'survey-core';
 import { QuestionBankService } from './question-bank.service';
 
 @Injectable()
 export class SurveyBuilderService {
     public selectedPageIndex = 0;
+    public preview_survey: Survey;
     protected survey: UISurveyObj;
-    protected surveyModel: Model;
 
     constructor(
         private bank: QuestionBankService,
@@ -121,7 +126,10 @@ export class SurveyBuilderService {
                 logoPosition: 'right',
             };
         }
-        this.surveyModel = new Model({ ...logo, ...this.survey });
+        this.preview_survey = {
+            ...this.survey,
+            pages: translateToSurveyPage(this.survey.pages),
+        };
     }
 
     private removeSurveyPage(index: number) {

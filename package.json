@@ -50,8 +50,6 @@
         "qr-scanner": "^1.4.2",
         "quill": "^2.0.3",
         "rxjs": "^7.4.0",
-        "survey-angular-ui": "^2.0.0",
-        "survey-core": "^2.0.0",
         "tslib": "^2.3.0",
         "zone.js": "0.15.0"
     },

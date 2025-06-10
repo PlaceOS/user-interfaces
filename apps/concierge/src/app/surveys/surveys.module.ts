@@ -18,33 +18,30 @@ import { BuildingListComponent } from './pages/building-list.component';
 import { NotFoundComponent } from './pages/not-found.component';
 
 import { SurveySuiteModule } from '@placeos/survey-suite';
-import { SurveyModule } from 'survey-angular-ui';
 import { QuestionBankComponent } from './components/question-bank.component';
 import { SearchInputComponent } from './components/search-input.component';
 import { ModQuestionOverlayComponent } from './overlays/mod-question-overlay.component';
-import { ModSurveyComponent } from './pages/mod-survey.component';
-import { RunSurveyComponent } from './pages/run-survey.component';
 import { SurveyListingsComponent } from './pages/survey-listings.component';
+import { SurveyManageComponent } from './pages/survey-manage.component';
 import { SurveyResponsesComponent } from './pages/survey-responses.component';
 import { QuestionBankService } from './services/question-bank.service';
 import { SurveyBuilderService } from './services/survey-builder.service';
 import { SurveyService } from './services/survey.service';
+import { SurveyOutletComponent } from './survey-outlet.component';
 import { SurveyComponent } from './survey.component';
-
-// import { StylesManager } from 'survey-core';
 
 // //SurveyJS styling
 // StylesManager.applyTheme('modern');
 
 const routes: Route[] = [
-    { path: 'run/:id', component: RunSurveyComponent },
+    { path: 'run/:id', component: SurveyOutletComponent },
     {
         path: '',
         component: SurveyComponent,
         children: [
             { path: '', component: BuildingListComponent },
             { path: 'survey-list/:id', component: SurveyListingsComponent },
-            { path: 'builder', component: ModSurveyComponent },
+            { path: 'builder', component: SurveyManageComponent },
             { path: 'responses/:id', component: SurveyResponsesComponent },
             { path: '**', pathMatch: 'full', component: NotFoundComponent },
         ],
@@ -59,10 +56,9 @@ const COMPONENTS = [
     NotFoundComponent,
     ModQuestionOverlayComponent,
     QuestionBankComponent,
-    ModSurveyComponent,
+    SurveyManageComponent,
     SearchInputComponent,
     SurveyListingsComponent,
-    RunSurveyComponent,
     SurveyResponsesComponent,
 ];
 
@@ -86,7 +82,7 @@ const COMPONENTS = [
         MatFormFieldModule,
         UIModule,
         SurveySuiteModule,
-        SurveyModule,
+        SurveyOutletComponent,
     ],
     providers: [SurveyBuilderService, QuestionBankService, SurveyService],
 })

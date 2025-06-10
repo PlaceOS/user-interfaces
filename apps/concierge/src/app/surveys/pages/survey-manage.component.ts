@@ -10,7 +10,7 @@ import { SurveyBuilderService } from '../services/survey-builder.service';
 import { SurveyOptions, SurveyService } from '../services/survey.service';
 
 @Component({
-    selector: 'mod-survey',
+    selector: 'survey-manage',
     styles: [
         `
             :host {
@@ -314,12 +314,13 @@ import { SurveyOptions, SurveyService } from '../services/survey.service';
 
                 <div
                     *ngIf="view === 'preview'"
-                    class="flex h-full w-full flex-col overflow-y-auto px-6"
+                    class="flex h-full w-full flex-col overflow-y-auto"
                 >
-                    <survey
-                        *ngIf="service.surveyModel"
-                        [model]="service.surveyModel"
-                    ></survey>
+                    <survey-outlet
+                        *ngIf="service.preview_survey"
+                        [survey]="service.preview_survey"
+                        [preview]="true"
+                    ></survey-outlet>
                 </div>
             </div>
         </div>
@@ -339,7 +340,7 @@ import { SurveyOptions, SurveyService } from '../services/survey.service';
     `,
     standalone: false,
 })
-export class ModSurveyComponent extends AsyncHandler implements OnInit {
+export class SurveyManageComponent extends AsyncHandler implements OnInit {
     public view: 'design' | 'preview' = 'design';
     public id = '';
     public bld_id = '';
