@@ -6,10 +6,7 @@ import {
     QuestionTypeOptions,
 } from '@placeos/survey-suite';
 import { shareReplay } from 'rxjs/operators';
-import {
-    QuestionBankService,
-    QuestionFilter,
-} from '../services/question-bank.service';
+import { QuestionBankService, QuestionFilter } from './question-bank.service';
 
 @Component({
     selector: 'question-bank',

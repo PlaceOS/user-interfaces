@@ -6,8 +6,8 @@ import { OrganisationService } from '@placeos/organisation';
 import { TriggerOptions, UISurveyPage } from '@placeos/survey-suite';
 import { combineLatest } from 'rxjs';
 import { map, shareReplay } from 'rxjs/operators';
-import { SurveyBuilderService } from '../services/survey-builder.service';
-import { SurveyOptions, SurveyService } from '../services/survey.service';
+import { SurveyBuilderService } from './survey-builder.service';
+import { SurveyOptions, SurveyService } from './survey.service';
 
 @Component({
     selector: 'survey-manage',

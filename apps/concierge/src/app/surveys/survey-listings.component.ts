@@ -6,7 +6,7 @@ import { BehaviorSubject, combineLatest, of } from 'rxjs';
 
 import { querySurveys } from '@placeos/ts-client';
 import { catchError, shareReplay, switchMap, tap } from 'rxjs/operators';
-import { SurveyService } from '../services/survey.service';
+import { SurveyService } from './survey.service';
 
 @Component({
     selector: 'survey-listings',

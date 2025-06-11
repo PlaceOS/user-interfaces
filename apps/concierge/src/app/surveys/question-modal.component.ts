@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, ViewChild } from '@angular/core';
+import { Component, Inject, ViewChild } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import {
     generateNewQuestion,
@@ -7,7 +7,7 @@ import {
 } from '@placeos/survey-suite';
 
 @Component({
-    selector: 'mod-question-overlay',
+    selector: 'question-modal',
     styles: [],
     template: `
         <header
@@ -15,7 +15,7 @@ import {
         >
             <h2 class="px-2 text-xl font-medium">
                 {{
-                    (isEdit
+                    (is_edit
                         ? 'APP.CONCIERGE.SURVEY_QUESTION_EDIT'
                         : 'APP.CONCIERGE.SURVEY_QUESTION_NEW'
                     ) | translate
@@ -28,7 +28,7 @@ import {
         <main class="min-w-[40rem] overflow-x-hidden">
             <section>
                 <placeos-question
-                    #questionElement
+                    #question
                     [isCard]="false"
                     [value]="question"
                 ></placeos-question>
@@ -38,30 +38,28 @@ import {
             <button
                 btn
                 matRipple
-                [disabled]="!questionElement.valid"
+                [disabled]="!question_el.valid"
                 (click)="done()"
             >
-                {{ isEdit ? 'Update' : 'Add to bank' }}
+                {{ is_edit ? 'Update' : 'Add to bank' }}
             </button>
         </div>
     `,
     standalone: false,
 })
-export class ModQuestionOverlayComponent implements OnInit {
-    @ViewChild('questionElement') questionElement: QuestionComponent;
+export class QuestionModalComponent {
+    @ViewChild('question') question_el: QuestionComponent;
 
-    isEdit: boolean = false;
-    question: Question;
+    public is_edit = false;
+    public question: Question;
 
     constructor(
         @Inject(MAT_DIALOG_DATA) private _data: Question,
-        private _dialog_ref: MatDialogRef<ModQuestionOverlayComponent>,
+        private _dialog_ref: MatDialogRef<QuestionModalComponent>,
     ) {
-        this.isEdit = !!(this._data?.id > 0);
+        this.is_edit = !!(this._data?.id > 0);
         this.question = this._data || generateNewQuestion();
     }
-
-    ngOnInit(): void {}
 
     public done() {
         this._dialog_ref.close(this.question);

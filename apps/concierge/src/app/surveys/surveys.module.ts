@@ -14,21 +14,21 @@ import { Route, RouterModule } from '@angular/router';
 import { ComponentsModule } from '@placeos/components';
 import { UIModule } from '../ui/ui.module';
 
-import { BuildingListComponent } from './pages/building-list.component';
-import { NotFoundComponent } from './pages/not-found.component';
+import { BuildingListComponent } from './building-list.component';
+import { NotFoundComponent } from './not-found.component';
 
 import { SurveySuiteModule } from '@placeos/survey-suite';
-import { QuestionBankComponent } from './components/question-bank.component';
-import { SearchInputComponent } from './components/search-input.component';
-import { ModQuestionOverlayComponent } from './overlays/mod-question-overlay.component';
-import { SurveyListingsComponent } from './pages/survey-listings.component';
-import { SurveyManageComponent } from './pages/survey-manage.component';
-import { SurveyResponsesComponent } from './pages/survey-responses.component';
-import { QuestionBankService } from './services/question-bank.service';
-import { SurveyBuilderService } from './services/survey-builder.service';
-import { SurveyService } from './services/survey.service';
+import { QuestionBankComponent } from './question-bank.component';
+import { QuestionBankService } from './question-bank.service';
+import { QuestionModalComponent } from './question-modal.component';
+import { SearchInputComponent } from './search-input.component';
+import { SurveyBuilderService } from './survey-builder.service';
+import { SurveyListingsComponent } from './survey-listings.component';
+import { SurveyManageComponent } from './survey-manage.component';
 import { SurveyOutletComponent } from './survey-outlet.component';
+import { SurveyResponsesComponent } from './survey-responses.component';
 import { SurveyComponent } from './survey.component';
+import { SurveyService } from './survey.service';
 
 // //SurveyJS styling
 // StylesManager.applyTheme('modern');
@@ -54,7 +54,7 @@ const COMPONENTS = [
     SurveyComponent,
     BuildingListComponent,
     NotFoundComponent,
-    ModQuestionOverlayComponent,
+    QuestionModalComponent,
     QuestionBankComponent,
     SurveyManageComponent,
     SearchInputComponent,

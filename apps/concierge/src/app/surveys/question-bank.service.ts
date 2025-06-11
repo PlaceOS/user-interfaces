@@ -17,7 +17,7 @@ import {
 import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { catchError, filter, finalize, first, map, tap } from 'rxjs/operators';
-import { ModQuestionOverlayComponent } from '../overlays/mod-question-overlay.component';
+import { QuestionModalComponent } from './question-modal.component';
 
 export interface QuestionFilter {
     search: string;
@@ -149,7 +149,7 @@ export class QuestionBankService extends AsyncHandler {
     }
 
     public modQuestionOverlay(question?: Question, isEdit?: boolean) {
-        const ref = this._dialog.open(ModQuestionOverlayComponent, {
+        const ref = this._dialog.open(QuestionModalComponent, {
             data: question,
         });
 
