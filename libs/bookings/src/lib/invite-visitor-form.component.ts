@@ -29,6 +29,7 @@ import {
 import { getInvalidFields, randomString } from 'libs/common/src/lib/general';
 import { notifyError } from 'libs/common/src/lib/notifications';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { SafePipe } from 'libs/components/src/lib/safe.pipe';
 import { SanitizePipe } from 'libs/components/src/lib/sanitise.pipe';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { DateFieldComponent } from 'libs/form-fields/src/lib/date-field.component';
@@ -417,6 +418,7 @@ import { Booking } from './booking.class';
         MatProgressSpinnerModule,
         FormsModule,
         SanitizePipe,
+        SafePipe,
     ],
 })
 export class InviteVisitorFormComponent
