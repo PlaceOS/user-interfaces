@@ -325,6 +325,11 @@ export class PanelStateService extends AsyncHandler {
 
         const min_duration = this._settings.getValue().min_duration;
         const space = await this._space_pipe.transform(this.system);
+        this.timeout(
+            'reset_view',
+            () => this._dialog.closeAll(),
+            2 * 60 * 1000,
+        );
         const details = await openBookingModal(
             {
                 ...this._settings.getValue(),
@@ -359,9 +364,15 @@ export class PanelStateService extends AsyncHandler {
         });
         this._events.clearForm();
         details.close();
+        this.clearTimeout('reset_view');
     }
 
     public async confirmBookNow() {
+        this.timeout(
+            'reset_view',
+            () => this._dialog.closeAll(),
+            2 * 60 * 1000,
+        );
         const date = Date.now();
         const current = await nextValueFrom(this._current);
         if (
@@ -408,6 +419,7 @@ export class PanelStateService extends AsyncHandler {
             notifyError(`Error creating meeting. ${e}`);
         }
         ref.close();
+        this.clearTimeout('reset_view');
     }
 
     /**
@@ -442,6 +454,11 @@ export class PanelStateService extends AsyncHandler {
      * Open confirmation modal for starting the meeting
      */
     public async confirmStart() {
+        this.timeout(
+            'reset_view',
+            () => this._dialog.closeAll(),
+            2 * 60 * 1000,
+        );
         const details = await openConfirmModal(
             {
                 title: 'Do you wish to start your meeting?',
@@ -457,6 +474,7 @@ export class PanelStateService extends AsyncHandler {
         );
         if (details.reason !== 'done') return;
         this.startMeeting();
+        this.clearTimeout('reset_view');
     }
 
     /**
@@ -483,6 +501,11 @@ export class PanelStateService extends AsyncHandler {
      * Open confirmation modal for ending the meeting
      */
     public async confirmEnd() {
+        this.timeout(
+            'reset_view',
+            () => this._dialog.closeAll(),
+            2 * 60 * 1000,
+        );
         const details = await openConfirmModal(
             {
                 title: 'Are you sure want to end your meeting?',
@@ -499,6 +522,7 @@ export class PanelStateService extends AsyncHandler {
         details.loading('Ending Meeting...');
         await this.endCurrent().catch();
         details.close();
+        this.clearTimeout('reset_view');
     }
 
     /**
@@ -551,6 +575,11 @@ export class PanelStateService extends AsyncHandler {
      * Open confirmation modal for calling waiter
      */
     public async confirmWaiter() {
+        this.timeout(
+            'reset_view',
+            () => this._dialog.closeAll(),
+            2 * 60 * 1000,
+        );
         const details = await openConfirmModal(
             {
                 title: 'Do you wish to call a waiter?',
@@ -564,6 +593,7 @@ export class PanelStateService extends AsyncHandler {
         );
         if (details.reason !== 'done') return;
         this.callWaiter();
+        this.clearTimeout('reset_view');
     }
 
     /**
