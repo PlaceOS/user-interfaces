@@ -21,7 +21,9 @@ import { SurveySuiteModule } from '@placeos/survey-suite';
 import { QuestionBankComponent } from './question-bank.component';
 import { QuestionBankService } from './question-bank.service';
 import { QuestionModalComponent } from './question-modal.component';
+import { QuestionPipe } from './question.pipe';
 import { SearchInputComponent } from './search-input.component';
+import { SurveyBuilderComponent } from './survey-builder.component';
 import { SurveyBuilderService } from './survey-builder.service';
 import { SurveyListingsComponent } from './survey-listings.component';
 import { SurveyManageComponent } from './survey-manage.component';
@@ -40,8 +42,9 @@ const routes: Route[] = [
         component: SurveyComponent,
         children: [
             { path: '', component: BuildingListComponent },
-            { path: 'survey-list/:id', component: SurveyListingsComponent },
-            { path: 'builder', component: SurveyManageComponent },
+            { path: 'list/:id', component: SurveyListingsComponent },
+            { path: 'builder', component: SurveyBuilderComponent },
+            { path: 'builder-old', component: SurveyManageComponent },
             { path: 'responses/:id', component: SurveyResponsesComponent },
             { path: '**', pathMatch: 'full', component: NotFoundComponent },
         ],
@@ -60,6 +63,12 @@ const COMPONENTS = [
     SearchInputComponent,
     SurveyListingsComponent,
     SurveyResponsesComponent,
+];
+
+const STANDALONE_COMPONENTS = [
+    QuestionPipe,
+    SurveyOutletComponent,
+    SurveyBuilderComponent,
 ];
 
 @NgModule({
@@ -82,7 +91,7 @@ const COMPONENTS = [
         MatFormFieldModule,
         UIModule,
         SurveySuiteModule,
-        SurveyOutletComponent,
+        ...STANDALONE_COMPONENTS,
     ],
     providers: [SurveyBuilderService, QuestionBankService, SurveyService],
 })

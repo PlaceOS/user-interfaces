@@ -1294,6 +1294,7 @@
             "SURVEY_QUESTION_EMPTY_ACTION": "Click + above to add some questions",
             "SURVEY_DND_INFO": "Drag and drop questions from the question bank here",
             "SURVEY_COMPLETE": "Thank you for completing the survey.",
+            "SURVEY_BUILDER": "Builder",
             "PARKING_HEADER": "Parking Management",
             "PARKING_BOOK_HEADER": "Parking Reservations",
             "PARKING_ADD": "Add Reservation",

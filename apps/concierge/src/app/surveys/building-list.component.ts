@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
-import { flatten, SettingsService } from '@placeos/common';
+import { flatten } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
-import { queryAnswers, querySurveys } from '@placeos/ts-client';
-import { combineLatest, forkJoin } from 'rxjs';
-import { map, shareReplay, startWith, switchMap } from 'rxjs/operators';
+import { combineLatest } from 'rxjs';
+import { map, shareReplay, startWith } from 'rxjs/operators';
+import { NewSurveyService } from './new-survey.service';
 
 @Component({
     selector: 'building-list',
@@ -26,7 +26,7 @@ import { map, shareReplay, startWith, switchMap } from 'rxjs/operators';
                     <a
                         matRipple
                         class="relative flex space-x-4 overflow-hidden rounded-xl border border-base-300 bg-base-100 shadow hover:border-info"
-                        [routerLink]="['/surveys', 'survey-list', building.id]"
+                        [routerLink]="['/surveys', 'list', building.id]"
                     >
                         <div
                             class="flex h-40 w-32 items-center justify-center bg-base-300"
@@ -115,26 +115,8 @@ import { map, shareReplay, startWith, switchMap } from 'rxjs/operators';
 })
 export class BuildingListComponent {
     public readonly buildings$ = this._org.building_list;
-
-    public readonly surveys$ = this.buildings$.pipe(
-        switchMap((bld_list) =>
-            forkJoin(
-                bld_list.map((bld) => querySurveys({ building_id: bld.id })),
-            ),
-        ),
-        shareReplay(1),
-    );
-
-    public readonly answers$ = this.surveys$.pipe(
-        switchMap((surveys) =>
-            forkJoin(
-                flatten(surveys).map((survey) =>
-                    queryAnswers({ survey_id: survey.id }),
-                ),
-            ),
-        ),
-        shareReplay(1),
-    );
+    public readonly surveys$ = this._survey.survey_list$;
+    public readonly answers$ = this._survey.answer_list$;
 
     public readonly stats$ = combineLatest([
         this.buildings$,
@@ -146,7 +128,9 @@ export class BuildingListComponent {
             const answers_list = flatten(answers);
             for (let i = 0; i < bld_list.length; i++) {
                 const bld = bld_list[i];
-                const survey_list = surveys[i];
+                const survey_list = surveys.filter(
+                    (_) => _.building_id === bld.id,
+                );
                 mapping[bld.id] = {
                     live: survey_list.filter(
                         (_) => `${_.trigger}`.toLowerCase() !== 'none',
@@ -167,6 +151,6 @@ export class BuildingListComponent {
 
     constructor(
         private _org: OrganisationService,
-        private _settings: SettingsService,
+        private _survey: NewSurveyService,
     ) {}
 }

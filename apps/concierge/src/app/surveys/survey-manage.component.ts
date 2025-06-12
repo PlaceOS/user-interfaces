@@ -41,7 +41,7 @@ import { SurveyOptions, SurveyService } from './survey.service';
                     matRipple
                     [routerLink]="[
                         '/surveys',
-                        'survey-list',
+                        'list',
                         bld_id || survey?.building_id,
                     ]"
                 >

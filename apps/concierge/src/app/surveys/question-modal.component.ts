@@ -1,10 +1,13 @@
 import { Component, Inject, ViewChild } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { notifySuccess } from '@placeos/common';
 import {
     generateNewQuestion,
     Question,
     QuestionComponent,
 } from '@placeos/survey-suite';
+import { addQuestion, updateQuestion } from '@placeos/ts-client';
+import { lastValueFrom } from 'rxjs';
 
 @Component({
     selector: 'question-modal',
@@ -39,7 +42,7 @@ import {
                 btn
                 matRipple
                 [disabled]="!question_el.valid"
-                (click)="done()"
+                (click)="save()"
             >
                 {{ is_edit ? 'Update' : 'Add to bank' }}
             </button>
@@ -51,6 +54,7 @@ export class QuestionModalComponent {
     @ViewChild('question') question_el: QuestionComponent;
 
     public is_edit = false;
+    public loading = false;
     public question: Question;
 
     constructor(
@@ -61,7 +65,14 @@ export class QuestionModalComponent {
         this.question = this._data || generateNewQuestion();
     }
 
-    public done() {
-        this._dialog_ref.close(this.question);
+    public async save() {
+        if (!this.question_el.valid) return;
+        this.loading = true;
+        const call = this.is_edit
+            ? updateQuestion(`${this.question.id}`, this.question_el.value)
+            : addQuestion(this.question_el.value);
+        await lastValueFrom(call);
+        this._dialog_ref.close(true);
+        notifySuccess('Successfully updated question bank.');
     }
 }

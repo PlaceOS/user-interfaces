@@ -1,12 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
-import { BehaviorSubject, combineLatest, of } from 'rxjs';
 
-import { querySurveys } from '@placeos/ts-client';
-import { catchError, shareReplay, switchMap, tap } from 'rxjs/operators';
-import { SurveyService } from './survey.service';
+import { Survey } from '@placeos/ts-client';
+import { NewSurveyService } from './new-survey.service';
 
 @Component({
     selector: 'survey-listings',
@@ -127,7 +124,7 @@ import { SurveyService } from './survey.service';
                             }}</span>
                         </div>
                     </a>
-                    <button mat-menu-item (click)="onDelete(row.id)">
+                    <button mat-menu-item (click)="remove(row)">
                         <div class="flex items-center space-x-2">
                             <icon class="text-xl text-error"> delete </icon>
                             <span>{{
@@ -153,32 +150,16 @@ import { SurveyService } from './survey.service';
     standalone: false,
 })
 export class SurveyListingsComponent extends AsyncHandler implements OnInit {
-    private _building_id = new BehaviorSubject('');
-    private _change = new BehaviorSubject(0);
-    public readonly loading$ = new BehaviorSubject('');
-    public readonly surveys$ = combineLatest([
-        this._building_id,
-        this._change,
-    ]).pipe(
-        switchMap(([bld_id]) => {
-            return querySurveys({ building_id: bld_id }).pipe(
-                catchError(() => of([])),
-            );
-        }),
-        tap((list) => console.log('List:', list)),
-        shareReplay(1),
-    );
+    public readonly loading$ = this._survey.loading$;
+    public readonly surveys$ = this._survey.building_surveys$;
 
     public get building() {
-        return this._org.buildings.find(
-            (_) => _.id === this._building_id.getValue(),
-        );
+        return this._survey.building;
     }
 
     constructor(
-        private _org: OrganisationService,
         private _route: ActivatedRoute,
-        private _service: SurveyService,
+        private _survey: NewSurveyService,
     ) {
         super();
     }
@@ -187,14 +168,12 @@ export class SurveyListingsComponent extends AsyncHandler implements OnInit {
         this.subscription(
             'route-param',
             this._route.paramMap.subscribe((params) =>
-                this._building_id.next(params.get('id') || ''),
+                this._survey.setBuilding(params.get('id') || ''),
             ),
         );
-        this.timeout('load', () => this._change.next(Date.now()));
     }
 
-    public async onDelete(id: number) {
-        await this._service.confirmDeleteSurvey(id);
-        this.timeout('load', () => this._change.next(Date.now()));
+    public async remove(survey: Survey) {
+        await this._survey.removeSurvey(survey);
     }
 }
