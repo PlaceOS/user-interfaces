@@ -6,6 +6,7 @@ import {
     nextValueFrom,
 } from '@placeos/common';
 import {
+    PlaceMetadata,
     PlaceZoneMetadata,
     authority,
     listChildMetadata,
@@ -25,6 +26,7 @@ import {
     tap,
 } from 'rxjs/operators';
 
+import { Desk } from '@placeos/organisation';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { Space } from 'libs/spaces/src/lib/space.class';
 import { searchStaff } from 'libs/users/src/lib/staff.fn';
@@ -117,6 +119,30 @@ export class ExploreSearchService {
                                           ),
                                       } as any),
                               ),
+                      ),
+                  )
+                : of([]),
+        ),
+        catchError(() => []),
+    );
+
+    private _desk_search: Observable<Desk[]> = combineLatest([
+        this._org.active_building,
+    ]).pipe(
+        debounceTime(400),
+        tap(() => this._loading.next(true)),
+        switchMap(([bld]) =>
+            bld
+                ? listChildMetadata(bld.id, { name: 'desks' }).pipe(
+                      catchError(() => of([] as PlaceMetadata[])),
+                      map((i) =>
+                          flatten(
+                              i.map((j) =>
+                                  (j.metadata.desks?.details || []).map(
+                                      (k) => new Desk({ ...k, zone: j.zone }),
+                                  ),
+                              ),
+                          ),
                       ),
                   )
                 : of([]),
@@ -233,6 +259,7 @@ export class ExploreSearchService {
     public readonly search_results: Observable<SearchResult[]> = combineLatest([
         this._filter,
         this._space_search,
+        this._desk_search,
         this._user_search,
         this._emergency_contacts,
         this._role_assigned_contacts,
@@ -244,6 +271,7 @@ export class ExploreSearchService {
             ([
                 filter,
                 spaces,
+                desks,
                 users,
                 contacts,
                 roled_contacts,
@@ -264,6 +292,17 @@ export class ExploreSearchService {
                             email: s.email,
                             name: s.display_name || s.name,
                             description: `Capacity: ${s.capacity} `,
+                        })),
+                    );
+                }
+                if (!this.hideItem('desks')) {
+                    results = results.concat(
+                        desks.map((s) => ({
+                            id: s.id,
+                            type: 'feature',
+                            email: s.assigned_to,
+                            description: s.id,
+                            name: s.name || s.id,
                         })),
                     );
                 }
