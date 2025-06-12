@@ -3,9 +3,11 @@ import {
     ElementRef,
     EventEmitter,
     Input,
+    OnInit,
     Output,
     ViewChild,
 } from '@angular/core';
+import { AsyncHandler, SettingsService } from '@placeos/common';
 import { BuildingLevel, OrganisationService } from '@placeos/organisation';
 import { MapMetadata } from './interactive-map.component';
 
@@ -24,7 +26,7 @@ const DEFAULT_ZOOM = 18.5;
     `,
     styles: [``],
 })
-export class CiscoMapComponent {
+export class CiscoMapComponent extends AsyncHandler implements OnInit {
     @Input() public zone: BuildingLevel;
     @Input() public metadata: MapMetadata;
     @Input() public options: any;
@@ -38,10 +40,25 @@ export class CiscoMapComponent {
     private _mapContainer!: ElementRef<HTMLDivElement>;
     private _map: SpacesRichMap;
 
-    constructor(private _org: OrganisationService) {}
+    constructor(
+        private _org: OrganisationService,
+        private _settings: SettingsService,
+    ) {
+        super();
+    }
 
     public ngOnInit(): void {
-        this._initialiseMap();
+        this._injectScript();
+        this.timeout('init', () => this._initialiseMap());
+    }
+
+    private _injectScript(): void {
+        if (document.getElementById('cisco-spaces-rich-maps-script')) return;
+        const script = document.createElement('script');
+        script.id = 'cisco-spaces-rich-maps-script';
+        script.src =
+            'https://maps.ciscospaces.io/js/spaces-rich-maps-2.0-beta.min.js';
+        document.body.appendChild(script);
     }
 
     private _initialiseMap(): void {
@@ -49,12 +66,12 @@ export class CiscoMapComponent {
             console.error('Cisco Spaces Rich Map is not defined');
             return;
         }
-        const accessToken = '<your-spaces-rich-map-access-token>';
+        const config = this._settings.get('app.explore.cisco_maps');
         this._map = new (SpacesRichMap as any)({
             mapContainer: 'cisco-map-container',
-            token: accessToken,
-            tenantId: 'spaces-tenant-id',
-            locationId: 'spaces-location-id',
+            token: config.token,
+            tenantId: config.tenant_id,
+            locationId: config.location_id,
             defaultFloor: 0,
             initialPos: [0, 0],
             initialZoom: 20,
@@ -63,5 +80,6 @@ export class CiscoMapComponent {
             poiLegendHolder: 'poi-switch',
             hideNavigationControls: true,
         });
+        console.log('Map initialized', this._map);
     }
 }

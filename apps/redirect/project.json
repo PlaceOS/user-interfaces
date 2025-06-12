@@ -20,6 +20,11 @@
                     {
                         "glob": "**/*",
                         "input": "apps/redirect/public"
+                    },
+                    {
+                        "glob": "oauth-resp.html",
+                        "input": "node_modules/@placeos/ts-client/dist/",
+                        "output": "/"
                     }
                 ],
                 "styles": ["apps/redirect/src/styles.css"],

@@ -39,6 +39,7 @@ import { BuildingSelectComponent } from './building-select.component';
 import { BuildingPipe } from './building.pipe';
 import { ChangelogModalComponent } from './changelog-modal.component';
 import { ChatComponent } from './chat/chat.component';
+import { CiscoMapComponent } from './cisco-map.component';
 import { ConfirmModalComponent } from './confirm-modal.component';
 import { CustomTooltipComponent } from './custom-tooltip.component';
 import { DateFromPipe } from './date-from.pipe';
@@ -168,6 +169,8 @@ const STANDALONE_COMPONENTS = [
     StatusPillComponent,
     DeskHeightPresetsComponent,
     PrintableComponent,
+
+    CiscoMapComponent,
 
     UnauthorisedComponent,
     FullscreenModalShellComponent,

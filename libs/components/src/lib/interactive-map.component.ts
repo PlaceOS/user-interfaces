@@ -9,7 +9,12 @@ import {
     SimpleChanges,
 } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
-import { AsyncHandler, MapsPeopleService, log } from '@placeos/common';
+import {
+    AsyncHandler,
+    MapsPeopleService,
+    SettingsService,
+    log,
+} from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import {
     ViewAction,
@@ -18,6 +23,7 @@ import {
     ViewerStyles,
 } from '@placeos/svg-viewer';
 import { ExploreStateService } from 'libs/explore/src/lib/explore-state.service';
+import { CiscoMapComponent } from './cisco-map.component';
 import { IconComponent } from './icon.component';
 import { MapRendererComponent } from './map-renderer.component';
 import { MapsIndoorsComponent } from './maps-indoors.component';
@@ -43,9 +49,24 @@ export interface MapMetadata {
 @Component({
     selector: 'interactive-map',
     template: `
-        <ng-container
-            *ngIf="!(use_mapsindoors$ | async); else mapsindoors_template"
-        >
+        @if (use_mapsindoors$ | async) {
+            <maps-indoors
+                [zone]="location"
+                (zoneChange)="onLevelChange($event)"
+                [(zoom)]="zoom"
+                (zoomChange)="zoomChange.next($event)"
+                [options]="options"
+                [reset]="reset"
+                [focus]="focus"
+                [metadata]="metadata"
+            >
+                <ng-content></ng-content>
+            </maps-indoors>
+        } @else if (use_cisco_maps) {
+            <cisco-map>
+                <ng-content></ng-content>
+            </cisco-map>
+        } @else {
             <map-renderer
                 [src]="src"
                 [(zoom)]="zoom"
@@ -59,21 +80,7 @@ export interface MapMetadata {
             >
                 <ng-content></ng-content>
             </map-renderer>
-        </ng-container>
-        <ng-template #mapsindoors_template>
-            <maps-indoors
-                [zone]="location"
-                (zoneChange)="onLevelChange($event)"
-                [(zoom)]="zoom"
-                (zoomChange)="zoomChange.next($event)"
-                [options]="options"
-                [reset]="reset"
-                [focus]="focus"
-                [metadata]="metadata"
-            >
-                <ng-content></ng-content>
-            </maps-indoors>
-        </ng-template>
+        }
         <div
             zoom
             *ngIf="options?.controls"
@@ -119,6 +126,7 @@ export interface MapMetadata {
         MatRippleModule,
         MapsIndoorsComponent,
         MapRendererComponent,
+        CiscoMapComponent,
     ],
 })
 export class InteractiveMapComponent extends AsyncHandler implements OnChanges {
@@ -143,7 +151,12 @@ export class InteractiveMapComponent extends AsyncHandler implements OnChanges {
         return this._org.levels.find((_) => _.map_id === this.src);
     }
 
+    public get use_cisco_maps() {
+        return this._settings.get('app.explore.use_cisco_maps');
+    }
+
     constructor(
+        private _settings: SettingsService,
         private _mapspeople: MapsPeopleService,
         private _org: OrganisationService,
         private _explore: ExploreStateService,

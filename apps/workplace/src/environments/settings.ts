@@ -137,6 +137,12 @@ const explore = {
         ['Pending', '#ffb300'],
         ['Signs of Life', '#1565c0'],
     ],
+    use_cisco_maps: false,
+    cisco_maps: {
+        token: '',
+        tenant_id: '',
+        location_id: '',
+    },
 };
 /**
  * ROOT APPLICATION SETTINGS

@@ -56,6 +56,7 @@ function checkOrder(
     const s = (filters.search || '').toLowerCase();
     const space = SPACE_PIPE.get(order.event?.extension_data.system_id);
     const location = order.event?.location || space.display_name || space.name;
+    const host = order.event?.host || order.event?.organiser?.email || '';
     return !!order.items.find((item) => {
         return (
             (!filters?.caterer ||
@@ -65,7 +66,8 @@ function checkOrder(
                 !!item.options.find((option) =>
                     option.name.toLowerCase().includes(s),
                 ) ||
-                location.toLowerCase().includes(s))
+                location.toLowerCase().includes(s) ||
+                host.toLowerCase().includes(s))
         );
     });
 }
