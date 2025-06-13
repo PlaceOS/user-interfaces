@@ -38,6 +38,7 @@ const routes: Route[] = [
             { path: '', component: BuildingListComponent },
             { path: 'list/:id', component: SurveyListingsComponent },
             { path: 'builder', component: SurveyBuilderComponent },
+            { path: 'builder/:id', component: SurveyBuilderComponent },
             { path: 'responses/:id', component: SurveyResponsesComponent },
             { path: '**', pathMatch: 'full', redirectTo: '' },
         ],

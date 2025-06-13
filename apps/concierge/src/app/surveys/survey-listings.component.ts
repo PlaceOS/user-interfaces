@@ -101,8 +101,7 @@ import { NewSurveyService } from './new-survey.service';
                     </a>
                     <a
                         mat-menu-item
-                        [routerLink]="['/surveys', 'builder']"
-                        [queryParams]="{ survey_id: row.id }"
+                        [routerLink]="['/surveys', 'builder', row.id]"
                     >
                         <div class="flex items-center space-x-2">
                             <icon class="text-xl">edit</icon>

@@ -29,7 +29,6 @@
             "@placeos/organisation": ["libs/organisation/src/index.ts"],
             "@placeos/payments": ["libs/payments/src/index.ts"],
             "@placeos/spaces": ["libs/spaces/src/index.ts"],
-            "@placeos/survey-suite": ["libs/survey-suite/src/index.ts"],
             "@placeos/users": ["libs/users/src/index.ts"]
         },
         "types": ["google.maps"]

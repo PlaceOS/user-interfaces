@@ -30,11 +30,6 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatTabChangeEvent, MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
-    QuestionTypeEnumMap,
-    QuestionTypeOptions,
-    TriggerOptions,
-} from '@placeos/survey-suite';
-import {
     addSurvey,
     SurveyPage,
     SurveyQuestion,
@@ -43,7 +38,12 @@ import {
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { lastValueFrom } from 'rxjs';
-import { NewSurveyService } from './new-survey.service';
+import {
+    NewSurveyService,
+    QuestionTypeMap,
+    QuestionTypeOptions,
+    TriggerOptions,
+} from './new-survey.service';
 import { QuestionComponent } from './question.component';
 import { QuestionPipe } from './question.pipe';
 import { SurveyOutletComponent } from './survey-outlet.component';
@@ -119,7 +119,7 @@ import { SurveyOutletComponent } from './survey-outlet.component';
                     >
                         <mat-option
                             *ngFor="let op of trigger_types"
-                            [value]="op.value"
+                            [value]="op.id"
                         >
                             {{ op.name }}
                         </mat-option>
@@ -531,7 +531,7 @@ export class SurveyBuilderComponent extends AsyncHandler implements OnInit {
     public readonly levels$ = this._org.active_levels;
     public readonly questions$ = this._service.filtered_questions$;
     public readonly trigger_types = TriggerOptions;
-    public readonly question_types = QuestionTypeEnumMap;
+    public readonly question_types = QuestionTypeMap;
     public readonly question_options = QuestionTypeOptions;
     public readonly form = new FormGroup({
         id: new FormControl<string | number>(''),
@@ -563,10 +563,10 @@ export class SurveyBuilderComponent extends AsyncHandler implements OnInit {
 
     public ngOnInit(): void {
         this.subscription(
-            'route.query',
-            this._route.queryParamMap.subscribe((params) => {
-                if (params.has('survey_id')) {
-                    this._service.setSurvey(params.get('survey_id'));
+            'route.params',
+            this._route.paramMap.subscribe((params) => {
+                if (params.has('id')) {
+                    this._service.setSurvey(params.get('id'));
                 }
             }),
         );
