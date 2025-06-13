@@ -3,7 +3,8 @@ import {
     AfterViewInit,
     Component,
     ElementRef,
-    Input,
+    input,
+    model,
     OnInit,
     ViewChild,
 } from '@angular/core';
@@ -20,7 +21,8 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { CounterComponent } from 'libs/form-fields/src/lib/counter.component';
 
 import { MatRippleModule } from '@angular/material/core';
-import { Question, QuestionType, QuestionTypeOptions } from './types';
+import { SurveyQuestion } from '@placeos/ts-client';
+import { QuestionType, QuestionTypeOptions } from './new-survey.service';
 
 @Component({
     selector: 'placeos-question',
@@ -30,34 +32,34 @@ import { Question, QuestionType, QuestionTypeOptions } from './types';
             #container_el
             class="flex w-full flex-col items-center justify-between px-4 py-2"
         >
-            @if (!isCard) {
+            @if (!is_card()) {
                 <div
                     class="flex w-full flex-row items-center justify-end space-x-4 pb-2"
                 >
                     <settings-toggle
-                        [(ngModel)]="preview"
+                        [ngModel]="preview()"
+                        (ngModelChange)="preview.set($event)"
                         [name]="'COMMON.PREVIEW' | translate"
                     ></settings-toggle>
                     <div class="flex-1"></div>
-                    @if (!preview) {
+                    @if (!preview()) {
                         <mat-form-field
                             appearance="outline"
                             class="no-subscript"
                         >
-                            <mat-select [(ngModel)]="question.type">
-                                @for (item of typeOptions; track item) {
-                                    <mat-option
-                                        *ngIf="item.value[0] !== '0'"
-                                        [value]="item.value"
-                                    >
-                                        {{ item.name }}
-                                    </mat-option>
+                            <mat-select [(ngModel)]="question().type">
+                                @for (item of type_options; track item) {
+                                    @if (item.id[0] !== '0') {
+                                        <mat-option [value]="item.id">
+                                            {{ item.name }}
+                                        </mat-option>
+                                    }
                                 }
                             </mat-select>
                         </mat-form-field>
 
                         <settings-toggle
-                            [(ngModel)]="question.isRequired"
+                            [(ngModel)]="question().required"
                             [name]="'COMMON.REQUIRED' | translate"
                         ></settings-toggle>
                     }
@@ -66,10 +68,10 @@ import { Question, QuestionType, QuestionTypeOptions } from './types';
 
             <div
                 class="my-2 flex w-full flex-col rounded border-base-200"
-                [class.border]="!isCard"
-                [class.p-4]="!isCard"
+                [class.border]="!is_card()"
+                [class.p-4]="!is_card()"
             >
-                @if (!preview) {
+                @if (!preview()) {
                     <mat-form-field
                         class="no-subscript mb-2 w-full"
                         appearance="outline"
@@ -81,9 +83,12 @@ import { Question, QuestionType, QuestionTypeOptions } from './types';
                                     | translate
                             "
                             type="text"
-                            [(ngModel)]="question.title"
+                            [(ngModel)]="question().title"
                         />
-                        <mat-error class="input-error" *ngIf="!question?.title">
+                        <mat-error
+                            class="input-error"
+                            *ngIf="!question()?.title"
+                        >
                             {{
                                 'APP.CONCIERGE.SURVEY_QUESTION_ENTER_ERROR'
                                     | translate
@@ -92,16 +97,16 @@ import { Question, QuestionType, QuestionTypeOptions } from './types';
                     </mat-form-field>
                 } @else {
                     <span class="mb-4 w-full text-xl">{{
-                        question.title
+                        question().title
                     }}</span>
-                    @if (!question.title) {
+                    @if (!question().title) {
                         <span class="mb-4 w-full text-xl opacity-30">{{
                             'Untitled Question'
                         }}</span>
                     }
                 }
-                @if (question.type === QuestionType.Comment_Box) {
-                    <div class="flex w-full flex-col" *ngIf="preview">
+                @if (question().type === QuestionType.Comment_Box) {
+                    <div class="flex w-full flex-col" *ngIf="preview()">
                         <mat-form-field appearance="outline">
                             <textarea
                                 matInput
@@ -115,8 +120,8 @@ import { Question, QuestionType, QuestionTypeOptions } from './types';
                             }}</mat-hint>
                         </mat-form-field>
                     </div>
-                } @else if (question.type === QuestionType.Single_Line_Text) {
-                    <div class="flex w-full flex-col" *ngIf="preview">
+                } @else if (question().type === QuestionType.Single_Line_Text) {
+                    <div class="flex w-full flex-col" *ngIf="preview()">
                         <mat-form-field appearance="outline">
                             <input
                                 matInput
@@ -130,19 +135,19 @@ import { Question, QuestionType, QuestionTypeOptions } from './types';
                         </mat-form-field>
                     </div>
                 } @else if (
-                    question.type === QuestionType.Check_Box ||
-                    question.type === QuestionType.Radio_Group ||
-                    question.type === QuestionType.Drop_Down
+                    question().type === QuestionType.Check_Box ||
+                    question().type === QuestionType.Radio_Group ||
+                    question().type === QuestionType.Drop_Down
                 ) {
                     @if (question) {
                         <div class="flex w-full flex-col">
-                            @if (!preview) {
+                            @if (!preview()) {
                                 <div
                                     class="mb-4 flex w-full flex-col space-y-2 pl-2"
                                 >
                                     <div
                                         *ngFor="
-                                            let item of question.choices;
+                                            let item of question().choices;
                                             let i = index
                                         "
                                         class="flex w-full flex-row items-center space-x-2"
@@ -193,7 +198,8 @@ import { Question, QuestionType, QuestionTypeOptions } from './types';
                                         >
                                             <mat-option
                                                 *ngFor="
-                                                    let item of question.choices
+                                                    let item of question()
+                                                        .choices
                                                 "
                                                 [value]="item.value"
                                                 >{{ item.text }}</mat-option
@@ -205,7 +211,7 @@ import { Question, QuestionType, QuestionTypeOptions } from './types';
                                         class="grid grid-cols-1 sm:grid-cols-2"
                                     >
                                         @for (
-                                            choice of question.choices;
+                                            choice of question().choices;
                                             track choice
                                         ) {
                                             <mat-checkbox>{{
@@ -220,7 +226,8 @@ import { Question, QuestionType, QuestionTypeOptions } from './types';
                                                 class="grid grid-cols-1 sm:grid-cols-2"
                                             >
                                                 @for (
-                                                    choice of question.choices;
+                                                    choice of question()
+                                                        .choices;
                                                     track choice
                                                 ) {
                                                     <mat-radio-button
@@ -237,8 +244,7 @@ import { Question, QuestionType, QuestionTypeOptions } from './types';
                             }
                         </div>
                     }
-                } @else if (question.type === QuestionType.Rating) {
-                    <!-- <rating [value]="question" [preview]="preview"></rating> -->
+                } @else if (question().type === QuestionType.Rating) {
                     <div class="flex w-full flex-col">
                         <div btn-grp class="divide-x divide-secondary">
                             @for (idx of rating_options; track idx) {
@@ -250,11 +256,11 @@ import { Question, QuestionType, QuestionTypeOptions } from './types';
                                 </button>
                             }
                         </div>
-                        <div class="flex flex-col" *ngIf="!preview">
+                        <div class="flex flex-col" *ngIf="!preview()">
                             <a-counter
                                 [max]="10"
                                 [min]="3"
-                                [(ngModel)]="question.rateMax"
+                                [(ngModel)]="question().max_rating"
                                 (ngModelChange)="
                                     rating_options = generateArray($event)
                                 "
@@ -268,40 +274,36 @@ import { Question, QuestionType, QuestionTypeOptions } from './types';
     `,
     imports: [
         CommonModule,
-        TranslatePipe,
         MatFormFieldModule,
         MatSelectModule,
         MatInputModule,
-        SettingsToggleComponent,
-        FormsModule,
-        IconComponent,
         MatRadioModule,
         MatCheckboxModule,
-        CounterComponent,
         MatRippleModule,
+        FormsModule,
+        TranslatePipe,
+        SettingsToggleComponent,
+        IconComponent,
+        CounterComponent,
     ],
 })
 export class QuestionComponent implements AfterViewInit, OnInit {
-    @Input() public isCard = true;
-    @Input() public preview = false;
-    @Input() public set value(value: Question) {
-        if (value) this.question = value;
-        this.has_value = !!value;
-    }
+    public is_card = input(true);
+    public preview = model(false);
+    public readonly question = model(
+        new SurveyQuestion({ title: '', type: QuestionType.Single_Line_Text }),
+    );
 
     public QuestionType = QuestionType;
-    public typeOptions = QuestionTypeOptions;
-
-    public has_value = false;
-    public question: Question;
+    public type_options = QuestionTypeOptions;
     public rating_options: number[] = [1, 2, 3];
 
     @ViewChild('container_el', { static: true })
     private _container_el: ElementRef<HTMLDivElement>;
 
     public get valid() {
-        if (!this.question?.title) return false;
-        const q = this.question;
+        const q = this.question();
+        if (!q?.title) return false;
         let is_valid = true;
 
         switch (q.type) {
@@ -314,28 +316,29 @@ export class QuestionComponent implements AfterViewInit, OnInit {
                     checkop.reduce((acc, val) => acc && val);
                 break;
             case QuestionType.Rating:
-                is_valid = q.rateMax >= 3;
+                is_valid = q.max_rating >= 3;
         }
 
         return is_valid;
     }
 
     public get is_dropdown() {
-        return this.question?.type === QuestionType.Drop_Down;
+        return this.question()?.type === QuestionType.Drop_Down;
     }
 
     public get is_checkbox() {
-        return this.question?.type === QuestionType.Check_Box;
+        return this.question()?.type === QuestionType.Check_Box;
     }
 
     public ngOnInit() {
-        if (!this.question?.choices) this.question.choices = [];
-        if (!this.question.rateMax) this.question.rateMax = 3;
-        this.rating_options = this.generateArray(this.question.rateMax);
+        const q = this.question();
+        if (!q?.choices) q.choices = [];
+        if (!q.max_rating) q.max_rating = 3;
+        this.rating_options = this.generateArray(q.max_rating);
     }
 
     public ngAfterViewInit() {
-        if (this.isCard) {
+        if (this.is_card()) {
             this._container_el.nativeElement.classList.add(
                 'border',
                 'border-base-400',
@@ -346,14 +349,20 @@ export class QuestionComponent implements AfterViewInit, OnInit {
     }
 
     public addOption() {
-        this.question.choices.push({ text: '' });
+        this.question.update((q) => {
+            q.choices.push({ text: '' });
+            return q;
+        });
     }
 
     public deleteOption(index: number) {
-        this.question.choices.splice(index, 1);
+        this.question.update((q) => {
+            q.choices.splice(index, 1);
+            return q;
+        });
     }
 
     public generateArray(max: number) {
-        return Array.from({ length: max }, (val, index) => index + 1);
+        return Array.from({ length: max }, (_, index) => index + 1);
     }
 }

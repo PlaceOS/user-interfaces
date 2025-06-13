@@ -6,7 +6,7 @@ import {
     removeStringKey,
     SettingsService,
 } from '@placeos/common';
-import { queryAnswers, queryQuestions, showSurvey } from '@placeos/ts-client';
+import { queryAnswers, Survey } from '@placeos/ts-client';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import {
@@ -18,6 +18,7 @@ import {
     switchMap,
     tap,
 } from 'rxjs/operators';
+import { NewSurveyService } from './new-survey.service';
 
 @Component({
     selector: 'survey-responses',
@@ -34,123 +35,106 @@ import {
         `,
     ],
     template: `
-        <ng-container *ngIf="has_id; else invalid_template">
-            <header
-                class="flex w-full items-center justify-between pb-4 pl-4 pr-8 pt-8"
-            >
-                <div class="flex flex-row">
-                    <a
-                        icon
-                        matRipple
-                        [routerLink]="[
-                            '/surveys',
-                            'survey-list',
-                            (survey$ | async)?.building_id,
-                        ]"
-                    >
-                        <icon class="flex">arrow_back</icon>
-                    </a>
-                    <div class="space-y-2">
-                        <div class="mt-1 text-2xl">
-                            {{
-                                'APP.CONCIERGE.SURVEY_ANSWERS_HEADER'
-                                    | translate
-                            }}
-                        </div>
-                        <div class="text-lg">
-                            {{ (survey$ | async)?.title || '' }}
-                        </div>
+        <header
+            class="flex w-full items-center justify-between pb-4 pl-4 pr-8 pt-8"
+        >
+            <div class="flex flex-row">
+                <a
+                    icon
+                    matRipple
+                    [routerLink]="[
+                        '/surveys',
+                        'list',
+                        (survey$ | async)?.building_id,
+                    ]"
+                >
+                    <icon class="flex">arrow_back</icon>
+                </a>
+                <div class="space-y-2">
+                    <div class="mt-1 text-2xl">
+                        {{ 'APP.CONCIERGE.SURVEY_ANSWERS_HEADER' | translate }}
+                    </div>
+                    <div class="text-lg">
+                        {{ (survey$ | async)?.title || '' }}
                     </div>
                 </div>
-                <date-range-field [week_start]="week_start">
-                    <input
-                        #startDate
-                        [ngModel]="(options$ | async).start"
-                        (ngModelChange)="$event ? setStartDate($event) : ''"
-                    />
-                    <input
-                        #endDate
-                        [ngModel]="(options$ | async).start"
-                        (ngModelChange)="$event ? setEndDate($event) : ''"
-                    />
-                </date-range-field>
-            </header>
-            <div class="mb-4 flex justify-end space-x-4 px-8">
-                <div
-                    class="flex flex-1 flex-col items-center rounded border border-base-300 p-4"
-                >
-                    <h3>
-                        {{
-                            'APP.CONCIERGE.SURVEY_ANSWERS_QUESTIONS' | translate
-                        }}
-                    </h3>
-                    <p class="text-4xl">
-                        {{ (questions$ | async)?.length || 0 }}
-                    </p>
-                </div>
-                <div
-                    class="flex flex-1 flex-col items-center rounded border border-base-300 p-4"
-                >
-                    <h3>
-                        {{ 'APP.CONCIERGE.SURVEY_ANSWERS_ANSWERS' | translate }}
-                    </h3>
-                    <p class="text-4xl">
-                        {{ (answers$ | async)?.length || 0 }}
-                    </p>
-                </div>
-                <div
-                    class="flex flex-1 flex-col items-center space-y-2 rounded border border-base-300 p-4"
-                >
-                    <h3>
-                        {{ 'APP.CONCIERGE.SURVEY_ANSWERS_TRIGGER' | translate }}
-                    </h3>
-                    <p class="font-mono text-xl capitalize">
-                        {{ (survey$ | async)?.trigger }}
-                    </p>
-                </div>
             </div>
-            @let question_pages = paged_responses$ | async;
+            <date-range-field [week_start]="week_start">
+                <input
+                    #startDate
+                    [ngModel]="(options$ | async).start"
+                    (ngModelChange)="$event ? setStartDate($event) : ''"
+                />
+                <input
+                    #endDate
+                    [ngModel]="(options$ | async).start"
+                    (ngModelChange)="$event ? setEndDate($event) : ''"
+                />
+            </date-range-field>
+        </header>
+        <div class="mb-4 flex justify-end space-x-4 px-8">
             <div
-                class="h-1/2 flex-1 overflow-auto border-t border-base-300 bg-base-200"
-                *ngIf="question_pages?.length > 0; else empty_template"
+                class="flex flex-1 flex-col items-center rounded border border-base-300 p-4"
             >
-                <ng-container *ngFor="let p of question_pages; let i = index">
-                    <div
-                        class="flex w-full px-8 pt-2 text-xl font-medium"
-                        *ngIf="question_pages.length > 1"
-                    >
-                        {{
-                            (p.title
-                                ? 'APP.CONCIERGE.SURVEY_ANSWERS_PAGE_WITH_TITLE'
-                                : 'APP.CONCIERGE.SURVEY_ANSWERS_PAGE'
-                            )
-                                | translate
-                                    : {
-                                          id: i + 1,
-                                          title: p.title,
-                                      }
-                        }}
-                    </div>
-                    <div class="flex w-full flex-wrap px-6 py-2">
-                        <survey-widget
-                            class="w-full lg:w-1/2 2xl:w-1/3"
-                            *ngFor="let r of p.responses"
-                            [response]="r"
-                        ></survey-widget>
-                    </div>
-                </ng-container>
+                <h3>
+                    {{ 'APP.CONCIERGE.SURVEY_ANSWERS_QUESTIONS' | translate }}
+                </h3>
+                <p class="text-4xl">
+                    {{ (questions$ | async)?.length || 0 }}
+                </p>
             </div>
-        </ng-container>
-
-        <ng-template #invalid_template>
             <div
-                class="flex h-full w-full flex-col items-center justify-center"
+                class="flex flex-1 flex-col items-center rounded border border-base-300 p-4"
             >
-                <span class="text-lg opacity-30">{{
-                    'APP.CONCIERGE.SURVEY_ANSWERS_ID_INVALID' | translate
-                }}</span>
+                <h3>
+                    {{ 'APP.CONCIERGE.SURVEY_ANSWERS_ANSWERS' | translate }}
+                </h3>
+                <p class="text-4xl">
+                    {{ (answers$ | async)?.length || 0 }}
+                </p>
             </div>
-        </ng-template>
+            <div
+                class="flex flex-1 flex-col items-center space-y-2 rounded border border-base-300 p-4"
+            >
+                <h3>
+                    {{ 'APP.CONCIERGE.SURVEY_ANSWERS_TRIGGER' | translate }}
+                </h3>
+                <p class="font-mono text-xl capitalize">
+                    {{ (survey$ | async)?.trigger }}
+                </p>
+            </div>
+        </div>
+        @let question_pages = paged_responses$ | async;
+        <div
+            class="h-1/2 flex-1 overflow-auto border-t border-base-300 bg-base-200"
+            *ngIf="question_pages?.length > 0; else empty_template"
+        >
+            <ng-container *ngFor="let p of question_pages; let i = index">
+                <div
+                    class="flex w-full px-8 pt-2 text-xl font-medium"
+                    *ngIf="question_pages.length > 1"
+                >
+                    {{
+                        (p.title
+                            ? 'APP.CONCIERGE.SURVEY_ANSWERS_PAGE_WITH_TITLE'
+                            : 'APP.CONCIERGE.SURVEY_ANSWERS_PAGE'
+                        )
+                            | translate
+                                : {
+                                      id: i + 1,
+                                      title: p.title,
+                                  }
+                    }}
+                </div>
+                <div
+                    class="grid w-full grid-cols-2 gap-4 px-6 py-2 xl:grid-cols-3"
+                >
+                    @for (r of p.responses; track r) {
+                        <new-survey-widget [response]="r"></new-survey-widget>
+                    }
+                </div>
+            </ng-container>
+        </div>
         <ng-template #empty_template>
             <div
                 class="flex min-h-[10rem] w-full flex-col items-center justify-center"
@@ -173,52 +157,18 @@ import {
     standalone: false,
 })
 export class SurveyResponsesComponent extends AsyncHandler implements OnInit {
-    private _survey_id = new BehaviorSubject('');
-
     public readonly options$ = new BehaviorSubject<any>({});
     public readonly loading$ = new BehaviorSubject('');
 
-    public readonly survey$ = this._survey_id.pipe(
-        filter((_) => !!_),
-        switchMap((id) => {
-            this.loading$.next(
-                addStringKey(this.loading$.getValue(), 'SURVEY'),
-            );
-            return showSurvey(id).pipe(catchError(() => of(null)));
-        }),
-        tap(() =>
-            this.loading$.next(
-                removeStringKey(this.loading$.getValue(), 'SURVEY'),
-            ),
-        ),
-        shareReplay(1),
-    );
-
-    public readonly questions$ = this._survey_id.pipe(
-        filter((_) => !!_),
-        switchMap((id) => {
-            this.loading$.next(
-                addStringKey(this.loading$.getValue(), 'QUESTIONS'),
-            );
-            return queryQuestions({ survey_id: id }).pipe(
-                catchError(() => of([])),
-            );
-        }),
-        tap(() =>
-            this.loading$.next(
-                removeStringKey(this.loading$.getValue(), 'QUESTIONS'),
-            ),
-        ),
-        shareReplay(1),
-        startWith([]),
-    );
+    public readonly survey$ = this._service.survey$;
+    public readonly questions$ = this._service.survey_questions$;
 
     public readonly answers$ = combineLatest([
-        this._survey_id,
+        this.survey$,
         this.options$,
     ]).pipe(
         filter(([_]) => !!_),
-        switchMap(([id, { start, end }]) => {
+        switchMap(([{ id }, { start, end }]) => {
             this.loading$.next(
                 addStringKey(this.loading$.getValue(), 'ANSWERS'),
             );
@@ -244,7 +194,6 @@ export class SurveyResponsesComponent extends AsyncHandler implements OnInit {
         this.survey$,
         this.questions$,
         this.answers$,
-        this.questions$,
     ]).pipe(
         map(([survey, questions, answers]) => {
             return [
@@ -255,11 +204,11 @@ export class SurveyResponsesComponent extends AsyncHandler implements OnInit {
                 })),
             ];
         }),
-        map(([survey, q_list]) => {
+        map(([survey, q_list]: [Survey, any[]]) => {
             const mapping = {};
             q_list.forEach((e) => (mapping[e.question.id] = e));
             const paged = [];
-            survey.pages.forEach((p) => {
+            survey?.pages.forEach((p) => {
                 const t = { title: p.title, responses: [] };
                 p.question_order.forEach((q) => t.responses.push(mapping[q]));
                 paged.push(t);
@@ -268,10 +217,6 @@ export class SurveyResponsesComponent extends AsyncHandler implements OnInit {
         }),
     );
 
-    public get has_id() {
-        return !!this._survey_id.getValue();
-    }
-
     public get week_start() {
         return this._settings.get('app.week_start');
     }
@@ -279,6 +224,7 @@ export class SurveyResponsesComponent extends AsyncHandler implements OnInit {
     constructor(
         private _settings: SettingsService,
         private _route: ActivatedRoute,
+        private _service: NewSurveyService,
     ) {
         super();
     }
@@ -287,7 +233,7 @@ export class SurveyResponsesComponent extends AsyncHandler implements OnInit {
         this.subscription(
             'params',
             this._route.paramMap.subscribe((params) => {
-                this._survey_id.next(params.get('id') || '');
+                this._service.setSurvey(params.get('id') || '');
             }),
         );
     }

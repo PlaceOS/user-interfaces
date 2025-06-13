@@ -24,7 +24,27 @@ import { TableWidgetComponent } from './table-widget.component';
                 </div>
                 <div class="flex w-full flex-col">
                     <ng-container *ngIf="isTable(type)">
-                        <table-widget [value]="response.answers"></table-widget>
+                        <div
+                            class="relative flex h-full max-h-[22rem] min-h-0 w-full flex-col divide-y divide-base-300 overflow-y-auto"
+                        >
+                            @let data = response.answers;
+                            @if (data?.length) {
+                                <div
+                                    *ngFor="let d of data"
+                                    class="mx-4 flex flex-1 p-2"
+                                >
+                                    <blockquote class="text-sm">
+                                        {{ d }}
+                                    </blockquote>
+                                </div>
+                            } @else {
+                                <p
+                                    class="mx-4 mb-2 rounded bg-base-300 p-8 text-center opacity-30"
+                                >
+                                    No responses
+                                </p>
+                            }
+                        </div>
                     </ng-container>
                     <ng-container *ngIf="isSelection(type)">
                         <selection-widget

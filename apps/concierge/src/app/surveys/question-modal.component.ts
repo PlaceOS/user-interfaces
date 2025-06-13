@@ -1,13 +1,21 @@
+import { CommonModule } from '@angular/common';
 import { Component, Inject, ViewChild } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MatRippleModule } from '@angular/material/core';
+import {
+    MAT_DIALOG_DATA,
+    MatDialogModule,
+    MatDialogRef,
+} from '@angular/material/dialog';
 import { notifySuccess } from '@placeos/common';
 import {
-    generateNewQuestion,
-    Question,
-    QuestionComponent,
-} from '@placeos/survey-suite';
-import { addQuestion, updateQuestion } from '@placeos/ts-client';
+    addQuestion,
+    SurveyQuestion,
+    updateQuestion,
+} from '@placeos/ts-client';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { lastValueFrom } from 'rxjs';
+import { QuestionComponent } from './question.component';
 
 @Component({
     selector: 'question-modal',
@@ -29,48 +37,54 @@ import { lastValueFrom } from 'rxjs';
             </button>
         </header>
         <main class="min-w-[40rem] overflow-x-hidden">
-            <section>
-                <placeos-question
-                    #question
-                    [isCard]="false"
-                    [value]="question"
-                ></placeos-question>
-            </section>
+            <placeos-question
+                #question_el
+                [is_card]="false"
+                [question]="question"
+            ></placeos-question>
         </main>
-        <div class="flex flex-row justify-end space-x-2 px-4 py-2">
+        <footer class="flex flex-row justify-end space-x-2 px-4 py-2">
             <button
                 btn
                 matRipple
-                [disabled]="!question_el.valid"
+                [disabled]="!question_el?.valid"
                 (click)="save()"
             >
                 {{ is_edit ? 'Update' : 'Add to bank' }}
             </button>
-        </div>
+        </footer>
     `,
-    standalone: false,
+    imports: [
+        CommonModule,
+        QuestionComponent,
+        TranslatePipe,
+        MatRippleModule,
+        IconComponent,
+        MatDialogModule,
+    ],
 })
 export class QuestionModalComponent {
-    @ViewChild('question') question_el: QuestionComponent;
+    @ViewChild('question_el') question_el: QuestionComponent;
 
     public is_edit = false;
     public loading = false;
-    public question: Question;
+    public question: SurveyQuestion;
 
     constructor(
-        @Inject(MAT_DIALOG_DATA) private _data: Question,
+        @Inject(MAT_DIALOG_DATA) private _data: SurveyQuestion,
         private _dialog_ref: MatDialogRef<QuestionModalComponent>,
     ) {
         this.is_edit = !!(this._data?.id > 0);
-        this.question = this._data || generateNewQuestion();
+        this.question = this._data || new SurveyQuestion({ type: 'text' });
+        console.log('Data', this._data, this.question);
     }
 
     public async save() {
         if (!this.question_el.valid) return;
         this.loading = true;
         const call = this.is_edit
-            ? updateQuestion(`${this.question.id}`, this.question_el.value)
-            : addQuestion(this.question_el.value);
+            ? updateQuestion(`${this.question.id}`, this.question_el.question())
+            : addQuestion(this.question_el.question());
         await lastValueFrom(call);
         this._dialog_ref.close(true);
         notifySuccess('Successfully updated question bank.');

@@ -29,6 +29,39 @@ import {
 import { QuestionModalComponent } from './question-modal.component';
 import { updateQuestionMap } from './question.pipe';
 
+export enum TriggerEnum {
+    None = 'NONE',
+    Reserved = 'RESERVED',
+    Checked_In = 'CHECKEDIN',
+    Checked_Out = 'CHECKEDOUT',
+    // No_Show = 'NOSHOW',
+    Rejected = 'REJECTED',
+    Cancelled = 'CANCELLED',
+    // Ended = 'ENDED'
+    Visitor = 'VISITOR',
+}
+
+export enum QuestionType {
+    Single_Line_Text = 'text',
+    Comment_Box = 'comment',
+    Radio_Group = 'radiogroup',
+    Drop_Down = 'dropdown',
+    Check_Box = 'checkbox',
+    Rating = 'rating',
+    Empty = '0[EMPTY]',
+}
+
+export const QuestionTypeOptions = getEnumOptions(QuestionType);
+
+export function getEnumOptions<T>(targetEnum: T) {
+    return Object.entries(targetEnum)
+        .filter((e) => isNaN(Number(e[0])))
+        .map((e) => ({
+            name: e[0].replace(/_/g, ' '),
+            id: e[1],
+        }));
+}
+
 export interface QuestionFilters {
     search_text?: string;
     type?:
@@ -106,6 +139,23 @@ export class NewSurveyService {
         shareReplay(1),
     );
 
+    public readonly survey_questions$ = combineLatest([
+        this.survey$,
+        this.questions$,
+    ]).pipe(
+        map(([survey, questions]) => {
+            if (!survey) return [];
+            const q_list = [];
+            for (const page of survey.pages) {
+                for (const q_id of page.question_order) {
+                    q_list.push(questions.find((q) => q.id === q_id));
+                }
+            }
+            return q_list;
+        }),
+        shareReplay(1),
+    );
+
     public readonly filtered_questions$ = combineLatest([
         this.questions$,
         this._question_filters,
@@ -166,7 +216,7 @@ export class NewSurveyService {
         this._change.next(Date.now());
     }
 
-    public editQuestion(question = new SurveyQuestion({})) {
+    public editQuestion(question = new SurveyQuestion({ type: 'text' })) {
         const ref = this._dialog.open(QuestionModalComponent, {
             data: question,
         });

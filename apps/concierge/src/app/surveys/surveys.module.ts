@@ -15,22 +15,16 @@ import { ComponentsModule } from '@placeos/components';
 import { UIModule } from '../ui/ui.module';
 
 import { BuildingListComponent } from './building-list.component';
-import { NotFoundComponent } from './not-found.component';
 
-import { SurveySuiteModule } from '@placeos/survey-suite';
-import { QuestionBankComponent } from './question-bank.component';
-import { QuestionBankService } from './question-bank.service';
+import { NewSurveyWidgetComponent } from './new-survey-widget.component';
 import { QuestionModalComponent } from './question-modal.component';
+import { QuestionComponent } from './question.component';
 import { QuestionPipe } from './question.pipe';
-import { SearchInputComponent } from './search-input.component';
 import { SurveyBuilderComponent } from './survey-builder.component';
-import { SurveyBuilderService } from './survey-builder.service';
 import { SurveyListingsComponent } from './survey-listings.component';
-import { SurveyManageComponent } from './survey-manage.component';
 import { SurveyOutletComponent } from './survey-outlet.component';
 import { SurveyResponsesComponent } from './survey-responses.component';
 import { SurveyComponent } from './survey.component';
-import { SurveyService } from './survey.service';
 
 // //SurveyJS styling
 // StylesManager.applyTheme('modern');
@@ -44,23 +38,16 @@ const routes: Route[] = [
             { path: '', component: BuildingListComponent },
             { path: 'list/:id', component: SurveyListingsComponent },
             { path: 'builder', component: SurveyBuilderComponent },
-            { path: 'builder-old', component: SurveyManageComponent },
             { path: 'responses/:id', component: SurveyResponsesComponent },
-            { path: '**', pathMatch: 'full', component: NotFoundComponent },
+            { path: '**', pathMatch: 'full', redirectTo: '' },
         ],
     },
-    { path: '404', component: NotFoundComponent },
-    { path: '**', pathMatch: 'full', component: NotFoundComponent },
+    { path: '**', pathMatch: 'full', redirectTo: '' },
 ];
 
 const COMPONENTS = [
     SurveyComponent,
     BuildingListComponent,
-    NotFoundComponent,
-    QuestionModalComponent,
-    QuestionBankComponent,
-    SurveyManageComponent,
-    SearchInputComponent,
     SurveyListingsComponent,
     SurveyResponsesComponent,
 ];
@@ -69,6 +56,9 @@ const STANDALONE_COMPONENTS = [
     QuestionPipe,
     SurveyOutletComponent,
     SurveyBuilderComponent,
+    NewSurveyWidgetComponent,
+    QuestionComponent,
+    QuestionModalComponent,
 ];
 
 @NgModule({
@@ -90,9 +80,7 @@ const STANDALONE_COMPONENTS = [
         MatMenuModule,
         MatFormFieldModule,
         UIModule,
-        SurveySuiteModule,
         ...STANDALONE_COMPONENTS,
     ],
-    providers: [SurveyBuilderService, QuestionBankService, SurveyService],
 })
 export class SurveysModule {}

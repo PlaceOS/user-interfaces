@@ -30,7 +30,6 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatTabChangeEvent, MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
-    QuestionComponent,
     QuestionTypeEnumMap,
     QuestionTypeOptions,
     TriggerOptions,
@@ -45,6 +44,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { lastValueFrom } from 'rxjs';
 import { NewSurveyService } from './new-survey.service';
+import { QuestionComponent } from './question.component';
 import { QuestionPipe } from './question.pipe';
 import { SurveyOutletComponent } from './survey-outlet.component';
 
@@ -295,7 +295,7 @@ import { SurveyOutletComponent } from './survey-outlet.component';
                                         <placeos-question
                                             class="z-0 flex-1"
                                             [preview]="true"
-                                            [value]="quest"
+                                            [question]="quest"
                                         >
                                         </placeos-question>
                                     </div>
