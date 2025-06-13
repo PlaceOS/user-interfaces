@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, signal } from '@angular/core';
 import {
     FormControl,
     FormGroup,
@@ -37,7 +37,7 @@ import {
 } from '@placeos/ts-client';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { lastValueFrom } from 'rxjs';
+import { first, lastValueFrom } from 'rxjs';
 import {
     NewSurveyService,
     QuestionTypeMap,
@@ -252,7 +252,8 @@ import { SurveyOutletComponent } from './survey-outlet.component';
                                 track q_id;
                                 let idx = $index
                             ) {
-                                @let quest = q_id | question;
+                                @let quest =
+                                    q_id | question: questions().length;
                                 @if (quest) {
                                     <div cdkDrag class="relative -ml-px flex">
                                         <div
@@ -526,6 +527,7 @@ export class SurveyBuilderComponent extends AsyncHandler implements OnInit {
     public view: 'builder' | 'preview' = 'builder';
     public active_page = 0;
     public loading = false;
+    public readonly questions = signal([]);
 
     public readonly buildings$ = this._org.building_list;
     public readonly levels$ = this._org.active_levels;
@@ -557,6 +559,7 @@ export class SurveyBuilderComponent extends AsyncHandler implements OnInit {
         private _org: OrganisationService,
         private _service: NewSurveyService,
         private _route: ActivatedRoute,
+        private _cdr: ChangeDetectorRef,
     ) {
         super();
     }
@@ -606,6 +609,11 @@ export class SurveyBuilderComponent extends AsyncHandler implements OnInit {
                 }
             }),
         );
+        this.questions$
+            .pipe(first((_) => _.length > 0))
+            .subscribe((l) =>
+                this.timeout('questions', () => this.questions.set(l)),
+            );
     }
 
     public onPageChange(event: MatTabChangeEvent) {
