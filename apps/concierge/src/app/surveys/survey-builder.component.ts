@@ -13,10 +13,19 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 
-import { AsyncHandler } from '@placeos/common';
+import {
+    AsyncHandler,
+    nextValueFrom,
+    notifyError,
+    notifySuccess,
+} from '@placeos/common';
 import { Building, OrganisationService } from '@placeos/organisation';
 
-import { DragDropModule } from '@angular/cdk/drag-drop';
+import {
+    CdkDragDrop,
+    DragDropModule,
+    moveItemInArray,
+} from '@angular/cdk/drag-drop';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTabChangeEvent, MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -26,9 +35,15 @@ import {
     QuestionTypeOptions,
     TriggerOptions,
 } from '@placeos/survey-suite';
-import { SurveyQuestion } from '@placeos/ts-client';
+import {
+    addSurvey,
+    SurveyPage,
+    SurveyQuestion,
+    updateSurvey,
+} from '@placeos/ts-client';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { lastValueFrom } from 'rxjs';
 import { NewSurveyService } from './new-survey.service';
 import { QuestionPipe } from './question.pipe';
 import { SurveyOutletComponent } from './survey-outlet.component';
@@ -38,7 +53,11 @@ import { SurveyOutletComponent } from './survey-outlet.component';
     template: `
         <div class="sticky top-0 mb-2 px-8">
             <div header class="flex items-center py-4">
-                <a icon matRipple [routerLink]="['/']">
+                <a
+                    icon
+                    matRipple
+                    [routerLink]="['/surveys', 'list', form.value.building_id]"
+                >
                     <icon>arrow_back</icon>
                 </a>
                 <div class="font flex flex-1 flex-col text-2xl">
@@ -161,7 +180,7 @@ import { SurveyOutletComponent } from './survey-outlet.component';
             >
                 <div
                     pages
-                    class="h-full w-1/2 flex-1 space-y-2 overflow-auto"
+                    class="sticky top-0 h-full w-1/2 flex-1 space-y-2 overflow-auto"
                     [formGroup]="page_forms[active_page]"
                 >
                     <div class="flex items-center space-x-2">
@@ -219,7 +238,13 @@ import { SurveyOutletComponent } from './survey-outlet.component';
                             </button>
                         }
                     </div>
-                    <div page-questions class="">
+                    <div
+                        page-questions
+                        cdkDropList
+                        #page_list="cdkDropList"
+                        (cdkDropListDropped)="drop($event)"
+                        class="space-y-2"
+                    >
                         @let page = page_forms[active_page].value;
                         @if (page?.question_order.length > 0) {
                             @for (
@@ -229,24 +254,24 @@ import { SurveyOutletComponent } from './survey-outlet.component';
                             ) {
                                 @let quest = q_id | question;
                                 @if (quest) {
-                                    <div class="flex space-x-2">
+                                    <div cdkDrag class="relative -ml-px flex">
                                         <div
-                                            class="flex h-10 w-10 items-center justify-center rounded border border-base-300 bg-base-100 p-2 font-mono"
-                                        >
-                                            {{ idx + 1 }}
-                                        </div>
-                                        <placeos-question
-                                            class="flex-1"
-                                            [preview]="true"
-                                            [value]="quest"
-                                        >
-                                        </placeos-question>
+                                            class="border-3 h-20 w-full rounded-lg border-dashed border-base-content bg-base-300 opacity-50"
+                                            *cdkDragPlaceholder
+                                        ></div>
                                         <div
-                                            class="flex w-12 flex-col justify-between"
+                                            class="relative left-px z-10 flex flex-col items-center space-y-1"
                                         >
+                                            <div
+                                                class="relative left-px flex h-10 w-10 items-center justify-center rounded-l border-y border-l border-base-400 bg-base-100 p-2 font-mono"
+                                            >
+                                                {{ idx + 1 }}
+                                            </div>
                                             <button
                                                 icon
                                                 matRipple
+                                                cdkDragHandle
+                                                class="cursor-grab rounded-l rounded-r-none border-y border-l border-base-400 bg-base-100"
                                                 matTooltip="Reorder Question"
                                             >
                                                 <icon class="text-xl"
@@ -256,14 +281,23 @@ import { SurveyOutletComponent } from './survey-outlet.component';
                                             <button
                                                 icon
                                                 matRipple
-                                                class="text-error"
+                                                class="rounded-l rounded-r-none border-y border-l border-base-400 bg-base-100 text-error"
                                                 matTooltip="Remove Question"
+                                                (click)="
+                                                    removePageQuestion(idx)
+                                                "
                                             >
                                                 <icon class="text-xl"
                                                     >delete</icon
                                                 >
                                             </button>
                                         </div>
+                                        <placeos-question
+                                            class="z-0 flex-1"
+                                            [preview]="true"
+                                            [value]="quest"
+                                        >
+                                        </placeos-question>
                                     </div>
                                 }
                             }
@@ -344,15 +378,26 @@ import { SurveyOutletComponent } from './survey-outlet.component';
                             </mat-form-field>
                         </div>
                     </div>
-                    <div class="space-y-2 px-2">
+                    <div
+                        class="space-y-2 px-2"
+                        cdkDropList
+                        [cdkDropListData]="questions$ | async"
+                        [cdkDropListConnectedTo]="[page_list]"
+                    >
                         @for (
                             question of questions$ | async;
                             track question.id
                         ) {
                             <div
                                 class="relative flex w-full items-center rounded border border-base-200 bg-base-200"
+                                cdkDrag
                             >
+                                <div
+                                    class="border-3 h-20 w-full rounded-lg border-dashed border-base-content bg-base-300 opacity-50"
+                                    *cdkDragPlaceholder
+                                ></div>
                                 <button
+                                    cdkDragHandle
                                     class="flex h-20 h-full flex-col justify-center rounded bg-base-200 p-1 hover:cursor-move"
                                     matRipple
                                     matTooltip="Drag Question onto page"
@@ -436,10 +481,19 @@ import { SurveyOutletComponent } from './survey-outlet.component';
                 ></survey-outlet>
             </div>
         }
+        @if (loading) {
+            <div
+                class="absolute inset-0 flex flex-col items-center justify-center space-y-2"
+            >
+                <mat-spinner diameter="48"></mat-spinner>
+                <p>Saving survey details...</p>
+            </div>
+        }
     `,
     styles: [
         `
             :host {
+                position: relative;
                 display: flex;
                 flex-direction: column;
                 overflow: hidden;
@@ -471,6 +525,7 @@ import { SurveyOutletComponent } from './survey-outlet.component';
 export class SurveyBuilderComponent extends AsyncHandler implements OnInit {
     public view: 'builder' | 'preview' = 'builder';
     public active_page = 0;
+    public loading = false;
 
     public readonly buildings$ = this._org.building_list;
     public readonly levels$ = this._org.active_levels;
@@ -485,7 +540,9 @@ export class SurveyBuilderComponent extends AsyncHandler implements OnInit {
         trigger: new FormControl(''),
         building_id: new FormControl(''),
         zone_id: new FormControl(''),
-        pages: new FormControl([{}]),
+        pages: new FormControl<SurveyPage[]>([
+            { title: '', description: '', question_order: [] },
+        ]),
     });
 
     public readonly page_forms: FormGroup[] = [
@@ -516,13 +573,25 @@ export class SurveyBuilderComponent extends AsyncHandler implements OnInit {
         this.subscription(
             'survey',
             this._service.survey$.subscribe((s) => {
-                if (s) this.form.patchValue(s);
+                if (s) {
+                    this.form.patchValue(s);
+                    console.log('Survey loaded', s);
+                    while (s.pages.length > this.page_forms.length) {
+                        this.page_forms.push(
+                            new FormGroup({
+                                title: new FormControl('', []),
+                                description: new FormControl(''),
+                                question_order: new FormControl([]),
+                            }),
+                        );
+                    }
+                }
             }),
         );
         this.subscription(
             'form_pages',
-            this.form.controls.pages.valueChanges.subscribe((pages) => {
-                while (pages.length < this.page_forms.length) {
+            this.form.valueChanges.subscribe(({ pages }) => {
+                while (pages.length > this.page_forms.length) {
                     this.page_forms.push(
                         new FormGroup({
                             title: new FormControl('', []),
@@ -575,5 +644,70 @@ export class SurveyBuilderComponent extends AsyncHandler implements OnInit {
 
     public editQuestion(q?: SurveyQuestion) {
         this._service.editQuestion(q);
+    }
+
+    public removePage() {
+        const pages = this.form.value.pages;
+        const page_form = this.page_forms[this.active_page];
+        pages.splice(this.active_page, 1);
+        if (this.active_page >= pages.length) {
+            page_form.patchValue({
+                title: '',
+                description: '',
+                question_order: [],
+            });
+            this.active_page = pages.length - 1;
+        }
+        this.form.patchValue({ pages });
+    }
+
+    public removePageQuestion(idx: number) {
+        const page_form = this.page_forms[this.active_page];
+        const order = page_form.get('question_order').value;
+        order.splice(idx, 1);
+        page_form.patchValue({ question_order: order });
+    }
+
+    public async drop(event: CdkDragDrop<SurveyQuestion[]>) {
+        if (event.previousContainer === event.container) {
+            const order =
+                this.page_forms[this.active_page].get('question_order').value;
+            moveItemInArray(order, event.previousIndex, event.currentIndex);
+            this.page_forms[this.active_page].patchValue({
+                question_order: order,
+            });
+        } else {
+            const questions = await nextValueFrom(this.questions$);
+            const q_id = questions[event.previousIndex].id;
+            const order =
+                this.page_forms[this.active_page].get('question_order').value;
+            order.splice(event.currentIndex, 0, q_id);
+            this.page_forms[this.active_page].patchValue({
+                question_order: order,
+            });
+        }
+    }
+
+    public async saveSurvey() {
+        this.form.markAllAsTouched();
+        if (!this.form.valid) return;
+        this.loading = true;
+        const page_count = this.form.value.pages?.length || 0;
+        const pages = [];
+        for (let i = 0; i < page_count; i++) {
+            const page_form = this.page_forms[i];
+            pages.push(page_form.value);
+        }
+        this.form.patchValue({ pages });
+        const survey = this.form.value;
+        const call = this.form.value.id
+            ? addSurvey(survey as any)
+            : updateSurvey(`${survey.id}`, survey as any);
+        await lastValueFrom(call).catch((error) => {
+            notifyError('Failed to save survey details. Error: ', error);
+            throw error;
+        });
+        notifySuccess('Successfully saved survey details.');
+        this.loading = false;
     }
 }

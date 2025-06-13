@@ -103,7 +103,12 @@ import { Question, QuestionType, QuestionTypeOptions } from './types';
                 @if (question.type === QuestionType.Comment_Box) {
                     <div class="flex w-full flex-col" *ngIf="preview">
                         <mat-form-field appearance="outline">
-                            <textarea matInput cols="30" rows="5"></textarea>
+                            <textarea
+                                matInput
+                                cols="30"
+                                rows="5"
+                                placeholder="Enter option text"
+                            ></textarea>
                             <mat-hint>{{
                                 'APP.CONCIERGE.SURVEY_QUESTION_HINT_MULTILINE'
                                     | translate
@@ -113,7 +118,11 @@ import { Question, QuestionType, QuestionTypeOptions } from './types';
                 } @else if (question.type === QuestionType.Single_Line_Text) {
                     <div class="flex w-full flex-col" *ngIf="preview">
                         <mat-form-field appearance="outline">
-                            <input matInput type="text" />
+                            <input
+                                matInput
+                                type="text"
+                                placeholder="Enter option text"
+                            />
                             <mat-hint>{{
                                 'APP.CONCIERGE.SURVEY_QUESTION_HINT_LINE'
                                     | translate
@@ -178,8 +187,10 @@ import { Question, QuestionType, QuestionTypeOptions } from './types';
                                 </button>
                             } @else {
                                 @if (is_dropdown) {
-                                    <mat-form-field>
-                                        <mat-select>
+                                    <mat-form-field appearance="outline">
+                                        <mat-select
+                                            placeholder="Select an option"
+                                        >
                                             <mat-option
                                                 *ngFor="
                                                     let item of question.choices
@@ -228,8 +239,8 @@ import { Question, QuestionType, QuestionTypeOptions } from './types';
                     }
                 } @else if (question.type === QuestionType.Rating) {
                     <!-- <rating [value]="question" [preview]="preview"></rating> -->
-                    <div class="flex w-full flex-col p-4">
-                        <div btn-grp class="divide-x divide-secondary py-2">
+                    <div class="flex w-full flex-col">
+                        <div btn-grp class="divide-x divide-secondary">
                             @for (idx of rating_options; track idx) {
                                 <button
                                     matRipple
