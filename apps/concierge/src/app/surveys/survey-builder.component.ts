@@ -351,7 +351,12 @@ import { SurveyOutletComponent } from './survey-outlet.component';
                                     matPrefix
                                     >search</icon
                                 >
-                                <input matInput placeholder="Search..." />
+                                <input
+                                    matInput
+                                    [ngModel]="search_text"
+                                    (ngModelChange)="onSearchChange($event)"
+                                    placeholder="Search..."
+                                />
                             </mat-form-field>
                             <mat-form-field
                                 class="no-subscript flex-1"
@@ -362,6 +367,8 @@ import { SurveyOutletComponent } from './survey-outlet.component';
                                         'APP.CONCIERGE.SURVEY_QUESTION_TYPES_ALL'
                                             | translate
                                     "
+                                    [ngModel]="selected_type"
+                                    (ngModelChange)="onTypeChange($event)"
                                 >
                                     <mat-option value="">
                                         {{
@@ -371,7 +378,7 @@ import { SurveyOutletComponent } from './survey-outlet.component';
                                     </mat-option>
                                     <mat-option
                                         *ngFor="let item of question_options"
-                                        [value]="item.value"
+                                        [value]="item.id"
                                     >
                                         {{ item.name }}
                                     </mat-option>
@@ -527,6 +534,8 @@ export class SurveyBuilderComponent extends AsyncHandler implements OnInit {
     public view: 'builder' | 'preview' = 'builder';
     public active_page = 0;
     public loading = false;
+    public selected_type = '';
+    public search_text = '';
     public readonly questions = signal([]);
 
     public readonly buildings$ = this._org.building_list;
@@ -694,6 +703,22 @@ export class SurveyBuilderComponent extends AsyncHandler implements OnInit {
                 question_order: order,
             });
         }
+    }
+
+    public onSearchChange(search_text: string) {
+        this.search_text = search_text;
+        this._service.setQuestionFilters({
+            search_text,
+            type: this.selected_type as any,
+        });
+    }
+
+    public onTypeChange(type: any) {
+        this.selected_type = type;
+        this._service.setQuestionFilters({
+            type,
+            search_text: this.search_text,
+        });
     }
 
     public async saveSurvey() {
