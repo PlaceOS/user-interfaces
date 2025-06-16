@@ -111,9 +111,12 @@ export class AppComponent implements OnInit {
         if (!autho) return;
         const user = currentUser();
         const mappings = autho.config['redirect_mappings'] || {};
+        const path_mappings = autho.config['path_mappings'] || {};
         const user_domain = user.email.split('@')[1];
+        const domain_path_mapping = path_mappings[user_domain] || {};
         const redirect_domain = mappings[user_domain] || location.host;
-        const url = `${location.protocol}//${redirect_domain}${this._continue}`;
+        const path = domain_path_mapping[this._continue] || this._continue;
+        const url = `${location.protocol}//${redirect_domain}${path}`;
         // Redirect user
         console.log('Redirect:', url);
         location.href = url;
