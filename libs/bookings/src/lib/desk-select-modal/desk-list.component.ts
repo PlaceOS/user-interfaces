@@ -33,7 +33,7 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
         @if (!(loading | async)?.length) {
             @if ((desks | async)?.length) {
                 <ul class="list-style-none space-y-2">
-                    @for (desk of desks | async; track desk) {
+                    @for (desk of desks | async; track desk.id) {
                         <li
                             desk
                             class="relative w-full overflow-hidden rounded-lg border border-base-200 bg-base-100 shadow"

@@ -38,6 +38,7 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { authority, queryUsers } from '@placeos/ts-client';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
@@ -250,6 +251,7 @@ const DENIED_FILE_TYPES = [
         TranslatePipe,
         IconComponent,
         PlaceUserPipe,
+        MatTooltipModule,
     ],
 })
 export class UserListFieldComponent

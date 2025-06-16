@@ -5,6 +5,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     AsyncHandler,
     i18n,
@@ -193,6 +194,7 @@ const ICONS = {
         MatSelectModule,
         MatInputModule,
         FormsModule,
+        MatTooltipModule,
     ],
 })
 export class CateringItemFiltersComponent

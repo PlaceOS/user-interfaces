@@ -9,7 +9,7 @@ import { BehaviorSubject, of } from 'rxjs';
 import { ExploreSearchService } from '../lib/explore-search.service';
 
 jest.mock('@placeos/ts-client');
-jest.mock('@placeos/users');
+jest.mock('libs/users/src/lib/staff.fn');
 
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { MockProvider } from 'ng-mocks';

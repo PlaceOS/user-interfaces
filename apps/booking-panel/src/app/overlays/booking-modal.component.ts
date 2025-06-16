@@ -66,7 +66,7 @@ export async function openBookingModal(
                     }
                 </header>
                 @if (form && !loading) {
-                    <div [formGroup]="form" class="w-full px-4">
+                    <div form [formGroup]="form" class="w-full px-4">
                         @if (!hide_host && form.controls.organiser) {
                             <div class="field">
                                 <label for="host"

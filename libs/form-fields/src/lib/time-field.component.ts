@@ -83,7 +83,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
                     </div>
                 </button>
             }
-            @for (option of time_options; track option) {
+            @for (option of time_options; track option.id) {
                 <button
                     mat-menu-item
                     [value]="option.id"

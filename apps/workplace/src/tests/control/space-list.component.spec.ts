@@ -22,22 +22,20 @@ describe('ControlSpaceListComponent', () => {
             } as any),
             MockProvider(SpacesService, {
                 initialised: of(true),
-                filter: jest.fn((_) =>
-                    [
-                        {
-                            id: '1',
-                            name: '1',
-                            support_url: '1',
-                            zones: [undefined],
-                        },
-                        {
-                            id: '2',
-                            name: '2',
-                            support_url: '2',
-                            zones: [undefined],
-                        },
-                    ].filter(_),
-                ),
+                all_spaces: of([
+                    {
+                        id: '1',
+                        name: '1',
+                        support_url: '1',
+                        zones: [undefined],
+                    },
+                    {
+                        id: '2',
+                        name: '2',
+                        support_url: '2',
+                        zones: [undefined],
+                    },
+                ]),
             } as any),
         ],
         declarations: [

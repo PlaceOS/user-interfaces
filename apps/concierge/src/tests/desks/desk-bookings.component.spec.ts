@@ -1,14 +1,11 @@
 import { MatMenuModule } from '@angular/material/menu';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import {
-    ActionIconComponent,
-    CustomTableComponent,
-    IconComponent,
-} from '@placeos/components';
+import { ActionIconComponent } from '@placeos/components';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 
 import { SettingsService } from '@placeos/common';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { SimpleTableComponent } from 'libs/components/src/lib/simple-table.component';
 import { DeskBookingsComponent } from '../../app/desks/desk-bookings.component';
 import { DesksStateService } from '../../app/desks/desks-state.service';
@@ -26,7 +23,6 @@ describe('DeskBookingsComponent', () => {
             MockProvider(SettingsService, { time_format: 'h:mm a' }),
         ],
         declarations: [
-            MockComponent(CustomTableComponent),
             MockComponent(ActionIconComponent),
             MockComponent(IconComponent),
             MockComponent(SimpleTableComponent),

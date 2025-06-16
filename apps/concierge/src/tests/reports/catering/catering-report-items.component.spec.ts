@@ -1,6 +1,5 @@
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { CustomTableComponent } from '@placeos/components';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 
@@ -14,10 +13,7 @@ describe('CateringReportItemsComponent', () => {
     let spectator: Spectator<CateringReportItemsComponent>;
     const createComponent = createComponentFactory({
         component: CateringReportItemsComponent,
-        declarations: [
-            MockComponent(CustomTableComponent),
-            MockComponent(SimpleTableComponent),
-        ],
+        declarations: [MockComponent(SimpleTableComponent)],
         providers: [
             MockProvider(CateringReportStateService, {
                 catering_items: new BehaviorSubject({}),

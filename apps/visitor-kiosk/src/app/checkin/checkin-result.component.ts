@@ -186,7 +186,7 @@ export class CheckinResultsComponent extends AsyncHandler implements OnInit {
                 .replace(/{{ title }}/g, event?.title || '')
                 .replace(
                     /{{ room_name }}/g,
-                    event.extension_data?.location_id || '',
+                    event?.extension_data?.location_id || '',
                 )
                 .replace(/{{ host_name }}/g, event?.user_name || '')
                 .replace(/{{ host_email }}/g, event?.user_email || '')
@@ -194,7 +194,7 @@ export class CheckinResultsComponent extends AsyncHandler implements OnInit {
                 .replace(/{{ visitor_email }}/g, guest?.email || '')
                 .replace(
                     /{{ can_use_lift }}/g,
-                    event.extension_data.can_use_lift
+                    event?.extension_data?.can_use_lift
                         ? `Please use the vistor access lift over there`
                         : `Please wait in the lobby.`,
                 );

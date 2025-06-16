@@ -5,6 +5,7 @@ import { unique } from 'libs/common/src/lib/general';
 import { DialogEvent, HashMap } from 'libs/common/src/lib/types';
 
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import { MatRadioModule } from '@angular/material/radio';
@@ -125,6 +126,7 @@ export interface CateringOrderOptionsModalData {
         MatRadioModule,
         MatDialogModule,
         IconComponent,
+        FormsModule,
     ],
 })
 export class CateringOrderOptionsModalComponent {

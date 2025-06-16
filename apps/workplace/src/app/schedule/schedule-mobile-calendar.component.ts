@@ -22,7 +22,7 @@ import {
                     class="clear font-medium"
                     (click)="resetMonth()"
                 >
-                    {{ date_list[6]?.id || active_date | date: 'LLLL YYYY' }}
+                    {{ date_list[6]?.id || active_date | date: 'LLLL yyyy' }}
                 </button>
                 <div class="flex items-center">
                     <button icon matRipple (click)="changeMonth(-1)">

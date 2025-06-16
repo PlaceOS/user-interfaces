@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -25,7 +26,7 @@ import { AssetGroup } from '../asset.class';
             @if (!(loading | async)) {
                 @if ((assets | async)?.length) {
                     <ul class="list-style-none space-y-2 p-2">
-                        @for (asset of assets | async; track asset) {
+                        @for (asset of assets | async; track asset.id) {
                             <li
                                 asset
                                 matRipple
@@ -148,6 +149,7 @@ import { AssetGroup } from '../asset.class';
         MatProgressSpinnerModule,
         MatRippleModule,
         TranslatePipe,
+        IconComponent,
     ],
 })
 export class AssetListComponent {

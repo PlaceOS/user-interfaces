@@ -1,7 +1,6 @@
 import { FormsModule } from '@angular/forms';
 import { MatSliderModule } from '@angular/material/slider';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { BindingDirective, IconComponent } from '@placeos/components';
 import {
     MockComponent,
     MockDirective,
@@ -12,6 +11,8 @@ import {
 import { BehaviorSubject } from 'rxjs';
 import { ControlStateService } from '../app/control-state.service';
 
+import { BindingDirective } from 'libs/components/src/lib/binding.directive';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { ControlStatusBarComponent } from '../app/status-bar.component';
 import { DurationPipe } from '../app/ui/duration.pipe';
 

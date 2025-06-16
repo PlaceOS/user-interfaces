@@ -2,15 +2,13 @@ import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { MapsPeopleService, SettingsService } from '@placeos/common';
-import {
-    IconComponent,
-    ImageCarouselComponent,
-    InteractiveMapComponent,
-} from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { ImageCarouselComponent } from 'libs/components/src/lib/image-carousel.component';
 import { IndoorMapsComponent } from 'libs/components/src/lib/indoor-maps.component';
+import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
 import { StatusPillComponent } from 'libs/components/src/lib/status-pill.component';
 import { BehaviorSubject } from 'rxjs';
 import { BookingDetailsModalComponent } from '../lib/booking-details-modal.component';

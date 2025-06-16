@@ -40,7 +40,7 @@ import { ControlStateService, RoomInput } from '../control-state.service';
                                 </h4>
                                 @for (
                                     input of (input_map | async)[type];
-                                    track input
+                                    track input.id || input.name
                                 ) {
                                     <button
                                         btn

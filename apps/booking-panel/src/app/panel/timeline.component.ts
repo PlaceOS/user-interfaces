@@ -17,7 +17,7 @@ import { PanelStateService } from '../panel-state.service';
         <div
             class="relative flex h-16 w-full items-center bg-secondary text-white"
         >
-            @for (block of blocks | async; track block) {
+            @for (block of blocks | async; track block.hour) {
                 <div
                     block
                     class="relative flex h-full flex-1 items-end border-dashed border-opacity-50"

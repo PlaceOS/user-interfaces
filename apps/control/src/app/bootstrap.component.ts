@@ -40,7 +40,7 @@ const STORE_KEY = 'PLACEOS.CONTROL.system';
                 </mat-form-field>
                 <mat-autocomplete #auto="matAutocomplete">
                     @for (option of space_list | async; track option) {
-                        <mat-option [value]="option.id">
+                        <mat-option [value]="option?.id">
                             <div
                                 class="flex w-full items-center space-x-4 leading-tight"
                             >
@@ -148,7 +148,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
                       q: search,
                       limit: 20,
                       fields: ['id', 'name', 'display_name', 'email'].join(','),
-                      zone_id: this._org.organisation.id,
+                      zone_id: this._org.organisation?.id,
                   });
         }),
         map((_) => _.data.map((_) => new Space(_ as any))),

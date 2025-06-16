@@ -3,6 +3,7 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatRippleModule } from '@angular/material/core';
 import { AsyncHandler, SettingsService } from '@placeos/common';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
@@ -123,7 +124,7 @@ import { SpaceFiltersComponent } from './space-filters.component';
             }
         `,
     ],
-    imports: [CommonModule, MatRippleModule, TranslatePipe],
+    imports: [CommonModule, MatRippleModule, TranslatePipe, IconComponent],
 })
 export class SpaceFiltersDisplayComponent
     extends AsyncHandler

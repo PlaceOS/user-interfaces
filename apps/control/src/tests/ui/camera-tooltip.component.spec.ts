@@ -5,15 +5,10 @@ import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSelectModule } from '@angular/material/select';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import {
-    BindingDirective,
-    CustomTooltipData,
-    IconComponent,
-} from '@placeos/components';
 import { MockComponent, MockDirective, MockModule } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
-import { ControlStateService } from '../../app/control-state.service';
 
+import { ControlStateService } from '../../app/control-state.service';
 import { CameraTooltipComponent } from '../../app/ui/camera-tooltip.component';
 import { JoystickComponent } from '../../app/ui/joystick.component';
 
@@ -23,6 +18,9 @@ jest.mock('@placeos/ts-client', () => {
 });
 
 import * as client from '@placeos/ts-client';
+import { BindingDirective } from 'libs/components/src/lib/binding.directive';
+import { CustomTooltipData } from 'libs/components/src/lib/custom-tooltip.component';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
 
 describe('CameraTooltipComponent', () => {
     let spectator: Spectator<CameraTooltipComponent>;

@@ -9,10 +9,10 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
-import { MockComponent, MockProvider } from 'ng-mocks';
+import { MockProvider } from 'ng-mocks';
 import { BookModule } from '../app/rooms/book.module';
-import { FindSpaceComponent } from '../app/rooms/find-space/find-space.component';
 import { RoomBookingComponent } from '../app/rooms/room-booking.component';
+import { UpcomingBookingsComponent } from '../app/rooms/upcoming-bookings.component';
 
 describe('RoomBookingComponent', () => {
     const formModel = {
@@ -51,7 +51,6 @@ describe('RoomBookingComponent', () => {
             } as any),
             MockProvider(SettingsService, { get: jest.fn() }),
         ],
-        declarations: [MockComponent(FindSpaceComponent)],
         stubsEnabled: false,
         routes: [
             {
@@ -60,7 +59,7 @@ describe('RoomBookingComponent', () => {
             },
             {
                 path: 'schedule/view',
-                component: FindSpaceComponent,
+                component: UpcomingBookingsComponent,
             },
         ],
     });

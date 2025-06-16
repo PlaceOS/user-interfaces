@@ -1,9 +1,10 @@
 import { FormsModule } from '@angular/forms';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { IconComponent, ImageCarouselComponent } from '@placeos/components';
-import { CounterComponent } from 'libs/form-fields/src/lib/counter.component';
 import { MockComponent } from 'ng-mocks';
 
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { ImageCarouselComponent } from 'libs/components/src/lib/image-carousel.component';
+import { CounterComponent } from 'libs/form-fields/src/lib/counter.component';
 import { AssetDetailsComponent } from '../../lib/asset-select-modal/asset-details.component';
 import { AssetGroup } from '../../lib/asset.class';
 

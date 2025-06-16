@@ -1,8 +1,9 @@
 import { Component, Input } from '@angular/core';
 import { ApplicationIcon } from 'libs/common/src/lib/types';
+import { SafePipe } from './safe.pipe';
 
 @Component({
-    selector: 'icon,icon',
+    selector: 'icon,i[icon]',
     template: `
         <div class="flex h-[1.25em] w-[1.25em] items-center justify-center">
             @if (!icon || icon.type !== 'img') {
@@ -26,7 +27,7 @@ import { ApplicationIcon } from 'libs/common/src/lib/types';
             }
         `,
     ],
-    imports: [],
+    imports: [SafePipe],
 })
 export class IconComponent {
     @Input() public className = 'material-symbols-rounded';

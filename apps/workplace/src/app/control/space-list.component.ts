@@ -32,7 +32,7 @@ import { BehaviorSubject, combineLatest } from 'rxjs';
         @let spaces = filtered_spaces | async;
         @if (spaces.length) {
             <div class="flex w-full flex-1 flex-col overflow-auto p-4">
-                @for (space of spaces; track space) {
+                @for (space of spaces; track space.id) {
                     <a-control-space-list-item
                         [space]="space"
                     ></a-control-space-list-item>

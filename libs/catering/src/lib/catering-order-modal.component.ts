@@ -11,6 +11,7 @@ import {
 } from '@placeos/common';
 
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -206,9 +207,6 @@ export interface CateringOrderModalData {
                         btn
                         matRipple
                         [disabled]="!order.item_count"
-                        [matBadge]="order.item_count"
-                        [matBadgeHidden]="!order.item_count"
-                        matBadgeColor="warn"
                         (click)="show_order_details = true"
                     >
                         {{ 'COMMON.CONFIRM' | translate }}
@@ -273,6 +271,7 @@ export interface CateringOrderModalData {
         MatProgressSpinnerModule,
         MatTabsModule,
         IconComponent,
+        FormsModule,
     ],
 })
 export class CateringOrderModalComponent

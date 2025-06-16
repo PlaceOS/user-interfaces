@@ -70,6 +70,7 @@ export const FAV_DESK_KEY = 'favourite_spaces';
                 class="relative flex h-1/2 flex-1 sm:h-[65vh] sm:flex-none sm:space-x-2"
             >
                 <div
+                    filters
                     class="h-full w-full overflow-y-auto overflow-x-hidden rounded border border-base-300 shadow sm:block sm:w-[20rem]"
                     [class.hidden]="!show_filters"
                 >
@@ -91,6 +92,7 @@ export const FAV_DESK_KEY = 'favourite_spaces';
                     }
                     @if (view === 'list') {
                         <new-space-list
+                            list
                             [active]="displayed?.id"
                             [selected]="selected_ids"
                             [favorites]="favorites"
@@ -99,6 +101,7 @@ export const FAV_DESK_KEY = 'favourite_spaces';
                         ></new-space-list>
                     } @else {
                         <new-space-map
+                            map
                             class="h-full w-full"
                             [is_displayed]="!!displayed"
                             [active]="displayed?.id"
@@ -114,6 +117,7 @@ export const FAV_DESK_KEY = 'favourite_spaces';
                     [class.md:block]="displayed"
                 >
                     <new-space-details
+                        details
                         [space]="displayed"
                         [active]="selected_ids.includes(displayed?.id)"
                         [hide_map]="view === 'map'"

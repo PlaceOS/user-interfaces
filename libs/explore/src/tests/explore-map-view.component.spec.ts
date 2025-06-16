@@ -1,3 +1,4 @@
+import { fakeAsync } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
@@ -6,17 +7,18 @@ import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 import { BehaviorSubject, of } from 'rxjs';
 
 import { SettingsService } from '@placeos/common';
-import {
-    IndoorMapsComponent,
-    InteractiveMapComponent,
-} from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
 import { SpacesService } from '@placeos/spaces';
 
 import { MapsPeopleService } from 'libs/common/src/lib/mapspeople.service';
+import { IndoorMapsComponent } from 'libs/components/src/lib/indoor-maps.component';
+import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
+import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 import { ExploreDesksService } from '../lib/explore-desks.service';
+import { ExploreLockersService } from '../lib/explore-lockers.service';
 import { ExploreMapControlComponent } from '../lib/explore-map-control.component';
 import { ExploreMapViewComponent } from '../lib/explore-map-view.component';
+import { ExploreParkingService } from '../lib/explore-parking.service';
 import { ExploreSpacesService } from '../lib/explore-spaces.service';
 import { ExploreStateService } from '../lib/explore-state.service';
 import { ExploreZonesService } from '../lib/explore-zones.service';
@@ -24,15 +26,11 @@ import { ExploreZoomControlComponent } from '../lib/explore-zoom-control.compone
 
 jest.mock('@placeos/ts-client');
 jest.mock('@placeos/common');
-jest.mock('@placeos/users');
+jest.mock('libs/users/src/lib/staff.fn');
 
-import { fakeAsync } from '@angular/core/testing';
 import * as common_mod from '@placeos/common';
 import * as ts_client from '@placeos/ts-client';
-import * as user_mod from '@placeos/users';
-import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
-import { ExploreLockersService } from '../lib/explore-lockers.service';
-import { ExploreParkingService } from '../lib/explore-parking.service';
+import * as user_mod from 'libs/users/src/lib/staff.fn';
 
 describe('ExploreMapViewComponent', () => {
     let spectator: SpectatorRouting<ExploreMapViewComponent>;

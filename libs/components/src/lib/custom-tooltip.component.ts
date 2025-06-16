@@ -16,6 +16,7 @@ import {
     ViewChild,
 } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
+import { SanitizePipe } from './sanitise.pipe';
 
 @Injectable()
 export class CustomTooltipData<T = any> {
@@ -52,7 +53,7 @@ export class CustomTooltipData<T = any> {
             </div>
         </ng-template>
     `,
-    imports: [CommonModule, PortalModule],
+    imports: [CommonModule, PortalModule, SanitizePipe],
 })
 export class CustomTooltipComponent<T = any>
     extends AsyncHandler

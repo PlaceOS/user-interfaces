@@ -1,11 +1,10 @@
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import {
-    IconComponent,
-    ImageCarouselComponent,
-    InteractiveMapComponent,
-} from '@placeos/components';
 import { Desk } from '@placeos/organisation';
 import { MockComponent } from 'ng-mocks';
+
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { ImageCarouselComponent } from 'libs/components/src/lib/image-carousel.component';
+import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
 import { DeskDetailsComponent } from '../../lib/desk-select-modal/desk-details.component';
 
 describe('DeskDetailsComponent', () => {

@@ -6,7 +6,8 @@ import {
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { MockComponent, MockModule } from 'ng-mocks';
 
-import { IconComponent, SafePipe } from '@placeos/components';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { SafePipe } from 'libs/components/src/lib/safe.pipe';
 import { EmbeddedControlModalComponent } from '../../app/overlays/embedded-control-modal.component';
 
 describe('EmbeddedControlModalComponent', () => {

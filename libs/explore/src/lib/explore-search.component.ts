@@ -62,7 +62,10 @@ import { ExploreSearchService, SearchResult } from './explore-search.service';
                         {{ 'COMMON.SEARCH_EMPTY' | translate }}
                     </mat-option>
                 }
-                @for (option of results | async | slice: 0 : 5; track option) {
+                @for (
+                    option of results | async | slice: 0 : 5;
+                    track option.name
+                ) {
                     <mat-option [value]="option.name" (click)="select(option)">
                         <div
                             class="flex w-[22rem] max-w-[calc(100vw-2rem)] items-center leading-tight"

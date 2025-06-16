@@ -27,7 +27,7 @@ import { ExploreStateService } from './explore-state.service';
                         [ngModel]="building | async"
                         (ngModelChange)="setBuilding($event)"
                     >
-                        @for (bld of buildings | async; track bld) {
+                        @for (bld of buildings | async; track bld.id) {
                             <mat-option [value]="bld">
                                 {{ bld.display_name || bld.name }}
                             </mat-option>
@@ -48,7 +48,7 @@ import { ExploreStateService } from './explore-state.service';
                         [ngModel]="level | async"
                         (ngModelChange)="setLevel($event)"
                     >
-                        @for (lvl of levels | async; track lvl) {
+                        @for (lvl of levels | async; track lvl.id) {
                             <mat-option [value]="lvl">
                                 {{ lvl.display_name || lvl.name }}
                             </mat-option>

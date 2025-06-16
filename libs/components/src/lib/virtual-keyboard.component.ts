@@ -30,7 +30,7 @@ const DEFAULT_KEYS = [
                 keyboard-view
                 class="flex w-screen flex-col space-y-4 border-t border-base-200 bg-base-200 p-2"
             >
-                @for (row of keyset; track row) {
+                @for (row of keyset; track row[0]) {
                     <div row class="flex items-center justify-center space-x-2">
                         @for (key of row; track key) {
                             <button

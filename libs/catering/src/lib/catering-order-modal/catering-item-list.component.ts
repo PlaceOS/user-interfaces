@@ -29,7 +29,7 @@ import { CateringOrderStateService } from './catering-order-state.service';
                     }}
                 </p>
                 <ul class="list-style-none space-y-2 p-2">
-                    @for (item of list | async; track item) {
+                    @for (item of list | async; track item.custom_id) {
                         <catering-item-list-item
                             class="block"
                             [item]="item"
@@ -52,7 +52,7 @@ import { CateringOrderStateService } from './catering-order-state.service';
             @if (!(loading | async)) {
                 @if ((item_list | async)?.length) {
                     <ul class="list-style-none space-y-2 p-2">
-                        @for (item of item_list | async; track item) {
+                        @for (item of item_list | async; track item.custom_id) {
                             <catering-item-list-item
                                 class="block"
                                 [item]="item"

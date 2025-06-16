@@ -54,7 +54,7 @@ export interface DurationOption {
             <icon class="text-2xl">arrow_drop_down</icon>
         </button>
         <mat-menu #menu="matMenu" class="max-h-[15rem] min-w-[18rem]">
-            @for (option of duration_options; track option) {
+            @for (option of duration_options; track option.id) {
                 <button
                     mat-menu-item
                     class="text-left"

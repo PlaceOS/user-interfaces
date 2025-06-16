@@ -1,8 +1,9 @@
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { CustomTooltipData, SanitizePipe } from '@placeos/components';
 import { BehaviorSubject } from 'rxjs';
 import { ControlStateService } from '../../app/control-state.service';
 
+import { CustomTooltipData } from 'libs/components/src/lib/custom-tooltip.component';
+import { SanitizePipe } from 'libs/components/src/lib/sanitise.pipe';
 import { MockPipe } from 'ng-mocks';
 import { HelpTooltipComponent } from '../../app/ui/help-tooltip.component';
 

@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Inject, Output } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -106,6 +107,7 @@ export interface DeskConfirmModalData {
         DateFieldComponent,
         UserSearchFieldComponent,
         MatDialogModule,
+        FormsModule,
     ],
 })
 export class DeskConfirmModalComponent {

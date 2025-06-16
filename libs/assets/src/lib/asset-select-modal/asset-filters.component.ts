@@ -5,6 +5,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import {
     addDays,
@@ -116,6 +117,7 @@ import { AssetStateService } from '../asset-state.service';
         MatSelectModule,
         TranslatePipe,
         DurationFieldComponent,
+        MatTooltipModule,
     ],
 })
 export class AssetFiltersComponent extends AsyncHandler {

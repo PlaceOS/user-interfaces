@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { ViewerFeature } from '@placeos/svg-viewer';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { ImageCarouselComponent } from 'libs/components/src/lib/image-carousel.component';
 import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
 import { MapPinComponent } from 'libs/components/src/lib/map-pin.component';
@@ -192,6 +193,7 @@ import { Space } from '../space.class';
         MatRippleModule,
         InteractiveMapComponent,
         ImageCarouselComponent,
+        IconComponent,
     ],
 })
 export class SpaceDetailsComponent implements OnChanges {

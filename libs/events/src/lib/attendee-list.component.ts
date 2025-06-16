@@ -1,5 +1,7 @@
+import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { UserAvatarComponent } from 'libs/components/src/lib/user-avatar.component';
@@ -67,10 +69,12 @@ import { User } from 'libs/users/src/lib/user.class';
     `,
     styles: [``],
     imports: [
+        CommonModule,
         TranslatePipe,
         MatRippleModule,
         IconComponent,
         UserAvatarComponent,
+        MatTooltipModule,
     ],
 })
 export class AttendeeListComponent {

@@ -14,7 +14,7 @@ import { ControlStateService } from './control-state.service';
                     output of outputs
                         | async
                         | slice: page * 6 : (page + 1) * 6;
-                    track output
+                    track output.id || output.name
                 ) {
                     <output-display
                         class="w-full min-w-[33%] sm:w-auto"
@@ -33,7 +33,7 @@ import { ControlStateService } from './control-state.service';
             <div
                 class="flex h-12 w-full items-center justify-center space-x-2 px-2 pb-2"
             >
-                @for (idx of page_count | async; track idx; let i = $index) {
+                @for (idx of page_count | async; track i; let i = $index) {
                     <button
                         icon
                         matRipple
