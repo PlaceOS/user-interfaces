@@ -113,8 +113,8 @@ export class AppComponent implements OnInit {
         const mappings = autho.config['redirect_mappings'] || {};
         const path_mappings = autho.config['path_mappings'] || {};
         const user_domain = user.email.split('@')[1];
-        const domain_path_mapping = path_mappings[user_domain] || {};
         const redirect_domain = mappings[user_domain] || location.host;
+        const domain_path_mapping = path_mappings[redirect_domain] || {};
         let redirect_path = this._continue;
         for (const path in domain_path_mapping) {
             redirect_path = redirect_path.replace(
