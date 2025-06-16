@@ -31,17 +31,18 @@ import { debounceTime, distinctUntilChanged, map } from 'rxjs/operators';
                 [placeholder]="placeholder"
                 [(ngModel)]="search"
             />
-            <button
-                *ngIf="searchInput.value?.length"
-                class="sm text-xs"
-                matSuffix
-                icon
-                matRipple
-                aria-label="Clear"
-                (click)="clearSearch()"
-            >
-                <icon>close</icon>
-            </button>
+            @if (searchInput.value?.length) {
+                <button
+                    class="sm text-xs"
+                    matSuffix
+                    icon
+                    matRipple
+                    aria-label="Clear"
+                    (click)="clearSearch()"
+                >
+                    <icon>close</icon>
+                </button>
+            }
         </mat-form-field>
     `,
     standalone: false,

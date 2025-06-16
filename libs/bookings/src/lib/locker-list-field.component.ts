@@ -2,7 +2,6 @@ import { Component, forwardRef, Input } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 
-import { CommonModule } from '@angular/common';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
@@ -20,90 +19,110 @@ const EMPTY_FAVS: string[] = [];
     selector: `locker-list-field`,
     template: `
         <div list class="space-y-2">
-            <div
-                locker
-                class="relative flex w-full items-center rounded-lg border border-base-200 p-2 shadow"
-                *ngFor="let item of items"
-            >
-                <div *ngIf="features?.length" class="flex flex-col">
-                    <label for="title">{{ 'COMMON.TYPE' | translate }}</label>
-                    <div features class="flex flex-wrap items-center space-x-2">
-                        <mat-checkbox
-                            *ngFor="let opt of features"
-                            [ngModel]="(selected_features || []).includes(opt)"
-                            (ngModelChange)="setFeature(opt, $event)"
-                            [ngModelOptions]="{ standalone: true }"
-                        >
-                            {{ opt }}
-                        </mat-checkbox>
-                    </div>
-                </div>
+            @for (item of items; track item) {
                 <div
-                    class="mr-4 flex h-20 w-20 items-center justify-center overflow-hidden rounded-xl bg-base-200"
+                    locker
+                    class="relative flex w-full items-center rounded-lg border border-base-200 p-2 shadow"
                 >
-                    <img
-                        auth
-                        *ngIf="item.images?.length; else placeholder"
-                        [source]="item.images[0]"
-                        class="min-h-full object-cover"
-                    />
-                    <ng-template #placeholder>
-                        <img
-                            class="m-auto"
-                            src="assets/icons/locker-placeholder.svg"
-                        />
-                    </ng-template>
-                </div>
-                <div class="space-y-2 pb-4">
-                    <div class="font-medium">
-                        {{ item.name || 'Locker' }}
-                    </div>
-                    <div class="flex items-center space-x-2 text-sm">
-                        <icon class="text-blue-500 text-base">place</icon>
-                        <p>
-                            {{
-                                (item?.zones | level)?.display_name ||
-                                    (item?.zones | level)?.name
-                            }}
-                        </p>
-                    </div>
-                    <div
-                        class="flex items-center space-x-2 text-sm"
-                        *ngIf="item.accessible"
-                    >
-                        <icon class="text-base text-info">accessible</icon>
-                        <p>{{ 'BOOKINGS.LOCKER_ACCESSIBLE' | translate }}</p>
-                    </div>
-                    <div
-                        class="absolute bottom-0 right-0 flex items-center justify-end text-xs"
-                    >
-                        <button
-                            btn
-                            matRipple
-                            name="edit-locker"
-                            class="clear"
-                            (click)="changeResources(item)"
-                        >
-                            <div class="flex items-center space-x-2">
-                                <icon>edit</icon>
-                                {{ 'COMMON.CHANGE' | translate }}
+                    @if (features?.length) {
+                        <div class="flex flex-col">
+                            <label for="title">{{
+                                'COMMON.TYPE' | translate
+                            }}</label>
+                            <div
+                                features
+                                class="flex flex-wrap items-center space-x-2"
+                            >
+                                @for (opt of features; track opt) {
+                                    <mat-checkbox
+                                        [ngModel]="
+                                            (selected_features || []).includes(
+                                                opt
+                                            )
+                                        "
+                                        (ngModelChange)="
+                                            setFeature(opt, $event)
+                                        "
+                                        [ngModelOptions]="{ standalone: true }"
+                                    >
+                                        {{ opt }}
+                                    </mat-checkbox>
+                                }
                             </div>
-                        </button>
-                        <button
-                            btn
-                            matRipple
-                            name="remove-locker"
-                            class="clear"
-                            (click)="removeResource(item)"
-                        >
-                            <div class="flex items-center space-x-2">
-                                <icon>close</icon>
-                                {{ 'COMMON.REMOVE' | translate }}
+                        </div>
+                    }
+                    <div
+                        class="mr-4 flex h-20 w-20 items-center justify-center overflow-hidden rounded-xl bg-base-200"
+                    >
+                        @if (item.images?.length) {
+                            <img
+                                auth
+                                [source]="item.images[0]"
+                                class="min-h-full object-cover"
+                            />
+                        } @else {
+                            <img
+                                class="m-auto"
+                                src="assets/icons/locker-placeholder.svg"
+                            />
+                        }
+                    </div>
+                    <div class="space-y-2 pb-4">
+                        <div class="font-medium">
+                            {{ item.name || 'Locker' }}
+                        </div>
+                        <div class="flex items-center space-x-2 text-sm">
+                            <icon class="text-blue-500 text-base">place</icon>
+                            <p>
+                                {{
+                                    (item?.zones | level)?.display_name ||
+                                        (item?.zones | level)?.name
+                                }}
+                            </p>
+                        </div>
+                        @if (item.accessible) {
+                            <div class="flex items-center space-x-2 text-sm">
+                                <icon class="text-base text-info"
+                                    >accessible</icon
+                                >
+                                <p>
+                                    {{
+                                        'BOOKINGS.LOCKER_ACCESSIBLE' | translate
+                                    }}
+                                </p>
                             </div>
-                        </button>
+                        }
+                        <div
+                            class="absolute bottom-0 right-0 flex items-center justify-end text-xs"
+                        >
+                            <button
+                                btn
+                                matRipple
+                                name="edit-locker"
+                                class="clear"
+                                (click)="changeResources(item)"
+                            >
+                                <div class="flex items-center space-x-2">
+                                    <icon>edit</icon>
+                                    {{ 'COMMON.CHANGE' | translate }}
+                                </div>
+                            </button>
+                            <button
+                                btn
+                                matRipple
+                                name="remove-locker"
+                                class="clear"
+                                (click)="removeResource(item)"
+                            >
+                                <div class="flex items-center space-x-2">
+                                    <icon>close</icon>
+                                    {{ 'COMMON.REMOVE' | translate }}
+                                </div>
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
+            }
         </div>
         <button
             btn
@@ -130,7 +149,6 @@ const EMPTY_FAVS: string[] = [];
         },
     ],
     imports: [
-        CommonModule,
         IconComponent,
         TranslatePipe,
         MatRippleModule,

@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -63,13 +62,7 @@ import { ExploreStateService } from './explore-state.service';
             }
         `,
     ],
-    imports: [
-        CommonModule,
-        MatRippleModule,
-        TranslatePipe,
-        IconComponent,
-        MatTooltipModule,
-    ],
+    imports: [MatRippleModule, TranslatePipe, IconComponent, MatTooltipModule],
 })
 export class ExploreZoomControlComponent {
     public readonly zoomIn = () =>

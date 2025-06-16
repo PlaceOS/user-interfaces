@@ -45,12 +45,11 @@ import { GroupEventsStateService } from './group-events-state.service';
                         (ngModelChange)="setPeriod($event)"
                         placeholder="Select Period"
                     >
-                        <mat-option
-                            [value]="range.id"
-                            *ngFor="let range of period_list"
-                        >
-                            {{ range.display }}
-                        </mat-option>
+                        @for (range of period_list; track range) {
+                            <mat-option [value]="range.id">
+                                {{ range.display }}
+                            </mat-option>
+                        }
                     </mat-select>
                 </mat-form-field>
             </div>
@@ -67,26 +66,28 @@ import { GroupEventsStateService } from './group-events-state.service';
                     <h2 class="p-4 text-lg font-medium">
                         {{ 'COMMON.FILTERS' | translate }}
                     </h2>
-                    <div
-                        class="flex flex-col space-y-2 px-4"
-                        *ngIf="(tags | async)?.length"
-                    >
-                        <h3>{{ 'COMMON.TAGS' | translate }}</h3>
-                        <button
-                            matRipple
-                            class="flex w-full items-center rounded text-left"
-                            *ngFor="let tag of tags | async"
-                            (click)="toggleTag(tag)"
-                        >
-                            <mat-checkbox
-                                [ngModel]="
-                                    (filters | async)?.tags?.includes(tag)
-                                "
-                            >
-                                {{ tag }}
-                            </mat-checkbox>
-                        </button>
-                    </div>
+                    @if ((tags | async)?.length) {
+                        <div class="flex flex-col space-y-2 px-4">
+                            <h3>{{ 'COMMON.TAGS' | translate }}</h3>
+                            @for (tag of tags | async; track tag) {
+                                <button
+                                    matRipple
+                                    class="flex w-full items-center rounded text-left"
+                                    (click)="toggleTag(tag)"
+                                >
+                                    <mat-checkbox
+                                        [ngModel]="
+                                            (filters | async)?.tags?.includes(
+                                                tag
+                                            )
+                                        "
+                                    >
+                                        {{ tag }}
+                                    </mat-checkbox>
+                                </button>
+                            }
+                        </div>
+                    }
                 </div>
             </div>
         </div>

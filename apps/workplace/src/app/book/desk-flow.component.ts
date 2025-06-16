@@ -9,14 +9,14 @@ import { first } from 'rxjs/operators';
     selector: 'placeos-new-book-desk-flow',
     template: `
         <div class="z-50 h-full w-full bg-base-100">
-            <ng-container [ngSwitch]="view">
-                <ng-container *ngSwitchCase="'success'">
+            @switch (view) {
+                @case ('success') {
                     <desk-flow-success></desk-flow-success>
-                </ng-container>
-                <ng-container *ngSwitchDefault>
+                }
+                @default {
                     <desk-flow-form></desk-flow-form>
-                </ng-container>
-            </ng-container>
+                }
+            }
         </div>
     `,
     styles: [

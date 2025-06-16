@@ -135,36 +135,38 @@ import { SignageStateService } from './signage-state.service';
                         (remove)="removePlaylist($event)"
                         (ondrop)="drop($event)"
                     >
-                        <div
-                            class="mt-4 flex flex-wrap items-center overflow-auto"
-                            *ngIf="!(active_trigger | async)"
-                        >
-                            @for (
-                                zone of (active_display | async)?.zones;
-                                track zone
-                            ) {
-                                <a
-                                    class="m-1 whitespace-nowrap rounded bg-base-200 px-2 py-1 font-mono text-xs"
+                        @if (!(active_trigger | async)) {
+                            <div
+                                class="mt-4 flex flex-wrap items-center overflow-auto"
+                            >
+                                @for (
+                                    zone of (active_display | async)?.zones;
+                                    track zone
+                                ) {
+                                    <a
+                                        class="m-1 whitespace-nowrap rounded bg-base-200 px-2 py-1 font-mono text-xs"
+                                        matRipple
+                                        [routerLink]="['/signage', 'zones']"
+                                        [queryParams]="{ zone: zone }"
+                                    >
+                                        {{
+                                            (zone | zone | async)
+                                                ?.display_name ||
+                                                (zone | zone | async)?.name
+                                        }}
+                                    </a>
+                                }
+                                <button
+                                    class="m-1 rounded px-2 py-1 font-mono text-xs underline"
                                     matRipple
-                                    [routerLink]="['/signage', 'zones']"
-                                    [queryParams]="{ zone: zone }"
                                 >
                                     {{
-                                        (zone | zone | async)?.display_name ||
-                                            (zone | zone | async)?.name
+                                        'APP.CONCIERGE.SIGNAGE_DISPLAYS_ZONE_ADD'
+                                            | translate
                                     }}
-                                </a>
-                            }
-                            <button
-                                class="m-1 rounded px-2 py-1 font-mono text-xs underline"
-                                matRipple
-                            >
-                                {{
-                                    'APP.CONCIERGE.SIGNAGE_DISPLAYS_ZONE_ADD'
-                                        | translate
-                                }}
-                            </button>
-                        </div>
+                                </button>
+                            </div>
+                        }
                         <button
                             icon
                             matRipple
@@ -222,12 +224,13 @@ import { SignageStateService } from './signage-state.service';
                         </p>
                     </div>
                 }
-                <search-overlay
-                    *ngIf="adding"
-                    [item_list]="playlists | async"
-                    (selected)="addPlaylist($event)"
-                    (close)="adding = false"
-                ></search-overlay>
+                @if (adding) {
+                    <search-overlay
+                        [item_list]="playlists | async"
+                        (selected)="addPlaylist($event)"
+                        (close)="adding = false"
+                    ></search-overlay>
+                }
             </div>
         </div>
     `,

@@ -85,22 +85,22 @@ const QR_CODES = {};
                     (click)="copyToClipboard(row.map_id || row.id)"
                 >
                     <div>{{ row.id || row.map_id }}</div>
-                    <div
-                        *ngIf="row.id && row.map_id !== row.id"
-                        class="font-mono text-[0.625rem] opacity-30"
-                    >
-                        {{ row.map_id }}
-                    </div>
+                    @if (row.id && row.map_id !== row.id) {
+                        <div class="font-mono text-[0.625rem] opacity-30">
+                            {{ row.map_id }}
+                        </div>
+                    }
                 </button>
             </ng-template>
             <ng-template #item_list_template let-data="data">
                 <div class="flex flex-wrap p-2">
-                    <span
-                        class="m-1 rounded-2xl bg-info px-2 py-1 font-mono text-xs text-info-content"
-                        *ngFor="let item of data"
-                    >
-                        {{ item }}
-                    </span>
+                    @for (item of data; track item) {
+                        <span
+                            class="m-1 rounded-2xl bg-info px-2 py-1 font-mono text-xs text-info-content"
+                        >
+                            {{ item }}
+                        </span>
+                    }
                 </div>
             </ng-template>
             <ng-template #bool_template let-data="data">
@@ -113,22 +113,24 @@ const QR_CODES = {};
                 </div>
             </ng-template>
             <ng-template #assigned_template let-row="row" let-data="data">
-                <div *ngIf="!data" class="p-4 opacity-30">
-                    {{ 'APP.CONCIERGE.UNASSIGNED' | translate }}
-                </div>
-                <button
-                    *ngIf="data"
-                    class="px-4 py-2 text-left leading-tight"
-                    (click)="copyToClipboard(data, 'assigned')"
-                >
-                    <div class="">{{ row.assigned_name || data }}</div>
-                    <div
-                        *ngIf="row.assigned_name"
-                        class="font-mono text-[0.625rem] opacity-30"
-                    >
-                        {{ data }}
+                @if (!data) {
+                    <div class="p-4 opacity-30">
+                        {{ 'APP.CONCIERGE.UNASSIGNED' | translate }}
                     </div>
-                </button>
+                }
+                @if (data) {
+                    <button
+                        class="px-4 py-2 text-left leading-tight"
+                        (click)="copyToClipboard(data, 'assigned')"
+                    >
+                        <div class="">{{ row.assigned_name || data }}</div>
+                        @if (row.assigned_name) {
+                            <div class="font-mono text-[0.625rem] opacity-30">
+                                {{ data }}
+                            </div>
+                        }
+                    </button>
+                }
             </ng-template>
             <ng-template #action_template let-row="row">
                 <div class="flex items-center justify-end space-x-2 p-2">
@@ -196,30 +198,34 @@ const QR_CODES = {};
                     </ng-template>
                 </div>
             </ng-template>
-            <div
-                class="absolute inset-0 flex flex-col items-center justify-center space-y-2 bg-base-100 bg-opacity-60"
-                *ngIf="loading"
-            >
-                <mat-spinner diameter="32"></mat-spinner>
-                <p>{{ loading }}</p>
-            </div>
-            <div
-                *ngIf="dragging"
-                class="absolute inset-0 flex items-center justify-center bg-neutral"
-            >
-                <div class="rounded bg-base-100 p-4 shadow">
-                    <div
-                        class="flex h-64 w-64 flex-col items-center justify-center rounded border-4 border-dashed border-base-200"
-                    >
-                        {{ 'APP.CONCIERGE.DESKS_DROP_TEMPLATE' | translate }}
-                    </div>
+            @if (loading) {
+                <div
+                    class="absolute inset-0 flex flex-col items-center justify-center space-y-2 bg-base-100 bg-opacity-60"
+                >
+                    <mat-spinner diameter="32"></mat-spinner>
+                    <p>{{ loading }}</p>
                 </div>
-                <input
-                    type="file"
-                    class="absolute inset-0 opacity-0"
-                    (change)="loadCSVData($event)"
-                />
-            </div>
+            }
+            @if (dragging) {
+                <div
+                    class="absolute inset-0 flex items-center justify-center bg-neutral"
+                >
+                    <div class="rounded bg-base-100 p-4 shadow">
+                        <div
+                            class="flex h-64 w-64 flex-col items-center justify-center rounded border-4 border-dashed border-base-200"
+                        >
+                            {{
+                                'APP.CONCIERGE.DESKS_DROP_TEMPLATE' | translate
+                            }}
+                        </div>
+                    </div>
+                    <input
+                        type="file"
+                        class="absolute inset-0 opacity-0"
+                        (change)="loadCSVData($event)"
+                    />
+                </div>
+            }
         </div>
     `,
     styles: [``],

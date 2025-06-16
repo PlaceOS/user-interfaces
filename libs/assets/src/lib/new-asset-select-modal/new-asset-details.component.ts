@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import {
     Component,
     EventEmitter,
@@ -19,7 +18,7 @@ import { AssetGroup } from '../asset.class';
 @Component({
     selector: 'new-asset-details',
     template: `
-        <ng-container *ngIf="item; else empty_state">
+        @if (item) {
             <section image class="relative h-64 w-full bg-base-200 sm:h-40">
                 <image-carousel
                     [images]="item.images"
@@ -95,8 +94,7 @@ import { AssetGroup } from '../asset.class';
                     </div>
                 </section>
             </div>
-        </ng-container>
-        <ng-template #empty_state>
+        } @else {
             <div
                 empty
                 class="flex h-full w-full flex-col items-center justify-center space-y-2 p-8"
@@ -105,11 +103,10 @@ import { AssetGroup } from '../asset.class';
                     {{ 'BOOKINGS.ASSETS_SELECT' | translate }}
                 </p>
             </div>
-        </ng-template>
+        }
     `,
     styles: [``],
     imports: [
-        CommonModule,
         ImageCarouselComponent,
         IconComponent,
         TranslatePipe,

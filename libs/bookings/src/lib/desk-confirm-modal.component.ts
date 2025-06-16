@@ -31,39 +31,46 @@ export interface DeskConfirmModalData {
         <header>
             <h2>Confirm Booking</h2>
             <div class="flex-1"></div>
-            <button icon mat-dialog-close *ngIf="!loading">
-                <icon>close</icon>
-            </button>
+            @if (!loading) {
+                <button icon mat-dialog-close>
+                    <icon>close</icon>
+                </button>
+            }
         </header>
-        <ng-container *ngIf="!loading; else load_state">
+        @if (!loading) {
             <main class="p-4">
-                <div host class="flex flex-col" *ngIf="can_set_host">
-                    <label>{{ 'FORM.HOST' | translate }}</label>
-                    <a-user-search-field
-                        [(ngModel)]="host"
-                        class="mb-4"
-                    ></a-user-search-field>
-                </div>
+                @if (can_set_host) {
+                    <div host class="flex flex-col">
+                        <label>{{ 'FORM.HOST' | translate }}</label>
+                        <a-user-search-field
+                            [(ngModel)]="host"
+                            class="mb-4"
+                        ></a-user-search-field>
+                    </div>
+                }
                 <div date class="mb-4">
                     <label>{{ 'FORM.DATE' | translate }}</label>
-                    <div *ngIf="!can_set_date">
-                        {{ date | date: 'mediumDate' }}
+                    @if (!can_set_date) {
+                        <div>
+                            {{ date | date: 'mediumDate' }}
+                        </div>
+                    }
+                    @if (can_set_date) {
+                        <a-date-field [(ngModel)]="date"></a-date-field>
+                    }
+                </div>
+                @if (!hide_reason) {
+                    <div reason class="mb-4 flex flex-col">
+                        <label>Reason</label>
+                        <mat-form-field appearance="outline">
+                            <input
+                                matInput
+                                [(ngModel)]="reason"
+                                placeholder="Reason"
+                            />
+                        </mat-form-field>
                     </div>
-                    <a-date-field
-                        *ngIf="can_set_date"
-                        [(ngModel)]="date"
-                    ></a-date-field>
-                </div>
-                <div reason class="mb-4 flex flex-col" *ngIf="!hide_reason">
-                    <label>Reason</label>
-                    <mat-form-field appearance="outline">
-                        <input
-                            matInput
-                            [(ngModel)]="reason"
-                            placeholder="Reason"
-                        />
-                    </mat-form-field>
-                </div>
+                }
                 <p>
                     Your desk{{ desks.length === 1 ? '' : 's' }} will be
                     {{ desk_list }} on
@@ -73,13 +80,12 @@ export interface DeskConfirmModalData {
             <footer class="flex items-center justify-center p-2">
                 <button btn matRipple (click)="confirm()">Confirm</button>
             </footer>
-        </ng-container>
-        <ng-template #load_state>
+        } @else {
             <main load class="flex flex-col items-center justify-center p-12">
                 <mat-spinner [diameter]="48" class="mb-4"></mat-spinner>
                 <p>{{ loading }}</p>
             </main>
-        </ng-template>
+        }
     `,
     styles: [
         `

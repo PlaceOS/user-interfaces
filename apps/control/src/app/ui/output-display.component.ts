@@ -16,54 +16,59 @@ export const ICON_MAP = {
 @Component({
     selector: 'output-display',
     template: `
-        <div class="m-2 rounded bg-base-100 p-4 text-black shadow" *ngIf="item">
-            <div
-                view
-                matRipple
-                class="relative mb-2 flex h-48 flex-col items-center justify-center space-y-2 rounded border border-base-200"
-                [class.opacity-60]="!(input | async)"
-                [class.bg-base-200]="!(input | async)"
-                (click)="switchSource()"
-            >
+        @if (item) {
+            <div class="m-2 rounded bg-base-100 p-4 text-black shadow">
                 <div
-                    class="absolute left-1 top-1 rounded bg-secondary px-2 py-1 text-white shadow"
+                    view
+                    matRipple
+                    class="relative mb-2 flex h-48 flex-col items-center justify-center space-y-2 rounded border border-base-200"
+                    [class.opacity-60]="!(input | async)"
+                    [class.bg-base-200]="!(input | async)"
+                    (click)="switchSource()"
                 >
-                    {{ item?.name }}
-                </div>
-                <icon class="text-7xl">{{
-                    (input | async)?.icon ||
-                        icons[(input | async)?.type] ||
-                        'add_to_queue'
-                }}</icon>
-                <p class="font-medium">
-                    {{
-                        (input | async)?.name || 'Click to select input source'
-                    }}
-                </p>
-                <p class="text-xs">
-                    <span *ngIf="(input | async)?.name" class="opacity-50">
-                        {{ 'APP.CONTROL.OUTPUT_SWITCH' | translate }}
-                    </span>
-                </p>
-            </div>
-            <div class="flex w-full items-center space-x-2">
-                <button icon matRipple (click)="setMute(!item.mute)">
-                    <icon>{{
-                        item.mute
-                            ? 'volume_off'
-                            : item.volume > 0
-                              ? 'volume_up'
-                              : 'volume_mute'
+                    <div
+                        class="absolute left-1 top-1 rounded bg-secondary px-2 py-1 text-white shadow"
+                    >
+                        {{ item?.name }}
+                    </div>
+                    <icon class="text-7xl">{{
+                        (input | async)?.icon ||
+                            icons[(input | async)?.type] ||
+                            'add_to_queue'
                     }}</icon>
-                </button>
-                <mat-slider class="flex-1"
-                    ><input
-                        matSliderThumb
-                        [ngModel]="!mute ? item.volume : 0"
-                        (ngModelChange)="setVolume($event)"
-                /></mat-slider>
+                    <p class="font-medium">
+                        {{
+                            (input | async)?.name ||
+                                'Click to select input source'
+                        }}
+                    </p>
+                    <p class="text-xs">
+                        @if ((input | async)?.name) {
+                            <span class="opacity-50">
+                                {{ 'APP.CONTROL.OUTPUT_SWITCH' | translate }}
+                            </span>
+                        }
+                    </p>
+                </div>
+                <div class="flex w-full items-center space-x-2">
+                    <button icon matRipple (click)="setMute(!item.mute)">
+                        <icon>{{
+                            item.mute
+                                ? 'volume_off'
+                                : item.volume > 0
+                                  ? 'volume_up'
+                                  : 'volume_mute'
+                        }}</icon>
+                    </button>
+                    <mat-slider class="flex-1"
+                        ><input
+                            matSliderThumb
+                            [ngModel]="!mute ? item.volume : 0"
+                            (ngModelChange)="setVolume($event)"
+                    /></mat-slider>
+                </div>
             </div>
-        </div>
+        }
     `,
     styles: [
         `

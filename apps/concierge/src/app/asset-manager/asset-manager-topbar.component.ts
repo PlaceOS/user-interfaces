@@ -38,110 +38,116 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     "
                 />
             </mat-form-field>
-            <a
-                btn
-                matRipple
-                class="w-40"
-                *ngIf="active === 'items'"
-                [routerLink]="[base_route, 'manage', 'group']"
-            >
-                {{ 'APP.CONCIERGE.ASSETS_ITEM_ADD' | translate }}
-            </a>
-            <a
-                btn
-                matRipple
-                class="w-48"
-                *ngIf="active === 'purchase-orders'"
-                [routerLink]="[base_route, 'manage', 'purchase-order']"
-            >
-                {{ 'APP.CONCIERGE.ASSETS_PURCHASE_ADD' | translate }}
-            </a>
-        </div>
-        <div
-            class="mb-2 flex items-center space-x-2 px-8"
-            *ngIf="active === 'items'"
-        >
-            <div class="flex items-center rounded border border-secondary">
-                <button
-                    icon
+            @if (active === 'items') {
+                <a
+                    btn
                     matRipple
-                    class="h-12 w-14 rounded-l rounded-r-none"
-                    [class.bg-secondary]="(options | async)?.view === 'grid'"
-                    [class.text-secondary-content]="
-                        (options | async)?.view === 'grid'
-                    "
-                    (click)="setOptions({ view: 'grid' })"
-                    [matTooltip]="'COMMON.VIEW_AS_GRID' | translate"
+                    class="w-40"
+                    [routerLink]="[base_route, 'manage', 'group']"
                 >
-                    <icon class="text-2xl">view_module</icon>
-                </button>
-                <button
-                    icon
+                    {{ 'APP.CONCIERGE.ASSETS_ITEM_ADD' | translate }}
+                </a>
+            }
+            @if (active === 'purchase-orders') {
+                <a
+                    btn
                     matRipple
-                    class="h-12 w-14 rounded-l-none rounded-r"
-                    [class.bg-secondary]="(options | async)?.view === 'list'"
-                    [class.text-secondary-content]="
-                        (options | async)?.view === 'list'
-                    "
-                    (click)="setOptions({ view: 'list' })"
-                    [matTooltip]="'COMMON.VIEW_AS_LIST' | translate"
+                    class="w-48"
+                    [routerLink]="[base_route, 'manage', 'purchase-order']"
                 >
-                    <icon class="text-2xl">view_list</icon>
-                </button>
-            </div>
-            <div class="flex-1"></div>
-            <button
-                icon
-                matRipple
-                class="h-12 w-12 rounded bg-secondary text-secondary-content"
-                [matTooltip]="'APP.CONCIERGE.ASSETS_MANAGE_CONFIG' | translate"
-                (click)="editConfig()"
-            >
-                <icon>menu_book</icon>
-            </button>
-            <button
-                icon
-                matRipple
-                class="h-12 w-12 rounded bg-secondary text-secondary-content"
-                [matTooltip]="
-                    'APP.CONCIERGE.ASSETS_MANAGE_BOOKING_RULES' | translate
-                "
-                (click)="setRoomAvailability()"
-            >
-                <icon>event_available</icon>
-            </button>
-            <button
-                icon
-                matRipple
-                *ngIf="active === 'items'"
-                class="h-12 w-12 rounded bg-secondary text-secondary-content"
-                [matTooltip]="
-                    'APP.CONCIERGE.ASSETS_MANAGE_CATEGORIES' | translate
-                "
-                (click)="manageCategories()"
-            >
-                <icon>list_alt</icon>
-            </button>
+                    {{ 'APP.CONCIERGE.ASSETS_PURCHASE_ADD' | translate }}
+                </a>
+            }
         </div>
-        <div
-            class="flex items-center space-x-2 px-4 pb-2"
-            *ngIf="use_region && (building | async)?.length"
-        >
-            <mat-form-field appearance="outline" class="no-subscript w-48">
-                <mat-select
-                    [ngModel]="(building | async)?.id"
-                    (ngModelChange)="setBuilding($event)"
-                    [placeholder]="'COMMON.BUILDINGS_ALL' | translate"
-                >
-                    <mat-option
-                        *ngFor="let bld of buildings | async"
-                        [value]="bld.id"
+        @if (active === 'items') {
+            <div class="mb-2 flex items-center space-x-2 px-8">
+                <div class="flex items-center rounded border border-secondary">
+                    <button
+                        icon
+                        matRipple
+                        class="h-12 w-14 rounded-l rounded-r-none"
+                        [class.bg-secondary]="
+                            (options | async)?.view === 'grid'
+                        "
+                        [class.text-secondary-content]="
+                            (options | async)?.view === 'grid'
+                        "
+                        (click)="setOptions({ view: 'grid' })"
+                        [matTooltip]="'COMMON.VIEW_AS_GRID' | translate"
                     >
-                        {{ bld.display_name || bld.name }}
-                    </mat-option>
-                </mat-select>
-            </mat-form-field>
-        </div>
+                        <icon class="text-2xl">view_module</icon>
+                    </button>
+                    <button
+                        icon
+                        matRipple
+                        class="h-12 w-14 rounded-l-none rounded-r"
+                        [class.bg-secondary]="
+                            (options | async)?.view === 'list'
+                        "
+                        [class.text-secondary-content]="
+                            (options | async)?.view === 'list'
+                        "
+                        (click)="setOptions({ view: 'list' })"
+                        [matTooltip]="'COMMON.VIEW_AS_LIST' | translate"
+                    >
+                        <icon class="text-2xl">view_list</icon>
+                    </button>
+                </div>
+                <div class="flex-1"></div>
+                <button
+                    icon
+                    matRipple
+                    class="h-12 w-12 rounded bg-secondary text-secondary-content"
+                    [matTooltip]="
+                        'APP.CONCIERGE.ASSETS_MANAGE_CONFIG' | translate
+                    "
+                    (click)="editConfig()"
+                >
+                    <icon>menu_book</icon>
+                </button>
+                <button
+                    icon
+                    matRipple
+                    class="h-12 w-12 rounded bg-secondary text-secondary-content"
+                    [matTooltip]="
+                        'APP.CONCIERGE.ASSETS_MANAGE_BOOKING_RULES' | translate
+                    "
+                    (click)="setRoomAvailability()"
+                >
+                    <icon>event_available</icon>
+                </button>
+                @if (active === 'items') {
+                    <button
+                        icon
+                        matRipple
+                        class="h-12 w-12 rounded bg-secondary text-secondary-content"
+                        [matTooltip]="
+                            'APP.CONCIERGE.ASSETS_MANAGE_CATEGORIES' | translate
+                        "
+                        (click)="manageCategories()"
+                    >
+                        <icon>list_alt</icon>
+                    </button>
+                }
+            </div>
+        }
+        @if (use_region && (building | async)?.length) {
+            <div class="flex items-center space-x-2 px-4 pb-2">
+                <mat-form-field appearance="outline" class="no-subscript w-48">
+                    <mat-select
+                        [ngModel]="(building | async)?.id"
+                        (ngModelChange)="setBuilding($event)"
+                        [placeholder]="'COMMON.BUILDINGS_ALL' | translate"
+                    >
+                        @for (bld of buildings | async; track bld) {
+                            <mat-option [value]="bld.id">
+                                {{ bld.display_name || bld.name }}
+                            </mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
+            </div>
+        }
     `,
     styles: [``],
     standalone: false,

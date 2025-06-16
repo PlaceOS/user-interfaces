@@ -10,47 +10,44 @@ import { ControlStateService } from './control-state.service';
 @Component({
     selector: 'app-control-main-view',
     template: `
-        <ng-container *ngIf="(system | async).connected; else load_state">
-            <div
-                *ngIf="(system | async).active; else power_off_state"
-                class="absolute inset-0 flex flex-col bg-base-200"
-            >
-                <topbar-header></topbar-header>
-                <div control-page-view></div>
-                <control-status-bar></control-status-bar>
-            </div>
-        </ng-container>
-        <ng-template #power_off_state>
-            <div
-                name="splash"
-                class="absolute inset-0 flex flex-col items-center justify-center text-white"
-                (click)="powerOn()"
-                (touchend)="powerOn()"
-            >
-                <h2 class="mb-4 text-4xl font-light">
-                    {{ 'APP.CONTROL.TOUCH_TO_START' | translate }}
-                </h2>
-                <p class="text-lg">{{ (system | async).name }}</p>
-                <div class="absolute bottom-0 left-0 p-2">
-                    <div class="w-full text-xs opacity-60">
-                        <ng-container
-                            >{{ 'COMMON.CONTROLS_VERSION' | translate }}:
-                        </ng-container>
-                        <button
-                            class="m-0 border-none bg-none p-0 text-xs underline"
-                            (click)="viewChangelog()"
-                        >
-                            {{ version.hash }}
-                        </button>
-                    </div>
-                    <div class="w-full text-xs opacity-60">
-                        {{ version.time | date: 'longDate' }}
-                        ({{ version.time | date: 'shortTime' }})
+        @if ((system | async).connected) {
+            @if ((system | async).active) {
+                <div class="absolute inset-0 flex flex-col bg-base-200">
+                    <topbar-header></topbar-header>
+                    <div control-page-view></div>
+                    <control-status-bar></control-status-bar>
+                </div>
+            } @else {
+                <div
+                    name="splash"
+                    class="absolute inset-0 flex flex-col items-center justify-center text-white"
+                    (click)="powerOn()"
+                    (touchend)="powerOn()"
+                >
+                    <h2 class="mb-4 text-4xl font-light">
+                        {{ 'APP.CONTROL.TOUCH_TO_START' | translate }}
+                    </h2>
+                    <p class="text-lg">{{ (system | async).name }}</p>
+                    <div class="absolute bottom-0 left-0 p-2">
+                        <div class="w-full text-xs opacity-60">
+                            <ng-container
+                                >{{ 'COMMON.CONTROLS_VERSION' | translate }}:
+                            </ng-container>
+                            <button
+                                class="m-0 border-none bg-none p-0 text-xs underline"
+                                (click)="viewChangelog()"
+                            >
+                                {{ version.hash }}
+                            </button>
+                        </div>
+                        <div class="w-full text-xs opacity-60">
+                            {{ version.time | date: 'longDate' }}
+                            ({{ version.time | date: 'shortTime' }})
+                        </div>
                     </div>
                 </div>
-            </div>
-        </ng-template>
-        <ng-template #load_state>
+            }
+        } @else {
             <div
                 name="loader"
                 class="absolute inset-0 flex flex-col items-center justify-center bg-base-100 text-base-content"
@@ -61,7 +58,7 @@ import { ControlStateService } from './control-state.service';
                 </div>
                 <div class="text-base"></div>
             </div>
-        </ng-template>
+        }
     `,
     styles: [
         `

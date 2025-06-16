@@ -3,13 +3,14 @@ import { Component } from '@angular/core';
 @Component({
     selector: '[control-page-view]',
     template: `
-        <ng-container [ngSwitch]="view">
-            <source-select
-                *ngSwitchCase="'basic'"
-                output="'ALL'"
-            ></source-select>
-            <control-advanced-view *ngSwitchDefault></control-advanced-view>
-        </ng-container>
+        @switch (view) {
+            @case ('basic') {
+                <source-select output="'ALL'"></source-select>
+            }
+            @default {
+                <control-advanced-view></control-advanced-view>
+            }
+        }
     `,
     styles: [
         `

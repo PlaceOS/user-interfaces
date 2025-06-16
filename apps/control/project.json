@@ -111,7 +111,8 @@
                 "production": {
                     "buildTarget": "control:build:production"
                 }
-            }
+            },
+            "continuous": true
         },
         "lint": {
             "executor": "@nx/eslint:lint",

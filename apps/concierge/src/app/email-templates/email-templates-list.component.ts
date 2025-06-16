@@ -16,16 +16,16 @@ import {
             </h2>
             <div class="flex-1"></div>
             <!-- <mat-form-field appearance="outline" class="w-56 no-subscript">
-                <mat-select
-                    [ngModel]="(filters | async)?.category"
-                    [placeholder]="'COMMON.CATEGORY_ALL' | translate"
-                    (ngModelChange)="setFilters({ category: $event })"
-                >
-                    <mat-option value="">{{'COMMON.CATEGORY_ALL' | translate}}</mat-option>
-                    <mat-option value="internal">{{'COMMON.TYPE_INTERNAL' | translate}}</mat-option>
-                    <mat-option value="external">{{'COMMON.TYPE_EXTERNAL' | translate}}</mat-option>
-                </mat-select>
-            </mat-form-field> -->
+            <mat-select
+              [ngModel]="(filters | async)?.category"
+              [placeholder]="'COMMON.CATEGORY_ALL' | translate"
+              (ngModelChange)="setFilters({ category: $event })"
+              >
+              <mat-option value="">{{'COMMON.CATEGORY_ALL' | translate}}</mat-option>
+              <mat-option value="internal">{{'COMMON.TYPE_INTERNAL' | translate}}</mat-option>
+              <mat-option value="external">{{'COMMON.TYPE_EXTERNAL' | translate}}</mat-option>
+            </mat-select>
+          </mat-form-field> -->
             <a btn matRipple [routerLink]="['/email-templates', 'manage']">
                 <div class="ml-2">
                     {{ 'APP.CONCIERGE.EMAIL_TEMPLATES_ADD' | translate }}
@@ -81,17 +81,21 @@ import {
                 <ng-template #bld_template let-data="data">
                     <div class="p-4">
                         {{ (data | building)?.display_name }}
-                        <span class="opacity-30" *ngIf="!(data | building)">
-                            {{ 'RESOURCE.BUILDING_EMPTY' | translate }}
-                        </span>
+                        @if (!(data | building)) {
+                            <span class="opacity-30">
+                                {{ 'RESOURCE.BUILDING_EMPTY' | translate }}
+                            </span>
+                        }
                     </div>
                 </ng-template>
                 <ng-template #trigger_template let-data="data">
                     <div class="p-4 font-mono text-xs">
                         {{ data }}
-                        <span class="opacity-30" *ngIf="!data">
-                            {{ 'COMMON.TRIGGER_EMPTY' | translate }}
-                        </span>
+                        @if (!data) {
+                            <span class="opacity-30">
+                                {{ 'COMMON.TRIGGER_EMPTY' | translate }}
+                            </span>
+                        }
                     </div>
                 </ng-template>
                 <ng-template #actions_template let-row="row">

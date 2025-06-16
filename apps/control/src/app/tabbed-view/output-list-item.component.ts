@@ -10,35 +10,44 @@ const STATUS = {};
 @Component({
     selector: 'device-output-list-item',
     template: `
-        <div
-            class="relative m-2 h-40 w-full flex-1 rounded border bg-base-100 p-2 shadow"
-            [class.border-base-200]="!active"
-            [class.border-primary]="active"
-            *ngIf="item || true"
-        >
-            @let source = input | async;
-            <button
-                matRipple
-                class="relative z-0 flex h-full w-full flex-col items-center justify-center rounded bg-info"
-                [class.!bg-base-300]="!source"
-                (click)="setActiveOutput()"
+        @if (item || true) {
+            <div
+                class="relative m-2 h-40 w-full flex-1 rounded border bg-base-100 p-2 shadow"
+                [class.border-base-200]="!active"
+                [class.border-primary]="active"
             >
-                <div
-                    class="absolute left-1 top-1 rounded bg-base-300 p-1 text-sm text-white"
-                    [class.!bg-primary]="active"
+                @let source = input | async;
+                <button
+                    matRipple
+                    class="relative z-0 flex h-full w-full flex-col items-center justify-center rounded bg-info"
+                    [class.!bg-base-300]="!source"
+                    (click)="setActiveOutput()"
                 >
-                    {{ item?.name || 'Display' }}
-                </div>
-                <icon class="text-5xl">
-                    {{ source?.icon || icons[source?.type] || 'add_to_queue' }}
-                </icon>
-                <span class="text-sm text-white" [class.opacity-60]="!source">
-                    {{
-                        source?.name || ('APP.CONTROL.INPUT_EMPTY' | translate)
-                    }}
-                </span>
-            </button>
-        </div>
+                    <div
+                        class="absolute left-1 top-1 rounded bg-base-300 p-1 text-sm text-white"
+                        [class.!bg-primary]="active"
+                    >
+                        {{ item?.name || 'Display' }}
+                    </div>
+                    <icon class="text-5xl">
+                        {{
+                            source?.icon ||
+                                icons[source?.type] ||
+                                'add_to_queue'
+                        }}
+                    </icon>
+                    <span
+                        class="text-sm text-white"
+                        [class.opacity-60]="!source"
+                    >
+                        {{
+                            source?.name ||
+                                ('APP.CONTROL.INPUT_EMPTY' | translate)
+                        }}
+                    </span>
+                </button>
+            </div>
+        }
     `,
     styles: [
         `

@@ -19,30 +19,32 @@ import { debounceTime, map } from 'rxjs/operators';
                     [source]="(logo | async)?.src || (logo | async)"
                 />
                 <ul class="hidden list-none space-y-2 p-0 pl-4 sm:block">
-                    <li
-                        class="relative flex items-center rounded-l-3xl py-2 pl-4"
-                        *ngFor="let item of items"
-                        [class.active]="item.id === active_item.id"
-                        (click)="active_item = item"
-                    >
-                        <div
-                            class="absolute right-0 top-1/2 h-[5.5rem] w-6 -translate-y-1/2 overflow-hidden bg-base-100"
-                            *ngIf="item.id === active_item.id"
+                    @for (item of items; track item) {
+                        <li
+                            class="relative flex items-center rounded-l-3xl py-2 pl-4"
+                            [class.active]="item.id === active_item.id"
+                            (click)="active_item = item"
                         >
+                            @if (item.id === active_item.id) {
+                                <div
+                                    class="absolute right-0 top-1/2 h-[5.5rem] w-6 -translate-y-1/2 overflow-hidden bg-base-100"
+                                >
+                                    <div
+                                        class="absolute right-0 top-0 h-12 w-12 -translate-y-1/2 rounded-full bg-base-300"
+                                    ></div>
+                                    <div
+                                        class="absolute bottom-0 right-0 h-12 w-12 translate-y-1/2 rounded-full bg-base-300"
+                                    ></div>
+                                </div>
+                            }
+                            <icon>{{ item.icon || 'help' }}</icon>
+                            <div class="ml-4">{{ item.title }}</div>
                             <div
-                                class="absolute right-0 top-0 h-12 w-12 -translate-y-1/2 rounded-full bg-base-300"
+                                class="absolute inset-0 overflow-hidden rounded-3xl"
+                                matRipple
                             ></div>
-                            <div
-                                class="absolute bottom-0 right-0 h-12 w-12 translate-y-1/2 rounded-full bg-base-300"
-                            ></div>
-                        </div>
-                        <icon>{{ item.icon || 'help' }}</icon>
-                        <div class="ml-4">{{ item.title }}</div>
-                        <div
-                            class="absolute inset-0 overflow-hidden rounded-3xl"
-                            matRipple
-                        ></div>
-                    </li>
+                        </li>
+                    }
                 </ul>
                 <div class="dark w-full px-2 pb-2">
                     <mat-form-field
@@ -50,12 +52,11 @@ import { debounceTime, map } from 'rxjs/operators';
                         appearance="outline"
                     >
                         <mat-select [(ngModel)]="active_item">
-                            <mat-option
-                                *ngFor="let item of items"
-                                [value]="item"
-                            >
-                                {{ item.title }}
-                            </mat-option>
+                            @for (item of items; track item) {
+                                <mat-option [value]="item">
+                                    {{ item.title }}
+                                </mat-option>
+                            }
                         </mat-select>
                     </mat-form-field>
                 </div>

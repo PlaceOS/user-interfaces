@@ -15,21 +15,21 @@ import { map, shareReplay } from 'rxjs/operators';
 @Component({
     selector: 'placeos-book-locker-flow',
     template: `
-        <ng-container
-            *ngIf="
-                !((assigned_space | async) && (has_booking | async));
-                else assigned_state
-            "
-        >
-            <div class="z-50 h-full w-full bg-base-100" [ngSwitch]="view">
-                <locker-flow-success *ngSwitchCase="'success'">
-                </locker-flow-success>
-                <locker-flow-confirm *ngSwitchCase="'confirm'">
-                </locker-flow-confirm>
-                <locker-flow-form *ngSwitchDefault></locker-flow-form>
+        @if (!((assigned_space | async) && (has_booking | async))) {
+            <div class="z-50 h-full w-full bg-base-100">
+                @switch (view) {
+                    @case ('success') {
+                        <locker-flow-success> </locker-flow-success>
+                    }
+                    @case ('confirm') {
+                        <locker-flow-confirm> </locker-flow-confirm>
+                    }
+                    @default {
+                        <locker-flow-form></locker-flow-form>
+                    }
+                }
             </div>
-        </ng-container>
-        <ng-template #assigned_state>
+        } @else {
             <div
                 class="z-50 flex h-full w-full flex-col items-center justify-center space-y-4 bg-base-100"
             >
@@ -45,7 +45,7 @@ import { map, shareReplay } from 'rxjs/operators';
                     {{ 'APP.WORKPLACE.VIEW_SCHEDULE' | translate }}
                 </a>
             </div>
-        </ng-template>
+        }
     `,
     styles: [
         `

@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { QuestionType, UISurveyResponse } from '../types';
 import { RatingsWidgetComponent } from './ratings-widget.component';
@@ -23,27 +22,26 @@ import { TableWidgetComponent } from './table-widget.component';
                     {{ response?.question?.title || '' }}
                 </div>
                 <div class="flex w-full flex-col">
-                    <ng-container *ngIf="isTable(type)">
+                    @if (isTable(type)) {
                         <table-widget [value]="response.answers"></table-widget>
-                    </ng-container>
-                    <ng-container *ngIf="isSelection(type)">
+                    }
+                    @if (isSelection(type)) {
                         <selection-widget
                             [value]="response.answers"
                             [question]="response.question"
                         ></selection-widget>
-                    </ng-container>
-                    <ng-container *ngIf="isRating(type)">
+                    }
+                    @if (isRating(type)) {
                         <ratings-widget
                             [value]="response.answers"
                             [question]="response.question"
                         ></ratings-widget>
-                    </ng-container>
+                    }
                 </div>
             </div>
         </div>
     `,
     imports: [
-        CommonModule,
         TableWidgetComponent,
         SelectionWidgetComponent,
         RatingsWidgetComponent,

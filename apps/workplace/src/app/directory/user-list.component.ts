@@ -37,98 +37,108 @@ const LETTERS = `ABCDEFGHIJKLMNOPQRSTUVWXYZ`.split('');
                             (ngModelChange)="search$.next($event)"
                             placeholder="Search for a person..."
                         />
-                        <mat-spinner
-                            matSuffix
-                            class="top-2"
-                            *ngIf="loading"
-                            [diameter]="32"
-                        ></mat-spinner>
+                        @if (loading) {
+                            <mat-spinner
+                                matSuffix
+                                class="top-2"
+                                [diameter]="32"
+                            ></mat-spinner>
+                        }
                     </mat-form-field>
                 </div>
                 <main class="h-1/2 w-full flex-1">
                     @let user_list = search_results$ | async;
                     @let grouped_users = grouped_results$ | async;
-                    <ng-container *ngIf="user_list.length; else empty_state">
-                        <ng-container *ngFor="let letter of letters">
-                            <ng-container *ngIf="grouped_users[letter]?.length">
+                    @if (user_list.length) {
+                        @for (letter of letters; track letter) {
+                            @if (grouped_users[letter]?.length) {
                                 <div class="px-4 py-2 font-medium">
                                     {{ letter }}
                                 </div>
-                                <div
-                                    user
-                                    class="mb-2 flex flex-wrap items-center overflow-hidden bg-base-100 p-4 hover:bg-base-200 sm:space-x-4"
-                                    *ngFor="let user of grouped_users[letter]"
-                                    [class.with-image]="show_image"
-                                >
-                                    <a-user-avatar
-                                        *ngIf="show_image"
-                                        [user]="user"
-                                    ></a-user-avatar>
+                                @for (
+                                    user of grouped_users[letter];
+                                    track user
+                                ) {
                                     <div
-                                        class="ml-4 flex w-1/2 flex-1 flex-col sm:ml-0"
+                                        user
+                                        class="mb-2 flex flex-wrap items-center overflow-hidden bg-base-100 p-4 hover:bg-base-200 sm:space-x-4"
+                                        [class.with-image]="show_image"
                                     >
-                                        <div class="name">{{ user.name }}</div>
-                                        <a
-                                            class="text-sm underline"
-                                            name="email"
-                                            [href]="
-                                                'mailto:' + user.email
-                                                    | safe: 'url'
-                                            "
+                                        @if (show_image) {
+                                            <a-user-avatar
+                                                [user]="user"
+                                            ></a-user-avatar>
+                                        }
+                                        <div
+                                            class="ml-4 flex w-1/2 flex-1 flex-col sm:ml-0"
                                         >
-                                            {{ user.email }}
-                                        </a>
+                                            <div class="name">
+                                                {{ user.name }}
+                                            </div>
+                                            <a
+                                                class="text-sm underline"
+                                                name="email"
+                                                [href]="
+                                                    'mailto:' + user.email
+                                                        | safe: 'url'
+                                                "
+                                            >
+                                                {{ user.email }}
+                                            </a>
+                                        </div>
+                                        <div
+                                            class="mt-4 flex w-full items-center space-x-2 sm:mt-0 sm:w-auto sm:flex-col sm:space-x-0 sm:space-y-2"
+                                        >
+                                            <a
+                                                btn
+                                                matRipple
+                                                class="w-32 flex-1 sm:flex-none"
+                                                [routerLink]="['/explore']"
+                                                [queryParams]="{
+                                                    user: user.email,
+                                                }"
+                                            >
+                                                Locate
+                                            </a>
+                                            @if (user.phone) {
+                                                <a
+                                                    btn
+                                                    matRipple
+                                                    class="sm:flex-nones w-32 flex-1"
+                                                    [href]="
+                                                        'tel:' + user.phone
+                                                            | safe: 'url'
+                                                    "
+                                                >
+                                                    Call
+                                                </a>
+                                            }
+                                        </div>
                                     </div>
-                                    <div
-                                        class="mt-4 flex w-full items-center space-x-2 sm:mt-0 sm:w-auto sm:flex-col sm:space-x-0 sm:space-y-2"
-                                    >
-                                        <a
-                                            btn
-                                            matRipple
-                                            class="w-32 flex-1 sm:flex-none"
-                                            [routerLink]="['/explore']"
-                                            [queryParams]="{ user: user.email }"
-                                        >
-                                            Locate
-                                        </a>
-                                        <a
-                                            btn
-                                            matRipple
-                                            class="sm:flex-nones w-32 flex-1"
-                                            *ngIf="user.phone"
-                                            [href]="
-                                                'tel:' + user.phone
-                                                    | safe: 'url'
-                                            "
-                                        >
-                                            Call
-                                        </a>
-                                    </div>
-                                </div>
-                            </ng-container>
-                        </ng-container>
-                    </ng-container>
+                                }
+                            }
+                        }
+                    } @else {
+                        @let search_str = search$ | async;
+                        <div class="flex flex-col items-center p-8">
+                            <icon class="text-5xl">{{
+                                search_str?.length >= min_search_length
+                                    ? 'close'
+                                    : 'arrow_upward'
+                            }}</icon>
+                            <div class="text">
+                                {{
+                                    search_str?.length >= min_search_length
+                                        ? ' No matches for "' + search_str + '"'
+                                        : 'Type above to search for users'
+                                }}
+                            </div>
+                        </div>
+                    }
                 </main>
             </div>
         </div>
         <footer-menu></footer-menu>
-        <ng-template #empty_state>
-            @let search_str = search$ | async;
-            <div class="flex flex-col items-center p-8">
-                <icon class="text-5xl">{{
-                    search_str?.length >= min_search_length
-                        ? 'close'
-                        : 'arrow_upward'
-                }}</icon>
-                <div class="text">
-                    {{
-                        search_str?.length >= min_search_length
-                            ? ' No matches for "' + search_str + '"'
-                            : 'Type above to search for users'
-                    }}
-                </div>
-            </div>
-        </ng-template>
     `,
     styles: [
         `

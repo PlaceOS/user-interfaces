@@ -18,66 +18,85 @@ import { GroupEventDetailsModalComponent } from './group-event-details-modal.com
 @Component({
     selector: 'group-event-card',
     template: `
-        <button
-            matRipple
-            (click)="viewDetails()"
-            *ngIf="!featured; else featured_card"
-            class="flex h-[20rem] w-60 flex-col overflow-hidden rounded-xl border border-base-300 bg-base-100 shadow hover:border-info hover:shadow-2xl"
-        >
-            <div
-                class="relative flex h-28 min-h-28 w-full items-center justify-between overflow-hidden border-b border-base-200 bg-base-200"
+        @if (!featured) {
+            <button
+                matRipple
+                (click)="viewDetails()"
+                class="flex h-[20rem] w-60 flex-col overflow-hidden rounded-xl border border-base-300 bg-base-100 shadow hover:border-info hover:shadow-2xl"
             >
-                <img
-                    *ngIf="event.images?.length"
-                    auth
-                    [source]="event.images[0]"
-                    class="absolute left-0 top-0 h-full w-full object-cover object-center"
-                />
-            </div>
-            <div class="h-1/2 w-full flex-1 p-4">
-                <div class="text-left text-sm opacity-60">
-                    {{ event.date | date: 'EEE d MMM' }},
-                    {{ event.date | date: time_format }}
-                </div>
-                <h2
-                    class="mb-2 w-full truncate text-left text-xl"
-                    [title]="event.title"
-                >
-                    {{ event.title }}
-                </h2>
                 <div
-                    class="mb-2 h-[4.5rem] flex-1 overflow-hidden text-left text-xs opacity-60"
+                    class="relative flex h-28 min-h-28 w-full items-center justify-between overflow-hidden border-b border-base-200 bg-base-200"
                 >
-                    <p class="line-clamp-4">{{ raw_description }}</p>
-                    <p *ngIf="!raw_description.trim()" class="opacity-30">
-                        {{ 'CALENDAR_EVENT.GROUP_NO_DESCRIPTION' | translate }}
-                    </p>
+                    @if (event.images?.length) {
+                        <img
+                            auth
+                            [source]="event.images[0]"
+                            class="absolute left-0 top-0 h-full w-full object-cover object-center"
+                        />
+                    }
                 </div>
-                <div class="flex items-center space-x-2 text-sm">
-                    <icon class="text-info">place</icon>
-                    <div *ngIf="is_onsite && has_space">
-                        {{ space.display_name || space.name || '' }}
+                <div class="h-1/2 w-full flex-1 p-4">
+                    <div class="text-left text-sm opacity-60">
+                        {{ event.date | date: 'EEE d MMM' }},
+                        {{ event.date | date: time_format }}
                     </div>
-                    <div *ngIf="is_onsite && !has_space" class="opacity-30">
-                        {{ 'CALENDAR_EVENT.GROUP_UNCONFIRMED' | translate }}
+                    <h2
+                        class="mb-2 w-full truncate text-left text-xl"
+                        [title]="event.title"
+                    >
+                        {{ event.title }}
+                    </h2>
+                    <div
+                        class="mb-2 h-[4.5rem] flex-1 overflow-hidden text-left text-xs opacity-60"
+                    >
+                        <p class="line-clamp-4">{{ raw_description }}</p>
+                        @if (!raw_description.trim()) {
+                            <p class="opacity-30">
+                                {{
+                                    'CALENDAR_EVENT.GROUP_NO_DESCRIPTION'
+                                        | translate
+                                }}
+                            </p>
+                        }
                     </div>
-                    <div class="opacity-30" *ngIf="!is_onsite">
-                        {{ 'CALENDAR_EVENT.GROUP_REMOTE' | translate }}
+                    <div class="flex items-center space-x-2 text-sm">
+                        <icon class="text-info">place</icon>
+                        @if (is_onsite && has_space) {
+                            <div>
+                                {{ space.display_name || space.name || '' }}
+                            </div>
+                        }
+                        @if (is_onsite && !has_space) {
+                            <div class="opacity-30">
+                                {{
+                                    'CALENDAR_EVENT.GROUP_UNCONFIRMED'
+                                        | translate
+                                }}
+                            </div>
+                        }
+                        @if (!is_onsite) {
+                            <div class="opacity-30">
+                                {{ 'CALENDAR_EVENT.GROUP_REMOTE' | translate }}
+                            </div>
+                        }
+                    </div>
+                    <div class="flex items-center space-x-2 text-sm">
+                        <icon class="text-info">people</icon>
+                        <div class="">
+                            {{
+                                'CALENDAR_EVENT.GROUP_ATTENDING'
+                                    | translate
+                                        : {
+                                              count:
+                                                  event.attendees?.length ||
+                                                  '0',
+                                          }
+                            }}
+                        </div>
                     </div>
                 </div>
-                <div class="flex items-center space-x-2 text-sm">
-                    <icon class="text-info">people</icon>
-                    <div class="">
-                        {{
-                            'CALENDAR_EVENT.GROUP_ATTENDING'
-                                | translate
-                                    : { count: event.attendees?.length || '0' }
-                        }}
-                    </div>
-                </div>
-            </div>
-        </button>
-        <ng-template #featured_card>
+            </button>
+        } @else {
             <button
                 matRipple
                 (click)="viewDetails()"
@@ -86,12 +105,13 @@ import { GroupEventDetailsModalComponent } from './group-event-details-modal.com
                 <div
                     class="relative flex h-full w-1/2 min-w-56 max-w-[20rem] items-center justify-between overflow-hidden border-r border-base-200 bg-base-200"
                 >
-                    <img
-                        *ngIf="event.images?.length"
-                        auth
-                        [source]="event.images[0]"
-                        class="absolute left-0 top-0 h-full w-full object-cover object-center"
-                    />
+                    @if (event.images?.length) {
+                        <img
+                            auth
+                            [source]="event.images[0]"
+                            class="absolute left-0 top-0 h-full w-full object-cover object-center"
+                        />
+                    }
                 </div>
                 <div
                     class="absolute left-0 top-0 flex items-center space-x-2 rounded-br-xl bg-info py-2 pl-2 pr-4 text-sm text-info-content"
@@ -120,33 +140,38 @@ import { GroupEventDetailsModalComponent } from './group-event-details-modal.com
                         </div>
                         <div class="h-20 overflow-hidden text-left">
                             <p class="line-clamp-3">{{ raw_description }}</p>
-                            <p
-                                *ngIf="!raw_description.trim()"
-                                class="opacity-30"
-                            >
-                                {{
-                                    'CALENDAR_EVENT.GROUP_NO_DESCRIPTION'
-                                        | translate
-                                }}
-                            </p>
+                            @if (!raw_description.trim()) {
+                                <p class="opacity-30">
+                                    {{
+                                        'CALENDAR_EVENT.GROUP_NO_DESCRIPTION'
+                                            | translate
+                                    }}
+                                </p>
+                            }
                         </div>
                         <div class="flex items-center space-x-2 text-sm">
                             <icon class="text-info">place</icon>
-                            <div *ngIf="is_onsite && has_space">
-                                {{ space.display_name || space.name || '' }}
-                            </div>
-                            <div
-                                *ngIf="is_onsite && !has_space"
-                                class="opacity-30"
-                            >
-                                {{
-                                    'CALENDAR_EVENT.GROUP_UNCONFIRMED'
-                                        | translate
-                                }}
-                            </div>
-                            <div class="opacity-30" *ngIf="!is_onsite">
-                                {{ 'CALENDAR_EVENT.GROUP_REMOTE' | translate }}
-                            </div>
+                            @if (is_onsite && has_space) {
+                                <div>
+                                    {{ space.display_name || space.name || '' }}
+                                </div>
+                            }
+                            @if (is_onsite && !has_space) {
+                                <div class="opacity-30">
+                                    {{
+                                        'CALENDAR_EVENT.GROUP_UNCONFIRMED'
+                                            | translate
+                                    }}
+                                </div>
+                            }
+                            @if (!is_onsite) {
+                                <div class="opacity-30">
+                                    {{
+                                        'CALENDAR_EVENT.GROUP_REMOTE'
+                                            | translate
+                                    }}
+                                </div>
+                            }
                         </div>
                         <div class="flex items-center space-x-2 text-sm">
                             <icon class="text-info">people</icon>
@@ -170,7 +195,7 @@ import { GroupEventDetailsModalComponent } from './group-event-details-modal.com
                     {{ 'COMMON.VIEW_DETAILS' | translate }}
                 </div>
             </button>
-        </ng-template>
+        }
     `,
     styles: [
         `

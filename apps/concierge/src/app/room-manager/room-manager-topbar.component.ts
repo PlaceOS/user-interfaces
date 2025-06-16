@@ -29,20 +29,24 @@ import { RoomManagementService } from './room-management.service';
                     [placeholder]="'COMMON.LEVEL_ALL' | translate"
                     multiple
                 >
-                    <mat-option
-                        *ngFor="let level of levels | async"
-                        [value]="level.id"
-                    >
-                        <div class="flex flex-col-reverse">
-                            <div class="text-xs opacity-30" *ngIf="use_region">
-                                {{ (level.parent_id | building)?.display_name }}
-                                <span class="opacity-0"> - </span>
+                    @for (level of levels | async; track level) {
+                        <mat-option [value]="level.id">
+                            <div class="flex flex-col-reverse">
+                                @if (use_region) {
+                                    <div class="text-xs opacity-30">
+                                        {{
+                                            (level.parent_id | building)
+                                                ?.display_name
+                                        }}
+                                        <span class="opacity-0"> - </span>
+                                    </div>
+                                }
+                                <div>
+                                    {{ level.display_name || level.name }}
+                                </div>
                             </div>
-                            <div>
-                                {{ level.display_name || level.name }}
-                            </div>
-                        </div>
-                    </mat-option>
+                        </mat-option>
+                    }
                 </mat-select>
             </mat-form-field>
             <div class="w-2 flex-1"></div>

@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, Inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
@@ -71,16 +70,17 @@ const EMPTY_FAVS: string[] = [];
             <footer
                 class="flex w-full flex-col-reverse items-center justify-end border-t border-base-200 px-2 pb-[5.5rem] pt-2 sm:hidden"
             >
-                <button
-                    btn
-                    matRipple
-                    name="catering-item-return"
-                    class="inverse w-full sm:hidden sm:w-auto"
-                    *ngIf="displayed"
-                    (click)="displayed = null"
-                >
-                    {{ 'COMMON.BACK' | translate }}
-                </button>
+                @if (displayed) {
+                    <button
+                        btn
+                        matRipple
+                        name="catering-item-return"
+                        class="inverse w-full sm:hidden sm:w-auto"
+                        (click)="displayed = null"
+                    >
+                        {{ 'COMMON.BACK' | translate }}
+                    </button>
+                }
                 <button
                     btn
                     matRipple
@@ -147,7 +147,6 @@ const EMPTY_FAVS: string[] = [];
     `,
     styles: [``],
     imports: [
-        CommonModule,
         TranslatePipe,
         IconComponent,
         MatRippleModule,

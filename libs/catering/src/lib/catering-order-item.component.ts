@@ -1,6 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
 
-import { CommonModule } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { CateringItem } from './catering-item.class';
@@ -10,7 +9,7 @@ const ACTIVE_ITEMS = new Set<string>();
 @Component({
     selector: '[catering-order-item]',
     template: `
-        <ng-container *ngIf="item">
+        @if (item) {
             <div class="relative h-14 w-16 text-right">
                 <div
                     arm
@@ -43,17 +42,18 @@ const ACTIVE_ITEMS = new Set<string>();
                 </div>
                 <div class="flex-1">{{ item?.name }}</div>
                 <div class="mr-2 flex space-x-2 px-4">
-                    <ng-container *ngFor="let opt of item.option_list">
-                        <div
-                            class="rounded-2xl bg-warning px-2 py-1 text-xs text-warning-content shadow"
-                            *ngIf="opt"
-                        >
-                            {{ opt.name }}
-                        </div>
-                    </ng-container>
+                    @for (opt of item.option_list; track opt) {
+                        @if (opt) {
+                            <div
+                                class="rounded-2xl bg-warning px-2 py-1 text-xs text-warning-content shadow"
+                            >
+                                {{ opt.name }}
+                            </div>
+                        }
+                    }
                 </div>
             </div>
-        </ng-container>
+        }
     `,
     styles: [
         `
@@ -62,7 +62,7 @@ const ACTIVE_ITEMS = new Set<string>();
             }
         `,
     ],
-    imports: [CommonModule, MatRippleModule, IconComponent],
+    imports: [MatRippleModule, IconComponent],
 })
 export class CateringOrderItemComponent implements OnInit {
     @Input() public order_id: string;

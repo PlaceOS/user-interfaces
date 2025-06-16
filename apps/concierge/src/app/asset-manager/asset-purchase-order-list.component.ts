@@ -63,9 +63,11 @@ import { AssetManagerStateService } from './asset-manager-state.service';
         </div>
         <ng-template #date_template let-data="data">
             <div class="p-4">
-                <span class="opacity-30" *ngIf="!data">{{
-                    'COMMON.DATE_EMPTY' | translate
-                }}</span>
+                @if (!data) {
+                    <span class="opacity-30">{{
+                        'COMMON.DATE_EMPTY' | translate
+                    }}</span>
+                }
                 {{ data ? (data * 1000 | date: 'mediumDate') : '' }}
             </div>
         </ng-template>

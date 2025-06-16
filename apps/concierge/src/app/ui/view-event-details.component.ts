@@ -42,26 +42,29 @@ import { EventsStateService } from '../day-view/events-state.service';
                     >
                 </div>
                 <div class="mb-2 flex flex-col">
-                    <div
-                        class="mb-1 flex items-center rounded pl-6 hover:bg-base-200"
-                        *ngFor="let user of event.attendees"
-                    >
-                        <a-user-avatar
-                            class="pr-2 text-sm"
-                            [user]="user"
-                        ></a-user-avatar>
-                        <div class="flex flex-col">
-                            <div class="text-sm opacity-80">
-                                {{
-                                    user.name ||
-                                        user.first_name + ' ' + user.last_name
-                                }}
-                            </div>
-                            <div class="text-xs opacity-50">
-                                {{ user.email }}
+                    @for (user of event.attendees; track user) {
+                        <div
+                            class="mb-1 flex items-center rounded pl-6 hover:bg-base-200"
+                        >
+                            <a-user-avatar
+                                class="pr-2 text-sm"
+                                [user]="user"
+                            ></a-user-avatar>
+                            <div class="flex flex-col">
+                                <div class="text-sm opacity-80">
+                                    {{
+                                        user.name ||
+                                            user.first_name +
+                                                ' ' +
+                                                user.last_name
+                                    }}
+                                </div>
+                                <div class="text-xs opacity-50">
+                                    {{ user.email }}
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    }
                 </div>
                 <div class="mb-2 flex items-center">
                     <icon class="mr-1">place</icon>
@@ -86,18 +89,24 @@ import { EventsStateService } from '../day-view/events-state.service';
                     ></span>
                 </div>
             </div>
-            <div
-                name="actions"
-                *ngIf="!is_delegated"
-                class="justify-content flex items-center space-x-4 p-4"
-            >
-                <button class="inverse flex-1" btn matRipple (click)="remove()">
-                    Remove Booking
-                </button>
-                <button class="flex-1" btn matRipple (click)="edit()">
-                    Edit Booking
-                </button>
-            </div>
+            @if (!is_delegated) {
+                <div
+                    name="actions"
+                    class="justify-content flex items-center space-x-4 p-4"
+                >
+                    <button
+                        class="inverse flex-1"
+                        btn
+                        matRipple
+                        (click)="remove()"
+                    >
+                        Remove Booking
+                    </button>
+                    <button class="flex-1" btn matRipple (click)="edit()">
+                        Edit Booking
+                    </button>
+                </div>
+            }
             <button name="close" icon matRipple (click)="close()">
                 <icon>close</icon>
             </button>

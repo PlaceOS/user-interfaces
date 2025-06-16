@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, Inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
@@ -28,7 +27,7 @@ const DEFAULT_PATH = `workplace/#/explore?space={{id}}`;
         </main>
     `,
     styles: [``],
-    imports: [CommonModule, TranslatePipe, MatRippleModule, IconComponent],
+    imports: [TranslatePipe, MatRippleModule, IconComponent],
 })
 export class ExploreBookQrComponent {
     public readonly space = this._data.space;

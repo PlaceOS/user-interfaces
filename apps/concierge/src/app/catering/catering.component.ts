@@ -11,77 +11,81 @@ import { AsyncHandler } from '@placeos/common';
             <main class="flex h-full w-1/2 flex-1 flex-col">
                 <catering-topbar class="relative z-10"></catering-topbar>
                 <div class="flex h-1/2 flex-1 flex-col px-8">
-                    <div
-                        class="mb-4 flex items-center justify-center rounded bg-info p-2 text-sm text-white"
-                        *ngIf="page === 'menu'"
-                    >
-                        {{ 'CATERING.MENU_EDIT_INFO' | translate }}
-                    </div>
+                    @if (page === 'menu') {
+                        <div
+                            class="mb-4 flex items-center justify-center rounded bg-info p-2 text-sm text-white"
+                        >
+                            {{ 'CATERING.MENU_EDIT_INFO' | translate }}
+                        </div>
+                    }
                     <div class="flex h-1/2 w-full flex-1 overflow-auto">
-                        <ng-container [ngSwitch]="page">
-                            <catering-order-list
-                                *ngSwitchCase="'orders'"
-                                class="flex-1"
-                            ></catering-order-list>
-                            <catering-menu
-                                *ngSwitchCase="'menu'"
-                                class="flex-1"
-                            ></catering-menu>
-                            <div
-                                *ngSwitchDefault
-                                class="flex flex-1 flex-wrap items-center justify-center"
-                            >
-                                <a
-                                    matRipple
-                                    class="flex flex-col items-center rounded bg-base-100 text-black shadow"
-                                    [routerLink]="['/catering', 'menu']"
+                        @switch (page) {
+                            @case ('orders') {
+                                <catering-order-list
+                                    class="flex-1"
+                                ></catering-order-list>
+                            }
+                            @case ('menu') {
+                                <catering-menu class="flex-1"></catering-menu>
+                            }
+                            @default {
+                                <div
+                                    class="flex flex-1 flex-wrap items-center justify-center"
                                 >
-                                    <div
-                                        name="img"
-                                        class="relative flex w-full flex-1 items-center justify-center bg-cover bg-center text-2xl text-white"
-                                        [style.background-image]="
-                                            'url(assets/menus.jpg)'
-                                        "
+                                    <a
+                                        matRipple
+                                        class="flex flex-col items-center rounded bg-base-100 text-black shadow"
+                                        [routerLink]="['/catering', 'menu']"
                                     >
                                         <div
-                                            class="absolute inset-0 z-0 bg-neutral opacity-60"
-                                        ></div>
-                                        <span class="z-10"
-                                            >Menus and Pricing</span
+                                            name="img"
+                                            class="relative flex w-full flex-1 items-center justify-center bg-cover bg-center text-2xl text-white"
+                                            [style.background-image]="
+                                                'url(assets/menus.jpg)'
+                                            "
                                         >
-                                    </div>
-                                    <div
-                                        class="flex h-14 w-full items-center justify-center p-2 text-center text-sm"
-                                    >
-                                        View and Edit Menus and Pricing
-                                    </div>
-                                </a>
-                                <a
-                                    matRipple
-                                    class="flex flex-col items-center rounded bg-base-100 text-black shadow"
-                                    [routerLink]="['/catering', 'orders']"
-                                >
-                                    <div
-                                        name="img"
-                                        class="relative flex w-full flex-1 items-center justify-center bg-cover bg-center text-2xl text-white"
-                                        [style.background-image]="
-                                            'url(assets/orders.jpg)'
-                                        "
+                                            <div
+                                                class="absolute inset-0 z-0 bg-neutral opacity-60"
+                                            ></div>
+                                            <span class="z-10"
+                                                >Menus and Pricing</span
+                                            >
+                                        </div>
+                                        <div
+                                            class="flex h-14 w-full items-center justify-center p-2 text-center text-sm"
+                                        >
+                                            View and Edit Menus and Pricing
+                                        </div>
+                                    </a>
+                                    <a
+                                        matRipple
+                                        class="flex flex-col items-center rounded bg-base-100 text-black shadow"
+                                        [routerLink]="['/catering', 'orders']"
                                     >
                                         <div
-                                            class="absolute inset-0 z-0 bg-neutral opacity-60"
-                                        ></div>
-                                        <span class="z-10">Today's Orders</span>
-                                    </div>
-                                    <div
-                                        class="flex h-14 w-full items-center justify-center p-2 text-center text-sm"
-                                    >
-                                        View Catering Orders and their statuses
-                                        upon arrival
-                                    </div>
-                                </a>
-                            </div>
-                        </ng-container>
+                                            name="img"
+                                            class="relative flex w-full flex-1 items-center justify-center bg-cover bg-center text-2xl text-white"
+                                            [style.background-image]="
+                                                'url(assets/orders.jpg)'
+                                            "
+                                        >
+                                            <div
+                                                class="absolute inset-0 z-0 bg-neutral opacity-60"
+                                            ></div>
+                                            <span class="z-10"
+                                                >Today's Orders</span
+                                            >
+                                        </div>
+                                        <div
+                                            class="flex h-14 w-full items-center justify-center p-2 text-center text-sm"
+                                        >
+                                            View Catering Orders and their
+                                            statuses upon arrival
+                                        </div>
+                                    </a>
+                                </div>
+                            }
+                        }
                     </div>
                 </div>
             </main>

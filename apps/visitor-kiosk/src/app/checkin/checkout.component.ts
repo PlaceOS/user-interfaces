@@ -8,31 +8,31 @@ import { CheckinStateService } from './checkin-state.service';
 @Component({
     selector: 'app-checkout',
     template: `
-        <div
-            class="relative flex w-[28rem] flex-col items-center overflow-hidden rounded bg-base-100 p-4 shadow"
-            *ngIf="!loading; else load_state"
-        >
-            <h3 class="mb-2 w-full text-xl">
-                {{ 'APP.VISITOR_KIOSK.CHECKOUT' | translate }}
-            </h3>
-            <div class="mb-4 mt-2 w-full">
-                {{ 'APP.VISITOR_KIOSK.CHECKOUT_MSG' | translate }}
-            </div>
-            <div class="flex w-full items-center justify-end">
-                <button btn matRipple class="w-32" (click)="checkout()">
-                    {{ 'COMMON.CHECK_OUT' | translate }}
-                </button>
-            </div>
-            <a
-                icon
-                matRipple
-                class="absolute right-2 top-2"
-                [routerLink]="['/welcome']"
+        @if (!loading) {
+            <div
+                class="relative flex w-[28rem] flex-col items-center overflow-hidden rounded bg-base-100 p-4 shadow"
             >
-                <icon>close</icon>
-            </a>
-        </div>
-        <ng-template #load_state>
+                <h3 class="mb-2 w-full text-xl">
+                    {{ 'APP.VISITOR_KIOSK.CHECKOUT' | translate }}
+                </h3>
+                <div class="mb-4 mt-2 w-full">
+                    {{ 'APP.VISITOR_KIOSK.CHECKOUT_MSG' | translate }}
+                </div>
+                <div class="flex w-full items-center justify-end">
+                    <button btn matRipple class="w-32" (click)="checkout()">
+                        {{ 'COMMON.CHECK_OUT' | translate }}
+                    </button>
+                </div>
+                <a
+                    icon
+                    matRipple
+                    class="absolute right-2 top-2"
+                    [routerLink]="['/welcome']"
+                >
+                    <icon>close</icon>
+                </a>
+            </div>
+        } @else {
             <div
                 class="relative flex h-[20rem] w-[28rem] flex-col items-center justify-center space-y-2 overflow-hidden rounded bg-base-100 p-8 shadow"
             >
@@ -41,7 +41,7 @@ import { CheckinStateService } from './checkin-state.service';
                     {{ 'APP.VISITOR_KIOSK.CHECKOUT_LOADING' | translate }}
                 </div>
             </div>
-        </ng-template>
+        }
     `,
     styles: [
         `

@@ -91,22 +91,24 @@ import { ParkingStateService } from './parking-state.service';
             </button>
         </ng-template>
         <ng-template #assigned_template let-row="row" let-data="data">
-            <div *ngIf="!data" class="p-4 opacity-30">
-                {{ 'APP.CONCIERGE.UNASSIGNED' | translate }}
-            </div>
-            <button
-                *ngIf="data"
-                class="px-4 py-2 text-left leading-tight"
-                (click)="copyToClipboard(data, 'assigned')"
-            >
-                <div class="">{{ row.assigned_name || data }}</div>
-                <div
-                    *ngIf="row.assigned_name"
-                    class="font-mono text-[0.625rem] opacity-30"
-                >
-                    {{ data }}
+            @if (!data) {
+                <div class="p-4 opacity-30">
+                    {{ 'APP.CONCIERGE.UNASSIGNED' | translate }}
                 </div>
-            </button>
+            }
+            @if (data) {
+                <button
+                    class="px-4 py-2 text-left leading-tight"
+                    (click)="copyToClipboard(data, 'assigned')"
+                >
+                    <div class="">{{ row.assigned_name || data }}</div>
+                    @if (row.assigned_name) {
+                        <div class="font-mono text-[0.625rem] opacity-30">
+                            {{ data }}
+                        </div>
+                    }
+                </button>
+            }
         </ng-template>
         <ng-template #action_template let-row="row">
             <div class="mx-auto flex items-center space-x-2">

@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, Inject } from '@angular/core';
 import {
     FormControl,
@@ -27,76 +26,76 @@ import { User } from 'libs/users/src/lib/user.class';
                 <icon>close</icon>
             </button>
         </header>
-        <main
-            *ngIf="form"
-            [formGroup]="form"
-            class="w-[24rem] max-w-[85vw] pt-4"
-        >
-            <div
-                *ngIf="resource"
-                class="mx-auto flex w-[640px] max-w-[calc(100%-2rem)] flex-col space-x-0 sm:flex-row sm:space-x-2"
-            >
-                <div class="mb-2 flex w-full flex-1 flex-col sm:w-1/4">
-                    <label>Resource:</label>
+        @if (form) {
+            <main [formGroup]="form" class="w-[24rem] max-w-[85vw] pt-4">
+                @if (resource) {
                     <div
-                        class="mb-4 w-full rounded border border-base-200 px-4 py-3"
+                        class="mx-auto flex w-[640px] max-w-[calc(100%-2rem)] flex-col space-x-0 sm:flex-row sm:space-x-2"
                     >
-                        {{
-                            resource.name ||
-                                resource.map_id ||
-                                'Unknown Resource'
-                        }}
+                        <div class="mb-2 flex w-full flex-1 flex-col sm:w-1/4">
+                            <label>Resource:</label>
+                            <div
+                                class="mb-4 w-full rounded border border-base-200 px-4 py-3"
+                            >
+                                {{
+                                    resource.name ||
+                                        resource.map_id ||
+                                        'Unknown Resource'
+                                }}
+                            </div>
+                        </div>
+                    </div>
+                }
+                @if (host) {
+                    <div
+                        class="mx-auto flex w-[640px] max-w-[calc(100%-2rem)] flex-col space-x-0 sm:flex-row sm:space-x-2"
+                    >
+                        <div class="flex w-full flex-1 flex-col sm:w-1/4">
+                            <label>Host</label>
+                            <a-user-search-field
+                                formControlName="user"
+                                class="mb-4"
+                            ></a-user-search-field>
+                        </div>
+                    </div>
+                }
+                <div
+                    class="mx-auto flex w-[640px] max-w-[calc(100%-2rem)] flex-col space-x-0 sm:flex-row sm:space-x-2"
+                >
+                    <div class="flex w-full flex-1 flex-col sm:w-1/4">
+                        <label>Date</label>
+                        <a-date-field [to]="book_until" formControlName="date">
+                            Date and time must be in the future
+                        </a-date-field>
                     </div>
                 </div>
-            </div>
-            <div
-                *ngIf="host"
-                class="mx-auto flex w-[640px] max-w-[calc(100%-2rem)] flex-col space-x-0 sm:flex-row sm:space-x-2"
-            >
-                <div class="flex w-full flex-1 flex-col sm:w-1/4">
-                    <label>Host</label>
-                    <a-user-search-field
-                        formControlName="user"
-                        class="mb-4"
-                    ></a-user-search-field>
+                <div
+                    class="mx-auto flex w-[640px] max-w-[calc(100%-2rem)] flex-col space-x-0 sm:flex-row sm:space-x-2"
+                >
+                    <div class="flex w-full flex-1 flex-col sm:w-1/3">
+                        <label>Start Time</label>
+                        <a-time-field
+                            [ngModel]="form.value.date"
+                            (ngModelChange)="form.patchValue({ date: $event })"
+                            [ngModelOptions]="{ standalone: true }"
+                            [use_24hr]="use_24hr_time"
+                        ></a-time-field>
+                    </div>
+                    <div class="flex w-full flex-1 flex-col sm:w-1/3">
+                        <label>End Time</label>
+                        <a-duration-field
+                            formControlName="duration"
+                            [time]="form.get('date')?.value"
+                            [max]="10 * 60"
+                            [min]="60"
+                            [step]="60"
+                            [use_24hr]="use_24hr_time"
+                        >
+                        </a-duration-field>
+                    </div>
                 </div>
-            </div>
-            <div
-                class="mx-auto flex w-[640px] max-w-[calc(100%-2rem)] flex-col space-x-0 sm:flex-row sm:space-x-2"
-            >
-                <div class="flex w-full flex-1 flex-col sm:w-1/4">
-                    <label>Date</label>
-                    <a-date-field [to]="book_until" formControlName="date">
-                        Date and time must be in the future
-                    </a-date-field>
-                </div>
-            </div>
-            <div
-                class="mx-auto flex w-[640px] max-w-[calc(100%-2rem)] flex-col space-x-0 sm:flex-row sm:space-x-2"
-            >
-                <div class="flex w-full flex-1 flex-col sm:w-1/3">
-                    <label>Start Time</label>
-                    <a-time-field
-                        [ngModel]="form.value.date"
-                        (ngModelChange)="form.patchValue({ date: $event })"
-                        [ngModelOptions]="{ standalone: true }"
-                        [use_24hr]="use_24hr_time"
-                    ></a-time-field>
-                </div>
-                <div class="flex w-full flex-1 flex-col sm:w-1/3">
-                    <label>End Time</label>
-                    <a-duration-field
-                        formControlName="duration"
-                        [time]="form.get('date')?.value"
-                        [max]="10 * 60"
-                        [min]="60"
-                        [step]="60"
-                        [use_24hr]="use_24hr_time"
-                    >
-                    </a-duration-field>
-                </div>
-            </div>
-        </main>
+            </main>
+        }
         <footer
             class="flex w-full items-center justify-center border-t border-base-200 p-2"
         >
@@ -107,7 +106,6 @@ import { User } from 'libs/users/src/lib/user.class';
     `,
     styles: [``],
     imports: [
-        CommonModule,
         MatRippleModule,
         MatDialogModule,
         IconComponent,

@@ -24,39 +24,43 @@ import { EnrolmentStateService } from './enrolment-state.service';
             <div
                 class="relative z-10 flex h-1/2 w-full flex-1 flex-col items-center overflow-auto"
             >
-                <ng-container *ngIf="!(loading | async); else load_state">
-                    <ng-container [ngSwitch]="view | async">
-                        <enrolment-event-details
-                            *ngSwitchCase="'event'"
-                        ></enrolment-event-details>
-                        <enrolment-guest-confirm
-                            *ngSwitchCase="'guest'"
-                        ></enrolment-guest-confirm>
-                        <div
-                            class="m-4 rounded border border-base-200 bg-base-100 p-4 shadow"
-                            *ngSwitchCase="'complete'"
-                        >
-                            <icon class="text-7xl text-success">done</icon>
-                            <p>
-                                You are now checked in. See you
-                                {{
-                                    event ? 'at ' + event.display.time : 'soon'
-                                }}
-                            </p>
-                        </div>
-                        <enrolment-error *ngSwitchDefault></enrolment-error>
-                    </ng-container>
-                </ng-container>
+                @if (!(loading | async)) {
+                    @switch (view | async) {
+                        @case ('event') {
+                            <enrolment-event-details></enrolment-event-details>
+                        }
+                        @case ('guest') {
+                            <enrolment-guest-confirm></enrolment-guest-confirm>
+                        }
+                        @case ('complete') {
+                            <div
+                                class="m-4 rounded border border-base-200 bg-base-100 p-4 shadow"
+                            >
+                                <icon class="text-7xl text-success">done</icon>
+                                <p>
+                                    You are now checked in. See you
+                                    {{
+                                        event
+                                            ? 'at ' + event.display.time
+                                            : 'soon'
+                                    }}
+                                </p>
+                            </div>
+                        }
+                        @default {
+                            <enrolment-error></enrolment-error>
+                        }
+                    }
+                } @else {
+                    <div
+                        class="flex h-full w-full flex-col items-center justify-center space-y-2 p-16"
+                    >
+                        <mat-spinner [diameter]="32"></mat-spinner>
+                        <p>{{ loading | async }}</p>
+                    </div>
+                }
             </div>
         </div>
-        <ng-template #load_state>
-            <div
-                class="flex h-full w-full flex-col items-center justify-center space-y-2 p-16"
-            >
-                <mat-spinner [diameter]="32"></mat-spinner>
-                <p>{{ loading | async }}</p>
-            </div>
-        </ng-template>
     `,
     styles: [``],
     standalone: false,

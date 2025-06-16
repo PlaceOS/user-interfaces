@@ -26,83 +26,91 @@ import { LandingStateService } from './landing-state.service';
             </h2>
         </div>
         <div class="h-1/2 w-full flex-1 space-y-4 overflow-auto pt-4">
-            <ng-container *ngIf="(contacts | async)?.length; else empty_state">
+            @if ((contacts | async)?.length) {
+                @for (user of contacts | async; track user) {
+                    <div class="relative flex items-center space-x-2 px-2" user>
+                        <div class="relative text-xl">
+                            <a-user-avatar [user]="user"></a-user-avatar>
+                            @if (!user.outsideHours()) {
+                                <div
+                                    class="absolute bottom-1 right-1 h-3 w-3 rounded-full border border-white"
+                                    [class.bg-error]="
+                                        user.location === 'aol' ||
+                                        user.location === 'ooo'
+                                    "
+                                    [class.bg-success]="user.location === 'wfo'"
+                                    [class.bg-warning]="user.location === 'wfh'"
+                                    [class.bg-neutral]="!user.location"
+                                    [matTooltip]="user.location_name"
+                                ></div>
+                            }
+                        </div>
+                        <div class="w-1/2 flex-1 leading-tight">
+                            <div class="truncate" [matTooltip]="user.name">
+                                {{ user.name }}
+                            </div>
+                            <div
+                                class="truncate text-sm"
+                                [matTooltip]="user.organisation"
+                            >
+                                {{ user.organisation }}
+                            </div>
+                            <div class="truncate text-xs opacity-60">
+                                {{ user.location_name }}
+                            </div>
+                        </div>
+                        <button
+                            icon
+                            name="colleague-more"
+                            class="!rounded bg-base-200"
+                            [matMenuTriggerFor]="menu"
+                        >
+                            <icon>more_horiz</icon>
+                        </button>
+                        <mat-menu #menu="matMenu" xPosition="before">
+                            <button
+                                mat-menu-item
+                                name="meeting-with-colleague"
+                                (click)="newMeeting(user)"
+                            >
+                                <div class="flex items-center space-x-2">
+                                    <icon class="text-2xl">today</icon>
+                                    <div>
+                                        {{
+                                            'APP.WORKPLACE.COLLEAGUE_NEW_MEETING'
+                                                | translate
+                                        }}
+                                    </div>
+                                </div>
+                            </button>
+                            <button
+                                name="remove-colleague"
+                                mat-menu-item
+                                (click)="removeUser(user)"
+                            >
+                                <div class="flex items-center space-x-2">
+                                    <icon class="text-2xl">cancel</icon>
+                                    <div>
+                                        {{
+                                            'APP.WORKPLACE.COLLEAGUE_REMOVE'
+                                                | translate
+                                        }}
+                                    </div>
+                                </div>
+                            </button>
+                        </mat-menu>
+                    </div>
+                }
+            } @else {
                 <div
-                    class="relative flex items-center space-x-2 px-2"
-                    user
-                    *ngFor="let user of contacts | async"
+                    class="flex h-full w-full flex-col items-center justify-center space-y-2 p-8"
                 >
-                    <div class="relative text-xl">
-                        <a-user-avatar [user]="user"></a-user-avatar>
-                        <div
-                            class="absolute bottom-1 right-1 h-3 w-3 rounded-full border border-white"
-                            [class.bg-error]="
-                                user.location === 'aol' ||
-                                user.location === 'ooo'
-                            "
-                            [class.bg-success]="user.location === 'wfo'"
-                            [class.bg-warning]="user.location === 'wfh'"
-                            [class.bg-neutral]="!user.location"
-                            [matTooltip]="user.location_name"
-                            *ngIf="!user.outsideHours()"
-                        ></div>
-                    </div>
-                    <div class="w-1/2 flex-1 leading-tight">
-                        <div class="truncate" [matTooltip]="user.name">
-                            {{ user.name }}
-                        </div>
-                        <div
-                            class="truncate text-sm"
-                            [matTooltip]="user.organisation"
-                        >
-                            {{ user.organisation }}
-                        </div>
-                        <div class="truncate text-xs opacity-60">
-                            {{ user.location_name }}
-                        </div>
-                    </div>
-                    <button
-                        icon
-                        name="colleague-more"
-                        class="!rounded bg-base-200"
-                        [matMenuTriggerFor]="menu"
-                    >
-                        <icon>more_horiz</icon>
-                    </button>
-                    <mat-menu #menu="matMenu" xPosition="before">
-                        <button
-                            mat-menu-item
-                            name="meeting-with-colleague"
-                            (click)="newMeeting(user)"
-                        >
-                            <div class="flex items-center space-x-2">
-                                <icon class="text-2xl">today</icon>
-                                <div>
-                                    {{
-                                        'APP.WORKPLACE.COLLEAGUE_NEW_MEETING'
-                                            | translate
-                                    }}
-                                </div>
-                            </div>
-                        </button>
-                        <button
-                            name="remove-colleague"
-                            mat-menu-item
-                            (click)="removeUser(user)"
-                        >
-                            <div class="flex items-center space-x-2">
-                                <icon class="text-2xl">cancel</icon>
-                                <div>
-                                    {{
-                                        'APP.WORKPLACE.COLLEAGUE_REMOVE'
-                                            | translate
-                                    }}
-                                </div>
-                            </div>
-                        </button>
-                    </mat-menu>
+                    <img src="assets/icons/no-contacts.svg" />
+                    <p class="text-center text-sm opacity-60">
+                        {{ 'APP.WORKPLACE.COLLEAGUES_EMPTY' | translate }}
+                    </p>
                 </div>
-            </ng-container>
+            }
         </div>
         <button
             btn
@@ -133,73 +141,67 @@ import { LandingStateService } from './landing-state.service';
             >
                 <icon>close</icon>
             </button>
-            <div
-                class="flex h-1/2 flex-1 flex-col space-y-2 overflow-auto"
-                *ngIf="!(loading | async); else load_state"
-            >
-                <ng-container
-                    *ngIf="(search_results | async)?.length; else search_empty"
+            @if (!(loading | async)) {
+                <div class="flex h-1/2 flex-1 flex-col space-y-2 overflow-auto">
+                    @if ((search_results | async)?.length) {
+                        @for (user of search_results | async; track user) {
+                            <button
+                                matRipple
+                                name="add-colleague"
+                                class="flex min-h-12 w-full items-center space-x-2 p-1 text-left"
+                                (click)="addUser(user)"
+                            >
+                                <div class="relative text-base">
+                                    <a-user-avatar
+                                        [user]="user"
+                                    ></a-user-avatar>
+                                    <!-- <div
+                      class="rounded-full h-3 w-3 border border-white absolute bottom-1 right-1"
+                      [class.bg-error]="!user.location"
+                      [class.bg-success]="user.location"
+                    ></div> -->
+                                </div>
+                                <div class="flex-1 leading-tight">
+                                    <div class="truncate">{{ user.name }}</div>
+                                    <div class="truncate text-xs opacity-60">
+                                        {{ user.organisation || user.email }}
+                                    </div>
+                                </div>
+                            </button>
+                        }
+                    } @else {
+                        <div
+                            class="flex h-full w-full flex-col items-center justify-center space-y-2 p-8"
+                        >
+                            <p class="text-center text-sm opacity-60">
+                                {{
+                                    !(options | async)?.search
+                                        ? ('APP.WORKPLACE.COLLEAGUE_SEARCH_EMPTY'
+                                          | translate)
+                                        : ('APP.WORKPLACE.COLLEAGUE_SEARCH_EMPTY'
+                                          | translate
+                                              : {
+                                                    text: (options | async)
+                                                        ?.search,
+                                                })
+                                }}
+                            </p>
+                        </div>
+                    }
+                </div>
+            } @else {
+                <div
+                    class="flex h-full w-full flex-col items-center justify-center space-y-2 p-8"
                 >
-                    <button
-                        matRipple
-                        name="add-colleague"
-                        class="flex min-h-12 w-full items-center space-x-2 p-1 text-left"
-                        *ngFor="let user of search_results | async"
-                        (click)="addUser(user)"
-                    >
-                        <div class="relative text-base">
-                            <a-user-avatar [user]="user"></a-user-avatar>
-                            <!-- <div
-                                class="rounded-full h-3 w-3 border border-white absolute bottom-1 right-1"
-                                [class.bg-error]="!user.location"
-                                [class.bg-success]="user.location"
-                            ></div> -->
-                        </div>
-                        <div class="flex-1 leading-tight">
-                            <div class="truncate">{{ user.name }}</div>
-                            <div class="truncate text-xs opacity-60">
-                                {{ user.organisation || user.email }}
-                            </div>
-                        </div>
-                    </button>
-                </ng-container>
-            </div>
+                    <mat-spinner diameter="32"></mat-spinner>
+                    <p class="text-center text-sm opacity-60">
+                        {{
+                            'APP.WORKPLACE.COLLEAGUE_SEARCH_LOADING' | translate
+                        }}
+                    </p>
+                </div>
+            }
         </div>
-        <ng-template #empty_state>
-            <div
-                class="flex h-full w-full flex-col items-center justify-center space-y-2 p-8"
-            >
-                <img src="assets/icons/no-contacts.svg" />
-                <p class="text-center text-sm opacity-60">
-                    {{ 'APP.WORKPLACE.COLLEAGUES_EMPTY' | translate }}
-                </p>
-            </div>
-        </ng-template>
-        <ng-template #search_empty>
-            <div
-                class="flex h-full w-full flex-col items-center justify-center space-y-2 p-8"
-            >
-                <p class="text-center text-sm opacity-60">
-                    {{
-                        !(options | async)?.search
-                            ? ('APP.WORKPLACE.COLLEAGUE_SEARCH_EMPTY'
-                              | translate)
-                            : ('APP.WORKPLACE.COLLEAGUE_SEARCH_EMPTY'
-                              | translate: { text: (options | async)?.search })
-                    }}
-                </p>
-            </div>
-        </ng-template>
-        <ng-template #load_state>
-            <div
-                class="flex h-full w-full flex-col items-center justify-center space-y-2 p-8"
-            >
-                <mat-spinner diameter="32"></mat-spinner>
-                <p class="text-center text-sm opacity-60">
-                    {{ 'APP.WORKPLACE.COLLEAGUE_SEARCH_LOADING' | translate }}
-                </p>
-            </div>
-        </ng-template>
     `,
     styles: [
         `

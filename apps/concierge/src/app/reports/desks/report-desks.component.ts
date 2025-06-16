@@ -32,8 +32,8 @@ import { ReportsStateService } from '../reports-state.service';
                     </h2>
                 </div>
             </div>
-            <ng-container *ngIf="!(loading | async); else load_state">
-                <ng-container *ngIf="total_count | async; else empty_state">
+            @if (!(loading | async)) {
+                @if (total_count | async) {
                     <div
                         class="m-4 flex items-center justify-center space-x-2 rounded border border-base-200 bg-base-100 p-4"
                     >
@@ -65,25 +65,23 @@ import { ReportsStateService } from '../reports-state.service';
                     <report-desks-levels-list
                         [print]="printing"
                     ></report-desks-levels-list>
-                </ng-container>
-            </ng-container>
-            <ng-template #load_state>
+                } @else {
+                    <div
+                        class="screen-only flex h-full w-full flex-col items-center p-8"
+                    >
+                        <p class="opacity-30">
+                            {{ 'APP.CONCIERGE.REPORTS_EMPTY' | translate }}
+                        </p>
+                    </div>
+                }
+            } @else {
                 <div class="flex h-full w-full flex-col items-center p-8">
                     <mat-spinner [diameter]="32" class="mb-4"></mat-spinner>
                     <p class="opacity-30">
                         {{ 'APP.CONCIERGE.REPORTS_LOADING' | translate }}
                     </p>
                 </div>
-            </ng-template>
-            <ng-template #empty_state>
-                <div
-                    class="screen-only flex h-full w-full flex-col items-center p-8"
-                >
-                    <p class="opacity-30">
-                        {{ 'APP.CONCIERGE.REPORTS_EMPTY' | translate }}
-                    </p>
-                </div>
-            </ng-template>
+            }
         </div>
     `,
     styles: [

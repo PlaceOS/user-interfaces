@@ -15,177 +15,186 @@ export enum ZoomDirection {
 @Component({
     selector: 'camera-tooltip',
     template: `
-        <div
-            class="my-2 flex flex-col rounded bg-base-100 shadow"
-            *ngIf="(camera_list | async)?.length; else empty_state"
-        >
-            <mat-form-field appearance="outline" class="no-subscript m-2">
-                <mat-select
-                    [(ngModel)]="active_camera"
-                    (ngModelChange)="selectCamera($event)"
-                    [placeholder]="'APP.CONTROL.CAMERA_SELECT' | translate"
-                >
-                    <mat-option
-                        *ngFor="let cam of camera_list | async"
-                        [value]="cam"
+        @if ((camera_list | async)?.length) {
+            <div class="my-2 flex flex-col rounded bg-base-100 shadow">
+                <mat-form-field appearance="outline" class="no-subscript m-2">
+                    <mat-select
+                        [(ngModel)]="active_camera"
+                        (ngModelChange)="selectCamera($event)"
+                        [placeholder]="'APP.CONTROL.CAMERA_SELECT' | translate"
                     >
-                        {{ cam.name }}
-                    </mat-option>
-                </mat-select>
-            </mat-form-field>
-            <div
-                class="relative mt-1 flex flex-col border-t border-base-200 sm:flex-row"
-            >
+                        @for (cam of camera_list | async; track cam) {
+                            <mat-option [value]="cam">
+                                {{ cam.name }}
+                            </mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
                 <div
-                    class="relative flex flex-col items-center space-y-2 border-b border-base-200 p-4 sm:border-b-0 sm:border-r"
+                    class="relative mt-1 flex flex-col border-t border-base-200 sm:flex-row"
                 >
-                    <h3 class="mb-2 w-full pr-12 text-xl font-medium">
-                        {{ 'APP.CONTROL.CAMERA_PRESETS' | translate }}
-                    </h3>
-                    <ng-container *ngIf="presets?.length; else no_presets">
-                        <div
-                            class="flex items-center space-x-2"
-                            *ngFor="let name of presets"
-                        >
-                            <button
-                                preset
-                                btn
-                                matRipple
-                                class="w-48"
-                                [class.inverse]="preset !== name"
-                                (click)="recallPreset(name)"
-                            >
-                                {{ name }}
-                            </button>
-                            <button
-                                icon
-                                matRipple
-                                *ngIf="presets?.length > 1"
-                                class="h-12 w-12 rounded border border-error bg-base-100 text-error"
-                                (click)="removePreset(name)"
-                            >
-                                <icon>delete</icon>
-                            </button>
-                        </div>
-                    </ng-container>
-                    <ng-template #no_presets>
-                        <p class="w-full rounded bg-base-300 p-8 opacity-30">
-                            {{ 'APP.CONTROL.CAMERA_PRESETS_EMPTY' | translate }}
-                        </p>
-                    </ng-template>
-                    <button
-                        icon
-                        matRipple
-                        class="absolute right-4 top-1"
-                        [matMenuTriggerFor]="menu"
+                    <div
+                        class="relative flex flex-col items-center space-y-2 border-b border-base-200 p-4 sm:border-b-0 sm:border-r"
                     >
-                        <icon>add</icon>
-                    </button>
-                    <mat-menu #menu="matMenu">
-                        <div class="flex w-full flex-col px-2">
-                            <mat-form-field
-                                appearance="outline"
-                                class="h-[3.5rem] w-full"
-                                (click)="$event.stopPropagation()"
-                            >
-                                <input
-                                    matInput
-                                    [(ngModel)]="new_preset"
-                                    [placeholder]="
-                                        'APP.CONTROL.CAMERA_PRESETS_NEW'
-                                            | translate
-                                    "
-                                />
-                            </mat-form-field>
-                            <button
-                                btn
-                                matRipple
-                                [disabled]="!new_preset"
-                                class="w-full"
-                                (click)="addPreset(new_preset); new_preset = ''"
+                        <h3 class="mb-2 w-full pr-12 text-xl font-medium">
+                            {{ 'APP.CONTROL.CAMERA_PRESETS' | translate }}
+                        </h3>
+                        @if (presets?.length) {
+                            @for (name of presets; track name) {
+                                <div class="flex items-center space-x-2">
+                                    <button
+                                        preset
+                                        btn
+                                        matRipple
+                                        class="w-48"
+                                        [class.inverse]="preset !== name"
+                                        (click)="recallPreset(name)"
+                                    >
+                                        {{ name }}
+                                    </button>
+                                    @if (presets?.length > 1) {
+                                        <button
+                                            icon
+                                            matRipple
+                                            class="h-12 w-12 rounded border border-error bg-base-100 text-error"
+                                            (click)="removePreset(name)"
+                                        >
+                                            <icon>delete</icon>
+                                        </button>
+                                    }
+                                </div>
+                            }
+                        } @else {
+                            <p
+                                class="w-full rounded bg-base-300 p-8 opacity-30"
                             >
                                 {{
-                                    'APP.CONTROL.CAMERA_PRESETS_SAVE'
+                                    'APP.CONTROL.CAMERA_PRESETS_EMPTY'
                                         | translate
                                 }}
-                            </button>
-                        </div>
-                    </mat-menu>
-                </div>
-                <div class="p-4">
-                    <h3 class="mb-2 text-xl font-medium">
-                        {{ 'APP.CONTROL.CONTROLS' | translate }}
-                    </h3>
-                    <div class="flex items-center space-x-2">
-                        <joystick
-                            [(pan)]="pan"
-                            [(tilt)]="tilt"
-                            (panChange)="moveCamera()"
-                            (tiltChange)="moveCamera()"
-                        ></joystick>
-                        <div
-                            zoom
-                            class="flex flex-col items-center rounded border border-base-200"
+                            </p>
+                        }
+                        <button
+                            icon
+                            matRipple
+                            class="absolute right-4 top-1"
+                            [matMenuTriggerFor]="menu"
                         >
-                            <button
-                                zoom-in
-                                icon
-                                matRipple
-                                class="rounded"
-                                (mousedown)="startZoom('in', $event)"
-                                (touchstart)="startZoom('in', $event)"
-                                (contextmenu)="$event.preventDefault()"
-                            >
-                                <icon>add</icon>
-                            </button>
-                            <div
-                                class="flex h-10 w-10 items-center justify-center border-b border-t border-base-200 text-xs"
-                            >
-                                {{ 'APP.CONTROL.ZOOM' | translate }}
+                            <icon>add</icon>
+                        </button>
+                        <mat-menu #menu="matMenu">
+                            <div class="flex w-full flex-col px-2">
+                                <mat-form-field
+                                    appearance="outline"
+                                    class="h-[3.5rem] w-full"
+                                    (click)="$event.stopPropagation()"
+                                >
+                                    <input
+                                        matInput
+                                        [(ngModel)]="new_preset"
+                                        [placeholder]="
+                                            'APP.CONTROL.CAMERA_PRESETS_NEW'
+                                                | translate
+                                        "
+                                    />
+                                </mat-form-field>
+                                <button
+                                    btn
+                                    matRipple
+                                    [disabled]="!new_preset"
+                                    class="w-full"
+                                    (click)="
+                                        addPreset(new_preset); new_preset = ''
+                                    "
+                                >
+                                    {{
+                                        'APP.CONTROL.CAMERA_PRESETS_SAVE'
+                                            | translate
+                                    }}
+                                </button>
                             </div>
-
-                            <button
-                                zoom-out
-                                icon
-                                matRipple
-                                class="rounded"
-                                (mousedown)="startZoom('out', $event)"
-                                (touchstart)="startZoom('out', $event)"
-                                (contextmenu)="$event.preventDefault()"
+                        </mat-menu>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="mb-2 text-xl font-medium">
+                            {{ 'APP.CONTROL.CONTROLS' | translate }}
+                        </h3>
+                        <div class="flex items-center space-x-2">
+                            <joystick
+                                [(pan)]="pan"
+                                [(tilt)]="tilt"
+                                (panChange)="moveCamera()"
+                                (tiltChange)="moveCamera()"
+                            ></joystick>
+                            <div
+                                zoom
+                                class="flex flex-col items-center rounded border border-base-200"
                             >
-                                <icon>remove</icon>
-                            </button>
+                                <button
+                                    zoom-in
+                                    icon
+                                    matRipple
+                                    class="rounded"
+                                    (mousedown)="startZoom('in', $event)"
+                                    (touchstart)="startZoom('in', $event)"
+                                    (contextmenu)="$event.preventDefault()"
+                                >
+                                    <icon>add</icon>
+                                </button>
+                                <div
+                                    class="flex h-10 w-10 items-center justify-center border-b border-t border-base-200 text-xs"
+                                >
+                                    {{ 'APP.CONTROL.ZOOM' | translate }}
+                                </div>
+                                <button
+                                    zoom-out
+                                    icon
+                                    matRipple
+                                    class="rounded"
+                                    (mousedown)="startZoom('out', $event)"
+                                    (touchstart)="startZoom('out', $event)"
+                                    (contextmenu)="$event.preventDefault()"
+                                >
+                                    <icon>remove</icon>
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div
-                    class="absolute inset-0 flex items-center justify-center bg-base-100 bg-opacity-75"
-                    *ngIf="!active_camera"
-                >
-                    <p>{{ 'APP.CONTROLS.CAMERA_SELECT_MSG' | translate }}</p>
+                    @if (!active_camera) {
+                        <div
+                            class="absolute inset-0 flex items-center justify-center bg-base-100 bg-opacity-75"
+                        >
+                            <p>
+                                {{
+                                    'APP.CONTROLS.CAMERA_SELECT_MSG' | translate
+                                }}
+                            </p>
+                        </div>
+                    }
                 </div>
             </div>
-        </div>
-        <div hidden *ngIf="active_camera?.mod">
-            <i
-                binding
-                (modelChange)="
-                    presets = active_camera.index
-                        ? ($event || [])[active_camera.index]
-                        : $event
-                "
-                [sys]="id"
-                [mod]="active_camera.mod"
-                [bind]="active_camera.index ? 'camera_presets' : 'presets'"
-            ></i>
-        </div>
-        <ng-template #empty_state>
+        } @else {
             <div
                 class="my-2 flex flex-col rounded bg-base-100 p-8 text-center shadow"
             >
                 <p>{{ 'APP.CONTROL.CAMERAS_EMPTY' | translate }}</p>
             </div>
-        </ng-template>
+        }
+        @if (active_camera?.mod) {
+            <div hidden>
+                <i
+                    binding
+                    (modelChange)="
+                        presets = active_camera.index
+                            ? ($event || [])[active_camera.index]
+                            : $event
+                    "
+                    [sys]="id"
+                    [mod]="active_camera.mod"
+                    [bind]="active_camera.index ? 'camera_presets' : 'presets'"
+                ></i>
+            </div>
+        }
     `,
     styles: [``],
     standalone: false,

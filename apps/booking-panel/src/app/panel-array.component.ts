@@ -11,30 +11,39 @@ import { AsyncHandler } from '@placeos/common';
             <div
                 class="flex h-1/2 w-full flex-1 flex-wrap items-center justify-center"
             >
-                <ng-container *ngIf="systems?.length > 0; else none">
+                @if (systems?.length > 0) {
+                    @for (
+                        id of systems | slice: 0 : 4;
+                        track id;
+                        let i = $index
+                    ) {
+                        <div
+                            panel
+                            class="relative flex-1 overflow-hidden border border-base-200"
+                            [style.height]="
+                                systems.length >= 2 ? '50%' : '100%'
+                            "
+                        >
+                            @if (id) {
+                                <app-booking-panel
+                                    [system_id]="id"
+                                    [topbar]="false"
+                                    classs="transform scale-75"
+                                ></app-booking-panel>
+                            }
+                        </div>
+                    }
+                } @else {
                     <div
-                        panel
-                        class="relative flex-1 overflow-hidden border border-base-200"
-                        *ngFor="let id of systems | slice: 0 : 4; let i = index"
-                        [style.height]="systems.length >= 2 ? '50%' : '100%'"
+                        class="absolute inset-0 flex flex-col items-center justify-center"
                     >
-                        <app-booking-panel
-                            *ngIf="id"
-                            [system_id]="id"
-                            [topbar]="false"
-                            classs="transform scale-75"
-                        ></app-booking-panel>
+                        <p>
+                            No systems are set for displaying on the panel array
+                        </p>
                     </div>
-                </ng-container>
+                }
             </div>
         </div>
-        <ng-template #none>
-            <div
-                class="absolute inset-0 flex flex-col items-center justify-center"
-            >
-                <p>No systems are set for displaying on the panel array</p>
-            </div>
-        </ng-template>
     `,
     styles: [
         `

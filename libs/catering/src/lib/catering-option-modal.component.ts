@@ -10,7 +10,6 @@ import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { randomInt } from 'libs/common/src/lib/general';
 import { DialogEvent } from 'libs/common/src/lib/types';
 
-import { CommonModule } from '@angular/common';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -42,112 +41,131 @@ export interface CateringItemOptionModalData {
                     ) | translate
                 }}
             </h2>
-            <button icon matRipple mat-dialog-close *ngIf="!loading">
-                <icon>close</icon>
-            </button>
+            @if (!loading) {
+                <button icon matRipple mat-dialog-close>
+                    <icon>close</icon>
+                </button>
+            }
         </header>
-        <form
-            class="max-h-[65vh] w-[28rem] overflow-auto px-4"
-            *ngIf="form && !loading; else load_state"
-            [formGroup]="form"
-        >
-            <div class="flex flex-col" *ngIf="form.controls.name">
-                <label
-                    for="title"
-                    [class.error]="
-                        form.controls.name.invalid && form.controls.name.touched
-                    "
-                >
-                    {{ 'FORM.NAME' | translate }}<span>*</span>:
-                </label>
-                <mat-form-field appearance="outline">
-                    <input
-                        matInput
-                        name="name"
-                        [placeholder]="'FORM.NAME' | translate"
-                        formControlName="name"
-                    />
-                    <mat-error>{{
-                        'FORM.NAME_REQUIRED' | translate
-                    }}</mat-error>
-                </mat-form-field>
-            </div>
-            <div class="flex flex-col" *ngIf="form.controls.group">
-                <label
-                    for="group"
-                    [class.error]="
-                        form.controls.group.invalid &&
-                        form.controls.group.touched
-                    "
-                >
-                    {{ 'COMMON.TYPE' | translate }}<span>*</span>:
-                </label>
-                <mat-form-field appearance="outline">
-                    <input
-                        matInput
-                        name="group"
-                        [placeholder]="
-                            'CATERING.ITEM_OPTION_TYPE_PLACEHOLDER' | translate
-                        "
-                        formControlName="group"
-                        [matAutocomplete]="auto"
-                    />
-                    <mat-error>{{
-                        'CATERING.ITEM_OPTION_TYPE_REQUIRED' | translate
-                    }}</mat-error>
-                </mat-form-field>
-            </div>
-            <div class="mb-4 flex flex-col" *ngIf="form.controls.multiple">
-                <settings-toggle
-                    [name]="'CATERING.ITEM_OPTION_SELECT_MULTIPLE' | translate"
-                    formControlName="multiple"
-                >
-                </settings-toggle>
-            </div>
-            <div class="flex flex-col" *ngIf="form.controls.unit_price">
-                <label for="title">{{
-                    'CATERING.ITEM_PRICE' | translate
-                }}</label>
-                <mat-form-field appearance="outline">
-                    <input
-                        matInput
-                        name="unit-price"
-                        type="number"
-                        [placeholder]="'CATERING.ITEM_PRICE' | translate"
-                        formControlName="unit_price"
-                    />
-                </mat-form-field>
-            </div>
-        </form>
-        <footer
-            *ngIf="!loading"
-            class="flex items-center justify-end border-t border-solid border-base-200 px-4 py-2"
-        >
-            <button
-                btn
-                matRipple
-                class="w-32"
-                [disabled]="!form.dirty"
-                (click)="saveChanges()"
+        @if (form && !loading) {
+            <form
+                class="max-h-[65vh] w-[28rem] overflow-auto px-4"
+                [formGroup]="form"
             >
-                {{ 'COMMON.SAVE' | translate }}
-            </button>
-        </footer>
-        <ng-template #load_state>
+                @if (form.controls.name) {
+                    <div class="flex flex-col">
+                        <label
+                            for="title"
+                            [class.error]="
+                                form.controls.name.invalid &&
+                                form.controls.name.touched
+                            "
+                        >
+                            {{ 'FORM.NAME' | translate }}<span>*</span>:
+                        </label>
+                        <mat-form-field appearance="outline">
+                            <input
+                                matInput
+                                name="name"
+                                [placeholder]="'FORM.NAME' | translate"
+                                formControlName="name"
+                            />
+                            <mat-error>{{
+                                'FORM.NAME_REQUIRED' | translate
+                            }}</mat-error>
+                        </mat-form-field>
+                    </div>
+                }
+                @if (form.controls.group) {
+                    <div class="flex flex-col">
+                        <label
+                            for="group"
+                            [class.error]="
+                                form.controls.group.invalid &&
+                                form.controls.group.touched
+                            "
+                        >
+                            {{ 'COMMON.TYPE' | translate }}<span>*</span>:
+                        </label>
+                        <mat-form-field appearance="outline">
+                            <input
+                                matInput
+                                name="group"
+                                [placeholder]="
+                                    'CATERING.ITEM_OPTION_TYPE_PLACEHOLDER'
+                                        | translate
+                                "
+                                formControlName="group"
+                                [matAutocomplete]="auto"
+                            />
+                            <mat-error>{{
+                                'CATERING.ITEM_OPTION_TYPE_REQUIRED' | translate
+                            }}</mat-error>
+                        </mat-form-field>
+                    </div>
+                }
+                @if (form.controls.multiple) {
+                    <div class="mb-4 flex flex-col">
+                        <settings-toggle
+                            [name]="
+                                'CATERING.ITEM_OPTION_SELECT_MULTIPLE'
+                                    | translate
+                            "
+                            formControlName="multiple"
+                        >
+                        </settings-toggle>
+                    </div>
+                }
+                @if (form.controls.unit_price) {
+                    <div class="flex flex-col">
+                        <label for="title">{{
+                            'CATERING.ITEM_PRICE' | translate
+                        }}</label>
+                        <mat-form-field appearance="outline">
+                            <input
+                                matInput
+                                name="unit-price"
+                                type="number"
+                                [placeholder]="
+                                    'CATERING.ITEM_PRICE' | translate
+                                "
+                                formControlName="unit_price"
+                            />
+                        </mat-form-field>
+                    </div>
+                }
+            </form>
+        } @else {
             <div loading class="flex w-64 flex-col items-center space-y-2 p-8">
                 <mat-spinner diameter="32"></mat-spinner>
                 <p>{{ 'CATREING.ITEM_OPTION_SAVING' | translate }}</p>
             </div>
-        </ng-template>
+        }
+        @if (!loading) {
+            <footer
+                class="flex items-center justify-end border-t border-solid border-base-200 px-4 py-2"
+            >
+                <button
+                    btn
+                    matRipple
+                    class="w-32"
+                    [disabled]="!form.dirty"
+                    (click)="saveChanges()"
+                >
+                    {{ 'COMMON.SAVE' | translate }}
+                </button>
+            </footer>
+        }
         <mat-autocomplete #auto="matAutocomplete">
-            <mat-option *ngFor="let option of types" [value]="option">
-                {{ option }}
-            </mat-option>
+            @for (option of types; track option) {
+                <mat-option [value]="option">
+                    {{ option }}
+                </mat-option>
+            }
         </mat-autocomplete>
     `,
     styles: [``],
     imports: [
-        CommonModule,
         TranslatePipe,
         MatRippleModule,
         MatProgressSpinnerModule,

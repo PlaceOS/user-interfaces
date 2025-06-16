@@ -8,36 +8,32 @@ import { ControlStateService } from '../control-state.service';
 @Component({
     selector: 'app-control-main-view',
     template: `
-        <ng-container *ngIf="(system | async).connected; else load_state">
-            <div
-                *ngIf="(system | async).active; else power_off_state"
-                class="absolute inset-0 flex flex-col"
-            >
-                <topbar-header></topbar-header>
-
-                <div class="h-1/2 flex-1">
-                    <div
-                        class="absolute inset-4 flex flex-col rounded bg-base-100 shadow"
-                        video-call-page
-                    ></div>
+        @if ((system | async).connected) {
+            @if ((system | async).active) {
+                <div class="absolute inset-0 flex flex-col">
+                    <topbar-header></topbar-header>
+                    <div class="h-1/2 flex-1">
+                        <div
+                            class="absolute inset-4 flex flex-col rounded bg-base-100 shadow"
+                            video-call-page
+                        ></div>
+                    </div>
+                    <control-status-bar></control-status-bar>
                 </div>
-                <control-status-bar></control-status-bar>
-            </div>
-        </ng-container>
-        <ng-template #power_off_state>
-            <div
-                name="splash"
-                class="absolute inset-0 flex flex-col items-center justify-center text-white"
-                (click)="powerOn()"
-                (touchend)="powerOn()"
-            >
-                <h2 class="mb-4 text-4xl font-light">
-                    {{ 'APP.CONTROL.TOUCH_TO_START' | translate }}
-                </h2>
-                <p class="text-lg">{{ (system | async).name }}</p>
-            </div>
-        </ng-template>
-        <ng-template #load_state>
+            } @else {
+                <div
+                    name="splash"
+                    class="absolute inset-0 flex flex-col items-center justify-center text-white"
+                    (click)="powerOn()"
+                    (touchend)="powerOn()"
+                >
+                    <h2 class="mb-4 text-4xl font-light">
+                        {{ 'APP.CONTROL.TOUCH_TO_START' | translate }}
+                    </h2>
+                    <p class="text-lg">{{ (system | async).name }}</p>
+                </div>
+            }
+        } @else {
             <div
                 name="loader"
                 class="absolute inset-0 flex flex-col items-center justify-center bg-base-100 text-black"
@@ -48,7 +44,7 @@ import { ControlStateService } from '../control-state.service';
                 </div>
                 <div class="text-base"></div>
             </div>
-        </ng-template>
+        }
     `,
     styles: [
         `

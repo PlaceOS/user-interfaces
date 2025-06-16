@@ -57,9 +57,11 @@ import { LockerStateService } from './locker-state.service';
                 (click)="copyToClipboard(data)"
             >
                 {{ data }}
-                <span *ngIf="!data" class="opacity-30">{{
-                    'EXPLORE.MAP_ID_EMPTY' | translate
-                }}</span>
+                @if (!data) {
+                    <span class="opacity-30">{{
+                        'EXPLORE.MAP_ID_EMPTY' | translate
+                    }}</span>
+                }
             </button>
         </ng-template>
         <ng-template #name_template let-row="row" let-data="data">
@@ -68,12 +70,11 @@ import { LockerStateService } from './locker-state.service';
                 (click)="copyToClipboard(row.id)"
             >
                 <div class="">{{ data }}</div>
-                <div
-                    class="font-mono text-[0.625rem] opacity-30"
-                    *ngIf="row.id !== row.map_id"
-                >
-                    {{ row.id }}
-                </div>
+                @if (row.id !== row.map_id) {
+                    <div class="font-mono text-[0.625rem] opacity-30">
+                        {{ row.id }}
+                    </div>
+                }
             </button>
         </ng-template>
         <ng-template #action_template let-row="row" let-data="data">
@@ -177,22 +178,24 @@ import { LockerStateService } from './locker-state.service';
                 [empty_message]="'APP.CONCIERGE.LOCKERS_EMPTY' | translate"
             ></simple-table>
             <ng-template #assigned_template let-row="row" let-data="data">
-                <div *ngIf="!data" class="p-4 opacity-30">
-                    {{ 'APP.CONCIERGE.UNASSIGNED' | translate }}
-                </div>
-                <button
-                    *ngIf="data"
-                    class="px-4 py-2 text-left leading-tight"
-                    (click)="copyToClipboard(data, 'assigned')"
-                >
-                    <div class="">{{ row.assigned_name || data }}</div>
-                    <div
-                        *ngIf="row.assigned_name"
-                        class="font-mono text-[0.625rem] opacity-30"
-                    >
-                        {{ data }}
+                @if (!data) {
+                    <div class="p-4 opacity-30">
+                        {{ 'APP.CONCIERGE.UNASSIGNED' | translate }}
                     </div>
-                </button>
+                }
+                @if (data) {
+                    <button
+                        class="px-4 py-2 text-left leading-tight"
+                        (click)="copyToClipboard(data, 'assigned')"
+                    >
+                        <div class="">{{ row.assigned_name || data }}</div>
+                        @if (row.assigned_name) {
+                            <div class="font-mono text-[0.625rem] opacity-30">
+                                {{ data }}
+                            </div>
+                        }
+                    </button>
+                }
             </ng-template>
             <ng-template #pos_template let-data="data">
                 <div class="flex w-full space-x-2 p-2">
@@ -244,25 +247,28 @@ import { LockerStateService } from './locker-state.service';
             </ng-template>
             <ng-template #accessible_template let-data="data">
                 <div class="flex w-full items-center justify-center p-2">
-                    <div
-                        *ngIf="data"
-                        class="flex h-8 w-8 items-center justify-center rounded bg-info text-info-content"
-                        [matTooltip]="
-                            'APP.CONCIERGE.LOCKERS_ACCESSIBLE_INFO' | translate
-                        "
-                    >
-                        <icon class="text-2xl">accessible</icon>
-                    </div>
+                    @if (data) {
+                        <div
+                            class="flex h-8 w-8 items-center justify-center rounded bg-info text-info-content"
+                            [matTooltip]="
+                                'APP.CONCIERGE.LOCKERS_ACCESSIBLE_INFO'
+                                    | translate
+                            "
+                        >
+                            <icon class="text-2xl">accessible</icon>
+                        </div>
+                    }
                 </div>
             </ng-template>
             <ng-template #bool_template let-data="data">
-                <div
-                    *ngIf="data"
-                    class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-success text-2xl text-success-content"
-                    [matTooltip]="'COMMON.BOOKABLE' | translate"
-                >
-                    <icon>done</icon>
-                </div>
+                @if (data) {
+                    <div
+                        class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-success text-2xl text-success-content"
+                        [matTooltip]="'COMMON.BOOKABLE' | translate"
+                    >
+                        <icon>done</icon>
+                    </div>
+                }
             </ng-template>
             <ng-template #locker_action_template let-row="row">
                 <div

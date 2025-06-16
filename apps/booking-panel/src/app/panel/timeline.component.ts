@@ -17,26 +17,26 @@ import { PanelStateService } from '../panel-state.service';
         <div
             class="relative flex h-16 w-full items-center bg-secondary text-white"
         >
-            <div
-                block
-                class="relative flex h-full flex-1 items-end border-dashed border-opacity-50"
-                [class.bg-error]="!block.free"
-                [class.border-l]="block.on_half"
-                [class.border-base-200]="block.on_half"
-                *ngFor="let block of blocks | async"
-                (click)="block.free ? newBooking(block) : ''"
-            >
+            @for (block of blocks | async; track block) {
                 <div
-                    class="relative h-1/2 w-px bg-base-100"
-                    *ngIf="block.on_hour"
+                    block
+                    class="relative flex h-full flex-1 items-end border-dashed border-opacity-50"
+                    [class.bg-error]="!block.free"
+                    [class.border-l]="block.on_half"
+                    [class.border-base-200]="block.on_half"
+                    (click)="block.free ? newBooking(block) : ''"
                 >
-                    <p
-                        class="absolute -translate-x-1/2 -translate-y-full transform"
-                    >
-                        {{ block.hour }}
-                    </p>
+                    @if (block.on_hour) {
+                        <div class="relative h-1/2 w-px bg-base-100">
+                            <p
+                                class="absolute -translate-x-1/2 -translate-y-full transform"
+                            >
+                                {{ block.hour }}
+                            </p>
+                        </div>
+                    }
                 </div>
-            </div>
+            }
             <div
                 cover
                 class="absolute bottom-0 left-0 top-0 w-1/6 bg-neutral bg-opacity-40"

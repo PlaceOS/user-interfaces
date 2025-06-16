@@ -29,86 +29,98 @@ import { EventsStateService } from './events-state.service';
                 (blur)="hideSearch()"
                 [placeholder]="'APP.CONCIERGE.ROOMS_SEARCH' | translate"
             />
-            <icon
-                *ngIf="show"
-                class="absolute right-[17.5rem] top-1/2 -translate-y-1/2 text-2xl"
-            >
-                search
-            </icon>
-            <div
-                class="absolute right-4 top-full max-h-[65vh] w-[18rem] translate-y-2 overflow-auto rounded border border-base-300 bg-base-100 shadow"
-                *ngIf="show"
-            >
-                <div class="sticky top-0 z-10 rounded bg-base-100 p-4">
-                    <div class="text-xs opacity-60">
-                        {{
-                            'APP.CONCIERGE.ROOMS_SEARCH_COUNT'
-                                | translate
-                                    : {
-                                          count: (filtered | async)?.length,
-                                          total: (events | async)?.length,
-                                      }
-                        }}
+            @if (show) {
+                <icon
+                    class="absolute right-[17.5rem] top-1/2 -translate-y-1/2 text-2xl"
+                >
+                    search
+                </icon>
+            }
+            @if (show) {
+                <div
+                    class="absolute right-4 top-full max-h-[65vh] w-[18rem] translate-y-2 overflow-auto rounded border border-base-300 bg-base-100 shadow"
+                >
+                    <div class="sticky top-0 z-10 rounded bg-base-100 p-4">
+                        <div class="text-xs opacity-60">
+                            {{
+                                'APP.CONCIERGE.ROOMS_SEARCH_COUNT'
+                                    | translate
+                                        : {
+                                              count: (filtered | async)?.length,
+                                              total: (events | async)?.length,
+                                          }
+                            }}
+                        </div>
+                    </div>
+                    @if (!(filtered | async).length) {
+                        <div
+                            class="flex items-center justify-center p-4 text-center text-sm opacity-30"
+                        >
+                            {{
+                                ((events | async).length
+                                    ? 'APP.CONCIERGE.ROOMS_SEARCH_EMPTY'
+                                    : 'APP.CONCIERGE.ROOMS_EMPTY'
+                                ) | translate
+                            }}
+                        </div>
+                    }
+                    <div class="-mt-2 px-2 pb-2">
+                        @for (event of filtered | async; track event) {
+                            <button
+                                matRipple
+                                class="relative z-0 flex w-full items-center space-x-2 rounded p-2 text-left hover:bg-base-200"
+                                (click)="selected.next(event)"
+                            >
+                                <div
+                                    class="h-10 w-1 rounded-full"
+                                    [style.background-color]="typeColor(event)"
+                                ></div>
+                                <div date class="leading-tight">
+                                    <div class="mx-auto text-2xl">
+                                        {{ event.date | date: 'dd' }}
+                                    </div>
+                                    <div
+                                        class="mx-auto -mt-1 text-sm font-medium uppercase"
+                                    >
+                                        {{ event.date | date: 'MMM' }}
+                                    </div>
+                                </div>
+                                <div class="w-1/2 flex-1">
+                                    <div
+                                        class="flex w-full items-center space-x-2"
+                                    >
+                                        <div
+                                            class="flex-1 truncate text-sm"
+                                            [class.line-through]="
+                                                event.state === 'done'
+                                            "
+                                        >
+                                            {{ event.title }}
+                                        </div>
+                                        <div class="text-xs opacity-60">
+                                            {{ event.date | date: time_format }}
+                                            &ndash;
+                                            {{
+                                                event.date_end
+                                                    | date: time_format
+                                            }}
+                                        </div>
+                                    </div>
+                                    <div class="truncate text-xs opacity-30">
+                                        {{ event.system?.display_name }}
+                                    </div>
+                                    <div class="truncate text-xs opacity-30">
+                                        {{
+                                            (event.host | user)?.name ||
+                                                event.host
+                                        }}
+                                    </div>
+                                </div>
+                            </button>
+                        }
                     </div>
                 </div>
-                <div
-                    *ngIf="!(filtered | async).length"
-                    class="flex items-center justify-center p-4 text-center text-sm opacity-30"
-                >
-                    {{
-                        ((events | async).length
-                            ? 'APP.CONCIERGE.ROOMS_SEARCH_EMPTY'
-                            : 'APP.CONCIERGE.ROOMS_EMPTY'
-                        ) | translate
-                    }}
-                </div>
-                <div class="-mt-2 px-2 pb-2">
-                    <button
-                        matRipple
-                        *ngFor="let event of filtered | async"
-                        class="relative z-0 flex w-full items-center space-x-2 rounded p-2 text-left hover:bg-base-200"
-                        (click)="selected.next(event)"
-                    >
-                        <div
-                            class="h-10 w-1 rounded-full"
-                            [style.background-color]="typeColor(event)"
-                        ></div>
-                        <div date class="leading-tight">
-                            <div class="mx-auto text-2xl">
-                                {{ event.date | date: 'dd' }}
-                            </div>
-                            <div
-                                class="mx-auto -mt-1 text-sm font-medium uppercase"
-                            >
-                                {{ event.date | date: 'MMM' }}
-                            </div>
-                        </div>
-                        <div class="w-1/2 flex-1">
-                            <div class="flex w-full items-center space-x-2">
-                                <div
-                                    class="flex-1 truncate text-sm"
-                                    [class.line-through]="
-                                        event.state === 'done'
-                                    "
-                                >
-                                    {{ event.title }}
-                                </div>
-                                <div class="text-xs opacity-60">
-                                    {{ event.date | date: time_format }}
-                                    &ndash;
-                                    {{ event.date_end | date: time_format }}
-                                </div>
-                            </div>
-                            <div class="truncate text-xs opacity-30">
-                                {{ event.system?.display_name }}
-                            </div>
-                            <div class="truncate text-xs opacity-30">
-                                {{ (event.host | user)?.name || event.host }}
-                            </div>
-                        </div>
-                    </button>
-                </div>
-            </div>
+            }
         </div>
     `,
     styles: [``],

@@ -19,12 +19,11 @@ import { VisitorsStateService } from './visitors-state.service';
                     (ngModelChange)="updateZones($event)"
                     [placeholder]="'COMMON.LEVEL_ALL' | translate"
                 >
-                    <mat-option
-                        *ngFor="let level of levels | async"
-                        [value]="level.id"
-                    >
-                        {{ level.display_name || level.name }}
-                    </mat-option>
+                    @for (level of levels | async; track level) {
+                        <mat-option [value]="level.id">
+                            {{ level.display_name || level.name }}
+                        </mat-option>
+                    }
                 </mat-select>
             </mat-form-field>
             <mat-form-field appearance="outline">

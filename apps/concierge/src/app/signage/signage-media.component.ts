@@ -85,21 +85,24 @@ import { SignageStateService } from './signage-state.service';
                             }}
                         </p>
                     </div>
-                    <button
-                        *ngIf="!search.getValue()"
-                        btn
-                        matRipple
-                        class="inverse"
-                        (click)="addPlaylist()"
-                    >
-                        <div class="flex w-full items-center justify-center">
-                            <icon class="text-2xl">add</icon>
-                            <span class="ml-2 mr-4">{{
-                                'APP.CONCIERGE.SIGNAGE_PLAYLISTS_ADD'
-                                    | translate
-                            }}</span>
-                        </div>
-                    </button>
+                    @if (!search.getValue()) {
+                        <button
+                            btn
+                            matRipple
+                            class="inverse"
+                            (click)="addPlaylist()"
+                        >
+                            <div
+                                class="flex w-full items-center justify-center"
+                            >
+                                <icon class="text-2xl">add</icon>
+                                <span class="ml-2 mr-4">{{
+                                    'APP.CONCIERGE.SIGNAGE_PLAYLISTS_ADD'
+                                        | translate
+                                }}</span>
+                            </div>
+                        </button>
+                    }
                 }
             </div>
             <div
@@ -109,42 +112,45 @@ import { SignageStateService } from './signage-state.service';
                 (window:drop)="hideOverlay($event)"
             >
                 <div class="h-full w-full overflow-auto">
-                    <signage-media-list
-                        *ngIf="!selected_playlist"
-                        [playlist_count]="(playlists | async)?.length"
-                    ></signage-media-list>
-                    <signage-playlist-media-list
-                        *ngIf="selected_playlist"
-                        [playlist]="selected_playlist"
-                        [playlist_count]="(playlists | async)?.length"
-                    ></signage-playlist-media-list>
+                    @if (!selected_playlist) {
+                        <signage-media-list
+                            [playlist_count]="(playlists | async)?.length"
+                        ></signage-media-list>
+                    }
+                    @if (selected_playlist) {
+                        <signage-playlist-media-list
+                            [playlist]="selected_playlist"
+                            [playlist_count]="(playlists | async)?.length"
+                        ></signage-playlist-media-list>
+                    }
                 </div>
-                <div
-                    class="absolute inset-0"
-                    *ngIf="show_dropzone"
-                    (dragleave)="hideOverlay($event)"
-                    (drop)="previewFile($event)"
-                >
+                @if (show_dropzone) {
                     <div
-                        class="absolute inset-0 bg-base-content opacity-60"
-                    ></div>
-                    <div
-                        class="absolute inset-4 flex flex-col items-center justify-center space-y-4 rounded-2xl border-4 border-dashed border-base-300 text-base-100"
+                        class="absolute inset-0"
+                        (dragleave)="hideOverlay($event)"
+                        (drop)="previewFile($event)"
                     >
-                        <icon class="text-6xl">cloud_upload</icon>
-                        <p>
-                            {{
-                                'APP.CONCIERGE.SIGNAGE_MEDIA_DROP_UPLOAD'
-                                    | translate
-                            }}
-                        </p>
+                        <div
+                            class="absolute inset-0 bg-base-content opacity-60"
+                        ></div>
+                        <div
+                            class="absolute inset-4 flex flex-col items-center justify-center space-y-4 rounded-2xl border-4 border-dashed border-base-300 text-base-100"
+                        >
+                            <icon class="text-6xl">cloud_upload</icon>
+                            <p>
+                                {{
+                                    'APP.CONCIERGE.SIGNAGE_MEDIA_DROP_UPLOAD'
+                                        | translate
+                                }}
+                            </p>
+                        </div>
+                        <input
+                            type="file"
+                            (change)="previewFile($event)"
+                            class="absolute inset-0 opacity-0"
+                        />
                     </div>
-                    <input
-                        type="file"
-                        (change)="previewFile($event)"
-                        class="absolute inset-0 opacity-0"
-                    />
-                </div>
+                }
             </div>
         </div>
     `,

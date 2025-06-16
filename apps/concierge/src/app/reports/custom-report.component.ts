@@ -7,11 +7,12 @@ const EMPTY = {};
 @Component({
     selector: 'custom-report',
     template: `
-        <iframe
-            class="h-full w-full"
-            *ngIf="id"
-            [src]="report_url | safe: 'resource'"
-        ></iframe>
+        @if (id) {
+            <iframe
+                class="h-full w-full"
+                [src]="report_url | safe: 'resource'"
+            ></iframe>
+        }
     `,
     styles: [
         `

@@ -13,271 +13,313 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
 @Component({
     selector: 'meeting-booking-form',
     template: `
-        <div
-            class="space-y-2 divide-y divide-base-200"
-            *ngIf="form"
-            [formGroup]="form"
-        >
-            <section class="p-4">
-                <h3 class="flex items-center space-x-2">
+        @if (form) {
+            <div class="space-y-2 divide-y divide-base-200" [formGroup]="form">
+                <section class="p-4">
+                    <h3 class="flex items-center space-x-2">
+                        <div
+                            class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
+                        >
+                            1
+                        </div>
+                        <div class="text-xl">Details</div>
+                        <div class="w-px flex-1"></div>
+                        <button
+                            icon
+                            matRipple
+                            (click)="hide_block.details = !hide_block.details"
+                        >
+                            <icon>{{
+                                hide_block.details
+                                    ? 'expand_more'
+                                    : 'expand_less'
+                            }}</icon>
+                        </button>
+                    </h3>
                     <div
-                        class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
+                        class="overflow-hidden"
+                        [@show]="hide_block.details ? 'hide' : 'show'"
                     >
-                        1
+                        @if ((buildings | async)?.length > 1) {
+                            <div class="min-w-[256px] flex-1">
+                                <label for="title">Building</label>
+                                <mat-form-field
+                                    appearance="outline"
+                                    class="w-full"
+                                >
+                                    <mat-select
+                                        name="building"
+                                        [ngModel]="building | async"
+                                        (ngModelChange)="setBuilding($event)"
+                                        [ngModelOptions]="{ standalone: true }"
+                                        [placeholder]="
+                                            (building | async)?.display_name ||
+                                            (building | async)?.name
+                                        "
+                                    >
+                                        @for (
+                                            bld of buildings | async;
+                                            track bld
+                                        ) {
+                                            <mat-option [value]="bld">
+                                                {{
+                                                    bld.display_name || bld.name
+                                                }}
+                                            </mat-option>
+                                        }
+                                    </mat-select>
+                                </mat-form-field>
+                            </div>
+                        }
+                        <div class="flex flex-col sm:flex-row sm:space-x-2">
+                            <div class="w-full sm:flex-1">
+                                <label for="title"
+                                    >Add Title<span>*</span></label
+                                >
+                                <mat-form-field
+                                    appearance="outline"
+                                    class="w-full"
+                                >
+                                    <input
+                                        matInput
+                                        name="title"
+                                        formControlName="title"
+                                        placeholder="e.g. Team Meeting"
+                                    />
+                                    <mat-error
+                                        >Meeting title is required.</mat-error
+                                    >
+                                </mat-form-field>
+                            </div>
+                            <div class="relative w-full sm:flex-1">
+                                <label for="date">Date<span>*</span></label>
+                                <a-date-field
+                                    name="date"
+                                    formControlName="date"
+                                >
+                                    Date and time must be in the future
+                                </a-date-field>
+                                @if (allow_all_day) {
+                                    <mat-checkbox
+                                        formControlName="all_day"
+                                        class="absolute -top-2 right-0"
+                                        >All Day</mat-checkbox
+                                    >
+                                }
+                            </div>
+                        </div>
+                        @if (!form.value.all_day) {
+                            <div class="flex flex-col sm:flex-row sm:space-x-2">
+                                <div class="w-full sm:flex-1">
+                                    <label for="start-time"
+                                        >Start Time<span>*</span></label
+                                    >
+                                    <a-time-field
+                                        name="start-time"
+                                        [ngModel]="form.value.date"
+                                        (ngModelChange)="
+                                            form.patchValue({ date: $event })
+                                        "
+                                        [ngModelOptions]="{ standalone: true }"
+                                    ></a-time-field>
+                                </div>
+                                <div class="w-full sm:flex-1">
+                                    <label for="end-time"
+                                        >End Time<span>*</span></label
+                                    >
+                                    <a-duration-field
+                                        name="end-time"
+                                        formControlName="duration"
+                                        [time]="form?.value?.date"
+                                        [max]="max_duration"
+                                    >
+                                    </a-duration-field>
+                                </div>
+                            </div>
+                        }
+                        @if (can_book_for_others) {
+                            <div class="w-full">
+                                <label for="host">Host<span>*</span></label>
+                                <host-select-field
+                                    name="host"
+                                    formControlName="organiser"
+                                ></host-select-field>
+                            </div>
+                        }
                     </div>
-                    <div class="text-xl">Details</div>
-                    <div class="w-px flex-1"></div>
-                    <button
-                        icon
-                        matRipple
-                        (click)="hide_block.details = !hide_block.details"
-                    >
-                        <icon>{{
-                            hide_block.details ? 'expand_more' : 'expand_less'
-                        }}</icon>
-                    </button>
-                </h3>
-                <div
-                    class="overflow-hidden"
-                    [@show]="hide_block.details ? 'hide' : 'show'"
-                >
-                    <div
-                        class="min-w-[256px] flex-1"
-                        *ngIf="(buildings | async)?.length > 1"
-                    >
-                        <label for="title">Building</label>
-                        <mat-form-field appearance="outline" class="w-full">
-                            <mat-select
-                                name="building"
-                                [ngModel]="building | async"
-                                (ngModelChange)="setBuilding($event)"
-                                [ngModelOptions]="{ standalone: true }"
-                                [placeholder]="
-                                    (building | async)?.display_name ||
-                                    (building | async)?.name
+                </section>
+                @if (!hide_attendees) {
+                    <section class="p-4">
+                        <h3 class="flex items-center space-x-2">
+                            <div
+                                class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
+                            >
+                                2
+                            </div>
+                            <div class="text-xl">Attendees</div>
+                            <div class="w-px flex-1"></div>
+                            <button
+                                matRipple
+                                class="text-blue-500 bg-none text-xs underline"
+                                (click)="findAvailableTime()"
+                            >
+                                Availability
+                            </button>
+                            <button
+                                icon
+                                matRipple
+                                (click)="
+                                    hide_block.attendees = !hide_block.attendees
                                 "
                             >
-                                <mat-option
-                                    *ngFor="let bld of buildings | async"
-                                    [value]="bld"
-                                >
-                                    {{ bld.display_name || bld.name }}
-                                </mat-option>
-                            </mat-select>
-                        </mat-form-field>
-                    </div>
-                    <div class="flex flex-col sm:flex-row sm:space-x-2">
-                        <div class="w-full sm:flex-1">
-                            <label for="title">Add Title<span>*</span></label>
-                            <mat-form-field appearance="outline" class="w-full">
-                                <input
-                                    matInput
-                                    name="title"
-                                    formControlName="title"
-                                    placeholder="e.g. Team Meeting"
-                                />
-                                <mat-error
-                                    >Meeting title is required.</mat-error
-                                >
-                            </mat-form-field>
+                                <icon>{{
+                                    hide_block.attendees
+                                        ? 'expand_more'
+                                        : 'expand_less'
+                                }}</icon>
+                            </button>
+                        </h3>
+                        <div
+                            class="overflow-hidden"
+                            [@show]="hide_block.attendees ? 'hide' : 'show'"
+                        >
+                            <a-user-list-field
+                                class="mt-4"
+                                formControlName="attendees"
+                            ></a-user-list-field>
                         </div>
-                        <div class="relative w-full sm:flex-1">
-                            <label for="date">Date<span>*</span></label>
-                            <a-date-field name="date" formControlName="date">
-                                Date and time must be in the future
-                            </a-date-field>
-                            <mat-checkbox
-                                formControlName="all_day"
-                                *ngIf="allow_all_day"
-                                class="absolute -top-2 right-0"
-                                >All Day</mat-checkbox
-                            >
+                    </section>
+                }
+                <section class="p-4">
+                    <h3 class="flex items-center space-x-2">
+                        <div
+                            class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
+                        >
+                            3
                         </div>
-                    </div>
+                        <div class="text-xl">Room</div>
+                        <div class="w-px flex-1"></div>
+                        <button
+                            icon
+                            matRipple
+                            (click)="
+                                hide_block.resources = !hide_block.resources
+                            "
+                        >
+                            <icon>{{
+                                hide_block.resources
+                                    ? 'expand_more'
+                                    : 'expand_less'
+                            }}</icon>
+                        </button>
+                    </h3>
                     <div
-                        class="flex flex-col sm:flex-row sm:space-x-2"
-                        *ngIf="!form.value.all_day"
+                        class="overflow-hidden"
+                        [@show]="hide_block.resources ? 'hide' : 'show'"
                     >
-                        <div class="w-full sm:flex-1">
-                            <label for="start-time"
-                                >Start Time<span>*</span></label
+                        <space-list-field
+                            class="mt-4"
+                            formControlName="resources"
+                        ></space-list-field>
+                    </div>
+                </section>
+                @if (has_catering) {
+                    <section class="p-4">
+                        <h3 class="flex items-center space-x-2">
+                            <div
+                                class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
                             >
-                            <a-time-field
-                                name="start-time"
-                                [ngModel]="form.value.date"
-                                (ngModelChange)="
-                                    form.patchValue({ date: $event })
+                                4
+                            </div>
+                            <div class="text-xl">Catering</div>
+                            <div class="w-px flex-1"></div>
+                            <button
+                                icon
+                                matRipple
+                                (click)="
+                                    hide_block.catering = !hide_block.catering
                                 "
-                                [ngModelOptions]="{ standalone: true }"
-                            ></a-time-field>
-                        </div>
-                        <div class="w-full sm:flex-1">
-                            <label for="end-time">End Time<span>*</span></label>
-                            <a-duration-field
-                                name="end-time"
-                                formControlName="duration"
-                                [time]="form?.value?.date"
-                                [max]="max_duration"
                             >
-                            </a-duration-field>
+                                <icon>{{
+                                    hide_block.catering
+                                        ? 'expand_more'
+                                        : 'expand_less'
+                                }}</icon>
+                            </button>
+                        </h3>
+                        <div
+                            class="overflow-hidden"
+                            [@show]="hide_block.catering ? 'hide' : 'show'"
+                        >
+                            <catering-list-field
+                                formControlName="catering"
+                                [options]="{
+                                    date: form.value.date,
+                                    duration: form.value.duration,
+                                    zone_id:
+                                        form.value.resources[0]?.level
+                                            ?.parent_id,
+                                }"
+                            ></catering-list-field>
                         </div>
-                    </div>
-                    <div *ngIf="can_book_for_others" class="w-full">
-                        <label for="host">Host<span>*</span></label>
-                        <host-select-field
-                            name="host"
-                            formControlName="organiser"
-                        ></host-select-field>
-                    </div>
-                </div>
-            </section>
-            <section class="p-4" *ngIf="!hide_attendees">
-                <h3 class="flex items-center space-x-2">
+                    </section>
+                }
+                <section class="p-4">
+                    <h3 class="flex items-center space-x-2">
+                        <div
+                            class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
+                        >
+                            {{ !has_catering ? '4' : '5' }}
+                        </div>
+                        <div class="text-xl">Assets</div>
+                        <div class="w-px flex-1"></div>
+                        <button
+                            icon
+                            matRipple
+                            (click)="hide_block.assets = !hide_block.assets"
+                        >
+                            <icon>{{
+                                hide_block.assets
+                                    ? 'expand_more'
+                                    : 'expand_less'
+                            }}</icon>
+                        </button>
+                    </h3>
                     <div
-                        class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
+                        class="overflow-hidden"
+                        [@show]="hide_block.assets ? 'hide' : 'show'"
                     >
-                        2
+                        <asset-list-field
+                            [date]="form.value.date"
+                            [duration]="form.value.duration"
+                            formControlName="assets"
+                        ></asset-list-field>
                     </div>
-                    <div class="text-xl">Attendees</div>
-                    <div class="w-px flex-1"></div>
-                    <button
-                        matRipple
-                        class="text-blue-500 bg-none text-xs underline"
-                        (click)="findAvailableTime()"
-                    >
-                        Availability
-                    </button>
-                    <button
-                        icon
-                        matRipple
-                        (click)="hide_block.attendees = !hide_block.attendees"
-                    >
-                        <icon>{{
-                            hide_block.attendees ? 'expand_more' : 'expand_less'
-                        }}</icon>
-                    </button>
-                </h3>
-                <div
-                    class="overflow-hidden"
-                    [@show]="hide_block.attendees ? 'hide' : 'show'"
-                >
-                    <a-user-list-field
-                        class="mt-4"
-                        formControlName="attendees"
-                    ></a-user-list-field>
-                </div>
-            </section>
-            <section class="p-4">
-                <h3 class="flex items-center space-x-2">
-                    <div
-                        class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
-                    >
-                        3
-                    </div>
-                    <div class="text-xl">Room</div>
-                    <div class="w-px flex-1"></div>
-                    <button
-                        icon
-                        matRipple
-                        (click)="hide_block.resources = !hide_block.resources"
-                    >
-                        <icon>{{
-                            hide_block.resources ? 'expand_more' : 'expand_less'
-                        }}</icon>
-                    </button>
-                </h3>
-                <div
-                    class="overflow-hidden"
-                    [@show]="hide_block.resources ? 'hide' : 'show'"
-                >
-                    <space-list-field
-                        class="mt-4"
-                        formControlName="resources"
-                    ></space-list-field>
-                </div>
-            </section>
-            <section class="p-4" *ngIf="has_catering">
-                <h3 class="flex items-center space-x-2">
-                    <div
-                        class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
-                    >
-                        4
-                    </div>
-                    <div class="text-xl">Catering</div>
-                    <div class="w-px flex-1"></div>
-                    <button
-                        icon
-                        matRipple
-                        (click)="hide_block.catering = !hide_block.catering"
-                    >
-                        <icon>{{
-                            hide_block.catering ? 'expand_more' : 'expand_less'
-                        }}</icon>
-                    </button>
-                </h3>
-                <div
-                    class="overflow-hidden"
-                    [@show]="hide_block.catering ? 'hide' : 'show'"
-                >
-                    <catering-list-field
-                        formControlName="catering"
-                        [options]="{
-                            date: form.value.date,
-                            duration: form.value.duration,
-                            zone_id: form.value.resources[0]?.level?.parent_id,
-                        }"
-                    ></catering-list-field>
-                </div>
-            </section>
-            <section class="p-4">
-                <h3 class="flex items-center space-x-2">
-                    <div
-                        class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
-                    >
-                        {{ !has_catering ? '4' : '5' }}
-                    </div>
-                    <div class="text-xl">Assets</div>
-                    <div class="w-px flex-1"></div>
-                    <button
-                        icon
-                        matRipple
-                        (click)="hide_block.assets = !hide_block.assets"
-                    >
-                        <icon>{{
-                            hide_block.assets ? 'expand_more' : 'expand_less'
-                        }}</icon>
-                    </button>
-                </h3>
-                <div
-                    class="overflow-hidden"
-                    [@show]="hide_block.assets ? 'hide' : 'show'"
-                >
-                    <asset-list-field
-                        [date]="form.value.date"
-                        [duration]="form.value.duration"
-                        formControlName="assets"
-                    ></asset-list-field>
-                </div>
-            </section>
-            <section class="p-4" *ngIf="!hide_notes">
-                <h3 class="mb-4 flex items-center space-x-2">
-                    <div
-                        class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
-                    >
-                        {{ !has_catering ? '5' : '6' }}
-                    </div>
-                    <div class="text-xl">Notes</div>
-                </h3>
-                <div class="flex w-full flex-col">
-                    <label for="notes">General information for attendees</label>
-                    <rich-text-input
-                        name="notes"
-                        formControlName="body"
-                        placeholder="Notes..."
-                    ></rich-text-input>
-                </div>
-            </section>
-        </div>
+                </section>
+                @if (!hide_notes) {
+                    <section class="p-4">
+                        <h3 class="mb-4 flex items-center space-x-2">
+                            <div
+                                class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
+                            >
+                                {{ !has_catering ? '5' : '6' }}
+                            </div>
+                            <div class="text-xl">Notes</div>
+                        </h3>
+                        <div class="flex w-full flex-col">
+                            <label for="notes"
+                                >General information for attendees</label
+                            >
+                            <rich-text-input
+                                name="notes"
+                                formControlName="body"
+                                placeholder="Notes..."
+                            ></rich-text-input>
+                        </div>
+                    </section>
+                }
+            </div>
+        }
     `,
     styles: [``],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],

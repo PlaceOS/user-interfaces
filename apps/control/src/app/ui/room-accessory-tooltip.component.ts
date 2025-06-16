@@ -13,30 +13,31 @@ import { ControlStateService } from '../control-state.service';
             <h3 class="mb-2 text-xl font-medium">
                 {{ 'APP.CONTROL.ACCESSORIES' | translate }}
             </h3>
-            <ng-container *ngIf="(list | async)?.length; else empty_state">
-                <div
-                    class="flex w-full items-center space-x-2"
-                    *ngFor="let item of list | async"
-                >
-                    <div class="flex-1 pr-8 font-medium">{{ item.name }}</div>
-                    <button
-                        state
-                        icon
-                        matRipple
-                        *ngFor="let ctrl of item.controls"
-                        class="rounded border border-solid border-primary text-primary"
-                        (click)="performAction(item.name, ctrl.name)"
-                    >
-                        <icon>{{ ctrl.icon }}</icon>
-                    </button>
+            @if ((list | async)?.length) {
+                @for (item of list | async; track item) {
+                    <div class="flex w-full items-center space-x-2">
+                        <div class="flex-1 pr-8 font-medium">
+                            {{ item.name }}
+                        </div>
+                        @for (ctrl of item.controls; track ctrl) {
+                            <button
+                                state
+                                icon
+                                matRipple
+                                class="rounded border border-solid border-primary text-primary"
+                                (click)="performAction(item.name, ctrl.name)"
+                            >
+                                <icon>{{ ctrl.icon }}</icon>
+                            </button>
+                        }
+                    </div>
+                }
+            } @else {
+                <div class="flex items-center justify-center p-8">
+                    <p>{{ 'APP.CONTROL.ACCESSORIES_EMPTY' | translate }}</p>
                 </div>
-            </ng-container>
+            }
         </div>
-        <ng-template #empty_state>
-            <div class="flex items-center justify-center p-8">
-                <p>{{ 'APP.CONTROL.ACCESSORIES_EMPTY' | translate }}</p>
-            </div>
-        </ng-template>
     `,
     styles: [``],
     standalone: false,

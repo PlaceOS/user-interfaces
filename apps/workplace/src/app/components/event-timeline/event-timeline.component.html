@@ -1,100 +1,113 @@
 <div [class]="'event-timeline' + (klass ? ' ' + klass : '')">
-    <div
-        class="times"
-        (window:mouseup)="resetMove()"
-        (window:touchend)="resetMove()"
+  <div
+    class="times"
+    (window:mouseup)="resetMove()"
+    (window:touchend)="resetMove()"
     >
-        <div class="row divider">
-            <div class="header"></div>
-            <div class="line">
-                <div class="mini-block" *ngFor="let blk of model.blocks || []">
-                    <div class="time" *ngIf="blk.hour">
-                        <span>{{ blk.short }}</span>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <div class="row divider">
+      <div class="header"></div>
+      <div class="line">
+        @for (blk of model.blocks || []; track blk) {
+          <div class="mini-block">
+            @if (blk.hour) {
+              <div class="time">
+                <span>{{ blk.short }}</span>
+              </div>
+            }
+          </div>
+        }
+      </div>
     </div>
-    <div class="content">
-        <div class="overlay row">
-            <div class="header"></div>
-            <div
-                class="line"
-                #overlay
-                (mousemove)="move($event)"
-                (touchmove)="move($event)"
-            >
-                <div
-                    class="mini-block"
-                    *ngFor="let blk of model.blocks || []"
-                    [class.unavailable]="blk.unavailable"
-                    (click)="setTime(blk)"
-                >
-                    <div
-                        class="bar"
-                        [class.hour]="blk.hour"
-                        [class.divider]="blk.divider"
-                    ></div>
-                </div>
-                <div
-                    class="current-time"
-                    *ngIf="model.today > 0"
-                    [style.left]="vertical ? '' : model.today * 100 + '%'"
-                    [style.top]="vertical ? model.today * 100 + '%' : ''"
-                ></div>
-                <div
-                    class="selected-time"
-                    *ngIf="can_select"
-                    [style.left]="vertical ? '' : model.start_time * 100 + '%'"
-                    [style.top]="vertical ? model.start_time * 100 + '%' : ''"
-                    [style.width]="vertical ? '' : model.duration * 100 + '%'"
-                    [style.height]="vertical ? model.duration * 100 + '%' : ''"
-                >
-                    <div
-                        class="inner"
-                        (mousedown)="setMove('start')"
-                        (touchstart)="setMove('start')"
-                    ></div>
-                    <div
-                        class="knob start"
-                        (mousedown)="setMove('start')"
-                        (touchstart)="setMove('start')"
-                    ></div>
-                    <div
-                        class="knob end"
-                        (mousedown)="setMove('end')"
-                        (touchstart)="setMove('end')"
-                    ></div>
-                </div>
-            </div>
-        </div>
-        <div
-            class="row"
-            *ngFor="let grp of this.model.groups || []"
-            [class.divider]="grp.divider"
+  </div>
+  <div class="content">
+    <div class="overlay row">
+      <div class="header"></div>
+      <div
+        class="line"
+        #overlay
+        (mousemove)="move($event)"
+        (touchmove)="move($event)"
         >
-            <div class="header">
-                <div class="text">{{ grp.name }}</div>
-                <div class="icon" *ngIf="grp.remove" (click)="grp.remove()">
-                    <i class="material-symbols-rounded">close</i>
-                </div>
+        @for (blk of model.blocks || []; track blk) {
+          <div
+            class="mini-block"
+            [class.unavailable]="blk.unavailable"
+            (click)="setTime(blk)"
+            >
+            <div
+              class="bar"
+              [class.hour]="blk.hour"
+              [class.divider]="blk.divider"
+            ></div>
+          </div>
+        }
+        @if (model.today > 0) {
+          <div
+            class="current-time"
+            [style.left]="vertical ? '' : model.today * 100 + '%'"
+            [style.top]="vertical ? model.today * 100 + '%' : ''"
+          ></div>
+        }
+        @if (can_select) {
+          <div
+            class="selected-time"
+            [style.left]="vertical ? '' : model.start_time * 100 + '%'"
+            [style.top]="vertical ? model.start_time * 100 + '%' : ''"
+            [style.width]="vertical ? '' : model.duration * 100 + '%'"
+            [style.height]="vertical ? model.duration * 100 + '%' : ''"
+            >
+            <div
+              class="inner"
+              (mousedown)="setMove('start')"
+              (touchstart)="setMove('start')"
+            ></div>
+            <div
+              class="knob start"
+              (mousedown)="setMove('start')"
+              (touchstart)="setMove('start')"
+            ></div>
+            <div
+              class="knob end"
+              (mousedown)="setMove('end')"
+              (touchstart)="setMove('end')"
+            ></div>
+          </div>
+        }
+      </div>
+    </div>
+    @for (grp of this.model.groups || []; track grp) {
+      <div
+        class="row"
+        [class.divider]="grp.divider"
+        >
+        <div class="header">
+          <div class="text">{{ grp.name }}</div>
+          @if (grp.remove) {
+            <div class="icon" (click)="grp.remove()">
+              <i class="material-symbols-rounded">close</i>
             </div>
-            <div class="line">
-                <div class="mini-block" *ngFor="let blk of grp.blocks">
-                    <div
-                        class="item"
-                        *ngFor="let event of blk.events"
+          }
+        </div>
+        <div class="line">
+          @for (blk of grp.blocks; track blk) {
+            <div class="mini-block">
+              @for (event of blk.events; track event) {
+                <div
+                  class="item"
                         [style.width]="
                             vertical ? '' : (event.duration / 5) * 100 + '%'
                         "
                         [style.height]="
                             vertical ? (event.duration / 5) * 100 + '%' : ''
                         "
-                    >
-                        <div class="text">{{ event.text }}</div>
-                    </div>
+                  >
+                  <div class="text">{{ event.text }}</div>
                 </div>
+              }
             </div>
+          }
         </div>
-    </div>
+      </div>
+    }
+  </div>
 </div>

@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, Inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import {
@@ -71,15 +70,24 @@ export const FAV_DESK_KEY = 'favourite_desks';
                         class="w-full border-b border-base-200"
                         [(view)]="view"
                     ></desk-filters-display>
-                    <desk-list
-                        *ngIf="view === 'list'; else map_view"
-                        [active]="displayed?.id"
-                        [selected]="selected_ids"
-                        [favorites]="favorites"
-                        (toggleFav)="toggleFavourite($event)"
-                        (onSelect)="displayed = $event"
-                        class="h-1/2 flex-1 bg-base-200"
-                    ></desk-list>
+                    @if (view === 'list') {
+                        <desk-list
+                            [active]="displayed?.id"
+                            [selected]="selected_ids"
+                            [favorites]="favorites"
+                            (toggleFav)="toggleFavourite($event)"
+                            (onSelect)="displayed = $event"
+                            class="h-1/2 flex-1 bg-base-200"
+                        ></desk-list>
+                    } @else {
+                        <desk-map
+                            class="h-1/2 w-full flex-1"
+                            [is_displayed]="!!displayed"
+                            [active]="displayed?.id"
+                            (onSelect)="displayed = $event"
+                        >
+                        </desk-map>
+                    }
                 </div>
                 <desk-details
                     [desk]="displayed"
@@ -97,16 +105,17 @@ export const FAV_DESK_KEY = 'favourite_desks';
             <footer
                 class="flex w-full flex-col-reverse items-center justify-end border-t border-base-200 px-2 pb-[5.5rem] pt-2 sm:hidden"
             >
-                <button
-                    btn
-                    matRipple
-                    name="desk-return"
-                    class="inverse w-full sm:hidden"
-                    *ngIf="displayed"
-                    (click)="displayed = null"
-                >
-                    {{ 'COMMON.BACK' | translate }}
-                </button>
+                @if (displayed) {
+                    <button
+                        btn
+                        matRipple
+                        name="desk-return"
+                        class="inverse w-full sm:hidden"
+                        (click)="displayed = null"
+                    >
+                        {{ 'COMMON.BACK' | translate }}
+                    </button>
+                }
                 <button
                     btn
                     matRipple
@@ -165,18 +174,8 @@ export const FAV_DESK_KEY = 'favourite_desks';
                 </button>
             </footer>
         </div>
-        <ng-template #map_view>
-            <desk-map
-                class="h-1/2 w-full flex-1"
-                [is_displayed]="!!displayed"
-                [active]="displayed?.id"
-                (onSelect)="displayed = $event"
-            >
-            </desk-map>
-        </ng-template>
     `,
     imports: [
-        CommonModule,
         DeskMapComponent,
         TranslatePipe,
         IconComponent,

@@ -9,11 +9,12 @@ import { PanelStateService } from '../panel-state.service';
     selector: 'panel-view-details',
     template: `
         <div class="relative h-full w-full bg-black text-white">
-            <div
-                class="absolute inset-0 bg-cover bg-center"
-                [style.background-image]="'url(' + room_image + ')'"
-                *ngIf="room_image"
-            ></div>
+            @if (room_image) {
+                <div
+                    class="absolute inset-0 bg-cover bg-center"
+                    [style.background-image]="'url(' + room_image + ')'"
+                ></div>
+            }
             <div class="absolute inset-0 bg-black opacity-50"></div>
             <div name class="absolute left-4 top-4 text-4xl font-medium">
                 {{
@@ -22,32 +23,36 @@ import { PanelStateService } from '../panel-state.service';
                         '&lt;Unknown Space&gt;'
                 }}
             </div>
-            <div
-                qr-checkin
-                *ngIf="checkin"
-                class="absolute right-4 top-4 z-50 w-40 space-y-4 text-xl"
-            >
-                <img class="w-full" [src]="qr_code" />
-                <div class="w-full text-lg" *ngIf="!hide_qr_text">
-                    {{ 'APP.BOOKING_PANEL.SCAN_QR_CODE' | translate }}
+            @if (checkin) {
+                <div
+                    qr-checkin
+                    class="absolute right-4 top-4 z-50 w-40 space-y-4 text-xl"
+                >
+                    <img class="w-full" [src]="qr_code" />
+                    @if (!hide_qr_text) {
+                        <div class="w-full text-lg">
+                            {{ 'APP.BOOKING_PANEL.SCAN_QR_CODE' | translate }}
+                        </div>
+                    }
                 </div>
-            </div>
-            <div
-                *ngIf="
-                    (current | async) &&
-                    !hide_meeting_details &&
-                    !hide_meeting_title
-                "
-                class="absolute inset-x-0 bottom-0 p-4 text-center text-3xl text-white"
-            >
-                <div class="absolute inset-0 bg-neutral opacity-30"></div>
-                <div class="relative">
-                    {{ (current | async)?.title }}
-                    <span class="font-light">{{
-                        'APP.BOOKING_PANEL.MEETING_IN_PROGRESS' | translate
-                    }}</span>
+            }
+            @if (
+                (current | async) &&
+                !hide_meeting_details &&
+                !hide_meeting_title
+            ) {
+                <div
+                    class="absolute inset-x-0 bottom-0 p-4 text-center text-3xl text-white"
+                >
+                    <div class="absolute inset-0 bg-neutral opacity-30"></div>
+                    <div class="relative">
+                        {{ (current | async)?.title }}
+                        <span class="font-light">{{
+                            'APP.BOOKING_PANEL.MEETING_IN_PROGRESS' | translate
+                        }}</span>
+                    </div>
                 </div>
-            </div>
+            }
             <div
                 class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 space-y-4 text-center font-normal"
                 [class.pb-8]="
@@ -59,16 +64,15 @@ import { PanelStateService } from '../panel-state.service';
                 <p class="text-3xl">
                     {{ time | date: 'EEE, MMM d, y h:mm a' }}
                 </p>
-                <p
-                    class="text-4xl"
-                    *ngIf="(current | async) && !hide_meeting_details"
-                >
-                    {{ 'APP.BOOKING_PANEL.HOST' | translate }}
-                    {{
-                        (current | async)?.organiser?.name ||
-                            (current | async)?.host
-                    }}
-                </p>
+                @if ((current | async) && !hide_meeting_details) {
+                    <p class="text-4xl">
+                        {{ 'APP.BOOKING_PANEL.HOST' | translate }}
+                        {{
+                            (current | async)?.organiser?.name ||
+                                (current | async)?.host
+                        }}
+                    </p>
+                }
             </div>
         </div>
     `,

@@ -26,66 +26,74 @@ import { set } from 'date-fns';
                     ' — ' +
                     (last_event.date_end | date: time_format),
             };
-        <div
-            class="absolute inset-0 z-50 flex flex-col overflow-auto bg-base-100"
-            *ngIf="!loading"
-        >
-            <main
-                class="flex flex-1 flex-col items-center justify-center space-y-2 p-8"
+        @if (!loading) {
+            <div
+                class="absolute inset-0 z-50 flex flex-col overflow-auto bg-base-100"
             >
-                <h2 class="text-2xl font-medium">
-                    {{
-                        'BOOKINGS.ITEM_BOOKED'
-                            | translate: { name: 'RESOURCE.ROOM' | translate }
-                    }}
-                </h2>
-                <img src="assets/icons/success.svg" />
-                <p class="max-w-[32rem] text-center">
-                    <ng-container *ngIf="last_event?.all_day">
-                        {{
-                            (space
-                                ? 'CALENDAR_EVENT.SUCCESS_WITH_SPACE_ALLDAY'
-                                : 'CALENDAR_EVENT.SUCCESS_WITHOUT_SPACE_ALLDAY'
-                            ) | translate: details
-                        }}
-                    </ng-container>
-                    <ng-container *ngIf="!last_event?.all_day">
-                        {{
-                            (space
-                                ? 'CALENDAR_EVENT.SUCCESS_WITH_SPACE'
-                                : 'CALENDAR_EVENT.SUCCESS_WITHOUT_SPACE'
-                            ) | translate: details
-                        }}
-                    </ng-container>
-                </p>
-                <p *ngIf="true">
-                    {{ 'CALENDAR_EVENT.SUCCESS_WAIT_APPROVED' | translate }}
-                </p>
-                <div class="h-4"></div>
-                <button
-                    btn
-                    matRipple
-                    class="w-48"
-                    *ngIf="space?.email && allow_desk_booking"
-                    (click)="startDeskBooking()"
+                <main
+                    class="flex flex-1 flex-col items-center justify-center space-y-2 p-8"
                 >
-                    {{ 'CALENDAR_EVENT.BOOK_NEARBY_DESK' | translate }}
-                </button>
-            </main>
-            <footer
-                class="sticky bottom-0 mt-4 flex w-full items-center justify-center border-t border-base-200 bg-base-100 p-2"
-            >
-                <a
-                    btn
-                    name="meeting-created-continue"
-                    matRipple
-                    class="w-full max-w-[32rem]"
-                    [routerLink]="['/']"
+                    <h2 class="text-2xl font-medium">
+                        {{
+                            'BOOKINGS.ITEM_BOOKED'
+                                | translate
+                                    : { name: 'RESOURCE.ROOM' | translate }
+                        }}
+                    </h2>
+                    <img src="assets/icons/success.svg" />
+                    <p class="max-w-[32rem] text-center">
+                        @if (last_event?.all_day) {
+                            {{
+                                (space
+                                    ? 'CALENDAR_EVENT.SUCCESS_WITH_SPACE_ALLDAY'
+                                    : 'CALENDAR_EVENT.SUCCESS_WITHOUT_SPACE_ALLDAY'
+                                ) | translate: details
+                            }}
+                        }
+                        @if (!last_event?.all_day) {
+                            {{
+                                (space
+                                    ? 'CALENDAR_EVENT.SUCCESS_WITH_SPACE'
+                                    : 'CALENDAR_EVENT.SUCCESS_WITHOUT_SPACE'
+                                ) | translate: details
+                            }}
+                        }
+                    </p>
+                    @if (true) {
+                        <p>
+                            {{
+                                'CALENDAR_EVENT.SUCCESS_WAIT_APPROVED'
+                                    | translate
+                            }}
+                        </p>
+                    }
+                    <div class="h-4"></div>
+                    @if (space?.email && allow_desk_booking) {
+                        <button
+                            btn
+                            matRipple
+                            class="w-48"
+                            (click)="startDeskBooking()"
+                        >
+                            {{ 'CALENDAR_EVENT.BOOK_NEARBY_DESK' | translate }}
+                        </button>
+                    }
+                </main>
+                <footer
+                    class="sticky bottom-0 mt-4 flex w-full items-center justify-center border-t border-base-200 bg-base-100 p-2"
                 >
-                    {{ 'APP.WORKPLACE.MEETING_FINISHED' | translate }}
-                </a>
-            </footer>
-        </div>
+                    <a
+                        btn
+                        name="meeting-created-continue"
+                        matRipple
+                        class="w-full max-w-[32rem]"
+                        [routerLink]="['/']"
+                    >
+                        {{ 'APP.WORKPLACE.MEETING_FINISHED' | translate }}
+                    </a>
+                </footer>
+            </div>
+        }
     `,
     styles: [``],
     standalone: false,

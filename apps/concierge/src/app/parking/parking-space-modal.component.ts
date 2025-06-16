@@ -20,80 +20,93 @@ import { ParkingSpace } from './parking-state.service';
                         ) | translate
                     }}
                 </h2>
-                <button icon matRipple mat-dialog-close *ngIf="!loading">
-                    <icon>close</icon>
-                </button>
-            </header>
-            <main
-                *ngIf="!loading; else load_state"
-                class="flex flex-col p-4"
-                [formGroup]="form"
-            >
-                <label for="name">{{
-                    'APP.CONCIERGE.PARKING_SPACE_NAME' | translate
-                }}</label>
-                <mat-form-field appearance="outline">
-                    <input
-                        matInput
-                        name="name"
-                        [placeholder]="
-                            'APP.CONCIERGE.PARKING_SPACE_NAME' | translate
-                        "
-                        formControlName="name"
-                    />
-                    <mat-error>{{
-                        'FORM.NAME_REQUIRED' | translate
-                    }}</mat-error>
-                </mat-form-field>
-                <label for="map-id">{{ 'EXPLORE.MAP_ID' | translate }}</label>
-                <mat-form-field appearance="outline">
-                    <input
-                        matInput
-                        name="map-id"
-                        [placeholder]="'EXPLORE.MAP_ID_PLACEHOLDER' | translate"
-                        formControlName="map_id"
-                    />
-                    <mat-error>
-                        {{ 'EXPLORE.MAP_ID_REQUIRED' | translate }}
-                    </mat-error>
-                </mat-form-field>
-                <label for="user">{{
-                    'APP.CONCIERGE.USER_ASSIGNED' | translate
-                }}</label>
-                <div class="mb-4 flex items-center space-x-2">
-                    <a-user-search-field
-                        name="user"
-                        formControlName="assigned_user"
-                        class="flex-1"
-                    ></a-user-search-field>
-                    <button
-                        icon
-                        matRipple
-                        class="h-12 w-12 min-w-12 rounded bg-secondary text-secondary-content"
-                        [matTooltip]="'APP.CONCIERGE.USER_CLEAR' | translate"
-                        (click)="
-                            form.patchValue({
-                                assigned_user: null,
-                                assigned_to: null,
-                                assigned_name: null,
-                            })
-                        "
-                    >
-                        <icon className="material-symbols-outlined">
-                            person_cancel
-                        </icon>
+                @if (!loading) {
+                    <button icon matRipple mat-dialog-close>
+                        <icon>close</icon>
                     </button>
-                </div>
-                <label for="notes">{{ 'FORM.NOTES' | translate }}</label>
-                <mat-form-field appearance="outline">
-                    <textarea
-                        matInput
-                        name="notes"
-                        [placeholder]="'FORM.NOTES' | translate"
-                        formControlName="notes"
-                    ></textarea>
-                </mat-form-field>
-            </main>
+                }
+            </header>
+            @if (!loading) {
+                <main class="flex flex-col p-4" [formGroup]="form">
+                    <label for="name">{{
+                        'APP.CONCIERGE.PARKING_SPACE_NAME' | translate
+                    }}</label>
+                    <mat-form-field appearance="outline">
+                        <input
+                            matInput
+                            name="name"
+                            [placeholder]="
+                                'APP.CONCIERGE.PARKING_SPACE_NAME' | translate
+                            "
+                            formControlName="name"
+                        />
+                        <mat-error>{{
+                            'FORM.NAME_REQUIRED' | translate
+                        }}</mat-error>
+                    </mat-form-field>
+                    <label for="map-id">{{
+                        'EXPLORE.MAP_ID' | translate
+                    }}</label>
+                    <mat-form-field appearance="outline">
+                        <input
+                            matInput
+                            name="map-id"
+                            [placeholder]="
+                                'EXPLORE.MAP_ID_PLACEHOLDER' | translate
+                            "
+                            formControlName="map_id"
+                        />
+                        <mat-error>
+                            {{ 'EXPLORE.MAP_ID_REQUIRED' | translate }}
+                        </mat-error>
+                    </mat-form-field>
+                    <label for="user">{{
+                        'APP.CONCIERGE.USER_ASSIGNED' | translate
+                    }}</label>
+                    <div class="mb-4 flex items-center space-x-2">
+                        <a-user-search-field
+                            name="user"
+                            formControlName="assigned_user"
+                            class="flex-1"
+                        ></a-user-search-field>
+                        <button
+                            icon
+                            matRipple
+                            class="h-12 w-12 min-w-12 rounded bg-secondary text-secondary-content"
+                            [matTooltip]="
+                                'APP.CONCIERGE.USER_CLEAR' | translate
+                            "
+                            (click)="
+                                form.patchValue({
+                                    assigned_user: null,
+                                    assigned_to: null,
+                                    assigned_name: null,
+                                })
+                            "
+                        >
+                            <icon className="material-symbols-outlined">
+                                person_cancel
+                            </icon>
+                        </button>
+                    </div>
+                    <label for="notes">{{ 'FORM.NOTES' | translate }}</label>
+                    <mat-form-field appearance="outline">
+                        <textarea
+                            matInput
+                            name="notes"
+                            [placeholder]="'FORM.NOTES' | translate"
+                            formControlName="notes"
+                        ></textarea>
+                    </mat-form-field>
+                </main>
+            } @else {
+                <main
+                    class="flex flex-col items-center justify-center space-y-2 p-8"
+                >
+                    <mat-spinner diameter="32"></mat-spinner>
+                    <p>{{ 'APP.CONCIERGE.PARKING_SPACE_SAVE' | translate }}</p>
+                </main>
+            }
             <footer
                 class="flex items-center justify-end space-x-2 border-t border-base-300 px-4 py-2"
             >
@@ -102,14 +115,6 @@ import { ParkingSpace } from './parking-state.service';
                 </button>
             </footer>
         </div>
-        <ng-template #load_state>
-            <main
-                class="flex flex-col items-center justify-center space-y-2 p-8"
-            >
-                <mat-spinner diameter="32"></mat-spinner>
-                <p>{{ 'APP.CONCIERGE.PARKING_SPACE_SAVE' | translate }}</p>
-            </main>
-        </ng-template>
     `,
     styles: [``],
     standalone: false,

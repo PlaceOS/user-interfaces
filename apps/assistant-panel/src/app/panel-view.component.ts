@@ -29,23 +29,26 @@ declare let loadVosklet: any;
                 </div>
 
                 <div class="absolute inset-x-0 bottom-0 p-4 text-center"></div>
-                <div
-                    class="absolute left-1/2 top-2 -translate-x-1/2 rounded-3xl bg-error px-4 py-2 text-center text-xs text-error-content"
-                    *ngIf="error.speech_recognition || error.speech_synthesis"
-                >
+                @if (error.speech_recognition || error.speech_synthesis) {
                     <div
-                        class="flex h-full w-full items-center justify-center"
-                        *ngIf="error.speech_recognition"
+                        class="absolute left-1/2 top-2 -translate-x-1/2 rounded-3xl bg-error px-4 py-2 text-center text-xs text-error-content"
                     >
-                        Speech Recognition is not supported
+                        @if (error.speech_recognition) {
+                            <div
+                                class="flex h-full w-full items-center justify-center"
+                            >
+                                Speech Recognition is not supported
+                            </div>
+                        }
+                        @if (error.speech_synthesis) {
+                            <div
+                                class="flex h-full w-full items-center justify-center"
+                            >
+                                Speech Synthesis is not supported
+                            </div>
+                        }
                     </div>
-                    <div
-                        class="flex h-full w-full items-center justify-center"
-                        *ngIf="error.speech_synthesis"
-                    >
-                        Speech Synthesis is not supported
-                    </div>
-                </div>
+                }
                 <video
                     #video
                     autoplay
@@ -55,12 +58,13 @@ declare let loadVosklet: any;
                     [class.border-success]="person_in_view"
                     [class.border-base-200]="!person_in_view"
                 ></video>
-                <div
-                    class="absolute bottom-4 right-4 flex h-12 w-12 items-center justify-center rounded-full bg-success text-success-content"
-                    *ngIf="listening"
-                >
-                    <icon class="text-2xl">mic</icon>
-                </div>
+                @if (listening) {
+                    <div
+                        class="absolute bottom-4 right-4 flex h-12 w-12 items-center justify-center rounded-full bg-success text-success-content"
+                    >
+                        <icon class="text-2xl">mic</icon>
+                    </div>
+                }
                 <canvas
                     #canvas
                     width="640"
@@ -71,126 +75,141 @@ declare let loadVosklet: any;
             <div
                 class="relative flex h-full w-[24rem] flex-col justify-end overflow-auto bg-base-100"
             >
-                <div
-                    class="absolute inset-0 flex flex-col items-center justify-center space-y-4"
-                    *ngIf="!(messages | async)?.length"
-                >
-                    <img
-                        class="h-32 w-32 object-contain"
-                        src="assets/icons/no-pending.svg"
-                    />
-                    <p class="opacity-30">
-                        {{ 'APP.BOOKING_PANEL.NO_MESSAGES' | translate }}
-                    </p>
-                </div>
+                @if (!(messages | async)?.length) {
+                    <div
+                        class="absolute inset-0 flex flex-col items-center justify-center space-y-4"
+                    >
+                        <img
+                            class="h-32 w-32 object-contain"
+                            src="assets/icons/no-pending.svg"
+                        />
+                        <p class="opacity-30">
+                            {{ 'APP.BOOKING_PANEL.NO_MESSAGES' | translate }}
+                        </p>
+                    </div>
+                }
                 <div class="max-h-full w-full overflow-auto" #message_element>
-                    <div
-                        class="my-2 flex space-x-4 p-2 hover:bg-base-200"
-                        *ngFor="let message of messages | async"
-                        (click)="show_time[message.id] = !show_time[message.id]"
-                        [class.waiting-margin]="waiting | async"
-                    >
-                        <a-user-avatar
-                            [user]="{
-                                name: message.user_name || '',
-                                photo:
-                                    message.user_id !== user.id
-                                        ? 'assets/icons/ai-avatar.jpg'
-                                        : 'assets/icons/user-avatar.jpg',
-                            }"
-                            class="text-xl"
-                        ></a-user-avatar>
-                        <div class="flex flex-1 flex-col space-y-1">
-                            <div class="flex items-center space-x-4">
-                                <div>
-                                    {{
-                                        message.user_id !== user.id
-                                            ? 'Assistant'
-                                            : 'You'
-                                    }}
-                                </div>
-                                <div
-                                    class="w-full px-2 py-1 text-right text-xs text-base-content opacity-40"
-                                >
-                                    {{ message.timestamp + offset | dateFrom }}
-                                </div>
-                            </div>
-                            <div
-                                message
-                                class="markdown selectable text-sm"
-                                [innerHTML]="message.content | sanitize"
-                            ></div>
-                        </div>
-                    </div>
-                    <div class="p-4" *ngIf="progress | async">
-                        <button
-                            class="block w-full rounded border-base-300 bg-info p-2 text-info-content"
-                            (click)="show_info = !show_info"
+                    @for (message of messages | async; track message) {
+                        <div
+                            class="my-2 flex space-x-4 p-2 hover:bg-base-200"
+                            (click)="
+                                show_time[message.id] = !show_time[message.id]
+                            "
+                            [class.waiting-margin]="waiting | async"
                         >
-                            <div class="flex items-center space-x-2">
-                                <icon class="text-2xl">{{
-                                    icons[(progress | async).function] || 'info'
-                                }}</icon>
-                                <p class="text-sm">
-                                    {{
-                                        (progress | async).message ||
-                                            (progress | async).function
-                                    }}
-                                </p>
+                            <a-user-avatar
+                                [user]="{
+                                    name: message.user_name || '',
+                                    photo:
+                                        message.user_id !== user.id
+                                            ? 'assets/icons/ai-avatar.jpg'
+                                            : 'assets/icons/user-avatar.jpg',
+                                }"
+                                class="text-xl"
+                            ></a-user-avatar>
+                            <div class="flex flex-1 flex-col space-y-1">
+                                <div class="flex items-center space-x-4">
+                                    <div>
+                                        {{
+                                            message.user_id !== user.id
+                                                ? 'Assistant'
+                                                : 'You'
+                                        }}
+                                    </div>
+                                    <div
+                                        class="w-full px-2 py-1 text-right text-xs text-base-content opacity-40"
+                                    >
+                                        {{
+                                            message.timestamp + offset
+                                                | dateFrom
+                                        }}
+                                    </div>
+                                </div>
+                                <div
+                                    message
+                                    class="markdown selectable text-sm"
+                                    [innerHTML]="message.content | sanitize"
+                                ></div>
                             </div>
-                            <div
-                                class="relative w-full overflow-hidden rounded"
+                        </div>
+                    }
+                    @if (progress | async) {
+                        <div class="p-4">
+                            <button
+                                class="block w-full rounded border-base-300 bg-info p-2 text-info-content"
+                                (click)="show_info = !show_info"
                             >
+                                <div class="flex items-center space-x-2">
+                                    <icon class="text-2xl">{{
+                                        icons[(progress | async).function] ||
+                                            'info'
+                                    }}</icon>
+                                    <p class="text-sm">
+                                        {{
+                                            (progress | async).message ||
+                                                (progress | async).function
+                                        }}
+                                    </p>
+                                </div>
                                 <div
-                                    class="absolute inset-0 bg-base-100 opacity-10"
-                                ></div>
-                                <div
-                                    class="text-mono break-words p-2 text-left text-xs"
-                                    *ngIf="show_info"
-                                    [innerHTML]="
-                                        (progress | async).content | sanitize
-                                    "
-                                ></div>
-                            </div>
-                        </button>
-                    </div>
-                    <div
-                        class="absolute right-2 flex items-center justify-center space-x-2 rounded-2xl border border-neutral bg-base-100 p-1"
-                        [style.bottom]="'8px'"
-                        *ngIf="waiting | async"
-                    >
+                                    class="relative w-full overflow-hidden rounded"
+                                >
+                                    <div
+                                        class="absolute inset-0 bg-base-100 opacity-10"
+                                    ></div>
+                                    @if (show_info) {
+                                        <div
+                                            class="text-mono break-words p-2 text-left text-xs"
+                                            [innerHTML]="
+                                                (progress | async).content
+                                                    | sanitize
+                                            "
+                                        ></div>
+                                    }
+                                </div>
+                            </button>
+                        </div>
+                    }
+                    @if (waiting | async) {
                         <div
-                            class="h-2 w-2 animate-bounce rounded-full bg-neutral"
-                        ></div>
-                        <div
-                            class="anim-delay-1 h-2 w-2 animate-bounce rounded-full bg-neutral"
-                        ></div>
-                        <div
-                            class="anim-delay-2 h-2 w-2 animate-bounce rounded-full bg-neutral"
-                        ></div>
-                        <span class="sr-only">Waiting for reply...</span>
-                    </div>
+                            class="absolute right-2 flex items-center justify-center space-x-2 rounded-2xl border border-neutral bg-base-100 p-1"
+                            [style.bottom]="'8px'"
+                        >
+                            <div
+                                class="h-2 w-2 animate-bounce rounded-full bg-neutral"
+                            ></div>
+                            <div
+                                class="anim-delay-1 h-2 w-2 animate-bounce rounded-full bg-neutral"
+                            ></div>
+                            <div
+                                class="anim-delay-2 h-2 w-2 animate-bounce rounded-full bg-neutral"
+                            ></div>
+                            <span class="sr-only">Waiting for reply...</span>
+                        </div>
+                    }
                 </div>
             </div>
         </div>
-        <button
-            icon
-            matRipple
-            class="absolute left-2 top-2 h-12 w-12 bg-error text-error-content shadow"
-            *ngIf="setup"
-            (click)="endService()"
-        >
-            <icon class="text-2xl">call_end</icon>
-        </button>
-        <button
-            splash
-            matRipple
-            class="absolute inset-0 z-20 flex flex-col items-center justify-center text-white"
-            *ngIf="!setup"
-            (click)="setup = true"
-        >
-            <h2 class="mb-4 text-4xl font-light">Touch to Start</h2>
-        </button>
+        @if (setup) {
+            <button
+                icon
+                matRipple
+                class="absolute left-2 top-2 h-12 w-12 bg-error text-error-content shadow"
+                (click)="endService()"
+            >
+                <icon class="text-2xl">call_end</icon>
+            </button>
+        }
+        @if (!setup) {
+            <button
+                splash
+                matRipple
+                class="absolute inset-0 z-20 flex flex-col items-center justify-center text-white"
+                (click)="setup = true"
+            >
+                <h2 class="mb-4 text-4xl font-light">Touch to Start</h2>
+            </button>
+        }
     `,
     styles: [
         `

@@ -45,231 +45,298 @@ import { Booking } from './booking.class';
 @Component({
     selector: `invite-visitor-form`,
     template: `
-        <ng-container *ngIf="!sent; else send_state">
-            <div
-                class="relative flex max-h-full flex-col overflow-auto bg-base-100"
-                *ngIf="!(loading | async) && !loading_many; else load_state"
-            >
-                <div class="w-full border-b border-base-200 px-4 py-4 sm:px-16">
-                    <h2 class="text-2xl font-medium">
-                        {{ 'BOOKINGS.VISITOR_INVITE_TITLE' | translate }}
-                    </h2>
-                </div>
-                <form
-                    *ngIf="form"
-                    [formGroup]="form"
-                    class="px-4 py-4 sm:px-16"
-                >
-                    <div class="flex flex-col" *ngIf="buildings?.length > 1">
-                        <label for="building">
-                            {{ 'RESOURCE.BUILDING' | translate }}<span>*</span>
-                        </label>
-                        <mat-form-field appearance="outline">
-                            <mat-select
-                                [ngModel]="form.value.zones[0]"
-                                (ngModelChange)="
-                                    form.patchValue({ zones: [$event] })
-                                "
-                                [ngModelOptions]="{ standalone: true }"
-                                name="building"
-                                placeholder="Select building"
-                            >
-                                <mat-option
-                                    *ngFor="let bld of buildings | async"
-                                    [value]="bld.id"
-                                >
-                                    {{ bld.display_name || bld.name }}
-                                </mat-option>
-                            </mat-select>
-                        </mat-form-field>
-                    </div>
-                    <div class="flex flex-col">
-                        <label for="date">
-                            {{ 'FORM.DATE' | translate }}<span>*</span>
-                        </label>
-                        <a-date-field
-                            name="date"
-                            formControlName="date"
-                        ></a-date-field>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        <div class="flex w-1/3 flex-1 flex-col">
-                            <label for="start-time">
-                                {{ 'FORM.TIME_START' | translate }}
-                                <span>*</span>
-                            </label>
-                            <a-time-field
-                                name="start-time"
-                                [ngModel]="form.value.date"
-                                (ngModelChange)="
-                                    form.patchValue({ date: $event })
-                                "
-                                [ngModelOptions]="{ standalone: true }"
-                                [disabled]="form.value.all_day"
-                                [use_24hr]="use_24hr"
-                            ></a-time-field>
-                        </div>
-                        <div class="flex w-1/3 flex-1 flex-col">
-                            <label for="end-time">
-                                {{ 'FORM.TIME_END' | translate }}
-                                <span>*</span>
-                            </label>
-                            <a-duration-field
-                                name="end-time"
-                                formControlName="duration"
-                                [time]="form.value.date"
-                                [max]="max_duration"
-                                [use_24hr]="use_24hr"
-                            ></a-duration-field>
-                        </div>
-                    </div>
-                    <div
-                        *ngIf="can_book_for_others"
-                        class="flex w-full flex-col"
-                    >
-                        <label for="host">
-                            {{ 'FORM.HOST' | translate }}<span>*</span>
-                        </label>
-                        <a-user-search-field
-                            name="host"
-                            class="mb-4"
-                            formControlName="user"
-                        ></a-user-search-field>
-                    </div>
-                    <ng-container *ngIf="!multiple; else multi_state">
-                        <div class="flex flex-col">
-                            <label for="visitor-name">
-                                {{ 'BOOKINGS.VISITOR_NAME' | translate }}
-                                <span>*</span>
-                            </label>
-                            <mat-form-field appearance="outline">
-                                <input
-                                    matInput
-                                    name="visitor-name"
-                                    formControlName="asset_name"
-                                    [placeholder]="
-                                        'BOOKINGS.VISITOR_NAME_PLACEHOLDER'
-                                            | translate
-                                    "
-                                    (focus)="
-                                        filterVisitors(form.value.asset_name)
-                                    "
-                                    [matAutocomplete]="name_auto"
-                                />
-                            </mat-form-field>
-                            <mat-autocomplete #name_auto="matAutocomplete">
-                                <mat-option
-                                    *ngFor="let item of filtered_visitors"
-                                    [value]="item.name"
-                                    (click)="setVisitor(item)"
-                                >
-                                    <div class="flex flex-col leading-tight">
-                                        <div>{{ item.name }}</div>
-                                        <div class="text-xs opacity-60">
-                                            {{ item.email }}
-                                            {{
-                                                item.company
-                                                    ? '| ' + item.company
-                                                    : ''
-                                            }}
-                                        </div>
-                                    </div>
-                                </mat-option>
-                            </mat-autocomplete>
-                        </div>
-                        <div class="flex flex-col">
-                            <label for="visitor-email">
-                                {{ 'BOOKINGS.VISITOR_EMAIL' | translate }}
-                                <span>*</span>
-                            </label>
-                            <mat-form-field appearance="outline">
-                                <input
-                                    matInput
-                                    name="visitor-email"
-                                    type="email"
-                                    formControlName="asset_id"
-                                    [placeholder]="
-                                        'BOOKINGS.VISITOR_EMAIL_PLACEHOLDER'
-                                            | translate
-                                    "
-                                    (focus)="
-                                        filterVisitors(form.value.asset_id)
-                                    "
-                                    [matAutocomplete]="email_auto"
-                                />
-                                <mat-error>
-                                    {{ 'FORM.EMAIL_REQUIRED' | translate }}
-                                </mat-error>
-                            </mat-form-field>
-                            <mat-autocomplete #email_auto="matAutocomplete">
-                                <mat-option
-                                    *ngFor="let item of filtered_visitors"
-                                    [value]="item.email"
-                                    (click)="setVisitor(item)"
-                                >
-                                    <div class="flex flex-col leading-tight">
-                                        <div>{{ item.name }}</div>
-                                        <div class="text-xs opacity-60">
-                                            {{ item.email }}
-                                            {{
-                                                item.company
-                                                    ? '| ' + item.company
-                                                    : ''
-                                            }}
-                                        </div>
-                                    </div>
-                                </mat-option>
-                            </mat-autocomplete>
-                        </div>
-                        <div class="flex flex-col">
-                            <label for="visitor-name">{{
-                                'BOOKINGS.VISITOR_COMPANY' | translate
-                            }}</label>
-                            <mat-form-field appearance="outline">
-                                <input
-                                    matInput
-                                    name="company"
-                                    formControlName="company"
-                                    [placeholder]="
-                                        'BOOKINGS.VISITOR_COMPANY' | translate
-                                    "
-                                />
-                            </mat-form-field>
-                        </div>
-                    </ng-container>
-                    <div class="flex flex-col">
-                        <label for="reason">{{
-                            'BOOKINGS.VISITOR_REASON' | translate
-                        }}</label>
-                        <mat-form-field appearance="outline">
-                            <input
-                                name="reason"
-                                matInput
-                                formControlName="title"
-                                [placeholder]="
-                                    'BOOKINGS.VISITOR_REASON_PLACEHOLDER'
-                                        | translate
-                                "
-                            />
-                        </mat-form-field>
-                    </div>
-                </form>
+        @if (!sent) {
+            @if (!(loading | async) && !loading_many) {
                 <div
-                    class="sticky bottom-0 border-t border-base-200 bg-base-100 px-4 py-4 sm:px-16"
+                    class="relative flex max-h-full flex-col overflow-auto bg-base-100"
                 >
-                    <button
-                        btn
-                        matRipple
-                        send
-                        class="w-full sm:w-auto"
-                        (click)="sendInvite()"
+                    <div
+                        class="w-full border-b border-base-200 px-4 py-4 sm:px-16"
                     >
-                        {{ 'BOOKINGS.VISITOR_SEND' | translate }}
-                    </button>
+                        <h2 class="text-2xl font-medium">
+                            {{ 'BOOKINGS.VISITOR_INVITE_TITLE' | translate }}
+                        </h2>
+                    </div>
+                    @if (form) {
+                        <form [formGroup]="form" class="px-4 py-4 sm:px-16">
+                            @if (buildings?.length > 1) {
+                                <div class="flex flex-col">
+                                    <label for="building">
+                                        {{ 'RESOURCE.BUILDING' | translate
+                                        }}<span>*</span>
+                                    </label>
+                                    <mat-form-field appearance="outline">
+                                        <mat-select
+                                            [ngModel]="form.value.zones[0]"
+                                            (ngModelChange)="
+                                                form.patchValue({
+                                                    zones: [$event],
+                                                })
+                                            "
+                                            [ngModelOptions]="{
+                                                standalone: true,
+                                            }"
+                                            name="building"
+                                            placeholder="Select building"
+                                        >
+                                            @for (
+                                                bld of buildings | async;
+                                                track bld
+                                            ) {
+                                                <mat-option [value]="bld.id">
+                                                    {{
+                                                        bld.display_name ||
+                                                            bld.name
+                                                    }}
+                                                </mat-option>
+                                            }
+                                        </mat-select>
+                                    </mat-form-field>
+                                </div>
+                            }
+                            <div class="flex flex-col">
+                                <label for="date">
+                                    {{ 'FORM.DATE' | translate }}<span>*</span>
+                                </label>
+                                <a-date-field
+                                    name="date"
+                                    formControlName="date"
+                                ></a-date-field>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <div class="flex w-1/3 flex-1 flex-col">
+                                    <label for="start-time">
+                                        {{ 'FORM.TIME_START' | translate }}
+                                        <span>*</span>
+                                    </label>
+                                    <a-time-field
+                                        name="start-time"
+                                        [ngModel]="form.value.date"
+                                        (ngModelChange)="
+                                            form.patchValue({ date: $event })
+                                        "
+                                        [ngModelOptions]="{ standalone: true }"
+                                        [disabled]="form.value.all_day"
+                                        [use_24hr]="use_24hr"
+                                    ></a-time-field>
+                                </div>
+                                <div class="flex w-1/3 flex-1 flex-col">
+                                    <label for="end-time">
+                                        {{ 'FORM.TIME_END' | translate }}
+                                        <span>*</span>
+                                    </label>
+                                    <a-duration-field
+                                        name="end-time"
+                                        formControlName="duration"
+                                        [time]="form.value.date"
+                                        [max]="max_duration"
+                                        [use_24hr]="use_24hr"
+                                    ></a-duration-field>
+                                </div>
+                            </div>
+                            @if (can_book_for_others) {
+                                <div class="flex w-full flex-col">
+                                    <label for="host">
+                                        {{ 'FORM.HOST' | translate
+                                        }}<span>*</span>
+                                    </label>
+                                    <a-user-search-field
+                                        name="host"
+                                        class="mb-4"
+                                        formControlName="user"
+                                    ></a-user-search-field>
+                                </div>
+                            }
+                            @if (!multiple) {
+                                <div class="flex flex-col">
+                                    <label for="visitor-name">
+                                        {{
+                                            'BOOKINGS.VISITOR_NAME' | translate
+                                        }}
+                                        <span>*</span>
+                                    </label>
+                                    <mat-form-field appearance="outline">
+                                        <input
+                                            matInput
+                                            name="visitor-name"
+                                            formControlName="asset_name"
+                                            [placeholder]="
+                                                'BOOKINGS.VISITOR_NAME_PLACEHOLDER'
+                                                    | translate
+                                            "
+                                            (focus)="
+                                                filterVisitors(
+                                                    form.value.asset_name
+                                                )
+                                            "
+                                            [matAutocomplete]="name_auto"
+                                        />
+                                    </mat-form-field>
+                                    <mat-autocomplete
+                                        #name_auto="matAutocomplete"
+                                    >
+                                        @for (
+                                            item of filtered_visitors;
+                                            track item
+                                        ) {
+                                            <mat-option
+                                                [value]="item.name"
+                                                (click)="setVisitor(item)"
+                                            >
+                                                <div
+                                                    class="flex flex-col leading-tight"
+                                                >
+                                                    <div>{{ item.name }}</div>
+                                                    <div
+                                                        class="text-xs opacity-60"
+                                                    >
+                                                        {{ item.email }}
+                                                        {{
+                                                            item.company
+                                                                ? '| ' +
+                                                                  item.company
+                                                                : ''
+                                                        }}
+                                                    </div>
+                                                </div>
+                                            </mat-option>
+                                        }
+                                    </mat-autocomplete>
+                                </div>
+                                <div class="flex flex-col">
+                                    <label for="visitor-email">
+                                        {{
+                                            'BOOKINGS.VISITOR_EMAIL' | translate
+                                        }}
+                                        <span>*</span>
+                                    </label>
+                                    <mat-form-field appearance="outline">
+                                        <input
+                                            matInput
+                                            name="visitor-email"
+                                            type="email"
+                                            formControlName="asset_id"
+                                            [placeholder]="
+                                                'BOOKINGS.VISITOR_EMAIL_PLACEHOLDER'
+                                                    | translate
+                                            "
+                                            (focus)="
+                                                filterVisitors(
+                                                    form.value.asset_id
+                                                )
+                                            "
+                                            [matAutocomplete]="email_auto"
+                                        />
+                                        <mat-error>
+                                            {{
+                                                'FORM.EMAIL_REQUIRED'
+                                                    | translate
+                                            }}
+                                        </mat-error>
+                                    </mat-form-field>
+                                    <mat-autocomplete
+                                        #email_auto="matAutocomplete"
+                                    >
+                                        @for (
+                                            item of filtered_visitors;
+                                            track item
+                                        ) {
+                                            <mat-option
+                                                [value]="item.email"
+                                                (click)="setVisitor(item)"
+                                            >
+                                                <div
+                                                    class="flex flex-col leading-tight"
+                                                >
+                                                    <div>{{ item.name }}</div>
+                                                    <div
+                                                        class="text-xs opacity-60"
+                                                    >
+                                                        {{ item.email }}
+                                                        {{
+                                                            item.company
+                                                                ? '| ' +
+                                                                  item.company
+                                                                : ''
+                                                        }}
+                                                    </div>
+                                                </div>
+                                            </mat-option>
+                                        }
+                                    </mat-autocomplete>
+                                </div>
+                                <div class="flex flex-col">
+                                    <label for="visitor-name">{{
+                                        'BOOKINGS.VISITOR_COMPANY' | translate
+                                    }}</label>
+                                    <mat-form-field appearance="outline">
+                                        <input
+                                            matInput
+                                            name="company"
+                                            formControlName="company"
+                                            [placeholder]="
+                                                'BOOKINGS.VISITOR_COMPANY'
+                                                    | translate
+                                            "
+                                        />
+                                    </mat-form-field>
+                                </div>
+                            } @else {
+                                <div class="flex flex-col" [formGroup]="form">
+                                    <label for="visitor-name">
+                                        {{
+                                            'BOOKINGS.VISITOR_LIST' | translate
+                                        }}
+                                        <span>*</span>
+                                    </label>
+                                    <a-user-list-field
+                                        formControlName="assets"
+                                        [guests_only]="true"
+                                    ></a-user-list-field>
+                                </div>
+                            }
+                            <div class="flex flex-col">
+                                <label for="reason">{{
+                                    'BOOKINGS.VISITOR_REASON' | translate
+                                }}</label>
+                                <mat-form-field appearance="outline">
+                                    <input
+                                        name="reason"
+                                        matInput
+                                        formControlName="title"
+                                        [placeholder]="
+                                            'BOOKINGS.VISITOR_REASON_PLACEHOLDER'
+                                                | translate
+                                        "
+                                    />
+                                </mat-form-field>
+                            </div>
+                        </form>
+                    }
+                    <div
+                        class="sticky bottom-0 border-t border-base-200 bg-base-100 px-4 py-4 sm:px-16"
+                    >
+                        <button
+                            btn
+                            matRipple
+                            send
+                            class="w-full sm:w-auto"
+                            (click)="sendInvite()"
+                        >
+                            {{ 'BOOKINGS.VISITOR_SEND' | translate }}
+                        </button>
+                    </div>
                 </div>
-            </div>
-        </ng-container>
-        <ng-template #send_state>
+            } @else {
+                <div
+                    loading
+                    class="relative flex h-full min-h-[18rem] w-full flex-col items-center justify-center overflow-hidden rounded"
+                >
+                    <mat-spinner [diameter]="32"></mat-spinner>
+                    <p>{{ 'BOOKINGS.VISITOR_SENDING' | translate }}</p>
+                </div>
+            }
+        } @else {
             <div
                 sent
                 class="absolute inset-0 flex flex-col items-center justify-center bg-base-100 text-center"
@@ -310,51 +377,57 @@ import { Booking } from './booking.class';
                                       }
                         }}
                     </p>
-                    <div
-                        class="relative flex flex-col items-center space-y-4 p-4"
-                        *ngIf="show_links"
-                    >
-                        <a
-                            btn
-                            matRipple
-                            name="desk-outlook-link"
-                            class="inverse flex w-64 items-center space-x-2 rounded p-2 pr-4"
-                            [href]="outlook_link | sanitize: 'url'"
-                            target="_blank"
-                            rel="noopener noreferer"
+                    @if (show_links) {
+                        <div
+                            class="relative flex flex-col items-center space-y-4 p-4"
                         >
-                            <img src="assets/icons/outlook.svg" class="w-6" />
-                            <span>{{
-                                'BOOKINGS.LINK_OUTLOOK' | translate
-                            }}</span>
-                        </a>
-                        <a
-                            btn
-                            matRipple
-                            name="desk-google-link"
-                            class="inverse flex w-64 items-center space-x-2 rounded p-2 pr-4"
-                            [href]="google_link | sanitize: 'url'"
-                            target="_blank"
-                            rel="noopener noreferer"
-                        >
-                            <img src="assets/icons/gcal.svg" class="w-6" />
-                            <span>{{
-                                'BOOKINGS.LINK_GOOGLE' | translate
-                            }}</span>
-                        </a>
-                        <a
-                            btn
-                            matRipple
-                            name="desk-ical-link"
-                            class="inverse flex w-64 items-center space-x-2 rounded p-2 pr-4"
-                            [href]="ical_link | safe: 'url'"
-                            target="_blank"
-                            rel="noopener noreferer"
-                        >
-                            <icon class="text-xl">download</icon>
-                            <span>{{ 'BOOKINGS.LINK_ICAL' | translate }}</span>
-                        </a>
-                    </div>
+                            <a
+                                btn
+                                matRipple
+                                name="desk-outlook-link"
+                                class="inverse flex w-64 items-center space-x-2 rounded p-2 pr-4"
+                                [href]="outlook_link | sanitize: 'url'"
+                                target="_blank"
+                                rel="noopener noreferer"
+                            >
+                                <img
+                                    src="assets/icons/outlook.svg"
+                                    class="w-6"
+                                />
+                                <span>{{
+                                    'BOOKINGS.LINK_OUTLOOK' | translate
+                                }}</span>
+                            </a>
+                            <a
+                                btn
+                                matRipple
+                                name="desk-google-link"
+                                class="inverse flex w-64 items-center space-x-2 rounded p-2 pr-4"
+                                [href]="google_link | sanitize: 'url'"
+                                target="_blank"
+                                rel="noopener noreferer"
+                            >
+                                <img src="assets/icons/gcal.svg" class="w-6" />
+                                <span>{{
+                                    'BOOKINGS.LINK_GOOGLE' | translate
+                                }}</span>
+                            </a>
+                            <a
+                                btn
+                                matRipple
+                                name="desk-ical-link"
+                                class="inverse flex w-64 items-center space-x-2 rounded p-2 pr-4"
+                                [href]="ical_link | safe: 'url'"
+                                target="_blank"
+                                rel="noopener noreferer"
+                            >
+                                <icon class="text-xl">download</icon>
+                                <span>{{
+                                    'BOOKINGS.LINK_ICAL' | translate
+                                }}</span>
+                            </a>
+                        </div>
+                    }
                 </div>
                 <div
                     class="z-10 w-full border-t border-base-200 bg-base-100 p-2"
@@ -376,28 +449,7 @@ import { Booking } from './booking.class';
                     </div>
                 </div>
             </div>
-        </ng-template>
-        <ng-template #load_state>
-            <div
-                loading
-                class="relative flex h-full min-h-[18rem] w-full flex-col items-center justify-center overflow-hidden rounded"
-            >
-                <mat-spinner [diameter]="32"></mat-spinner>
-                <p>{{ 'BOOKINGS.VISITOR_SENDING' | translate }}</p>
-            </div>
-        </ng-template>
-        <ng-template #multi_state>
-            <div class="flex flex-col" [formGroup]="form">
-                <label for="visitor-name">
-                    {{ 'BOOKINGS.VISITOR_LIST' | translate }}
-                    <span>*</span>
-                </label>
-                <a-user-list-field
-                    formControlName="assets"
-                    [guests_only]="true"
-                ></a-user-list-field>
-            </div>
-        </ng-template>
+        }
     `,
     styles: [``],
     imports: [

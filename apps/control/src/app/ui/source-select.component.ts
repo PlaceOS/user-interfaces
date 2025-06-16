@@ -26,54 +26,63 @@ import { ControlStateService, RoomInput } from '../control-state.service';
                         | translate: { name: source?.name || '= No Name =' }
                 }}
             </h3>
-            <ng-container *ngIf="!loading; else load_state">
-                <div
-                    class="divide flex"
-                    [class.flex-col]="simple"
-                    [class.flex-wrap]="!simple"
-                    *ngIf="(input_types | async)?.length; else empty_state"
-                >
+            @if (!loading) {
+                @if ((input_types | async)?.length) {
                     <div
-                        group
-                        *ngFor="let type of input_types | async"
-                        class="flex flex-col space-y-2 p-2"
+                        class="divide flex"
+                        [class.flex-col]="simple"
+                        [class.flex-wrap]="!simple"
                     >
-                        <h4 class="text-center underline">{{ type }}</h4>
-                        <button
-                            btn
-                            matRipple
-                            source
-                            class="w-48"
-                            [class.inverse]="
-                                input.id === (details | async)?.source
-                            "
-                            *ngFor="let input of (input_map | async)[type]"
-                            (click)="selectSource(input)"
-                        >
-                            <div class="truncate">{{ input.name }}</div>
-                        </button>
+                        @for (type of input_types | async; track type) {
+                            <div group class="flex flex-col space-y-2 p-2">
+                                <h4 class="text-center underline">
+                                    {{ type }}
+                                </h4>
+                                @for (
+                                    input of (input_map | async)[type];
+                                    track input
+                                ) {
+                                    <button
+                                        btn
+                                        matRipple
+                                        source
+                                        class="w-48"
+                                        [class.inverse]="
+                                            input.id ===
+                                            (details | async)?.source
+                                        "
+                                        (click)="selectSource(input)"
+                                    >
+                                        <div class="truncate">
+                                            {{ input.name }}
+                                        </div>
+                                    </button>
+                                }
+                            </div>
+                        }
                     </div>
+                } @else {
+                    <div
+                        class="m-auto flex flex-col items-center justify-center p-8"
+                    >
+                        <p>
+                            {{
+                                'APP.CONTROL.SOURCE_INPUTS_EMPTY'
+                                    | translate
+                                        : { name: details?.name || 'Unknown' }
+                            }}
+                        </p>
+                    </div>
+                }
+            } @else {
+                <div
+                    class="m-auto flex flex-col items-center justify-center space-y-2 p-8"
+                >
+                    <mat-spinner [diameter]="32"></mat-spinner>
+                    <p>{{ 'APP.CONTROL.SOURCE_SWITCHING' | translate }}</p>
                 </div>
-            </ng-container>
+            }
         </div>
-        <ng-template #empty_state>
-            <div class="m-auto flex flex-col items-center justify-center p-8">
-                <p>
-                    {{
-                        'APP.CONTROL.SOURCE_INPUTS_EMPTY'
-                            | translate: { name: details?.name || 'Unknown' }
-                    }}
-                </p>
-            </div>
-        </ng-template>
-        <ng-template #load_state>
-            <div
-                class="m-auto flex flex-col items-center justify-center space-y-2 p-8"
-            >
-                <mat-spinner [diameter]="32"></mat-spinner>
-                <p>{{ 'APP.CONTROL.SOURCE_SWITCHING' | translate }}</p>
-            </div>
-        </ng-template>
     `,
     standalone: false,
 })

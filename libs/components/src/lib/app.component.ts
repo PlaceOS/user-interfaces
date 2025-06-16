@@ -92,7 +92,9 @@ export function initSentry(dsn: string, sample_rate = 0.1) {
         <div class="relative h-1/2 w-full flex-1">
             <router-outlet></router-outlet>
         </div>
-        <global-chat *ngIf="has_chat"></global-chat>
+        @if (has_chat) {
+            <global-chat></global-chat>
+        }
         <global-loading></global-loading>
         <!-- <debug-console *ngIf="debug"></debug-console> -->
     `,

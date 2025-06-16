@@ -27,154 +27,175 @@ const CHARS = '0123456789ABCDEF';
                         ) | translate
                     }}
                 </h2>
-                <button icon matRipple mat-dialog-close *ngIf="!loading">
-                    <icon>close</icon>
-                </button>
+                @if (!loading) {
+                    <button icon matRipple mat-dialog-close>
+                        <icon>close</icon>
+                    </button>
+                }
             </header>
-            <main
-                *ngIf="!loading; else load_state"
-                class="flex max-h-[65vh] flex-col overflow-auto p-4"
-                [formGroup]="form"
-            >
-                <div class="w-full">
-                    <label for="id">
-                        {{ 'APP.CONCIERGE.DESKS_ID' | translate }}
-                        <span>*</span>
-                    </label>
-                    <mat-form-field appearance="outline" class="w-full">
-                        <input
-                            matInput
-                            name="id"
-                            formControlName="id"
-                            placeholder="desk-10.123"
-                        />
-                        <mat-error>{{
-                            'FORM.ID_REQUIRED' | translate
-                        }}</mat-error>
-                    </mat-form-field>
-                </div>
-                <div class="flex space-x-4">
-                    <div class="w-1/3 flex-1">
-                        <label for="name">
-                            {{ 'APP.CONCIERGE.DESKS_NAME' | translate }}
+            @if (!loading) {
+                <main
+                    class="flex max-h-[65vh] flex-col overflow-auto p-4"
+                    [formGroup]="form"
+                >
+                    <div class="w-full">
+                        <label for="id">
+                            {{ 'APP.CONCIERGE.DESKS_ID' | translate }}
                             <span>*</span>
                         </label>
                         <mat-form-field appearance="outline" class="w-full">
                             <input
                                 matInput
-                                name="name"
-                                formControlName="name"
-                                placeholder="e.g. Office Desk"
+                                name="id"
+                                formControlName="id"
+                                placeholder="desk-10.123"
                             />
                             <mat-error>{{
-                                'FORM.NAME_REQUIRED' | translate
+                                'FORM.ID_REQUIRED' | translate
                             }}</mat-error>
                         </mat-form-field>
                     </div>
-                    <div class="w-1/3 flex-1">
-                        <label for="map-id">
-                            {{ 'EXPLORE.MAP_ID' | translate }}<span>*</span>
-                        </label>
-                        <div class="flex space-x-2">
+                    <div class="flex space-x-4">
+                        <div class="w-1/3 flex-1">
+                            <label for="name">
+                                {{ 'APP.CONCIERGE.DESKS_NAME' | translate }}
+                                <span>*</span>
+                            </label>
                             <mat-form-field appearance="outline" class="w-full">
                                 <input
                                     matInput
-                                    name="map-id"
-                                    formControlName="map_id"
-                                    [placeholder]="
-                                        'APP.CONCIERGE.DESKS_MAP_ID_PLACEHOLDER'
+                                    name="name"
+                                    formControlName="name"
+                                    placeholder="e.g. Office Desk"
+                                />
+                                <mat-error>{{
+                                    'FORM.NAME_REQUIRED' | translate
+                                }}</mat-error>
+                            </mat-form-field>
+                        </div>
+                        <div class="w-1/3 flex-1">
+                            <label for="map-id">
+                                {{ 'EXPLORE.MAP_ID' | translate }}<span>*</span>
+                            </label>
+                            <div class="flex space-x-2">
+                                <mat-form-field
+                                    appearance="outline"
+                                    class="w-full"
+                                >
+                                    <input
+                                        matInput
+                                        name="map-id"
+                                        formControlName="map_id"
+                                        [placeholder]="
+                                            'APP.CONCIERGE.DESKS_MAP_ID_PLACEHOLDER'
+                                                | translate
+                                        "
+                                    />
+                                    <mat-error>
+                                        {{
+                                            'EXPLORE.MAP_ID_REQUIRED'
+                                                | translate
+                                        }}
+                                    </mat-error>
+                                </mat-form-field>
+                                <button
+                                    icon
+                                    matRipple
+                                    class="h-12 w-12 min-w-12 rounded border border-secondary text-secondary"
+                                    [matTooltip]="
+                                        'APP.CONCIERGE.POI_MAP_SELECT'
                                             | translate
                                     "
-                                />
-                                <mat-error>
-                                    {{ 'EXPLORE.MAP_ID_REQUIRED' | translate }}
-                                </mat-error>
-                            </mat-form-field>
-                            <button
-                                icon
-                                matRipple
-                                class="h-12 w-12 min-w-12 rounded border border-secondary text-secondary"
-                                [matTooltip]="
-                                    'APP.CONCIERGE.POI_MAP_SELECT' | translate
-                                "
-                                (click)="selectItemfromMap()"
-                            >
-                                <icon>place</icon>
-                            </button>
+                                    (click)="selectItemfromMap()"
+                                >
+                                    <icon>place</icon>
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <label for="user">{{
-                    'APP.CONCIERGE.USER_ASSIGNED' | translate
-                }}</label>
-                <div class="mb-4 flex items-center space-x-2">
-                    <a-user-search-field
-                        name="user"
-                        formControlName="assigned_user"
-                        class="flex-1"
-                    ></a-user-search-field>
-                    <button
-                        icon
-                        matRipple
-                        class="h-12 w-12 min-w-12 rounded bg-secondary text-secondary-content"
-                        [matTooltip]="'APP.CONCIERGE.USER_CLEAR' | translate"
-                        (click)="
-                            form.patchValue({
-                                assigned_user: null,
-                                assigned_to: null,
-                                assigned_name: null,
-                            })
-                        "
-                    >
-                        <icon className="material-symbols-outlined">
-                            person_cancel
-                        </icon>
-                    </button>
-                </div>
-                <div class="flex space-x-4 pb-4">
-                    <settings-toggle
-                        formControlName="bookable"
-                        class="flex-1"
-                        [name]="'COMMON.BOOKABLE' | translate"
-                    >
-                    </settings-toggle>
-                    <div class="flex-1"></div>
-                </div>
-                <label for="notes">{{ 'COMMON.GROUPS' | translate }}</label>
-                <item-list-field
-                    class="w-full"
-                    [placeholder]="'BOOKINGS.GROUPS' | translate"
-                    formControlName="groups"
-                ></item-list-field>
-                <label for="notes">{{ 'COMMON.FEATURES' | translate }}</label>
-                <item-list-field
-                    class="w-full"
-                    [placeholder]="'COMMON.FEATURES' | translate"
-                    formControlName="features"
-                ></item-list-field>
-                <label for="notes">{{ 'FORM.NOTES' | translate }}</label>
-                <mat-form-field appearance="outline">
-                    <textarea
-                        matInput
-                        name="notes"
-                        [placeholder]="'FORM.NOTES' | translate"
-                        formControlName="notes"
-                    ></textarea>
-                </mat-form-field>
-                <label for="security">
-                    {{ 'APP.CONCIERGE.DESKS_SECURITY' | translate }}
-                </label>
-                <mat-form-field appearance="outline" class="w-full">
-                    <input
-                        matInput
-                        name="security"
-                        [placeholder]="
-                            'APP.CONCIERGE.DESKS_SECURITY' | translate
-                        "
-                        formControlName="security"
-                    />
-                </mat-form-field>
-            </main>
+                    <label for="user">{{
+                        'APP.CONCIERGE.USER_ASSIGNED' | translate
+                    }}</label>
+                    <div class="mb-4 flex items-center space-x-2">
+                        <a-user-search-field
+                            name="user"
+                            formControlName="assigned_user"
+                            class="flex-1"
+                        ></a-user-search-field>
+                        <button
+                            icon
+                            matRipple
+                            class="h-12 w-12 min-w-12 rounded bg-secondary text-secondary-content"
+                            [matTooltip]="
+                                'APP.CONCIERGE.USER_CLEAR' | translate
+                            "
+                            (click)="
+                                form.patchValue({
+                                    assigned_user: null,
+                                    assigned_to: null,
+                                    assigned_name: null,
+                                })
+                            "
+                        >
+                            <icon className="material-symbols-outlined">
+                                person_cancel
+                            </icon>
+                        </button>
+                    </div>
+                    <div class="flex space-x-4 pb-4">
+                        <settings-toggle
+                            formControlName="bookable"
+                            class="flex-1"
+                            [name]="'COMMON.BOOKABLE' | translate"
+                        >
+                        </settings-toggle>
+                        <div class="flex-1"></div>
+                    </div>
+                    <label for="notes">{{ 'COMMON.GROUPS' | translate }}</label>
+                    <item-list-field
+                        class="w-full"
+                        [placeholder]="'BOOKINGS.GROUPS' | translate"
+                        formControlName="groups"
+                    ></item-list-field>
+                    <label for="notes">{{
+                        'COMMON.FEATURES' | translate
+                    }}</label>
+                    <item-list-field
+                        class="w-full"
+                        [placeholder]="'COMMON.FEATURES' | translate"
+                        formControlName="features"
+                    ></item-list-field>
+                    <label for="notes">{{ 'FORM.NOTES' | translate }}</label>
+                    <mat-form-field appearance="outline">
+                        <textarea
+                            matInput
+                            name="notes"
+                            [placeholder]="'FORM.NOTES' | translate"
+                            formControlName="notes"
+                        ></textarea>
+                    </mat-form-field>
+                    <label for="security">
+                        {{ 'APP.CONCIERGE.DESKS_SECURITY' | translate }}
+                    </label>
+                    <mat-form-field appearance="outline" class="w-full">
+                        <input
+                            matInput
+                            name="security"
+                            [placeholder]="
+                                'APP.CONCIERGE.DESKS_SECURITY' | translate
+                            "
+                            formControlName="security"
+                        />
+                    </mat-form-field>
+                </main>
+            } @else {
+                <main
+                    class="flex flex-col items-center justify-center space-y-2 p-8"
+                >
+                    <mat-spinner diameter="32"></mat-spinner>
+                    <p>{{ 'APP.CONCIERGE.DESKS_SAVING' | translate }}</p>
+                </main>
+            }
             <footer
                 class="flex items-center justify-end space-x-2 border-t border-base-300 px-4 py-2"
             >
@@ -183,14 +204,6 @@ const CHARS = '0123456789ABCDEF';
                 </button>
             </footer>
         </div>
-        <ng-template #load_state>
-            <main
-                class="flex flex-col items-center justify-center space-y-2 p-8"
-            >
-                <mat-spinner diameter="32"></mat-spinner>
-                <p>{{ 'APP.CONCIERGE.DESKS_SAVING' | translate }}</p>
-            </main>
-        </ng-template>
     `,
     styles: [``],
     standalone: false,

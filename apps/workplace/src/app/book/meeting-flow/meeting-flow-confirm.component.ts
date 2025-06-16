@@ -32,15 +32,14 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
             <h2 class="m-0 flex-1 text-xl font-medium capitalize">
                 {{ 'APP.WORKPLACE.MEETING_CONFIRM' | translate }}
             </h2>
-            <mat-spinner diameter="32" *ngIf="loading | async"></mat-spinner>
-            <button
-                icon
-                matRipple
-                *ngIf="show_close && !(loading | async)"
-                (click)="dismiss()"
-            >
-                <icon class="text-2xl">close</icon>
-            </button>
+            @if (loading | async) {
+                <mat-spinner diameter="32"></mat-spinner>
+            }
+            @if (show_close && !(loading | async)) {
+                <button icon matRipple (click)="dismiss()">
+                    <icon class="text-2xl">close</icon>
+                </button>
+            }
         </header>
         <section period class="flex space-x-1 px-2">
             <icon class="mt-1 text-success">done</icon>
@@ -50,77 +49,84 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                     <icon class="text-2xl">today</icon>
                     <div date>{{ event.date | date: 'fullDate' }}</div>
                 </div>
-                <div
-                    class="flex items-center space-x-2"
-                    *ngIf="event.recurrence?.pattern"
-                >
-                    <icon class="text-2xl">update</icon>
-                    <div date>{{ formatted_recurrence }}</div>
-                </div>
+                @if (event.recurrence?.pattern) {
+                    <div class="flex items-center space-x-2">
+                        <icon class="text-2xl">update</icon>
+                        <div date>{{ formatted_recurrence }}</div>
+                    </div>
+                }
                 <div class="flex items-center space-x-2">
                     <icon class="text-2xl">schedule</icon>
                     <div class="flex flex-col leading-tight">
                         <div time>{{ formattedTime() }}</div>
-                        <div class="text-xs opacity-30" *ngIf="timezone">
-                            {{ formattedTime(tz) }}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <section
-            attendees
-            class="mt-2 flex space-x-1 px-2"
-            *ngIf="event.attendees?.length"
-        >
-            <icon class="mt-1 text-success">done</icon>
-            <div details class="leading-6">
-                <h3>
-                    {{
-                        'CALENDAR_EVENT.ATTENDEE_COUNT'
-                            | translate: { count: event.attendees.length }
-                    }}
-                </h3>
-                <div attendee-list>
-                    <mat-chip-list #chipList aria-label="User selection">
-                        <mat-chip *ngFor="let user of event.attendees">
-                            <div class="flex items-center">
-                                <icon class="mr-2">business</icon>
-                                <div class="max-w-[50vw] truncate">
-                                    {{ user.name || user.email }}
-                                </div>
+                        @if (timezone) {
+                            <div class="text-xs opacity-30">
+                                {{ formattedTime(tz) }}
                             </div>
-                        </mat-chip>
-                    </mat-chip-list>
-                </div>
-            </div>
-        </section>
-        <section spaces class="mt-2 flex space-x-1 px-2" *ngIf="space?.id">
-            <icon class="mt-1 text-success">done</icon>
-            <div details class="leading-6">
-                <h3>{{ 'APP.WORKPLACE.MEETING_BOOKED_ROOM' | translate }}</h3>
-                <ng-container *ngFor="let s of event.resources">
-                    <div class="flex items-center space-x-2">
-                        <icon class="text-2xl">meeting_room</icon>
-                        <div>
-                            {{ level?.display_name || level?.name }},
-                            {{ s.display_name || s.name }}
-                        </div>
+                        }
                     </div>
-                </ng-container>
-                <div class="flex items-center space-x-2">
-                    <icon class="text-2xl">place</icon>
-                    <div>{{ location }}</div>
                 </div>
             </div>
         </section>
-        <section class="px-2 pt-4" *ngIf="requires_approval">
-            <div
-                class="rounded !border-none bg-warning px-2 py-1 text-center text-sm text-warning-content"
-            >
-                {{ 'CALENDAR_EVENT.APPROVAL_REQUIRED_MSG' | translate }}
-            </div>
-        </section>
+        @if (event.attendees?.length) {
+            <section attendees class="mt-2 flex space-x-1 px-2">
+                <icon class="mt-1 text-success">done</icon>
+                <div details class="leading-6">
+                    <h3>
+                        {{
+                            'CALENDAR_EVENT.ATTENDEE_COUNT'
+                                | translate: { count: event.attendees.length }
+                        }}
+                    </h3>
+                    <div attendee-list>
+                        <mat-chip-list #chipList aria-label="User selection">
+                            @for (user of event.attendees; track user) {
+                                <mat-chip>
+                                    <div class="flex items-center">
+                                        <icon class="mr-2">business</icon>
+                                        <div class="max-w-[50vw] truncate">
+                                            {{ user.name || user.email }}
+                                        </div>
+                                    </div>
+                                </mat-chip>
+                            }
+                        </mat-chip-list>
+                    </div>
+                </div>
+            </section>
+        }
+        @if (space?.id) {
+            <section spaces class="mt-2 flex space-x-1 px-2">
+                <icon class="mt-1 text-success">done</icon>
+                <div details class="leading-6">
+                    <h3>
+                        {{ 'APP.WORKPLACE.MEETING_BOOKED_ROOM' | translate }}
+                    </h3>
+                    @for (s of event.resources; track s) {
+                        <div class="flex items-center space-x-2">
+                            <icon class="text-2xl">meeting_room</icon>
+                            <div>
+                                {{ level?.display_name || level?.name }},
+                                {{ s.display_name || s.name }}
+                            </div>
+                        </div>
+                    }
+                    <div class="flex items-center space-x-2">
+                        <icon class="text-2xl">place</icon>
+                        <div>{{ location }}</div>
+                    </div>
+                </div>
+            </section>
+        }
+        @if (requires_approval) {
+            <section class="px-2 pt-4">
+                <div
+                    class="rounded !border-none bg-warning px-2 py-1 text-center text-sm text-warning-content"
+                >
+                    {{ 'CALENDAR_EVENT.APPROVAL_REQUIRED_MSG' | translate }}
+                </div>
+            </section>
+        }
         <footer class="mt-4 w-full border-t border-base-200 p-2">
             <button
                 btn
@@ -133,15 +139,15 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                 {{ 'COMMON.CONFIRM' | translate }}
             </button>
             <!-- <button
-                btn
-                matRipple
-                class="inverse w-full"
-                *ngIf="loading | async"
-                (click)="cancelPost()"
-
-            >
-                Undo
-            </button> -->
+          btn
+          matRipple
+          class="inverse w-full"
+          *ngIf="loading | async"
+          (click)="cancelPost()"
+        
+          >
+          Undo
+        </button> -->
         </footer>
     `,
     styles: [

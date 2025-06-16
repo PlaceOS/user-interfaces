@@ -20,9 +20,11 @@ import { BookingFormService } from '@placeos/bookings';
                         | date: 'shortTime'
                 }}
             </p>
-            <p *ngIf="true">
-                Please allow up to 5 minutes for you booking to be approved.
-            </p>
+            @if (true) {
+                <p>
+                    Please allow up to 5 minutes for you booking to be approved.
+                </p>
+            }
             <a btn btn matRipple [routerLink]="['/book', 'desks']" class="w-64">
                 New Booking
             </a>

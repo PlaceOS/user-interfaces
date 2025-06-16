@@ -82,46 +82,48 @@ import { LockerFiltersComponent } from './locker-filters.component';
                 {{ start | date: time_format }} &mdash;
                 {{ end | date: time_format }}
             </div>
-            <div
-                filter-item
-                features
-                *ngFor="let feat of (options | async)?.features || []"
-            >
-                <p>{{ feat }}</p>
-                <button
-                    icon
-                    matRipple
-                    name="remove-locker-filter"
-                    class="-mr-4"
-                    (click)="setFeature(feat, false)"
-                >
-                    <icon>close</icon>
-                </button>
-            </div>
-            <div filter-item *ngIf="(options | async)?.show_fav">
-                <span>{{ 'COMMON.FAVOURITES_ONLY' | translate }}</span>
-                <button
-                    icon
-                    matRipple
-                    name="remove-locker-favs-filter"
-                    class="-mr-4"
-                    (click)="setOptions({ show_fav: false })"
-                >
-                    <icon>close</icon>
-                </button>
-            </div>
-            <div filter-item *ngIf="(options | async)?.show_accessible">
-                <span>{{ 'COMMON.ACCESSIBLE_ONLY' | translate }}</span>
-                <button
-                    icon
-                    matRipple
-                    name="remove-locker-accessible-filter"
-                    class="-mr-4"
-                    (click)="setOptions({ show_accessible: false })"
-                >
-                    <icon>close</icon>
-                </button>
-            </div>
+            @for (feat of (options | async)?.features || []; track feat) {
+                <div filter-item features>
+                    <p>{{ feat }}</p>
+                    <button
+                        icon
+                        matRipple
+                        name="remove-locker-filter"
+                        class="-mr-4"
+                        (click)="setFeature(feat, false)"
+                    >
+                        <icon>close</icon>
+                    </button>
+                </div>
+            }
+            @if ((options | async)?.show_fav) {
+                <div filter-item>
+                    <span>{{ 'COMMON.FAVOURITES_ONLY' | translate }}</span>
+                    <button
+                        icon
+                        matRipple
+                        name="remove-locker-favs-filter"
+                        class="-mr-4"
+                        (click)="setOptions({ show_fav: false })"
+                    >
+                        <icon>close</icon>
+                    </button>
+                </div>
+            }
+            @if ((options | async)?.show_accessible) {
+                <div filter-item>
+                    <span>{{ 'COMMON.ACCESSIBLE_ONLY' | translate }}</span>
+                    <button
+                        icon
+                        matRipple
+                        name="remove-locker-accessible-filter"
+                        class="-mr-4"
+                        (click)="setOptions({ show_accessible: false })"
+                    >
+                        <icon>close</icon>
+                    </button>
+                </div>
+            }
         </section>
     `,
     imports: [CommonModule, TranslatePipe, IconComponent, MatRippleModule],

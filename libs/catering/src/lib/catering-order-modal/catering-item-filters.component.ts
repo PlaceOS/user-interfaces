@@ -87,86 +87,92 @@ const ICONS = {
                 />
             </mat-form-field>
         </div>
-        <div
-            *ngIf="!search && (caterers | async)?.length > 1"
-            class="hidden px-2 py-2 sm:block"
-        >
-            <label>{{ 'CATERING.CATERER' | translate }}</label>
-            <mat-form-field appearance="outline" class="h-14 w-full">
-                <mat-select
-                    [ngModel]="
-                        (filters | async)?.caterer || (caterers | async)[0]
-                    "
-                    (ngModelChange)="setFilters({ caterer: $event })"
-                >
-                    <mat-option
-                        *ngFor="let caterer of caterers | async"
-                        [value]="caterer || '<empty>'"
-                    >
-                        {{ caterer || '[No caterer]' }}
-                    </mat-option>
-                </mat-select>
-            </mat-form-field>
-        </div>
-        <h3 class="hidden px-2 py-2 font-medium sm:block" *ngIf="!search">
-            {{ 'COMMON.FILTERS' | translate }}
-        </h3>
-        <div class="flex flex-col px-2" *ngIf="!search">
-            <mat-checkbox
-                [(ngModel)]="at_time"
-                (ngModelChange)="at_timeChange.next($event)"
-                [matTooltip]="exact_tooltip"
-            >
-                {{ 'CATERING.ORDERS_DELIVER_EXACT' | translate }}
-            </mat-checkbox>
-            <ng-container *ngIf="day_options.length > 1">
-                <label>{{ 'CATERING.ORDERS_DELIVER_DATE' | translate }}</label>
-                <mat-form-field
-                    appearance="outline"
-                    class="no-subscript mb-4 w-full"
-                >
+        @if (!search && (caterers | async)?.length > 1) {
+            <div class="hidden px-2 py-2 sm:block">
+                <label>{{ 'CATERING.CATERER' | translate }}</label>
+                <mat-form-field appearance="outline" class="h-14 w-full">
                     <mat-select
-                        [(ngModel)]="offset_day"
-                        (ngModelChange)="offset_dayChange.next($event)"
+                        [ngModel]="
+                            (filters | async)?.caterer || (caterers | async)[0]
+                        "
+                        (ngModelChange)="setFilters({ caterer: $event })"
                     >
-                        <mat-option
-                            *ngFor="let day of day_options"
-                            [value]="day.id"
-                        >
-                            {{ day.value | date: 'mediumDate' }}
-                        </mat-option>
+                        @for (caterer of caterers | async; track caterer) {
+                            <mat-option [value]="caterer || '<empty>'">
+                                {{ caterer || '[No caterer]' }}
+                            </mat-option>
+                        }
                     </mat-select>
                 </mat-form-field>
-            </ng-container>
-            <label>{{ 'CATERING.ORDERS_DELIVER_AFTER' | translate }}</label>
-            <a-duration-field
-                [(ngModel)]="offset"
-                (ngModelChange)="offsetChange.next($event)"
-                [time]="
-                    offset_day > 0 ? start_of_date : (filters | async)?.date
-                "
-                [step]="step_interval"
-                [min]="min_offset"
-                [max]="max_offset"
-                [use_24hr]="use_24hr"
-            ></a-duration-field>
-        </div>
-        <h3 class="hidden px-2 py-4 font-medium sm:block" *ngIf="!search">
-            {{ 'COMMON.CATEGORIES' | translate }}
-        </h3>
+            </div>
+        }
+        @if (!search) {
+            <h3 class="hidden px-2 py-2 font-medium sm:block">
+                {{ 'COMMON.FILTERS' | translate }}
+            </h3>
+        }
+        @if (!search) {
+            <div class="flex flex-col px-2">
+                <mat-checkbox
+                    [(ngModel)]="at_time"
+                    (ngModelChange)="at_timeChange.next($event)"
+                    [matTooltip]="exact_tooltip"
+                >
+                    {{ 'CATERING.ORDERS_DELIVER_EXACT' | translate }}
+                </mat-checkbox>
+                @if (day_options.length > 1) {
+                    <label>{{
+                        'CATERING.ORDERS_DELIVER_DATE' | translate
+                    }}</label>
+                    <mat-form-field
+                        appearance="outline"
+                        class="no-subscript mb-4 w-full"
+                    >
+                        <mat-select
+                            [(ngModel)]="offset_day"
+                            (ngModelChange)="offset_dayChange.next($event)"
+                        >
+                            @for (day of day_options; track day) {
+                                <mat-option [value]="day.id">
+                                    {{ day.value | date: 'mediumDate' }}
+                                </mat-option>
+                            }
+                        </mat-select>
+                    </mat-form-field>
+                }
+                <label>{{ 'CATERING.ORDERS_DELIVER_AFTER' | translate }}</label>
+                <a-duration-field
+                    [(ngModel)]="offset"
+                    (ngModelChange)="offsetChange.next($event)"
+                    [time]="
+                        offset_day > 0 ? start_of_date : (filters | async)?.date
+                    "
+                    [step]="step_interval"
+                    [min]="min_offset"
+                    [max]="max_offset"
+                    [use_24hr]="use_24hr"
+                ></a-duration-field>
+            </div>
+        }
+        @if (!search) {
+            <h3 class="hidden px-2 py-4 font-medium sm:block">
+                {{ 'COMMON.CATEGORIES' | translate }}
+            </h3>
+        }
         <div
             class="flex flex-col space-y-2 px-2"
             [class.sm:hidden]="search"
             [class.sm:pt-1]="!search"
         >
-            <mat-checkbox
-                *ngFor="let item of categories | async"
-                [attr.name]="item"
-                [ngModel]="(filters | async)?.categories?.includes(item)"
-                (ngModelChange)="toggleCategory(item)"
-            >
-                {{ item }}
-            </mat-checkbox>
+            @for (item of categories | async; track item) {
+                <mat-checkbox
+                    [attr.name]="item"
+                    [ngModel]="(filters | async)?.categories?.includes(item)"
+                    (ngModelChange)="toggleCategory(item)"
+                >
+                    {{ item }}
+                </mat-checkbox>
+            }
         </div>
     `,
     styles: [

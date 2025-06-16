@@ -51,19 +51,22 @@ export interface AttachedResourceConfigModalData {
                         | translate: { name: resource_name }
                 }}
             </h2>
-            <button icon matRipple mat-dialog-close *ngIf="!loading">
-                <icon>close</icon>
-            </button>
+            @if (!loading) {
+                <button icon matRipple mat-dialog-close>
+                    <icon>close</icon>
+                </button>
+            }
         </header>
         <main
             class="min-w-[36rem] max-w-lg space-y-4 overflow-auto px-4 pb-4 pt-2 text-center"
         >
-            <settings-toggle
-                *ngIf="can_save_notes"
-                [ngModel]="require_notes"
-                (ngModelChange)="saveNotesSetting($event)"
-                [name]="'RESOURCE.REQUIRE_NOTES' | translate"
-            ></settings-toggle>
+            @if (can_save_notes) {
+                <settings-toggle
+                    [ngModel]="require_notes"
+                    (ngModelChange)="saveNotesSetting($event)"
+                    [name]="'RESOURCE.REQUIRE_NOTES' | translate"
+                ></settings-toggle>
+            }
             <button
                 btn
                 matRipple
@@ -72,144 +75,152 @@ export interface AttachedResourceConfigModalData {
             >
                 {{ 'RESOURCE.RULESET_NEW' | translate }}
             </button>
-            <div
-                *ngFor="let set of rulesets; let i = index"
-                class="ruleset mb-2"
-            >
-                <div class="mb-2 flex items-center space-x-2">
-                    <mat-form-field
-                        class="no-subscript flex-1"
-                        appearance="outline"
-                    >
-                        <input
-                            matInput
-                            name="name"
-                            placeholder="Zone ID, Category or Tag"
-                            [(ngModel)]="set.name"
-                            required
-                        />
-                        <mat-error>{{
-                            'RESOURCE.RULESET_NAME_REQUIRED' | translate
-                        }}</mat-error>
-                    </mat-form-field>
-                    <button
-                        icon
-                        matRipple
-                        class="h-12 w-12 rounded"
-                        [matMenuTriggerFor]="menu"
-                    >
-                        <icon>more_vert</icon>
-                    </button>
-                    <mat-menu #menu="matMenu">
-                        <button
-                            mat-menu-item
-                            class="w-52"
-                            (click)="
-                                set.rules.push(['', '']); show_rules = set.id
-                            "
-                        >
-                            <div class="flex items-center space-x-2">
-                                <icon class="text-2xl">add</icon>
-                                <div>
-                                    {{
-                                        'RESOURCE.RULESET_ADD_RULE' | translate
-                                    }}
-                                </div>
-                            </div>
-                        </button>
-                        <button
-                            mat-menu-item
-                            (click)="
-                                show_rules = show_rules !== set.id ? set.id : ''
-                            "
-                        >
-                            <div class="flex items-center space-x-2">
-                                <icon class="text-2xl">{{
-                                    show_rules === set.id
-                                        ? 'expand_less'
-                                        : 'expand_more'
-                                }}</icon>
-                                <div>
-                                    {{
-                                        (show_rules === set.id
-                                            ? 'RESOURCE.RULESET_HIDE_RULES'
-                                            : 'RESOURCE.RULESET_SHOW_RULES'
-                                        ) | translate
-                                    }}
-                                </div>
-                            </div>
-                        </button>
-                        <button mat-menu-item (click)="rulesets.splice(i, 1)">
-                            <div class="flex items-center space-x-2 text-error">
-                                <icon class="text-2xl">delete</icon>
-                                <div>
-                                    {{
-                                        'RESOURCE.RULESET_REMOVE_RULES'
-                                            | translate
-                                    }}
-                                </div>
-                            </div>
-                        </button>
-                    </mat-menu>
-                </div>
-                <div
-                    name="rules"
-                    class="overflow-hidden"
-                    [style.height]="
-                        (show_rules === set.id ? 4 * set.rules.length : 0) +
-                        'em'
-                    "
-                >
-                    <div
-                        class="relative flex h-16 items-center space-x-2 pl-7"
-                        *ngFor="let rule of set.rules; let i = index"
-                    >
-                        <div
-                            class="absolute left-3 top-1/2 h-32 w-4 -translate-y-full border-b-2 border-l-2 border-base-200"
-                        ></div>
-                        <mat-form-field
-                            class="no-subscript flex-1"
-                            appearance="outline"
-                        >
-                            <mat-select
-                                name="booking-type"
-                                [(ngModel)]="rule[0]"
-                                placeholder="Select Rule"
-                            >
-                                <mat-option
-                                    *ngFor="let type of rule_types"
-                                    [value]="type.id"
-                                >
-                                    {{ type.name }}
-                                </mat-option>
-                            </mat-select>
-                        </mat-form-field>
+            @for (set of rulesets; track set; let i = $index) {
+                <div class="ruleset mb-2">
+                    <div class="mb-2 flex items-center space-x-2">
                         <mat-form-field
                             class="no-subscript flex-1"
                             appearance="outline"
                         >
                             <input
                                 matInput
-                                name="value"
-                                placeholder="Rule value"
-                                [(ngModel)]="rule[1]"
+                                name="name"
+                                placeholder="Zone ID, Category or Tag"
+                                [(ngModel)]="set.name"
                                 required
                             />
                             <mat-error>{{
-                                'RESOURCE.RULESET_VALUE_REQUIRED' | translate
+                                'RESOURCE.RULESET_NAME_REQUIRED' | translate
                             }}</mat-error>
                         </mat-form-field>
                         <button
                             icon
                             matRipple
-                            class="h-12 w-12 rounded border border-error text-error"
-                            (click)="set.rules.splice(i, 1)"
+                            class="h-12 w-12 rounded"
+                            [matMenuTriggerFor]="menu"
                         >
-                            <icon>delete</icon>
+                            <icon>more_vert</icon>
                         </button>
+                        <mat-menu #menu="matMenu">
+                            <button
+                                mat-menu-item
+                                class="w-52"
+                                (click)="
+                                    set.rules.push(['', '']);
+                                    show_rules = set.id
+                                "
+                            >
+                                <div class="flex items-center space-x-2">
+                                    <icon class="text-2xl">add</icon>
+                                    <div>
+                                        {{
+                                            'RESOURCE.RULESET_ADD_RULE'
+                                                | translate
+                                        }}
+                                    </div>
+                                </div>
+                            </button>
+                            <button
+                                mat-menu-item
+                                (click)="
+                                    show_rules =
+                                        show_rules !== set.id ? set.id : ''
+                                "
+                            >
+                                <div class="flex items-center space-x-2">
+                                    <icon class="text-2xl">{{
+                                        show_rules === set.id
+                                            ? 'expand_less'
+                                            : 'expand_more'
+                                    }}</icon>
+                                    <div>
+                                        {{
+                                            (show_rules === set.id
+                                                ? 'RESOURCE.RULESET_HIDE_RULES'
+                                                : 'RESOURCE.RULESET_SHOW_RULES'
+                                            ) | translate
+                                        }}
+                                    </div>
+                                </div>
+                            </button>
+                            <button
+                                mat-menu-item
+                                (click)="rulesets.splice(i, 1)"
+                            >
+                                <div
+                                    class="flex items-center space-x-2 text-error"
+                                >
+                                    <icon class="text-2xl">delete</icon>
+                                    <div>
+                                        {{
+                                            'RESOURCE.RULESET_REMOVE_RULES'
+                                                | translate
+                                        }}
+                                    </div>
+                                </div>
+                            </button>
+                        </mat-menu>
+                    </div>
+                    <div
+                        name="rules"
+                        class="overflow-hidden"
+                        [style.height]="
+                            (show_rules === set.id ? 4 * set.rules.length : 0) +
+                            'em'
+                        "
+                    >
+                        @for (rule of set.rules; track rule; let i = $index) {
+                            <div
+                                class="relative flex h-16 items-center space-x-2 pl-7"
+                            >
+                                <div
+                                    class="absolute left-3 top-1/2 h-32 w-4 -translate-y-full border-b-2 border-l-2 border-base-200"
+                                ></div>
+                                <mat-form-field
+                                    class="no-subscript flex-1"
+                                    appearance="outline"
+                                >
+                                    <mat-select
+                                        name="booking-type"
+                                        [(ngModel)]="rule[0]"
+                                        placeholder="Select Rule"
+                                    >
+                                        @for (type of rule_types; track type) {
+                                            <mat-option [value]="type.id">
+                                                {{ type.name }}
+                                            </mat-option>
+                                        }
+                                    </mat-select>
+                                </mat-form-field>
+                                <mat-form-field
+                                    class="no-subscript flex-1"
+                                    appearance="outline"
+                                >
+                                    <input
+                                        matInput
+                                        name="value"
+                                        placeholder="Rule value"
+                                        [(ngModel)]="rule[1]"
+                                        required
+                                    />
+                                    <mat-error>{{
+                                        'RESOURCE.RULESET_VALUE_REQUIRED'
+                                            | translate
+                                    }}</mat-error>
+                                </mat-form-field>
+                                <button
+                                    icon
+                                    matRipple
+                                    class="h-12 w-12 rounded border border-error text-error"
+                                    (click)="set.rules.splice(i, 1)"
+                                >
+                                    <icon>delete</icon>
+                                </button>
+                            </div>
+                        }
                     </div>
                 </div>
-            </div>
+            }
         </main>
         <footer
             class="flex items-center justify-end border-t border-solid border-base-200 px-4 py-2"

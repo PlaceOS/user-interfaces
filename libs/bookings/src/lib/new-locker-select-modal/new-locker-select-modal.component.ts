@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, Inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import {
@@ -86,30 +85,70 @@ export const FAV_LOCKER_KEY = 'favourite_lockers';
                     [class.hidden]="show_filters"
                     [class.p-2]="view === 'list'"
                 >
-                    <ng-container *ngIf="!bank; else bank_view">
-                        <new-locker-filters-display
-                            *ngIf="view === 'list'"
-                            [(view)]="view"
-                        ></new-locker-filters-display>
-                        <new-locker-bank-list
-                            *ngIf="view === 'list'; else map_view"
-                            [active]="displayed?.id"
-                            [selected]="selected_ids"
-                            [favorites]="favorites"
-                            (toggleFav)="toggleFavourite($event)"
-                            (onSelect)="bank = $event"
-                        ></new-locker-bank-list>
-                    </ng-container>
+                    @if (!bank) {
+                        @if (view === 'list') {
+                            <new-locker-filters-display
+                                [(view)]="view"
+                            ></new-locker-filters-display>
+                        }
+                        @if (view === 'list') {
+                            <new-locker-bank-list
+                                [active]="displayed?.id"
+                                [selected]="selected_ids"
+                                [favorites]="favorites"
+                                (toggleFav)="toggleFavourite($event)"
+                                (onSelect)="bank = $event"
+                            ></new-locker-bank-list>
+                        } @else {
+                            <new-locker-map
+                                class="h-full w-full"
+                                [is_displayed]="!!displayed"
+                                [active]="displayed?.id"
+                                (onSelect)="displayed = $event"
+                            >
+                            </new-locker-map>
+                        }
+                    } @else {
+                        <div
+                            class="flex h-full w-full flex-col overflow-auto bg-base-200"
+                        >
+                            <div
+                                class="sticky left-0 flex w-full items-center space-x-2"
+                            >
+                                <button
+                                    icon
+                                    matRipple
+                                    class="border border-base-300 bg-base-100"
+                                    (click)="bank = null"
+                                >
+                                    <icon>arrow_back</icon>
+                                </button>
+                                <div class="px-2 py-2 font-medium">
+                                    {{ bank.name }}
+                                </div>
+                            </div>
+                            <locker-grid
+                                class="h-1/2 w-full flex-1"
+                                [bank]="bank"
+                                [selected]="displayed?.id"
+                                (clicked)="displayed = $event"
+                            >
+                            </locker-grid>
+                        </div>
+                    }
                 </div>
-                <button
-                    icon
-                    matRipple
-                    class="absolute right-2 top-3 z-20 border border-base-200 bg-base-100 sm:hidden"
-                    (click)="show_filters = !show_filters"
-                    *ngIf="!displayed"
-                >
-                    <icon>{{ show_filters ? 'close' : 'filter_list' }}</icon>
-                </button>
+                @if (!displayed) {
+                    <button
+                        icon
+                        matRipple
+                        class="absolute right-2 top-3 z-20 border border-base-200 bg-base-100 sm:hidden"
+                        (click)="show_filters = !show_filters"
+                    >
+                        <icon>{{
+                            show_filters ? 'close' : 'filter_list'
+                        }}</icon>
+                    </button>
+                }
             </main>
             <footer
                 class="flex w-full items-center justify-between space-x-2 rounded border-none bg-base-200 p-2"
@@ -152,43 +191,9 @@ export const FAV_LOCKER_KEY = 'favourite_lockers';
                 </button>
             </footer>
         </div>
-        <ng-template #map_view>
-            <new-locker-map
-                class="h-full w-full"
-                [is_displayed]="!!displayed"
-                [active]="displayed?.id"
-                (onSelect)="displayed = $event"
-            >
-            </new-locker-map>
-        </ng-template>
-        <ng-template #bank_view>
-            <div class="flex h-full w-full flex-col overflow-auto bg-base-200">
-                <div class="sticky left-0 flex w-full items-center space-x-2">
-                    <button
-                        icon
-                        matRipple
-                        class="border border-base-300 bg-base-100"
-                        (click)="bank = null"
-                    >
-                        <icon>arrow_back</icon>
-                    </button>
-                    <div class="px-2 py-2 font-medium">
-                        {{ bank.name }}
-                    </div>
-                </div>
-                <locker-grid
-                    class="h-1/2 w-full flex-1"
-                    [bank]="bank"
-                    [selected]="displayed?.id"
-                    (clicked)="displayed = $event"
-                >
-                </locker-grid>
-            </div>
-        </ng-template>
     `,
     styles: [``],
     imports: [
-        CommonModule,
         TranslatePipe,
         IconComponent,
         MatRippleModule,

@@ -53,7 +53,9 @@ let compact_state = false;
                         class="absolute inset-0 bg-base-100 opacity-0 hover:opacity-10"
                     ></div>
                     <icon class="!ml-0 text-2xl">notifications</icon>
-                    <span class="truncate" *ngIf="!is_compact">Alerts</span>
+                    @if (!is_compact) {
+                        <span class="truncate">Alerts</span>
+                    }
                 </a>
                 <a
                     matRipple
@@ -67,9 +69,9 @@ let compact_state = false;
                         class="absolute inset-0 bg-base-100 opacity-0 hover:opacity-10"
                     ></div>
                     <icon class="!ml-0 text-2xl">wifi</icon>
-                    <span class="truncate" *ngIf="!is_compact"
-                        >Remote Support</span
-                    >
+                    @if (!is_compact) {
+                        <span class="truncate">Remote Support</span>
+                    }
                 </a>
                 <a
                     matRipple
@@ -83,7 +85,9 @@ let compact_state = false;
                         class="absolute inset-0 bg-base-100 opacity-0 hover:opacity-10"
                     ></div>
                     <icon class="!ml-0 text-2xl">show_chart</icon>
-                    <span class="truncate" *ngIf="!is_compact">Analytics</span>
+                    @if (!is_compact) {
+                        <span class="truncate">Analytics</span>
+                    }
                 </a>
             </div>
             <div
@@ -104,16 +108,20 @@ let compact_state = false;
                     target="_blank"
                     ref="noopener noreferrer"
                 >
-                    <span class="truncate text-sm" *ngIf="!is_compact">
-                        Launch PlaceOS Backoffice
-                    </span>
-                    <icon class="text-2xl text-base-100" *ngIf="is_compact"
-                        >open_in_new</icon
-                    >
+                    @if (!is_compact) {
+                        <span class="truncate text-sm">
+                            Launch PlaceOS Backoffice
+                        </span>
+                    }
+                    @if (is_compact) {
+                        <icon class="text-2xl text-base-100">open_in_new</icon>
+                    }
                 </a>
-                <p class="text-center text-xs opacity-40" *ngIf="!is_compact">
-                    Access system configuration and management
-                </p>
+                @if (!is_compact) {
+                    <p class="text-center text-xs opacity-40">
+                        Access system configuration and management
+                    </p>
+                }
             </div>
         </div>
     `,

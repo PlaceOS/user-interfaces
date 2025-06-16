@@ -83,12 +83,14 @@ export interface EmergencyContactData {
                                     'APP.CONCIERGE.CONTACTS_ROLES_ALL'
                                         | translate
                                 }}</mat-option>
-                                <mat-option
-                                    *ngFor="let role of (roles | async) || []"
-                                    [value]="role"
-                                >
-                                    {{ role }}
-                                </mat-option>
+                                @for (
+                                    role of (roles | async) || [];
+                                    track role
+                                ) {
+                                    <mat-option [value]="role">
+                                        {{ role }}
+                                    </mat-option>
+                                }
                             </mat-select>
                         </mat-form-field>
                         <div class="flex items-center space-x-2">
@@ -162,12 +164,13 @@ export interface EmergencyContactData {
                     </ng-template>
                     <ng-template #roles_template let-data="data">
                         <div class="flex flex-wrap p-2">
-                            <span
-                                class="m-1 rounded-2xl bg-info px-2 py-1 font-mono text-xs text-info-content"
-                                *ngFor="let role of data"
-                            >
-                                {{ role }}
-                            </span>
+                            @for (role of data; track role) {
+                                <span
+                                    class="m-1 rounded-2xl bg-info px-2 py-1 font-mono text-xs text-info-content"
+                                >
+                                    {{ role }}
+                                </span>
+                            }
                         </div>
                     </ng-template>
                     <ng-template #zone_template let-data="data">

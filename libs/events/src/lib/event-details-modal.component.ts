@@ -58,19 +58,19 @@ const EMPTY_ACTIONS = [];
                     mod="Bookings"
                     bind="status"
                 ></i>
-                <div
-                    class="block h-8 w-full sm:hidden"
-                    *ngIf="!event?.system?.images?.length"
-                ></div>
-                <div
-                    class="h-64 w-full overflow-hidden bg-neutral sm:rounded-b print:hidden"
-                    *ngIf="event?.system?.images?.length"
-                >
-                    <image-carousel
-                        [images]="event?.system?.images"
-                        class="h-64 w-full"
-                    ></image-carousel>
-                </div>
+                @if (!event?.system?.images?.length) {
+                    <div class="block h-8 w-full sm:hidden"></div>
+                }
+                @if (event?.system?.images?.length) {
+                    <div
+                        class="h-64 w-full overflow-hidden bg-neutral sm:rounded-b print:hidden"
+                    >
+                        <image-carousel
+                            [images]="event?.system?.images"
+                            class="h-64 w-full"
+                        ></image-carousel>
+                    </div>
+                }
                 <h3
                     title
                     class="mt-2 w-full px-3 text-xl font-medium"
@@ -86,70 +86,75 @@ const EMPTY_ACTIONS = [];
                                 [class.pr-4]="timezone && tz"
                             >
                                 <div>{{ period }}</div>
-                                <div
-                                    class="text-xs opacity-30"
-                                    *ngIf="timezone && tz"
-                                >
-                                    {{ period_tz }}
-                                </div>
+                                @if (timezone && tz) {
+                                    <div class="text-xs opacity-30">
+                                        {{ period_tz }}
+                                    </div>
+                                }
                             </div>
                         </status-pill>
-                        <icon
-                            *ngIf="event.recurring_event_id"
-                            class="text-2xl"
-                            [matTooltip]="recurr_tooltip"
-                            >event_repeat</icon
-                        >
+                        @if (event.recurring_event_id) {
+                            <icon class="text-2xl" [matTooltip]="recurr_tooltip"
+                                >event_repeat</icon
+                            >
+                        }
                     </div>
-                    <div
-                        actions
-                        class="flex items-center space-x-2 px-2 print:hidden"
-                        *ngIf="event.state !== 'done'"
-                    >
-                        <button
-                            btn
-                            matRipple
-                            class="h-10 flex-1"
-                            *ngIf="
+                    @if (event.state !== 'done') {
+                        <div
+                            actions
+                            class="flex items-center space-x-2 px-2 print:hidden"
+                        >
+                            @if (
                                 room_status &&
                                 event?.can_check_in &&
                                 room_status !== 'free'
-                            "
-                            [class.bg-success]="room_status !== 'pending'"
-                            [class.border-none]="room_status !== 'pending'"
-                            [class.pointer-events-none]="
-                                room_status !== 'pending'
-                            "
-                            (click)="checkin()"
-                        >
-                            <div
-                                class="flex items-center justify-center space-x-2"
-                            >
-                                <icon class="text-2xl">{{
-                                    room_status === 'pending'
-                                        ? 'arrow_back'
-                                        : 'done'
-                                }}</icon>
-                                <div class="pr-4">
-                                    {{
-                                        (room_status === 'pending'
-                                            ? 'COMMON.CHECK_IN'
-                                            : 'COMMON.CHECKED_IN'
-                                        ) | translate
-                                    }}
-                                </div>
-                            </div>
-                        </button>
-                        <button
-                            icon
-                            matRipple
-                            [matMenuTriggerFor]="menu"
-                            class="h-12 w-12 rounded bg-secondary text-white"
-                            *ngIf="allow_edit"
-                        >
-                            <icon>more_horiz</icon>
-                        </button>
-                    </div>
+                            ) {
+                                <button
+                                    btn
+                                    matRipple
+                                    class="h-10 flex-1"
+                                    [class.bg-success]="
+                                        room_status !== 'pending'
+                                    "
+                                    [class.border-none]="
+                                        room_status !== 'pending'
+                                    "
+                                    [class.pointer-events-none]="
+                                        room_status !== 'pending'
+                                    "
+                                    (click)="checkin()"
+                                >
+                                    <div
+                                        class="flex items-center justify-center space-x-2"
+                                    >
+                                        <icon class="text-2xl">{{
+                                            room_status === 'pending'
+                                                ? 'arrow_back'
+                                                : 'done'
+                                        }}</icon>
+                                        <div class="pr-4">
+                                            {{
+                                                (room_status === 'pending'
+                                                    ? 'COMMON.CHECK_IN'
+                                                    : 'COMMON.CHECKED_IN'
+                                                ) | translate
+                                            }}
+                                        </div>
+                                    </div>
+                                </button>
+                            }
+                            @if (allow_edit) {
+                                <button
+                                    icon
+                                    matRipple
+                                    [matMenuTriggerFor]="menu"
+                                    class="h-12 w-12 rounded bg-secondary text-white"
+                                >
+                                    <icon>more_horiz</icon>
+                                </button>
+                            }
+                        </div>
+                    }
                 </div>
             </div>
             <div class="flex-wrap sm:flex sm:px-12">
@@ -165,35 +170,33 @@ const EMPTY_ACTIONS = [];
                             <div>
                                 {{ event.date | date: 'EEEE, dd LLLL y' }}
                             </div>
-                            <div
-                                class="text-xs opacity-30"
-                                *ngIf="timezone && tz && !tz_date_same"
-                            >
-                                {{
-                                    event.date
-                                        | date: 'EEEE, dd LLLL y (z)' : tz
-                                }}
-                            </div>
+                            @if (timezone && tz && !tz_date_same) {
+                                <div class="text-xs opacity-30">
+                                    {{
+                                        event.date
+                                            | date: 'EEEE, dd LLLL y (z)' : tz
+                                    }}
+                                </div>
+                            }
                         </div>
                     </div>
                     <div class="flex items-center space-x-2 px-2">
                         <icon>schedule</icon>
                         <div class="flex flex-col leading-tight">
                             <div>{{ period }}</div>
-                            <div
-                                class="text-xs opacity-30"
-                                *ngIf="timezone && tz"
-                            >
-                                {{ period_tz }}
-                            </div>
+                            @if (timezone && tz) {
+                                <div class="text-xs opacity-30">
+                                    {{ period_tz }}
+                                </div>
+                            }
                         </div>
                     </div>
                     <div class="flex items-center space-x-2 px-2">
                         <icon>map</icon>
                         <div>
-                            <ng-container *ngIf="level">
+                            @if (level) {
                                 {{ level?.display_name || level?.name }},
-                            </ng-container>
+                            }
                             {{
                                 event?.system?.display_name ||
                                     event?.system?.name ||
@@ -201,16 +204,15 @@ const EMPTY_ACTIONS = [];
                             }}
                         </div>
                     </div>
-                    <div
-                        class="flex items-center space-x-2 px-2"
-                        *ngIf="building"
-                    >
-                        <icon>place</icon>
-                        <div>
-                            {{ building?.display_name || building?.name }},
-                            {{ building?.address }}
+                    @if (building) {
+                        <div class="flex items-center space-x-2 px-2">
+                            <icon>place</icon>
+                            <div>
+                                {{ building?.display_name || building?.name }},
+                                {{ building?.address }}
+                            </div>
                         </div>
-                    </div>
+                    }
                 </div>
                 <div
                     class="min-w-1/3 mt-4 flex-grow-[3] rounded border-base-200 sm:m-2 sm:w-[16rem] sm:border sm:bg-base-100 sm:p-4"
@@ -257,26 +259,29 @@ const EMPTY_ACTIONS = [];
                         </div>
                     </div>
                     <div class="hidden print:block">
-                        <ng-container *ngFor="let user of event.attendees">
-                            <div
-                                class="flex items-center space-x-2 px-2"
-                                attendee
-                                *ngIf="user.email !== event.host"
-                            >
-                                <a-user-avatar [user]="user"></a-user-avatar>
-                                <div class="w-px flex-1 text-sm">
-                                    <div class="w-full truncate">
-                                        {{ user?.name }}
-                                    </div>
-                                    <div
-                                        class="w-full truncate opacity-60"
-                                        [title]="user.email"
-                                    >
-                                        {{ user.email }}
+                        @for (user of event.attendees; track user) {
+                            @if (user.email !== event.host) {
+                                <div
+                                    class="flex items-center space-x-2 px-2"
+                                    attendee
+                                >
+                                    <a-user-avatar
+                                        [user]="user"
+                                    ></a-user-avatar>
+                                    <div class="w-px flex-1 text-sm">
+                                        <div class="w-full truncate">
+                                            {{ user?.name }}
+                                        </div>
+                                        <div
+                                            class="w-full truncate opacity-60"
+                                            [title]="user.email"
+                                        >
+                                            {{ user.email }}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </ng-container>
+                            }
+                        }
                     </div>
                     <h3
                         class="mx-3 mt-2 border-t border-base-200 pt-2 text-lg font-medium"
@@ -298,7 +303,7 @@ const EMPTY_ACTIONS = [];
                         </div>
                     </div>
                 </div>
-                <ng-container *ngIf="has_catering">
+                @if (has_catering) {
                     <div
                         class="min-w-1/3 mt-4 flex-grow-[3] rounded border-base-200 sm:m-2 sm:w-[16rem] sm:border sm:bg-base-100 sm:p-4"
                     >
@@ -306,135 +311,148 @@ const EMPTY_ACTIONS = [];
                             {{ 'CALENDAR_EVENT.CATERING' | translate }}
                         </h3>
                         <div class="flex flex-col space-y-2">
-                            <div
-                                order
-                                *ngFor="let order of event.valid_catering"
-                                class="overflow-hidden rounded-xl border border-base-300 bg-base-100"
-                            >
-                                <div class="flex items-center space-x-2 p-3">
-                                    <div class="flex-1">
-                                        <div class="text-sm">
-                                            {{
-                                                'CALENDAR_EVENT.CATERING_ORDER_AT'
-                                                    | translate
-                                                        : {
-                                                              time:
-                                                                  order.deliver_at
-                                                                  | date
-                                                                      : 'MMM d, ' +
-                                                                            time_format,
-                                                          }
-                                            }}
-                                        </div>
-                                        <div
-                                            class="flex items-center space-x-2"
-                                        >
-                                            <div class="text-xs opacity-60">
+                            @for (order of event.valid_catering; track order) {
+                                <div
+                                    order
+                                    class="overflow-hidden rounded-xl border border-base-300 bg-base-100"
+                                >
+                                    <div
+                                        class="flex items-center space-x-2 p-3"
+                                    >
+                                        <div class="flex-1">
+                                            <div class="text-sm">
                                                 {{
-                                                    'CALENDAR_EVENT.CATERING_ORDER_DETAILS'
+                                                    'CALENDAR_EVENT.CATERING_ORDER_AT'
                                                         | translate
                                                             : {
-                                                                  count: order.item_count,
-                                                                  cost:
-                                                                      order.total_cost /
-                                                                          100
-                                                                      | currency
-                                                                          : currency_code,
+                                                                  time:
+                                                                      order.deliver_at
+                                                                      | date
+                                                                          : 'MMM d, ' +
+                                                                                time_format,
                                                               }
                                                 }}
                                             </div>
                                             <div
-                                                *ngIf="order.caterer"
-                                                class="rounded bg-base-200 px-2 py-1 text-xs"
+                                                class="flex items-center space-x-2"
                                             >
-                                                {{ order.caterer }}
+                                                <div class="text-xs opacity-60">
+                                                    {{
+                                                        'CALENDAR_EVENT.CATERING_ORDER_DETAILS'
+                                                            | translate
+                                                                : {
+                                                                      count: order.item_count,
+                                                                      cost:
+                                                                          order.total_cost /
+                                                                              100
+                                                                          | currency
+                                                                              : currency_code,
+                                                                  }
+                                                    }}
+                                                </div>
+                                                @if (order.caterer) {
+                                                    <div
+                                                        class="rounded bg-base-200 px-2 py-1 text-xs"
+                                                    >
+                                                        {{ order.caterer }}
+                                                    </div>
+                                                }
                                             </div>
                                         </div>
-                                    </div>
-                                    <button
-                                        icon
-                                        matRipple
-                                        class="print:hidden"
-                                        [matTooltip]="
-                                            show_order[order.id]
-                                                ? 'Hide order items'
-                                                : 'Show order items'
-                                        "
-                                        (click)="
-                                            show_order[order.id] =
-                                                !show_order[order.id]
-                                        "
-                                    >
-                                        <icon>
-                                            {{
+                                        <button
+                                            icon
+                                            matRipple
+                                            class="print:hidden"
+                                            [matTooltip]="
                                                 show_order[order.id]
-                                                    ? 'expand_less'
-                                                    : 'expand_more'
-                                            }}
-                                        </icon>
-                                    </button>
-                                </div>
-                                <div
-                                    class="flex flex-col divide-y divide-base-100 bg-base-200"
-                                    [@show]="
-                                        print || show_order[order.id]
-                                            ? 'show'
-                                            : 'hide'
-                                    "
-                                >
-                                    <div
-                                        class="flex items-center space-x-2 px-3 py-1 hover:opacity-90"
-                                        *ngFor="let item of order.items"
-                                    >
-                                        <div class="flex flex-1 items-center">
-                                            <span class="text-sm">{{
-                                                item.name || 'Item'
-                                            }}</span>
-                                            <span
-                                                class="ml-4 text-xs font-normal opacity-60"
-                                                *ngIf="item.option_list?.length"
-                                                [matTooltip]="optionList(item)"
-                                            >
+                                                    ? 'Hide order items'
+                                                    : 'Show order items'
+                                            "
+                                            (click)="
+                                                show_order[order.id] =
+                                                    !show_order[order.id]
+                                            "
+                                        >
+                                            <icon>
                                                 {{
-                                                    'CALENDAR_EVENT.CATERING_ORDER_OPTION_COUNT'
-                                                        | translate
-                                                            : {
-                                                                  count:
-                                                                      item
-                                                                          .option_list
-                                                                          ?.length ||
-                                                                      '0',
-                                                              }
+                                                    show_order[order.id]
+                                                        ? 'expand_less'
+                                                        : 'expand_more'
                                                 }}
-                                            </span>
-                                        </div>
-                                        <div
-                                            class="rounded bg-success px-2 py-1 text-xs text-success-content"
-                                        >
-                                            x{{ item.quantity }}
-                                        </div>
-                                        <div
-                                            class="rounded bg-info px-2 py-1 text-xs text-info-content"
-                                        >
-                                            {{
-                                                item.unit_price_with_options /
-                                                    100
-                                                    | currency: currency_code
-                                            }}
-                                            ea
-                                        </div>
+                                            </icon>
+                                        </button>
+                                    </div>
+                                    <div
+                                        class="flex flex-col divide-y divide-base-100 bg-base-200"
+                                        [@show]="
+                                            print || show_order[order.id]
+                                                ? 'show'
+                                                : 'hide'
+                                        "
+                                    >
+                                        @for (item of order.items; track item) {
+                                            <div
+                                                class="flex items-center space-x-2 px-3 py-1 hover:opacity-90"
+                                            >
+                                                <div
+                                                    class="flex flex-1 items-center"
+                                                >
+                                                    <span class="text-sm">{{
+                                                        item.name || 'Item'
+                                                    }}</span>
+                                                    @if (
+                                                        item.option_list?.length
+                                                    ) {
+                                                        <span
+                                                            class="ml-4 text-xs font-normal opacity-60"
+                                                            [matTooltip]="
+                                                                optionList(item)
+                                                            "
+                                                        >
+                                                            {{
+                                                                'CALENDAR_EVENT.CATERING_ORDER_OPTION_COUNT'
+                                                                    | translate
+                                                                        : {
+                                                                              count:
+                                                                                  item
+                                                                                      .option_list
+                                                                                      ?.length ||
+                                                                                  '0',
+                                                                          }
+                                                            }}
+                                                        </span>
+                                                    }
+                                                </div>
+                                                <div
+                                                    class="rounded bg-success px-2 py-1 text-xs text-success-content"
+                                                >
+                                                    x{{ item.quantity }}
+                                                </div>
+                                                <div
+                                                    class="rounded bg-info px-2 py-1 text-xs text-info-content"
+                                                >
+                                                    {{
+                                                        item.unit_price_with_options /
+                                                            100
+                                                            | currency
+                                                                : currency_code
+                                                    }}
+                                                    ea
+                                                </div>
+                                            </div>
+                                        }
                                     </div>
                                 </div>
-                            </div>
+                            }
                         </div>
                     </div>
-                </ng-container>
+                }
                 <button
                     map
                     class="min-w-1/3 relative m-2 mt-4 h-64 w-[calc(100%-1rem)] flex-grow-[3] overflow-hidden rounded border border-base-200 p-2 sm:mt-2 sm:h-48 sm:w-[16rem] sm:bg-base-100"
                     (click)="viewLocation()"
                 >
-                    <ng-container *ngIf="!hide_map">
+                    @if (!hide_map) {
                         <interactive-map
                             class="pointer-events-none"
                             [src]="level?.map_id"
@@ -444,28 +462,30 @@ const EMPTY_ACTIONS = [];
                                 disable_zoom: true,
                             }"
                         ></interactive-map>
-                    </ng-container>
+                    }
                 </button>
-                <div
-                    class="min-w-1/3 mt-4 flex-grow-[3] rounded border-base-200 sm:m-2 sm:w-[16rem] sm:border sm:bg-base-100 sm:p-4"
-                    *ngIf="raw_body"
-                >
-                    <h3
-                        class="mx-3 border-t border-base-200 text-lg font-medium sm:border-none"
-                    >
-                        {{ 'CALENDAR_EVENT.NOTES_HEADER' | translate }}
-                    </h3>
+                @if (raw_body) {
                     <div
-                        notes
-                        class="mx-4 max-w-full overflow-hidden"
-                        *ngIf="raw_body"
-                        [innerHTML]="
-                            (body | sanitize) ||
-                            'Unable to sanitize notes contents'
-                        "
-                    ></div>
-                </div>
-                <ng-container *ngIf="has_assets">
+                        class="min-w-1/3 mt-4 flex-grow-[3] rounded border-base-200 sm:m-2 sm:w-[16rem] sm:border sm:bg-base-100 sm:p-4"
+                    >
+                        <h3
+                            class="mx-3 border-t border-base-200 text-lg font-medium sm:border-none"
+                        >
+                            {{ 'CALENDAR_EVENT.NOTES_HEADER' | translate }}
+                        </h3>
+                        @if (raw_body) {
+                            <div
+                                notes
+                                class="mx-4 max-w-full overflow-hidden"
+                                [innerHTML]="
+                                    (body | sanitize) ||
+                                    'Unable to sanitize notes contents'
+                                "
+                            ></div>
+                        }
+                    </div>
+                }
+                @if (has_assets) {
                     <div
                         class="min-w-1/3 mt-4 flex-grow-[3] rounded border-base-200 sm:m-2 sm:w-[16rem] sm:border sm:bg-base-100 sm:p-4"
                     >
@@ -475,111 +495,121 @@ const EMPTY_ACTIONS = [];
                             }})
                         </h3>
                         <div class="flex flex-col space-y-2">
-                            <div
-                                request
-                                *ngFor="let request of event.valid_assets"
-                                class="overflow-hidden rounded-xl border border-base-300 bg-base-100"
-                            >
-                                <button
-                                    matRipple
-                                    class="flex w-full items-center space-x-2 p-3"
-                                    (click)="
-                                        show_request[request.id] =
-                                            !show_request[request.id]
-                                    "
-                                >
-                                    <div class="flex-1 text-left">
-                                        <div class="text-sm">
-                                            {{
-                                                'CALENDAR_EVENT.ASSETS_REQUESTED_FOR'
-                                                    | translate
-                                                        : {
-                                                              time:
-                                                                  request.deliver_at
-                                                                  | date
-                                                                      : 'MMM d, ' +
-                                                                            time_format,
-                                                          }
-                                            }}
-                                        </div>
-                                    </div>
-                                    <div
-                                        class="flex h-8 w-8 items-center justify-center rounded-full print:hidden"
-                                        [class.bg-success]="
-                                            request.state === 'approved'
-                                        "
-                                        [class.text-success-content]="
-                                            request.state === 'approved'
-                                        "
-                                        [class.bg-warning]="
-                                            request.state !== 'approved' &&
-                                            request.state !== 'rejected'
-                                        "
-                                        [class.text-warning-content]="
-                                            request.state !== 'approved' &&
-                                            request.state !== 'rejected'
-                                        "
-                                        [class.bg-error]="
-                                            request.state === 'rejected'
-                                        "
-                                        [class.text-error-content]="
-                                            request.state === 'rejected'
-                                        "
-                                        [matTooltip]="
-                                            request.state || 'Tentative'
-                                        "
-                                    >
-                                        <icon>
-                                            {{
-                                                request.state === 'approved'
-                                                    ? 'done'
-                                                    : request.state ===
-                                                        'rejected'
-                                                      ? 'close'
-                                                      : 'schedule'
-                                            }}
-                                        </icon>
-                                    </div>
-                                    <div
-                                        class="flex h-8 w-8 items-center justify-center rounded-full print:hidden"
-                                    >
-                                        <icon class="text-2xl">
-                                            {{
-                                                show_request[request.id]
-                                                    ? 'expand_less'
-                                                    : 'expand_more'
-                                            }}
-                                        </icon>
-                                    </div>
-                                </button>
+                            @for (
+                                request of event.valid_assets;
+                                track request
+                            ) {
                                 <div
-                                    class="flex flex-col divide-y divide-base-100 bg-base-200"
-                                    [@show]="
-                                        print || show_request[request.id]
-                                            ? 'show'
-                                            : 'hide'
-                                    "
+                                    request
+                                    class="overflow-hidden rounded-xl border border-base-300 bg-base-100"
                                 >
-                                    <div
-                                        class="flex items-center space-x-2 px-3 py-1 hover:opacity-90"
-                                        *ngFor="let item of request.items"
+                                    <button
+                                        matRipple
+                                        class="flex w-full items-center space-x-2 p-3"
+                                        (click)="
+                                            show_request[request.id] =
+                                                !show_request[request.id]
+                                        "
                                     >
-                                        <div class="flex flex-1 items-center">
-                                            <span class="text-sm">{{
-                                                item.name || 'Item'
-                                            }}</span>
+                                        <div class="flex-1 text-left">
+                                            <div class="text-sm">
+                                                {{
+                                                    'CALENDAR_EVENT.ASSETS_REQUESTED_FOR'
+                                                        | translate
+                                                            : {
+                                                                  time:
+                                                                      request.deliver_at
+                                                                      | date
+                                                                          : 'MMM d, ' +
+                                                                                time_format,
+                                                              }
+                                                }}
+                                            </div>
                                         </div>
                                         <div
-                                            class="rounded bg-success px-2 py-1 text-xs text-success-content"
+                                            class="flex h-8 w-8 items-center justify-center rounded-full print:hidden"
+                                            [class.bg-success]="
+                                                request.state === 'approved'
+                                            "
+                                            [class.text-success-content]="
+                                                request.state === 'approved'
+                                            "
+                                            [class.bg-warning]="
+                                                request.state !== 'approved' &&
+                                                request.state !== 'rejected'
+                                            "
+                                            [class.text-warning-content]="
+                                                request.state !== 'approved' &&
+                                                request.state !== 'rejected'
+                                            "
+                                            [class.bg-error]="
+                                                request.state === 'rejected'
+                                            "
+                                            [class.text-error-content]="
+                                                request.state === 'rejected'
+                                            "
+                                            [matTooltip]="
+                                                request.state || 'Tentative'
+                                            "
                                         >
-                                            x{{ item.quantity }}
+                                            <icon>
+                                                {{
+                                                    request.state === 'approved'
+                                                        ? 'done'
+                                                        : request.state ===
+                                                            'rejected'
+                                                          ? 'close'
+                                                          : 'schedule'
+                                                }}
+                                            </icon>
                                         </div>
+                                        <div
+                                            class="flex h-8 w-8 items-center justify-center rounded-full print:hidden"
+                                        >
+                                            <icon class="text-2xl">
+                                                {{
+                                                    show_request[request.id]
+                                                        ? 'expand_less'
+                                                        : 'expand_more'
+                                                }}
+                                            </icon>
+                                        </div>
+                                    </button>
+                                    <div
+                                        class="flex flex-col divide-y divide-base-100 bg-base-200"
+                                        [@show]="
+                                            print || show_request[request.id]
+                                                ? 'show'
+                                                : 'hide'
+                                        "
+                                    >
+                                        @for (
+                                            item of request.items;
+                                            track item
+                                        ) {
+                                            <div
+                                                class="flex items-center space-x-2 px-3 py-1 hover:opacity-90"
+                                            >
+                                                <div
+                                                    class="flex flex-1 items-center"
+                                                >
+                                                    <span class="text-sm">{{
+                                                        item.name || 'Item'
+                                                    }}</span>
+                                                </div>
+                                                <div
+                                                    class="rounded bg-success px-2 py-1 text-xs text-success-content"
+                                                >
+                                                    x{{ item.quantity }}
+                                                </div>
+                                            </div>
+                                        }
                                     </div>
                                 </div>
-                            </div>
+                            }
                         </div>
                     </div>
-                </ng-container>
+                }
                 <button
                     icon
                     matRipple
@@ -588,30 +618,33 @@ const EMPTY_ACTIONS = [];
                 >
                     <icon>close</icon>
                 </button>
-                <div class="absolute inset-0 z-50" *ngIf="show_attendees">
-                    <attendee-list
-                        [list]="event.attendees"
-                        [host]="event.host"
-                        (click)="show_attendees = false"
-                    ></attendee-list>
-                </div>
+                @if (show_attendees) {
+                    <div class="absolute inset-0 z-50">
+                        <attendee-list
+                            [list]="event.attendees"
+                            [host]="event.host"
+                            (click)="show_attendees = false"
+                        ></attendee-list>
+                    </div>
+                }
             </div>
             <mat-menu #menu="matMenu" xPosition="before">
-                <button
-                    mat-menu-item
-                    mat-dialog-close
-                    (click)="edit ? edit(event) : ''"
-                    [matTooltip]="!can_edit ? no_edit_message : ''"
-                    [disabled]="!can_edit"
-                    *ngIf="!hide_edit"
-                >
-                    <div class="flex items-center space-x-2 pr-2 text-base">
-                        <icon class="text-2xl">edit</icon>
-                        <div>
-                            {{ 'CALENDAR_EVENT.ACTION_EDIT' | translate }}
+                @if (!hide_edit) {
+                    <button
+                        mat-menu-item
+                        mat-dialog-close
+                        (click)="edit ? edit(event) : ''"
+                        [matTooltip]="!can_edit ? no_edit_message : ''"
+                        [disabled]="!can_edit"
+                    >
+                        <div class="flex items-center space-x-2 pr-2 text-base">
+                            <icon class="text-2xl">edit</icon>
+                            <div>
+                                {{ 'CALENDAR_EVENT.ACTION_EDIT' | translate }}
+                            </div>
                         </div>
-                    </div>
-                </button>
+                    </button>
+                }
                 <button
                     mat-menu-item
                     (click)="remove ? remove(event, false) : ''"
@@ -623,43 +656,40 @@ const EMPTY_ACTIONS = [];
                         </div>
                     </div>
                 </button>
-                <button
-                    mat-menu-item
-                    *ngIf="is_concierge"
-                    (click)="printEvent()"
-                >
-                    <div class="flex items-center space-x-2 pr-2 text-base">
-                        <icon class="text-2xl">print</icon>
-                        <div>
-                            {{ 'CALENDAR_EVENT.ACTION_PRINT' | translate }}
+                @if (is_concierge) {
+                    <button mat-menu-item (click)="printEvent()">
+                        <div class="flex items-center space-x-2 pr-2 text-base">
+                            <icon class="text-2xl">print</icon>
+                            <div>
+                                {{ 'CALENDAR_EVENT.ACTION_PRINT' | translate }}
+                            </div>
                         </div>
-                    </div>
-                </button>
-                <button
-                    mat-menu-item
-                    *ngIf="event.recurring_event_id"
-                    (click)="remove ? remove(event, true) : ''"
-                >
-                    <div class="flex items-center space-x-2 pr-2 text-base">
-                        <icon class="text-2xl text-error">delete</icon>
-                        <div>
-                            {{
-                                'CALENDAR_EVENT.ACTION_DELETE_SERIES'
-                                    | translate
-                            }}
+                    </button>
+                }
+                @if (event.recurring_event_id) {
+                    <button
+                        mat-menu-item
+                        (click)="remove ? remove(event, true) : ''"
+                    >
+                        <div class="flex items-center space-x-2 pr-2 text-base">
+                            <icon class="text-2xl text-error">delete</icon>
+                            <div>
+                                {{
+                                    'CALENDAR_EVENT.ACTION_DELETE_SERIES'
+                                        | translate
+                                }}
+                            </div>
                         </div>
-                    </div>
-                </button>
-                <button
-                    mat-menu-item
-                    *ngFor="let act of custom_actions"
-                    (click)="action.emit(act.id)"
-                >
-                    <div class="flex items-center space-x-2 pr-2 text-base">
-                        <icon class="text-2xl">{{ act.icon }}</icon>
-                        <div>{{ act.name }}</div>
-                    </div>
-                </button>
+                    </button>
+                }
+                @for (act of custom_actions; track act) {
+                    <button mat-menu-item (click)="action.emit(act.id)">
+                        <div class="flex items-center space-x-2 pr-2 text-base">
+                            <icon class="text-2xl">{{ act.icon }}</icon>
+                            <div>{{ act.name }}</div>
+                        </div>
+                    </button>
+                }
             </mat-menu>
         </div>
     `,

@@ -103,86 +103,89 @@ import { VisitorsStateService } from './visitors-state.service';
             [sortable]="true"
         ></simple-table>
         <ng-template #state_template let-row="row">
-            <div
-                *ngIf="!row?.checked_in && row.checked_out_at"
-                class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-base-400 text-2xl text-neutral-content"
-                [matTooltip]="
-                    'APP.CONCIERGE.VISITOR_STATUS_CHECKED_OUT'
-                        | translate
-                            : {
-                                  time:
-                                      (row.checked_out_at * 1000
-                                      | date: time_format : tz),
-                              }
-                "
-                matTooltipPosition="right"
-            >
-                <icon>done</icon>
-            </div>
-            <div
-                *ngIf="!row?.checked_in && !row.checked_out_at"
-                class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-warning text-2xl text-warning-content"
-                [matTooltip]="
-                    'APP.CONCIERGE.VISITOR_STATUS_NOT_CHECKED_IN' | translate
-                "
-                matTooltipPosition="right"
-            >
-                <icon>question_mark</icon>
-            </div>
-            <div
-                *ngIf="row?.checked_in"
-                class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-success text-2xl text-success-content"
-                [matTooltip]="
-                    'APP.CONCIERGE.VISITOR_STATUS_CHECKED_IN'
-                        | translate
-                            : {
-                                  time:
-                                      (row.checked_in_at * 1000
-                                      | date: time_format : tz),
-                              }
-                "
-                matTooltipPosition="right"
-            >
-                <icon>done</icon>
-            </div>
+            @if (!row?.checked_in && row.checked_out_at) {
+                <div
+                    class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-base-400 text-2xl text-neutral-content"
+                    [matTooltip]="
+                        'APP.CONCIERGE.VISITOR_STATUS_CHECKED_OUT'
+                            | translate
+                                : {
+                                      time:
+                                          (row.checked_out_at * 1000
+                                          | date: time_format : tz),
+                                  }
+                    "
+                    matTooltipPosition="right"
+                >
+                    <icon>done</icon>
+                </div>
+            }
+            @if (!row?.checked_in && !row.checked_out_at) {
+                <div
+                    class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-warning text-2xl text-warning-content"
+                    [matTooltip]="
+                        'APP.CONCIERGE.VISITOR_STATUS_NOT_CHECKED_IN'
+                            | translate
+                    "
+                    matTooltipPosition="right"
+                >
+                    <icon>question_mark</icon>
+                </div>
+            }
+            @if (row?.checked_in) {
+                <div
+                    class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-success text-2xl text-success-content"
+                    [matTooltip]="
+                        'APP.CONCIERGE.VISITOR_STATUS_CHECKED_IN'
+                            | translate
+                                : {
+                                      time:
+                                          (row.checked_in_at * 1000
+                                          | date: time_format : tz),
+                                  }
+                    "
+                    matTooltipPosition="right"
+                >
+                    <icon>done</icon>
+                </div>
+            }
         </ng-template>
         <ng-template #person_template let-row="row">
             <div class="px-4 py-2">
                 <div>{{ row.asset_name || row.asset_id }}</div>
-                <div
-                    *ngIf="row.asset_name && row.asset_id"
-                    class="text-xs opacity-30"
-                >
-                    {{ row.asset_id }}
-                </div>
+                @if (row.asset_name && row.asset_id) {
+                    <div class="text-xs opacity-30">
+                        {{ row.asset_id }}
+                    </div>
+                }
             </div>
         </ng-template>
         <ng-template #host_template let-row="row">
             <div class="px-4 py-2">
                 <div>{{ row.user_name || row.user_email }}</div>
-                <div
-                    *ngIf="row.user_name && row.user_email"
-                    class="text-xs opacity-30"
-                >
-                    {{ row.user_email }}
-                </div>
+                @if (row.user_name && row.user_email) {
+                    <div class="text-xs opacity-30">
+                        {{ row.user_email }}
+                    </div>
+                }
             </div>
         </ng-template>
         <ng-template #id_template let-row="row">
             <div customTooltip [content]="id_confirmation">
-                <button
-                    matRipple
-                    *ngIf="row.extension_data?.id_data?.url"
-                    class="rounded-3xl bg-success px-4 py-2 text-white"
-                >
-                    {{
-                        row.extension_data?.id_confirmed
-                            ? 'Confirmed'
-                            : row.extension_data?.id_confirmed === false
-                              ? 'Rejected'
-                              : 'Submitted'
-                    }}
-                </button>
+                @if (row.extension_data?.id_data?.url) {
+                    <button
+                        matRipple
+                        class="rounded-3xl bg-success px-4 py-2 text-white"
+                    >
+                        {{
+                            row.extension_data?.id_confirmed
+                                ? 'Confirmed'
+                                : row.extension_data?.id_confirmed === false
+                                  ? 'Rejected'
+                                  : 'Submitted'
+                        }}
+                    </button>
+                }
             </div>
             <ng-template #id_confirmation>
                 <div
@@ -215,12 +218,13 @@ import { VisitorsStateService } from './visitors-state.service';
             </ng-template>
         </ng-template>
         <ng-template #parking_template let-row="row">
-            <div
-                *ngIf="row.extension_data.parking_booking_id"
-                class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-success text-2xl text-success-content"
-            >
-                <icon>done</icon>
-            </div>
+            @if (row.extension_data.parking_booking_id) {
+                <div
+                    class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-success text-2xl text-success-content"
+                >
+                    <icon>done</icon>
+                </div>
+            }
         </ng-template>
         <ng-template #induction_template let-data="data">
             <div
@@ -286,17 +290,14 @@ import { VisitorsStateService } from './visitors-state.service';
                                 ) | translate
                             }}
                         </div>
-                        <icon
-                            class="text-2xl"
-                            *ngIf="
-                                !(
-                                    row?.status === 'ended' ||
-                                    (row.checked_in && !row.checked_out_at)
-                                )
-                            "
-                        >
-                            arrow_drop_down
-                        </icon>
+                        @if (
+                            !(
+                                row?.status === 'ended' ||
+                                (row.checked_in && !row.checked_out_at)
+                            )
+                        ) {
+                            <icon class="text-2xl"> arrow_drop_down </icon>
+                        }
                     </div>
                 </button>
             </div>
@@ -328,9 +329,11 @@ import { VisitorsStateService } from './visitors-state.service';
         <ng-template #time_template let-data="data">
             <div class="px-4">
                 {{ data * 1000 | date: time_format : tz }}
-                <span class="text-xs opacity-30" *ngIf="timezone">
-                    {{ data * 1000 | date: 'zzzz' : tz }}
-                </span>
+                @if (timezone) {
+                    <span class="text-xs opacity-30">
+                        {{ data * 1000 | date: 'zzzz' : tz }}
+                    </span>
+                }
             </div>
         </ng-template>
         <ng-template #date_template let-row="row">
@@ -343,9 +346,11 @@ import { VisitorsStateService } from './visitors-state.service';
                                   : time_format)
                             : tz
                 }}
-                <span class="text-xs opacity-30" *ngIf="timezone">
-                    {{ row.date | date: 'zzzz' : tz }}
-                </span>
+                @if (timezone) {
+                    <span class="text-xs opacity-30">
+                        {{ row.date | date: 'zzzz' : tz }}
+                    </span>
+                }
             </div>
         </ng-template>
         <ng-template #action_template let-row="row">
@@ -397,22 +402,23 @@ import { VisitorsStateService } from './visitors-state.service';
                             alt="Logo"
                             [src]="logo?.src || logo"
                         />
-                        <div class="text-right text-xs" *ngIf="zones | level">
-                            {{
-                                'APP.VISITOR_KIOSK.LABEL_LOCATION'
-                                    | translate
-                                        : {
-                                              location:
-                                                  (zones | level)
-                                                      ?.display_name ||
-                                                  (zones | level)?.name,
-                                          }
-                            }}
-                        </div>
+                        @if (zones | level) {
+                            <div class="text-right text-xs">
+                                {{
+                                    'APP.VISITOR_KIOSK.LABEL_LOCATION'
+                                        | translate
+                                            : {
+                                                  location:
+                                                      (zones | level)
+                                                          ?.display_name ||
+                                                      (zones | level)?.name,
+                                              }
+                                }}
+                            </div>
+                        }
                         <pre class="text-right">
-                            {{ row?.extension_data?.extra_details }}
-                        </pre
-                        >
+                {{ row?.extension_data?.extra_details }}
+                </pre>
                     </div>
                     <div
                         class="absolute bottom-4 right-4 flex items-end space-x-2"
@@ -428,11 +434,12 @@ import { VisitorsStateService } from './visitors-state.service';
                         <div
                             class="relative h-16 w-16 rounded-lg border border-base-200 p-2"
                         >
-                            <img
-                                class="h-12 w-12 object-contain object-center"
-                                *ngIf="qr_code"
-                                [src]="qr_code"
-                            />
+                            @if (qr_code) {
+                                <img
+                                    class="h-12 w-12 object-contain object-center"
+                                    [src]="qr_code"
+                                />
+                            }
                         </div>
                     </div>
                 </div>
@@ -452,47 +459,40 @@ import { VisitorsStateService } from './visitors-state.service';
                             </div>
                         </div>
                     </button>
-                    <button
-                        mat-menu-item
-                        *ngIf="
-                            has_parking &&
-                            !row.extension_data.parking_booking_id
-                        "
-                        (click)="reserveParking(row)"
-                    >
-                        <div class="flex items-center space-x-2">
-                            <icon class="text-2xl">directions_car</icon>
-                            <div>
-                                {{
-                                    'APP.CONCIERGE.VISITORS_ACTION_PARKING'
-                                        | translate
-                                }}
+                    @if (
+                        has_parking && !row.extension_data.parking_booking_id
+                    ) {
+                        <button mat-menu-item (click)="reserveParking(row)">
+                            <div class="flex items-center space-x-2">
+                                <icon class="text-2xl">directions_car</icon>
+                                <div>
+                                    {{
+                                        'APP.CONCIERGE.VISITORS_ACTION_PARKING'
+                                            | translate
+                                    }}
+                                </div>
                             </div>
-                        </div>
-                    </button>
-                    <button
-                        mat-menu-item
-                        *ngIf="can_email_visitors"
-                        (click)="emailVisitor(row)"
-                    >
-                        <div class="flex items-center space-x-2">
-                            <icon class="text-2xl">attach_email</icon>
-                            <div>
-                                {{
-                                    'APP.CONCIERGE.VISITORS_ACTION_EMAIL'
-                                        | translate
-                                }}
+                        </button>
+                    }
+                    @if (can_email_visitors) {
+                        <button mat-menu-item (click)="emailVisitor(row)">
+                            <div class="flex items-center space-x-2">
+                                <icon class="text-2xl">attach_email</icon>
+                                <div>
+                                    {{
+                                        'APP.CONCIERGE.VISITORS_ACTION_EMAIL'
+                                            | translate
+                                    }}
+                                </div>
                             </div>
-                        </div>
-                    </button>
+                        </button>
+                    }
                     <mat-menu #menu="matMenu">
-                        <a
-                            *ngFor="let item of row.attachments"
-                            [href]="item.url"
-                            mat-menu-item
-                        >
-                            {{ item.name }}
-                        </a>
+                        @for (item of row.attachments; track item) {
+                            <a [href]="item.url" mat-menu-item>
+                                {{ item.name }}
+                            </a>
+                        }
                     </mat-menu>
                     <button
                         mat-menu-item
@@ -518,36 +518,35 @@ import { VisitorsStateService } from './visitors-state.service';
                             </div>
                         </div>
                     </button>
-                    <button
-                        mat-menu-item
-                        *ngIf="can_print"
-                        (click)="printQRCode()"
-                    >
-                        <div class="flex items-center space-x-2">
-                            <icon class="text-2xl">print</icon>
-                            <div>
-                                {{
-                                    'APP.CONCIERGE.VISITORS_ACTION_PRINT_QR'
-                                        | translate
-                                }}
+                    @if (can_print) {
+                        <button mat-menu-item (click)="printQRCode()">
+                            <div class="flex items-center space-x-2">
+                                <icon class="text-2xl">print</icon>
+                                <div>
+                                    {{
+                                        'APP.CONCIERGE.VISITORS_ACTION_PRINT_QR'
+                                            | translate
+                                    }}
+                                </div>
                             </div>
-                        </div>
-                    </button>
-                    <button
-                        mat-menu-item
-                        *ngIf="allow_printing_label && row.checked_in"
-                        (click)="printVisitorPass(row, $event)"
-                    >
-                        <div class="flex items-center space-x-2">
-                            <icon class="text-2xl">badge</icon>
-                            <div>
-                                {{
-                                    'APP.CONCIERGE.VISITORS_ACTION_PRINT_PASS'
-                                        | translate
-                                }}
+                        </button>
+                    }
+                    @if (allow_printing_label && row.checked_in) {
+                        <button
+                            mat-menu-item
+                            (click)="printVisitorPass(row, $event)"
+                        >
+                            <div class="flex items-center space-x-2">
+                                <icon class="text-2xl">badge</icon>
+                                <div>
+                                    {{
+                                        'APP.CONCIERGE.VISITORS_ACTION_PRINT_PASS'
+                                            | translate
+                                    }}
+                                </div>
                             </div>
-                        </div>
-                    </button>
+                        </button>
+                    }
                     <a mat-menu-item [href]="'mailto:' + row?.asset_id">
                         <div class="flex items-center space-x-2">
                             <icon class="text-2xl">email</icon>
@@ -561,30 +560,33 @@ import { VisitorsStateService } from './visitors-state.service';
                             </div>
                         </div>
                     </a>
-                    <button
-                        mat-menu-item
-                        (click)="row.checked_in ? checkout(row) : checkin(row)"
-                        *ngIf="!row.checked_out_at"
-                    >
-                        <div class="flex items-center space-x-2">
-                            <icon class="text-2xl">
-                                {{
-                                    row.checked_in
-                                        ? 'event_busy'
-                                        : 'event_available'
-                                }}
-                            </icon>
-                            <div>
-                                {{
-                                    (row.checked_in
-                                        ? 'APP.CONCIERGE.VISITORS_ACTION_CHECKOUT'
-                                        : 'APP.CONCIERGE.VISITORS_ACTION_CHECKIN'
-                                    ) | translate
-                                }}
+                    @if (!row.checked_out_at) {
+                        <button
+                            mat-menu-item
+                            (click)="
+                                row.checked_in ? checkout(row) : checkin(row)
+                            "
+                        >
+                            <div class="flex items-center space-x-2">
+                                <icon class="text-2xl">
+                                    {{
+                                        row.checked_in
+                                            ? 'event_busy'
+                                            : 'event_available'
+                                    }}
+                                </icon>
+                                <div>
+                                    {{
+                                        (row.checked_in
+                                            ? 'APP.CONCIERGE.VISITORS_ACTION_CHECKOUT'
+                                            : 'APP.CONCIERGE.VISITORS_ACTION_CHECKIN'
+                                        ) | translate
+                                    }}
+                                </div>
                             </div>
-                        </div>
-                    </button>
-                    <ng-container *ngIf="row.linked_event">
+                        </button>
+                    }
+                    @if (row.linked_event) {
                         <button mat-menu-item (click)="checkinAllVisitors(row)">
                             <div class="flex items-center space-x-2">
                                 <icon class="text-2xl"> event_available </icon>
@@ -612,7 +614,7 @@ import { VisitorsStateService } from './visitors-state.service';
                                 </div>
                             </div>
                         </button>
-                    </ng-container>
+                    }
                 </mat-menu>
             </div>
         </ng-template>
@@ -629,30 +631,35 @@ import { VisitorsStateService } from './visitors-state.service';
                 >
                     <icon class="text-2xl">edit_square</icon>
                 </button>
-                <div
-                    class="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-info text-info-content"
-                    *ngIf="row.extension_data?.notes?.length"
-                    [matTooltip]="
-                        'APP.CONCIERGE.VISITORS_NOTES_AVAILABLE' | translate
-                    "
-                >
-                    <icon className="material-symbols-rounded" class="text-sm">
-                        info_i
-                    </icon>
-                </div>
+                @if (row.extension_data?.notes?.length) {
+                    <div
+                        class="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-info text-info-content"
+                        [matTooltip]="
+                            'APP.CONCIERGE.VISITORS_NOTES_AVAILABLE' | translate
+                        "
+                    >
+                        <icon
+                            className="material-symbols-rounded"
+                            class="text-sm"
+                        >
+                            info_i
+                        </icon>
+                    </div>
+                }
             </div>
         </ng-template>
-        <button
-            class="absolute bottom-4 right-4 z-20 h-12 w-12 bg-secondary text-white shadow hover:shadow-lg"
-            [matTooltip]="'APP.CONCIERGE.VISITORS_DOWNLOAD' | translate"
-            matTooltipPosition="left"
-            icon
-            matRipple
-            *ngIf="(guests | async)?.length"
-            (click)="downloadVisitorList()"
-        >
-            <icon>download</icon>
-        </button>
+        @if ((guests | async)?.length) {
+            <button
+                class="absolute bottom-4 right-4 z-20 h-12 w-12 bg-secondary text-white shadow hover:shadow-lg"
+                [matTooltip]="'APP.CONCIERGE.VISITORS_DOWNLOAD' | translate"
+                matTooltipPosition="left"
+                icon
+                matRipple
+                (click)="downloadVisitorList()"
+            >
+                <icon>download</icon>
+            </button>
+        }
         <div class="h-8 w-full"></div>
     `,
     styles: [``],

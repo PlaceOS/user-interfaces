@@ -29,95 +29,102 @@ import QrScanner from 'qr-scanner';
 @Component({
     selector: 'book-code-flow',
     template: `
-        <div
-            class="relative flex flex-1 items-center justify-center overflow-hidden bg-neutral"
-            *ngIf="!loading; else load_state"
-        >
-            <video
-                class="min-h-full min-w-full object-cover"
-                id="video"
-                #video
-            ></video>
+        @if (!loading) {
             <div
-                class="absolute inset-0 flex flex-col items-center justify-center text-center text-white"
+                class="relative flex flex-1 items-center justify-center overflow-hidden bg-neutral"
             >
+                <video
+                    class="min-h-full min-w-full object-cover"
+                    id="video"
+                    #video
+                ></video>
                 <div
-                    class="relative z-10 flex flex-col items-center justify-end"
-                    *ngIf="is_scanning"
+                    class="absolute inset-0 flex flex-col items-center justify-center text-center text-white"
                 >
-                    <h2 class="mb-1 text-3xl uppercase subpixel-antialiased">
-                        Scan QR Code
-                    </h2>
-                    <span class="mb-4">
-                        Scan the QR code outisde a PlaceOS room or space.
-                    </span>
-                </div>
-                <div
-                    class="relative z-10 flex flex-col items-center justify-end"
-                    *ngIf="!is_scanning"
-                >
-                    <h2 class="mb-1 text-3xl uppercase subpixel-antialiased">
-                        Enter Room ID
-                    </h2>
-                    <span class="mb-4">
-                        Enter the room ID number outisde a PlaceOS room or
-                        space.
-                    </span>
-                </div>
-                <div class="flex items-center justify-center">
+                    @if (is_scanning) {
+                        <div
+                            class="relative z-10 flex flex-col items-center justify-end"
+                        >
+                            <h2
+                                class="mb-1 text-3xl uppercase subpixel-antialiased"
+                            >
+                                Scan QR Code
+                            </h2>
+                            <span class="mb-4">
+                                Scan the QR code outisde a PlaceOS room or
+                                space.
+                            </span>
+                        </div>
+                    }
+                    @if (!is_scanning) {
+                        <div
+                            class="relative z-10 flex flex-col items-center justify-end"
+                        >
+                            <h2
+                                class="mb-1 text-3xl uppercase subpixel-antialiased"
+                            >
+                                Enter Room ID
+                            </h2>
+                            <span class="mb-4">
+                                Enter the room ID number outisde a PlaceOS room
+                                or space.
+                            </span>
+                        </div>
+                    }
+                    <div class="flex items-center justify-center">
+                        <div
+                            box
+                            class="m-8 flex h-64 w-64 items-center justify-center space-x-2 rounded-2xl p-8 transition-all"
+                            [class.input]="!is_scanning"
+                        >
+                            <span class="uppercase">Booking ID</span>
+                            <input
+                                matInput
+                                class="w-full border-none bg-none text-left text-3xl"
+                                [(ngModel)]="room_code"
+                                name="booking-id"
+                                placeholder="e.g. 12102910"
+                            />
+                        </div>
+                    </div>
                     <div
-                        box
-                        class="m-8 flex h-64 w-64 items-center justify-center space-x-2 rounded-2xl p-8 transition-all"
-                        [class.input]="!is_scanning"
+                        class="m-4 flex items-center space-x-2 rounded bg-base-100 bg-opacity-50 p-2"
                     >
-                        <span class="uppercase">Booking ID</span>
-                        <input
-                            matInput
-                            class="w-full border-none bg-none text-left text-3xl"
-                            [(ngModel)]="room_code"
-                            name="booking-id"
-                            placeholder="e.g. 12102910"
-                        />
+                        <button
+                            matRipple
+                            [class]="
+                                'w-40 flex-1 border-none text-black ' +
+                                (is_scanning
+                                    ? 'bg-base-100'
+                                    : 'bg-transparent bg-opacity-50 hover:bg-base-100')
+                            "
+                            (click)="is_scanning = true"
+                        >
+                            Scan Code
+                        </button>
+                        <button
+                            matRipple
+                            [class]="
+                                'w-40 flex-1 border-none text-black ' +
+                                (!is_scanning
+                                    ? 'bg-base-100'
+                                    : 'bg-transparent bg-opacity-50 hover:bg-base-100')
+                            "
+                            (click)="is_scanning = false"
+                        >
+                            Enter Code
+                        </button>
                     </div>
                 </div>
-                <div
-                    class="m-4 flex items-center space-x-2 rounded bg-base-100 bg-opacity-50 p-2"
-                >
-                    <button
-                        matRipple
-                        [class]="
-                            'w-40 flex-1 border-none text-black ' +
-                            (is_scanning
-                                ? 'bg-base-100'
-                                : 'bg-transparent bg-opacity-50 hover:bg-base-100')
-                        "
-                        (click)="is_scanning = true"
-                    >
-                        Scan Code
-                    </button>
-                    <button
-                        matRipple
-                        [class]="
-                            'w-40 flex-1 border-none text-black ' +
-                            (!is_scanning
-                                ? 'bg-base-100'
-                                : 'bg-transparent bg-opacity-50 hover:bg-base-100')
-                        "
-                        (click)="is_scanning = false"
-                    >
-                        Enter Code
-                    </button>
-                </div>
             </div>
-        </div>
-        <ng-template #load_state>
+        } @else {
             <div
                 class="absolute inset-0 flex flex-col items-center justify-center space-y-2"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <p>Checking in booking...</p>
             </div>
-        </ng-template>
+        }
     `,
     styles: [
         `

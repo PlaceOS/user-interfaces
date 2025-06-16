@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { MatSliderModule } from '@angular/material/slider';
 
@@ -11,26 +10,35 @@ import { BaseQuestionComponent } from './base-question.component';
     template: `
         <div class="flex w-full flex-col p-4">
             <div class="mb-4 flex flex-row items-center space-x-2">
-                <div
-                    *ngFor="let i of generateArray(question.rateMax)"
-                    class="flex h-10 w-10 items-center justify-center rounded-full border"
-                >
-                    <span class="font-semibold">{{ i }}</span>
+                @for (i of generateArray(question.rateMax); track i) {
+                    <div
+                        class="flex h-10 w-10 items-center justify-center rounded-full border"
+                    >
+                        <span class="font-semibold">{{ i }}</span>
+                    </div>
+                }
+            </div>
+            @if (!preview) {
+                <div class="flex flex-col">
+                    <mat-slider
+                        [max]="10"
+                        [min]="3"
+                        [thumbLabel]="true"
+                        [step]="1"
+                    >
+                        <input matSliderThumb [(ngModel)]="question.rateMax" />
+                    </mat-slider>
+                    <span class="text-xs">
+                        {{
+                            'APP.CONCIERGE.SURVEY_QUESTION_HINT_RATING'
+                                | translate
+                        }}
+                    </span>
                 </div>
-            </div>
-            <div class="flex flex-col" *ngIf="!preview">
-                <mat-slider [max]="10" [min]="3" [thumbLabel]="true" [step]="1">
-                    <input matSliderThumb [(ngModel)]="question.rateMax" />
-                </mat-slider>
-                <span class="text-xs">
-                    {{
-                        'APP.CONCIERGE.SURVEY_QUESTION_HINT_RATING' | translate
-                    }}
-                </span>
-            </div>
+            }
         </div>
     `,
-    imports: [CommonModule, TranslatePipe, MatSliderModule],
+    imports: [TranslatePipe, MatSliderModule],
 })
 export class RatingsComponent extends BaseQuestionComponent implements OnInit {
     constructor() {

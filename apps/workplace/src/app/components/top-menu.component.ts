@@ -17,73 +17,77 @@ import { OrganisationService } from '@placeos/organisation';
 @Component({
     selector: 'top-menu',
     template: `
-        <div
-            #menuContainer
-            menu
-            [class.opacity-0]="mobile_menu || checking"
-            [class.!h-0]="mobile_menu"
-            (window:resize)="checkMenu()"
-            class="flex h-full w-full min-w-full items-center justify-center overflow-hidden text-base-content"
-            *ngIf="routes.length > 1"
-        >
-            <ng-container *ngFor="let route of routes">
-                <a
-                    matRipple
-                    [name]="'nav-' + route.id"
-                    class="relative flex items-center justify-center space-x-2 px-8"
-                    [routerLink]="[route.route]"
-                    routerLinkActive="text-secondary active"
-                    [matTooltip]="route.name"
-                    *ngIf="features.includes(route.id) || route.id === 'home'"
-                    matTooltipPosition="below"
-                >
-                    <icon filled class="text-xl">{{ route.icon }}</icon>
-                    <icon
-                        outline
-                        className="material-symbols-outlined"
-                        class="!m-0 text-xl"
-                    >
-                        {{ route.icon }}
-                    </icon>
-                    <span *ngIf="!hide_text" class="truncate">{{
-                        route.name
-                    }}</span>
-                    <div
-                        bar
-                        class="absolute inset-x-0 bottom-0 h-0.5 bg-secondary"
-                    ></div>
-                </a>
-            </ng-container>
-        </div>
-        <div
-            class="absolute inset-y-0 -right-16 left-0 flex items-center justify-end"
-            *ngIf="mobile_menu"
-        >
-            <button icon matRipple [matMenuTriggerFor]="menu">
-                <icon>menu</icon>
-            </button>
-        </div>
-        <mat-menu #menu="matMenu">
-            <ng-container *ngFor="let route of routes">
-                <a
-                    mat-menu-item
-                    *ngIf="features.includes(route.id) || route.id === 'home'"
-                    [routerLink]="route.route"
-                    routerLinkActive="text-secondary active"
-                >
-                    <div class="flex items-center space-x-2">
-                        <icon filled class="text-xl">{{ route.icon }}</icon>
-                        <icon
-                            outline
-                            className="material-symbols-outlined"
-                            class="!m-0 text-xl"
+        @if (routes.length > 1) {
+            <div
+                #menuContainer
+                menu
+                [class.opacity-0]="mobile_menu || checking"
+                [class.!h-0]="mobile_menu"
+                (window:resize)="checkMenu()"
+                class="flex h-full w-full min-w-full items-center justify-center overflow-hidden text-base-content"
+            >
+                @for (route of routes; track route) {
+                    @if (features.includes(route.id) || route.id === 'home') {
+                        <a
+                            matRipple
+                            [name]="'nav-' + route.id"
+                            class="relative flex items-center justify-center space-x-2 px-8"
+                            [routerLink]="[route.route]"
+                            routerLinkActive="text-secondary active"
+                            [matTooltip]="route.name"
+                            matTooltipPosition="below"
                         >
-                            {{ route.icon }}
-                        </icon>
-                        <div class="truncate">{{ route.name }}</div>
-                    </div>
-                </a>
-            </ng-container>
+                            <icon filled class="text-xl">{{ route.icon }}</icon>
+                            <icon
+                                outline
+                                className="material-symbols-outlined"
+                                class="!m-0 text-xl"
+                            >
+                                {{ route.icon }}
+                            </icon>
+                            @if (!hide_text) {
+                                <span class="truncate">{{ route.name }}</span>
+                            }
+                            <div
+                                bar
+                                class="absolute inset-x-0 bottom-0 h-0.5 bg-secondary"
+                            ></div>
+                        </a>
+                    }
+                }
+            </div>
+        }
+        @if (mobile_menu) {
+            <div
+                class="absolute inset-y-0 -right-16 left-0 flex items-center justify-end"
+            >
+                <button icon matRipple [matMenuTriggerFor]="menu">
+                    <icon>menu</icon>
+                </button>
+            </div>
+        }
+        <mat-menu #menu="matMenu">
+            @for (route of routes; track route) {
+                @if (features.includes(route.id) || route.id === 'home') {
+                    <a
+                        mat-menu-item
+                        [routerLink]="route.route"
+                        routerLinkActive="text-secondary active"
+                    >
+                        <div class="flex items-center space-x-2">
+                            <icon filled class="text-xl">{{ route.icon }}</icon>
+                            <icon
+                                outline
+                                className="material-symbols-outlined"
+                                class="!m-0 text-xl"
+                            >
+                                {{ route.icon }}
+                            </icon>
+                            <div class="truncate">{{ route.name }}</div>
+                        </div>
+                    </a>
+                }
+            }
         </mat-menu>
     `,
     styles: [

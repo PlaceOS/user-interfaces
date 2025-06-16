@@ -34,7 +34,7 @@ import {
         `,
     ],
     template: `
-        <ng-container *ngIf="has_id; else invalid_template">
+        @if (has_id) {
             <header
                 class="flex w-full items-center justify-between pb-4 pl-4 pr-8 pt-8"
             >
@@ -110,39 +110,48 @@ import {
                 </div>
             </div>
             @let question_pages = paged_responses$ | async;
-            <div
-                class="h-1/2 flex-1 overflow-auto border-t border-base-300 bg-base-200"
-                *ngIf="question_pages?.length > 0; else empty_template"
-            >
-                <ng-container *ngFor="let p of question_pages; let i = index">
-                    <div
-                        class="flex w-full px-8 pt-2 text-xl font-medium"
-                        *ngIf="question_pages.length > 1"
-                    >
-                        {{
-                            (p.title
-                                ? 'APP.CONCIERGE.SURVEY_ANSWERS_PAGE_WITH_TITLE'
-                                : 'APP.CONCIERGE.SURVEY_ANSWERS_PAGE'
-                            )
-                                | translate
-                                    : {
-                                          id: i + 1,
-                                          title: p.title,
-                                      }
-                        }}
-                    </div>
-                    <div class="flex w-full flex-wrap px-6 py-2">
-                        <survey-widget
-                            class="w-full lg:w-1/2 2xl:w-1/3"
-                            *ngFor="let r of p.responses"
-                            [response]="r"
-                        ></survey-widget>
-                    </div>
-                </ng-container>
-            </div>
-        </ng-container>
-
-        <ng-template #invalid_template>
+            @if (question_pages?.length > 0) {
+                <div
+                    class="h-1/2 flex-1 overflow-auto border-t border-base-300 bg-base-200"
+                >
+                    @for (p of question_pages; track p; let i = $index) {
+                        @if (question_pages.length > 1) {
+                            <div
+                                class="flex w-full px-8 pt-2 text-xl font-medium"
+                            >
+                                {{
+                                    (p.title
+                                        ? 'APP.CONCIERGE.SURVEY_ANSWERS_PAGE_WITH_TITLE'
+                                        : 'APP.CONCIERGE.SURVEY_ANSWERS_PAGE'
+                                    )
+                                        | translate
+                                            : {
+                                                  id: i + 1,
+                                                  title: p.title,
+                                              }
+                                }}
+                            </div>
+                        }
+                        <div class="flex w-full flex-wrap px-6 py-2">
+                            @for (r of p.responses; track r) {
+                                <survey-widget
+                                    class="w-full lg:w-1/2 2xl:w-1/3"
+                                    [response]="r"
+                                ></survey-widget>
+                            }
+                        </div>
+                    }
+                </div>
+            } @else {
+                <div
+                    class="flex min-h-[10rem] w-full flex-col items-center justify-center"
+                >
+                    <span class="text-lg opacity-30">{{
+                        'APP.CONCIERGE.SURVEY_ANSWERS_EMPTY' | translate
+                    }}</span>
+                </div>
+            }
+        } @else {
             <div
                 class="flex h-full w-full flex-col items-center justify-center"
             >
@@ -150,25 +159,18 @@ import {
                     'APP.CONCIERGE.SURVEY_ANSWERS_ID_INVALID' | translate
                 }}</span>
             </div>
-        </ng-template>
-        <ng-template #empty_template>
-            <div
-                class="flex min-h-[10rem] w-full flex-col items-center justify-center"
-            >
-                <span class="text-lg opacity-30">{{
-                    'APP.CONCIERGE.SURVEY_ANSWERS_EMPTY' | translate
-                }}</span>
+        }
+
+        @if (loading$ | async) {
+            <div class="absolute inset-0 z-10 flex bg-base-100 opacity-60">
+                <div class="m-auto flex flex-col items-center space-y-4">
+                    <mat-spinner [diameter]="32"></mat-spinner>
+                    <p>
+                        {{ 'APP.CONCIERGE.SURVEY_ANSWERS_LOADING' | translate }}
+                    </p>
+                </div>
             </div>
-        </ng-template>
-        <div
-            *ngIf="loading$ | async"
-            class="absolute inset-0 z-10 flex bg-base-100 opacity-60"
-        >
-            <div class="m-auto flex flex-col items-center space-y-4">
-                <mat-spinner [diameter]="32"></mat-spinner>
-                <p>{{ 'APP.CONCIERGE.SURVEY_ANSWERS_LOADING' | translate }}</p>
-            </div>
-        </div>
+        }
     `,
     standalone: false,
 })

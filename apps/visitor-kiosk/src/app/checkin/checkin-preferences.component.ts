@@ -38,63 +38,63 @@ import { CheckinStateService } from './checkin-state.service';
 @Component({
     selector: 'checkin-preferences',
     template: `
-        <div
-            class="relative flex w-[36rem] flex-col items-center overflow-hidden rounded bg-base-100 p-4 shadow"
-            *ngIf="!loading; else load_state"
-        >
-            @let has_beverage = !!(event | async)?.extension_data.beverage;
-            <h3 class="mb-2 w-full text-xl">
-                {{ 'APP.VISITOR_KIOSK.BEVERAGE_MSG' | translate }}
-            </h3>
-            <div class="w-full">
-                <mat-form-field appearance="outline" class="w-full">
-                    <mat-select
-                        [(ngModel)]="beverage"
-                        [placeholder]="
-                            'APP.VISITOR_KIOSK.BEVERAGE_SELECT' | translate
-                        "
-                    >
-                        <mat-option
-                            *ngFor="let item of menu | async"
-                            [value]="item"
-                        >
-                            {{ item.name }}
-                        </mat-option>
-                    </mat-select>
-                </mat-form-field>
-            </div>
+        @if (!loading) {
             <div
-                *ngIf="has_beverage"
-                class="rounded bg-warning px-2 py-1 text-warning-content"
+                class="relative flex w-[36rem] flex-col items-center overflow-hidden rounded bg-base-100 p-4 shadow"
             >
-                You have already selected a beverage.
-            </div>
-            <div class="flex w-full items-center justify-end">
-                <button
-                    btn
+                @let has_beverage = !!(event | async)?.extension_data.beverage;
+                <h3 class="mb-2 w-full text-xl">
+                    {{ 'APP.VISITOR_KIOSK.BEVERAGE_MSG' | translate }}
+                </h3>
+                <div class="w-full">
+                    <mat-form-field appearance="outline" class="w-full">
+                        <mat-select
+                            [(ngModel)]="beverage"
+                            [placeholder]="
+                                'APP.VISITOR_KIOSK.BEVERAGE_SELECT' | translate
+                            "
+                        >
+                            @for (item of menu | async; track item) {
+                                <mat-option [value]="item">
+                                    {{ item.name }}
+                                </mat-option>
+                            }
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+                @if (has_beverage) {
+                    <div
+                        class="rounded bg-warning px-2 py-1 text-warning-content"
+                    >
+                        You have already selected a beverage.
+                    </div>
+                }
+                <div class="flex w-full items-center justify-end">
+                    <button
+                        btn
+                        matRipple
+                        class="w-32"
+                        [disabled]="has_beverage"
+                        (click)="update()"
+                    >
+                        {{
+                            (beverage
+                                ? 'APP.VISITOR_KIOSK.SAVE'
+                                : 'APP.VISITOR_KIOSK.CONTINUE'
+                            ) | translate
+                        }}
+                    </button>
+                </div>
+                <a
+                    icon
                     matRipple
-                    class="w-32"
-                    [disabled]="has_beverage"
-                    (click)="update()"
+                    class="absolute right-2 top-2"
+                    [routerLink]="['/welcome']"
                 >
-                    {{
-                        (beverage
-                            ? 'APP.VISITOR_KIOSK.SAVE'
-                            : 'APP.VISITOR_KIOSK.CONTINUE'
-                        ) | translate
-                    }}
-                </button>
+                    <icon>close</icon>
+                </a>
             </div>
-            <a
-                icon
-                matRipple
-                class="absolute right-2 top-2"
-                [routerLink]="['/welcome']"
-            >
-                <icon>close</icon>
-            </a>
-        </div>
-        <ng-template #load_state>
+        } @else {
             <div
                 class="relative flex h-[20rem] w-[28rem] flex-col items-center justify-center space-y-2 overflow-hidden rounded bg-base-100 p-8 shadow"
             >
@@ -108,7 +108,7 @@ import { CheckinStateService } from './checkin-state.service';
                     }}
                 </div>
             </div>
-        </ng-template>
+        }
     `,
     styles: [
         `

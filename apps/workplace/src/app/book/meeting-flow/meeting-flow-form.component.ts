@@ -52,361 +52,416 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                         ) | translate
                     }}
                 </h2>
-                <form
-                    class="space-y-2 divide-y divide-base-200 p-0 sm:px-16 sm:py-4"
-                    [formGroup]="form"
-                    *ngIf="form"
-                >
-                    <section class="p-2">
-                        <h3 class="flex items-center space-x-2">
+                @if (form) {
+                    <form
+                        class="space-y-2 divide-y divide-base-200 p-0 sm:px-16 sm:py-4"
+                        [formGroup]="form"
+                    >
+                        <section class="p-2">
+                            <h3 class="flex items-center space-x-2">
+                                <div
+                                    class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
+                                >
+                                    1
+                                </div>
+                                <div class="text-xl">
+                                    {{ 'CALENDAR_EVENT.DETAILS' | translate }}
+                                </div>
+                                <div class="w-px flex-1"></div>
+                                <button
+                                    icon
+                                    name="toggle-details-meeting"
+                                    matRipple
+                                    (click)="
+                                        hide_block.details = !hide_block.details
+                                    "
+                                >
+                                    <icon>{{
+                                        hide_block.details
+                                            ? 'expand_more'
+                                            : 'expand_less'
+                                    }}</icon>
+                                </button>
+                            </h3>
                             <div
-                                class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
+                                class="overflow-hidden"
+                                [@show]="hide_block.details ? 'hide' : 'show'"
                             >
-                                1
+                                <meeting-form-details
+                                    class="mt-4"
+                                    [form]="form"
+                                ></meeting-form-details>
                             </div>
-                            <div class="text-xl">
-                                {{ 'CALENDAR_EVENT.DETAILS' | translate }}
-                            </div>
-                            <div class="w-px flex-1"></div>
-                            <button
-                                icon
-                                name="toggle-details-meeting"
-                                matRipple
-                                (click)="
-                                    hide_block.details = !hide_block.details
-                                "
-                            >
-                                <icon>{{
-                                    hide_block.details
-                                        ? 'expand_more'
-                                        : 'expand_less'
-                                }}</icon>
-                            </button>
-                        </h3>
-                        <div
-                            class="overflow-hidden"
-                            [@show]="hide_block.details ? 'hide' : 'show'"
-                        >
-                            <meeting-form-details
-                                class="mt-4"
-                                [form]="form"
-                            ></meeting-form-details>
-                        </div>
-                    </section>
-                    <section class="p-2" *ngIf="!hide_attendees">
-                        <h3 class="flex items-center space-x-2">
+                        </section>
+                        @if (!hide_attendees) {
+                            <section class="p-2">
+                                <h3 class="flex items-center space-x-2">
+                                    <div
+                                        class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
+                                    >
+                                        2
+                                    </div>
+                                    <div class="text-xl">
+                                        {{
+                                            'CALENDAR_EVENT.ATTENDEES'
+                                                | translate
+                                        }}
+                                    </div>
+                                    <div class="w-px flex-1"></div>
+                                    <button
+                                        matRipple
+                                        name="find-attendee-availability"
+                                        class="bg-none text-xs text-info underline"
+                                        (click)="findAvailableTime()"
+                                    >
+                                        {{ 'COMMON.AVAILABILITY' | translate }}
+                                    </button>
+                                    <button
+                                        icon
+                                        name="toggle-attendees-meeting"
+                                        matRipple
+                                        (click)="
+                                            hide_block.attendees =
+                                                !hide_block.attendees
+                                        "
+                                    >
+                                        <icon>{{
+                                            hide_block.attendees
+                                                ? 'expand_more'
+                                                : 'expand_less'
+                                        }}</icon>
+                                    </button>
+                                </h3>
+                                <div
+                                    class="overflow-hidden"
+                                    [@show]="
+                                        hide_block.attendees ? 'hide' : 'show'
+                                    "
+                                >
+                                    <a-user-list-field
+                                        class="mt-4"
+                                        formControlName="attendees"
+                                        [time]="form.value.date"
+                                        [guests]="allow_externals"
+                                    ></a-user-list-field>
+                                </div>
+                            </section>
+                        }
+                        <section class="p-2">
+                            <h3 class="flex items-center space-x-2">
+                                <div
+                                    class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
+                                >
+                                    3
+                                </div>
+                                <div class="text-xl">
+                                    {{ 'RESOURCE.ROOM' | translate }}
+                                </div>
+                                <div class="w-px flex-1"></div>
+                                <button
+                                    icon
+                                    name="toggle-spaces-meeting"
+                                    matRipple
+                                    (click)="
+                                        hide_block.resources =
+                                            !hide_block.resources
+                                    "
+                                >
+                                    <icon>{{
+                                        hide_block.resources
+                                            ? 'expand_more'
+                                            : 'expand_less'
+                                    }}</icon>
+                                </button>
+                            </h3>
                             <div
-                                class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
+                                class="flex flex-col items-center overflow-hidden"
+                                [@show]="hide_block.resources ? 'hide' : 'show'"
                             >
-                                2
-                            </div>
-                            <div class="text-xl">
-                                {{ 'CALENDAR_EVENT.ATTENDEES' | translate }}
-                            </div>
-                            <div class="w-px flex-1"></div>
-                            <button
-                                matRipple
-                                name="find-attendee-availability"
-                                class="bg-none text-xs text-info underline"
-                                (click)="findAvailableTime()"
-                            >
-                                {{ 'COMMON.AVAILABILITY' | translate }}
-                            </button>
-                            <button
-                                icon
-                                name="toggle-attendees-meeting"
-                                matRipple
-                                (click)="
-                                    hide_block.attendees = !hide_block.attendees
-                                "
-                            >
-                                <icon>{{
-                                    hide_block.attendees
-                                        ? 'expand_more'
-                                        : 'expand_less'
-                                }}</icon>
-                            </button>
-                        </h3>
-                        <div
-                            class="overflow-hidden"
-                            [@show]="hide_block.attendees ? 'hide' : 'show'"
-                        >
-                            <a-user-list-field
-                                class="mt-4"
-                                formControlName="attendees"
-                                [time]="form.value.date"
-                                [guests]="allow_externals"
-                            ></a-user-list-field>
-                        </div>
-                    </section>
-                    <section class="p-2">
-                        <h3 class="flex items-center space-x-2">
-                            <div
-                                class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
-                            >
-                                3
-                            </div>
-                            <div class="text-xl">
-                                {{ 'RESOURCE.ROOM' | translate }}
-                            </div>
-                            <div class="w-px flex-1"></div>
-                            <button
-                                icon
-                                name="toggle-spaces-meeting"
-                                matRipple
-                                (click)="
-                                    hide_block.resources = !hide_block.resources
-                                "
-                            >
-                                <icon>{{
-                                    hide_block.resources
-                                        ? 'expand_more'
-                                        : 'expand_less'
-                                }}</icon>
-                            </button>
-                        </h3>
-                        <div
-                            class="flex flex-col items-center overflow-hidden"
-                            [@show]="hide_block.resources ? 'hide' : 'show'"
-                        >
-                            <div
-                                *ngIf="
+                                @if (
                                     !strict_capacity_check &&
                                     total_capacity &&
                                     total_capacity <=
                                         form.value.attendees?.length
-                                "
-                                class="mx-auto my-2 inline-flex rounded bg-warning p-2 text-xs text-warning-content shadow"
-                            >
-                                {{
-                                    'CALENDAR_EVENT.CAPACITY_WARNING'
-                                        | translate
-                                }}
+                                ) {
+                                    <div
+                                        class="mx-auto my-2 inline-flex rounded bg-warning p-2 text-xs text-warning-content shadow"
+                                    >
+                                        {{
+                                            'CALENDAR_EVENT.CAPACITY_WARNING'
+                                                | translate
+                                        }}
+                                    </div>
+                                }
+                                <space-list-field
+                                    class="w-full"
+                                    formControlName="resources"
+                                    [multiday]="allow_multiday"
+                                ></space-list-field>
                             </div>
-                            <space-list-field
-                                class="w-full"
-                                formControlName="resources"
-                                [multiday]="allow_multiday"
-                            ></space-list-field>
-                        </div>
-                    </section>
-                    <section class="p-2" *ngIf="has_catering | async">
-                        <h3 class="flex items-center space-x-2">
-                            <div
-                                class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
-                            >
-                                4
-                            </div>
-                            <div class="text-xl">
-                                {{ 'CALENDAR_EVENT.CATERING' | translate }}
-                            </div>
-                            <div class="w-px flex-1"></div>
-                            <button
-                                icon
-                                name="toggle-catering-meeting"
-                                matRipple
-                                (click)="
-                                    hide_block.catering = !hide_block.catering
-                                "
-                            >
-                                <icon>{{
-                                    hide_block.catering
-                                        ? 'expand_more'
-                                        : 'expand_less'
-                                }}</icon>
-                            </button>
-                        </h3>
-                        <div
-                            class="overflow-hidden"
-                            [@show]="hide_block.catering ? 'hide' : 'show'"
-                        >
-                            <catering-list-field
-                                formControlName="catering"
-                                [options]="{
-                                    date: form.getRawValue().date,
-                                    duration: form.value.duration,
-                                    all_day: form.value.all_day,
-                                    zone_id: form.value?.resources?.length
-                                        ? form.value?.resources[0]?.level
-                                              ?.parent_id
-                                        : '',
-                                }"
-                            ></catering-list-field>
-                            <mat-form-field
-                                appearance="outline"
-                                class="mt-2 w-full"
-                                *ngIf="
-                                    form.value.catering?.length && has_codes
-                                        | async
-                                "
-                                (openedChange)="focusInput()"
-                            >
-                                <mat-select
-                                    formControlName="catering_charge_code"
-                                    [placeholder]="
-                                        'CALENDAR_EVENT.CATERING_CHARGE_CODE'
-                                            | translate
+                        </section>
+                        @if (has_catering | async) {
+                            <section class="p-2">
+                                <h3 class="flex items-center space-x-2">
+                                    <div
+                                        class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
+                                    >
+                                        4
+                                    </div>
+                                    <div class="text-xl">
+                                        {{
+                                            'CALENDAR_EVENT.CATERING'
+                                                | translate
+                                        }}
+                                    </div>
+                                    <div class="w-px flex-1"></div>
+                                    <button
+                                        icon
+                                        name="toggle-catering-meeting"
+                                        matRipple
+                                        (click)="
+                                            hide_block.catering =
+                                                !hide_block.catering
+                                        "
+                                    >
+                                        <icon>{{
+                                            hide_block.catering
+                                                ? 'expand_more'
+                                                : 'expand_less'
+                                        }}</icon>
+                                    </button>
+                                </h3>
+                                <div
+                                    class="overflow-hidden"
+                                    [@show]="
+                                        hide_block.catering ? 'hide' : 'show'
                                     "
                                 >
-                                    <input
-                                        #input
-                                        class="sticky top-0 z-50 w-full rounded-none border-x-0 border-b border-t-0 border-base-200 bg-base-100 px-4 py-3 text-base focus:border-b"
-                                        [ngModel]="code_filter.getValue()"
-                                        (ngModelChange)="
-                                            code_filter.next($event)
+                                    <catering-list-field
+                                        formControlName="catering"
+                                        [options]="{
+                                            date: form.getRawValue().date,
+                                            duration: form.value.duration,
+                                            all_day: form.value.all_day,
+                                            zone_id: form.value?.resources
+                                                ?.length
+                                                ? form.value?.resources[0]
+                                                      ?.level?.parent_id
+                                                : '',
+                                        }"
+                                    ></catering-list-field>
+                                    @if (
+                                        form.value.catering?.length && has_codes
+                                            | async
+                                    ) {
+                                        <mat-form-field
+                                            appearance="outline"
+                                            class="mt-2 w-full"
+                                            (openedChange)="focusInput()"
+                                        >
+                                            <mat-select
+                                                formControlName="catering_charge_code"
+                                                [placeholder]="
+                                                    'CALENDAR_EVENT.CATERING_CHARGE_CODE'
+                                                        | translate
+                                                "
+                                            >
+                                                <input
+                                                    #input
+                                                    class="sticky top-0 z-50 w-full rounded-none border-x-0 border-b border-t-0 border-base-200 bg-base-100 px-4 py-3 text-base focus:border-b"
+                                                    [ngModel]="
+                                                        code_filter.getValue()
+                                                    "
+                                                    (ngModelChange)="
+                                                        code_filter.next($event)
+                                                    "
+                                                    [ngModelOptions]="{
+                                                        standalone: true,
+                                                    }"
+                                                    [placeholder]="
+                                                        'CALENDAR_EVENT.CATERING_CHARGE_CODE_SEACH'
+                                                            | translate
+                                                    "
+                                                />
+                                                <mat-option
+                                                    class="hidden"
+                                                ></mat-option>
+                                                @for (
+                                                    code of filtered_codes
+                                                        | async;
+                                                    track code
+                                                ) {
+                                                    <mat-option [value]="code">
+                                                        {{ code }}
+                                                    </mat-option>
+                                                }
+                                            </mat-select>
+                                            <mat-error>
+                                                {{
+                                                    'CALENDAR_EVENT.CATERING_CHARGE_CODE_REQUIRED'
+                                                        | translate
+                                                }}
+                                            </mat-error>
+                                        </mat-form-field>
+                                    }
+                                    @if (form.value.catering?.length) {
+                                        <mat-form-field
+                                            appearance="outline"
+                                            class="w-full"
+                                            [class.mt-2]="
+                                                !(
+                                                    form.value.catering
+                                                        ?.length && has_codes
+                                                    | async
+                                                )
+                                            "
+                                        >
+                                            <textarea
+                                                matInput
+                                                formControlName="catering_notes"
+                                                [placeholder]="
+                                                    'CALENDAR_EVENT.CATERING_NOTES'
+                                                        | translate
+                                                "
+                                            ></textarea>
+                                            <mat-error>
+                                                {{
+                                                    'CALENDAR_EVENT.CATERING_NOTES_REQUIRED'
+                                                        | translate
+                                                }}
+                                            </mat-error>
+                                        </mat-form-field>
+                                    }
+                                </div>
+                            </section>
+                        }
+                        @if (has_assets) {
+                            <section class="p-2">
+                                <h3 class="flex items-center space-x-2">
+                                    <div
+                                        class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
+                                    >
+                                        {{
+                                            !(has_catering | async) ? '4' : '5'
+                                        }}
+                                    </div>
+                                    <div class="text-xl">
+                                        {{ 'RESOURCE.ASSETS' | translate }}
+                                    </div>
+                                    <div class="w-px flex-1"></div>
+                                    <button
+                                        icon
+                                        name="toggle-assets-meeting"
+                                        matRipple
+                                        (click)="
+                                            hide_block.assets =
+                                                !hide_block.assets
                                         "
-                                        [ngModelOptions]="{ standalone: true }"
+                                    >
+                                        <icon>{{
+                                            hide_block.assets
+                                                ? 'expand_more'
+                                                : 'expand_less'
+                                        }}</icon>
+                                    </button>
+                                </h3>
+                                <div
+                                    class="overflow-hidden"
+                                    [@show]="
+                                        hide_block.assets ? 'hide' : 'show'
+                                    "
+                                >
+                                    <asset-list-field
+                                        [options]="{
+                                            date: form.getRawValue().date,
+                                            duration: form.value.duration,
+                                            all_day: form.value.all_day,
+                                            zone_id: form.value?.resources
+                                                ?.length
+                                                ? form.value?.resources[0]
+                                                      ?.level?.parent_id
+                                                : '',
+                                        }"
+                                        [rejected_ids]="invalid_assets"
+                                        formControlName="assets"
+                                    ></asset-list-field>
+                                </div>
+                            </section>
+                        }
+                        @if (!hide_notes) {
+                            <section class="p-2">
+                                <h3 class="mb-4 flex items-center space-x-2">
+                                    <div
+                                        class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
+                                    >
+                                        {{
+                                            !(has_catering | async) ||
+                                            !has_assets
+                                                ? !(has_catering | async) &&
+                                                  !has_assets
+                                                    ? '4'
+                                                    : '5'
+                                                : '6'
+                                        }}
+                                    </div>
+                                    <div class="text-xl">
+                                        {{
+                                            'CALENDAR_EVENT.NOTES_HEADER'
+                                                | translate
+                                        }}
+                                    </div>
+                                </h3>
+                                <div class="flex w-full flex-col">
+                                    <label for="notes">
+                                        {{
+                                            'CALENDAR_EVENT.NOTES_INFO'
+                                                | translate
+                                        }}
+                                    </label>
+                                    <rich-text-input
+                                        name="notes"
+                                        formControlName="body"
                                         [placeholder]="
-                                            'CALENDAR_EVENT.CATERING_CHARGE_CODE_SEACH'
+                                            'CALENDAR_EVENT.NOTES_INFO'
                                                 | translate
                                         "
-                                    />
-                                    <mat-option class="hidden"></mat-option>
-                                    <mat-option
-                                        *ngFor="
-                                            let code of filtered_codes | async
-                                        "
-                                        [value]="code"
-                                    >
-                                        {{ code }}
-                                    </mat-option>
-                                </mat-select>
-                                <mat-error>
-                                    {{
-                                        'CALENDAR_EVENT.CATERING_CHARGE_CODE_REQUIRED'
-                                            | translate
-                                    }}
-                                </mat-error>
-                            </mat-form-field>
-                            <mat-form-field
-                                appearance="outline"
-                                class="w-full"
-                                [class.mt-2]="
-                                    !(
-                                        form.value.catering?.length && has_codes
-                                        | async
-                                    )
-                                "
-                                *ngIf="form.value.catering?.length"
-                            >
-                                <textarea
-                                    matInput
-                                    formControlName="catering_notes"
-                                    [placeholder]="
-                                        'CALENDAR_EVENT.CATERING_NOTES'
-                                            | translate
-                                    "
-                                ></textarea>
-                                <mat-error>
-                                    {{
-                                        'CALENDAR_EVENT.CATERING_NOTES_REQUIRED'
-                                            | translate
-                                    }}
-                                </mat-error>
-                            </mat-form-field>
-                        </div>
-                    </section>
-                    <section class="p-2" *ngIf="has_assets">
-                        <h3 class="flex items-center space-x-2">
-                            <div
-                                class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
-                            >
-                                {{ !(has_catering | async) ? '4' : '5' }}
-                            </div>
-                            <div class="text-xl">
-                                {{ 'RESOURCE.ASSETS' | translate }}
-                            </div>
-                            <div class="w-px flex-1"></div>
-                            <button
-                                icon
-                                name="toggle-assets-meeting"
-                                matRipple
-                                (click)="hide_block.assets = !hide_block.assets"
-                            >
-                                <icon>{{
-                                    hide_block.assets
-                                        ? 'expand_more'
-                                        : 'expand_less'
-                                }}</icon>
-                            </button>
-                        </h3>
-                        <div
-                            class="overflow-hidden"
-                            [@show]="hide_block.assets ? 'hide' : 'show'"
+                                    ></rich-text-input>
+                                </div>
+                            </section>
+                        }
+                        <section
+                            class="flex flex-col items-center p-2 sm:flex-row sm:space-x-2"
                         >
-                            <asset-list-field
-                                [options]="{
-                                    date: form.getRawValue().date,
-                                    duration: form.value.duration,
-                                    all_day: form.value.all_day,
-                                    zone_id: form.value?.resources?.length
-                                        ? form.value?.resources[0]?.level
-                                              ?.parent_id
-                                        : '',
-                                }"
-                                [rejected_ids]="invalid_assets"
-                                formControlName="assets"
-                            ></asset-list-field>
-                        </div>
-                    </section>
-                    <section class="p-2" *ngIf="!hide_notes">
-                        <h3 class="mb-4 flex items-center space-x-2">
-                            <div
-                                class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
+                            <button
+                                btn
+                                name="open-meeting-confirm"
+                                matRipple
+                                confirm
+                                class="mb-2 w-full sm:mb-0 sm:w-auto"
+                                (click)="viewConfirm()"
                             >
                                 {{
-                                    !(has_catering | async) || !has_assets
-                                        ? !(has_catering | async) && !has_assets
-                                            ? '4'
-                                            : '5'
-                                        : '6'
+                                    'CALENDAR_EVENT.CONFIRM_DETAILS' | translate
                                 }}
-                            </div>
-                            <div class="text-xl">
-                                {{ 'CALENDAR_EVENT.NOTES_HEADER' | translate }}
-                            </div>
-                        </h3>
-                        <div class="flex w-full flex-col">
-                            <label for="notes">
-                                {{ 'CALENDAR_EVENT.NOTES_INFO' | translate }}
-                            </label>
-                            <rich-text-input
-                                name="notes"
-                                formControlName="body"
-                                [placeholder]="
-                                    'CALENDAR_EVENT.NOTES_INFO' | translate
-                                "
-                            ></rich-text-input>
-                        </div>
-                    </section>
-                    <section
-                        class="flex flex-col items-center p-2 sm:flex-row sm:space-x-2"
-                    >
-                        <button
-                            btn
-                            name="open-meeting-confirm"
-                            matRipple
-                            confirm
-                            class="mb-2 w-full sm:mb-0 sm:w-auto"
-                            (click)="viewConfirm()"
-                        >
-                            {{ 'CALENDAR_EVENT.CONFIRM_DETAILS' | translate }}
-                        </button>
-                        <button
-                            btn
-                            name="clear-form-meeting"
-                            matRipple
-                            clear-form
-                            class="inverse w-full sm:w-auto"
-                            (click)="clearForm()"
-                        >
-                            {{
-                                (!!form.value.id ? 'FORM.RESET' : 'FORM.CLEAR')
-                                    | translate
-                            }}
-                        </button>
-                    </section>
-                </form>
+                            </button>
+                            <button
+                                btn
+                                name="clear-form-meeting"
+                                matRipple
+                                clear-form
+                                class="inverse w-full sm:w-auto"
+                                (click)="clearForm()"
+                            >
+                                {{
+                                    (!!form.value.id
+                                        ? 'FORM.RESET'
+                                        : 'FORM.CLEAR'
+                                    ) | translate
+                                }}
+                            </button>
+                        </section>
+                    </form>
+                }
             </div>
         </div>
     `,

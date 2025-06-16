@@ -26,120 +26,141 @@ import { map } from 'rxjs/operators';
                         ) | translate
                     }}
                 </h2>
-                <button icon matRipple mat-dialog-close *ngIf="!loading">
-                    <icon>close</icon>
-                </button>
+                @if (!loading) {
+                    <button icon matRipple mat-dialog-close>
+                        <icon>close</icon>
+                    </button>
+                }
             </header>
-            <main
-                *ngIf="!loading; else load_state"
-                class="flex max-h-[65vh] flex-col overflow-auto p-4"
-                [formGroup]="form"
-            >
-                <label for="name">{{ 'RESOURCE.LEVEL' | translate }}</label>
-                <mat-form-field appearance="outline" class="w-full">
-                    <mat-select
-                        [ngModel]="form.value.zones[0]"
-                        (ngModelChange)="form.patchValue({ zones: [$event] })"
-                        [ngModelOptions]="{ standalone: true }"
-                    >
-                        <mat-option
-                            *ngFor="let level of levels | async"
-                            [value]="level.id"
+            @if (!loading) {
+                <main
+                    class="flex max-h-[65vh] flex-col overflow-auto p-4"
+                    [formGroup]="form"
+                >
+                    <label for="name">{{ 'RESOURCE.LEVEL' | translate }}</label>
+                    <mat-form-field appearance="outline" class="w-full">
+                        <mat-select
+                            [ngModel]="form.value.zones[0]"
+                            (ngModelChange)="
+                                form.patchValue({ zones: [$event] })
+                            "
+                            [ngModelOptions]="{ standalone: true }"
                         >
-                            <div class="flex flex-col-reverse">
-                                <div
-                                    class="text-xs opacity-30"
-                                    *ngIf="use_region"
-                                >
-                                    {{
-                                        (level.parent_id | building)
-                                            ?.display_name
-                                    }}
-                                    <span class="opacity-0"> - </span>
-                                </div>
-                                <div>
-                                    {{ level.display_name || level.name }}
-                                </div>
-                            </div>
-                        </mat-option>
-                    </mat-select>
-                </mat-form-field>
-                <div class="flex space-x-4">
-                    <div class="flex flex-1 flex-col">
-                        <label for="name">{{ 'FORM.NAME' | translate }}</label>
-                        <mat-form-field appearance="outline">
-                            <input
-                                matInput
-                                name="name"
-                                formControlName="name"
-                                [placeholder]="'FORM.NAME' | translate"
-                            />
-                            <mat-error>{{
-                                'FORM.NAME_REQUIRED' | translate
-                            }}</mat-error>
-                        </mat-form-field>
+                            @for (level of levels | async; track level) {
+                                <mat-option [value]="level.id">
+                                    <div class="flex flex-col-reverse">
+                                        @if (use_region) {
+                                            <div class="text-xs opacity-30">
+                                                {{
+                                                    (level.parent_id | building)
+                                                        ?.display_name
+                                                }}
+                                                <span class="opacity-0">
+                                                    -
+                                                </span>
+                                            </div>
+                                        }
+                                        <div>
+                                            {{
+                                                level.display_name || level.name
+                                            }}
+                                        </div>
+                                    </div>
+                                </mat-option>
+                            }
+                        </mat-select>
+                    </mat-form-field>
+                    <div class="flex space-x-4">
+                        <div class="flex flex-1 flex-col">
+                            <label for="name">{{
+                                'FORM.NAME' | translate
+                            }}</label>
+                            <mat-form-field appearance="outline">
+                                <input
+                                    matInput
+                                    name="name"
+                                    formControlName="name"
+                                    [placeholder]="'FORM.NAME' | translate"
+                                />
+                                <mat-error>{{
+                                    'FORM.NAME_REQUIRED' | translate
+                                }}</mat-error>
+                            </mat-form-field>
+                        </div>
+                        <div class="flex flex-1 flex-col">
+                            <label for="map-id">{{
+                                'EXPLORE.MAP_ID' | translate
+                            }}</label>
+                            <mat-form-field appearance="outline">
+                                <input
+                                    matInput
+                                    name="map-id"
+                                    formControlName="map_id"
+                                    [placeholder]="'EXPLORE.MAP_ID' | translate"
+                                />
+                                <mat-error>
+                                    {{ 'EXPLORE.MAP_ID_REQUIRED' | translate }}
+                                </mat-error>
+                            </mat-form-field>
+                        </div>
                     </div>
-                    <div class="flex flex-1 flex-col">
-                        <label for="map-id">{{
-                            'EXPLORE.MAP_ID' | translate
-                        }}</label>
-                        <mat-form-field appearance="outline">
-                            <input
-                                matInput
-                                name="map-id"
-                                formControlName="map_id"
-                                [placeholder]="'EXPLORE.MAP_ID' | translate"
-                            />
-                            <mat-error>
-                                {{ 'EXPLORE.MAP_ID_REQUIRED' | translate }}
-                            </mat-error>
-                        </mat-form-field>
-                    </div>
-                </div>
-                <label for="row">{{ 'COMMON.HEIGHT' | translate }}</label>
-                <a-counter
-                    formControlName="height"
-                    class="mb-4"
-                    [min]="1"
-                    [max]="16"
-                    [render_fn]="render_fn"
-                ></a-counter>
-                <label for="notes">{{ 'FORM.NOTES' | translate }}</label>
-                <mat-form-field appearance="outline">
-                    <textarea
-                        matInput
-                        name="notes"
-                        [placeholder]="'FORM.NOTES' | translate"
-                        formControlName="notes"
-                    ></textarea>
-                </mat-form-field>
-                <label for="tags"> {{ 'COMMON.TAGS' | translate }} </label>
-                <mat-form-field appearance="outline" class="w-full">
-                    <mat-chip-grid name="tags" #chipList aria-label="Tag List">
-                        <mat-chip-row
-                            *ngFor="let item of tag_list"
-                            (removed)="removeTag(item)"
+                    <label for="row">{{ 'COMMON.HEIGHT' | translate }}</label>
+                    <a-counter
+                        formControlName="height"
+                        class="mb-4"
+                        [min]="1"
+                        [max]="16"
+                        [render_fn]="render_fn"
+                    ></a-counter>
+                    <label for="notes">{{ 'FORM.NOTES' | translate }}</label>
+                    <mat-form-field appearance="outline">
+                        <textarea
+                            matInput
+                            name="notes"
+                            [placeholder]="'FORM.NOTES' | translate"
+                            formControlName="notes"
+                        ></textarea>
+                    </mat-form-field>
+                    <label for="tags"> {{ 'COMMON.TAGS' | translate }} </label>
+                    <mat-form-field appearance="outline" class="w-full">
+                        <mat-chip-grid
+                            name="tags"
+                            #chipList
+                            aria-label="Tag List"
                         >
-                            <div class="max-w-md truncate">{{ item }}</div>
-                            <button
-                                matChipRemove
-                                [attr.aria-label]="
-                                    'COMMON.ITEM_REMOVE' | translate
-                                "
-                            >
-                                <icon>cancel</icon>
-                            </button>
-                        </mat-chip-row>
-                    </mat-chip-grid>
-                    <input
-                        placeholder="Tags..."
-                        [matChipInputFor]="chipList"
-                        [matChipInputSeparatorKeyCodes]="separators"
-                        [matChipInputAddOnBlur]="true"
-                        (matChipInputTokenEnd)="addTag($event)"
-                    />
-                </mat-form-field>
-            </main>
+                            @for (item of tag_list; track item) {
+                                <mat-chip-row (removed)="removeTag(item)">
+                                    <div class="max-w-md truncate">
+                                        {{ item }}
+                                    </div>
+                                    <button
+                                        matChipRemove
+                                        [attr.aria-label]="
+                                            'COMMON.ITEM_REMOVE' | translate
+                                        "
+                                    >
+                                        <icon>cancel</icon>
+                                    </button>
+                                </mat-chip-row>
+                            }
+                        </mat-chip-grid>
+                        <input
+                            placeholder="Tags..."
+                            [matChipInputFor]="chipList"
+                            [matChipInputSeparatorKeyCodes]="separators"
+                            [matChipInputAddOnBlur]="true"
+                            (matChipInputTokenEnd)="addTag($event)"
+                        />
+                    </mat-form-field>
+                </main>
+            } @else {
+                <main
+                    class="flex flex-col items-center justify-center space-y-2 p-8"
+                >
+                    <mat-spinner diameter="32"></mat-spinner>
+                    <p>{{ 'APP.CONCIERGE.LOCKERS_BANK_SAVING' | translate }}</p>
+                </main>
+            }
             <footer
                 class="flex items-center justify-end space-x-2 border-t border-base-300 px-4 py-2"
             >
@@ -148,14 +169,6 @@ import { map } from 'rxjs/operators';
                 </button>
             </footer>
         </div>
-        <ng-template #load_state>
-            <main
-                class="flex flex-col items-center justify-center space-y-2 p-8"
-            >
-                <mat-spinner diameter="32"></mat-spinner>
-                <p>{{ 'APP.CONCIERGE.LOCKERS_BANK_SAVING' | translate }}</p>
-            </main>
-        </ng-template>
     `,
     styles: [``],
     standalone: false,

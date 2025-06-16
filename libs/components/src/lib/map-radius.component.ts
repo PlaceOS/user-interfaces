@@ -15,27 +15,33 @@ export interface MapRadiusData {
 @Component({
     selector: '[map-radius]',
     template: `
-        <ng-container *ngIf="show && radius" (window:resize)="updateRadius()">
-            <div
-                radius
-                class="center rounded-full border-4 border-dashed"
-                [style.border-color]="stroke"
-                [style.background-color]="fill + '40'"
-                [style.width]="radius * zoom + 'px'"
-                [style.height]="radius * zoom + 'px'"
-            ></div>
-            <div
-                *ngIf="message && show_message"
-                message
-                [style.top]="'-' + (radius / 2) * zoom + 'px'"
-                class="text-gray-700 whitespace-no-wrap absolute top-0 m-2 flex w-64 flex-col rounded bg-base-100 p-2 shadow"
-            >
-                {{ message }}
-                <span *ngIf="last_seen" class="text-xs">
-                    {{ 'COMMON.LAST_UPDATE' | translate }}: {{ last_seen_at }}
-                </span>
-            </div>
-        </ng-container>
+        @if (show && radius) {
+            <ng-container (window:resize)="updateRadius()">
+                <div
+                    radius
+                    class="center rounded-full border-4 border-dashed"
+                    [style.border-color]="stroke"
+                    [style.background-color]="fill + '40'"
+                    [style.width]="radius * zoom + 'px'"
+                    [style.height]="radius * zoom + 'px'"
+                ></div>
+                @if (message && show_message) {
+                    <div
+                        message
+                        [style.top]="'-' + (radius / 2) * zoom + 'px'"
+                        class="text-gray-700 whitespace-no-wrap absolute top-0 m-2 flex w-64 flex-col rounded bg-base-100 p-2 shadow"
+                    >
+                        {{ message }}
+                        @if (last_seen) {
+                            <span class="text-xs">
+                                {{ 'COMMON.LAST_UPDATE' | translate }}:
+                                {{ last_seen_at }}
+                            </span>
+                        }
+                    </div>
+                }
+            </ng-container>
+        }
     `,
     styles: [
         `

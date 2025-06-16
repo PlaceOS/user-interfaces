@@ -81,37 +81,33 @@ import { EventStateService } from './event-state.service';
                         [(ngModel)]="selected_range"
                         (ngModelChange)="setPeriod($event)"
                     >
-                        <mat-option
-                            [value]="range.id"
-                            *ngFor="let range of period_list"
-                        >
-                            {{ range.display }}
-                        </mat-option>
+                        @for (range of period_list; track range) {
+                            <mat-option [value]="range.id">
+                                {{ range.display }}
+                            </mat-option>
+                        }
                     </mat-select>
                 </mat-form-field>
             </div>
             <div class="relative h-1/2 w-full flex-1 overflow-y-auto px-8">
-                <div
-                    class="min-h-full w-full overflow-x-auto"
-                    *ngIf="view === 'list'"
-                >
-                    <event-listing class="block"></event-listing>
-                </div>
-                <event-calendar
-                    *ngIf="view === 'calendar'"
-                    [period]="period | async"
-                ></event-calendar>
+                @if (view === 'list') {
+                    <div class="min-h-full w-full overflow-x-auto">
+                        <event-listing class="block"></event-listing>
+                    </div>
+                }
+                @if (view === 'calendar') {
+                    <event-calendar [period]="period | async"></event-calendar>
+                }
             </div>
         </div>
-        <div
-            *ngIf="!has_calendar"
-            class="absolute inset-0 z-50 flex items-center justify-center"
-        >
-            <div class="absolute inset-0 bg-base-100 opacity-80"></div>
-            <p class="max-w-[32rem] text-lg opacity-60">
-                {{ 'APP.CONCIERGE.EVENTS_CONFIG_ERROR' | translate }}
-            </p>
-        </div>
+        @if (!has_calendar) {
+            <div class="absolute inset-0 z-50 flex items-center justify-center">
+                <div class="absolute inset-0 bg-base-100 opacity-80"></div>
+                <p class="max-w-[32rem] text-lg opacity-60">
+                    {{ 'APP.CONCIERGE.EVENTS_CONFIG_ERROR' | translate }}
+                </p>
+            </div>
+        }
     `,
     styles: [
         `

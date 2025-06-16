@@ -75,15 +75,18 @@ import { WorkplaceSettingsFormModalComponent } from '../ui/app-settings/workplac
             {{ (data | level)?.display_name || (data | level)?.name }}
         </ng-template>
         <ng-template #image_template let-data="data">
-            <img
-                auth
-                *ngIf="data.length"
-                [source]="data[0]"
-                class="max-h-[3rem] max-w-[8rem]"
-            />
-            <span *ngIf="!data.length" class="opacity-30">{{
-                'COMMON.IMAGES_EMPTY' | translate
-            }}</span>
+            @if (data.length) {
+                <img
+                    auth
+                    [source]="data[0]"
+                    class="max-h-[3rem] max-w-[8rem]"
+                />
+            }
+            @if (!data.length) {
+                <span class="opacity-30">{{
+                    'COMMON.IMAGES_EMPTY' | translate
+                }}</span>
+            }
         </ng-template>
         <ng-template #action_template let-row="row">
             <div class="flex w-full justify-center space-x-2 p-1">
@@ -113,9 +116,7 @@ import { WorkplaceSettingsFormModalComponent } from '../ui/app-settings/workplac
                             (click)="editWorkplaceSettings(row)"
                         >
                             <div class="flex items-center space-x-2">
-                                <icon class="text-xl"
-                                    >meeting_room</icon
-                                >
+                                <icon class="text-xl">meeting_room</icon>
                                 <div>
                                     {{
                                         'APP.CONCIERGE.APP_SETTINGS_WORKPLACE'
@@ -129,9 +130,7 @@ import { WorkplaceSettingsFormModalComponent } from '../ui/app-settings/workplac
                             (click)="editConciergeSettings(row)"
                         >
                             <div class="flex items-center space-x-2">
-                                <icon class="text-xl"
-                                    >support_agent</icon
-                                >
+                                <icon class="text-xl">support_agent</icon>
                                 <div>
                                     {{
                                         'APP.CONCIERGE.APP_SETTINGS_CONCIERGE'
@@ -227,9 +226,7 @@ import { WorkplaceSettingsFormModalComponent } from '../ui/app-settings/workplac
                     </button>
                     <button mat-menu-item (click)="removeBuilding(row)">
                         <div class="text-red-500 flex items-center space-x-2">
-                            <icon class="text-xl text-error">
-                                delete
-                            </icon>
+                            <icon class="text-xl text-error"> delete </icon>
                             <div>
                                 {{
                                     'APP.CONCIERGE.BUILDINGS_REMOVE' | translate

@@ -39,11 +39,13 @@ import { BaseWidgetComponent } from './base-widget.component';
         >
             @let data = chart_data$ | async;
             @if (data?.length) {
-                <div *ngFor="let d of data" class="mx-4 flex flex-1 p-2">
-                    <blockquote class="text-sm">
-                        {{ d }}
-                    </blockquote>
-                </div>
+                @for (d of data; track d) {
+                    <div class="mx-4 flex flex-1 p-2">
+                        <blockquote class="text-sm">
+                            {{ d }}
+                        </blockquote>
+                    </div>
+                }
             } @else {
                 <p
                     class="mx-4 mb-2 rounded bg-base-300 p-8 text-center opacity-30"

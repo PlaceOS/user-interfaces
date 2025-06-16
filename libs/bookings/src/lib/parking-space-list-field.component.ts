@@ -2,7 +2,6 @@ import { Component, Input, forwardRef } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 
-import { CommonModule } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
@@ -20,90 +19,91 @@ const EMPTY_FAVS: string[] = [];
     selector: `parking-space-list-field`,
     template: `
         <div list class="space-y-2">
-            <div
-                space
-                class="relative flex w-full items-center rounded-lg border border-base-200 p-2 shadow"
-                *ngFor="let space of spaces"
-            >
+            @for (space of spaces; track space) {
                 <div
-                    class="mr-4 flex h-24 w-24 items-center justify-center overflow-hidden rounded-xl bg-base-200"
+                    space
+                    class="relative flex w-full items-center rounded-lg border border-base-200 p-2 shadow"
                 >
-                    <img
-                        auth
-                        *ngIf="space.images?.length; else placeholder"
-                        class="h-full object-cover"
-                        [source]="space.images[0]"
-                    />
-                    <ng-template #placeholder>
-                        <img
-                            class="m-auto"
-                            src="assets/icons/car-placeholder.svg"
-                        />
-                    </ng-template>
-                </div>
-                <div class="space-y-2 pb-4">
-                    <div class="font-medium">
-                        {{ space.name || 'Meeting Resource' }}
-                    </div>
-                    <div class="flex items-center space-x-2 text-sm">
-                        <icon class="text-blue-500">place</icon>
-                        <p>
-                            {{
-                                space.location ||
-                                    space.level?.display_name ||
-                                    space.level?.name ||
-                                    space.zone?.display_name ||
-                                    space.zone?.name
-                            }}
-                        </p>
-                    </div>
                     <div
-                        class="absolute bottom-0 right-0 flex items-center justify-end text-xs"
+                        class="mr-4 flex h-24 w-24 items-center justify-center overflow-hidden rounded-xl bg-base-200"
                     >
-                        <button
-                            btn
-                            matRipple
-                            edit-space
-                            class="clear"
-                            (click)="changeResources(space)"
-                        >
-                            <div class="flex items-center space-x-2">
-                                <icon class="text-2xl">edit</icon>
-                                <div>{{ 'COMMON.CHANGE' | translate }}</div>
-                            </div>
-                        </button>
-                        <button
-                            btn
-                            matRipple
-                            remove-space
-                            class="clear"
-                            (click)="removeResource(space)"
-                        >
-                            <div class="flex items-center space-x-2">
-                                <icon class="text-2xl">close</icon>
-                                <div>{{ 'COMMON.REMOVE' | translate }}</div>
-                            </div>
-                        </button>
+                        @if (space.images?.length) {
+                            <img
+                                auth
+                                class="h-full object-cover"
+                                [source]="space.images[0]"
+                            />
+                        } @else {
+                            <img
+                                class="m-auto"
+                                src="assets/icons/car-placeholder.svg"
+                            />
+                        }
                     </div>
-                </div>
-                <button
-                    icon
-                    matRipple
-                    fav
-                    class="absolute right-1 top-1"
-                    [class.text-info]="favorites.includes(asset?.id)"
-                    (click)="toggleFavourite(asset)"
-                >
-                    <icon
-                        [className]="
-                            favorites.includes(asset?.id)
-                                ? 'material-symbols-rounded'
-                                : 'material-symbols-outlined'
-                        "
-                        >favorite</icon
+                    <div class="space-y-2 pb-4">
+                        <div class="font-medium">
+                            {{ space.name || 'Meeting Resource' }}
+                        </div>
+                        <div class="flex items-center space-x-2 text-sm">
+                            <icon class="text-blue-500">place</icon>
+                            <p>
+                                {{
+                                    space.location ||
+                                        space.level?.display_name ||
+                                        space.level?.name ||
+                                        space.zone?.display_name ||
+                                        space.zone?.name
+                                }}
+                            </p>
+                        </div>
+                        <div
+                            class="absolute bottom-0 right-0 flex items-center justify-end text-xs"
+                        >
+                            <button
+                                btn
+                                matRipple
+                                edit-space
+                                class="clear"
+                                (click)="changeResources(space)"
+                            >
+                                <div class="flex items-center space-x-2">
+                                    <icon class="text-2xl">edit</icon>
+                                    <div>{{ 'COMMON.CHANGE' | translate }}</div>
+                                </div>
+                            </button>
+                            <button
+                                btn
+                                matRipple
+                                remove-space
+                                class="clear"
+                                (click)="removeResource(space)"
+                            >
+                                <div class="flex items-center space-x-2">
+                                    <icon class="text-2xl">close</icon>
+                                    <div>{{ 'COMMON.REMOVE' | translate }}</div>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+                    <button
+                        icon
+                        matRipple
+                        fav
+                        class="absolute right-1 top-1"
+                        [class.text-info]="favorites.includes(asset?.id)"
+                        (click)="toggleFavourite(asset)"
                     >
-                </button>
-            </div>
+                        <icon
+                            [className]="
+                                favorites.includes(asset?.id)
+                                    ? 'material-symbols-rounded'
+                                    : 'material-symbols-outlined'
+                            "
+                            >favorite</icon
+                        >
+                    </button>
+                </div>
+            }
         </div>
         <button
             btn
@@ -130,7 +130,6 @@ const EMPTY_FAVS: string[] = [];
         },
     ],
     imports: [
-        CommonModule,
         TranslatePipe,
         IconComponent,
         MatRippleModule,

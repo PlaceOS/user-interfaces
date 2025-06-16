@@ -26,35 +26,40 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
     selector: 'new-desk-map',
     template: `
         <div class="w-full border-b border-base-200 bg-base-100 p-2">
-            <mat-form-field
-                levels
-                appearance="outline"
-                class="no-subscript w-full"
-                *ngIf="(levels | async)?.length"
-            >
-                <mat-select
-                    name="location"
-                    [(ngModel)]="level"
-                    (ngModelChange)="setOptions({ zone_ids: [$event.id] })"
-                    [ngModelOptions]="{ standalone: true }"
-                    [placeholder]="'COMMON.LEVEL_ANY' | translate"
+            @if ((levels | async)?.length) {
+                <mat-form-field
+                    levels
+                    appearance="outline"
+                    class="no-subscript w-full"
                 >
-                    <mat-option
-                        *ngFor="let lvl of levels | async"
-                        [value]="lvl"
+                    <mat-select
+                        name="location"
+                        [(ngModel)]="level"
+                        (ngModelChange)="setOptions({ zone_ids: [$event.id] })"
+                        [ngModelOptions]="{ standalone: true }"
+                        [placeholder]="'COMMON.LEVEL_ANY' | translate"
                     >
-                        <div class="flex flex-col-reverse">
-                            <div class="text-xs opacity-30" *ngIf="use_region">
-                                {{ (lvl.parent_id | building)?.display_name }}
-                                <span class="opacity-0"> - </span>
-                            </div>
-                            <div>
-                                {{ lvl.display_name || lvl.name }}
-                            </div>
-                        </div>
-                    </mat-option>
-                </mat-select>
-            </mat-form-field>
+                        @for (lvl of levels | async; track lvl) {
+                            <mat-option [value]="lvl">
+                                <div class="flex flex-col-reverse">
+                                    @if (use_region) {
+                                        <div class="text-xs opacity-30">
+                                            {{
+                                                (lvl.parent_id | building)
+                                                    ?.display_name
+                                            }}
+                                            <span class="opacity-0"> - </span>
+                                        </div>
+                                    }
+                                    <div>
+                                        {{ lvl.display_name || lvl.name }}
+                                    </div>
+                                </div>
+                            </mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
+            }
         </div>
         <div class="relative w-full flex-1">
             <interactive-map

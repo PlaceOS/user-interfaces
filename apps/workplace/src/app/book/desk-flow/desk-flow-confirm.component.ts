@@ -27,19 +27,19 @@ import { map } from 'rxjs/operators';
                 {{ 'APP.WORKPLACE.DESK_CONFIRM_TITLE' | translate }}
             </h2>
             <div class="">
-                <mat-spinner
-                    diameter="32"
-                    *ngIf="loading | async"
-                ></mat-spinner>
-                <button
-                    icon
-                    name="close-desk-confirm"
-                    matRipple
-                    *ngIf="show_close"
-                    (click)="dismiss()"
-                >
-                    <icon class="text-2xl">close</icon>
-                </button>
+                @if (loading | async) {
+                    <mat-spinner diameter="32"></mat-spinner>
+                }
+                @if (show_close) {
+                    <button
+                        icon
+                        name="close-desk-confirm"
+                        matRipple
+                        (click)="dismiss()"
+                    >
+                        <icon class="text-2xl">close</icon>
+                    </button>
+                }
             </div>
         </header>
         <section period class="flex space-x-1 px-2 py-4 text-base">
@@ -50,158 +50,167 @@ import { map } from 'rxjs/operators';
                     <icon class="text-xl">calendar_today</icon>
                     <div date>{{ booking.date | date: 'fullDate' }}</div>
                 </div>
-                <div
-                    class="flex items-center space-x-2"
-                    *ngIf="
-                        booking.recurrence_type &&
-                        booking.recurrence_type !== 'none'
-                    "
-                >
-                    <icon class="text-xl">update</icon>
-                    <div date>{{ formatted_recurrence }}</div>
-                </div>
+                @if (
+                    booking.recurrence_type &&
+                    booking.recurrence_type !== 'none'
+                ) {
+                    <div class="flex items-center space-x-2">
+                        <icon class="text-xl">update</icon>
+                        <div date>{{ formatted_recurrence }}</div>
+                    </div>
+                }
                 <div class="flex items-center space-x-2">
                     <icon class="text-xl">schedule</icon>
                     <div time>
                         <div time>{{ formattedTime() }}</div>
-                        <div class="text-xs opacity-30" *ngIf="timezone">
-                            {{ formattedTime(tz) }}
-                        </div>
+                        @if (timezone) {
+                            <div class="text-xs opacity-30">
+                                {{ formattedTime(tz) }}
+                            </div>
+                        }
                     </div>
                 </div>
             </div>
         </section>
-        <section
-            desk
-            class="flex space-x-1 border-t border-neutral px-2 py-4 text-base"
-            *ngIf="booking_asset?.id"
-        >
-            <icon class="text-2xl text-success">done</icon>
-            <div details class="space-y-2">
-                <h3 class="text-xl">
-                    {{ booking_asset?.name || booking_asset?.id || '' }}
-                </h3>
-                <div class="flex items-center space-x-2">
-                    <icon>person</icon>
-                    <span>
-                        {{
-                            ((is_group | async)
-                                ? 'BOOKINGS.DESK_COUNT_GROUP'
-                                : 'BOOKINGS.DESK_COUNT_LONE'
-                            ) | translate
-                        }}
-                    </span>
-                </div>
-                <div class="flex items-center space-x-2">
-                    <icon>place</icon>
-                    <div>{{ location }}</div>
-                </div>
-                <ng-container *ngFor="let feat of booking_asset.features">
-                    <div features class="flex items-center space-x-2">
-                        <icon>arrow_upward</icon>
-                        <div>{{ feat }}</div>
-                    </div>
-                </ng-container>
-            </div>
-        </section>
-        <section
-            assets
-            class="flex max-h-[50vh] space-x-1 overflow-auto border-t px-2 py-4"
-            *ngIf="assets.length"
-        >
-            <icon class="text-success">done</icon>
-            <div details class="w-1/2 flex-1 pr-2 leading-6">
-                <h3>{{ 'BOOKINGS.DESK_ASSETS_REQUESTED' | translate }}</h3>
-                <div
-                    request
-                    *ngFor="let request of assets"
-                    class="overflow-hidden rounded-xl border bg-base-100"
-                    [class.border-error]="end_time < request.deliver_at"
-                    [class.border-base-300]="end_time >= request.deliver_at"
-                >
-                    <div class="flex items-center space-x-2 p-3">
-                        <div class="flex flex-1 items-center space-x-2">
-                            <div class="text-sm">
-                                {{
-                                    'FORM.ASSETS_REQUESTED_FOR'
-                                        | translate
-                                            : {
-                                                  time:
-                                                      request.deliver_at_time
-                                                      | date
-                                                          : 'MMM d, ' +
-                                                                time_format,
-                                              }
-                                }}
-                            </div>
-                            <div
-                                class="flex h-6 w-6 items-center justify-center rounded-full bg-error text-error-content"
-                                [matTooltip]="err_tooltip(request)"
-                                *ngIf="
-                                    end_time < request.deliver_at ||
-                                    request.conflict
-                                "
-                            >
-                                <icon>priority_high</icon>
-                            </div>
-                            <div class="flex-1"></div>
-                            <div
-                                class="rounded bg-success px-2 py-1 text-xs text-success-content"
-                            >
-                                {{
-                                    'COMMON.ITEM_COUNT'
-                                        | translate
-                                            : { count: request.item_count }
-                                }}
-                            </div>
-                        </div>
-                    </div>
-                    <div
-                        class="flex flex-col divide-y divide-base-100 bg-base-200"
-                    >
-                        <div
-                            class="flex items-center space-x-2 px-3 py-1 hover:opacity-90"
-                            *ngFor="let item of request.items"
-                        >
-                            <div class="flex flex-1 items-center">
-                                <span class="text-sm">{{
-                                    item.name || 'Item'
-                                }}</span>
-                            </div>
-                            <div
-                                class="rounded bg-success px-2 py-1 text-xs text-success-content"
-                            >
-                                x{{ item.quantity }}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <section
-            locker
-            class="flex space-x-1 border-t px-2 py-4"
-            *ngIf="needs_locker"
-        >
-            <icon class="text-success">done</icon>
-            <div details class="leading-6">
-                <h3>{{ 'BOOKINGS.DESK_LOCKER_REQUESTED' | translate }}</h3>
-                <div class="flex space-x-2">
-                    <span>Locker E-043</span>
-                </div>
-            </div>
-        </section>
-        <footer class="mt-4 w-full border-t border-base-200 p-2">
-            <button
-                name="confirm-desk"
-                btn
-                matRipple
-                class="w-full"
-                *ngIf="!(loading | async)"
-                (click)="postForm()"
+        @if (booking_asset?.id) {
+            <section
+                desk
+                class="flex space-x-1 border-t border-neutral px-2 py-4 text-base"
             >
-                {{ 'COMMON.CONFIRM' | translate }}
-            </button>
+                <icon class="text-2xl text-success">done</icon>
+                <div details class="space-y-2">
+                    <h3 class="text-xl">
+                        {{ booking_asset?.name || booking_asset?.id || '' }}
+                    </h3>
+                    <div class="flex items-center space-x-2">
+                        <icon>person</icon>
+                        <span>
+                            {{
+                                ((is_group | async)
+                                    ? 'BOOKINGS.DESK_COUNT_GROUP'
+                                    : 'BOOKINGS.DESK_COUNT_LONE'
+                                ) | translate
+                            }}
+                        </span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <icon>place</icon>
+                        <div>{{ location }}</div>
+                    </div>
+                    @for (feat of booking_asset.features; track feat) {
+                        <div features class="flex items-center space-x-2">
+                            <icon>arrow_upward</icon>
+                            <div>{{ feat }}</div>
+                        </div>
+                    }
+                </div>
+            </section>
+        }
+        @if (assets.length) {
+            <section
+                assets
+                class="flex max-h-[50vh] space-x-1 overflow-auto border-t px-2 py-4"
+            >
+                <icon class="text-success">done</icon>
+                <div details class="w-1/2 flex-1 pr-2 leading-6">
+                    <h3>{{ 'BOOKINGS.DESK_ASSETS_REQUESTED' | translate }}</h3>
+                    @for (request of assets; track request) {
+                        <div
+                            request
+                            class="overflow-hidden rounded-xl border bg-base-100"
+                            [class.border-error]="end_time < request.deliver_at"
+                            [class.border-base-300]="
+                                end_time >= request.deliver_at
+                            "
+                        >
+                            <div class="flex items-center space-x-2 p-3">
+                                <div class="flex flex-1 items-center space-x-2">
+                                    <div class="text-sm">
+                                        {{
+                                            'FORM.ASSETS_REQUESTED_FOR'
+                                                | translate
+                                                    : {
+                                                          time:
+                                                              request.deliver_at_time
+                                                              | date
+                                                                  : 'MMM d, ' +
+                                                                        time_format,
+                                                      }
+                                        }}
+                                    </div>
+                                    @if (
+                                        end_time < request.deliver_at ||
+                                        request.conflict
+                                    ) {
+                                        <div
+                                            class="flex h-6 w-6 items-center justify-center rounded-full bg-error text-error-content"
+                                            [matTooltip]="err_tooltip(request)"
+                                        >
+                                            <icon>priority_high</icon>
+                                        </div>
+                                    }
+                                    <div class="flex-1"></div>
+                                    <div
+                                        class="rounded bg-success px-2 py-1 text-xs text-success-content"
+                                    >
+                                        {{
+                                            'COMMON.ITEM_COUNT'
+                                                | translate
+                                                    : {
+                                                          count: request.item_count,
+                                                      }
+                                        }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div
+                                class="flex flex-col divide-y divide-base-100 bg-base-200"
+                            >
+                                @for (item of request.items; track item) {
+                                    <div
+                                        class="flex items-center space-x-2 px-3 py-1 hover:opacity-90"
+                                    >
+                                        <div class="flex flex-1 items-center">
+                                            <span class="text-sm">{{
+                                                item.name || 'Item'
+                                            }}</span>
+                                        </div>
+                                        <div
+                                            class="rounded bg-success px-2 py-1 text-xs text-success-content"
+                                        >
+                                            x{{ item.quantity }}
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            </section>
+        }
+        @if (needs_locker) {
+            <section locker class="flex space-x-1 border-t px-2 py-4">
+                <icon class="text-success">done</icon>
+                <div details class="leading-6">
+                    <h3>{{ 'BOOKINGS.DESK_LOCKER_REQUESTED' | translate }}</h3>
+                    <div class="flex space-x-2">
+                        <span>Locker E-043</span>
+                    </div>
+                </div>
+            </section>
+        }
+        <footer class="mt-4 w-full border-t border-base-200 p-2">
+            @if (!(loading | async)) {
+                <button
+                    name="confirm-desk"
+                    btn
+                    matRipple
+                    class="w-full"
+                    (click)="postForm()"
+                >
+                    {{ 'COMMON.CONFIRM' | translate }}
+                </button>
+            }
         </footer>
     `,
     styles: [``],

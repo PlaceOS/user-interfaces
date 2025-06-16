@@ -33,79 +33,87 @@ const STORE_BUILDING_KEY = `${STORE_PREFIX}.building`;
                 >
                     {{ 'APP.SIGNAGE.BOOTSTRAP_TITLE' | translate }}
                 </header>
-                <main *ngIf="!loading; else load_state" class="px-4 py-2">
-                    <!-- <label for="building">{{'APP.SIGNAGE.BOOTSTRAP_BUILDING' | translate}}</label>
-                    <mat-form-field appearance="outline">
-                        <mat-select
-                            #select
-                            name="building"
-                            [ngModel]="(active_building | async)?.id"
-                            (ngModelChange)="setBuilding($event)"
-                            [placeholder]="'APP.SIGNAGE.BOOTSTRAP_BUILDING_SELECT' | translate"
-                        >
-                            <mat-option
-                                *ngFor="let option of buildings | async"
-                                [value]="option.id"
-                            >
-                                {{ option.name }}
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field> -->
-                    <label for="display">
-                        {{ 'APP.SIGNAGE.BOOTSTRAP_DISPLAY' | translate }}
-                    </label>
-                    <mat-form-field appearance="outline">
-                        <mat-select
-                            #select
-                            name="display"
-                            [(ngModel)]="active_display"
-                            [placeholder]="
-                                'APP.SIGNAGE.BOOTSTRAP_DISPLAY_SELECT'
-                                    | translate
-                            "
-                            [disabled]="!(displays | async)?.length"
-                        >
-                            <mat-option
-                                *ngFor="let option of displays | async"
-                                [value]="option.id"
-                            >
-                                <div class="flex flex-col leading-tight">
-                                    <div>{{ option.name }}</div>
-                                    <div class="text-xs opacity-30">
-                                        {{
-                                            building(option)?.display_name ||
-                                                building(option)?.name ||
-                                                'Unknown Building'
-                                        }}
-                                        -
-                                        {{
-                                            level(option)?.display_name ||
-                                                level(option)?.name ||
-                                                'Unknown Level'
-                                        }}
-                                    </div>
-                                </div>
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                    <button
-                        btn
-                        matRipple
-                        class="mb-2 w-full"
-                        [disabled]="!active_building || !active_display"
-                        (click)="bootstrapKiosk()"
+                @if (!loading) {
+                    <main class="px-4 py-2">
+                        <!-- <label for="building">{{'APP.SIGNAGE.BOOTSTRAP_BUILDING' | translate}}</label>
+                <mat-form-field appearance="outline">
+                  <mat-select
+                    #select
+                    name="building"
+                    [ngModel]="(active_building | async)?.id"
+                    (ngModelChange)="setBuilding($event)"
+                    [placeholder]="'APP.SIGNAGE.BOOTSTRAP_BUILDING_SELECT' | translate"
                     >
-                        {{ 'COMMON.BOOTSTRAP_SUBMIT' | translate }}
-                    </button>
-                </main>
+                    <mat-option
+                      *ngFor="let option of buildings | async"
+                      [value]="option.id"
+                      >
+                      {{ option.name }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field> -->
+                        <label for="display">
+                            {{ 'APP.SIGNAGE.BOOTSTRAP_DISPLAY' | translate }}
+                        </label>
+                        <mat-form-field appearance="outline">
+                            <mat-select
+                                #select
+                                name="display"
+                                [(ngModel)]="active_display"
+                                [placeholder]="
+                                    'APP.SIGNAGE.BOOTSTRAP_DISPLAY_SELECT'
+                                        | translate
+                                "
+                                [disabled]="!(displays | async)?.length"
+                            >
+                                @for (
+                                    option of displays | async;
+                                    track option
+                                ) {
+                                    <mat-option [value]="option.id">
+                                        <div
+                                            class="flex flex-col leading-tight"
+                                        >
+                                            <div>{{ option.name }}</div>
+                                            <div class="text-xs opacity-30">
+                                                {{
+                                                    building(option)
+                                                        ?.display_name ||
+                                                        building(option)
+                                                            ?.name ||
+                                                        'Unknown Building'
+                                                }}
+                                                -
+                                                {{
+                                                    level(option)
+                                                        ?.display_name ||
+                                                        level(option)?.name ||
+                                                        'Unknown Level'
+                                                }}
+                                            </div>
+                                        </div>
+                                    </mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
+                        <button
+                            btn
+                            matRipple
+                            class="mb-2 w-full"
+                            [disabled]="!active_building || !active_display"
+                            (click)="bootstrapKiosk()"
+                        >
+                            {{ 'COMMON.BOOTSTRAP_SUBMIT' | translate }}
+                        </button>
+                    </main>
+                } @else {
+                    <div class="m-auto flex flex-col items-center p-8">
+                        <mat-spinner [diameter]="32"></mat-spinner>
+                        <p>{{ loading }}</p>
+                    </div>
+                }
             </div>
         </div>
-        <ng-template #load_state>
-            <div class="m-auto flex flex-col items-center p-8">
-                <mat-spinner [diameter]="32"></mat-spinner>
-                <p>{{ loading }}</p>
-            </div>
-        </ng-template>
     `,
     styles: [
         `

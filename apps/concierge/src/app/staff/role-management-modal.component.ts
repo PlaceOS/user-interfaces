@@ -16,12 +16,14 @@ import { filter, map, shareReplay, switchMap } from 'rxjs/operators';
             <h2 class="px-2 text-xl font-medium">
                 {{ 'APP.CONCIERGE.CONTACTS_ROLES_MANAGE' | translate }}
             </h2>
-            <button icon matRipple mat-dialog-close *ngIf="!loading">
-                <icon>close</icon>
-            </button>
+            @if (!loading) {
+                <button icon matRipple mat-dialog-close>
+                    <icon>close</icon>
+                </button>
+            }
         </header>
         <main class="h-[32rem] max-h-[65vh] min-w-[28rem] overflow-y-auto">
-            <ng-container *ngFor="let role of roles | async">
+            @for (role of roles | async; track role) {
                 <div
                     class="hover:bg-base-200:bg-base-300 m-2 flex items-center space-x-2 rounded border border-base-200 p-2"
                 >
@@ -45,7 +47,7 @@ import { filter, map, shareReplay, switchMap } from 'rxjs/operators';
                         <icon>delete</icon>
                     </button>
                 </div>
-            </ng-container>
+            }
         </main>
         <footer class="border-t border-base-200">
             <button

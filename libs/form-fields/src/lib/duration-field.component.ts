@@ -45,53 +45,56 @@ export interface DurationOption {
                             : ''
                     }}{{ selected?.name }}{{ selected?.date ? ')' : '' }}
                 </div>
-                <div class="truncate text-xs opacity-30" *ngIf="timezone && tz">
-                    {{ selected?.date | date: time_format + ' (z)' : tz }}
-                </div>
+                @if (timezone && tz) {
+                    <div class="truncate text-xs opacity-30">
+                        {{ selected?.date | date: time_format + ' (z)' : tz }}
+                    </div>
+                }
             </div>
             <icon class="text-2xl">arrow_drop_down</icon>
         </button>
         <mat-menu #menu="matMenu" class="max-h-[15rem] min-w-[18rem]">
-            <button
-                mat-menu-item
-                class="text-left"
-                *ngFor="let option of duration_options"
-                (click)="setValue(option.id)"
-            >
-                <div class="flex items-center justify-between">
-                    <ng-container *ngIf="!force">
-                        <div class="flex flex-col leading-tight">
-                            <div class="truncate">
-                                {{
-                                    option.date
-                                        ? (option.date
-                                              | date
-                                                  : (option.id >= 24 * 60
-                                                        ? 'mediumDate'
-                                                        : time_format)) + ' ('
-                                        : ''
-                                }}{{ option.name }}{{ option.date ? ')' : '' }}
+            @for (option of duration_options; track option) {
+                <button
+                    mat-menu-item
+                    class="text-left"
+                    (click)="setValue(option.id)"
+                >
+                    <div class="flex items-center justify-between">
+                        @if (!force) {
+                            <div class="flex flex-col leading-tight">
+                                <div class="truncate">
+                                    {{
+                                        option.date
+                                            ? (option.date
+                                                  | date
+                                                      : (option.id >= 24 * 60
+                                                            ? 'mediumDate'
+                                                            : time_format)) +
+                                              ' ('
+                                            : ''
+                                    }}{{ option.name
+                                    }}{{ option.date ? ')' : '' }}
+                                </div>
+                                @if (timezone && tz) {
+                                    <div class="truncate text-xs opacity-30">
+                                        {{
+                                            option.date
+                                                | date
+                                                    : time_format + ' (z)'
+                                                    : tz
+                                        }}
+                                    </div>
+                                }
                             </div>
-                            <div
-                                class="truncate text-xs opacity-30"
-                                *ngIf="timezone && tz"
-                            >
-                                {{
-                                    option.date
-                                        | date: time_format + ' (z)' : tz
-                                }}
-                            </div>
-                        </div>
-                    </ng-container>
-                    <div>{{ force }}</div>
-                    <icon
-                        *ngIf="selected?.id === option.id"
-                        class="ml-2 text-2xl"
-                    >
-                        done
-                    </icon>
-                </div>
-            </button>
+                        }
+                        <div>{{ force }}</div>
+                        @if (selected?.id === option.id) {
+                            <icon class="ml-2 text-2xl"> done </icon>
+                        }
+                    </div>
+                </button>
+            }
         </mat-menu>
         <mat-error><ng-content></ng-content></mat-error>
     `,

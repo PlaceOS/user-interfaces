@@ -44,196 +44,214 @@ function validateNoOverlap(box: Box, check_boxes: Box[]): boolean {
                         ) | translate
                     }}
                 </h2>
-                <button icon matRipple mat-dialog-close *ngIf="!loading">
-                    <icon>close</icon>
-                </button>
-            </header>
-            <main
-                *ngIf="!loading; else load_state"
-                class="flex max-h-[65vh] flex-col overflow-auto p-4"
-                [formGroup]="form"
-            >
-                <label for="name">{{ 'FORM.NAME' | translate }}</label>
-                <mat-form-field appearance="outline">
-                    <input
-                        matInput
-                        name="name"
-                        formControlName="name"
-                        [placeholder]="'FORM.NAME' | translate"
-                    />
-                    <mat-error>{{
-                        'FORM.NAME_REQUIRED' | translate
-                    }}</mat-error>
-                </mat-form-field>
-                <label for="user">{{
-                    'APP.CONCIERGE.USER_ASSIGNED' | translate
-                }}</label>
-                <div class="mb-4 flex items-center space-x-2">
-                    <a-user-search-field
-                        name="user"
-                        formControlName="assigned_user"
-                        class="flex-1"
-                    ></a-user-search-field>
-                    <button
-                        icon
-                        matRipple
-                        class="h-12 w-12 min-w-12 rounded bg-secondary text-secondary-content"
-                        [matTooltip]="'APP.CONCIERGE.USER_CLEAR' | translate"
-                        (click)="
-                            form.patchValue({
-                                assigned_user: null,
-                                assigned_to: null,
-                                assigned_name: null,
-                            })
-                        "
-                    >
-                        <icon className="material-symbols-outlined">
-                            person_cancel
-                        </icon>
+                @if (!loading) {
+                    <button icon matRipple mat-dialog-close>
+                        <icon>close</icon>
                     </button>
-                </div>
-                <div class="mb-4 flex space-x-4">
-                    <settings-toggle
-                        class="flex-1"
-                        [name]="'APP.CONCIERGE.LOCKERS_ACCESSIBLE' | translate"
-                        formControlName="accessible"
-                    ></settings-toggle>
-                    <settings-toggle
-                        class="flex-1"
-                        [name]="'COMMON.BOOKABLE' | translate"
-                        formControlName="bookable"
-                    ></settings-toggle>
-                </div>
-                <div class="mb-1 flex space-x-4">
-                    <div class="flex-1">
-                        <label for="row">Start Column</label>
-                        <a-counter
-                            [ngModel]="form.value.position[0] + 1"
-                            (ngModelChange)="
-                                form.patchValue({
-                                    position: [
-                                        $event - 1,
-                                        form.value.position[1],
-                                    ],
-                                })
-                            "
-                            [ngModelOptions]="{ standalone: true }"
-                            [min]="1"
-                            [max]="255"
-                        ></a-counter>
-                    </div>
-                    <div class="flex-1">
-                        <label for="column">Start Row</label>
-                        <a-counter
-                            [ngModel]="form.value.position[1] + 1"
-                            (ngModelChange)="
-                                form.patchValue({
-                                    position: [
-                                        form.value.position[0],
-                                        $event - 1,
-                                    ],
-                                })
-                            "
-                            [ngModelOptions]="{ standalone: true }"
-                            [min]="1"
-                            [max]="bank?.height"
-                        ></a-counter>
-                    </div>
-                </div>
-                <div
-                    class="mb-4 text-xs text-error"
-                    [class.opacity-100]="form.get('position').invalid"
-                    [class.opacity-0]="!form.get('position').invalid"
+                }
+            </header>
+            @if (!loading) {
+                <main
+                    class="flex max-h-[65vh] flex-col overflow-auto p-4"
+                    [formGroup]="form"
                 >
-                    {{ 'APP.CONCIERGE.LOCKERS_POSITION_INVALID' | translate }}
-                </div>
-                <div class="mb-1 flex space-x-4">
-                    <div class="flex-1">
-                        <label for="row">{{
-                            'COMMON.WIDTH' | translate
-                        }}</label>
-                        <a-counter
-                            [ngModel]="form.value.size[0]"
-                            (ngModelChange)="
+                    <label for="name">{{ 'FORM.NAME' | translate }}</label>
+                    <mat-form-field appearance="outline">
+                        <input
+                            matInput
+                            name="name"
+                            formControlName="name"
+                            [placeholder]="'FORM.NAME' | translate"
+                        />
+                        <mat-error>{{
+                            'FORM.NAME_REQUIRED' | translate
+                        }}</mat-error>
+                    </mat-form-field>
+                    <label for="user">{{
+                        'APP.CONCIERGE.USER_ASSIGNED' | translate
+                    }}</label>
+                    <div class="mb-4 flex items-center space-x-2">
+                        <a-user-search-field
+                            name="user"
+                            formControlName="assigned_user"
+                            class="flex-1"
+                        ></a-user-search-field>
+                        <button
+                            icon
+                            matRipple
+                            class="h-12 w-12 min-w-12 rounded bg-secondary text-secondary-content"
+                            [matTooltip]="
+                                'APP.CONCIERGE.USER_CLEAR' | translate
+                            "
+                            (click)="
                                 form.patchValue({
-                                    size: [$event, form.value.size[1]],
+                                    assigned_user: null,
+                                    assigned_to: null,
+                                    assigned_name: null,
                                 })
                             "
-                            [ngModelOptions]="{ standalone: true }"
-                            [min]="1"
-                            [max]="10"
-                            [render_fn]="render_fn"
-                        ></a-counter>
-                    </div>
-                    <div class="flex-1">
-                        <label for="column">{{
-                            'COMMON.HEIGHT' | translate
-                        }}</label>
-                        <a-counter
-                            [ngModel]="form.value.size[1]"
-                            (ngModelChange)="
-                                form.patchValue({
-                                    size: [form.value.size[0], $event],
-                                })
-                            "
-                            [ngModelOptions]="{ standalone: true }"
-                            [min]="1"
-                            [max]="
-                                (bank?.height || 10) - form.value.position[1]
-                            "
-                            [render_fn]="render_fn"
-                        ></a-counter>
-                    </div>
-                </div>
-                <div
-                    class="mb-4 text-xs text-error"
-                    [class.opacity-100]="form.get('size').invalid"
-                    [class.opacity-0]="!form.get('size').invalid"
-                >
-                    {{ 'APP.CONCIERGE.LOCKERS_SIZE_INVALID' | translate }}
-                </div>
-                <label for="notes">{{ 'FORM.NOTES' | translate }}</label>
-                <mat-form-field appearance="outline">
-                    <textarea
-                        matInput
-                        name="notes"
-                        formControlName="notes"
-                        [placeholder]="'FORM.NOTES' | translate"
-                    ></textarea>
-                </mat-form-field>
-                <label for="features">
-                    {{ 'COMMON.FEATURES' | translate }}
-                </label>
-                <mat-form-field appearance="outline" class="w-full">
-                    <mat-chip-grid
-                        name="features"
-                        #chipList
-                        aria-label="Tag List"
-                    >
-                        <mat-chip-row
-                            *ngFor="let item of tag_list"
-                            (removed)="removeTag(item)"
                         >
-                            <div class="max-w-md truncate">{{ item }}</div>
-                            <button
-                                matChipRemove
-                                [attr.aria-label]="
-                                    'COMMON.ITEM_REMOVE' | translate
+                            <icon className="material-symbols-outlined">
+                                person_cancel
+                            </icon>
+                        </button>
+                    </div>
+                    <div class="mb-4 flex space-x-4">
+                        <settings-toggle
+                            class="flex-1"
+                            [name]="
+                                'APP.CONCIERGE.LOCKERS_ACCESSIBLE' | translate
+                            "
+                            formControlName="accessible"
+                        ></settings-toggle>
+                        <settings-toggle
+                            class="flex-1"
+                            [name]="'COMMON.BOOKABLE' | translate"
+                            formControlName="bookable"
+                        ></settings-toggle>
+                    </div>
+                    <div class="mb-1 flex space-x-4">
+                        <div class="flex-1">
+                            <label for="row">Start Column</label>
+                            <a-counter
+                                [ngModel]="form.value.position[0] + 1"
+                                (ngModelChange)="
+                                    form.patchValue({
+                                        position: [
+                                            $event - 1,
+                                            form.value.position[1],
+                                        ],
+                                    })
                                 "
-                            >
-                                <icon>cancel</icon>
-                            </button>
-                        </mat-chip-row>
-                    </mat-chip-grid>
-                    <input
-                        [placeholder]="'COMMON.FEATURES' | translate"
-                        [matChipInputFor]="chipList"
-                        [matChipInputSeparatorKeyCodes]="separators"
-                        [matChipInputAddOnBlur]="true"
-                        (matChipInputTokenEnd)="addTag($event)"
-                    />
-                </mat-form-field>
-            </main>
+                                [ngModelOptions]="{ standalone: true }"
+                                [min]="1"
+                                [max]="255"
+                            ></a-counter>
+                        </div>
+                        <div class="flex-1">
+                            <label for="column">Start Row</label>
+                            <a-counter
+                                [ngModel]="form.value.position[1] + 1"
+                                (ngModelChange)="
+                                    form.patchValue({
+                                        position: [
+                                            form.value.position[0],
+                                            $event - 1,
+                                        ],
+                                    })
+                                "
+                                [ngModelOptions]="{ standalone: true }"
+                                [min]="1"
+                                [max]="bank?.height"
+                            ></a-counter>
+                        </div>
+                    </div>
+                    <div
+                        class="mb-4 text-xs text-error"
+                        [class.opacity-100]="form.get('position').invalid"
+                        [class.opacity-0]="!form.get('position').invalid"
+                    >
+                        {{
+                            'APP.CONCIERGE.LOCKERS_POSITION_INVALID' | translate
+                        }}
+                    </div>
+                    <div class="mb-1 flex space-x-4">
+                        <div class="flex-1">
+                            <label for="row">{{
+                                'COMMON.WIDTH' | translate
+                            }}</label>
+                            <a-counter
+                                [ngModel]="form.value.size[0]"
+                                (ngModelChange)="
+                                    form.patchValue({
+                                        size: [$event, form.value.size[1]],
+                                    })
+                                "
+                                [ngModelOptions]="{ standalone: true }"
+                                [min]="1"
+                                [max]="10"
+                                [render_fn]="render_fn"
+                            ></a-counter>
+                        </div>
+                        <div class="flex-1">
+                            <label for="column">{{
+                                'COMMON.HEIGHT' | translate
+                            }}</label>
+                            <a-counter
+                                [ngModel]="form.value.size[1]"
+                                (ngModelChange)="
+                                    form.patchValue({
+                                        size: [form.value.size[0], $event],
+                                    })
+                                "
+                                [ngModelOptions]="{ standalone: true }"
+                                [min]="1"
+                                [max]="
+                                    (bank?.height || 10) -
+                                    form.value.position[1]
+                                "
+                                [render_fn]="render_fn"
+                            ></a-counter>
+                        </div>
+                    </div>
+                    <div
+                        class="mb-4 text-xs text-error"
+                        [class.opacity-100]="form.get('size').invalid"
+                        [class.opacity-0]="!form.get('size').invalid"
+                    >
+                        {{ 'APP.CONCIERGE.LOCKERS_SIZE_INVALID' | translate }}
+                    </div>
+                    <label for="notes">{{ 'FORM.NOTES' | translate }}</label>
+                    <mat-form-field appearance="outline">
+                        <textarea
+                            matInput
+                            name="notes"
+                            formControlName="notes"
+                            [placeholder]="'FORM.NOTES' | translate"
+                        ></textarea>
+                    </mat-form-field>
+                    <label for="features">
+                        {{ 'COMMON.FEATURES' | translate }}
+                    </label>
+                    <mat-form-field appearance="outline" class="w-full">
+                        <mat-chip-grid
+                            name="features"
+                            #chipList
+                            aria-label="Tag List"
+                        >
+                            @for (item of tag_list; track item) {
+                                <mat-chip-row (removed)="removeTag(item)">
+                                    <div class="max-w-md truncate">
+                                        {{ item }}
+                                    </div>
+                                    <button
+                                        matChipRemove
+                                        [attr.aria-label]="
+                                            'COMMON.ITEM_REMOVE' | translate
+                                        "
+                                    >
+                                        <icon>cancel</icon>
+                                    </button>
+                                </mat-chip-row>
+                            }
+                        </mat-chip-grid>
+                        <input
+                            [placeholder]="'COMMON.FEATURES' | translate"
+                            [matChipInputFor]="chipList"
+                            [matChipInputSeparatorKeyCodes]="separators"
+                            [matChipInputAddOnBlur]="true"
+                            (matChipInputTokenEnd)="addTag($event)"
+                        />
+                    </mat-form-field>
+                </main>
+            } @else {
+                <main
+                    class="flex flex-col items-center justify-center space-y-2 p-8"
+                >
+                    <mat-spinner diameter="32"></mat-spinner>
+                    <p>{{ 'APP.CONCIERGE.LOCKERS_SAVING' | translate }}</p>
+                </main>
+            }
             <footer
                 class="flex items-center justify-end space-x-2 border-t border-base-300 px-4 py-2"
             >
@@ -242,14 +260,6 @@ function validateNoOverlap(box: Box, check_boxes: Box[]): boolean {
                 </button>
             </footer>
         </div>
-        <ng-template #load_state>
-            <main
-                class="flex flex-col items-center justify-center space-y-2 p-8"
-            >
-                <mat-spinner diameter="32"></mat-spinner>
-                <p>{{ 'APP.CONCIERGE.LOCKERS_SAVING' | translate }}</p>
-            </main>
-        </ng-template>
     `,
     styles: [``],
     standalone: false,

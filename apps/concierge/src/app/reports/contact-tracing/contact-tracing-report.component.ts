@@ -32,8 +32,8 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
                     </h2>
                 </div>
             </div>
-            <ng-container *ngIf="!(loading | async); else load_state">
-                <ng-container *ngIf="(options | async)?.user; else empty_state">
+            @if (!(loading | async)) {
+                @if ((options | async)?.user) {
                     <div
                         class="mx-auto my-2 w-[64rem] max-w-[calc(100%-2rem)] rounded-lg border border-base-200"
                     >
@@ -85,7 +85,6 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
                                 }}
                             </div>
                         </ng-template>
-
                         <ng-template #date_template let-data="data">
                             <div class="p-4">
                                 {{ data | date: 'mediumDate' }},
@@ -101,24 +100,24 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
                             </div>
                         </ng-template>
                     </div>
-                </ng-container>
-            </ng-container>
+                } @else {
+                    <div
+                        class="screen-only flex flex-col items-center justify-center space-y-2 p-8"
+                    >
+                        <p class="opacity-30">
+                            Select a user from the topbar to begin
+                        </p>
+                    </div>
+                }
+            } @else {
+                <div
+                    class="flex flex-col items-center justify-center space-y-2 p-8"
+                >
+                    <map-spinner diameter="32"></map-spinner>
+                    <p class="opacity-30">{{ loading | async }}</p>
+                </div>
+            }
         </div>
-        <ng-template #load_state>
-            <div
-                class="flex flex-col items-center justify-center space-y-2 p-8"
-            >
-                <map-spinner diameter="32"></map-spinner>
-                <p class="opacity-30">{{ loading | async }}</p>
-            </div>
-        </ng-template>
-        <ng-template #empty_state>
-            <div
-                class="screen-only flex flex-col items-center justify-center space-y-2 p-8"
-            >
-                <p class="opacity-30">Select a user from the topbar to begin</p>
-            </div>
-        </ng-template>
     `,
     styles: [
         `

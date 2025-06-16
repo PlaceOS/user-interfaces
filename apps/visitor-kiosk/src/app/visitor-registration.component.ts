@@ -28,103 +28,105 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                 src="assets/img/building.png"
                 class="absolute bottom-0 right-0 w-[60%]"
             />
-            <div
-                class="absolute left-4 top-1/2 max-h-[80vh] w-[32rem] max-w-[calc(100%-2rem)] -translate-y-1/2 overflow-auto rounded bg-base-100 shadow"
-                [formGroup]="form"
-                *ngIf="!loading; else load_state"
-            >
+            @if (!loading) {
                 <div
-                    class="flex items-center justify-between space-x-4 border-b border-base-300 px-4 py-2"
+                    class="absolute left-4 top-1/2 max-h-[80vh] w-[32rem] max-w-[calc(100%-2rem)] -translate-y-1/2 overflow-auto rounded bg-base-100 shadow"
+                    [formGroup]="form"
                 >
-                    <h3 class="py-2 text-lg font-medium">
-                        {{ 'APP.VISITOR_KIOSK.REGISTRATION' | translate }}
-                    </h3>
-                    <a icon matRipple [routerLink]="['/welcome']">
-                        <icon>close</icon>
-                    </a>
-                </div>
-                <div class="p-4">
-                    <label for="name">
-                        {{ 'APP.VISITOR_KIOSK.NAME' | translate }}</label
+                    <div
+                        class="flex items-center justify-between space-x-4 border-b border-base-300 px-4 py-2"
                     >
-                    <mat-form-field appearance="outline" class="w-full">
-                        <input
-                            matInput
-                            name="name"
-                            formControlName="asset_name"
-                            [placeholder]="'APP.VISITOR_KIOSK.NAME' | translate"
-                        />
-                        <mat-error>A valid email is required</mat-error>
-                    </mat-form-field>
-                    <label for="email">
-                        {{ 'APP.VISITOR_KIOSK.EMAIL' | translate }}</label
-                    >
-                    <mat-form-field appearance="outline" class="w-full">
-                        <input
-                            matInput
-                            name="email"
-                            formControlName="asset_id"
-                            [placeholder]="
-                                'APP.VISITOR_KIOSK.EMAIL' | translate
-                            "
-                        />
-                        <mat-error>A valid email is required</mat-error>
-                    </mat-form-field>
-                    <label for="user">Host</label>
-                    <a-user-search-field
-                        formControlName="user"
-                        class="mb-4"
-                    ></a-user-search-field>
-                    <label form="phone">
-                        {{ 'APP.VISITOR_KIOSK.PHONE' | translate }}</label
-                    >
-                    <mat-form-field appearance="outline" class="w-full">
-                        <input
-                            matInput
-                            name="phone"
-                            type="tel"
-                            formControlName="phone"
-                            [placeholder]="
-                                'APP.VISITOR_KIOSK.PHONE' | translate
-                            "
-                        />
-                    </mat-form-field>
-                    <label form="org">
-                        {{
-                            'APP.VISITOR_KIOSK.ORGANISATION' | translate
-                        }}</label
-                    >
-                    <mat-form-field appearance="outline" class="w-full">
-                        <input
-                            matInput
-                            name="org"
-                            formControlName="company"
-                            [placeholder]="
+                        <h3 class="py-2 text-lg font-medium">
+                            {{ 'APP.VISITOR_KIOSK.REGISTRATION' | translate }}
+                        </h3>
+                        <a icon matRipple [routerLink]="['/welcome']">
+                            <icon>close</icon>
+                        </a>
+                    </div>
+                    <div class="p-4">
+                        <label for="name">
+                            {{ 'APP.VISITOR_KIOSK.NAME' | translate }}</label
+                        >
+                        <mat-form-field appearance="outline" class="w-full">
+                            <input
+                                matInput
+                                name="name"
+                                formControlName="asset_name"
+                                [placeholder]="
+                                    'APP.VISITOR_KIOSK.NAME' | translate
+                                "
+                            />
+                            <mat-error>A valid email is required</mat-error>
+                        </mat-form-field>
+                        <label for="email">
+                            {{ 'APP.VISITOR_KIOSK.EMAIL' | translate }}</label
+                        >
+                        <mat-form-field appearance="outline" class="w-full">
+                            <input
+                                matInput
+                                name="email"
+                                formControlName="asset_id"
+                                [placeholder]="
+                                    'APP.VISITOR_KIOSK.EMAIL' | translate
+                                "
+                            />
+                            <mat-error>A valid email is required</mat-error>
+                        </mat-form-field>
+                        <label for="user">Host</label>
+                        <a-user-search-field
+                            formControlName="user"
+                            class="mb-4"
+                        ></a-user-search-field>
+                        <label form="phone">
+                            {{ 'APP.VISITOR_KIOSK.PHONE' | translate }}</label
+                        >
+                        <mat-form-field appearance="outline" class="w-full">
+                            <input
+                                matInput
+                                name="phone"
+                                type="tel"
+                                formControlName="phone"
+                                [placeholder]="
+                                    'APP.VISITOR_KIOSK.PHONE' | translate
+                                "
+                            />
+                        </mat-form-field>
+                        <label form="org">
+                            {{
                                 'APP.VISITOR_KIOSK.ORGANISATION' | translate
-                            "
-                        />
-                    </mat-form-field>
+                            }}</label
+                        >
+                        <mat-form-field appearance="outline" class="w-full">
+                            <input
+                                matInput
+                                name="org"
+                                formControlName="company"
+                                [placeholder]="
+                                    'APP.VISITOR_KIOSK.ORGANISATION' | translate
+                                "
+                            />
+                        </mat-form-field>
+                    </div>
+                    <div
+                        class="flex justify-end space-x-4 border-t border-base-300 px-4 py-2"
+                    >
+                        <button btn matRipple class="w-40" (click)="register()">
+                            {{ 'APP.VISITOR_KIOSK.REGISTER' | translate }}
+                        </button>
+                    </div>
                 </div>
+            } @else {
                 <div
-                    class="flex justify-end space-x-4 border-t border-base-300 px-4 py-2"
+                    class="absolute left-4 top-1/2 flex w-[24rem] -translate-y-1/2 flex-col items-center justify-center space-y-4 rounded bg-base-100 p-16 shadow"
                 >
-                    <button btn matRipple class="w-40" (click)="register()">
-                        {{ 'APP.VISITOR_KIOSK.REGISTER' | translate }}
-                    </button>
+                    <mat-spinner diameter="32"></mat-spinner>
+                    <p>{{ 'APP.VISITOR_KIOSK.REGISTERING' | translate }}</p>
                 </div>
-            </div>
+            }
             <div class="absolute right-4 top-4 text-2xl text-white">
                 {{ now | date: 'mediumDate' }} {{ now | date: 'shortTime' }}
             </div>
         </div>
-        <ng-template #load_state>
-            <div
-                class="absolute left-4 top-1/2 flex w-[24rem] -translate-y-1/2 flex-col items-center justify-center space-y-4 rounded bg-base-100 p-16 shadow"
-            >
-                <mat-spinner diameter="32"></mat-spinner>
-                <p>{{ 'APP.VISITOR_KIOSK.REGISTERING' | translate }}</p>
-            </div>
-        </ng-template>
     `,
     styles: [``],
     standalone: false,

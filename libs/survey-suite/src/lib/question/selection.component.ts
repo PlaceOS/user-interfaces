@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
@@ -16,35 +15,40 @@ import { BaseQuestionComponent } from './base-question.component';
     ],
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
-        <ng-container *ngIf="question">
+        @if (question) {
             <div class="flex w-full flex-col">
-                <ng-container *ngIf="!preview; else previewState">
+                @if (!preview) {
                     <div class="mb-4 flex w-full flex-col pl-2">
-                        <div
-                            *ngFor="let item of question.choices; let i = index"
-                            class="flex w-full flex-row items-center space-x-3 pb-3"
-                        >
-                            <span>{{ i + 1 }}. </span>
-                            <mat-form-field
-                                class="w-full"
-                                appearance="outline"
-                                [subscriptSizing]="'dynamic'"
+                        @for (
+                            item of question.choices;
+                            track item;
+                            let i = $index
+                        ) {
+                            <div
+                                class="flex w-full flex-row items-center space-x-3 pb-3"
                             >
-                                <input
-                                    matInput
-                                    type="text"
-                                    [(ngModel)]="item.text"
-                                    name="item{{ i }}"
-                                />
-                            </mat-form-field>
-                            <button
-                                matSuffix
-                                icon-button
-                                (click)="deleteOption(i)"
-                            >
-                                <icon> delete_outline </icon>
-                            </button>
-                        </div>
+                                <span>{{ i + 1 }}. </span>
+                                <mat-form-field
+                                    class="w-full"
+                                    appearance="outline"
+                                    [subscriptSizing]="'dynamic'"
+                                >
+                                    <input
+                                        matInput
+                                        type="text"
+                                        [(ngModel)]="item.text"
+                                        name="item{{ i }}"
+                                    />
+                                </mat-form-field>
+                                <button
+                                    matSuffix
+                                    icon-button
+                                    (click)="deleteOption(i)"
+                                >
+                                    <icon> delete_outline </icon>
+                                </button>
+                            </div>
+                        }
                     </div>
                     <button mat-stroked-button (click)="addOption()">
                         <div class="text-gray-800 flex flex-row items-center">
@@ -52,37 +56,41 @@ import { BaseQuestionComponent } from './base-question.component';
                             <span>Add option</span>
                         </div>
                     </button>
-                </ng-container>
-
-                <ng-template #previewState>
-                    <mat-form-field *ngIf="isDropDown; else inputType">
-                        <mat-select>
-                            <mat-option
-                                *ngFor="let item of question.choices"
-                                [value]="item.value"
-                                >{{ item.text }}</mat-option
-                            >
-                        </mat-select>
-                    </mat-form-field>
-                </ng-template>
-                <ng-template #inputType>
-                    <div class="flex w-full flex-col pl-2">
-                        <div
-                            *ngFor="let item of question.choices; let i = index"
-                            class="flex w-full flex-row items-center space-x-3 pb-3"
-                        >
-                            <input
-                                [type]="multiple ? 'checkbox' : 'radio'"
-                                name="options"
-                            />
-                            <span>{{ item.text }}</span>
+                } @else {
+                    @if (isDropDown) {
+                        <mat-form-field>
+                            <mat-select>
+                                @for (item of question.choices; track item) {
+                                    <mat-option [value]="item.value">{{
+                                        item.text
+                                    }}</mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
+                    } @else {
+                        <div class="flex w-full flex-col pl-2">
+                            @for (
+                                item of question.choices;
+                                track item;
+                                let i = $index
+                            ) {
+                                <div
+                                    class="flex w-full flex-row items-center space-x-3 pb-3"
+                                >
+                                    <input
+                                        [type]="multiple ? 'checkbox' : 'radio'"
+                                        name="options"
+                                    />
+                                    <span>{{ item.text }}</span>
+                                </div>
+                            }
                         </div>
-                    </div>
-                </ng-template>
+                    }
+                }
             </div>
-        </ng-container>
+        }
     `,
-    imports: [CommonModule, MatFormFieldModule, MatSelectModule],
+    imports: [MatFormFieldModule, MatSelectModule],
 })
 export class SelectionComponent
     extends BaseQuestionComponent

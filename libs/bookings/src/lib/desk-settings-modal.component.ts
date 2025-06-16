@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, Inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
@@ -16,83 +15,82 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
 @Component({
     selector: 'desk-settings-modal',
     template: `
-        <div
-            class="relative w-[20rem] rounded bg-base-100 p-4 shadow"
-            *ngIf="!edit_presets; else desk_height_tooltip"
-        >
-            <div class="text-lg">Desk Height</div>
-            <div class="mb-4 text-xs opacity-60">
-                Set your desk height for the best experience
-            </div>
-            <div class="mb-4 mt-2 flex flex-col">
-                <label>Presets</label>
-                <div class="flex items-center space-x-2 pb-4">
-                    <mat-form-field
-                        appearance="outline"
-                        class="no-subscript w-1/2 flex-1"
-                    >
-                        <mat-select
-                            placeholder="No selected preset"
-                            [(ngModel)]="preset"
-                            (ngModelChange)="setPreset($event)"
-                        >
-                            <mat-option value="">None</mat-option>
-                            <mat-option value="standing">Standing</mat-option>
-                            <mat-option value="sitting">Seated</mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                    <button
-                        icon
-                        matRipple
-                        (click)="edit_presets = true"
-                        class="h-12 w-12 rounded bg-secondary text-secondary-content"
-                    >
-                        <icon>edit</icon>
-                    </button>
+        @if (!edit_presets) {
+            <div class="relative w-[20rem] rounded bg-base-100 p-4 shadow">
+                <div class="text-lg">Desk Height</div>
+                <div class="mb-4 text-xs opacity-60">
+                    Set your desk height for the best experience
                 </div>
-                <label>Current Height</label>
-                <div class="flex items-center space-x-2">
-                    <mat-slider
-                        min="60"
-                        max="120"
-                        step="0.5"
-                        discrete
-                        class="flex-1"
-                        [displayWith]="formatLabel"
-                    >
-                        <input
-                            matSliderThumb
-                            [(ngModel)]="height"
-                            (ngModelChange)="updatePreset(height)"
-                        />
-                    </mat-slider>
-                    <div class="w-12 text-right text-sm">
-                        {{ height.toFixed(1) }}cm
+                <div class="mb-4 mt-2 flex flex-col">
+                    <label>Presets</label>
+                    <div class="flex items-center space-x-2 pb-4">
+                        <mat-form-field
+                            appearance="outline"
+                            class="no-subscript w-1/2 flex-1"
+                        >
+                            <mat-select
+                                placeholder="No selected preset"
+                                [(ngModel)]="preset"
+                                (ngModelChange)="setPreset($event)"
+                            >
+                                <mat-option value="">None</mat-option>
+                                <mat-option value="standing"
+                                    >Standing</mat-option
+                                >
+                                <mat-option value="sitting">Seated</mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                        <button
+                            icon
+                            matRipple
+                            (click)="edit_presets = true"
+                            class="h-12 w-12 rounded bg-secondary text-secondary-content"
+                        >
+                            <icon>edit</icon>
+                        </button>
+                    </div>
+                    <label>Current Height</label>
+                    <div class="flex items-center space-x-2">
+                        <mat-slider
+                            min="60"
+                            max="120"
+                            step="0.5"
+                            discrete
+                            class="flex-1"
+                            [displayWith]="formatLabel"
+                        >
+                            <input
+                                matSliderThumb
+                                [(ngModel)]="height"
+                                (ngModelChange)="updatePreset(height)"
+                            />
+                        </mat-slider>
+                        <div class="w-12 text-right text-sm">
+                            {{ height.toFixed(1) }}cm
+                        </div>
                     </div>
                 </div>
+                <button btn matRipple (click)="setDeskHeight()" class="w-full">
+                    Apply Settings
+                </button>
+                <button
+                    icon
+                    matRipple
+                    mat-dialog-close
+                    class="absolute right-0 top-0"
+                >
+                    <icon>close</icon>
+                </button>
             </div>
-            <button btn matRipple (click)="setDeskHeight()" class="w-full">
-                Apply Settings
-            </button>
-            <button
-                icon
-                matRipple
-                mat-dialog-close
-                class="absolute right-0 top-0"
-            >
-                <icon>close</icon>
-            </button>
-        </div>
-        <ng-template #desk_height_tooltip>
+        } @else {
             <desk-height-presets
                 [show_close]="true"
                 (close)="edit_presets = false"
             ></desk-height-presets>
-        </ng-template>
+        }
     `,
     styles: [],
     imports: [
-        CommonModule,
         IconComponent,
         MatDialogModule,
         MatFormFieldModule,

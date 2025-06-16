@@ -7,132 +7,138 @@ import { addDays, endOfDay } from 'date-fns';
 @Component({
     selector: 'parking-form-details',
     template: `
-        <div *ngIf="form" [formGroup]="form">
-            <div class="flex flex-wrap items-center sm:space-x-2">
-                <div class="min-w-[256px] flex-1">
-                    <label for="title">
-                        {{ 'RESOURCE.BUILDING' | translate }}<span>*</span>
-                    </label>
-                    <mat-form-field appearance="outline" class="w-full">
-                        <mat-select
-                            [ngModel]="building | async"
-                            (ngModelChange)="setBuilding($event)"
-                            [ngModelOptions]="{ standalone: true }"
-                        >
-                            <mat-option
-                                *ngFor="let bld of building_list | async"
-                                [value]="bld"
+        @if (form) {
+            <div [formGroup]="form">
+                <div class="flex flex-wrap items-center sm:space-x-2">
+                    <div class="min-w-[256px] flex-1">
+                        <label for="title">
+                            {{ 'RESOURCE.BUILDING' | translate }}<span>*</span>
+                        </label>
+                        <mat-form-field appearance="outline" class="w-full">
+                            <mat-select
+                                [ngModel]="building | async"
+                                (ngModelChange)="setBuilding($event)"
+                                [ngModelOptions]="{ standalone: true }"
                             >
-                                {{ bld.display_name || bld.name }}
-                            </mat-option>
-                        </mat-select>
-                        <mat-error>Building is required</mat-error>
-                    </mat-form-field>
+                                @for (bld of building_list | async; track bld) {
+                                    <mat-option [value]="bld">
+                                        {{ bld.display_name || bld.name }}
+                                    </mat-option>
+                                }
+                            </mat-select>
+                            <mat-error>Building is required</mat-error>
+                        </mat-form-field>
+                    </div>
                 </div>
-            </div>
-            <div class="flex flex-wrap items-center sm:space-x-2">
-                <div class="min-w-[256px] flex-1">
-                    <label for="title">
-                        {{ 'FORM.TITLE' | translate }}<span>*</span>
+                <div class="flex flex-wrap items-center sm:space-x-2">
+                    <div class="min-w-[256px] flex-1">
+                        <label for="title">
+                            {{ 'FORM.TITLE' | translate }}<span>*</span>
+                        </label>
+                        <mat-form-field appearance="outline" class="w-full">
+                            <input
+                                matInput
+                                name="title"
+                                formControlName="title"
+                                placeholder="e.g. Team Meeting"
+                            />
+                            <mat-error>{{
+                                'FORM.TITLE_REQUIRED' | translate
+                            }}</mat-error>
+                        </mat-form-field>
+                    </div>
+                    <div class="relative min-w-[256px] flex-1">
+                        <label for="date">
+                            {{ 'FORM.DATE' | translate }}<span>*</span>
+                        </label>
+                        <a-date-field
+                            name="date"
+                            formControlName="date"
+                            [to]="end_date"
+                            [timezone]="timezone"
+                        >
+                            {{ 'FORM.DATE_REQUIRED' | translate }}
+                        </a-date-field>
+                        @if (allow_all_day) {
+                            <mat-checkbox
+                                formControlName="all_day"
+                                class="absolute -top-2 right-0"
+                            >
+                                {{ 'COMMON.ALL_DAY' | translate }}
+                            </mat-checkbox>
+                        }
+                    </div>
+                </div>
+                @if (!form.value.all_day) {
+                    <div class="flex items-center space-x-2">
+                        <div class="w-1/3 flex-1">
+                            <label for="start-time"
+                                >{{ 'FORM.TIME_START' | translate
+                                }}<span>*</span></label
+                            >
+                            <a-time-field
+                                name="start-time"
+                                [ngModel]="form.getRawValue().date"
+                                (ngModelChange)="
+                                    form.patchValue({ date: $event })
+                                "
+                                [ngModelOptions]="{ standalone: true }"
+                                [use_24hr]="use_24hr"
+                                [disabled]="form.controls.date.disabled"
+                                [timezone]="timezone"
+                            ></a-time-field>
+                        </div>
+                        <div class="relative w-1/3 flex-1">
+                            <label for="end-time">
+                                {{ 'FORM.TIME_END' | translate }}<span>*</span>
+                            </label>
+                            <a-duration-field
+                                name="end-time"
+                                formControlName="duration"
+                                [time]="form?.getRawValue()?.date"
+                                [max]="max_duration"
+                                [use_24hr]="use_24hr"
+                                [timezone]="timezone"
+                            >
+                            </a-duration-field>
+                        </div>
+                    </div>
+                }
+                @if (can_book_for_others) {
+                    <div class="flex w-full flex-col">
+                        <label for="host">
+                            {{ 'FORM.HOST' | translate }}<span>*</span>
+                        </label>
+                        <host-select-field
+                            name="host"
+                            formControlName="organiser"
+                        ></host-select-field>
+                    </div>
+                }
+                <div class="flex flex-col">
+                    <label for="plate-number">
+                        {{ 'BOOKINGS.PARKING_PLATE_NUMBER' | translate }}
                     </label>
                     <mat-form-field appearance="outline" class="w-full">
                         <input
                             matInput
-                            name="title"
-                            formControlName="title"
-                            placeholder="e.g. Team Meeting"
+                            name="plate-number"
+                            formControlName="plate_number"
+                            [placeholder]="
+                                'BOOKINGS.PARKING_PLATE_NUMBER_PLACEHOLDER'
+                                    | translate
+                            "
                         />
-                        <mat-error>{{
-                            'FORM.TITLE_REQUIRED' | translate
-                        }}</mat-error>
+                        <mat-error>
+                            {{
+                                'BOOKINGS.PARKING_PLATE_NUMBER_REQUIRED'
+                                    | translate
+                            }}
+                        </mat-error>
                     </mat-form-field>
                 </div>
-                <div class="relative min-w-[256px] flex-1">
-                    <label for="date">
-                        {{ 'FORM.DATE' | translate }}<span>*</span>
-                    </label>
-                    <a-date-field
-                        name="date"
-                        formControlName="date"
-                        [to]="end_date"
-                        [timezone]="timezone"
-                    >
-                        {{ 'FORM.DATE_REQUIRED' | translate }}
-                    </a-date-field>
-                    <mat-checkbox
-                        formControlName="all_day"
-                        *ngIf="allow_all_day"
-                        class="absolute -top-2 right-0"
-                    >
-                        {{ 'COMMON.ALL_DAY' | translate }}
-                    </mat-checkbox>
-                </div>
             </div>
-            <div
-                class="flex items-center space-x-2"
-                *ngIf="!form.value.all_day"
-            >
-                <div class="w-1/3 flex-1">
-                    <label for="start-time"
-                        >{{ 'FORM.TIME_START' | translate
-                        }}<span>*</span></label
-                    >
-                    <a-time-field
-                        name="start-time"
-                        [ngModel]="form.getRawValue().date"
-                        (ngModelChange)="form.patchValue({ date: $event })"
-                        [ngModelOptions]="{ standalone: true }"
-                        [use_24hr]="use_24hr"
-                        [disabled]="form.controls.date.disabled"
-                        [timezone]="timezone"
-                    ></a-time-field>
-                </div>
-                <div class="relative w-1/3 flex-1">
-                    <label for="end-time">
-                        {{ 'FORM.TIME_END' | translate }}<span>*</span>
-                    </label>
-                    <a-duration-field
-                        name="end-time"
-                        formControlName="duration"
-                        [time]="form?.getRawValue()?.date"
-                        [max]="max_duration"
-                        [use_24hr]="use_24hr"
-                        [timezone]="timezone"
-                    >
-                    </a-duration-field>
-                </div>
-            </div>
-            <div *ngIf="can_book_for_others" class="flex w-full flex-col">
-                <label for="host">
-                    {{ 'FORM.HOST' | translate }}<span>*</span>
-                </label>
-                <host-select-field
-                    name="host"
-                    formControlName="organiser"
-                ></host-select-field>
-            </div>
-            <div class="flex flex-col">
-                <label for="plate-number">
-                    {{ 'BOOKINGS.PARKING_PLATE_NUMBER' | translate }}
-                </label>
-                <mat-form-field appearance="outline" class="w-full">
-                    <input
-                        matInput
-                        name="plate-number"
-                        formControlName="plate_number"
-                        [placeholder]="
-                            'BOOKINGS.PARKING_PLATE_NUMBER_PLACEHOLDER'
-                                | translate
-                        "
-                    />
-                    <mat-error>
-                        {{
-                            'BOOKINGS.PARKING_PLATE_NUMBER_REQUIRED' | translate
-                        }}
-                    </mat-error>
-                </mat-form-field>
-            </div>
-        </div>
+        }
     `,
     styles: [``],
     standalone: false,

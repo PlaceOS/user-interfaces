@@ -81,26 +81,26 @@ function degreesToRadians(degrees: number): number {
             id="maps-indoors"
             class="absolute inset-0 flex items-center justify-center"
         ></div>
-        <div
-            class="absolute inset-0 flex items-center justify-center"
-            *ngIf="loading"
-        >
-            <mat-spinner [diameter]="48"></mat-spinner>
-        </div>
-        <div
-            class="absolute inset-0 flex flex-col items-center justify-center space-y-2"
-            *ngIf="geolocation_error_message"
-        >
-            <img
-                src="assets/icons/not-found.svg"
-                alt="graphic of magnifying glass"
-                width="200px"
-                class="items-center"
-            />
-            <p class="mt-10 text-center text-sm opacity-60">
-                {{ geolocation_error_message | translate }}
-            </p>
-        </div>
+        @if (loading) {
+            <div class="absolute inset-0 flex items-center justify-center">
+                <mat-spinner [diameter]="48"></mat-spinner>
+            </div>
+        }
+        @if (geolocation_error_message) {
+            <div
+                class="absolute inset-0 flex flex-col items-center justify-center space-y-2"
+            >
+                <img
+                    src="assets/icons/not-found.svg"
+                    alt="graphic of magnifying glass"
+                    width="200px"
+                    class="items-center"
+                />
+                <p class="mt-10 text-center text-sm opacity-60">
+                    {{ geolocation_error_message | translate }}
+                </p>
+            </div>
+        }
         <div
             class="absolute left-2 top-2 z-50 flex h-min w-min flex-col rounded-lg bg-base-100 p-2 text-base-content shadow"
         >
@@ -130,7 +130,7 @@ function degreesToRadians(degrees: number): number {
                 </div>
             </mat-form-field>
 
-            <ng-container *ngIf="search_result_items?.length">
+            @if (search_result_items?.length) {
                 <div
                     class="my-2 flex items-center justify-between space-x-2 px-2"
                 >
@@ -150,25 +150,31 @@ function degreesToRadians(degrees: number): number {
                 <ul
                     class="m-0 max-h-[65vh] w-full list-none space-y-2 overflow-auto p-0"
                 >
-                    <li
-                        class="w-full rounded border border-base-200 even:bg-base-200 hover:bg-base-300"
-                        *ngFor="let item of search_result_items | slice: 0 : 10"
-                    >
-                        <button
-                            class="flex w-full items-center space-x-2 p-2 text-left"
-                            (click)="getRoute(item); search_result_items = []"
+                    @for (
+                        item of search_result_items | slice: 0 : 10;
+                        track item
+                    ) {
+                        <li
+                            class="w-full rounded border border-base-200 even:bg-base-200 hover:bg-base-300"
                         >
-                            <div class="flex flex-1 flex-col">
-                                <div>{{ item.properties.name }}</div>
-                                <div class="text-xs opacity-30">
-                                    {{ item.properties.roomId }}, Level
-                                    {{ item.properties.floorName }}
+                            <button
+                                class="flex w-full items-center space-x-2 p-2 text-left"
+                                (click)="
+                                    getRoute(item); search_result_items = []
+                                "
+                            >
+                                <div class="flex flex-1 flex-col">
+                                    <div>{{ item.properties.name }}</div>
+                                    <div class="text-xs opacity-30">
+                                        {{ item.properties.roomId }}, Level
+                                        {{ item.properties.floorName }}
+                                    </div>
                                 </div>
-                            </div>
-                        </button>
-                    </li>
+                            </button>
+                        </li>
+                    }
                 </ul>
-            </ng-container>
+            }
         </div>
     `,
     styles: [

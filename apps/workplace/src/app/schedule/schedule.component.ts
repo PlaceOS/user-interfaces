@@ -34,7 +34,9 @@ import {
 @Component({
     selector: 'app-schedule',
     template: `
-        <topbar *ngIf="!hide_nav"></topbar>
+        @if (!hide_nav) {
+            <topbar></topbar>
+        }
         <div
             class="relative flex h-1/2 flex-1 flex-col bg-base-200 sm:flex-row"
         >
@@ -62,92 +64,103 @@ import {
                         {{ 'COMMON.WEEK' | translate }}
                     </button>
                 </div>
-                <schedule-mobile-calendar
-                    [ngModel]="date | async"
-                    (ngModelChange)="setDate($event)"
-                    *ngIf="period === 'day'"
-                ></schedule-mobile-calendar>
-                <div class="my-2 w-full px-2" *ngIf="period === 'week'">
-                    <mat-form-field
-                        appearance="outline"
-                        class="no-subscript w-full"
-                    >
-                        <mat-select
-                            [ngModel]="week_date | async"
-                            (ngModelChange)="setDate($event)"
-                            [placeholder]="'COMMON.WEEK_SELECT' | translate"
+                @if (period === 'day') {
+                    <schedule-mobile-calendar
+                        [ngModel]="date | async"
+                        (ngModelChange)="setDate($event)"
+                    ></schedule-mobile-calendar>
+                }
+                @if (period === 'week') {
+                    <div class="my-2 w-full px-2">
+                        <mat-form-field
+                            appearance="outline"
+                            class="no-subscript w-full"
                         >
-                            <mat-option
-                                *ngFor="let option of week_options | async"
-                                [value]="option.id"
-                                class="leading-tight"
+                            <mat-select
+                                [ngModel]="week_date | async"
+                                (ngModelChange)="setDate($event)"
+                                [placeholder]="'COMMON.WEEK_SELECT' | translate"
                             >
-                                {{ option.name }}
-                                <span
-                                    class="px-1 text-xs text-info"
-                                    *ngIf="option.this_week"
-                                    [matTooltip]="
-                                        'COMMON.WEEK_THIS' | translate
-                                    "
-                                    >(C)</span
-                                >
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                </div>
+                                @for (
+                                    option of week_options | async;
+                                    track option
+                                ) {
+                                    <mat-option
+                                        [value]="option.id"
+                                        class="leading-tight"
+                                    >
+                                        {{ option.name }}
+                                        @if (option.this_week) {
+                                            <span
+                                                class="px-1 text-xs text-info"
+                                                [matTooltip]="
+                                                    'COMMON.WEEK_THIS'
+                                                        | translate
+                                                "
+                                                >(C)</span
+                                            >
+                                        }
+                                    </mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+                }
             </div>
             <div class="h-full flex-1 space-y-2 overflow-auto p-4">
                 <schedule-filters></schedule-filters>
-                <ng-container
-                    *ngIf="(booking_dates | async)?.length; else empty_state"
-                >
+                @if ((booking_dates | async)?.length) {
                     @for (
                         date_block of booking_dates | async;
                         track date_block.date
                     ) {
                         <h3 class="my-2 font-medium">
                             {{ date_block.date | date: 'EEE dd LLL yyyy' }}
-                            <span *ngIf="date_block.is_today">
-                                ({{ 'COMMON.TODAY' | translate }})
-                            </span>
+                            @if (date_block.is_today) {
+                                <span>
+                                    ({{ 'COMMON.TODAY' | translate }})
+                                </span>
+                            }
                         </h3>
                         @for (item of date_block.bookings; track item.id) {
-                            <event-card
-                                *ngIf="isEvent(item); else booking_card"
-                                [event]="item"
-                                [edit_fn]="edit_fn"
-                                [remove_fn]="remove_fn"
-                            ></event-card>
-                            <ng-template #booking_card>
+                            @if (isEvent(item)) {
+                                <event-card
+                                    [event]="item"
+                                    [edit_fn]="edit_fn"
+                                    [remove_fn]="remove_fn"
+                                ></event-card>
+                            } @else {
                                 <booking-card
                                     [booking]="item"
                                     [edit_fn]="edit_booking_fn"
                                     [remove_fn]="remove_fn"
                                     [end_fn]="end_fn"
                                 ></booking-card>
-                            </ng-template>
+                            }
                         }
                     }
-                </ng-container>
+                } @else {
+                    <div
+                        class="flex w-full flex-col items-center justify-center space-y-4 p-8"
+                    >
+                        <img src="assets/img/no-events.svg" class="mr-4" />
+                        <p class="opacity-30">
+                            {{ 'APP.WORKPLACE.SCHEDULE_EMPTY' | translate }}
+                            {{ date | async | date: 'EEEE, dd LLL yyyy' }}
+                        </p>
+                    </div>
+                }
             </div>
-            <mat-progress-bar
-                *ngIf="loading | async"
-                class="absolute inset-x-0 bottom-0"
-                mode="indeterminate"
-            ></mat-progress-bar>
+            @if (loading | async) {
+                <mat-progress-bar
+                    class="absolute inset-x-0 bottom-0"
+                    mode="indeterminate"
+                ></mat-progress-bar>
+            }
         </div>
-        <footer-menu *ngIf="!hide_nav"></footer-menu>
-        <ng-template #empty_state>
-            <div
-                class="flex w-full flex-col items-center justify-center space-y-4 p-8"
-            >
-                <img src="assets/img/no-events.svg" class="mr-4" />
-                <p class="opacity-30">
-                    {{ 'APP.WORKPLACE.SCHEDULE_EMPTY' | translate }}
-                    {{ date | async | date: 'EEEE, dd LLL yyyy' }}
-                </p>
-            </div>
-        </ng-template>
+        @if (!hide_nav) {
+            <footer-menu></footer-menu>
+        }
     `,
     styles: [
         `

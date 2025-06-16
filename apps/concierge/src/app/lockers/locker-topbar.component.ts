@@ -36,32 +36,34 @@ import { LockerStateService } from './locker-state.service';
                     ) | translate
                 "
             >
+                @if (path === 'manage') {
+                    <button
+                        btn
+                        matRipple
+                        class="w-40 space-x-2"
+                        (click)="newLockerBank()"
+                        [disabled]="!(options | async)?.zones?.length"
+                    >
+                        <div class="pl-4">
+                            {{ 'APP.CONCIERGE.LOCKERS_BANK_ADD' | translate }}
+                        </div>
+                        <icon class="text-2xl">add</icon>
+                    </button>
+                }
+            </div>
+            @if (path === 'events') {
                 <button
                     btn
                     matRipple
-                    *ngIf="path === 'manage'"
-                    class="w-40 space-x-2"
-                    (click)="newLockerBank()"
-                    [disabled]="!(options | async)?.zones?.length"
+                    class="w-48 space-x-2"
+                    (click)="newBooking()"
                 >
-                    <div class="pl-4">
-                        {{ 'APP.CONCIERGE.LOCKERS_BANK_ADD' | translate }}
+                    <div class="pl-2">
+                        {{ 'APP.CONCIERGE.NEW_BOOKING' | translate }}
                     </div>
                     <icon class="text-2xl">add</icon>
                 </button>
-            </div>
-            <button
-                btn
-                matRipple
-                *ngIf="path === 'events'"
-                class="w-48 space-x-2"
-                (click)="newBooking()"
-            >
-                <div class="pl-2">
-                    {{ 'APP.CONCIERGE.NEW_BOOKING' | translate }}
-                </div>
-                <icon class="text-2xl">add</icon>
-            </button>
+            }
         </div>
         <div class="mb-2 flex h-14 items-center bg-base-100 px-8">
             <mat-form-field appearance="outline" class="no-subscript w-56">
@@ -71,45 +73,56 @@ import { LockerStateService } from './locker-state.service';
                     [placeholder]="'COMMON.LEVEL_ALL' | translate"
                     multiple
                 >
-                    <mat-option
-                        *ngFor="let level of levels | async"
-                        [value]="level.id"
-                    >
-                        <div class="flex flex-col-reverse">
-                            <div class="text-xs opacity-30" *ngIf="use_region">
-                                {{ (level.parent_id | building)?.display_name }}
-                                <span class="opacity-0"> - </span>
+                    @for (level of levels | async; track level) {
+                        <mat-option [value]="level.id">
+                            <div class="flex flex-col-reverse">
+                                @if (use_region) {
+                                    <div class="text-xs opacity-30">
+                                        {{
+                                            (level.parent_id | building)
+                                                ?.display_name
+                                        }}
+                                        <span class="opacity-0"> - </span>
+                                    </div>
+                                }
+                                <div>
+                                    {{ level.display_name || level.name }}
+                                </div>
                             </div>
-                            <div>{{ level.display_name || level.name }}</div>
-                        </div>
-                    </mat-option>
+                        </mat-option>
+                    }
                 </mat-select>
             </mat-form-field>
             <div class="w-0 flex-1"></div>
-            <button
-                icon
-                matRipple
-                class="mr-2 h-12 w-12 rounded border border-error text-error"
-                (click)="releaseAllLockers()"
-                [matTooltip]="'APP.CONCIERGE.LOCKERS_RELEASE_ALL' | translate"
-                *ngIf="path !== 'events' && path !== 'map'"
-            >
-                <icon>open_in_new</icon>
-            </button>
-            <button
-                icon
-                matRipple
-                class="h-12 w-12 rounded bg-secondary text-secondary-content"
-                (click)="manageRestrictions()"
-                [matTooltip]="'APP.CONCIERGE.LOCKERS_BOOKING_RULES' | translate"
-                *ngIf="path !== 'events' && path !== 'map'"
-            >
-                <icon>lock_open</icon>
-            </button>
-            <date-options
-                *ngIf="path === 'events' || path === 'map'"
-                (dateChange)="setDate($event)"
-            ></date-options>
+            @if (path !== 'events' && path !== 'map') {
+                <button
+                    icon
+                    matRipple
+                    class="mr-2 h-12 w-12 rounded border border-error text-error"
+                    (click)="releaseAllLockers()"
+                    [matTooltip]="
+                        'APP.CONCIERGE.LOCKERS_RELEASE_ALL' | translate
+                    "
+                >
+                    <icon>open_in_new</icon>
+                </button>
+            }
+            @if (path !== 'events' && path !== 'map') {
+                <button
+                    icon
+                    matRipple
+                    class="h-12 w-12 rounded bg-secondary text-secondary-content"
+                    (click)="manageRestrictions()"
+                    [matTooltip]="
+                        'APP.CONCIERGE.LOCKERS_BOOKING_RULES' | translate
+                    "
+                >
+                    <icon>lock_open</icon>
+                </button>
+            }
+            @if (path === 'events' || path === 'map') {
+                <date-options (dateChange)="setDate($event)"></date-options>
+            }
         </div>
     `,
     styles: [

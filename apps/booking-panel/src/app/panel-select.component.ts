@@ -16,98 +16,105 @@ import { currentBooking } from './panel-state.service';
             <div
                 class="flex h-full w-full flex-wrap items-center justify-center p-8"
             >
-                <ng-container *ngIf="systems && systems.length > 0; else none">
-                    <button
-                        matRipple
-                        class="item m-2 flex flex-col items-center justify-center rounded p-2 text-white"
-                        *ngFor="let id of systems | slice: 0 : 8; let i = index"
-                        (click)="showPanel(id)"
-                    >
-                        <div class="bindings" *ngIf="id">
-                            <i
-                                binding
-                                [sys]="id"
-                                mod="Bookings"
-                                bind="room_name"
-                                [(model)]="system_name[id]"
-                            ></i>
-                            <i
-                                binding
-                                [sys]="id"
-                                mod="Bookings"
-                                bind="icon"
-                                [(model)]="system_icon[id]"
-                            ></i>
-                            <i
-                                binding
-                                [sys]="id"
-                                mod="Bookings"
-                                bind="status"
-                                (modelChange)="system_status[id] = $event"
-                            ></i>
-                        </div>
-                        <div
-                            state
-                            [class]="
-                                'flex h-36 w-36 items-center justify-center rounded bg-base-100 bg-opacity-10 text-6xl' +
-                                (system_status[id]
-                                    ? ' ' + system_status[id]
-                                    : '')
-                            "
+                @if (systems && systems.length > 0) {
+                    @for (
+                        id of systems | slice: 0 : 8;
+                        track id;
+                        let i = $index
+                    ) {
+                        <button
+                            matRipple
+                            class="item m-2 flex flex-col items-center justify-center rounded p-2 text-white"
+                            (click)="showPanel(id)"
                         >
-                            <img
-                                *ngIf="system_name[id]"
-                                [src]="system_icon[id]"
-                            />
-                            <mat-spinner
-                                *ngIf="!system_name[id]"
-                                [diameter]="32"
-                            ></mat-spinner>
-                        </div>
-                        <div
-                            class="text w-full truncate p-3 text-sm text-white"
+                            @if (id) {
+                                <div class="bindings">
+                                    <i
+                                        binding
+                                        [sys]="id"
+                                        mod="Bookings"
+                                        bind="room_name"
+                                        [(model)]="system_name[id]"
+                                    ></i>
+                                    <i
+                                        binding
+                                        [sys]="id"
+                                        mod="Bookings"
+                                        bind="icon"
+                                        [(model)]="system_icon[id]"
+                                    ></i>
+                                    <i
+                                        binding
+                                        [sys]="id"
+                                        mod="Bookings"
+                                        bind="status"
+                                        (modelChange)="
+                                            system_status[id] = $event
+                                        "
+                                    ></i>
+                                </div>
+                            }
+                            <div
+                                state
+                                [class]="
+                                    'flex h-36 w-36 items-center justify-center rounded bg-base-100 bg-opacity-10 text-6xl' +
+                                    (system_status[id]
+                                        ? ' ' + system_status[id]
+                                        : '')
+                                "
+                            >
+                                @if (system_name[id]) {
+                                    <img [src]="system_icon[id]" />
+                                }
+                                @if (!system_name[id]) {
+                                    <mat-spinner [diameter]="32"></mat-spinner>
+                                }
+                            </div>
+                            <div
+                                class="text w-full truncate p-3 text-sm text-white"
+                            >
+                                {{ system_name[id] || id + ' connecting...' }}
+                            </div>
+                        </button>
+                    }
+                } @else {
+                    <div
+                        class="absolute inset-0 flex items-center justify-center"
+                    >
+                        <p>
+                            No systems are set for displaying on the panel
+                            select list
+                        </p>
+                    </div>
+                }
+            </div>
+            @if (active_system) {
+                <div class="absolute inset-0 border border-white">
+                    <app-booking-panel
+                        [system_id]="active_system"
+                    ></app-booking-panel>
+                    <div
+                        class="absolute left-1/2 top-0 flex -translate-x-1/2 transform items-center rounded-b bg-base-100 p-2"
+                    >
+                        <button
+                            icon
+                            matRipple
+                            class="action close"
+                            (click)="close()"
+                            (contextmenu)="$event.preventDefault()"
                         >
-                            {{ system_name[id] || id + ' connecting...' }}
-                        </div>
-                    </button>
-                </ng-container>
-            </div>
-            <div
-                class="absolute inset-0 border border-white"
-                *ngIf="active_system"
-            >
-                <app-booking-panel
-                    [system_id]="active_system"
-                ></app-booking-panel>
-                <div
-                    class="absolute left-1/2 top-0 flex -translate-x-1/2 transform items-center rounded-b bg-base-100 p-2"
-                >
-                    <button
-                        icon
-                        matRipple
-                        class="action close"
-                        (click)="close()"
-                        (contextmenu)="$event.preventDefault()"
-                    >
-                        <icon>close</icon>
-                    </button>
-                    <button
-                        widget
-                        class="action countdown h-10 w-12"
-                        (contextmenu)="$event.preventDefault()"
-                    >
-                        {{ countdown }}
-                    </button>
+                            <icon>close</icon>
+                        </button>
+                        <button
+                            widget
+                            class="action countdown h-10 w-12"
+                            (contextmenu)="$event.preventDefault()"
+                        >
+                            {{ countdown }}
+                        </button>
+                    </div>
                 </div>
-            </div>
-            <ng-template #none>
-                <div class="absolute inset-0 flex items-center justify-center">
-                    <p>
-                        No systems are set for displaying on the panel select
-                        list
-                    </p>
-                </div>
-            </ng-template>
+            }
         </div>
     `,
     styles: [

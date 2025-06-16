@@ -18,15 +18,14 @@ import { RunSurveyService } from '../services/run-survey.service';
         <main
             class="relative flex h-full min-h-0 w-full flex-col items-center overflow-y-auto bg-base-100 pb-6"
         >
-            <div
-                *ngIf="(loading$ | async).length"
-                class="absolute inset-0 z-10 flex bg-base-100 opacity-60"
-            >
-                <div class="m-auto flex flex-col items-center">
-                    <mat-spinner [diameter]="32"></mat-spinner>
-                    <span>{{ loading$ | async }}</span>
+            @if ((loading$ | async).length) {
+                <div class="absolute inset-0 z-10 flex bg-base-100 opacity-60">
+                    <div class="m-auto flex flex-col items-center">
+                        <mat-spinner [diameter]="32"></mat-spinner>
+                        <span>{{ loading$ | async }}</span>
+                    </div>
                 </div>
-            </div>
+            }
             <div class="flex w-full max-w-6xl flex-col">
                 <survey [model]="service.surveyModel"></survey>
             </div>

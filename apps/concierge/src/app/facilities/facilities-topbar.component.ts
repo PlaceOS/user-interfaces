@@ -19,12 +19,11 @@ import { EventsStateService } from '../day-view/events-state.service';
                     (ngModelChange)="updateZones($event)"
                     [placeholder]="'COMMON.LEVEL_ALL' | translate"
                 >
-                    <mat-option
-                        *ngFor="let level of levels | async"
-                        [value]="level.id"
-                    >
-                        {{ level.display_name || level.name }}
-                    </mat-option>
+                    @for (level of levels | async; track level) {
+                        <mat-option [value]="level.id">
+                            {{ level.display_name || level.name }}
+                        </mat-option>
+                    }
                 </mat-select>
             </mat-form-field>
             <mat-form-field appearance="outline">
@@ -35,9 +34,11 @@ import { EventsStateService } from '../day-view/events-state.service';
                     placeholder="No Events"
                 >
                     <mat-select-trigger>Legend</mat-select-trigger>
-                    <mat-option *ngFor="let type of types" [value]="type.id">
-                        {{ type.name }}
-                    </mat-option>
+                    @for (type of types; track type) {
+                        <mat-option [value]="type.id">
+                            {{ type.name }}
+                        </mat-option>
+                    }
                 </mat-select>
             </mat-form-field>
             <div class="flex-full"></div>

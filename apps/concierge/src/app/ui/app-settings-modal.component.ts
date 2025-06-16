@@ -16,162 +16,200 @@ import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
                     App Configuration - {{ zone.display_name }}
                 </h2>
             </header>
-            <main
-                class="z-0 h-1/2 flex-1 space-y-2 overflow-auto p-2"
-                *ngIf="!loading; else load_state"
-                [formGroup]="form"
-            >
-                <div class="mx-auto w-full max-w-[640px]">
-                    <h3 class="text-lg font-medium">General Features</h3>
-                    <div class="-mx-2 flex flex-wrap items-center py-2">
-                        <button
-                            matRipple
-                            class="m-2 flex w-[calc(50%-1rem)] items-center space-x-2 border border-base-200 p-2"
-                            (click)="
-                                active_features['use_24_hour_time'] =
-                                    !active_features['use_24_hour_time']
-                            "
-                        >
-                            <div class="ml-2 flex-1 text-left">
-                                {{ feature_descriptions['use_24_hour_time'] }}
-                            </div>
-                            <mat-checkbox
-                                [ngModel]="active_features['use_24_hour_time']"
-                                [ngModelOptions]="{ standalone: true }"
-                                class="pointer-events-none"
-                            ></mat-checkbox>
-                        </button>
-                    </div>
-                    <h3 class="text-lg font-medium">Features</h3>
-                    <div class="-mx-2 flex flex-wrap items-center py-2">
-                        <button
-                            *ngFor="let feature of available_features"
-                            matRipple
-                            class="m-2 flex w-[calc(50%-1rem)] items-center space-x-2 border border-base-200 p-2"
-                            (click)="
-                                active_features[feature] =
-                                    !active_features[feature]
-                            "
-                        >
-                            <div class="ml-2 flex-1 text-left">
-                                {{ feature_descriptions[feature] }}
-                            </div>
-                            <mat-checkbox
-                                [ngModel]="active_features[feature]"
-                                [ngModelOptions]="{ standalone: true }"
-                                class="pointer-events-none"
-                            ></mat-checkbox>
-                        </button>
-                    </div>
-                    <h3 class="text-lg font-medium">Landing</h3>
-                    <div class="-mx-2 flex flex-wrap items-center py-2">
-                        <button
-                            *ngFor="let feature of landing_features"
-                            matRipple
-                            class="m-2 flex w-[calc(50%-1rem)] items-center space-x-2 border border-base-200 p-2"
-                            (click)="
-                                active_features[feature] =
-                                    !active_features[feature]
-                            "
-                        >
-                            <div class="ml-2 flex-1 text-left">
-                                {{ feature_descriptions[feature] }}
-                            </div>
-                            <mat-checkbox
-                                [ngModel]="active_features[feature]"
-                                [ngModelOptions]="{ standalone: true }"
-                                class="pointer-events-none"
-                            ></mat-checkbox>
-                        </button>
-                    </div>
-                    <ng-container
-                        *ngIf="active_features['spaces']"
-                        formGroupName="events"
-                    >
-                        <h3 class="text-lg font-medium">Room Bookings</h3>
+            @if (!loading) {
+                <main
+                    class="z-0 h-1/2 flex-1 space-y-2 overflow-auto p-2"
+                    [formGroup]="form"
+                >
+                    <div class="mx-auto w-full max-w-[640px]">
+                        <h3 class="text-lg font-medium">General Features</h3>
                         <div class="-mx-2 flex flex-wrap items-center py-2">
                             <button
-                                *ngFor="let feature of room_features"
                                 matRipple
                                 class="m-2 flex w-[calc(50%-1rem)] items-center space-x-2 border border-base-200 p-2"
                                 (click)="
-                                    form
-                                        .get('events')
-                                        .get(feature)
-                                        .setValue(
-                                            !form.get('events').get(feature)
-                                                .value
-                                        )
+                                    active_features['use_24_hour_time'] =
+                                        !active_features['use_24_hour_time']
                                 "
                             >
                                 <div class="ml-2 flex-1 text-left">
-                                    {{ feature_descriptions[feature] }}
+                                    {{
+                                        feature_descriptions['use_24_hour_time']
+                                    }}
                                 </div>
                                 <mat-checkbox
-                                    [formControlName]="feature"
+                                    [ngModel]="
+                                        active_features['use_24_hour_time']
+                                    "
+                                    [ngModelOptions]="{ standalone: true }"
                                     class="pointer-events-none"
                                 ></mat-checkbox>
                             </button>
                         </div>
-                    </ng-container>
-                    <div *ngIf="active_features['desks']" formGroupName="desks">
-                        <h3 class="text-lg font-medium">Desk Bookings</h3>
+                        <h3 class="text-lg font-medium">Features</h3>
                         <div class="-mx-2 flex flex-wrap items-center py-2">
-                            <button
-                                *ngFor="let feature of desk_features"
-                                matRipple
-                                class="m-2 flex w-[calc(50%-1rem)] items-center space-x-2 border border-base-200 p-2"
-                                (click)="
-                                    form
-                                        .get('desks')
-                                        .get(feature)
-                                        .setValue(
-                                            !form.get('desks').get(feature)
-                                                .value
-                                        )
-                                "
-                            >
-                                <div class="ml-2 flex-1 text-left">
-                                    {{ feature_descriptions[feature] }}
-                                </div>
-                                <mat-checkbox
-                                    [formControlName]="feature"
-                                    class="pointer-events-none"
-                                ></mat-checkbox>
-                            </button>
+                            @for (
+                                feature of available_features;
+                                track feature
+                            ) {
+                                <button
+                                    matRipple
+                                    class="m-2 flex w-[calc(50%-1rem)] items-center space-x-2 border border-base-200 p-2"
+                                    (click)="
+                                        active_features[feature] =
+                                            !active_features[feature]
+                                    "
+                                >
+                                    <div class="ml-2 flex-1 text-left">
+                                        {{ feature_descriptions[feature] }}
+                                    </div>
+                                    <mat-checkbox
+                                        [ngModel]="active_features[feature]"
+                                        [ngModelOptions]="{ standalone: true }"
+                                        class="pointer-events-none"
+                                    ></mat-checkbox>
+                                </button>
+                            }
                         </div>
+                        <h3 class="text-lg font-medium">Landing</h3>
+                        <div class="-mx-2 flex flex-wrap items-center py-2">
+                            @for (feature of landing_features; track feature) {
+                                <button
+                                    matRipple
+                                    class="m-2 flex w-[calc(50%-1rem)] items-center space-x-2 border border-base-200 p-2"
+                                    (click)="
+                                        active_features[feature] =
+                                            !active_features[feature]
+                                    "
+                                >
+                                    <div class="ml-2 flex-1 text-left">
+                                        {{ feature_descriptions[feature] }}
+                                    </div>
+                                    <mat-checkbox
+                                        [ngModel]="active_features[feature]"
+                                        [ngModelOptions]="{ standalone: true }"
+                                        class="pointer-events-none"
+                                    ></mat-checkbox>
+                                </button>
+                            }
+                        </div>
+                        @if (active_features['spaces']) {
+                            <ng-container formGroupName="events">
+                                <h3 class="text-lg font-medium">
+                                    Room Bookings
+                                </h3>
+                                <div
+                                    class="-mx-2 flex flex-wrap items-center py-2"
+                                >
+                                    @for (
+                                        feature of room_features;
+                                        track feature
+                                    ) {
+                                        <button
+                                            matRipple
+                                            class="m-2 flex w-[calc(50%-1rem)] items-center space-x-2 border border-base-200 p-2"
+                                            (click)="
+                                                form
+                                                    .get('events')
+                                                    .get(feature)
+                                                    .setValue(
+                                                        !form
+                                                            .get('events')
+                                                            .get(feature).value
+                                                    )
+                                            "
+                                        >
+                                            <div class="ml-2 flex-1 text-left">
+                                                {{
+                                                    feature_descriptions[
+                                                        feature
+                                                    ]
+                                                }}
+                                            </div>
+                                            <mat-checkbox
+                                                [formControlName]="feature"
+                                                class="pointer-events-none"
+                                            ></mat-checkbox>
+                                        </button>
+                                    }
+                                </div>
+                            </ng-container>
+                        }
+                        @if (active_features['desks']) {
+                            <div formGroupName="desks">
+                                <h3 class="text-lg font-medium">
+                                    Desk Bookings
+                                </h3>
+                                <div
+                                    class="-mx-2 flex flex-wrap items-center py-2"
+                                >
+                                    @for (
+                                        feature of desk_features;
+                                        track feature
+                                    ) {
+                                        <button
+                                            matRipple
+                                            class="m-2 flex w-[calc(50%-1rem)] items-center space-x-2 border border-base-200 p-2"
+                                            (click)="
+                                                form
+                                                    .get('desks')
+                                                    .get(feature)
+                                                    .setValue(
+                                                        !form
+                                                            .get('desks')
+                                                            .get(feature).value
+                                                    )
+                                            "
+                                        >
+                                            <div class="ml-2 flex-1 text-left">
+                                                {{
+                                                    feature_descriptions[
+                                                        feature
+                                                    ]
+                                                }}
+                                            </div>
+                                            <mat-checkbox
+                                                [formControlName]="feature"
+                                                class="pointer-events-none"
+                                            ></mat-checkbox>
+                                        </button>
+                                    }
+                                </div>
+                            </div>
+                        }
                     </div>
-                </div>
-            </main>
-            <footer
-                class="sticky bottom-0 z-10 mx-auto flex w-full max-w-[640px] items-center justify-end space-x-2 bg-base-100 p-2"
-                *ngIf="!loading"
-            >
-                <button btn matRipple class="inverse w-32" mat-dialog-close>
-                    Discard
+                </main>
+            } @else {
+                <main
+                    class="z-0 flex h-1/2 flex-1 flex-col items-center justify-center space-y-2 overflow-auto p-2"
+                >
+                    <mat-spinner [diameter]="32"></mat-spinner>
+                    <p>{{ loading }}</p>
+                </main>
+            }
+            @if (!loading) {
+                <footer
+                    class="sticky bottom-0 z-10 mx-auto flex w-full max-w-[640px] items-center justify-end space-x-2 bg-base-100 p-2"
+                >
+                    <button btn matRipple class="inverse w-32" mat-dialog-close>
+                        Discard
+                    </button>
+                    <button btn matRipple class="w-32" (click)="save()">
+                        Save
+                    </button>
+                </footer>
+            }
+            @if (!loading) {
+                <button
+                    icon
+                    matRipple
+                    mat-dialog-close
+                    class="absolute right-2 top-2"
+                >
+                    <icon>close</icon>
                 </button>
-                <button btn matRipple class="w-32" (click)="save()">
-                    Save
-                </button>
-            </footer>
-            <button
-                icon
-                matRipple
-                mat-dialog-close
-                *ngIf="!loading"
-                class="absolute right-2 top-2"
-            >
-                <icon>close</icon>
-            </button>
+            }
         </div>
-        <ng-template #load_state>
-            <main
-                class="z-0 flex h-1/2 flex-1 flex-col items-center justify-center space-y-2 overflow-auto p-2"
-            >
-                <mat-spinner [diameter]="32"></mat-spinner>
-                <p>{{ loading }}</p>
-            </main>
-        </ng-template>
     `,
     styles: [``],
     standalone: false,

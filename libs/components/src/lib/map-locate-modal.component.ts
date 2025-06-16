@@ -26,29 +26,30 @@ export interface Locatable {
                     {{ item.display_name || item.name }}
                 </h1>
             </header>
-            <div
-                body
-                class="relative h-[65vh] w-full overflow-hidden sm:max-h-[65vh]"
-                *ngIf="level"
-            >
-                <interactive-map
-                    class="pointer-events-none"
-                    [src]="level?.map_id"
-                    [focus]="item?.map_id"
-                    [features]="features"
-                    [options]="{
-                        disable_pan: true,
-                        disable_zoom: true,
-                    }"
-                >
-                    <mat-spinner diameter="64"></mat-spinner
-                ></interactive-map>
+            @if (level) {
                 <div
-                    class="absolute right-2 top-2 rounded-3xl border border-base-200 bg-base-100 px-4 py-2 shadow"
+                    body
+                    class="relative h-[65vh] w-full overflow-hidden sm:max-h-[65vh]"
                 >
-                    {{ level?.display_name || level?.name }}
+                    <interactive-map
+                        class="pointer-events-none"
+                        [src]="level?.map_id"
+                        [focus]="item?.map_id"
+                        [features]="features"
+                        [options]="{
+                            disable_pan: true,
+                            disable_zoom: true,
+                        }"
+                    >
+                        <mat-spinner diameter="64"></mat-spinner
+                    ></interactive-map>
+                    <div
+                        class="absolute right-2 top-2 rounded-3xl border border-base-200 bg-base-100 px-4 py-2 shadow"
+                    >
+                        {{ level?.display_name || level?.name }}
+                    </div>
                 </div>
-            </div>
+            }
             <footer
                 class="flex w-full items-center justify-center border-t border-base-200 p-2"
             >

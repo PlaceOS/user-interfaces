@@ -7,7 +7,6 @@ import {
 } from '@angular/material/dialog';
 import { first } from 'rxjs/operators';
 
-import { CommonModule } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
@@ -71,36 +70,14 @@ export async function openConfirmModal(
         >
             <h2 class="px-2 text-xl font-medium">{{ title }}</h2>
         </header>
-        <main
-            *ngIf="!loading; else load_state"
-            class="flex w-[28rem] max-w-[85vw] flex-col items-center space-y-4 p-4 sm:h-auto"
-        >
-            <icon [icon]="icon" class="text-5xl"></icon>
-            <p content class="text-center" [innerHTML]="content"></p>
-        </main>
-        <footer
-            class="sticky bottom-0 m-2 flex items-center justify-center space-x-2 rounded border-none bg-base-200 p-2"
-            *ngIf="!loading"
-        >
-            <button
-                btn
-                matRipple
-                class="inverse flex-1 bg-base-100"
-                mat-dialog-close
+        @if (!loading) {
+            <main
+                class="flex w-[28rem] max-w-[85vw] flex-col items-center space-y-4 p-4 sm:h-auto"
             >
-                {{ cancel_text | translate }}
-            </button>
-            <button
-                btn
-                matRipple
-                name="accept"
-                class="flex-1"
-                (click)="onConfirm()"
-            >
-                {{ confirm_text | translate }}
-            </button>
-        </footer>
-        <ng-template #load_state>
+                <icon [icon]="icon" class="text-5xl"></icon>
+                <p content class="text-center" [innerHTML]="content"></p>
+            </main>
+        } @else {
             <main loading>
                 <div
                     class="flex h-48 w-full flex-col items-center justify-center space-y-4"
@@ -109,11 +86,33 @@ export async function openConfirmModal(
                     <p>{{ loading }}</p>
                 </div>
             </main>
-        </ng-template>
+        }
+        @if (!loading) {
+            <footer
+                class="sticky bottom-0 m-2 flex items-center justify-center space-x-2 rounded border-none bg-base-200 p-2"
+            >
+                <button
+                    btn
+                    matRipple
+                    class="inverse flex-1 bg-base-100"
+                    mat-dialog-close
+                >
+                    {{ cancel_text | translate }}
+                </button>
+                <button
+                    btn
+                    matRipple
+                    name="accept"
+                    class="flex-1"
+                    (click)="onConfirm()"
+                >
+                    {{ confirm_text | translate }}
+                </button>
+            </footer>
+        }
     `,
     styles: [``],
     imports: [
-        CommonModule,
         MatProgressSpinnerModule,
         TranslatePipe,
         IconComponent,

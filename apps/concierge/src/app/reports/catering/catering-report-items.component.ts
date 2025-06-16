@@ -58,16 +58,17 @@ import { CateringReportStateService } from './catering-report-state.service';
             ></simple-table>
             <ng-template #option_template let-data="data">
                 <div class="p-4">
-                    <span
-                        class="rounded bg-base-200 px-2 py-1 text-xs"
-                        *ngIf="data.length"
-                        [matTooltip]="options(data)"
-                    >
-                        {{
-                            'APP.CONCIERGE.REPORTS_CATERING_OPTIONS'
-                                | translate: { count: data?.length || 0 }
-                        }}
-                    </span>
+                    @if (data.length) {
+                        <span
+                            class="rounded bg-base-200 px-2 py-1 text-xs"
+                            [matTooltip]="options(data)"
+                        >
+                            {{
+                                'APP.CONCIERGE.REPORTS_CATERING_OPTIONS'
+                                    | translate: { count: data?.length || 0 }
+                            }}
+                        </span>
+                    }
                 </div>
             </ng-template>
             <ng-template #cost_template let-data="data">

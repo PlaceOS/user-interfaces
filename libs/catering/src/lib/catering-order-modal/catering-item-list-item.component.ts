@@ -22,24 +22,25 @@ import { CateringItem } from '../catering-item.class';
                 <div
                     class="relative mr-4 flex h-16 w-16 items-center justify-center overflow-hidden rounded-xl border border-base-200 bg-neutral"
                 >
-                    <div
-                        class="absolute left-1 top-1 flex h-6 w-6 items-center justify-center rounded-full border border-white bg-neutral text-xs text-white"
-                        *ngIf="item.quantity && selected"
-                    >
-                        {{ item.quantity || '1' }}
-                    </div>
-                    <img
-                        auth
-                        *ngIf="item.images?.length; else placeholder"
-                        class="min-h-full min-w-full object-cover"
-                        [source]="item.images[0]"
-                    />
-                    <ng-template #placeholder>
+                    @if (item.quantity && selected) {
+                        <div
+                            class="absolute left-1 top-1 flex h-6 w-6 items-center justify-center rounded-full border border-white bg-neutral text-xs text-white"
+                        >
+                            {{ item.quantity || '1' }}
+                        </div>
+                    }
+                    @if (item.images?.length) {
+                        <img
+                            auth
+                            class="min-h-full min-w-full object-cover"
+                            [source]="item.images[0]"
+                        />
+                    } @else {
                         <img
                             class="m-auto"
                             src="assets/icons/catering-placeholder.svg"
                         />
-                    </ng-template>
+                    }
                 </div>
                 <div class="flex-1 space-y-2 text-left">
                     <div class="flex flex-col pr-10 font-medium">
@@ -49,48 +50,53 @@ import { CateringItem } from '../catering-item.class';
                         </div>
                     </div>
                     <div class="flex items-center space-x-1 text-sm">
-                        <p
-                            class="w-px flex-1 rounded bg-base-100"
-                            *ngIf="item.unit_price"
-                        >
-                            {{ item.unit_price / 100 | currency: code }}
-                        </p>
-                        <div
-                            class="rounded-2xl border border-base-200 px-2 py-1 text-xs shadow"
-                            *ngIf="item.option_list?.length"
-                        >
-                            {{ options }}
-                        </div>
-                        <div
-                            class="flex h-5 w-7 items-center justify-center rounded-xl bg-success text-xs shadow"
-                            *ngIf="item.tags?.includes('Gluten Free')"
-                        >
-                            GF
-                        </div>
-                        <div
-                            class="flex h-5 w-7 items-center justify-center rounded-xl bg-info text-xs shadow"
-                            *ngIf="item.tags?.includes('Vegan')"
-                        >
-                            VG
-                        </div>
-                        <div
-                            class="flex h-5 w-7 items-center justify-center rounded-xl bg-info text-xs shadow"
-                            *ngIf="item.tags?.includes('Vegetarian')"
-                        >
-                            V
-                        </div>
-                        <div
-                            class="flex h-5 w-7 items-center justify-center rounded-xl bg-warning text-xs shadow"
-                            *ngIf="item.tags?.includes('Contains Dairy')"
-                        >
-                            D
-                        </div>
-                        <div
-                            class="bg-orange-600 flex h-5 w-7 items-center justify-center rounded-xl text-xs shadow"
-                            *ngIf="item.tags?.includes('Contains Nuts')"
-                        >
-                            N
-                        </div>
+                        @if (item.unit_price) {
+                            <p class="w-px flex-1 rounded bg-base-100">
+                                {{ item.unit_price / 100 | currency: code }}
+                            </p>
+                        }
+                        @if (item.option_list?.length) {
+                            <div
+                                class="rounded-2xl border border-base-200 px-2 py-1 text-xs shadow"
+                            >
+                                {{ options }}
+                            </div>
+                        }
+                        @if (item.tags?.includes('Gluten Free')) {
+                            <div
+                                class="flex h-5 w-7 items-center justify-center rounded-xl bg-success text-xs shadow"
+                            >
+                                GF
+                            </div>
+                        }
+                        @if (item.tags?.includes('Vegan')) {
+                            <div
+                                class="flex h-5 w-7 items-center justify-center rounded-xl bg-info text-xs shadow"
+                            >
+                                VG
+                            </div>
+                        }
+                        @if (item.tags?.includes('Vegetarian')) {
+                            <div
+                                class="flex h-5 w-7 items-center justify-center rounded-xl bg-info text-xs shadow"
+                            >
+                                V
+                            </div>
+                        }
+                        @if (item.tags?.includes('Contains Dairy')) {
+                            <div
+                                class="flex h-5 w-7 items-center justify-center rounded-xl bg-warning text-xs shadow"
+                            >
+                                D
+                            </div>
+                        }
+                        @if (item.tags?.includes('Contains Nuts')) {
+                            <div
+                                class="bg-orange-600 flex h-5 w-7 items-center justify-center rounded-xl text-xs shadow"
+                            >
+                                N
+                            </div>
+                        }
                     </div>
                 </div>
             </button>

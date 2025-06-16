@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, Inject } from '@angular/core';
 import { ApplicationIcon } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -26,7 +25,7 @@ import { MAP_FEATURE_DATA } from 'libs/components/src/lib/interactive-map.compon
             }
         `,
     ],
-    imports: [CommonModule, IconComponent],
+    imports: [IconComponent],
 })
 export class ExploreIconComponent {
     public readonly icon = this._details.icon || { content: 'done' };

@@ -18,22 +18,20 @@ import { CustomTooltipData } from './custom-tooltip.component';
                     {{ 'COMMON.CONTROLS_ACCESSIBILITY' | translate }}
                 </div>
             </div>
-            <div
-                action
-                *ngIf="can_change_dark_mode"
-                class="w-full p-2 text-left"
-            >
-                <settings-toggle
-                    [ngModel]="dark_mode"
-                    (ngModelChange)="setDarkMode($event)"
-                    [toggle]="true"
-                >
-                    <div class="flex items-center space-x-2">
-                        <icon class="-ml-2 text-xl">mode_night</icon>
-                        <div>{{ 'COMMON.DARK_MODE' | translate }}</div>
-                    </div>
-                </settings-toggle>
-            </div>
+            @if (can_change_dark_mode) {
+                <div action class="w-full p-2 text-left">
+                    <settings-toggle
+                        [ngModel]="dark_mode"
+                        (ngModelChange)="setDarkMode($event)"
+                        [toggle]="true"
+                    >
+                        <div class="flex items-center space-x-2">
+                            <icon class="-ml-2 text-xl">mode_night</icon>
+                            <div>{{ 'COMMON.DARK_MODE' | translate }}</div>
+                        </div>
+                    </settings-toggle>
+                </div>
+            }
             <div action class="w-full px-2 pb-2 text-left">
                 <settings-toggle
                     [ngModel]="accessible"
@@ -46,7 +44,7 @@ import { CustomTooltipData } from './custom-tooltip.component';
                     </div>
                 </settings-toggle>
             </div>
-            <ng-container *ngIf="accessible">
+            @if (accessible) {
                 <div class="bg-base-200 px-8 py-4 text-center">
                     {{ 'COMMON.TEXT_SIZE_MSG' | translate }}
                 </div>
@@ -72,7 +70,7 @@ import { CustomTooltipData } from './custom-tooltip.component';
                         {{ font_size }}px
                     </span>
                 </div>
-            </ng-container>
+            }
         </div>
     `,
     styles: [``],

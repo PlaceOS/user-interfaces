@@ -19,119 +19,128 @@ import { first } from 'rxjs/operators';
     selector: 'new-locker-form-details',
     styles: [],
     template: `
-        <div
-            class="space-y-2 divide-y divide-base-200 p-0 sm:px-16 sm:py-4"
-            *ngIf="form"
-            [formGroup]="form"
-        >
-            <section class="p-2" [class.!border-none]="allow_groups">
-                <h3 class="mb-4 flex items-center space-x-2">
-                    <div
-                        class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
-                    >
-                        1
-                    </div>
-                    <div class="text-xl">
-                        {{ 'BOOKINGS.DETAILS' | translate }}
-                    </div>
-                </h3>
-                <div class="flex flex-wrap items-center sm:space-x-2">
-                    <div class="min-w-[256px] flex-1">
-                        <label for="date">
-                            {{ 'RESOURCE.BUILDING' | translate }}<span>*</span>
-                        </label>
-                        <mat-form-field appearance="outline" class="w-full">
-                            <mat-select
-                                [(ngModel)]="building"
-                                [ngModelOptions]="{ standalone: true }"
-                                placeholder="Select Building"
-                            >
-                                <mat-option
-                                    *ngFor="let b of buildings | async"
-                                    [value]="b"
+        @if (form) {
+            <div
+                class="space-y-2 divide-y divide-base-200 p-0 sm:px-16 sm:py-4"
+                [formGroup]="form"
+            >
+                <section class="p-2" [class.!border-none]="allow_groups">
+                    <h3 class="mb-4 flex items-center space-x-2">
+                        <div
+                            class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
+                        >
+                            1
+                        </div>
+                        <div class="text-xl">
+                            {{ 'BOOKINGS.DETAILS' | translate }}
+                        </div>
+                    </h3>
+                    <div class="flex flex-wrap items-center sm:space-x-2">
+                        <div class="min-w-[256px] flex-1">
+                            <label for="date">
+                                {{ 'RESOURCE.BUILDING' | translate
+                                }}<span>*</span>
+                            </label>
+                            <mat-form-field appearance="outline" class="w-full">
+                                <mat-select
+                                    [(ngModel)]="building"
+                                    [ngModelOptions]="{ standalone: true }"
+                                    placeholder="Select Building"
                                 >
-                                    {{ b.display_name || b.name }}
-                                </mat-option>
-                            </mat-select>
-                        </mat-form-field>
+                                    @for (b of buildings | async; track b) {
+                                        <mat-option [value]="b">
+                                            {{ b.display_name || b.name }}
+                                        </mat-option>
+                                    }
+                                </mat-select>
+                            </mat-form-field>
+                        </div>
+                        <div class="relative min-w-[256px] flex-1">
+                            <label for="date">
+                                {{ 'FORM.DATE' | translate }}<span>*</span>
+                            </label>
+                            <a-date-field
+                                name="date"
+                                formControlName="date"
+                                [timezone]="timezone"
+                            >
+                                {{ 'FORM.DATE_REQUIRED' | translate }}
+                            </a-date-field>
+                            @if (allow_all_day && !disable_date) {
+                                <mat-checkbox
+                                    formControlName="all_day"
+                                    class="absolute -top-2 right-0"
+                                >
+                                    {{ 'COMMON.ALL_DAY' | translate }}
+                                </mat-checkbox>
+                            }
+                        </div>
                     </div>
-                    <div class="relative min-w-[256px] flex-1">
-                        <label for="date">
-                            {{ 'FORM.DATE' | translate }}<span>*</span>
-                        </label>
-                        <a-date-field
-                            name="date"
-                            formControlName="date"
-                            [timezone]="timezone"
-                        >
-                            {{ 'FORM.DATE_REQUIRED' | translate }}
-                        </a-date-field>
-                        <mat-checkbox
-                            formControlName="all_day"
-                            *ngIf="allow_all_day && !disable_date"
-                            class="absolute -top-2 right-0"
-                        >
-                            {{ 'COMMON.ALL_DAY' | translate }}
-                        </mat-checkbox>
-                    </div>
-                </div>
-                <div
-                    class="flex items-center space-x-2"
-                    *ngIf="!form.value.all_day"
-                >
-                    <div class="w-1/3 flex-1">
-                        <label for="start-time">
-                            {{ 'FORM.TIME_START' | translate }}<span>*</span>
-                        </label>
-                        <a-time-field
-                            name="start-time"
-                            [ngModel]="form.getRawValue().date"
-                            (ngModelChange)="form.patchValue({ date: $event })"
-                            [ngModelOptions]="{ standalone: true }"
-                            [use_24hr]="use_24hr"
-                            [disabled]="
-                                form.controls.date.disabled ||
-                                form.value.duration > 24 * 60 - 1 ||
-                                disable_start
-                            "
-                            [timezone]="timezone"
-                        ></a-time-field>
-                    </div>
-                    <div class="relative w-1/3 flex-1" *ngIf="!hide_end">
-                        <label for="end-time">
-                            {{ 'FORM.TIME_END' | translate }}<span>*</span>
-                        </label>
-                        <a-duration-field
-                            name="end-time"
-                            formControlName="duration"
-                            [time]="form.getRawValue().value"
-                            [max]="max_duration"
-                            [min]="60"
-                            [step]="60"
-                            [use_24hr]="use_24hr"
-                            [custom_options]="custom_durations"
-                            [timezone]="timezone"
-                        >
-                        </a-duration-field>
-                    </div>
-                </div>
-            </section>
-            <section class="p-2" *ngIf="form.contains('resources')">
-                <h3 class="mb-4 flex items-center space-x-2">
-                    <div
-                        class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
-                    >
-                        {{ (options | async)?.group ? 3 : 2 }}
-                    </div>
-                    <div class="text-xl">
-                        {{ 'RESOURCE.LOCKER' | translate }}
-                    </div>
-                </h3>
-                <locker-list-field
-                    formControlName="resources"
-                ></locker-list-field>
-            </section>
-        </div>
+                    @if (!form.value.all_day) {
+                        <div class="flex items-center space-x-2">
+                            <div class="w-1/3 flex-1">
+                                <label for="start-time">
+                                    {{ 'FORM.TIME_START' | translate
+                                    }}<span>*</span>
+                                </label>
+                                <a-time-field
+                                    name="start-time"
+                                    [ngModel]="form.getRawValue().date"
+                                    (ngModelChange)="
+                                        form.patchValue({ date: $event })
+                                    "
+                                    [ngModelOptions]="{ standalone: true }"
+                                    [use_24hr]="use_24hr"
+                                    [disabled]="
+                                        form.controls.date.disabled ||
+                                        form.value.duration > 24 * 60 - 1 ||
+                                        disable_start
+                                    "
+                                    [timezone]="timezone"
+                                ></a-time-field>
+                            </div>
+                            @if (!hide_end) {
+                                <div class="relative w-1/3 flex-1">
+                                    <label for="end-time">
+                                        {{ 'FORM.TIME_END' | translate
+                                        }}<span>*</span>
+                                    </label>
+                                    <a-duration-field
+                                        name="end-time"
+                                        formControlName="duration"
+                                        [time]="form.getRawValue().value"
+                                        [max]="max_duration"
+                                        [min]="60"
+                                        [step]="60"
+                                        [use_24hr]="use_24hr"
+                                        [custom_options]="custom_durations"
+                                        [timezone]="timezone"
+                                    >
+                                    </a-duration-field>
+                                </div>
+                            }
+                        </div>
+                    }
+                </section>
+                @if (form.contains('resources')) {
+                    <section class="p-2">
+                        <h3 class="mb-4 flex items-center space-x-2">
+                            <div
+                                class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
+                            >
+                                {{ (options | async)?.group ? 3 : 2 }}
+                            </div>
+                            <div class="text-xl">
+                                {{ 'RESOURCE.LOCKER' | translate }}
+                            </div>
+                        </h3>
+                        <locker-list-field
+                            formControlName="resources"
+                        ></locker-list-field>
+                    </section>
+                }
+            </div>
+        }
     `,
     standalone: false,
 })

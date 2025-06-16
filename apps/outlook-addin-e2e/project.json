@@ -3,13 +3,14 @@
     "$schema": "../../node_modules/nx/schemas/project-schema.json",
     "sourceRoot": "apps/outlook-addin-e2e/src",
     "projectType": "application",
+    "tags": [],
+    "implicitDependencies": ["outlook-addin"],
     "targets": {
         "e2e": {
             "executor": "@nx/cypress:cypress",
             "options": {
                 "cypressConfig": "apps/outlook-addin-e2e/cypress.config.js",
-                "devServerTarget": "outlook-addin:serve",
-                "tsConfig": "apps/outlook-addin-e2e/tsconfig.json"
+                "devServerTarget": "outlook-addin:serve"
             },
             "configurations": {
                 "production": {
@@ -21,7 +22,5 @@
             "executor": "@nx/eslint:lint",
             "outputs": ["{options.outputFile}"]
         }
-    },
-    "tags": [],
-    "implicitDependencies": ["outlook-addin"]
+    }
 }

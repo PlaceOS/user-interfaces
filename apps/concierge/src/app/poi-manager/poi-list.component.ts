@@ -52,12 +52,13 @@ import {
             </div>
         </ng-template>
         <ng-template #bool_template let-data="data">
-            <div
-                *ngIf="data"
-                class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-success text-2xl text-success-content"
-            >
-                <icon>done</icon>
-            </div>
+            @if (data) {
+                <div
+                    class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-success text-2xl text-success-content"
+                >
+                    <icon>done</icon>
+                </div>
+            }
         </ng-template>
         <ng-template #action_template let-row="row">
             <div class="mx-auto flex w-full justify-end space-x-2 px-4 py-2">

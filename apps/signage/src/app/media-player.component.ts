@@ -60,10 +60,9 @@ export type MediaPlayerState = 'PAUSED' | 'PLAYING';
                     mode="determinate"
                     [value]="progress"
                 ></mat-progress-bar>
-                <div
-                    *ngIf="in_animation"
-                    class="absolute inset-1 rounded-full bg-success"
-                ></div>
+                @if (in_animation) {
+                    <div class="absolute inset-1 rounded-full bg-success"></div>
+                }
             </div>
             <div
                 class="absolute bottom-2 left-1/2 flex -translate-x-1/2 items-center space-x-2 overflow-hidden rounded-full border border-base-300 bg-base-100 p-2 text-lg"
@@ -161,71 +160,75 @@ export type MediaPlayerState = 'PAUSED' | 'PLAYING';
                     <icon [class.opacity-30]="!shuffle"> shuffle </icon>
                 </button>
             </div>
-            <div
-                class="absolute bottom-24 right-4 top-4 flex flex-col space-y-2 overflow-auto rounded-xl border border-base-300 bg-base-100 p-2"
-                *ngIf="show_playlist"
-            >
-                <div class="flex items-center space-x-4 p-2">
-                    <h2>{{ 'APP.SIGNAGE.MEDIA_LIST' | translate }}</h2>
-                    <div class="text-xs opacity-30">
-                        ({{ playlist_items?.length || 0 }} items)
+            @if (show_playlist) {
+                <div
+                    class="absolute bottom-24 right-4 top-4 flex flex-col space-y-2 overflow-auto rounded-xl border border-base-300 bg-base-100 p-2"
+                >
+                    <div class="flex items-center space-x-4 p-2">
+                        <h2>{{ 'APP.SIGNAGE.MEDIA_LIST' | translate }}</h2>
+                        <div class="text-xs opacity-30">
+                            ({{ playlist_items?.length || 0 }} items)
+                        </div>
                     </div>
-                </div>
-                <div>
-                    @for (item of playlist_items; track item) {
-                        <button
-                            matRipple
-                            class="flex w-[20rem] items-center space-x-2 rounded-lg p-2 text-left hover:bg-base-200"
-                            [class.overflow-visible]="$index === index"
-                            [class.pointer-events-none]="$index === index"
-                            (click)="setPlaylistItem($index)"
-                        >
-                            <div
-                                class="flex h-10 w-10 items-center justify-center rounded-full"
-                                [class.bg-info]="$index === index"
-                                [class.text-info-content]="$index === index"
-                                [class.bg-base-300]="$index !== index"
+                    <div>
+                        @for (item of playlist_items; track item) {
+                            <button
+                                matRipple
+                                class="flex w-[20rem] items-center space-x-2 rounded-lg p-2 text-left hover:bg-base-200"
+                                [class.overflow-visible]="$index === index"
+                                [class.pointer-events-none]="$index === index"
+                                (click)="setPlaylistItem($index)"
                             >
                                 <div
-                                    class="relative flex h-7 w-7 items-center justify-center"
+                                    class="flex h-10 w-10 items-center justify-center rounded-full"
+                                    [class.bg-info]="$index === index"
+                                    [class.text-info-content]="$index === index"
+                                    [class.bg-base-300]="$index !== index"
                                 >
-                                    <span
-                                        *ngIf="$index === index"
-                                        class="absolute z-0 inline-flex h-full w-full animate-ping rounded-full bg-info opacity-75"
-                                    ></span>
-                                    <icon
-                                        class="relative z-10 text-2xl"
-                                        [class.opacity-30]="$index !== index"
-                                        >{{
-                                            $index === index
-                                                ? 'play_arrow'
-                                                : 'not_started'
-                                        }}</icon
+                                    <div
+                                        class="relative flex h-7 w-7 items-center justify-center"
                                     >
+                                        @if ($index === index) {
+                                            <span
+                                                class="absolute z-0 inline-flex h-full w-full animate-ping rounded-full bg-info opacity-75"
+                                            ></span>
+                                        }
+                                        <icon
+                                            class="relative z-10 text-2xl"
+                                            [class.opacity-30]="
+                                                $index !== index
+                                            "
+                                            >{{
+                                                $index === index
+                                                    ? 'play_arrow'
+                                                    : 'not_started'
+                                            }}</icon
+                                        >
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="flex w-1/2 flex-1 flex-col">
-                                <div class="truncate">{{ item.name }}</div>
-                                <div class="text-xs opacity-30">
-                                    {{ item.playlist_name }}
+                                <div class="flex w-1/2 flex-1 flex-col">
+                                    <div class="truncate">{{ item.name }}</div>
+                                    <div class="text-xs opacity-30">
+                                        {{ item.playlist_name }}
+                                    </div>
                                 </div>
-                            </div>
-                            <div
-                                class="rounded bg-info px-2 py-1 font-mono text-xs text-info-content"
-                            >
-                                {{ item.duration / 1000 | mediaDuration }}
-                            </div>
-                        </button>
-                    }
-                </div>
-                <div class="flex flex-col justify-end">
-                    <div
-                        class="rounded-lg bg-base-300 p-2 text-center text-xs opacity-30"
-                    >
-                        {{ 'APP.SIGNAGE.MEDIA_LIST_END' | translate }}
+                                <div
+                                    class="rounded bg-info px-2 py-1 font-mono text-xs text-info-content"
+                                >
+                                    {{ item.duration / 1000 | mediaDuration }}
+                                </div>
+                            </button>
+                        }
+                    </div>
+                    <div class="flex flex-col justify-end">
+                        <div
+                            class="rounded-lg bg-base-300 p-2 text-center text-xs opacity-30"
+                        >
+                            {{ 'APP.SIGNAGE.MEDIA_LIST_END' | translate }}
+                        </div>
                     </div>
                 </div>
-            </div>
+            }
             <button
                 icon
                 matRipple

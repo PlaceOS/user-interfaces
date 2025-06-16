@@ -34,59 +34,63 @@ import { PointOfInterest } from './poi-management.service';
             [loading]="loading ? ('APP.CONCIERGE.POI_SAVING' | translate) : ''"
         >
             <form [formGroup]="form">
-                <div class="flex flex-col" *ngIf="form.controls.name">
-                    <label for="name">
-                        {{ 'FORM.NAME' | translate }}<span>*</span>
-                    </label>
-                    <mat-form-field appearance="outline">
-                        <input
-                            matInput
-                            name="name"
-                            [placeholder]="'FORM.NAME' | translate"
-                            formControlName="name"
-                        />
-                    </mat-form-field>
-                </div>
-                <div
-                    class="flex flex-col"
-                    *ngIf="(building_list | async)?.length > 1"
-                >
-                    <label for="building">
-                        {{ 'RESOURCE.BUILDING' | translate }}<span>*</span>
-                    </label>
-                    <mat-form-field appearance="outline">
-                        <mat-select
-                            [(ngModel)]="building"
-                            [ngModelOptions]="{ standalone: true }"
-                            placeholder="Select Building"
-                        >
-                            <mat-option
-                                *ngFor="let bld of building_list | async"
-                                [value]="bld"
+                @if (form.controls.name) {
+                    <div class="flex flex-col">
+                        <label for="name">
+                            {{ 'FORM.NAME' | translate }}<span>*</span>
+                        </label>
+                        <mat-form-field appearance="outline">
+                            <input
+                                matInput
+                                name="name"
+                                [placeholder]="'FORM.NAME' | translate"
+                                formControlName="name"
+                            />
+                        </mat-form-field>
+                    </div>
+                }
+                @if ((building_list | async)?.length > 1) {
+                    <div class="flex flex-col">
+                        <label for="building">
+                            {{ 'RESOURCE.BUILDING' | translate }}<span>*</span>
+                        </label>
+                        <mat-form-field appearance="outline">
+                            <mat-select
+                                [(ngModel)]="building"
+                                [ngModelOptions]="{ standalone: true }"
+                                placeholder="Select Building"
                             >
-                                {{ bld.display_name }}
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                </div>
-                <div class="flex flex-col" *ngIf="form.controls.level_id">
-                    <label for="level">
-                        {{ 'RESOURCE.LEVEL' | translate }}<span>*</span>
-                    </label>
-                    <mat-form-field appearance="outline">
-                        <mat-select
-                            formControlName="level_id"
-                            placeholder="Select Level"
-                        >
-                            <mat-option
-                                *ngFor="let level of level_list | async"
-                                [value]="level.id"
+                                @for (bld of building_list | async; track bld) {
+                                    <mat-option [value]="bld">
+                                        {{ bld.display_name }}
+                                    </mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+                }
+                @if (form.controls.level_id) {
+                    <div class="flex flex-col">
+                        <label for="level">
+                            {{ 'RESOURCE.LEVEL' | translate }}<span>*</span>
+                        </label>
+                        <mat-form-field appearance="outline">
+                            <mat-select
+                                formControlName="level_id"
+                                placeholder="Select Level"
                             >
-                                {{ level.display_name }}
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                </div>
+                                @for (
+                                    level of level_list | async;
+                                    track level
+                                ) {
+                                    <mat-option [value]="level.id">
+                                        {{ level.display_name }}
+                                    </mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+                }
                 <div class="flex flex-col">
                     <label for="location">
                         {{ 'COMMON.LOCATION' | translate }}<span>*</span>
@@ -105,70 +109,68 @@ import { PointOfInterest } from './poi-management.service';
                             </mat-option>
                         </mat-select>
                     </mat-form-field>
-                    <div
-                        class="flex items-center space-x-4 pb-2"
-                        *ngIf="location_type === 'map_id'"
-                    >
-                        <mat-form-field
-                            class="no-subscript"
-                            appearance="outline"
-                        >
-                            <input
-                                matInput
-                                name="location"
-                                placeholder="Location"
-                                formControlName="location"
-                            />
-                        </mat-form-field>
-                        <button
-                            icon
-                            matRipple
-                            class="h-12 w-12 rounded border border-secondary text-secondary"
-                            [matTooltip]="
-                                'APP.CONCIERGE.POI_MAP_SELECT' | translate
-                            "
-                            (click)="selectPOIfromMap()"
-                        >
-                            <icon>place</icon>
-                        </button>
-                    </div>
-                    <div
-                        class="flex items-center space-x-2"
-                        *ngIf="location_type === 'coordinates'"
-                    >
-                        <mat-form-field appearance="outline" class="flex-1">
-                            <input
-                                matInput
-                                name="latitude"
-                                [ngModel]="form.value.location[0]"
-                                (ngModelChange)="
-                                    form.patchValue({
-                                        location: [
-                                            $event,
-                                            form.value.location[1],
-                                        ],
-                                    })
+                    @if (location_type === 'map_id') {
+                        <div class="flex items-center space-x-4 pb-2">
+                            <mat-form-field
+                                class="no-subscript"
+                                appearance="outline"
+                            >
+                                <input
+                                    matInput
+                                    name="location"
+                                    placeholder="Location"
+                                    formControlName="location"
+                                />
+                            </mat-form-field>
+                            <button
+                                icon
+                                matRipple
+                                class="h-12 w-12 rounded border border-secondary text-secondary"
+                                [matTooltip]="
+                                    'APP.CONCIERGE.POI_MAP_SELECT' | translate
                                 "
-                                [ngModelOptions]="{ standalone: true }"
-                            />
-                        </mat-form-field>
-                        <mat-form-field appearance="outline" class="flex-1">
-                            <input
-                                matInput
-                                name="longitude"
-                                [ngModel]="form.value.location[1]"
-                                (ngModelChange)="
-                                    form.patchValue({
-                                        location: [
-                                            form.value.location[0],
-                                            $event,
-                                        ],
-                                    })
-                                "
-                                [ngModelOptions]="{ standalone: true }"
-                            />
-                        </mat-form-field>
-                    </div>
+                                (click)="selectPOIfromMap()"
+                            >
+                                <icon>place</icon>
+                            </button>
+                        </div>
+                    }
+                    @if (location_type === 'coordinates') {
+                        <div class="flex items-center space-x-2">
+                            <mat-form-field appearance="outline" class="flex-1">
+                                <input
+                                    matInput
+                                    name="latitude"
+                                    [ngModel]="form.value.location[0]"
+                                    (ngModelChange)="
+                                        form.patchValue({
+                                            location: [
+                                                $event,
+                                                form.value.location[1],
+                                            ],
+                                        })
+                                    "
+                                    [ngModelOptions]="{ standalone: true }"
+                                />
+                            </mat-form-field>
+                            <mat-form-field appearance="outline" class="flex-1">
+                                <input
+                                    matInput
+                                    name="longitude"
+                                    [ngModel]="form.value.location[1]"
+                                    (ngModelChange)="
+                                        form.patchValue({
+                                            location: [
+                                                form.value.location[0],
+                                                $event,
+                                            ],
+                                        })
+                                    "
+                                    [ngModelOptions]="{ standalone: true }"
+                                />
+                            </mat-form-field>
+                        </div>
+                    }
                     <div class="flex items-center space-x-4 pt-2">
                         <settings-toggle
                             class="flex-1"

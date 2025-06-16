@@ -130,7 +130,8 @@
                 "development": {
                     "buildTarget": "outlook-addin:build:development"
                 }
-            }
+            },
+            "continuous": true
         },
         "lint": {
             "executor": "@nx/eslint:lint",

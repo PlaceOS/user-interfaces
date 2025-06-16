@@ -45,11 +45,12 @@ const DATE_PIPE = new DatePipe('en-us', '');
                         (keydown)="(false)"
                         maxlength="17"
                     />
-                    <img
-                        *ngIf="card_type"
-                        [src]="'assets/icons/' + card_type + '.svg'"
-                        class="h-8"
-                    />
+                    @if (card_type) {
+                        <img
+                            [src]="'assets/icons/' + card_type + '.svg'"
+                            class="h-8"
+                        />
+                    }
                 </div>
             </div>
             <div class="flex flex-1 flex-col">
@@ -72,12 +73,11 @@ const DATE_PIPE = new DatePipe('en-us', '');
                             placeholder="MM"
                             formControlName="exp_month"
                         >
-                            <mat-option
-                                *ngFor="let item of months"
-                                [value]="item[0]"
-                            >
-                                {{ item[1] }} ({{ item[0] }})
-                            </mat-option>
+                            @for (item of months; track item) {
+                                <mat-option [value]="item[0]">
+                                    {{ item[1] }} ({{ item[0] }})
+                                </mat-option>
+                            }
                         </mat-select>
                         <mat-error>Expiry month is required</mat-error>
                     </mat-form-field>
@@ -89,11 +89,11 @@ const DATE_PIPE = new DatePipe('en-us', '');
                             placeholder="YYYY"
                             formControlName="exp_year"
                         >
-                            <mat-option
-                                *ngFor="let item of years"
-                                [value]="item"
-                                >{{ item }}</mat-option
-                            >
+                            @for (item of years; track item) {
+                                <mat-option [value]="item">{{
+                                    item
+                                }}</mat-option>
+                            }
                         </mat-select>
                         <mat-error>Expiry year is required</mat-error>
                     </mat-form-field>

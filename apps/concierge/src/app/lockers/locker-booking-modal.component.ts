@@ -35,13 +35,15 @@ import { combineLatest } from 'rxjs';
             (confirm)="postForm()"
         >
             <form [formGroup]="form">
-                <div class="mb-4 flex items-center space-x-2" *ngIf="!user">
-                    <a-user-search-field
-                        name="user"
-                        formControlName="user"
-                        class="flex-1"
-                    ></a-user-search-field>
-                </div>
+                @if (!user) {
+                    <div class="mb-4 flex items-center space-x-2">
+                        <a-user-search-field
+                            name="user"
+                            formControlName="user"
+                            class="flex-1"
+                        ></a-user-search-field>
+                    </div>
+                }
                 <div class="flex items-center space-x-2">
                     <div class="flex-1">
                         <label for="user-name">{{
@@ -82,47 +84,53 @@ import { combineLatest } from 'rxjs';
                 >
                     <label for="date">{{ 'FORM.DATE' | translate }}</label>
                     <a-date-field formControlName="date"></a-date-field>
-                    <mat-checkbox
-                        formControlName="all_day"
-                        *ngIf="allow_all_day && !disable_date"
-                        class="absolute -top-2 right-0"
-                    >
-                        {{ 'COMMON.ALL_DAY' | translate }}
-                    </mat-checkbox>
-                </div>
-                <div
-                    class="flex items-center space-x-2"
-                    *ngIf="!form.value.all_day"
-                >
-                    <div class="w-1/3 flex-1">
-                        <label for="start-time">
-                            {{ 'FORM.TIME_START' | translate }}<span>*</span>
-                        </label>
-                        <a-time-field
-                            name="start-time"
-                            [ngModel]="form.value.date"
-                            (ngModelChange)="form.patchValue({ date: $event })"
-                            [ngModelOptions]="{ standalone: true }"
-                            [disabled]="
-                                form.controls.date.disabled || disable_start
-                            "
-                            [use_24hr]="use_24hr"
-                        ></a-time-field>
-                    </div>
-                    <div class="relative w-1/3 flex-1" *ngIf="!hide_end">
-                        <label for="end-time">
-                            {{ 'FORM.TIME_END' | translate }}<span>*</span>
-                        </label>
-                        <a-duration-field
-                            name="end-time"
-                            formControlName="duration"
-                            [time]="form?.getRawValue()?.date"
-                            [max]="max_duration"
-                            [use_24hr]="use_24hr"
+                    @if (allow_all_day && !disable_date) {
+                        <mat-checkbox
+                            formControlName="all_day"
+                            class="absolute -top-2 right-0"
                         >
-                        </a-duration-field>
-                    </div>
+                            {{ 'COMMON.ALL_DAY' | translate }}
+                        </mat-checkbox>
+                    }
                 </div>
+                @if (!form.value.all_day) {
+                    <div class="flex items-center space-x-2">
+                        <div class="w-1/3 flex-1">
+                            <label for="start-time">
+                                {{ 'FORM.TIME_START' | translate
+                                }}<span>*</span>
+                            </label>
+                            <a-time-field
+                                name="start-time"
+                                [ngModel]="form.value.date"
+                                (ngModelChange)="
+                                    form.patchValue({ date: $event })
+                                "
+                                [ngModelOptions]="{ standalone: true }"
+                                [disabled]="
+                                    form.controls.date.disabled || disable_start
+                                "
+                                [use_24hr]="use_24hr"
+                            ></a-time-field>
+                        </div>
+                        @if (!hide_end) {
+                            <div class="relative w-1/3 flex-1">
+                                <label for="end-time">
+                                    {{ 'FORM.TIME_END' | translate
+                                    }}<span>*</span>
+                                </label>
+                                <a-duration-field
+                                    name="end-time"
+                                    formControlName="duration"
+                                    [time]="form?.getRawValue()?.date"
+                                    [max]="max_duration"
+                                    [use_24hr]="use_24hr"
+                                >
+                                </a-duration-field>
+                            </div>
+                        }
+                    </div>
+                }
                 <label for="locker">{{ 'RESOURCE.LOCKER' | translate }}</label>
                 <locker-list-field
                     name="locker"

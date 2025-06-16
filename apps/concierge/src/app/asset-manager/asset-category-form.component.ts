@@ -23,70 +23,75 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     ) | translate
                 }}
             </h2>
-            <button icon matRipple mat-dialog-close *ngIf="!loading">
-                <icon>close</icon>
-            </button>
+            @if (!loading) {
+                <button icon matRipple mat-dialog-close>
+                    <icon>close</icon>
+                </button>
+            }
         </header>
-        <main
-            class="h-1/2 w-[24rem] max-w-[80vw] flex-1 overflow-auto p-2"
-            [formGroup]="form"
-            *ngIf="!loading; else load_state"
-        >
-            <div class="flex flex-col space-y-2">
-                <label for="name"
-                    >{{ 'FORM.NAME' | translate }}<span>*</span></label
-                >
-                <mat-form-field appearance="outline">
-                    <input
-                        matInput
-                        name="name"
-                        [placeholder]="'FORM.NAME' | translate"
-                        formControlName="name"
-                    />
-                    <mat-error>{{
-                        'FORM.NAME_REQUIRED' | translate
-                    }}</mat-error>
-                </mat-form-field>
-            </div>
-            <div class="flex flex-col space-y-2">
-                <label for="name">{{
-                    'APP.CONCIERGE.ASSETS_CATEGORY_PARENT' | translate
-                }}</label>
-                <mat-form-field appearance="outline">
-                    <mat-select
-                        formControlName="parent_category_id"
-                        [placeholder]="
-                            'APP.CONCIERGE.ASSETS_CATEGORY_PARENT_EMPTY'
-                                | translate
-                        "
-                        [disabled]="!(categories | async)?.length"
+        @if (!loading) {
+            <main
+                class="h-1/2 w-[24rem] max-w-[80vw] flex-1 overflow-auto p-2"
+                [formGroup]="form"
+            >
+                <div class="flex flex-col space-y-2">
+                    <label for="name"
+                        >{{ 'FORM.NAME' | translate }}<span>*</span></label
                     >
-                        <mat-option
-                            *ngFor="let category of categories | async"
-                            [value]="category.id"
+                    <mat-form-field appearance="outline">
+                        <input
+                            matInput
+                            name="name"
+                            [placeholder]="'FORM.NAME' | translate"
+                            formControlName="name"
+                        />
+                        <mat-error>{{
+                            'FORM.NAME_REQUIRED' | translate
+                        }}</mat-error>
+                    </mat-form-field>
+                </div>
+                <div class="flex flex-col space-y-2">
+                    <label for="name">{{
+                        'APP.CONCIERGE.ASSETS_CATEGORY_PARENT' | translate
+                    }}</label>
+                    <mat-form-field appearance="outline">
+                        <mat-select
+                            formControlName="parent_category_id"
+                            [placeholder]="
+                                'APP.CONCIERGE.ASSETS_CATEGORY_PARENT_EMPTY'
+                                    | translate
+                            "
+                            [disabled]="!(categories | async)?.length"
                         >
-                            {{ category.name }}
-                        </mat-option>
-                    </mat-select>
-                </mat-form-field>
-            </div>
-        </main>
-        <footer
-            class="flex justify-end space-x-2 border-t border-base-200 p-2"
-            *ngIf="!loading"
-        >
-            <button btn matRipple class="w-32" (click)="save()">
-                {{ 'COMMON.SAVE' | translate }}
-            </button>
-        </footer>
-        <ng-template #load_state>
+                            @for (
+                                category of categories | async;
+                                track category
+                            ) {
+                                <mat-option [value]="category.id">
+                                    {{ category.name }}
+                                </mat-option>
+                            }
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+            </main>
+        } @else {
             <div class="flex flex-col items-center justify-center p-8">
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <p class="mt-4">
                     {{ 'APP.CONCIERGE.ASSETS_CATEGORY_SAVING' | translate }}
                 </p>
             </div>
-        </ng-template>
+        }
+        @if (!loading) {
+            <footer
+                class="flex justify-end space-x-2 border-t border-base-200 p-2"
+            >
+                <button btn matRipple class="w-32" (click)="save()">
+                    {{ 'COMMON.SAVE' | translate }}
+                </button>
+            </footer>
+        }
     `,
     styles: [``],
     standalone: false,

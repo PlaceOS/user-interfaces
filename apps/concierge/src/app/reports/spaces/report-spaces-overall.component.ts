@@ -26,27 +26,32 @@ import { ReportsStateService } from '../reports-state.service';
                 <p>{{ (avg_length | async) || 'None' }}</p>
             </div>
         </div>
-        <div
-            class="m-4 flex items-center justify-center space-x-2 rounded bg-base-100 p-4"
-            *ngIf="has_attendance | async"
-        >
-            <div class="flex flex-1 flex-col items-center justify-center">
-                <h3>{{ 'APP.CONCIERGE.REPORTS_NO_SHOWS' | translate }}</h3>
-                <p>{{ (no_shows | async) || 0 }}</p>
+        @if (has_attendance | async) {
+            <div
+                class="m-4 flex items-center justify-center space-x-2 rounded bg-base-100 p-4"
+            >
+                <div class="flex flex-1 flex-col items-center justify-center">
+                    <h3>{{ 'APP.CONCIERGE.REPORTS_NO_SHOWS' | translate }}</h3>
+                    <p>{{ (no_shows | async) || 0 }}</p>
+                </div>
+                <div class="flex flex-1 flex-col items-center justify-center">
+                    <h3>
+                        {{
+                            'APP.CONCIERGE.REPORTS_NO_SHOWS_PERCENT' | translate
+                        }}
+                    </h3>
+                    <p>{{ (no_show_percent | async) || 0 }}%</p>
+                </div>
+                <div class="flex flex-1 flex-col items-center justify-center">
+                    <h3>
+                        {{
+                            'APP.CONCIERGE.REPORTS_TOTAL_ATTENDEES' | translate
+                        }}
+                    </h3>
+                    <p>{{ (attendance | async) || 0 }}</p>
+                </div>
             </div>
-            <div class="flex flex-1 flex-col items-center justify-center">
-                <h3>
-                    {{ 'APP.CONCIERGE.REPORTS_NO_SHOWS_PERCENT' | translate }}
-                </h3>
-                <p>{{ (no_show_percent | async) || 0 }}%</p>
-            </div>
-            <div class="flex flex-1 flex-col items-center justify-center">
-                <h3>
-                    {{ 'APP.CONCIERGE.REPORTS_TOTAL_ATTENDEES' | translate }}
-                </h3>
-                <p>{{ (attendance | async) || 0 }}</p>
-            </div>
-        </div>`,
+        }`,
     styles: [
         `
             h3 {

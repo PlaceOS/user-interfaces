@@ -46,12 +46,14 @@ import { RoomConfirmService } from './room-confirm.service';
                             >
                                 <span>Filter</span>
 
-                                <span
-                                    *ngIf="(selected_features$ | async)?.length"
-                                >
-                                    ({{ (selected_features$ | async).length }}
-                                    applied)
-                                </span>
+                                @if ((selected_features$ | async)?.length) {
+                                    <span>
+                                        ({{
+                                            (selected_features$ | async).length
+                                        }}
+                                        applied)
+                                    </span>
+                                }
                             </button>
                         </div>
 
@@ -85,22 +87,22 @@ import { RoomConfirmService } from './room-confirm.service';
                     <section class="flex flex-row">
                         <!-- <mat-chip-list class="mt-2">
                         <mat-chip class="text-gray-700 text-xs">
-                            {{ form?.controls?.date?.value | date: 'dd MMMM yyyy' }}
+                          {{ form?.controls?.date?.value | date: 'dd MMMM yyyy' }}
                         </mat-chip>
-
+        
                         <div *ngIf="form?.controls.attendees.value.length > 0">
-                            <mat-chip class="text-gray-700 text-xs">
-                                {{ form?.controls?.attendees?.value.length }}
-                                People
-                            </mat-chip>
+                          <mat-chip class="text-gray-700 text-xs">
+                            {{ form?.controls?.attendees?.value.length }}
+                            People
+                          </mat-chip>
                         </div>
-
+        
                         <mat-chip class="text-gray-700 text-xs">
-                            <span>{{ start_time$ | async }}</span>
-                            -
-                            <span> {{ end_time$ | async }}</span>
+                          <span>{{ start_time$ | async }}</span>
+                          -
+                          <span> {{ end_time$ | async }}</span>
                         </mat-chip>
-                    </mat-chip-list> -->
+                      </mat-chip-list> -->
                     </section>
 
                     <section class="my-2 flex flex-row border-t">
@@ -114,154 +116,184 @@ import { RoomConfirmService } from './room-confirm.service';
                     </section>
 
                     <div class="w-full flex-1 bg-base-200">
-                        <ng-container
-                            *ngIf="!(loading | async); else load_state"
-                        >
-                            <ng-container
-                                *ngIf="
-                                    (spaces$ | async)?.length > 0;
-                                    else empty_state
-                                "
-                            >
-                                <div *ngIf="space_view == 'listView'">
-                                    <find-space-item
-                                        *ngFor="let space of spaces$ | async"
-                                        [space]="space"
-                                        [selected]="book_space[space.id]"
-                                        (selectedChange)="
-                                            handleBookEvent(space, $event)
-                                        "
-                                        class="text-sm"
-                                    >
-                                    </find-space-item>
-                                </div>
-                                <div
-                                    *ngIf="
-                                        space_view == 'mapView' &&
-                                        (map_features$ | async)?.length > 0
-                                    "
-                                    class="h-full text-center"
-                                >
-                                    <div
-                                        *ngIf="(maps_list$ | async)?.length > 1"
-                                    >
-                                        <mat-form-field
-                                            appearance="outline"
-                                            class="m-3 ml-auto flex text-sm"
-                                        >
-                                            <mat-select
-                                                [(ngModel)]="selected_level"
-                                                (ngModelChange)="
-                                                    updateSelectedLevel($event)
+                        @if (!(loading | async)) {
+                            @if ((spaces$ | async)?.length > 0) {
+                                @if (space_view == 'listView') {
+                                    <div>
+                                        @for (
+                                            space of spaces$ | async;
+                                            track space
+                                        ) {
+                                            <find-space-item
+                                                [space]="space"
+                                                [selected]="
+                                                    book_space[space.id]
                                                 "
+                                                (selectedChange)="
+                                                    handleBookEvent(
+                                                        space,
+                                                        $event
+                                                    )
+                                                "
+                                                class="text-sm"
                                             >
-                                                <mat-option
-                                                    [value]="maps_list$ | async"
-                                                >
-                                                    {{
-                                                        'COMMON.LEVEL_ALL'
-                                                            | translate
-                                                    }}
-                                                </mat-option>
-                                                <mat-option
-                                                    *ngFor="
-                                                        let map of maps_list$
-                                                            | async
-                                                    "
-                                                    [value]="map"
-                                                    >{{ map.level }}</mat-option
-                                                >
-                                            </mat-select>
-                                        </mat-form-field>
+                                            </find-space-item>
+                                        }
                                     </div>
-
-                                    <div
-                                        *ngIf="selected_level"
-                                        class="max-w-screen relative m-6"
-                                    >
-                                        <!-- If 'All Levels' option is selected -->
-                                        <div *ngIf="selected_level?.length">
-                                            <div
-                                                *ngFor="
-                                                    let map of selected_level
-                                                "
-                                                class="max-w-screen relative m-3 h-[12rem]"
-                                            >
-                                                <interactive-map
-                                                    [src]="map?.map_id"
-                                                    [styles]="
-                                                        map_styles$ | async
-                                                    "
-                                                    [features]="
-                                                        map_features$ | async
-                                                    "
-                                                    [actions]="
-                                                        map_actions$ | async
-                                                    "
-                                                    class="max-w-screen m-1 p-1"
+                                }
+                                @if (
+                                    space_view == 'mapView' &&
+                                    (map_features$ | async)?.length > 0
+                                ) {
+                                    <div class="h-full text-center">
+                                        @if ((maps_list$ | async)?.length > 1) {
+                                            <div>
+                                                <mat-form-field
+                                                    appearance="outline"
+                                                    class="m-3 ml-auto flex text-sm"
                                                 >
-                                                </interactive-map>
+                                                    <mat-select
+                                                        [(ngModel)]="
+                                                            selected_level
+                                                        "
+                                                        (ngModelChange)="
+                                                            updateSelectedLevel(
+                                                                $event
+                                                            )
+                                                        "
+                                                    >
+                                                        <mat-option
+                                                            [value]="
+                                                                maps_list$
+                                                                    | async
+                                                            "
+                                                        >
+                                                            {{
+                                                                'COMMON.LEVEL_ALL'
+                                                                    | translate
+                                                            }}
+                                                        </mat-option>
+                                                        @for (
+                                                            map of maps_list$
+                                                                | async;
+                                                            track map
+                                                        ) {
+                                                            <mat-option
+                                                                [value]="map"
+                                                                >{{
+                                                                    map.level
+                                                                }}</mat-option
+                                                            >
+                                                        }
+                                                    </mat-select>
+                                                </mat-form-field>
                                             </div>
-                                        </div>
-
-                                        <!-- If an individual level is selected -->
-                                        <div
-                                            *ngIf="!selected_level?.length"
-                                            class="max-w-screen relative m-3 h-[24rem]"
-                                        >
-                                            <interactive-map
-                                                [src]="selected_level?.map_id"
-                                                [styles]="map_styles$ | async"
-                                                [features]="
-                                                    map_features$ | async
-                                                "
-                                                [actions]="map_actions$ | async"
-                                                class="max-w-screen m-1 p-1"
+                                        }
+                                        @if (selected_level) {
+                                            <div
+                                                class="max-w-screen relative m-6"
                                             >
-                                            </interactive-map>
-                                        </div>
+                                                <!-- If 'All Levels' option is selected -->
+                                                @if (selected_level?.length) {
+                                                    <div>
+                                                        @for (
+                                                            map of selected_level;
+                                                            track map
+                                                        ) {
+                                                            <div
+                                                                class="max-w-screen relative m-3 h-[12rem]"
+                                                            >
+                                                                <interactive-map
+                                                                    [src]="
+                                                                        map?.map_id
+                                                                    "
+                                                                    [styles]="
+                                                                        map_styles$
+                                                                            | async
+                                                                    "
+                                                                    [features]="
+                                                                        map_features$
+                                                                            | async
+                                                                    "
+                                                                    [actions]="
+                                                                        map_actions$
+                                                                            | async
+                                                                    "
+                                                                    class="max-w-screen m-1 p-1"
+                                                                >
+                                                                </interactive-map>
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                }
+                                                <!-- If an individual level is selected -->
+                                                @if (!selected_level?.length) {
+                                                    <div
+                                                        class="max-w-screen relative m-3 h-[24rem]"
+                                                    >
+                                                        <interactive-map
+                                                            [src]="
+                                                                selected_level?.map_id
+                                                            "
+                                                            [styles]="
+                                                                map_styles$
+                                                                    | async
+                                                            "
+                                                            [features]="
+                                                                map_features$
+                                                                    | async
+                                                            "
+                                                            [actions]="
+                                                                map_actions$
+                                                                    | async
+                                                            "
+                                                            class="max-w-screen m-1 p-1"
+                                                        >
+                                                        </interactive-map>
+                                                    </div>
+                                                }
+                                            </div>
+                                        }
                                     </div>
-                                </div>
-
+                                }
                                 <p class="p-2 text-center text-sm opacity-60">
                                     End of available spaces list
                                 </p>
-                            </ng-container>
-                        </ng-container>
-
-                        <ng-template #load_state>
+                            } @else {
+                                <div
+                                    class="my-6 flex h-full w-full flex-col items-center justify-center space-y-2 p-2 text-center"
+                                >
+                                    <p>
+                                        No available spaces for selected time,
+                                        capacity or level(s)
+                                    </p>
+                                </div>
+                            }
+                        } @else {
                             <div
                                 class="my-3 flex h-full w-full flex-col items-center justify-center space-y-4"
                             >
                                 <mat-spinner [diameter]="32"></mat-spinner>
                                 <p>Retrieving available spaces...</p>
                             </div>
-                        </ng-template>
-                        <ng-template #empty_state>
-                            <div
-                                class="my-6 flex h-full w-full flex-col items-center justify-center space-y-2 p-2 text-center"
-                            >
-                                <p>
-                                    No available spaces for selected time,
-                                    capacity or level(s)
-                                </p>
-                            </div>
-                        </ng-template>
+                        }
                     </div>
                 </div>
                 <section
                     class="top-box-shadow flex flex-col items-center justify-center border-t border-base-200 py-1"
                 >
-                    <div *ngIf="show_room_details$ | async">
-                        <button
-                            matRipple
-                            type="submit"
-                            (click)="openRoomDetails()"
-                            class="open-details-button my-1 w-[300px] border-secondary bg-secondary"
-                        >
-                            <span class="">View Room</span>
-                        </button>
-                    </div>
+                    @if (show_room_details$ | async) {
+                        <div>
+                            <button
+                                matRipple
+                                type="submit"
+                                (click)="openRoomDetails()"
+                                class="open-details-button my-1 w-[300px] border-secondary bg-secondary"
+                            >
+                                <span class="">View Room</span>
+                            </button>
+                        </div>
+                    }
                 </section>
             </section>
         </div>

@@ -20,7 +20,7 @@ import { debounceTime, first, map } from 'rxjs/operators';
                     />
                 </div>
                 <div class="relative h-1/3 w-full flex-1">
-                    <ng-container *ngIf="!loading; else loading_state">
+                    @if (!loading) {
                         <div class="flex flex-col">
                             <label
                                 for="username"
@@ -52,26 +52,24 @@ import { debounceTime, first, map } from 'rxjs/operators';
                                 >
                             </mat-form-field>
                         </div>
-                    </ng-container>
+                    } @else {
+                        <div
+                            class="absolute inset-0 flex flex-col items-center justify-center space-y-2"
+                        >
+                            <mat-spinner diameter="64"></mat-spinner>
+                            <p>Checking user credentials...</p>
+                        </div>
+                    }
                 </div>
-                <div
-                    class="flex w-full items-center justify-center"
-                    *ngIf="!loading"
-                >
-                    <button btn matRipple color="primary" (click)="login()">
-                        Login
-                    </button>
-                </div>
+                @if (!loading) {
+                    <div class="flex w-full items-center justify-center">
+                        <button btn matRipple color="primary" (click)="login()">
+                            Login
+                        </button>
+                    </div>
+                }
             </form>
         </div>
-        <ng-template #loading_state>
-            <div
-                class="absolute inset-0 flex flex-col items-center justify-center space-y-2"
-            >
-                <mat-spinner diameter="64"></mat-spinner>
-                <p>Checking user credentials...</p>
-            </div>
-        </ng-template>
     `,
     styles: [
         `

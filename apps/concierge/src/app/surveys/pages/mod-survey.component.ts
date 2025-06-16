@@ -23,15 +23,14 @@ import { SurveyOptions, SurveyService } from '../services/survey.service';
         `,
     ],
     template: `
-        <div
-            *ngIf="(loading$ | async).length"
-            class="absolute inset-0 z-10 flex bg-base-100 opacity-60"
-        >
-            <div class="m-auto flex flex-col items-center">
-                <mat-spinner [diameter]="32"></mat-spinner>
-                <p>{{ loading$ | async }}</p>
+        @if ((loading$ | async).length) {
+            <div class="absolute inset-0 z-10 flex bg-base-100 opacity-60">
+                <div class="m-auto flex flex-col items-center">
+                    <mat-spinner [diameter]="32"></mat-spinner>
+                    <p>{{ loading$ | async }}</p>
+                </div>
             </div>
-        </div>
+        }
         <header
             class="flex w-full items-center justify-between pb-4 pl-4 pr-8 pt-8"
         >
@@ -67,11 +66,11 @@ import { SurveyOptions, SurveyService } from '../services/survey.service';
                     [value]="(options$ | async).building_id"
                     (valueChange)="onBuildingChange($event)"
                 >
-                    <mat-option
-                        *ngFor="let b of buildings$ | async"
-                        [value]="b.id"
-                        >{{ b.display_name || b.name }}</mat-option
-                    >
+                    @for (b of buildings$ | async; track b) {
+                        <mat-option [value]="b.id">{{
+                            b.display_name || b.name
+                        }}</mat-option>
+                    }
                 </mat-select>
             </mat-form-field>
             <mat-form-field appearance="outline" class="no-subscript flex-1">
@@ -83,12 +82,11 @@ import { SurveyOptions, SurveyService } from '../services/survey.service';
                     <mat-option [value]="(options$ | async).building_id">
                         {{ 'COMMON.LEVEL_ALL' | translate }}
                     </mat-option>
-                    <mat-option
-                        *ngFor="let level of levels$ | async"
-                        [value]="level.id"
-                    >
-                        {{ level.display_name || level.name }}
-                    </mat-option>
+                    @for (level of levels$ | async; track level) {
+                        <mat-option [value]="level.id">
+                            {{ level.display_name || level.name }}
+                        </mat-option>
+                    }
                 </mat-select>
             </mat-form-field>
             <mat-form-field appearance="outline" class="no-subscript flex-1">
@@ -97,245 +95,262 @@ import { SurveyOptions, SurveyService } from '../services/survey.service';
                     [value]="(options$ | async).trigger"
                     (valueChange)="updateOptions({ trigger: $event })"
                 >
-                    <mat-option
-                        *ngFor="let op of triggerOptions"
-                        [value]="op.value"
-                    >
-                        {{ op.name }}
-                    </mat-option>
+                    @for (op of triggerOptions; track op) {
+                        <mat-option [value]="op.value">
+                            {{ op.name }}
+                        </mat-option>
+                    }
                 </mat-select>
             </mat-form-field>
         </div>
-        <div class="mb-4 flex items-center space-x-4 px-8" *ngIf="survey">
-            <mat-form-field
-                name="title"
-                appearance="outline"
-                class="no-subscript flex-1"
-            >
-                <input
-                    matInput
-                    required
-                    [placeholder]="'FORM.TITLE' | translate"
-                    [(ngModel)]="survey.title"
-                />
-            </mat-form-field>
-            <mat-form-field
-                name="desc"
-                appearance="outline"
-                class="no-subscript flex-1"
-            >
-                <input
-                    matInput
-                    [placeholder]="'COMMON.DESCRIPTION' | translate"
-                    [(ngModel)]="survey.description"
-                />
-            </mat-form-field>
-        </div>
-        <div
-            *ngIf="survey"
-            cdkDropListGroup
-            class="flex h-1/2 w-full flex-1 flex-col bg-base-100"
-        >
-            <nav
-                class="flex border-b border-base-400 bg-base-200"
-                mat-tab-nav-bar
-                [tabPanel]="tabPanel"
-            >
-                <a
-                    mat-tab-link
-                    (click)="switchView('design')"
-                    [active]="view === 'design'"
+        @if (survey) {
+            <div class="mb-4 flex items-center space-x-4 px-8">
+                <mat-form-field
+                    name="title"
+                    appearance="outline"
+                    class="no-subscript flex-1"
                 >
-                    Questions
-                </a>
-
-                <a
-                    mat-tab-link
-                    (click)="switchView('preview')"
-                    [active]="view === 'preview'"
+                    <input
+                        matInput
+                        required
+                        [placeholder]="'FORM.TITLE' | translate"
+                        [(ngModel)]="survey.title"
+                    />
+                </mat-form-field>
+                <mat-form-field
+                    name="desc"
+                    appearance="outline"
+                    class="no-subscript flex-1"
                 >
-                    {{ 'COMMON.PREVIEW' | translate }}
-                </a>
-            </nav>
+                    <input
+                        matInput
+                        [placeholder]="'COMMON.DESCRIPTION' | translate"
+                        [(ngModel)]="survey.description"
+                    />
+                </mat-form-field>
+            </div>
+        }
+        @if (survey) {
             <div
-                mat-tab-nav-panel
-                #tabPanel
-                class="flex h-full min-h-0 w-full bg-base-200"
+                cdkDropListGroup
+                class="flex h-1/2 w-full flex-1 flex-col bg-base-100"
             >
-                <div
-                    *ngIf="view === 'design'"
-                    class="mt-0 flex h-full min-h-0 w-full"
+                <nav
+                    class="flex border-b border-base-400 bg-base-200"
+                    mat-tab-nav-bar
+                    [tabPanel]="tabPanel"
                 >
-                    <div
-                        class="flex h-full w-1/2 flex-1 flex-col space-y-3 overflow-y-auto"
+                    <a
+                        mat-tab-link
+                        (click)="switchView('design')"
+                        [active]="view === 'design'"
                     >
-                        <div
-                            class="flex w-full flex-row items-center justify-end space-x-2 pr-2"
-                        >
-                            <nav
-                                class="max-w-xl"
-                                mat-tab-nav-bar
-                                [tabPanel]="pagePanel"
+                        Questions
+                    </a>
+                    <a
+                        mat-tab-link
+                        (click)="switchView('preview')"
+                        [active]="view === 'preview'"
+                    >
+                        {{ 'COMMON.PREVIEW' | translate }}
+                    </a>
+                </nav>
+                <div
+                    mat-tab-nav-panel
+                    #tabPanel
+                    class="flex h-full min-h-0 w-full bg-base-200"
+                >
+                    @if (view === 'design') {
+                        <div class="mt-0 flex h-full min-h-0 w-full">
+                            <div
+                                class="flex h-full w-1/2 flex-1 flex-col space-y-3 overflow-y-auto"
                             >
-                                <a
-                                    mat-tab-link
-                                    class="rounded-b-md"
-                                    *ngFor="
-                                        let p of survey.pages;
-                                        let k = index
-                                    "
-                                    (click)="selectedPageIndex = k"
-                                    [active]="selectedPage === p"
-                                >
-                                    {{
-                                        'APP.CONCIERGE.SURVEY_ANSWERS_PAGE'
-                                            | translate: { id: k + 1 }
-                                    }}
-                                </a>
-                            </nav>
-                            <button
-                                icon
-                                matRipple
-                                (click)="addSurveyPage()"
-                                [matTooltip]="
-                                    'APP.CONCIERGE.SURVEY_QUESTION_PAGE_NEW'
-                                        | translate
-                                "
-                            >
-                                <icon>add_circle_outline</icon>
-                            </button>
-                        </div>
-                        <div
-                            class="flex w-full flex-col overflow-x-hidden px-6 py-2 pt-0"
-                            #pagePanel
-                        >
-                            <ng-container *ngIf="selectedPage">
                                 <div
-                                    class="mb-4 flex w-full flex-row items-center justify-end space-x-2"
+                                    class="flex w-full flex-row items-center justify-end space-x-2 pr-2"
                                 >
-                                    <mat-form-field
-                                        class="flex-1"
-                                        [subscriptSizing]="'dynamic'"
-                                        appearance="fill"
+                                    <nav
+                                        class="max-w-xl"
+                                        mat-tab-nav-bar
+                                        [tabPanel]="pagePanel"
                                     >
-                                        <input
-                                            matInput
-                                            [placeholder]="
-                                                'APP.CONCIERGE.SURVEY_QUESTION_PAGE_TITLE'
-                                                    | translate
-                                            "
-                                            type="text"
-                                            [(ngModel)]="selectedPage.title"
-                                        />
-                                    </mat-form-field>
+                                        @for (
+                                            p of survey.pages;
+                                            track p;
+                                            let k = $index
+                                        ) {
+                                            <a
+                                                mat-tab-link
+                                                class="rounded-b-md"
+                                                (click)="selectedPageIndex = k"
+                                                [active]="selectedPage === p"
+                                            >
+                                                {{
+                                                    'APP.CONCIERGE.SURVEY_ANSWERS_PAGE'
+                                                        | translate
+                                                            : { id: k + 1 }
+                                                }}
+                                            </a>
+                                        }
+                                    </nav>
                                     <button
-                                        btn
+                                        icon
                                         matRipple
-                                        class="inverse border-error text-error"
-                                        *ngIf="selectedPageIndex > 0"
-                                        (click)="
-                                            removeSurveyPage(selectedPageIndex)
+                                        (click)="addSurveyPage()"
+                                        [matTooltip]="
+                                            'APP.CONCIERGE.SURVEY_QUESTION_PAGE_NEW'
+                                                | translate
                                         "
                                     >
-                                        {{
-                                            'APP.CONCIERGE.SURVEY_QUESTION_PAGE_REMOVE'
-                                                | translate
-                                        }}
+                                        <icon>add_circle_outline</icon>
                                     </button>
                                 </div>
                                 <div
-                                    cdkDropList
-                                    [cdkDropListData]="selectedPage.elements"
-                                    (cdkDropListDropped)="
-                                        onDrop($event, selectedPage)
-                                    "
-                                    class="flex w-full flex-col space-y-3"
+                                    class="flex w-full flex-col overflow-x-hidden px-6 py-2 pt-0"
+                                    #pagePanel
                                 >
-                                    <div
-                                        cdkDrag
-                                        *ngFor="
-                                            let q of selectedPage.elements;
-                                            let i = index
-                                        "
-                                        class="flex w-full flex-row items-start rounded-md bg-base-200 py-1"
-                                    >
-                                        <div class="flex h-full flex-col px-2">
-                                            <span class="text-lg">{{
-                                                i + 1
-                                            }}</span>
-                                        </div>
-                                        <placeos-question
-                                            class="flex-1"
-                                            [preview]="true"
-                                            [value]="q"
-                                        >
-                                        </placeos-question>
+                                    @if (selectedPage) {
                                         <div
-                                            class="flex h-full flex-col items-center py-2"
+                                            class="mb-4 flex w-full flex-row items-center justify-end space-x-2"
                                         >
-                                            <icon
-                                                cdkDragHandle
-                                                class="hover:cursor-move"
-                                                >drag_indicator</icon
+                                            <mat-form-field
+                                                class="flex-1"
+                                                [subscriptSizing]="'dynamic'"
+                                                appearance="fill"
                                             >
-                                            <button
-                                                class="mt-auto text-error"
-                                                icon
-                                                matRipple
-                                                [matTooltip]="
-                                                    'APP.CONCIERGE.SURVEY_QUESTION_REMOVE'
-                                                        | translate
-                                                "
-                                                (click)="onRemove(i)"
-                                            >
-                                                <icon>{{
-                                                    q.deleted
-                                                        ? 'delete_forever'
-                                                        : 'delete'
-                                                }}</icon>
-                                            </button>
+                                                <input
+                                                    matInput
+                                                    [placeholder]="
+                                                        'APP.CONCIERGE.SURVEY_QUESTION_PAGE_TITLE'
+                                                            | translate
+                                                    "
+                                                    type="text"
+                                                    [(ngModel)]="
+                                                        selectedPage.title
+                                                    "
+                                                />
+                                            </mat-form-field>
+                                            @if (selectedPageIndex > 0) {
+                                                <button
+                                                    btn
+                                                    matRipple
+                                                    class="inverse border-error text-error"
+                                                    (click)="
+                                                        removeSurveyPage(
+                                                            selectedPageIndex
+                                                        )
+                                                    "
+                                                >
+                                                    {{
+                                                        'APP.CONCIERGE.SURVEY_QUESTION_PAGE_REMOVE'
+                                                            | translate
+                                                    }}
+                                                </button>
+                                            }
                                         </div>
-                                    </div>
-
-                                    <div
-                                        *ngIf="
-                                            selectedPage?.elements?.length > 0;
-                                            else empty_template
-                                        "
-                                    ></div>
+                                        <div
+                                            cdkDropList
+                                            [cdkDropListData]="
+                                                selectedPage.elements
+                                            "
+                                            (cdkDropListDropped)="
+                                                onDrop($event, selectedPage)
+                                            "
+                                            class="flex w-full flex-col space-y-3"
+                                        >
+                                            @for (
+                                                q of selectedPage.elements;
+                                                track q;
+                                                let i = $index
+                                            ) {
+                                                <div
+                                                    cdkDrag
+                                                    class="flex w-full flex-row items-start rounded-md bg-base-200 py-1"
+                                                >
+                                                    <div
+                                                        class="flex h-full flex-col px-2"
+                                                    >
+                                                        <span class="text-lg">{{
+                                                            i + 1
+                                                        }}</span>
+                                                    </div>
+                                                    <placeos-question
+                                                        class="flex-1"
+                                                        [preview]="true"
+                                                        [value]="q"
+                                                    >
+                                                    </placeos-question>
+                                                    <div
+                                                        class="flex h-full flex-col items-center py-2"
+                                                    >
+                                                        <icon
+                                                            cdkDragHandle
+                                                            class="hover:cursor-move"
+                                                            >drag_indicator</icon
+                                                        >
+                                                        <button
+                                                            class="mt-auto text-error"
+                                                            icon
+                                                            matRipple
+                                                            [matTooltip]="
+                                                                'APP.CONCIERGE.SURVEY_QUESTION_REMOVE'
+                                                                    | translate
+                                                            "
+                                                            (click)="
+                                                                onRemove(i)
+                                                            "
+                                                        >
+                                                            <icon>{{
+                                                                q.deleted
+                                                                    ? 'delete_forever'
+                                                                    : 'delete'
+                                                            }}</icon>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            }
+                                            @if (
+                                                selectedPage?.elements?.length >
+                                                0
+                                            ) {
+                                                <div></div>
+                                            } @else {
+                                                <div
+                                                    class="m-auto flex h-52 flex-col justify-center space-y-2"
+                                                >
+                                                    <img
+                                                        src="assets/icons/dragdrop.svg"
+                                                        class="h-12 opacity-60"
+                                                        alt="Icon of drag and drop"
+                                                    />
+                                                    <p class="opacity-30">
+                                                        {{
+                                                            'APP.CONCIERGE.SURVEY_DND_INFO'
+                                                                | translate
+                                                        }}
+                                                    </p>
+                                                </div>
+                                            }
+                                        </div>
+                                    }
                                 </div>
-                            </ng-container>
+                            </div>
+                            <div class="flex w-[20rem] min-w-[20rem] flex-col">
+                                <question-bank class="w-full"></question-bank>
+                            </div>
                         </div>
-                    </div>
-                    <div class="flex w-[20rem] min-w-[20rem] flex-col">
-                        <question-bank class="w-full"></question-bank>
-                    </div>
-                </div>
-
-                <div
-                    *ngIf="view === 'preview'"
-                    class="flex h-full w-full flex-col overflow-y-auto px-6"
-                >
-                    <survey
-                        *ngIf="service.surveyModel"
-                        [model]="service.surveyModel"
-                    ></survey>
+                    }
+                    @if (view === 'preview') {
+                        <div
+                            class="flex h-full w-full flex-col overflow-y-auto px-6"
+                        >
+                            @if (service.surveyModel) {
+                                <survey [model]="service.surveyModel"></survey>
+                            }
+                        </div>
+                    }
                 </div>
             </div>
-        </div>
-
-        <ng-template #empty_template>
-            <div class="m-auto flex h-52 flex-col justify-center space-y-2">
-                <img
-                    src="assets/icons/dragdrop.svg"
-                    class="h-12 opacity-60"
-                    alt="Icon of drag and drop"
-                />
-                <p class="opacity-30">
-                    {{ 'APP.CONCIERGE.SURVEY_DND_INFO' | translate }}
-                </p>
-            </div>
-        </ng-template>
+        }
     `,
     standalone: false,
 })

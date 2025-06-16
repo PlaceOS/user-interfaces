@@ -10,72 +10,86 @@ const DAY_IN_MINUTES = 24 * 60;
 @Component({
     selector: 'dayview-event',
     template: `
-        <div
-            *ngIf="(ui_options | async)?.show_overflow"
-            [class]="
-                'overflow-block absolute w-full overflow-hidden rounded ' + type
-            "
-            [style.top]="overflow_top * 100 + '%'"
-            [style.height]="overflow_height * 100 + '%'"
-        ></div>
-        <div
-            event
-            matRipple
-            [class]="
-                'absolute z-10 overflow-hidden rounded border border-base-200 text-sm shadow-sm hover:z-30 ' +
-                type
-            "
-            *ngIf="event"
-            [style.top]="top * 100 + '%'"
-            [style.height]="height * 100 + '%'"
-            (click)="view(event)"
-        >
-            <div class="px-2 py-1 font-medium">{{ event.organiser?.name }}</div>
-            <div class="flex items-center py-1" *ngIf="event.duration > 30">
-                <icon class="mx-2">title</icon>
-                {{ event.title }}
-            </div>
-            <div class="flex items-center py-1" *ngIf="event.duration > 60">
-                <icon class="mx-2">schedule</icon>
-                {{ time }}
-            </div>
-            <div class="flex items-center py-1" *ngIf="event.duration > 90">
-                <icon class="mx-2">people</icon>
-                {{ event.attendees.length }} Attendee{{
-                    event.attendees.length === 1 ? '' : 's'
-                }}
-            </div>
-        </div>
-        <div
-            *ngIf="event && (ui_options | async)?.show_cleaning"
-            cleaning
-            class="absolute z-20 flex w-full overflow-hidden rounded bg-base-100 p-2 shadow hover:!h-48"
-            [style.top]="top * 100 + '%'"
-            [style.height]="height * 100 + '%'"
-        >
+        @if ((ui_options | async)?.show_overflow) {
             <div
                 [class]="
-                    'icon text-pending mr-2 flex h-12 w-12 items-center justify-center rounded text-3xl ' +
-                    event.ext('cleaning_status')
+                    'overflow-block absolute w-full overflow-hidden rounded ' +
+                    type
                 "
+                [style.top]="overflow_top * 100 + '%'"
+                [style.height]="overflow_height * 100 + '%'"
+            ></div>
+        }
+        @if (event) {
+            <div
+                event
+                matRipple
+                [class]="
+                    'absolute z-10 overflow-hidden rounded border border-base-200 text-sm shadow-sm hover:z-30 ' +
+                    type
+                "
+                [style.top]="top * 100 + '%'"
+                [style.height]="height * 100 + '%'"
+                (click)="view(event)"
             >
-                <icon>{{
-                    event.ext('cleaning_status') === 'done' ? 'done' : 'warning'
-                }}</icon>
+                <div class="px-2 py-1 font-medium">
+                    {{ event.organiser?.name }}
+                </div>
+                @if (event.duration > 30) {
+                    <div class="flex items-center py-1">
+                        <icon class="mx-2">title</icon>
+                        {{ event.title }}
+                    </div>
+                }
+                @if (event.duration > 60) {
+                    <div class="flex items-center py-1">
+                        <icon class="mx-2">schedule</icon>
+                        {{ time }}
+                    </div>
+                }
+                @if (event.duration > 90) {
+                    <div class="flex items-center py-1">
+                        <icon class="mx-2">people</icon>
+                        {{ event.attendees.length }} Attendee{{
+                            event.attendees.length === 1 ? '' : 's'
+                        }}
+                    </div>
+                }
             </div>
-            <div class="w-1/2 flex-1">
-                {{
-                    event.ext('cleaning_status') === 'done'
-                        ? 'Finished'
-                        : 'Scheduled to'
-                }}
-                clean at
-                {{
-                    event.ext('cleaning_time') || event.event_end * 1000
-                        | date: time_format
-                }}
+        }
+        @if (event && (ui_options | async)?.show_cleaning) {
+            <div
+                cleaning
+                class="absolute z-20 flex w-full overflow-hidden rounded bg-base-100 p-2 shadow hover:!h-48"
+                [style.top]="top * 100 + '%'"
+                [style.height]="height * 100 + '%'"
+            >
+                <div
+                    [class]="
+                        'icon text-pending mr-2 flex h-12 w-12 items-center justify-center rounded text-3xl ' +
+                        event.ext('cleaning_status')
+                    "
+                >
+                    <icon>{{
+                        event.ext('cleaning_status') === 'done'
+                            ? 'done'
+                            : 'warning'
+                    }}</icon>
+                </div>
+                <div class="w-1/2 flex-1">
+                    {{
+                        event.ext('cleaning_status') === 'done'
+                            ? 'Finished'
+                            : 'Scheduled to'
+                    }}
+                    clean at
+                    {{
+                        event.ext('cleaning_time') || event.event_end * 1000
+                            | date: time_format
+                    }}
+                </div>
             </div>
-        </div>
+        }
     `,
     styles: [
         `

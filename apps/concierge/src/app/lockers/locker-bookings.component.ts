@@ -71,34 +71,26 @@ import { LockerStateService } from './locker-state.service';
             </ng-template>
             <ng-template #period_template let-row="row">
                 <div class="p-2">
-                    <ng-container
-                        *ngIf="
-                            row.status !== 'declined' &&
-                            !row.deleted &&
-                            row.status !== 'ended'
-                        "
-                    >
+                    @if (
+                        row.status !== 'declined' &&
+                        !row.deleted &&
+                        row.status !== 'ended'
+                    ) {
                         <div class="p-2">
-                            <ng-container
-                                *ngIf="!(row.all_day || row.duration > 12 * 60)"
-                            >
+                            @if (!(row.all_day || row.duration > 12 * 60)) {
                                 {{ row.date | date: time_format }} &ndash;
                                 {{ row.date_end | date: time_format }}
-                            </ng-container>
-                            <ng-container
-                                *ngIf="row.all_day || row.duration > 12 * 60"
-                            >
+                            }
+                            @if (row.all_day || row.duration > 12 * 60) {
                                 {{ 'COMMON.ALL_DAY' | translate }}
-                            </ng-container>
+                            }
                         </div>
-                    </ng-container>
-                    <ng-container
-                        *ngIf="
-                            row.status === 'declined' ||
-                            row.deleted ||
-                            row.status === 'ended'
-                        "
-                    >
+                    }
+                    @if (
+                        row.status === 'declined' ||
+                        row.deleted ||
+                        row.status === 'ended'
+                    ) {
                         <div
                             class="rounded-3xl bg-error px-4 py-2 text-xs text-white"
                         >
@@ -109,7 +101,7 @@ import { LockerStateService } from './locker-state.service';
                                 ) | translate
                             }}
                         </div>
-                    </ng-container>
+                    }
                 </div>
             </ng-template>
             <ng-template #locker_template let-row="row">
@@ -127,12 +119,11 @@ import { LockerStateService } from './locker-state.service';
                                 row.booked_by_email
                         }}
                     </div>
-                    <div
-                        *ngIf="row.user_name"
-                        class="select-all text-xs opacity-30"
-                    >
-                        {{ row.user_email }}
-                    </div>
+                    @if (row.user_name) {
+                        <div class="select-all text-xs opacity-30">
+                            {{ row.user_email }}
+                        </div>
+                    }
                 </div>
             </ng-template>
             <ng-template #status_template let-row="row">
@@ -237,15 +228,16 @@ import { LockerStateService } from './locker-state.service';
                 </mat-menu>
             </ng-template>
         </div>
-        <button
-            btn
-            matRipple
-            class="absolute bottom-2 left-4 z-20 w-32"
-            *ngIf="!loading && more_pages"
-            (click)="loadMore()"
-        >
-            {{ 'COMMON.LOAD_MORE' | translate }}
-        </button>
+        @if (!loading && more_pages) {
+            <button
+                btn
+                matRipple
+                class="absolute bottom-2 left-4 z-20 w-32"
+                (click)="loadMore()"
+            >
+                {{ 'COMMON.LOAD_MORE' | translate }}
+            </button>
+        }
     `,
     styles: [
         `

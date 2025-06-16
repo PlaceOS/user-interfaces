@@ -9,69 +9,72 @@ import { VideoCallStateService } from './video-call-state.service';
     selector: 'video-call-dial-view',
     template: `
         <div class="flex justify-center">
-            <ng-container *ngIf="!loading; else load_state" class="">
-                <dialpad (pressed)="addDigit($event)"></dialpad>
-                <div class="flex flex-col" [class.pt-8]="!redirect">
-                    <p class="px-2 pt-4">
-                        {{ 'APP.CONTROL.VC_ENTER_CODE' | translate }}
-                    </p>
-                    <div class="w-full p-2">
-                        <mat-form-field
-                            appearance="outline"
-                            class="h-12 w-full"
-                        >
-                            <input
-                                matInput
-                                [(ngModel)]="dial_number"
-                                [placeholder]="
-                                    'APP.CONTROL.VC_DIAL' | translate
-                                "
-                            />
-                        </mat-form-field>
+            @if (!loading) {
+                <ng-container class="">
+                    <dialpad (pressed)="addDigit($event)"></dialpad>
+                    <div class="flex flex-col" [class.pt-8]="!redirect">
+                        <p class="px-2 pt-4">
+                            {{ 'APP.CONTROL.VC_ENTER_CODE' | translate }}
+                        </p>
+                        <div class="w-full p-2">
+                            <mat-form-field
+                                appearance="outline"
+                                class="h-12 w-full"
+                            >
+                                <input
+                                    matInput
+                                    [(ngModel)]="dial_number"
+                                    [placeholder]="
+                                        'APP.CONTROL.VC_DIAL' | translate
+                                    "
+                                />
+                            </mat-form-field>
+                        </div>
+                        <div class="w-full p-2">
+                            <button
+                                btn
+                                matRipple
+                                class="w-full"
+                                [disabled]="!dial_number"
+                                (click)="joinConference()"
+                            >
+                                {{ 'APP.CONTROL.JOIN' | translate }}
+                            </button>
+                        </div>
+                        <div class="w-full px-2">
+                            @let show_pip = show_camera_pip | async;
+                            <button
+                                btn
+                                matRipple
+                                class="w-full"
+                                (click)="toggleCamera()"
+                                [class.inverse]="show_pip"
+                            >
+                                <div class="flex items-center space-x-4">
+                                    <icon>{{
+                                        !show_pip
+                                            ? 'visibility_off'
+                                            : 'visibility'
+                                    }}</icon>
+                                    <span>{{
+                                        show_pip
+                                            ? 'Hide Camera PIP'
+                                            : 'Show Camera PIP'
+                                    }}</span>
+                                </div>
+                            </button>
+                        </div>
                     </div>
-                    <div class="w-full p-2">
-                        <button
-                            btn
-                            matRipple
-                            class="w-full"
-                            [disabled]="!dial_number"
-                            (click)="joinConference()"
-                        >
-                            {{ 'APP.CONTROL.JOIN' | translate }}
-                        </button>
-                    </div>
-                    <div class="w-full px-2">
-                        @let show_pip = show_camera_pip | async;
-                        <button
-                            btn
-                            matRipple
-                            class="w-full"
-                            (click)="toggleCamera()"
-                            [class.inverse]="show_pip"
-                        >
-                            <div class="flex items-center space-x-4">
-                                <icon>{{
-                                    !show_pip ? 'visibility_off' : 'visibility'
-                                }}</icon>
-                                <span>{{
-                                    show_pip
-                                        ? 'Hide Camera PIP'
-                                        : 'Show Camera PIP'
-                                }}</span>
-                            </div>
-                        </button>
-                    </div>
+                </ng-container>
+            } @else {
+                <div
+                    class="flex flex-col items-center justify-center space-y-2 p-16"
+                >
+                    <mat-spinner [diameter]="32"></mat-spinner>
+                    <p>{{ 'APP.CONTROL.VC_JOINING' | translate }}</p>
                 </div>
-            </ng-container>
+            }
         </div>
-        <ng-template #load_state>
-            <div
-                class="flex flex-col items-center justify-center space-y-2 p-16"
-            >
-                <mat-spinner [diameter]="32"></mat-spinner>
-                <p>{{ 'APP.CONTROL.VC_JOINING' | translate }}</p>
-            </div>
-        </ng-template>
     `,
     styles: [``],
     standalone: false,

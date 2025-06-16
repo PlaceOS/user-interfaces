@@ -36,75 +36,85 @@ import { DesksStateService } from './desks-state.service';
                     (ngModelChange)="updateZones([$event])"
                     [placeholder]="'COMMON.LEVEL_ALL' | translate"
                 >
-                    <mat-option value="All" *ngIf="!is_map">
-                        {{ 'COMMON.LEVEL_ALL' | translate }}
-                    </mat-option>
-                    <mat-option
-                        *ngFor="let level of levels | async"
-                        [value]="level.id"
-                    >
-                        {{ level.display_name || level.name }}
-                    </mat-option>
+                    @if (!is_map) {
+                        <mat-option value="All">
+                            {{ 'COMMON.LEVEL_ALL' | translate }}
+                        </mat-option>
+                    }
+                    @for (level of levels | async; track level) {
+                        <mat-option [value]="level.id">
+                            {{ level.display_name || level.name }}
+                        </mat-option>
+                    }
                 </mat-select>
             </mat-form-field>
-            <button
-                btn
-                matRipple
-                *ngIf="!manage"
-                class="mx-2 w-40"
-                matTooltip="New Desk Booking"
-                (click)="newDeskBooking()"
-            >
-                {{ 'APP.CONCIERGE.NEW_BOOKING' | translate }}
-            </button>
-            <button
-                btn
-                icon
-                matRipple
-                *ngIf="manage"
-                class="mx-2 rounded bg-primary text-white"
-                (click)="newDesk()"
-                [matTooltip]="'APP.CONCIERGE.DESKS_NEW' | translate"
-            >
-                <icon>add</icon>
-            </button>
-            <button
-                btn
-                icon
-                matRipple
-                *ngIf="manage"
-                class="relative rounded bg-primary text-white"
-                [matTooltip]="'APP.CONCIERGE.DESKS_LIST_UPLOAD' | translate"
-            >
-                <icon>cloud_upload</icon>
-                <input
-                    type="file"
-                    class="absolute inset-0 opacity-0"
-                    (change)="loadCSVData($event)"
-                />
-            </button>
-            <button
-                btn
-                icon
-                matRipple
-                *ngIf="manage"
-                class="mx-2 rounded bg-primary text-white"
-                (click)="downloadTemplate()"
-                [matTooltip]="'APP.CONCIERGE.DESKS_LIST_DOWNLOAD' | translate"
-            >
-                <icon>download</icon>
-            </button>
-            <button
-                btn
-                icon
-                matRipple
-                *ngIf="manage"
-                class="mx-2 rounded bg-primary text-white"
-                (click)="manageRestrictions()"
-                [matTooltip]="'APP.CONCIERGE.DESKS_BOOKING_RULES' | translate"
-            >
-                <icon>lock_open</icon>
-            </button>
+            @if (!manage) {
+                <button
+                    btn
+                    matRipple
+                    class="mx-2 w-40"
+                    matTooltip="New Desk Booking"
+                    (click)="newDeskBooking()"
+                >
+                    {{ 'APP.CONCIERGE.NEW_BOOKING' | translate }}
+                </button>
+            }
+            @if (manage) {
+                <button
+                    btn
+                    icon
+                    matRipple
+                    class="mx-2 rounded bg-primary text-white"
+                    (click)="newDesk()"
+                    [matTooltip]="'APP.CONCIERGE.DESKS_NEW' | translate"
+                >
+                    <icon>add</icon>
+                </button>
+            }
+            @if (manage) {
+                <button
+                    btn
+                    icon
+                    matRipple
+                    class="relative rounded bg-primary text-white"
+                    [matTooltip]="'APP.CONCIERGE.DESKS_LIST_UPLOAD' | translate"
+                >
+                    <icon>cloud_upload</icon>
+                    <input
+                        type="file"
+                        class="absolute inset-0 opacity-0"
+                        (change)="loadCSVData($event)"
+                    />
+                </button>
+            }
+            @if (manage) {
+                <button
+                    btn
+                    icon
+                    matRipple
+                    class="mx-2 rounded bg-primary text-white"
+                    (click)="downloadTemplate()"
+                    [matTooltip]="
+                        'APP.CONCIERGE.DESKS_LIST_DOWNLOAD' | translate
+                    "
+                >
+                    <icon>download</icon>
+                </button>
+            }
+            @if (manage) {
+                <button
+                    btn
+                    icon
+                    matRipple
+                    class="mx-2 rounded bg-primary text-white"
+                    (click)="manageRestrictions()"
+                    [matTooltip]="
+                        'APP.CONCIERGE.DESKS_BOOKING_RULES' | translate
+                    "
+                >
+                    <icon>lock_open</icon>
+                </button>
+            }
             <div class="w-2 flex-1"></div>
             <searchbar
                 class="mr-2"

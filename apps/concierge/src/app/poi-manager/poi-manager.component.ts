@@ -23,29 +23,27 @@ import { POIManagementService } from './poi-management.service';
                         {{ 'APP.CONCIERGE.POI_ADD' | translate }}
                     </button>
                 </header>
-                <div
-                    class="mb-2 flex items-center justify-between px-8"
-                    *ngIf="use_region && (buildings | async)?.length > 1"
-                >
-                    <mat-form-field appearance="outline" class="w-64">
-                        <mat-select
-                            name="building"
-                            [ngModel]="building"
-                            (ngModelChange)="building = $event"
-                            [ngModelOptions]="{ standalone: true }"
-                            [placeholder]="
-                                building?.display_name || building?.name
-                            "
-                        >
-                            <mat-option
-                                *ngFor="let bld of buildings | async"
-                                [value]="bld"
+                @if (use_region && (buildings | async)?.length > 1) {
+                    <div class="mb-2 flex items-center justify-between px-8">
+                        <mat-form-field appearance="outline" class="w-64">
+                            <mat-select
+                                name="building"
+                                [ngModel]="building"
+                                (ngModelChange)="building = $event"
+                                [ngModelOptions]="{ standalone: true }"
+                                [placeholder]="
+                                    building?.display_name || building?.name
+                                "
                             >
-                                {{ bld.display_name || bld.name }}
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                </div>
+                                @for (bld of buildings | async; track bld) {
+                                    <mat-option [value]="bld">
+                                        {{ bld.display_name || bld.name }}
+                                    </mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+                }
                 <poi-list class="relative block h-1/2 w-full flex-1"></poi-list>
             </main>
         </div>

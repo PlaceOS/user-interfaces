@@ -37,100 +37,117 @@ export interface ExploreBookingModalData {
         <header>
             <h2>{{ 'EXPLORE.BOOKING_HEADER' | translate }}</h2>
             <div class="flex-1"></div>
-            <button *ngIf="!(loading | async)" icon matRipple mat-dialog-close>
-                <icon>close</icon>
-            </button>
+            @if (!(loading | async)) {
+                <button icon matRipple mat-dialog-close>
+                    <icon>close</icon>
+                </button>
+            }
         </header>
-        <ng-container *ngIf="!(loading | async); else load_state">
-            <main *ngIf="form" [formGroup]="form" class="max-w-[85vw] p-4">
-                <div class="flex flex-col">
-                    <label for="title">Title<span>*</span>:</label>
-                    <mat-form-field appearance="outline">
-                        <input
-                            matInput
-                            name="title"
-                            formControlName="title"
-                            placeholder="Booking Title"
-                        />
-                        <mat-error>{{
-                            'EXPLORE.BOOKING_TITLE_REQUIRED' | translate
-                        }}</mat-error>
-                    </mat-form-field>
-                </div>
-                <div class="flex flex-col" *ngIf="can_book_for_others">
-                    <label for="host"
-                        >{{ 'FORM.HOST' | translate }}<span>*</span>:</label
-                    >
-                    <a-user-search-field
-                        name="host"
-                        formControlName="organiser"
-                        class="mb-4"
-                    ></a-user-search-field>
-                </div>
-                <div class="flex flex-col">
-                    <label>{{ 'EXPLORE.BOOKING_SPACE' | translate }}:</label>
-                    <div
-                        name="space"
-                        class="mb-4 w-full rounded border border-base-200 px-4 py-3"
-                    >
-                        {{
-                            form.controls.resources?.value[0]?.display_name ||
-                                form.controls.resources?.value[0]?.name
-                        }}
+        @if (!(loading | async)) {
+            @if (form) {
+                <main [formGroup]="form" class="max-w-[85vw] p-4">
+                    <div class="flex flex-col">
+                        <label for="title">Title<span>*</span>:</label>
+                        <mat-form-field appearance="outline">
+                            <input
+                                matInput
+                                name="title"
+                                formControlName="title"
+                                placeholder="Booking Title"
+                            />
+                            <mat-error>{{
+                                'EXPLORE.BOOKING_TITLE_REQUIRED' | translate
+                            }}</mat-error>
+                        </mat-form-field>
                     </div>
-                    <div
-                        class="-mt-2 mb-4 rounded px-2 py-1 text-xs"
-                        *ngIf="alert"
-                        [class.bg-info]="alert[0] === 'info'"
-                        [class.text-info-content]="alert[0] === 'info'"
-                        [class.bg-warning]="alert[0] === 'warn'"
-                        [class.text-warning-content]="alert[0] === 'warn'"
-                        [class.bg-error]="alert[0] === 'closed'"
-                        [class.text-error-content]="alert[0] === 'closed'"
-                    >
-                        {{ alert[1] }}
-                    </div>
-                </div>
-                <div class="flex flex-wrap sm:space-x-4">
-                    <div
-                        class="flex w-full flex-1 flex-col sm:w-auto"
-                        *ngIf="form.controls.date"
-                    >
-                        <label>{{ 'FORM.DATE' | translate }}:</label>
+                    @if (can_book_for_others) {
+                        <div class="flex flex-col">
+                            <label for="host"
+                                >{{ 'FORM.HOST' | translate
+                                }}<span>*</span>:</label
+                            >
+                            <a-user-search-field
+                                name="host"
+                                formControlName="organiser"
+                                class="mb-4"
+                            ></a-user-search-field>
+                        </div>
+                    }
+                    <div class="flex flex-col">
+                        <label
+                            >{{ 'EXPLORE.BOOKING_SPACE' | translate }}:</label
+                        >
                         <div
+                            name="space"
                             class="mb-4 w-full rounded border border-base-200 px-4 py-3"
                         >
-                            {{ form.value.date | date: 'mediumDate' }} at
-                            {{ form.value.date | date: time_format }}
+                            {{
+                                form.controls.resources?.value[0]
+                                    ?.display_name ||
+                                    form.controls.resources?.value[0]?.name
+                            }}
                         </div>
+                        @if (alert) {
+                            <div
+                                class="-mt-2 mb-4 rounded px-2 py-1 text-xs"
+                                [class.bg-info]="alert[0] === 'info'"
+                                [class.text-info-content]="alert[0] === 'info'"
+                                [class.bg-warning]="alert[0] === 'warn'"
+                                [class.text-warning-content]="
+                                    alert[0] === 'warn'
+                                "
+                                [class.bg-error]="alert[0] === 'closed'"
+                                [class.text-error-content]="
+                                    alert[0] === 'closed'
+                                "
+                            >
+                                {{ alert[1] }}
+                            </div>
+                        }
                     </div>
-                    <div
-                        class="flex w-full flex-col sm:w-auto"
-                        *ngIf="form.controls.duration"
-                    >
-                        <label>{{ 'FORM.DURATION' | translate }}:</label>
-                        <a-duration-field
-                            formControlName="duration"
-                            [time]="form.value.date"
-                            [max]="max_duration"
-                            class="w-full"
-                            [use_24hr]="use_24hr_time"
-                        ></a-duration-field>
+                    <div class="flex flex-wrap sm:space-x-4">
+                        @if (form.controls.date) {
+                            <div class="flex w-full flex-1 flex-col sm:w-auto">
+                                <label>{{ 'FORM.DATE' | translate }}:</label>
+                                <div
+                                    class="mb-4 w-full rounded border border-base-200 px-4 py-3"
+                                >
+                                    {{
+                                        form.value.date | date: 'mediumDate'
+                                    }}
+                                    at
+                                    {{ form.value.date | date: time_format }}
+                                </div>
+                            </div>
+                        }
+                        @if (form.controls.duration) {
+                            <div class="flex w-full flex-col sm:w-auto">
+                                <label
+                                    >{{ 'FORM.DURATION' | translate }}:</label
+                                >
+                                <a-duration-field
+                                    formControlName="duration"
+                                    [time]="form.value.date"
+                                    [max]="max_duration"
+                                    class="w-full"
+                                    [use_24hr]="use_24hr_time"
+                                ></a-duration-field>
+                            </div>
+                        }
                     </div>
-                </div>
-            </main>
+                </main>
+            }
             <footer class="flex justify-center border-t border-base-200 p-2">
                 <button btn matRipple class="w-32" (click)="save()">
                     {{ 'COMMON.SAVE' | translate }}
                 </button>
             </footer>
-        </ng-container>
-        <ng-template #load_state>
+        } @else {
             <div load class="flex h-64 flex-col items-center justify-center">
                 <mat-spinner class="m-4" [diameter]="48"></mat-spinner>
                 <p>{{ loading | async }}</p>
             </div>
-        </ng-template>
+        }
     `,
     styles: [
         `

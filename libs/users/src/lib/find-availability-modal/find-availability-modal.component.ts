@@ -94,15 +94,16 @@ export interface FindAvailabilityData {
                         times
                         class="col-start-2 flex h-10 overflow-hidden border-l border-base-200"
                     >
-                        <div
-                            hour
-                            *ngFor="let hr of hours; let hour = index"
-                            class="relative h-10 min-w-[5rem] border-r border-base-200 p-2 text-sm"
-                            [attr.disabled]="today && current_hour > hour"
-                            [style.left]="-offset_x + 'px'"
-                        >
-                            <span>{{ hr | date: 'haa' }}</span>
-                        </div>
+                        @for (hr of hours; track hr; let hour = $index) {
+                            <div
+                                hour
+                                class="relative h-10 min-w-[5rem] border-r border-base-200 p-2 text-sm"
+                                [attr.disabled]="today && current_hour > hour"
+                                [style.left]="-offset_x + 'px'"
+                            >
+                                <span>{{ hr | date: 'haa' }}</span>
+                            </div>
+                        }
                     </div>
                     <div users class="row-start-2 w-24 overflow-hidden">
                         <div
@@ -120,42 +121,44 @@ export interface FindAvailabilityData {
                                 {{ host.name || host.email }}
                             </div>
                         </div>
-                        <div
-                            person
-                            class="relative flex h-32 w-24 flex-col items-center justify-center border-b border-base-200 py-2"
-                            [style.top]="-offset_y + 'px'"
-                            *ngFor="let user of users | async"
-                        >
-                            <a-user-avatar
-                                class="text-2xl"
-                                [user]="user"
-                            ></a-user-avatar>
+                        @for (user of users | async; track user) {
                             <div
-                                class="max-w-full break-words px-2 text-center text-xs"
+                                person
+                                class="relative flex h-32 w-24 flex-col items-center justify-center border-b border-base-200 py-2"
+                                [style.top]="-offset_y + 'px'"
                             >
-                                {{ user.name || host.email }}
+                                <a-user-avatar
+                                    class="text-2xl"
+                                    [user]="user"
+                                ></a-user-avatar>
+                                <div
+                                    class="max-w-full break-words px-2 text-center text-xs"
+                                >
+                                    {{ user.name || host.email }}
+                                </div>
+                                <button
+                                    icon
+                                    class="absolute -left-1 -top-1"
+                                    (click)="removeUser(user)"
+                                >
+                                    <icon>close</icon>
+                                </button>
                             </div>
-                            <button
-                                icon
-                                class="absolute -left-1 -top-1"
-                                (click)="removeUser(user)"
-                            >
-                                <icon>close</icon>
-                            </button>
-                        </div>
+                        }
                     </div>
                     <div blocks class="relative row-start-2 overflow-hidden">
                         <div
                             fixed
                             class="absolute inset-0 flex overflow-hidden"
                         >
-                            <div
-                                divider
-                                class="relative h-full min-w-[5rem] border-l border-base-200"
-                                [style.left]="-(offset_x + 1) + 'px'"
-                                [attr.disabled]="today && current_hour > h"
-                                *ngFor="let _ of hours; let h = index"
-                            ></div>
+                            @for (_ of hours; track _; let h = $index) {
+                                <div
+                                    divider
+                                    class="relative h-full min-w-[5rem] border-l border-base-200"
+                                    [style.left]="-(offset_x + 1) + 'px'"
+                                    [attr.disabled]="today && current_hour > h"
+                                ></div>
+                            }
                             <div
                                 selection
                                 class="absolute inset-y-0 z-20 cursor-grab !border-x-2 !border-info active:cursor-grabbing"
@@ -188,12 +191,13 @@ export interface FindAvailabilityData {
                                 >
                                     {{ duration | duration }}
                                 </div>
-                                <div
-                                    *ngIf="move_time"
-                                    class="absolute left-1/2 top-12 -translate-x-1/2 whitespace-nowrap rounded border border-base-200 bg-base-100 p-2 text-xs shadow"
-                                >
-                                    {{ date | date: 'shortTime' }}
-                                </div>
+                                @if (move_time) {
+                                    <div
+                                        class="absolute left-1/2 top-12 -translate-x-1/2 whitespace-nowrap rounded border border-base-200 bg-base-100 p-2 text-xs shadow"
+                                    >
+                                        {{ date | date: 'shortTime' }}
+                                    </div>
+                                }
                             </div>
                         </div>
                         <div
@@ -212,19 +216,20 @@ export interface FindAvailabilityData {
                                         : []
                                 "
                             ></user-availability-list>
-                            <user-availability-list
-                                class="pointer-events-none"
-                                *ngFor="let user of users | async"
-                                [user]="user"
-                                [date]="date"
-                                [availability]="
-                                    (availability | async)
-                                        ? (availability | async)[
-                                              user.email.toLowerCase()
-                                          ]
-                                        : []
-                                "
-                            ></user-availability-list>
+                            @for (user of users | async; track user) {
+                                <user-availability-list
+                                    class="pointer-events-none"
+                                    [user]="user"
+                                    [date]="date"
+                                    [availability]="
+                                        (availability | async)
+                                            ? (availability | async)[
+                                                  user.email.toLowerCase()
+                                              ]
+                                            : []
+                                    "
+                                ></user-availability-list>
+                            }
                         </div>
                     </div>
                 </div>

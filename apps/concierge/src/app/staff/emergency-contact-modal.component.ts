@@ -29,134 +29,131 @@ import { EmergencyContact } from './emergency-contacts.component';
                     ) | translate
                 }}
             </h2>
-            <button icon matRipple mat-dialog-close *ngIf="!loading">
-                <icon>close</icon>
-            </button>
+            @if (!loading) {
+                <button icon matRipple mat-dialog-close>
+                    <icon>close</icon>
+                </button>
+            }
         </header>
-        <main class="w-[36rem] p-4" *ngIf="!loading; else load_state">
-            <form [formGroup]="form">
-                <a-user-search-field
-                    ngModel
-                    (ngModelChange)="setUser($event)"
-                    [ngModelOptions]="{ standalone: true }"
-                    class="mb-4"
-                ></a-user-search-field>
-                <div class="flex flex-col">
-                    <label for="name">{{ 'FORM.NAME' | translate }}</label>
-                    <mat-form-field appearance="outline">
-                        <input
-                            matInput
-                            formControlName="name"
-                            placeholder="Full name"
-                        />
-                    </mat-form-field>
-                </div>
-                <div class="flex items-center space-x-4">
-                    <div class="flex flex-1 flex-col">
-                        <label for="email">{{
-                            'FORM.EMAIL' | translate
-                        }}</label>
+        @if (!loading) {
+            <main class="w-[36rem] p-4">
+                <form [formGroup]="form">
+                    <a-user-search-field
+                        ngModel
+                        (ngModelChange)="setUser($event)"
+                        [ngModelOptions]="{ standalone: true }"
+                        class="mb-4"
+                    ></a-user-search-field>
+                    <div class="flex flex-col">
+                        <label for="name">{{ 'FORM.NAME' | translate }}</label>
                         <mat-form-field appearance="outline">
                             <input
                                 matInput
-                                formControlName="email"
-                                type="email"
-                                [placeholder]="'FORM.EMAIL' | translate"
+                                formControlName="name"
+                                placeholder="Full name"
                             />
                         </mat-form-field>
                     </div>
-                    <div class="flex flex-1 flex-col">
-                        <label for="email">{{
-                            'FORM.PHONE' | translate
-                        }}</label>
-                        <mat-form-field appearance="outline">
-                            <input
-                                matInput
-                                formControlName="phone"
-                                type="tel"
-                                [placeholder]="
-                                    'APP.CONCIERGE.CONTACTS_PHONE_PLACEHOLDER'
-                                        | translate
-                                "
-                            />
-                        </mat-form-field>
-                    </div>
-                </div>
-                <div class="flex flex-col">
-                    <label for="name">{{ 'RESOURCE.LEVEL' | translate }}</label>
-                    <mat-form-field appearance="outline">
-                        <mat-select
-                            formControlName="zone"
-                            [placeholder]="'COMMON.LEVEL_ALL' | translate"
-                        >
-                            <mat-option value="">{{
-                                'COMMON.LEVEL_ALL' | translate
-                            }}</mat-option>
-                            <mat-option
-                                *ngFor="let level of levels | async"
-                                [value]="level.id"
-                            >
-                                {{ level.display_name || level.name }}
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                </div>
-                <div class="flex flex-col">
-                    <label for="email">{{
-                        'APP.CONCIERGE.CONTACTS_ROLES' | translate
-                    }}</label>
                     <div class="flex items-center space-x-4">
-                        <mat-form-field
-                            class="no-subscript flex-1"
-                            appearance="outline"
-                        >
-                            <mat-select
-                                multiple
-                                formControlName="roles"
-                                [placeholder]="
-                                    'APP.CONCIERGE.CONTACTS_ROLES_SELECT'
-                                        | translate
-                                "
-                            >
-                                <ng-container
-                                    *ngFor="
-                                        let role of (data | async)?.roles || []
+                        <div class="flex flex-1 flex-col">
+                            <label for="email">{{
+                                'FORM.EMAIL' | translate
+                            }}</label>
+                            <mat-form-field appearance="outline">
+                                <input
+                                    matInput
+                                    formControlName="email"
+                                    type="email"
+                                    [placeholder]="'FORM.EMAIL' | translate"
+                                />
+                            </mat-form-field>
+                        </div>
+                        <div class="flex flex-1 flex-col">
+                            <label for="email">{{
+                                'FORM.PHONE' | translate
+                            }}</label>
+                            <mat-form-field appearance="outline">
+                                <input
+                                    matInput
+                                    formControlName="phone"
+                                    type="tel"
+                                    [placeholder]="
+                                        'APP.CONCIERGE.CONTACTS_PHONE_PLACEHOLDER'
+                                            | translate
                                     "
-                                >
-                                    <mat-option *ngIf="role" [value]="role">
-                                        {{ role }}
+                                />
+                            </mat-form-field>
+                        </div>
+                    </div>
+                    <div class="flex flex-col">
+                        <label for="name">{{
+                            'RESOURCE.LEVEL' | translate
+                        }}</label>
+                        <mat-form-field appearance="outline">
+                            <mat-select
+                                formControlName="zone"
+                                [placeholder]="'COMMON.LEVEL_ALL' | translate"
+                            >
+                                <mat-option value="">{{
+                                    'COMMON.LEVEL_ALL' | translate
+                                }}</mat-option>
+                                @for (level of levels | async; track level) {
+                                    <mat-option [value]="level.id">
+                                        {{ level.display_name || level.name }}
                                     </mat-option>
-                                </ng-container>
+                                }
                             </mat-select>
                         </mat-form-field>
-                        <button
-                            btn
-                            matRipple
-                            class="space-x-2"
-                            customTooltip
-                            [content]="role_form"
-                        >
-                            <icon>add</icon>
-                            <div class="pr-2">
-                                {{
-                                    'APP.CONCIERGE.CONTACTS_ROLES_ADD'
-                                        | translate
-                                }}
-                            </div>
-                        </button>
                     </div>
-                </div>
-            </form>
-        </main>
-        <footer
-            *ngIf="!loading"
-            class="flex items-center justify-end border-t border-base-200 px-4 py-2"
-        >
-            <button btn matRipple class="w-32" (click)="save()">
-                {{ 'COMMON.SAVE' | translate }}
-            </button>
-        </footer>
-        <ng-template #load_state>
+                    <div class="flex flex-col">
+                        <label for="email">{{
+                            'APP.CONCIERGE.CONTACTS_ROLES' | translate
+                        }}</label>
+                        <div class="flex items-center space-x-4">
+                            <mat-form-field
+                                class="no-subscript flex-1"
+                                appearance="outline"
+                            >
+                                <mat-select
+                                    multiple
+                                    formControlName="roles"
+                                    [placeholder]="
+                                        'APP.CONCIERGE.CONTACTS_ROLES_SELECT'
+                                            | translate
+                                    "
+                                >
+                                    @for (
+                                        role of (data | async)?.roles || [];
+                                        track role
+                                    ) {
+                                        @if (role) {
+                                            <mat-option [value]="role">
+                                                {{ role }}
+                                            </mat-option>
+                                        }
+                                    }
+                                </mat-select>
+                            </mat-form-field>
+                            <button
+                                btn
+                                matRipple
+                                class="space-x-2"
+                                customTooltip
+                                [content]="role_form"
+                            >
+                                <icon>add</icon>
+                                <div class="pr-2">
+                                    {{
+                                        'APP.CONCIERGE.CONTACTS_ROLES_ADD'
+                                            | translate
+                                    }}
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </main>
+        } @else {
             <main
                 loading
                 class="flex h-64 flex-col items-center justify-center"
@@ -164,7 +161,16 @@ import { EmergencyContact } from './emergency-contacts.component';
                 <mat-spinner [diameter]="48" class="mb-4"></mat-spinner>
                 <p>{{ 'APP.CONCIERGE.CONTACTS_SAVING' | translate }}</p>
             </main>
-        </ng-template>
+        }
+        @if (!loading) {
+            <footer
+                class="flex items-center justify-end border-t border-base-200 px-4 py-2"
+            >
+                <button btn matRipple class="w-32" (click)="save()">
+                    {{ 'COMMON.SAVE' | translate }}
+                </button>
+            </footer>
+        }
         <ng-template #role_form>
             <div class="rounded bg-base-100 p-4">
                 <mat-form-field appearance="outline">

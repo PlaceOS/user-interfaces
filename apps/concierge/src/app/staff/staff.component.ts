@@ -11,11 +11,12 @@ import { StaffStateService } from './staff-state.service';
             <main class="flex h-full w-1/2 flex-1 flex-col">
                 <staff-topbar class="w-full"></staff-topbar>
                 <staff-listings class="h-0 w-full flex-1"></staff-listings>
-                <mat-progress-bar
-                    class="w-full"
-                    *ngIf="loading | async"
-                    mode="indeterminate"
-                ></mat-progress-bar>
+                @if (loading | async) {
+                    <mat-progress-bar
+                        class="w-full"
+                        mode="indeterminate"
+                    ></mat-progress-bar>
+                }
             </main>
         </div>
     `,

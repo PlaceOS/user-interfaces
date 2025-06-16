@@ -28,19 +28,21 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
             (confirm)="save()"
         >
             <form [formGroup]="form">
-                <div class="flex flex-col" *ngIf="form.controls.display_name">
-                    <label for="display-name">
-                        {{ 'FORM.DISPLAY_NAME' | translate }}
-                    </label>
-                    <mat-form-field appearance="outline">
-                        <input
-                            matInput
-                            name="display-name"
-                            [placeholder]="'FORM.DISPLAY_NAME' | translate"
-                            formControlName="display_name"
-                        />
-                    </mat-form-field>
-                </div>
+                @if (form.controls.display_name) {
+                    <div class="flex flex-col">
+                        <label for="display-name">
+                            {{ 'FORM.DISPLAY_NAME' | translate }}
+                        </label>
+                        <mat-form-field appearance="outline">
+                            <input
+                                matInput
+                                name="display-name"
+                                [placeholder]="'FORM.DISPLAY_NAME' | translate"
+                                formControlName="display_name"
+                            />
+                        </mat-form-field>
+                    </div>
+                }
                 <div class="flex flex-col">
                     <label for="display-name">
                         {{ 'COMMON.TIMEZONE' | translate }}
@@ -55,14 +57,14 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
                         />
                     </mat-form-field>
                     <mat-autocomplete #auto="matAutocomplete">
-                        <mat-option
-                            *ngFor="let tz of filtered_timezones"
-                            [value]="tz"
-                            >{{ tz }}</mat-option
-                        >
-                        <mat-option *ngIf="!timezones.length" [disabled]="true">
-                            {{ 'COMMON.TIMEZONE_EMPTY' | translate }}
-                        </mat-option>
+                        @for (tz of filtered_timezones; track tz) {
+                            <mat-option [value]="tz">{{ tz }}</mat-option>
+                        }
+                        @if (!timezones.length) {
+                            <mat-option [disabled]="true">
+                                {{ 'COMMON.TIMEZONE_EMPTY' | translate }}
+                            </mat-option>
+                        }
                     </mat-autocomplete>
                 </div>
             </form>

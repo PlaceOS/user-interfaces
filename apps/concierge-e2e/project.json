@@ -3,12 +3,13 @@
     "$schema": "../../node_modules/nx/schemas/project-schema.json",
     "sourceRoot": "apps/concierge-e2e/src",
     "projectType": "application",
+    "tags": [],
+    "implicitDependencies": ["concierge"],
     "targets": {
         "e2e": {
             "executor": "@nx/cypress:cypress",
             "options": {
                 "cypressConfig": "apps/concierge-e2e/cypress.config.js",
-                "tsConfig": "apps/concierge-e2e/tsconfig.e2e.json",
                 "devServerTarget": "concierge:serve"
             },
             "configurations": {
@@ -21,7 +22,5 @@
             "executor": "@nx/eslint:lint",
             "outputs": ["{options.outputFile}"]
         }
-    },
-    "tags": [],
-    "implicitDependencies": ["concierge"]
+    }
 }

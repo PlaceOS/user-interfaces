@@ -29,21 +29,25 @@ export interface BookingModalData {
                 [class.pointer-events-none]="loading | async"
                 [form]="form"
             ></event-form>
-            <div
-                loading
-                class="absolute inset-0 flex flex-col items-center justify-center"
-                *ngIf="loading | async"
-            >
-                <mat-spinner [diameter]="48" class="mb-4"></mat-spinner>
-                <p>{{ loading | async }}</p>
-            </div>
+            @if (loading | async) {
+                <div
+                    loading
+                    class="absolute inset-0 flex flex-col items-center justify-center"
+                >
+                    <mat-spinner [diameter]="48" class="mb-4"></mat-spinner>
+                    <p>{{ loading | async }}</p>
+                </div>
+            }
         </main>
-        <footer
-            *ngIf="!(loading | async)"
-            class="flex items-center justify-center border-t border-base-200 p-2"
-        >
-            <button btn matRipple class="w-32" (click)="save()">Save</button>
-        </footer>
+        @if (!(loading | async)) {
+            <footer
+                class="flex items-center justify-center border-t border-base-200 p-2"
+            >
+                <button btn matRipple class="w-32" (click)="save()">
+                    Save
+                </button>
+            </footer>
+        }
     `,
     styles: [
         `

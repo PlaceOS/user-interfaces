@@ -2,7 +2,6 @@ import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { AsyncHandler, DialogEvent } from '@placeos/common';
 
-import { CommonModule } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
 
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
@@ -24,33 +23,34 @@ import { generateUserForm } from './user.utilities';
                         | translate
                 }}
             </h2>
-            <button icon matRipple mat-dialog-close *ngIf="!loading">
-                <icon>close</icon>
-            </button>
+            @if (!loading) {
+                <button icon matRipple mat-dialog-close>
+                    <icon>close</icon>
+                </button>
+            }
         </header>
-        <main
-            class="flex w-full min-w-[24rem] flex-col items-center px-4"
-            *ngIf="!loading; else load_state"
-        >
-            <user-form [form]="form"></user-form>
-        </main>
-        <footer
-            class="flex w-full items-center justify-end space-x-2 border-t border-base-200 p-2"
-            *ngIf="!loading"
-        >
-            <button btn matRipple class="inverse" mat-dialog-close>
-                {{ 'COMMON.CANCEL' | translate }}
-            </button>
-            <button btn matRipple (click)="saveChanges()">
-                {{ 'COMMON.SAVE' | translate }}
-            </button>
-        </footer>
-        <ng-template #load_state>
+        @if (!loading) {
+            <main class="flex w-full min-w-[24rem] flex-col items-center px-4">
+                <user-form [form]="form"></user-form>
+            </main>
+        } @else {
             <main class="flex w-full flex-col items-center space-y-2 p-2">
                 <mat-spinner diameter="32"></mat-spinner>
                 <p>{{ 'COMMON.USER_SAVING' | translate }}</p>
             </main>
-        </ng-template>
+        }
+        @if (!loading) {
+            <footer
+                class="flex w-full items-center justify-end space-x-2 border-t border-base-200 p-2"
+            >
+                <button btn matRipple class="inverse" mat-dialog-close>
+                    {{ 'COMMON.CANCEL' | translate }}
+                </button>
+                <button btn matRipple (click)="saveChanges()">
+                    {{ 'COMMON.SAVE' | translate }}
+                </button>
+            </footer>
+        }
     `,
     styles: [
         `
@@ -65,7 +65,6 @@ import { generateUserForm } from './user.utilities';
         `,
     ],
     imports: [
-        CommonModule,
         TranslatePipe,
         MatRippleModule,
         UserFormComponent,

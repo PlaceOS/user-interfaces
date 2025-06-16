@@ -47,31 +47,32 @@ enum TOOLTIP {
         <div
             class="hidden flex-1 items-center justify-end space-x-2 p-4 sm:flex"
         >
-            <ng-container *ngFor="let item of action_list">
-                <div
-                    customTooltip
-                    [content]="cmp[item.id]"
-                    *ngIf="item.show"
-                    [style.z-index]="
-                        (item.id === 'join' || item.id === 'power') &&
-                        !(join_status | async)[0] &&
-                        (join_status | async)[1]
-                            ? '99'
-                            : ''
-                    "
-                >
-                    <button
-                        icon
-                        matRipple
-                        class="bg-base-200 text-base-content"
-                        [attr.type]="item.id"
-                        [class.!bg-success]="item.enabled"
-                        (click)="item.action ? item.action() : ''"
+            @for (item of action_list; track item) {
+                @if (item.show) {
+                    <div
+                        customTooltip
+                        [content]="cmp[item.id]"
+                        [style.z-index]="
+                            (item.id === 'join' || item.id === 'power') &&
+                            !(join_status | async)[0] &&
+                            (join_status | async)[1]
+                                ? '99'
+                                : ''
+                        "
                     >
-                        <icon>{{ item.icon }}</icon>
-                    </button>
-                </div>
-            </ng-container>
+                        <button
+                            icon
+                            matRipple
+                            class="bg-base-200 text-base-content"
+                            [attr.type]="item.id"
+                            [class.!bg-success]="item.enabled"
+                            (click)="item.action ? item.action() : ''"
+                        >
+                            <icon>{{ item.icon }}</icon>
+                        </button>
+                    </div>
+                }
+            }
         </div>
         <button
             icon
@@ -82,24 +83,25 @@ enum TOOLTIP {
             <icon>more_vert</icon>
         </button>
         <mat-menu #menu="matMenu">
-            <ng-container *ngFor="let item of action_list">
-                <div
-                    customTooltip
-                    [content]="cmp[item.id]"
-                    *ngIf="item.show"
-                    (click)="
-                        $event.stopPropagation();
-                        item.action ? item.action() : ''
-                    "
-                >
-                    <button [attr.type]="item.id" mat-menu-item>
-                        <div class="flex items-center text-base">
-                            <icon class="mr-2">{{ item.icon }}</icon>
-                            <span>{{ item.name }}</span>
-                        </div>
-                    </button>
-                </div>
-            </ng-container>
+            @for (item of action_list; track item) {
+                @if (item.show) {
+                    <div
+                        customTooltip
+                        [content]="cmp[item.id]"
+                        (click)="
+                            $event.stopPropagation();
+                            item.action ? item.action() : ''
+                        "
+                    >
+                        <button [attr.type]="item.id" mat-menu-item>
+                            <div class="flex items-center text-base">
+                                <icon class="mr-2">{{ item.icon }}</icon>
+                                <span>{{ item.name }}</span>
+                            </div>
+                        </button>
+                    </div>
+                }
+            }
         </mat-menu>
     `,
     styles: [

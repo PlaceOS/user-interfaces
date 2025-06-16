@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import {
     Component,
     EventEmitter,
@@ -19,7 +18,7 @@ import { BookingAsset } from '../booking-form.service';
 @Component({
     selector: `new-parking-space-details`,
     template: `
-        <ng-container *ngIf="space; else empty_state">
+        @if (space) {
             <section
                 image
                 class="relative w-full bg-base-200"
@@ -29,11 +28,12 @@ import { BookingAsset } from '../booking-form.service';
                 [class.h-12]="!space.images?.length"
                 [class.!bg-transparent]="!space.images?.length"
             >
-                <image-carousel
-                    [images]="space.images"
-                    *ngIf="space.images?.length"
-                    class="absolute inset-0"
-                ></image-carousel>
+                @if (space.images?.length) {
+                    <image-carousel
+                        [images]="space.images"
+                        class="absolute inset-0"
+                    ></image-carousel>
+                }
                 <button
                     icon
                     matRipple
@@ -84,22 +84,25 @@ import { BookingAsset } from '../booking-form.service';
                     </div>
                 </section>
                 <hr />
-                <section
-                    map
-                    class="relative mx-auto h-64 w-full overflow-hidden rounded border border-base-200 sm:h-48"
-                    *ngIf="!hide_map"
-                >
-                    <interactive-map
-                        class="pointer-events-none"
-                        [src]="map_url"
-                        [focus]="space.map_id"
-                        [features]="features"
-                        [options]="{ disable_pan: true, disable_zoom: true }"
-                    ></interactive-map>
-                </section>
+                @if (!hide_map) {
+                    <section
+                        map
+                        class="relative mx-auto h-64 w-full overflow-hidden rounded border border-base-200 sm:h-48"
+                    >
+                        <interactive-map
+                            class="pointer-events-none"
+                            [src]="map_url"
+                            [focus]="space.map_id"
+                            [features]="features"
+                            [options]="{
+                                disable_pan: true,
+                                disable_zoom: true,
+                            }"
+                        ></interactive-map>
+                    </section>
+                }
             </div>
-        </ng-container>
-        <ng-template #empty_state>
+        } @else {
             <div
                 empty
                 class="flex h-full w-full flex-col items-center justify-center space-y-2 p-16"
@@ -108,11 +111,10 @@ import { BookingAsset } from '../booking-form.service';
                     {{ 'BOOKINGS.PARKING_SELECT_MSG' | translate }}
                 </p>
             </div>
-        </ng-template>
+        }
     `,
     styles: [``],
     imports: [
-        CommonModule,
         TranslatePipe,
         MatRippleModule,
         InteractiveMapComponent,

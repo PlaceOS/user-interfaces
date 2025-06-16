@@ -16,21 +16,22 @@ export interface AvailabilityBlock {
         <div
             class="relative inset-y-0 h-32 w-[120rem] border-b border-base-200"
         >
-            <div
-                event
-                *ngFor="let event of availability"
-                class="border-red-700 absolute inset-y-0 overflow-hidden rounded border bg-error p-2 text-white"
-                [style.left]="event.start + '%'"
-                [style.width]="event.size + '%'"
-            >
-                <div class="max-w-full text-xs">
-                    {{ event.date | date: 'shortTime' }} -
-                    {{
-                        event.date.valueOf() + event.duration * 60 * 1000
-                            | date: 'shortTime'
-                    }}
+            @for (event of availability; track event) {
+                <div
+                    event
+                    class="border-red-700 absolute inset-y-0 overflow-hidden rounded border bg-error p-2 text-white"
+                    [style.left]="event.start + '%'"
+                    [style.width]="event.size + '%'"
+                >
+                    <div class="max-w-full text-xs">
+                        {{ event.date | date: 'shortTime' }} -
+                        {{
+                            event.date.valueOf() + event.duration * 60 * 1000
+                                | date: 'shortTime'
+                        }}
+                    </div>
                 </div>
-            </div>
+            }
         </div>
     `,
     styles: [

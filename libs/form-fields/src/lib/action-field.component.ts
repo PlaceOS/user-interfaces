@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 
@@ -34,7 +33,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
             }
         `,
     ],
-    imports: [CommonModule, IconComponent],
+    imports: [IconComponent],
 })
 export class ActionFieldComponent {
     /** Name of the field */

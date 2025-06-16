@@ -6,13 +6,13 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
 @Component({
     selector: 'video-conf-tooltip',
     template: `
-        <div
-            class="my-2 flex flex-col items-center rounded bg-base-100 shadow"
-            *ngIf="!(call | async); else enabled_state"
-        >
-            <video-call-dial-view (close)="close()"></video-call-dial-view>
-        </div>
-        <ng-template #enabled_state>
+        @if (!(call | async)) {
+            <div
+                class="my-2 flex flex-col items-center rounded bg-base-100 shadow"
+            >
+                <video-call-dial-view (close)="close()"></video-call-dial-view>
+            </div>
+        } @else {
             <div
                 class="my-2 flex flex-col items-center space-y-2 rounded bg-base-100 p-2 shadow"
             >
@@ -39,7 +39,7 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
                     {{ 'APP.CONTROL.VC_VIEW_INPUTS' | translate }}
                 </a>
             </div>
-        </ng-template>
+        }
     `,
     styles: [``],
     standalone: false,

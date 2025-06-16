@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
@@ -16,12 +15,13 @@ import { TranslatePipe } from './translate.pipe';
             <div class="mb-4 text-xs opacity-60">
                 {{ 'COMMON.DESK_HEIGHT_MSG' | translate }}
             </div>
-            <div
-                class="-mx-2 mb-4 rounded bg-warning p-2 text-xs text-warning-content"
-                *ngIf="not_set && show_close"
-            >
-                {{ 'COMMON.DESK_HEIGHT_NOT_SET' | translate }}
-            </div>
+            @if (not_set && show_close) {
+                <div
+                    class="-mx-2 mb-4 rounded bg-warning p-2 text-xs text-warning-content"
+                >
+                    {{ 'COMMON.DESK_HEIGHT_NOT_SET' | translate }}
+                </div>
+            }
             <div class="mb-4 text-xs opacity-60">
                 {{ 'COMMON.DESK_HEIGHT_INFO' | translate }}
             </div>
@@ -71,25 +71,15 @@ import { TranslatePipe } from './translate.pipe';
                     </div>
                 </div>
             </div>
-            <button
-                btn
-                matRipple
-                (click)="onClose()"
-                class="mt-2 w-full"
-                *ngIf="show_close"
-            >
-                {{ 'COMMON.SAVE' | translate }}
-            </button>
+            @if (show_close) {
+                <button btn matRipple (click)="onClose()" class="mt-2 w-full">
+                    {{ 'COMMON.SAVE' | translate }}
+                </button>
+            }
         </div>
     `,
     styles: [``],
-    imports: [
-        CommonModule,
-        TranslatePipe,
-        MatRippleModule,
-        MatSliderModule,
-        FormsModule,
-    ],
+    imports: [TranslatePipe, MatRippleModule, MatSliderModule, FormsModule],
 })
 export class DeskHeightPresetsComponent {
     @Input() public show_close = false;

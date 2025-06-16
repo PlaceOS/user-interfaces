@@ -51,42 +51,39 @@ import { ExploreSearchService, SearchResult } from './explore-search.service';
                 [matAutocomplete]="auto"
                 [matAutocompleteConnectedTo]="origin"
             />
-            <mat-spinner
-                *ngIf="loading | async"
-                class="mr-2"
-                [diameter]="32"
-            ></mat-spinner>
+            @if (loading | async) {
+                <mat-spinner class="mr-2" [diameter]="32"></mat-spinner>
+            }
         </div>
         <mat-autocomplete #auto="matAutocomplete">
-            <ng-container
-                *ngIf="(loading | async) !== true && (show || search_str)"
-            >
-                <mat-option
-                    *ngIf="!(results | async)?.length"
-                    class="pointer-events-none"
-                >
-                    {{ 'COMMON.SEARCH_EMPTY' | translate }}
-                </mat-option>
-                <mat-option
-                    *ngFor="let option of results | async | slice: 0 : 5"
-                    [value]="option.name"
-                    (click)="select(option)"
-                >
-                    <div
-                        class="flex w-[22rem] max-w-[calc(100vw-2rem)] items-center leading-tight"
-                    >
-                        <div class="w-1/2 flex-1 overflow-hidden">
-                            <div class="w-full truncate">{{ option.name }}</div>
-                            <div class="text-xs">{{ option.description }}</div>
-                        </div>
+            @if ((loading | async) !== true && (show || search_str)) {
+                @if (!(results | async)?.length) {
+                    <mat-option class="pointer-events-none">
+                        {{ 'COMMON.SEARCH_EMPTY' | translate }}
+                    </mat-option>
+                }
+                @for (option of results | async | slice: 0 : 5; track option) {
+                    <mat-option [value]="option.name" (click)="select(option)">
                         <div
-                            class="rounded bg-base-300 p-2 text-xs font-bold capitalize text-white"
+                            class="flex w-[22rem] max-w-[calc(100vw-2rem)] items-center leading-tight"
                         >
-                            {{ option.type }}
+                            <div class="w-1/2 flex-1 overflow-hidden">
+                                <div class="w-full truncate">
+                                    {{ option.name }}
+                                </div>
+                                <div class="text-xs">
+                                    {{ option.description }}
+                                </div>
+                            </div>
+                            <div
+                                class="rounded bg-base-300 p-2 text-xs font-bold capitalize text-white"
+                            >
+                                {{ option.type }}
+                            </div>
                         </div>
-                    </div>
-                </mat-option>
-            </ng-container>
+                    </mat-option>
+                }
+            }
         </mat-autocomplete>
     `,
     styles: [

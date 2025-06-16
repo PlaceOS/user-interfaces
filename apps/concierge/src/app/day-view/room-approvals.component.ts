@@ -58,124 +58,136 @@ import { EventsStateService } from './events-state.service';
                 </icon>
             </div>
             <div class="flex-1 space-y-2 overflow-auto p-3">
-                <div
-                    *ngIf="!(filtered_pending | async)?.length"
-                    class="flex h-full w-full flex-col items-center justify-center space-y-2"
-                >
-                    <img src="assets/icons/no-pending.svg" />
-                    <p class="opacity-30">
-                        {{ 'APP.CONCIERGE.ROOMS_PENDING_EMPTY' | translate }}
-                    </p>
-                </div>
-                <div
-                    *ngFor="let event of filtered_pending | async"
-                    class="relative w-full rounded border border-base-300 p-2"
-                >
-                    @let space =
-                        (event.resources.length
-                            ? (event.resources[0]?.email | space | async)
-                            : (event.mailbox | space | async)) || event.system;
-                    <h3>{{ event.title }}</h3>
-                    <p class="mb-2 text-xs opacity-30">
-                        {{ event.date | date: 'mediumDate' : tz }}
-                        {{ event.date | date: time_format : tz }}
-                        <span *ngIf="tz">{{
-                            event.date | date: 'zzzz' : tz
-                        }}</span>
-                    </p>
-                    <div class="mb-2 h-32 w-64 overflow-hidden bg-base-200">
-                        <img
-                            auth
-                            class="min-h-full min-w-full object-cover"
-                            [source]="space?.images[0]"
-                            *ngIf="space"
-                        />
-                    </div>
-                    <div class="mb-2 flex items-center space-x-2">
-                        <div
-                            class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
-                        >
-                            <icon class="text-xl">place</icon>
-                        </div>
-                        <div class="flex-1 text-xs">
+                @if (!(filtered_pending | async)?.length) {
+                    <div
+                        class="flex h-full w-full flex-col items-center justify-center space-y-2"
+                    >
+                        <img src="assets/icons/no-pending.svg" />
+                        <p class="opacity-30">
                             {{
-                                space?.display_name ||
-                                    space?.name ||
-                                    'No Location'
+                                'APP.CONCIERGE.ROOMS_PENDING_EMPTY' | translate
                             }}
-                        </div>
+                        </p>
                     </div>
-                    <div class="mb-2 flex items-center space-x-2">
-                        <div
-                            class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
-                        >
-                            <icon class="text-xl">person</icon>
+                }
+                @for (event of filtered_pending | async; track event) {
+                    <div
+                        class="relative w-full rounded border border-base-300 p-2"
+                    >
+                        @let space =
+                            (event.resources.length
+                                ? (event.resources[0]?.email | space | async)
+                                : (event.mailbox | space | async)) ||
+                            event.system;
+                        <h3>{{ event.title }}</h3>
+                        <p class="mb-2 text-xs opacity-30">
+                            {{ event.date | date: 'mediumDate' : tz }}
+                            {{ event.date | date: time_format : tz }}
+                            @if (tz) {
+                                <span>{{
+                                    event.date | date: 'zzzz' : tz
+                                }}</span>
+                            }
+                        </p>
+                        <div class="mb-2 h-32 w-64 overflow-hidden bg-base-200">
+                            @if (space) {
+                                <img
+                                    auth
+                                    class="min-h-full min-w-full object-cover"
+                                    [source]="space?.images[0]"
+                                />
+                            }
                         </div>
-                        <div class="flex-1 text-xs">
-                            {{ event.organiser?.name || event.host }}
-                        </div>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        <button
-                            btn
-                            matRipple
-                            class="flex flex-1 items-center space-x-2 border-success bg-success-light text-black"
-                            [disabled]="status[event.id] === 'accept'"
-                            (click)="approve(event)"
-                        >
-                            <div>
+                        <div class="mb-2 flex items-center space-x-2">
+                            <div
+                                class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
+                            >
+                                <icon class="text-xl">place</icon>
+                            </div>
+                            <div class="flex-1 text-xs">
                                 {{
-                                    (status[event.id] === 'accept'
-                                        ? 'COMMON.APPROVED'
-                                        : 'COMMON.APPROVE'
-                                    ) | translate
+                                    space?.display_name ||
+                                        space?.name ||
+                                        'No Location'
                                 }}
                             </div>
-                            <icon class="text-success">done</icon>
-                        </button>
-                        <button
-                            btn
-                            matRipple
-                            class="flex flex-1 items-center space-x-2 border-error bg-error-light text-black"
-                            [disabled]="status[event.id] === 'decline'"
-                            (click)="reject(event)"
-                        >
-                            <div>
-                                {{
-                                    (status[event.id] === 'decline'
-                                        ? 'COMMON.DECLINED'
-                                        : 'COMMON.DECLINE'
-                                    ) | translate
-                                }}
+                        </div>
+                        <div class="mb-2 flex items-center space-x-2">
+                            <div
+                                class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
+                            >
+                                <icon class="text-xl">person</icon>
                             </div>
-                            <icon class="text-error">close</icon>
-                        </button>
+                            <div class="flex-1 text-xs">
+                                {{ event.organiser?.name || event.host }}
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button
+                                btn
+                                matRipple
+                                class="flex flex-1 items-center space-x-2 border-success bg-success-light text-black"
+                                [disabled]="status[event.id] === 'accept'"
+                                (click)="approve(event)"
+                            >
+                                <div>
+                                    {{
+                                        (status[event.id] === 'accept'
+                                            ? 'COMMON.APPROVED'
+                                            : 'COMMON.APPROVE'
+                                        ) | translate
+                                    }}
+                                </div>
+                                <icon class="text-success">done</icon>
+                            </button>
+                            <button
+                                btn
+                                matRipple
+                                class="flex flex-1 items-center space-x-2 border-error bg-error-light text-black"
+                                [disabled]="status[event.id] === 'decline'"
+                                (click)="reject(event)"
+                            >
+                                <div>
+                                    {{
+                                        (status[event.id] === 'decline'
+                                            ? 'COMMON.DECLINED'
+                                            : 'COMMON.DECLINE'
+                                        ) | translate
+                                    }}
+                                </div>
+                                <icon class="text-error">close</icon>
+                            </button>
+                        </div>
                     </div>
+                }
+            </div>
+            @if (loading) {
+                <div
+                    class="absolute bottom-0 left-0 right-0 top-14 flex flex-col items-center justify-center space-y-2 p-2"
+                >
+                    <div
+                        class="absolute inset-0 z-0 bg-base-100 opacity-80"
+                    ></div>
+                    <mat-spinner diameter="32"></mat-spinner>
+                    <p class="relative z-10">
+                        {{ 'APP.CONCIERGE.ROOMS_PENDING_LOADING' | translate }}
+                    </p>
                 </div>
-            </div>
-            <div
-                class="absolute bottom-0 left-0 right-0 top-14 flex flex-col items-center justify-center space-y-2 p-2"
-                *ngIf="loading"
-            >
-                <div class="absolute inset-0 z-0 bg-base-100 opacity-80"></div>
-                <mat-spinner diameter="32"></mat-spinner>
-                <p class="relative z-10">
-                    {{ 'APP.CONCIERGE.ROOMS_PENDING_LOADING' | translate }}
-                </p>
-            </div>
+            }
         </div>
-        <button
-            btn
-            icon
-            matRipple
-            class="absolute -left-8 top-3 bg-warning text-warning-content shadow"
-            *ngIf="!show"
-            (click)="show = !show"
-            [matTooltip]="'APP.CONCIERGE.ROOMS_PENDING_SHOW' | translate"
-            matTooltipPosition="left"
-        >
-            <icon>chevron_left</icon>
-        </button>
+        @if (!show) {
+            <button
+                btn
+                icon
+                matRipple
+                class="absolute -left-8 top-3 bg-warning text-warning-content shadow"
+                (click)="show = !show"
+                [matTooltip]="'APP.CONCIERGE.ROOMS_PENDING_SHOW' | translate"
+                matTooltipPosition="left"
+            >
+                <icon>chevron_left</icon>
+            </button>
+        }
     `,
     styles: [
         `

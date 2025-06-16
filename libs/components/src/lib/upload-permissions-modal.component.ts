@@ -32,16 +32,18 @@ import { UploadPermissions } from '@placeos/common';
             <div class="pb-4">
                 <mat-checkbox [(ngModel)]="is_public">Public</mat-checkbox>
             </div>
-            <div class="flex flex-col space-y-2" *ngIf="!is_public">
-                <label>Permissions</label>
-                <mat-form-field appearance="outline">
-                    <mat-select [(ngModel)]="permissions">
-                        <mat-option value="none">None</mat-option>
-                        <mat-option value="support">Support</mat-option>
-                        <mat-option value="admin">Admin</mat-option>
-                    </mat-select>
-                </mat-form-field>
-            </div>
+            @if (!is_public) {
+                <div class="flex flex-col space-y-2">
+                    <label>Permissions</label>
+                    <mat-form-field appearance="outline">
+                        <mat-select [(ngModel)]="permissions">
+                            <mat-option value="none">None</mat-option>
+                            <mat-option value="support">Support</mat-option>
+                            <mat-option value="admin">Admin</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+            }
         </main>
         <footer
             class="flex items-center justify-end space-x-2 border-t border-base-200 px-4 py-2"

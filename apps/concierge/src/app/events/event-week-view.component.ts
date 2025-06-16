@@ -23,90 +23,97 @@ import { EventStateService } from './event-state.service';
                         </div>
                     </div>
                 </div>
-                <div
-                    *ngFor="let hour of hours; let i = index"
-                    class="relative min-h-10 w-full flex-1 bg-base-100"
-                >
-                    <div
-                        hour
-                        class="absolute right-1 top-0 -translate-y-1/2 whitespace-nowrap text-xs opacity-60"
-                    >
-                        {{ hour }} {{ i >= 12 ? 'PM' : 'AM' }}
+                @for (hour of hours; track hour; let i = $index) {
+                    <div class="relative min-h-10 w-full flex-1 bg-base-100">
+                        <div
+                            hour
+                            class="absolute right-1 top-0 -translate-y-1/2 whitespace-nowrap text-xs opacity-60"
+                        >
+                            {{ hour }} {{ i >= 12 ? 'PM' : 'AM' }}
+                        </div>
                     </div>
-                </div>
+                }
             </div>
             <div class="relative z-10 min-h-full min-w-[84rem]">
                 <div
                     header
                     class="sticky top-0 z-10 flex h-16 min-h-16 border-b border-base-200 bg-base-100"
                 >
-                    <div
-                        *ngFor="let date of days"
-                        date
-                        class="flex min-w-48 flex-1 flex-col items-center justify-center border-r border-base-200 p-4"
-                    >
-                        <div class="text-sm opacity-60">
-                            {{ date | date: 'EEEE' }}
-                        </div>
-                        <div>{{ date | date: 'd' }}</div>
-                    </div>
-                </div>
-                <div
-                    *ngFor="let hour of hours; let i = index"
-                    class="pointer-events-none relative flex min-h-10 min-w-[84rem] flex-1 border-x border-b border-base-200"
-                ></div>
-                <div
-                    *ngFor="let date of days; let i = index"
-                    date
-                    class="pointer-events-none absolute left-0 top-16 h-[60rem] w-[calc(100%/7)] flex-1 border-r border-base-200"
-                    [style.transform]="'translateX(' + i * 100 + '%)'"
-                >
-                    <button
-                        *ngFor="
-                            let event of (event_day_map | async)[
-                                dateString(date)
-                            ] || []
-                        "
-                        matRipple
-                        class="pointer-events-auto absolute inset-x-1 overflow-hidden rounded border border-base-200 bg-base-100 py-1 pl-3 pr-2 shadow hover:border-info"
-                        [style.top]="event.offset * 100 + '%'"
-                        [style.height]="event.length * 100 + '%'"
-                        (click)="viewEvent(event)"
-                    >
+                    @for (date of days; track date) {
                         <div
-                            class="absolute inset-y-0 left-0 w-1.5 bg-info"
-                        ></div>
-                        <div class="h-full text-left text-sm opacity-60">
-                            {{ event.date | date: 'shortTime' }} &mdash;
-                            {{ event.title }}
-                        </div>
-                        <div
-                            class="absolute inset-0"
-                            customTooltip
-                            [content]="event_card"
-                            xPosition="center"
-                            yPosition="bottom"
-                            [hover]="true"
-                        ></div>
-                        <ng-template #event_card>
-                            <div class="pointer-events-none p-2">
-                                <group-event-card
-                                    [event]="event"
-                                ></group-event-card>
+                            date
+                            class="flex min-w-48 flex-1 flex-col items-center justify-center border-r border-base-200 p-4"
+                        >
+                            <div class="text-sm opacity-60">
+                                {{ date | date: 'EEEE' }}
                             </div>
-                        </ng-template>
-                    </button>
-                    <div
-                        now
-                        *ngIf="isCurrentDay(date)"
-                        class="absolute inset-x-0 h-0 border-y-2 border-base-content"
-                        [style.top]="now_offset * 100 + '%'"
-                    >
-                        <div
-                            class="absolute left-0 top-0 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-base-content"
-                        ></div>
-                    </div>
+                            <div>{{ date | date: 'd' }}</div>
+                        </div>
+                    }
                 </div>
+                @for (hour of hours; track hour; let i = $index) {
+                    <div
+                        class="pointer-events-none relative flex min-h-10 min-w-[84rem] flex-1 border-x border-b border-base-200"
+                    ></div>
+                }
+                @for (date of days; track date; let i = $index) {
+                    <div
+                        date
+                        class="pointer-events-none absolute left-0 top-16 h-[60rem] w-[calc(100%/7)] flex-1 border-r border-base-200"
+                        [style.transform]="'translateX(' + i * 100 + '%)'"
+                    >
+                        @for (
+                            event of (event_day_map | async)[
+                                dateString(date)
+                            ] || [];
+                            track event
+                        ) {
+                            <button
+                                matRipple
+                                class="pointer-events-auto absolute inset-x-1 overflow-hidden rounded border border-base-200 bg-base-100 py-1 pl-3 pr-2 shadow hover:border-info"
+                                [style.top]="event.offset * 100 + '%'"
+                                [style.height]="event.length * 100 + '%'"
+                                (click)="viewEvent(event)"
+                            >
+                                <div
+                                    class="absolute inset-y-0 left-0 w-1.5 bg-info"
+                                ></div>
+                                <div
+                                    class="h-full text-left text-sm opacity-60"
+                                >
+                                    {{ event.date | date: 'shortTime' }} &mdash;
+                                    {{ event.title }}
+                                </div>
+                                <div
+                                    class="absolute inset-0"
+                                    customTooltip
+                                    [content]="event_card"
+                                    xPosition="center"
+                                    yPosition="bottom"
+                                    [hover]="true"
+                                ></div>
+                                <ng-template #event_card>
+                                    <div class="pointer-events-none p-2">
+                                        <group-event-card
+                                            [event]="event"
+                                        ></group-event-card>
+                                    </div>
+                                </ng-template>
+                            </button>
+                        }
+                        @if (isCurrentDay(date)) {
+                            <div
+                                now
+                                class="absolute inset-x-0 h-0 border-y-2 border-base-content"
+                                [style.top]="now_offset * 100 + '%'"
+                            >
+                                <div
+                                    class="absolute left-0 top-0 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-base-content"
+                                ></div>
+                            </div>
+                        }
+                    </div>
+                }
             </div>
         </div>
     `,

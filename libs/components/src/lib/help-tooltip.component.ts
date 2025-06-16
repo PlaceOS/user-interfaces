@@ -16,21 +16,22 @@ import { CustomTooltipData } from './custom-tooltip.component';
                 <icon class="text-2xl">arrow_back</icon>
                 <div class="">{{ 'COMMON.CONTROLS_HELP' | translate }}</div>
             </div>
-            <a
-                matRipple
-                *ngFor="let tile of tiles"
-                class="w-full p-2 text-left"
-                target="_blank"
-                ref="noreferer noopener"
-                [href]="tile.link"
-            >
-                <div
-                    class="flex w-full items-center space-x-2 rounded p-2 hover:bg-base-200"
+            @for (tile of tiles; track tile) {
+                <a
+                    matRipple
+                    class="w-full p-2 text-left"
+                    target="_blank"
+                    ref="noreferer noopener"
+                    [href]="tile.link"
                 >
-                    <icon class="text-xl" [icon]="tile.icon"></icon>
-                    <div>{{ tile.name }}</div>
-                </div>
-            </a>
+                    <div
+                        class="flex w-full items-center space-x-2 rounded p-2 hover:bg-base-200"
+                    >
+                        <icon class="text-xl" [icon]="tile.icon"></icon>
+                        <div>{{ tile.name }}</div>
+                    </div>
+                </a>
+            }
         </div>
     `,
     styles: [``],

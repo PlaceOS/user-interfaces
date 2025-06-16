@@ -1,5 +1,4 @@
-import { DOCUMENT } from '@angular/common';
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, DOCUMENT, Inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { currentUser } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
@@ -17,114 +16,107 @@ import { FeaturesFilterService } from './features-filter.service';
                 >
                     <h2 class="text-xl font-medium capitalize">Book Room</h2>
                 </header>
-                <form
-                    *ngIf="form"
-                    [formGroup]="form"
-                    class="divide-y divide-base-200"
-                >
-                    <section class="px-4 py-2">
-                        <div class="my-2 flex space-x-4">
-                            <div
-                                class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
-                            >
-                                1
-                            </div>
-                            <div class="text-lg font-medium">Details</div>
-                        </div>
-
-                        <div class="flex flex-col sm:flex-row sm:space-x-2">
-                            <div class="w-full sm:flex-1">
-                                <label>Add Title<span>*</span></label>
-                                <mat-form-field
-                                    appearance="outline"
-                                    class="w-full"
+                @if (form) {
+                    <form [formGroup]="form" class="divide-y divide-base-200">
+                        <section class="px-4 py-2">
+                            <div class="my-2 flex space-x-4">
+                                <div
+                                    class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
                                 >
-                                    <input
-                                        matInput
-                                        placeholder="e.g Team meeting"
-                                        formControlName="title"
-                                    />
-                                </mat-form-field>
+                                    1
+                                </div>
+                                <div class="text-lg font-medium">Details</div>
                             </div>
-                            <div class="w-full sm:flex-1">
-                                <label>Date<span>*</span></label>
-                                <a-date-field
-                                    [from]="min_date"
-                                    formControlName="date"
-                                ></a-date-field>
+                            <div class="flex flex-col sm:flex-row sm:space-x-2">
+                                <div class="w-full sm:flex-1">
+                                    <label>Add Title<span>*</span></label>
+                                    <mat-form-field
+                                        appearance="outline"
+                                        class="w-full"
+                                    >
+                                        <input
+                                            matInput
+                                            placeholder="e.g Team meeting"
+                                            formControlName="title"
+                                        />
+                                    </mat-form-field>
+                                </div>
+                                <div class="w-full sm:flex-1">
+                                    <label>Date<span>*</span></label>
+                                    <a-date-field
+                                        [from]="min_date"
+                                        formControlName="date"
+                                    ></a-date-field>
+                                </div>
                             </div>
-                        </div>
-                        <div class="flex flex-col sm:flex-row sm:space-x-2">
-                            <div class="w-full sm:flex-1">
-                                <label class="mb-1 text-sm font-bold">
-                                    Start Time<span>*</span>
-                                </label>
-                                <a-time-field
-                                    [ngModel]="form.value.date"
-                                    (ngModelChange)="
-                                        form.patchValue({ date: $event })
-                                    "
-                                    [ngModelOptions]="{ standalone: true }"
-                                ></a-time-field>
+                            <div class="flex flex-col sm:flex-row sm:space-x-2">
+                                <div class="w-full sm:flex-1">
+                                    <label class="mb-1 text-sm font-bold">
+                                        Start Time<span>*</span>
+                                    </label>
+                                    <a-time-field
+                                        [ngModel]="form.value.date"
+                                        (ngModelChange)="
+                                            form.patchValue({ date: $event })
+                                        "
+                                        [ngModelOptions]="{ standalone: true }"
+                                    ></a-time-field>
+                                </div>
+                                <div class="w-full sm:flex-1">
+                                    <label class="mb-1 text-sm font-bold">
+                                        End Time<span>*</span>
+                                    </label>
+                                    <a-duration-field
+                                        [time]="form.get('date')?.value"
+                                        [max]="10 * 60"
+                                        [min]="60"
+                                        [step]="60"
+                                        formControlName="duration"
+                                    ></a-duration-field>
+                                </div>
                             </div>
-                            <div class="w-full sm:flex-1">
-                                <label class="mb-1 text-sm font-bold">
-                                    End Time<span>*</span>
-                                </label>
-                                <a-duration-field
-                                    [time]="form.get('date')?.value"
-                                    [max]="10 * 60"
-                                    [min]="60"
-                                    [step]="60"
-                                    formControlName="duration"
-                                ></a-duration-field>
+                        </section>
+                        <section class="px-4 py-2">
+                            <div class="my-2 flex space-x-4">
+                                <div
+                                    class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
+                                >
+                                    2
+                                </div>
+                                <div class="text-lg font-medium">Attendees</div>
                             </div>
-                        </div>
-                    </section>
-
-                    <section class="px-4 py-2">
-                        <div class="my-2 flex space-x-4">
-                            <div
-                                class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
+                            <div class="flex flex-col">
+                                <label> Add Attendees </label>
+                                <a-user-list-field
+                                    formControlName="attendees"
+                                    [custom_template]="true"
+                                    (download)="downloadTemplate()"
+                                ></a-user-list-field>
+                            </div>
+                        </section>
+                        <section
+                            class="sticky bottom-0 flex flex-col items-center space-y-2 bg-base-100 px-4 py-2 sm:flex-row sm:space-x-2 sm:space-y-0"
+                        >
+                            <button
+                                btn
+                                matRipple
+                                type="submit"
+                                (click)="findSpace()"
+                                class="w-full sm:flex-1"
                             >
-                                2
-                            </div>
-                            <div class="text-lg font-medium">Attendees</div>
-                        </div>
-
-                        <div class="flex flex-col">
-                            <label> Add Attendees </label>
-
-                            <a-user-list-field
-                                formControlName="attendees"
-                                [custom_template]="true"
-                                (download)="downloadTemplate()"
-                            ></a-user-list-field>
-                        </div>
-                    </section>
-
-                    <section
-                        class="sticky bottom-0 flex flex-col items-center space-y-2 bg-base-100 px-4 py-2 sm:flex-row sm:space-x-2 sm:space-y-0"
-                    >
-                        <button
-                            btn
-                            matRipple
-                            type="submit"
-                            (click)="findSpace()"
-                            class="w-full sm:flex-1"
-                        >
-                            Find room
-                        </button>
-                        <button
-                            btn
-                            matRipple
-                            (click)="clearForm()"
-                            class="inverse w-full sm:flex-1"
-                        >
-                            Clear form
-                        </button>
-                    </section>
-                </form>
+                                Find room
+                            </button>
+                            <button
+                                btn
+                                matRipple
+                                (click)="clearForm()"
+                                class="inverse w-full sm:flex-1"
+                            >
+                                Clear form
+                            </button>
+                        </section>
+                    </form>
+                }
             </div>
         </div>
     `,

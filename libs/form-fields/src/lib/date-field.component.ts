@@ -51,18 +51,28 @@ export enum TimezoneDiffRange {
                         }}</span>
                     }
                 </div>
-                <div class="truncate text-xs opacity-30" *ngIf="timezone && tz">
-                    <span *ngIf="range !== 2">{{ start_of_day }}</span>
-                    <span *ngIf="range === 0"> - </span>
-                    <span *ngIf="range !== 1">{{ end_of_day }}</span>
-                </div>
+                @if (timezone && tz) {
+                    <div class="truncate text-xs opacity-30">
+                        @if (range !== 2) {
+                            <span>{{ start_of_day }}</span>
+                        }
+                        @if (range === 0) {
+                            <span> - </span>
+                        }
+                        @if (range !== 1) {
+                            <span>{{ end_of_day }}</span>
+                        }
+                    </div>
+                }
             </div>
             <div class="flex h-10 w-10 items-center justify-center text-2xl">
                 <icon>today</icon>
             </div>
         </button>
         <div class="error h-5 p-1 text-xs text-error">
-            <span *ngIf="has_error"><ng-content></ng-content></span>
+            @if (has_error) {
+                <span><ng-content></ng-content></span>
+            }
         </div>
         <ng-template #calendar_picker>
             <div class="relative w-[18rem] rounded bg-base-100 px-2 py-4">

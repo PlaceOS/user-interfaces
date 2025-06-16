@@ -31,21 +31,9 @@ import { currentPeriod, nextPeriod } from './helpers';
                     {{ 'APP.BOOKING_PANEL.NOW' | translate }}
                 </h3>
                 <p class="mt-4 text-2xl font-light">
-                    <ng-container
-                        *ngIf="
-                            (event_state | async)?.current?.length;
-                            else no_current_state
-                        "
-                    >
-                        <ng-container
-                            *ngIf="
-                                (event_state | async)?.current[0];
-                                else free_for_state
-                            "
-                        >
-                            <ng-container
-                                *ngIf="(event_state | async)?.current[1] > 0"
-                            >
+                    @if ((event_state | async)?.current?.length) {
+                        @if ((event_state | async)?.current[0]) {
+                            @if ((event_state | async)?.current[1] > 0) {
                                 {{
                                     'APP.BOOKING_PANEL.FREE_IN_HOURS_AND_MINUTES'
                                         | translate
@@ -56,13 +44,11 @@ import { currentPeriod, nextPeriod } from './helpers';
                                                       ?.current[2],
                                               }
                                 }}
-                            </ng-container>
-                            <ng-container
-                                *ngIf="
-                                    (event_state | async)?.current[1] <= 0 &&
-                                    (event_state | async)?.current[2] > 1
-                                "
-                            >
+                            }
+                            @if (
+                                (event_state | async)?.current[1] <= 0 &&
+                                (event_state | async)?.current[2] > 1
+                            ) {
                                 {{
                                     'APP.BOOKING_PANEL.FREE_IN_MINUTES'
                                         | translate
@@ -71,32 +57,25 @@ import { currentPeriod, nextPeriod } from './helpers';
                                                       ?.current[2],
                                               }
                                 }}
-                            </ng-container>
-                            <ng-container
-                                *ngIf="
-                                    (event_state | async)?.current[1] <= 0 &&
-                                    (event_state | async)?.current[2] <= 1
-                                "
-                            >
+                            }
+                            @if (
+                                (event_state | async)?.current[1] <= 0 &&
+                                (event_state | async)?.current[2] <= 1
+                            ) {
                                 {{
                                     'APP.BOOKING_PANEL.FREE_IN_LESS_THAN_MINUTE'
                                         | translate
                                 }}
-                            </ng-container>
-                        </ng-container>
-                        <ng-template #free_for_state>
-                            <ng-container *ngIf="(state | async) === 'busy'">
+                            }
+                        } @else {
+                            @if ((state | async) === 'busy') {
                                 {{
                                     'APP.BOOKING_PANEL.EARLY_CHECKIN'
                                         | translate
                                 }}
-                            </ng-container>
-                            <ng-container *ngIf="(state | async) !== 'busy'">
-                                <ng-container
-                                    *ngIf="
-                                        (event_state | async)?.current[1] > 0
-                                    "
-                                >
+                            }
+                            @if ((state | async) !== 'busy') {
+                                @if ((event_state | async)?.current[1] > 0) {
                                     {{
                                         'APP.BOOKING_PANEL.FREE_FOR_HOURS_AND_MINUTES'
                                             | translate
@@ -109,14 +88,11 @@ import { currentPeriod, nextPeriod } from './helpers';
                                                       )?.current[2],
                                                   }
                                     }}
-                                </ng-container>
-                                <ng-container
-                                    *ngIf="
-                                        (event_state | async)?.current[1] <=
-                                            0 &&
-                                        (event_state | async)?.current[2] > 1
-                                    "
-                                >
+                                }
+                                @if (
+                                    (event_state | async)?.current[1] <= 0 &&
+                                    (event_state | async)?.current[2] > 1
+                                ) {
                                     {{
                                         'APP.BOOKING_PANEL.FREE_FOR_MINUTES'
                                             | translate
@@ -126,63 +102,62 @@ import { currentPeriod, nextPeriod } from './helpers';
                                                       )?.current[2],
                                                   }
                                     }}
-                                </ng-container>
-                                <ng-container
-                                    *ngIf="
-                                        (event_state | async)?.current[1] <=
-                                            0 &&
-                                        (event_state | async)?.current[2] <= 1
-                                    "
-                                >
+                                }
+                                @if (
+                                    (event_state | async)?.current[1] <= 0 &&
+                                    (event_state | async)?.current[2] <= 1
+                                ) {
                                     {{
                                         'APP.BOOKING_PANEL.FREE_FOR_LESS_THAN_MINUTE'
                                             | translate
                                     }}
-                                </ng-container>
-                            </ng-container>
-                        </ng-template>
-                    </ng-container>
-                    <ng-template #no_current_state>
+                                }
+                            }
+                        }
+                    } @else {
                         {{ 'APP.BOOKING_PANEL.NO_CURRENT' | translate }}
-                    </ng-template>
+                    }
                 </p>
-                <div
-                    class="absolute inset-x-0 top-0 flex items-center justify-center space-x-4 bg-[#0008] p-4 text-2xl"
-                    *ngIf="(state | async) === 'pending' && can_book"
-                >
-                    <p class="uppercase">
-                        {{
-                            (can_scan
-                                ? 'APP.BOOKING_PANEL.CHECKIN_INPUT'
-                                : 'APP.BOOKING_PANEL.CHECKIN_INPUT_NOSCAN'
-                            ) | translate
-                        }}
-                    </p>
-                    <icon>arrow_forward</icon>
-                </div>
-                <div
-                    class="absolute inset-x-0 top-0 flex items-center justify-center space-x-4 bg-[#0008] p-4 text-2xl"
-                    *ngIf="(state | async) === 'free' && can_book"
-                >
-                    <p class="uppercase">
-                        {{
-                            (can_scan
-                                ? 'APP.BOOKING_PANEL.BOOKING_INPUT'
-                                : 'APP.BOOKING_PANEL.BOOKING_INPUT_NOSCAN'
-                            ) | translate
-                        }}
-                    </p>
-                    <icon>arrow_forward</icon>
-                </div>
-                <div
-                    class="absolute inset-x-0 top-0 flex items-center justify-center space-x-4 bg-[#0008] p-4 text-2xl"
-                    *ngIf="(state | async) === 'busy' && can_end"
-                >
-                    <p class="uppercase">
-                        {{ 'APP.BOOKING_PANEL.END_INPUT' | translate }}
-                    </p>
-                    <icon>arrow_forward</icon>
-                </div>
+                @if ((state | async) === 'pending' && can_book) {
+                    <div
+                        class="absolute inset-x-0 top-0 flex items-center justify-center space-x-4 bg-[#0008] p-4 text-2xl"
+                    >
+                        <p class="uppercase">
+                            {{
+                                (can_scan
+                                    ? 'APP.BOOKING_PANEL.CHECKIN_INPUT'
+                                    : 'APP.BOOKING_PANEL.CHECKIN_INPUT_NOSCAN'
+                                ) | translate
+                            }}
+                        </p>
+                        <icon>arrow_forward</icon>
+                    </div>
+                }
+                @if ((state | async) === 'free' && can_book) {
+                    <div
+                        class="absolute inset-x-0 top-0 flex items-center justify-center space-x-4 bg-[#0008] p-4 text-2xl"
+                    >
+                        <p class="uppercase">
+                            {{
+                                (can_scan
+                                    ? 'APP.BOOKING_PANEL.BOOKING_INPUT'
+                                    : 'APP.BOOKING_PANEL.BOOKING_INPUT_NOSCAN'
+                                ) | translate
+                            }}
+                        </p>
+                        <icon>arrow_forward</icon>
+                    </div>
+                }
+                @if ((state | async) === 'busy' && can_end) {
+                    <div
+                        class="absolute inset-x-0 top-0 flex items-center justify-center space-x-4 bg-[#0008] p-4 text-2xl"
+                    >
+                        <p class="uppercase">
+                            {{ 'APP.BOOKING_PANEL.END_INPUT' | translate }}
+                        </p>
+                        <icon>arrow_forward</icon>
+                    </div>
+                }
             </div>
             <div
                 class="flex h-full flex-1 flex-col items-center justify-center space-y-4 bg-base-100 text-base-content"

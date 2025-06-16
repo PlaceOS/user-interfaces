@@ -8,7 +8,6 @@ module.exports = defineConfig({
     videosFolder: '../../dist/cypress/apps/outlook-addin-e2e/videos',
     screenshotsFolder: '../../dist/cypress/apps/outlook-addin-e2e/screenshots',
     chromeWebSecurity: false,
-
     e2e: {
         // We've imported your old cypress plugins here.
         // You may want to clean this up later by importing these.
@@ -17,5 +16,8 @@ module.exports = defineConfig({
         },
         specPattern: './src/integration/**/*.cy.{js,jsx,ts,tsx}',
         supportFile: './src/support/index.ts',
+        // Please ensure you use `cy.origin()` when navigating between domains and remove this option.
+        // See https://docs.cypress.io/app/references/migration-guide#Changes-to-cyorigin
+        injectDocumentDomain: true,
     },
 });

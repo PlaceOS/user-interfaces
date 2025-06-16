@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import {
     AfterViewInit,
     Component,
@@ -26,7 +25,7 @@ import { SingleLineTextComponent } from './single-line-text.component';
             #container_el
             class="flex w-full flex-col items-center justify-between px-4 py-2 pt-4"
         >
-            <ng-container *ngIf="!preview; else previewTitle">
+            @if (!preview) {
                 <mat-form-field class="w-full" appearance="outline">
                     <input
                         matInput
@@ -36,89 +35,84 @@ import { SingleLineTextComponent } from './single-line-text.component';
                         type="text"
                         [(ngModel)]="question.title"
                     />
-                    <mat-error class="input-error" *ngIf="!question?.title">
-                        {{
-                            'APP.CONCIERGE.SURVEY_QUESTION_ENTER_ERROR'
-                                | translate
-                        }}
-                    </mat-error>
+                    @if (!question?.title) {
+                        <mat-error class="input-error">
+                            {{
+                                'APP.CONCIERGE.SURVEY_QUESTION_ENTER_ERROR'
+                                    | translate
+                            }}
+                        </mat-error>
+                    }
                 </mat-form-field>
-            </ng-container>
-
-            <ng-template #previewTitle>
+            } @else {
                 <span class="mb-4 w-full text-xl">{{
                     question.title || 'No question'
                 }}</span>
-            </ng-template>
+            }
 
-            <div class="mb-4 flex w-full flex-col" [ngSwitch]="question.type">
-                <ng-container *ngSwitchCase="QuestionType.Comment_Box">
-                    <multi-line-text
-                        [question]="question"
-                        [preview]="preview"
-                    ></multi-line-text>
-                </ng-container>
-
-                <ng-container *ngSwitchCase="QuestionType.Single_Line_Text">
-                    <single-line-text
-                        [question]="question"
-                        [preview]="preview"
-                    ></single-line-text>
-                </ng-container>
-
-                <ng-container *ngSwitchCase="QuestionType.Check_Box">
-                    <selection
-                        [value]="question"
-                        [preview]="preview"
-                    ></selection>
-                </ng-container>
-
-                <ng-container *ngSwitchCase="QuestionType.Radio_Group">
-                    <selection
-                        [value]="question"
-                        [preview]="preview"
-                    ></selection>
-                </ng-container>
-
-                <ng-container *ngSwitchCase="QuestionType.Drop_Down">
-                    <selection
-                        [value]="question"
-                        [preview]="preview"
-                    ></selection>
-                </ng-container>
-
-                <ng-container *ngSwitchCase="QuestionType.Rating">
-                    <rating [value]="question" [preview]="preview"></rating>
-                </ng-container>
+            <div class="mb-4 flex w-full flex-col">
+                @switch (question.type) {
+                    @case (QuestionType.Comment_Box) {
+                        <multi-line-text
+                            [question]="question"
+                            [preview]="preview"
+                        ></multi-line-text>
+                    }
+                    @case (QuestionType.Single_Line_Text) {
+                        <single-line-text
+                            [question]="question"
+                            [preview]="preview"
+                        ></single-line-text>
+                    }
+                    @case (QuestionType.Check_Box) {
+                        <selection
+                            [value]="question"
+                            [preview]="preview"
+                        ></selection>
+                    }
+                    @case (QuestionType.Radio_Group) {
+                        <selection
+                            [value]="question"
+                            [preview]="preview"
+                        ></selection>
+                    }
+                    @case (QuestionType.Drop_Down) {
+                        <selection
+                            [value]="question"
+                            [preview]="preview"
+                        ></selection>
+                    }
+                    @case (QuestionType.Rating) {
+                        <rating [value]="question" [preview]="preview"></rating>
+                    }
+                }
             </div>
 
-            <div
-                class="flex w-full flex-row items-center justify-end space-x-4"
-                *ngIf="!preview"
-            >
-                <mat-form-field appearance="outline" class="no-subscript">
-                    <mat-select [(ngModel)]="question.type">
-                        @for (item of typeOptions; track item) {
-                            <mat-option
-                                *ngIf="item.value[0] !== '0'"
-                                [value]="item.value"
-                            >
-                                {{ item.name }}
-                            </mat-option>
-                        }
-                    </mat-select>
-                </mat-form-field>
-
-                <settings-toggle
-                    [(ngModel)]="question.isRequired"
-                    [name]="'COMMON.REQUIRED' | translate"
-                ></settings-toggle>
-                <!-- <mat-slide-toggle [(ngModel)]="preview"> Preview</mat-slide-toggle> -->
-            </div>
+            @if (!preview) {
+                <div
+                    class="flex w-full flex-row items-center justify-end space-x-4"
+                >
+                    <mat-form-field appearance="outline" class="no-subscript">
+                        <mat-select [(ngModel)]="question.type">
+                            @for (item of typeOptions; track item) {
+                                @if (item.value[0] !== '0') {
+                                    <mat-option [value]="item.value">
+                                        {{ item.name }}
+                                    </mat-option>
+                                }
+                            }
+                        </mat-select>
+                    </mat-form-field>
+                    <settings-toggle
+                        [(ngModel)]="question.isRequired"
+                        [name]="'COMMON.REQUIRED' | translate"
+                    ></settings-toggle>
+                    <!-- <mat-slide-toggle [(ngModel)]="preview"> Preview</mat-slide-toggle> -->
+                </div>
+            }
         </div>
     `,
     imports: [
-        CommonModule,
         TranslatePipe,
         MatFormFieldModule,
         MatSelectModule,

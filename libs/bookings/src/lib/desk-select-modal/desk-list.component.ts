@@ -30,82 +30,93 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
                     | translate: { count: (desks | async)?.length || 0 }
             }}
         </p>
-        <ng-container *ngIf="!(loading | async)?.length; else load_state">
-            <ul
-                class="list-style-none space-y-2"
-                *ngIf="(desks | async)?.length; else empty_state"
-            >
-                <li
-                    desk
-                    *ngFor="let desk of desks | async"
-                    class="relative w-full overflow-hidden rounded-lg border border-base-200 bg-base-100 shadow"
-                    [class.!border-info]="active === desk.id"
-                >
-                    <button
-                        name="select-desk"
-                        matRipple
-                        class="flex h-full w-full p-2"
-                        (click)="selectDesk(desk)"
-                    >
-                        <div
-                            class="relative mr-4 flex h-20 w-20 items-center justify-center rounded-xl bg-base-200"
+        @if (!(loading | async)?.length) {
+            @if ((desks | async)?.length) {
+                <ul class="list-style-none space-y-2">
+                    @for (desk of desks | async; track desk) {
+                        <li
+                            desk
+                            class="relative w-full overflow-hidden rounded-lg border border-base-200 bg-base-100 shadow"
+                            [class.!border-info]="active === desk.id"
                         >
-                            <div
-                                class="absolute left-1 top-1 flex h-6 w-6 items-center justify-center rounded-full border border-neutral bg-base-200 text-white"
-                                *ngIf="selected.includes(desk.id)"
+                            <button
+                                name="select-desk"
+                                matRipple
+                                class="flex h-full w-full p-2"
+                                (click)="selectDesk(desk)"
                             >
-                                <icon>done</icon>
-                            </div>
-                            <img
-                                auth
-                                *ngIf="desk.images?.length; else placeholder"
-                                class="h-full object-cover"
-                                [source]="desk.images[0]"
-                            />
-                            <ng-template #placeholder>
-                                <img
-                                    class="m-auto"
-                                    src="assets/icons/desk-placeholder.svg"
-                                />
-                            </ng-template>
-                        </div>
-                        <div class="flex-1 space-y-2 pt-2 text-left">
-                            <span class="font-medium">
-                                {{ desk.name || desk.id || 'Desk' }}
-                            </span>
-                            <div class="flex items-center space-x-2 text-sm">
-                                <icon class="text-info">place</icon>
-                                <p class="text-xs">
-                                    {{
-                                        desk.zone?.display_name ||
-                                            desk.zone?.name ||
-                                            '&lt;No Level&gt;'
-                                    }}
-                                </p>
-                            </div>
-                        </div>
-                    </button>
-                    <button
-                        icon
-                        matRipple
-                        name="toggle-desk-favourite"
-                        class="absolute right-1 top-1"
-                        [class.text-info]="isFavourite(desk.id)"
-                        (click)="toggleFav.emit(desk)"
-                    >
-                        <icon
-                            [className]="
-                                isFavourite(desk.id)
-                                    ? 'material-symbols-rounded'
-                                    : 'material-symbols-outlined'
-                            "
-                            >favorite</icon
-                        >
-                    </button>
-                </li>
-            </ul>
-        </ng-container>
-        <ng-template #load_state>
+                                <div
+                                    class="relative mr-4 flex h-20 w-20 items-center justify-center rounded-xl bg-base-200"
+                                >
+                                    @if (selected.includes(desk.id)) {
+                                        <div
+                                            class="absolute left-1 top-1 flex h-6 w-6 items-center justify-center rounded-full border border-neutral bg-base-200 text-white"
+                                        >
+                                            <icon>done</icon>
+                                        </div>
+                                    }
+                                    @if (desk.images?.length) {
+                                        <img
+                                            auth
+                                            class="h-full object-cover"
+                                            [source]="desk.images[0]"
+                                        />
+                                    } @else {
+                                        <img
+                                            class="m-auto"
+                                            src="assets/icons/desk-placeholder.svg"
+                                        />
+                                    }
+                                </div>
+                                <div class="flex-1 space-y-2 pt-2 text-left">
+                                    <span class="font-medium">
+                                        {{ desk.name || desk.id || 'Desk' }}
+                                    </span>
+                                    <div
+                                        class="flex items-center space-x-2 text-sm"
+                                    >
+                                        <icon class="text-info">place</icon>
+                                        <p class="text-xs">
+                                            {{
+                                                desk.zone?.display_name ||
+                                                    desk.zone?.name ||
+                                                    '&lt;No Level&gt;'
+                                            }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </button>
+                            <button
+                                icon
+                                matRipple
+                                name="toggle-desk-favourite"
+                                class="absolute right-1 top-1"
+                                [class.text-info]="isFavourite(desk.id)"
+                                (click)="toggleFav.emit(desk)"
+                            >
+                                <icon
+                                    [className]="
+                                        isFavourite(desk.id)
+                                            ? 'material-symbols-rounded'
+                                            : 'material-symbols-outlined'
+                                    "
+                                    >favorite</icon
+                                >
+                            </button>
+                        </li>
+                    }
+                </ul>
+            } @else {
+                <div
+                    empty
+                    class="flex flex-col items-center justify-center space-y-2 p-16"
+                >
+                    <p class="text-center opacity-30">
+                        {{ 'BOOKINGS.DESK_LIST_EMPTY' | translate }}
+                    </p>
+                </div>
+            }
+        } @else {
             <div
                 loading
                 class="flex flex-col items-center justify-center space-y-2 p-16"
@@ -115,17 +126,7 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
                     {{ 'BOOKINGS.DESK_LIST_LOADING' | translate }}
                 </p>
             </div>
-        </ng-template>
-        <ng-template #empty_state>
-            <div
-                empty
-                class="flex flex-col items-center justify-center space-y-2 p-16"
-            >
-                <p class="text-center opacity-30">
-                    {{ 'BOOKINGS.DESK_LIST_EMPTY' | translate }}
-                </p>
-            </div>
-        </ng-template>
+        }
     `,
     imports: [
         CommonModule,

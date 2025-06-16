@@ -19,54 +19,61 @@ import {
 @Component({
     selector: 'date-options',
     template: `
-        <button
-            icon
-            matRipple
-            class="relative rounded"
-            *ngIf="is_new"
-            customTooltip
-            [content]="calendar_picker"
-            yPosition="top"
-            [class.pointer-events-none]="disabled"
-            [class.opacity-30]="disabled"
-        >
-            <icon>today</icon>
-        </button>
+        @if (is_new) {
+            <button
+                icon
+                matRipple
+                class="relative rounded"
+                customTooltip
+                [content]="calendar_picker"
+                yPosition="top"
+                [class.pointer-events-none]="disabled"
+                [class.opacity-30]="disabled"
+            >
+                <icon>today</icon>
+            </button>
+        }
         <button icon matRipple (click)="previousDay()">
             <icon>keyboard_arrow_left</icon>
         </button>
-        <button icon matRipple (click)="nextDay()" *ngIf="!is_new">
-            <icon>keyboard_arrow_right</icon>
-        </button>
+        @if (!is_new) {
+            <button icon matRipple (click)="nextDay()">
+                <icon>keyboard_arrow_right</icon>
+            </button>
+        }
         <div
             class="display relative mx-4 flex h-12 w-28 items-center justify-center leading-none"
         >
-            <div
-                class="absolute left-1/2 top-0 -translate-x-1/2 text-xs text-info"
-                *ngIf="is_today"
-            >
-                {{ 'COMMON.TODAY' | translate }}
-            </div>
+            @if (is_today) {
+                <div
+                    class="absolute left-1/2 top-0 -translate-x-1/2 text-xs text-info"
+                >
+                    {{ 'COMMON.TODAY' | translate }}
+                </div>
+            }
             <div class="relative" [class.top-1]="is_today">
                 {{ date | date: 'mediumDate' }}
             </div>
         </div>
-        <button icon matRipple (click)="nextDay()" *ngIf="is_new">
-            <icon>keyboard_arrow_right</icon>
-        </button>
-        <button
-            icon
-            matRipple
-            class="relative rounded border border-base-200"
-            *ngIf="!is_new"
-            customTooltip
-            [content]="calendar_picker"
-            yPosition="top"
-            [class.pointer-events-none]="disabled"
-            [class.opacity-30]="disabled"
-        >
-            <icon>today</icon>
-        </button>
+        @if (is_new) {
+            <button icon matRipple (click)="nextDay()">
+                <icon>keyboard_arrow_right</icon>
+            </button>
+        }
+        @if (!is_new) {
+            <button
+                icon
+                matRipple
+                class="relative rounded border border-base-200"
+                customTooltip
+                [content]="calendar_picker"
+                yPosition="top"
+                [class.pointer-events-none]="disabled"
+                [class.opacity-30]="disabled"
+            >
+                <icon>today</icon>
+            </button>
+        }
         <ng-template #calendar_picker>
             <div class="relative w-[19rem] rounded bg-base-100 px-2 py-4">
                 <date-calendar

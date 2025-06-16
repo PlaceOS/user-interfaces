@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -13,15 +12,11 @@ import { User } from 'libs/users/src/lib/user.class';
             <div
                 class="flex min-h-12 items-center border-b border-base-200 p-2"
             >
-                <button
-                    close
-                    icon
-                    matRipple
-                    *ngIf="!hide_close"
-                    (click)="close.emit()"
-                >
-                    <icon>arrow_back</icon>
-                </button>
+                @if (!hide_close) {
+                    <button close icon matRipple (click)="close.emit()">
+                        <icon>arrow_back</icon>
+                    </button>
+                }
                 <div class="flex-1 text-center font-medium">
                     {{ list.length }}
                     {{
@@ -31,48 +26,47 @@ import { User } from 'libs/users/src/lib/user.class';
                               | translate: { count: list.length } : list.length)
                     }}
                 </div>
-                <div class="w-12" *ngIf="!hide_close"></div>
+                @if (!hide_close) {
+                    <div class="w-12"></div>
+                }
             </div>
             <div class="w-full flex-1 overflow-auto">
-                <ng-container *ngFor="let user of list">
-                    <div
-                        attendee
-                        class="flex items-center space-x-2 p-2 hover:bg-base-200"
-                        *ngIf="
-                            !user.resource && (host !== user.email || show_host)
-                        "
-                    >
-                        <a-user-avatar [user]="user"></a-user-avatar>
-                        <div class="w-1/2 flex-1">
-                            <div class="truncate">{{ user.name }}</div>
-                            <div
-                                class="text-sm opacity-60"
-                                *ngIf="host === user.email"
-                            >
-                                {{ 'FORM.HOST' | translate }}
+                @for (user of list; track user) {
+                    @if (!user.resource && (host !== user.email || show_host)) {
+                        <div
+                            attendee
+                            class="flex items-center space-x-2 p-2 hover:bg-base-200"
+                        >
+                            <a-user-avatar [user]="user"></a-user-avatar>
+                            <div class="w-1/2 flex-1">
+                                <div class="truncate">{{ user.name }}</div>
+                                @if (host === user.email) {
+                                    <div class="text-sm opacity-60">
+                                        {{ 'FORM.HOST' | translate }}
+                                    </div>
+                                }
+                            </div>
+                            <div class="p-2">
+                                <div
+                                    class="h-3 w-3 rounded-full"
+                                    [class.bg-success]="user.checked_in"
+                                    [class.bg-pending]="!user.checked_in"
+                                    [matTooltip]="
+                                        (user.checked_in
+                                            ? 'COMMON.CHECKED_IN'
+                                            : 'COMMON.CHECKED_IN_NOT'
+                                        ) | translate
+                                    "
+                                ></div>
                             </div>
                         </div>
-                        <div class="p-2">
-                            <div
-                                class="h-3 w-3 rounded-full"
-                                [class.bg-success]="user.checked_in"
-                                [class.bg-pending]="!user.checked_in"
-                                [matTooltip]="
-                                    (user.checked_in
-                                        ? 'COMMON.CHECKED_IN'
-                                        : 'COMMON.CHECKED_IN_NOT'
-                                    ) | translate
-                                "
-                            ></div>
-                        </div>
-                    </div>
-                </ng-container>
+                    }
+                }
             </div>
         </div>
     `,
     styles: [``],
     imports: [
-        CommonModule,
         TranslatePipe,
         MatRippleModule,
         IconComponent,

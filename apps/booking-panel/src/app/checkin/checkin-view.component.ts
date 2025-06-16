@@ -13,11 +13,12 @@ import { PanelStateService } from '../panel-state.service';
     selector: 'checkin-view',
     template: `
         <div class="relative h-32 bg-black p-4 text-white">
-            <div
-                class="absolute inset-0 bg-cover bg-center"
-                *ngIf="room_image"
-                [style.background-image]="'url(' + room_image + ')'"
-            ></div>
+            @if (room_image) {
+                <div
+                    class="absolute inset-0 bg-cover bg-center"
+                    [style.background-image]="'url(' + room_image + ')'"
+                ></div>
+            }
             <div class="absolute inset-0 bg-black opacity-50"></div>
             <div
                 name
@@ -46,23 +47,9 @@ import { PanelStateService } from '../panel-state.service';
                         {{ 'APP.BOOKING_PANEL.NOW' | translate }}
                     </div>
                     <div class="">
-                        <ng-container
-                            *ngIf="
-                                (event_state | async)?.current?.length;
-                                else no_current_state
-                            "
-                        >
-                            <ng-container
-                                *ngIf="
-                                    (event_state | async)?.current[0];
-                                    else free_for_state
-                                "
-                            >
-                                <ng-container
-                                    *ngIf="
-                                        (event_state | async)?.current[1] > 0
-                                    "
-                                >
+                        @if ((event_state | async)?.current?.length) {
+                            @if ((event_state | async)?.current[0]) {
+                                @if ((event_state | async)?.current[1] > 0) {
                                     {{
                                         'APP.BOOKING_PANEL.FREE_IN_HOURS_AND_MINUTES'
                                             | translate
@@ -75,12 +62,8 @@ import { PanelStateService } from '../panel-state.service';
                                                       )?.current[2],
                                                   }
                                     }}
-                                </ng-container>
-                                <ng-container
-                                    *ngIf="
-                                        (event_state | async)?.current[1] <= 0
-                                    "
-                                >
+                                }
+                                @if ((event_state | async)?.current[1] <= 0) {
                                     {{
                                         'APP.BOOKING_PANEL.FREE_IN_MINUTES'
                                             | translate
@@ -90,24 +73,18 @@ import { PanelStateService } from '../panel-state.service';
                                                       )?.current[2],
                                                   }
                                     }}
-                                </ng-container>
-                                <ng-container
-                                    *ngIf="
-                                        (event_state | async)?.current[1] <=
-                                            0 &&
-                                        (event_state | async)?.current[2] <= 1
-                                    "
-                                >
+                                }
+                                @if (
+                                    (event_state | async)?.current[1] <= 0 &&
+                                    (event_state | async)?.current[2] <= 1
+                                ) {
                                     {{
                                         'APP.BOOKING_PANEL.FREE_IN_LESS_THAN_MINUTE'
                                             | translate
                                     }}
-                                </ng-container>
-                            </ng-container>
-                            <ng-template #free_for_state>
-                                <ng-container
-                                    *ngIf="(event_state | async)?.current[1]"
-                                >
+                                }
+                            } @else {
+                                @if ((event_state | async)?.current[1]) {
                                     {{
                                         'APP.BOOKING_PANEL.FREE_FOR_HOURS_AND_MINUTES'
                                             | translate
@@ -120,10 +97,8 @@ import { PanelStateService } from '../panel-state.service';
                                                       )?.current[2],
                                                   }
                                     }}
-                                </ng-container>
-                                <ng-container
-                                    *ngIf="!(event_state | async)?.current[1]"
-                                >
+                                }
+                                @if (!(event_state | async)?.current[1]) {
                                     {{
                                         'APP.BOOKING_PANEL.FREE_FOR_MINUTES'
                                             | translate
@@ -133,43 +108,37 @@ import { PanelStateService } from '../panel-state.service';
                                                       )?.current[2],
                                                   }
                                     }}
-                                </ng-container>
-                                <ng-container
-                                    *ngIf="
-                                        !(event_state | async)?.current[1] &&
-                                        (event_state | async)?.current[2] < 1
-                                    "
-                                >
+                                }
+                                @if (
+                                    !(event_state | async)?.current[1] &&
+                                    (event_state | async)?.current[2] < 1
+                                ) {
                                     {{
                                         'APP.BOOKING_PANEL.FREE_FOR_LESS_THAN_MINUTE'
                                             | translate
                                     }}
-                                </ng-container>
-                            </ng-template>
-                        </ng-container>
-                        <ng-template #no_current_state>
+                                }
+                            }
+                        } @else {
                             {{ 'APP.BOOKING_PANEL.NO_CURRENT' | translate }}
-                        </ng-template>
+                        }
                     </div>
                 </div>
-                <button
-                    btn
-                    matRipple
-                    class="w-24"
-                    *ngIf="(state | async) === 'pending'"
-                    (click)="checkInCurrent()"
-                >
-                    {{ 'APP.BOOKING_PANEL.CHECKIN' | translate }}
-                </button>
-                <button
-                    btn
-                    matRipple
-                    class="w-24"
-                    *ngIf="(state | async) === 'free'"
-                    (click)="newBooking()"
-                >
-                    {{ 'APP.BOOKING_PANEL.BOOK' | translate }}
-                </button>
+                @if ((state | async) === 'pending') {
+                    <button
+                        btn
+                        matRipple
+                        class="w-24"
+                        (click)="checkInCurrent()"
+                    >
+                        {{ 'APP.BOOKING_PANEL.CHECKIN' | translate }}
+                    </button>
+                }
+                @if ((state | async) === 'free') {
+                    <button btn matRipple class="w-24" (click)="newBooking()">
+                        {{ 'APP.BOOKING_PANEL.BOOK' | translate }}
+                    </button>
+                }
             </div>
             <div class="flex items-center p-2">
                 <div
@@ -185,15 +154,16 @@ import { PanelStateService } from '../panel-state.service';
                         {{ (event_state | async)?.next || 'No upcoming event' }}
                     </div>
                 </div>
-                <button
-                    btn
-                    matRipple
-                    class="w-24"
-                    *ngIf="!(event_state | async)?.next"
-                    (click)="newBooking(start, true)"
-                >
-                    {{ 'APP.BOOKING_PANEL.BOOK' | translate }}
-                </button>
+                @if (!(event_state | async)?.next) {
+                    <button
+                        btn
+                        matRipple
+                        class="w-24"
+                        (click)="newBooking(start, true)"
+                    >
+                        {{ 'APP.BOOKING_PANEL.BOOK' | translate }}
+                    </button>
+                }
             </div>
         </div>
         <h3 class="p-4 text-xl font-medium">
@@ -205,50 +175,61 @@ import { PanelStateService } from '../panel-state.service';
                 (event)="newBooking($event)"
             ></checkin-timetable>
         </div>
-        <h3 class="p-4 text-xl font-medium" *ngIf="false">
-            {{ 'APP.BOOKING_PANEL.FEATURES' | translate }}
-        </h3>
-        <div
-            class="h-px flex-1 divide-y divide-base-200 overflow-auto bg-base-100"
-            *ngIf="false"
-        >
-            <button btn matRipple class="flex w-full items-center p-4">
-                <div class="rounded-full bg-neutral p-2 text-2xl text-black/40">
-                    <icon>lightbulb</icon>
-                </div>
-                <div class="flex-1 px-4 text-left font-medium">
-                    {{ 'APP.BOOKING_PANEL.LIGHTS_BLINDS' | translate }}
-                </div>
-                <icon class="text-2xl opacity-40">chevron_right</icon>
-            </button>
-            <button btn matRipple class="flex w-full items-center p-4">
-                <div class="rounded-full bg-neutral p-2 text-2xl text-black/40">
-                    <icon>add_to_queue</icon>
-                </div>
-                <div class="flex-1 px-4 text-left font-medium">
-                    {{ 'APP.BOOKING_PANEL.TV' | translate }}
-                </div>
-                <icon class="text-2xl opacity-40">chevron_right</icon>
-            </button>
-            <button btn matRipple class="flex w-full items-center p-4">
-                <div class="rounded-full bg-neutral p-2 text-2xl text-black/40">
-                    <icon>restaurant</icon>
-                </div>
-                <div class="flex-1 px-4 text-left font-medium">
-                    {{ 'APP.BOOKING_PANEL.CATERING' | translate }}
-                </div>
-                <icon class="text-2xl opacity-40">chevron_right</icon>
-            </button>
-            <button btn matRipple class="flex w-full items-center p-4">
-                <div class="rounded-full bg-neutral p-2 text-2xl text-black/40">
-                    <icon>help</icon>
-                </div>
-                <div class="flex-1 px-4 text-left font-medium">
-                    {{ 'APP.BOOKING_PANEL.HELP' | translate }}
-                </div>
-                <icon class="text-2xl opacity-40">chevron_right</icon>
-            </button>
-        </div>
+        @if (false) {
+            <h3 class="p-4 text-xl font-medium">
+                {{ 'APP.BOOKING_PANEL.FEATURES' | translate }}
+            </h3>
+        }
+        @if (false) {
+            <div
+                class="h-px flex-1 divide-y divide-base-200 overflow-auto bg-base-100"
+            >
+                <button btn matRipple class="flex w-full items-center p-4">
+                    <div
+                        class="rounded-full bg-neutral p-2 text-2xl text-black/40"
+                    >
+                        <icon>lightbulb</icon>
+                    </div>
+                    <div class="flex-1 px-4 text-left font-medium">
+                        {{ 'APP.BOOKING_PANEL.LIGHTS_BLINDS' | translate }}
+                    </div>
+                    <icon class="text-2xl opacity-40">chevron_right</icon>
+                </button>
+                <button btn matRipple class="flex w-full items-center p-4">
+                    <div
+                        class="rounded-full bg-neutral p-2 text-2xl text-black/40"
+                    >
+                        <icon>add_to_queue</icon>
+                    </div>
+                    <div class="flex-1 px-4 text-left font-medium">
+                        {{ 'APP.BOOKING_PANEL.TV' | translate }}
+                    </div>
+                    <icon class="text-2xl opacity-40">chevron_right</icon>
+                </button>
+                <button btn matRipple class="flex w-full items-center p-4">
+                    <div
+                        class="rounded-full bg-neutral p-2 text-2xl text-black/40"
+                    >
+                        <icon>restaurant</icon>
+                    </div>
+                    <div class="flex-1 px-4 text-left font-medium">
+                        {{ 'APP.BOOKING_PANEL.CATERING' | translate }}
+                    </div>
+                    <icon class="text-2xl opacity-40">chevron_right</icon>
+                </button>
+                <button btn matRipple class="flex w-full items-center p-4">
+                    <div
+                        class="rounded-full bg-neutral p-2 text-2xl text-black/40"
+                    >
+                        <icon>help</icon>
+                    </div>
+                    <div class="flex-1 px-4 text-left font-medium">
+                        {{ 'APP.BOOKING_PANEL.HELP' | translate }}
+                    </div>
+                    <icon class="text-2xl opacity-40">chevron_right</icon>
+                </button>
+            </div>
+        }
     `,
     styles: [
         `

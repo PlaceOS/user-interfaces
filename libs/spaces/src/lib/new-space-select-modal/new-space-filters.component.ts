@@ -46,98 +46,94 @@ import { SpacesService } from '../spaces.service';
                     {{ 'CALENDAR_EVENT.DETAILS' | translate }}
                 </h2>
                 <div class="flex min-w-[8rem] flex-1 flex-col">
-                    <label
-                        for="location"
-                        *ngIf="
-                            !hide_levels &&
-                            !(use_region && (regions | async)?.length) &&
-                            !(!use_region && (buildings | async)?.length > 1)
-                        "
-                    >
-                        {{ 'CALENDAR_EVENT.SPACE_LOCATION' | translate }}
-                    </label>
-                    <mat-form-field
-                        appearance="outline"
-                        class="w-full"
-                        *ngIf="use_region && (regions | async)?.length"
-                    >
-                        <mat-select
-                            name="region"
-                            [ngModel]="region"
-                            (ngModelChange)="setRegion($event)"
-                            [ngModelOptions]="{ standalone: true }"
-                            [placeholder]="
-                                'CALENDAR_EVENT.SPACE_REGION_ANY' | translate
-                            "
-                        >
-                            <mat-option
-                                *ngFor="let reg of regions | async"
-                                [value]="reg"
+                    @if (
+                        !hide_levels &&
+                        !(use_region && (regions | async)?.length) &&
+                        !(!use_region && (buildings | async)?.length > 1)
+                    ) {
+                        <label for="location">
+                            {{ 'CALENDAR_EVENT.SPACE_LOCATION' | translate }}
+                        </label>
+                    }
+                    @if (use_region && (regions | async)?.length) {
+                        <mat-form-field appearance="outline" class="w-full">
+                            <mat-select
+                                name="region"
+                                [ngModel]="region"
+                                (ngModelChange)="setRegion($event)"
+                                [ngModelOptions]="{ standalone: true }"
+                                [placeholder]="
+                                    'CALENDAR_EVENT.SPACE_REGION_ANY'
+                                        | translate
+                                "
                             >
-                                {{ reg.display_name || reg.name }}
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                    <mat-form-field
-                        appearance="outline"
-                        class="w-full"
-                        *ngIf="!use_region && (buildings | async)?.length > 1"
-                    >
-                        <mat-select
-                            name="building"
-                            [ngModel]="building | async"
-                            (ngModelChange)="setBuilding($event)"
-                            [ngModelOptions]="{ standalone: true }"
-                            [placeholder]="
-                                (building | async)?.display_name ||
-                                (building | async)?.name
-                            "
-                        >
-                            <mat-option
-                                *ngFor="let bld of buildings | async"
-                                [value]="bld"
+                                @for (reg of regions | async; track reg) {
+                                    <mat-option [value]="reg">
+                                        {{ reg.display_name || reg.name }}
+                                    </mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
+                    }
+                    @if (!use_region && (buildings | async)?.length > 1) {
+                        <mat-form-field appearance="outline" class="w-full">
+                            <mat-select
+                                name="building"
+                                [ngModel]="building | async"
+                                (ngModelChange)="setBuilding($event)"
+                                [ngModelOptions]="{ standalone: true }"
+                                [placeholder]="
+                                    (building | async)?.display_name ||
+                                    (building | async)?.name
+                                "
                             >
-                                {{ bld.display_name || bld.name }}
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                    <mat-form-field
-                        appearance="outline"
-                        class="w-full"
-                        *ngIf="!hide_levels"
-                    >
-                        <mat-select
-                            name="location"
-                            [ngModel]="(options | async)?.zones"
-                            (ngModelChange)="setOptions({ zones: $event })"
-                            [ngModelOptions]="{ standalone: true }"
-                            [placeholder]="
-                                'CALENDAR_EVENT.SPACE_LEVEL_ANY' | translate
-                            "
-                            [multiple]="true"
-                        >
-                            <mat-option
-                                *ngFor="let lvl of levels | async"
-                                [value]="lvl.id"
+                                @for (bld of buildings | async; track bld) {
+                                    <mat-option [value]="bld">
+                                        {{ bld.display_name || bld.name }}
+                                    </mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
+                    }
+                    @if (!hide_levels) {
+                        <mat-form-field appearance="outline" class="w-full">
+                            <mat-select
+                                name="location"
+                                [ngModel]="(options | async)?.zones"
+                                (ngModelChange)="setOptions({ zones: $event })"
+                                [ngModelOptions]="{ standalone: true }"
+                                [placeholder]="
+                                    'CALENDAR_EVENT.SPACE_LEVEL_ANY' | translate
+                                "
+                                [multiple]="true"
                             >
-                                <div class="flex flex-col-reverse">
-                                    <div
-                                        class="text-xs opacity-30"
-                                        *ngIf="use_region"
-                                    >
-                                        {{
-                                            (lvl?.parent_id | building)
-                                                ?.display_name
-                                        }}
-                                        <span class="opacity-0"> - </span>
-                                    </div>
-                                    <div>
-                                        {{ lvl.display_name || lvl.name }}
-                                    </div>
-                                </div>
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
+                                @for (lvl of levels | async; track lvl) {
+                                    <mat-option [value]="lvl.id">
+                                        <div class="flex flex-col-reverse">
+                                            @if (use_region) {
+                                                <div class="text-xs opacity-30">
+                                                    {{
+                                                        (
+                                                            lvl?.parent_id
+                                                            | building
+                                                        )?.display_name
+                                                    }}
+                                                    <span class="opacity-0">
+                                                        -
+                                                    </span>
+                                                </div>
+                                            }
+                                            <div>
+                                                {{
+                                                    lvl.display_name || lvl.name
+                                                }}
+                                            </div>
+                                        </div>
+                                    </mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
+                    }
                 </div>
                 <div class="flex flex-wrap items-center sm:space-x-2">
                     <div class="min-w-[8rem] flex-1">
@@ -157,142 +153,152 @@ import { SpacesService } from '../spaces.service';
                             {{ 'FORM.DATE_ERROR' | translate }}
                         </a-date-field>
                     </div>
-                    <div class="relative min-w-[8rem] flex-1" *ngIf="multiday">
-                        <label for="date">
-                            {{ 'FORM.DATE_END' | translate }}<span>*</span>
-                        </label>
-                        <a-date-field
-                            name="date"
-                            [ngModel]="form.getRawValue().date_end"
-                            (ngModelChange)="
-                                form.patchValue({ date_end: $event })
-                            "
-                            [ngModelOptions]="{ standalone: true }"
-                            [from]="start_date"
-                            [to]="end_date"
-                            [short]="true"
-                            [timezone]="timezone"
-                            [range]="2"
-                        >
-                            {{ 'FORM.DATE_ERROR' | translate }}
-                        </a-date-field>
-                    </div>
+                    @if (multiday) {
+                        <div class="relative min-w-[8rem] flex-1">
+                            <label for="date">
+                                {{ 'FORM.DATE_END' | translate }}<span>*</span>
+                            </label>
+                            <a-date-field
+                                name="date"
+                                [ngModel]="form.getRawValue().date_end"
+                                (ngModelChange)="
+                                    form.patchValue({ date_end: $event })
+                                "
+                                [ngModelOptions]="{ standalone: true }"
+                                [from]="start_date"
+                                [to]="end_date"
+                                [short]="true"
+                                [timezone]="timezone"
+                                [range]="2"
+                            >
+                                {{ 'FORM.DATE_ERROR' | translate }}
+                            </a-date-field>
+                        </div>
+                    }
                 </div>
                 <!-- All Day -->
-                <div *ngIf="allow_all_day" class="-mt-2 mb-2 flex justify-end">
-                    <mat-checkbox formControlName="all_day">
-                        {{ 'COMMON.ALL_DAY' | translate }}
-                    </mat-checkbox>
-                </div>
-                <div
-                    class="flex items-center space-x-2"
-                    *ngIf="!form.value.all_day"
-                >
-                    <div class="w-1/3 flex-1">
-                        <label for="start-time">
-                            {{ 'FORM.TIME_START' | translate }}<span>*</span>
-                        </label>
-                        <a-time-field
-                            name="start-time"
-                            [ngModel]="form.getRawValue().date"
-                            (ngModelChange)="form.patchValue({ date: $event })"
-                            [ngModelOptions]="{ standalone: true }"
-                            [use_24hr]="use_24hr"
-                            [timezone]="timezone"
-                        ></a-time-field>
+                @if (allow_all_day) {
+                    <div class="-mt-2 mb-2 flex justify-end">
+                        <mat-checkbox formControlName="all_day">
+                            {{ 'COMMON.ALL_DAY' | translate }}
+                        </mat-checkbox>
                     </div>
-                    <div class="w-1/3 flex-1" *ngIf="multiday">
-                        <label for="end-time">
-                            {{ 'FORM.TIME_END' | translate }}<span>*</span>
-                        </label>
-                        <a-time-field
-                            name="end-time"
-                            [ngModel]="form.value.date_end"
-                            (ngModelChange)="
-                                form.patchValue({ date_end: $event })
-                            "
-                            [ngModelOptions]="{ standalone: true }"
-                            [from]="form?.getRawValue()?.date"
-                            [use_24hr]="use_24hr"
-                            [timezone]="timezone"
-                        ></a-time-field>
+                }
+                @if (!form.value.all_day) {
+                    <div class="flex items-center space-x-2">
+                        <div class="w-1/3 flex-1">
+                            <label for="start-time">
+                                {{ 'FORM.TIME_START' | translate
+                                }}<span>*</span>
+                            </label>
+                            <a-time-field
+                                name="start-time"
+                                [ngModel]="form.getRawValue().date"
+                                (ngModelChange)="
+                                    form.patchValue({ date: $event })
+                                "
+                                [ngModelOptions]="{ standalone: true }"
+                                [use_24hr]="use_24hr"
+                                [timezone]="timezone"
+                            ></a-time-field>
+                        </div>
+                        @if (multiday) {
+                            <div class="w-1/3 flex-1">
+                                <label for="end-time">
+                                    {{ 'FORM.TIME_END' | translate
+                                    }}<span>*</span>
+                                </label>
+                                <a-time-field
+                                    name="end-time"
+                                    [ngModel]="form.value.date_end"
+                                    (ngModelChange)="
+                                        form.patchValue({ date_end: $event })
+                                    "
+                                    [ngModelOptions]="{ standalone: true }"
+                                    [from]="form?.getRawValue()?.date"
+                                    [use_24hr]="use_24hr"
+                                    [timezone]="timezone"
+                                ></a-time-field>
+                            </div>
+                        }
+                        @if (!multiday) {
+                            <div class="w-1/3 flex-1">
+                                <label for="end-time">
+                                    {{ 'FORM.TIME_END' | translate
+                                    }}<span>*</span>
+                                </label>
+                                <a-duration-field
+                                    name="end-time"
+                                    formControlName="duration"
+                                    [time]="form?.getRawValue()?.date"
+                                    [max]="max_duration"
+                                    [use_24hr]="use_24hr"
+                                    [timezone]="timezone"
+                                ></a-duration-field>
+                            </div>
+                        }
                     </div>
-                    <div class="w-1/3 flex-1" *ngIf="!multiday">
-                        <label for="end-time">
-                            {{ 'FORM.TIME_END' | translate }}<span>*</span>
-                        </label>
-                        <a-duration-field
-                            name="end-time"
-                            formControlName="duration"
-                            [time]="form?.getRawValue()?.date"
-                            [max]="max_duration"
-                            [use_24hr]="use_24hr"
-                            [timezone]="timezone"
-                        ></a-duration-field>
-                    </div>
-                </div>
+                }
             </section>
             @let has_mapspeople = using_mapspeople | async;
-            <section
-                favs
-                class="space-y-2 pb-4"
-                *ngIf="!hide_levels && (!viewing_map || !has_mapspeople)"
-            >
-                <h2 class="mt-2 text-lg font-medium">
-                    {{ 'COMMON.FAVOURITES' | translate }}
-                </h2>
-                <div class="flex w-full items-center">
-                    <settings-toggle
-                        class="w-full"
-                        [name]="'COMMON.FAVOURITES_ONLY' | translate"
-                        [ngModel]="(options | async)?.show_fav"
-                        (ngModelChange)="setOptions({ show_fav: $event })"
-                        [ngModelOptions]="{ standalone: true }"
-                    ></settings-toggle>
-                </div>
-            </section>
-            <section
-                features
-                class="space-y-2"
-                *ngIf="
-                    (features | async)?.length &&
-                    (!viewing_map || !has_mapspeople) &&
-                    !hide_levels
-                "
-            >
-                <h2 class="mt-2 text-lg font-medium">Facilities</h2>
-                <ng-container *ngFor="let feat of features | async">
-                    <div
-                        class="flex items-center"
-                        *ngIf="!hide_features.includes(feat)"
-                    >
+            @if (!hide_levels && (!viewing_map || !has_mapspeople)) {
+                <section favs class="space-y-2 pb-4">
+                    <h2 class="mt-2 text-lg font-medium">
+                        {{ 'COMMON.FAVOURITES' | translate }}
+                    </h2>
+                    <div class="flex w-full items-center">
                         <settings-toggle
                             class="w-full"
-                            [name]="feature_display[feat] || feat"
-                            [ngModel]="
-                                (options | async)?.features?.includes(feat)
-                            "
-                            (ngModelChange)="toggleFeature(feat, $event)"
+                            [name]="'COMMON.FAVOURITES_ONLY' | translate"
+                            [ngModel]="(options | async)?.show_fav"
+                            (ngModelChange)="setOptions({ show_fav: $event })"
                             [ngModelOptions]="{ standalone: true }"
                         ></settings-toggle>
                     </div>
-                </ng-container>
-            </section>
+                </section>
+            }
+            @if (
+                (features | async)?.length &&
+                (!viewing_map || !has_mapspeople) &&
+                !hide_levels
+            ) {
+                <section features class="space-y-2">
+                    <h2 class="mt-2 text-lg font-medium">Facilities</h2>
+                    @for (feat of features | async; track feat) {
+                        @if (!hide_features.includes(feat)) {
+                            <div class="flex items-center">
+                                <settings-toggle
+                                    class="w-full"
+                                    [name]="feature_display[feat] || feat"
+                                    [ngModel]="
+                                        (options | async)?.features?.includes(
+                                            feat
+                                        )
+                                    "
+                                    (ngModelChange)="
+                                        toggleFeature(feat, $event)
+                                    "
+                                    [ngModelOptions]="{ standalone: true }"
+                                ></settings-toggle>
+                            </div>
+                        }
+                    }
+                </section>
+            }
         </form>
-        <div
-            class="w-full border-t border-base-200 px-2 pt-2"
-            *ngIf="can_close"
-        >
-            <button
-                btn
-                matRipple
-                class="w-full"
-                name="apply-space-filters"
-                (click)="close()"
-            >
-                {{ 'COMON.APPLY' | translate }}
-            </button>
-        </div>
+        @if (can_close) {
+            <div class="w-full border-t border-base-200 px-2 pt-2">
+                <button
+                    btn
+                    matRipple
+                    class="w-full"
+                    name="apply-space-filters"
+                    (click)="close()"
+                >
+                    {{ 'COMON.APPLY' | translate }}
+                </button>
+            </div>
+        }
     `,
     styles: [
         `

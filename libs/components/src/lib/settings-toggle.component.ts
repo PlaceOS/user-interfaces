@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, forwardRef, Input } from '@angular/core';
 import {
     ControlValueAccessor,
@@ -23,12 +22,13 @@ import { IconComponent } from './icon.component';
                     {{ name }}
                     <ng-content></ng-content>
                 </div>
-                <icon *ngIf="info" [matTooltip]="info">info</icon>
+                @if (info) {
+                    <icon [matTooltip]="info">info</icon>
+                }
             </div>
-            <div
-                class="absolute inset-0 z-0 !m-0 bg-info opacity-10"
-                *ngIf="value"
-            ></div>
+            @if (value) {
+                <div class="absolute inset-0 z-0 !m-0 bg-info opacity-10"></div>
+            }
             @if (toggle) {
                 <div class="p-2">
                     <div
@@ -78,7 +78,7 @@ import { IconComponent } from './icon.component';
             multi: true,
         },
     ],
-    imports: [CommonModule, MatCheckboxModule, FormsModule, IconComponent],
+    imports: [MatCheckboxModule, FormsModule, IconComponent],
 })
 export class SettingsToggleComponent implements ControlValueAccessor {
     @Input() public toggle: boolean;

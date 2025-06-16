@@ -11,53 +11,71 @@ import { ParkingStateService } from './parking-state.service';
             <app-sidebar></app-sidebar>
             <main class="relative flex h-full w-1/2 flex-1 flex-col">
                 <parking-topbar></parking-topbar>
-                <div class="px-8 pb-2" *ngIf="path !== 'events'">
-                    <nav mat-tab-nav-bar [tabPanel]="tabPanel">
-                        <a
-                            mat-tab-link
-                            [routerLink]="['/book', 'parking', 'manage']"
-                            [active]="path === 'manage'"
-                        >
-                            {{ 'APP.CONCIERGE.PARKING_TAB_SPACES' | translate }}
-                        </a>
-                        <a
-                            mat-tab-link
-                            [routerLink]="[
-                                '/book',
-                                'parking',
-                                'manage',
-                                'users',
-                            ]"
-                            [active]="path === 'users'"
-                        >
-                            {{ 'APP.CONCIERGE.PARKING_TAB_USERS' | translate }}
-                        </a>
-                        <a
-                            mat-tab-link
-                            [routerLink]="['/book', 'parking', 'manage', 'map']"
-                            [active]="path === 'map'"
-                        >
-                            {{ 'APP.CONCIERGE.PARKING_TAB_MAP' | translate }}
-                        </a>
-                    </nav>
-                    <mat-tab-nav-panel #tabPanel></mat-tab-nav-panel>
-                </div>
+                @if (path !== 'events') {
+                    <div class="px-8 pb-2">
+                        <nav mat-tab-nav-bar [tabPanel]="tabPanel">
+                            <a
+                                mat-tab-link
+                                [routerLink]="['/book', 'parking', 'manage']"
+                                [active]="path === 'manage'"
+                            >
+                                {{
+                                    'APP.CONCIERGE.PARKING_TAB_SPACES'
+                                        | translate
+                                }}
+                            </a>
+                            <a
+                                mat-tab-link
+                                [routerLink]="[
+                                    '/book',
+                                    'parking',
+                                    'manage',
+                                    'users',
+                                ]"
+                                [active]="path === 'users'"
+                            >
+                                {{
+                                    'APP.CONCIERGE.PARKING_TAB_USERS'
+                                        | translate
+                                }}
+                            </a>
+                            <a
+                                mat-tab-link
+                                [routerLink]="[
+                                    '/book',
+                                    'parking',
+                                    'manage',
+                                    'map',
+                                ]"
+                                [active]="path === 'map'"
+                            >
+                                {{
+                                    'APP.CONCIERGE.PARKING_TAB_MAP' | translate
+                                }}
+                            </a>
+                        </nav>
+                        <mat-tab-nav-panel #tabPanel></mat-tab-nav-panel>
+                    </div>
+                }
                 <div class="relative h-1/2 w-full flex-1 overflow-auto px-8">
                     <div class="h-full w-full overflow-auto">
                         <router-outlet></router-outlet>
                     </div>
                 </div>
-                <div
-                    *ngIf="!(levels | async)?.length"
-                    class="absolute inset-0 z-50 flex flex-col items-center justify-center"
-                >
+                @if (!(levels | async)?.length) {
                     <div
-                        class="absolute inset-0 z-0 bg-base-100 opacity-80"
-                    ></div>
-                    <p class="z-10 opacity-60">
-                        {{ 'APP.CONCIERGE.PARKING_UNAVAILABLE' | translate }}
-                    </p>
-                </div>
+                        class="absolute inset-0 z-50 flex flex-col items-center justify-center"
+                    >
+                        <div
+                            class="absolute inset-0 z-0 bg-base-100 opacity-80"
+                        ></div>
+                        <p class="z-10 opacity-60">
+                            {{
+                                'APP.CONCIERGE.PARKING_UNAVAILABLE' | translate
+                            }}
+                        </p>
+                    </div>
+                }
             </main>
         </div>
     `,

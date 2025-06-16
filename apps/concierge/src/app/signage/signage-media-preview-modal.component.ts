@@ -17,42 +17,46 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
                 <icon>close</icon>
             </button>
         </header>
-        <main class="bg-base-200" *ngIf="!loading; else load_state">
-            <div
-                class="flex h-[65vh] max-h-[65vh] w-[80vw] max-w-[80vw] items-center justify-center"
-            >
-                <img
-                    *ngIf="type === 'image'"
-                    class="h-full w-full object-contain object-center"
-                    auth
-                    [source]="resource.toString()"
-                />
-                <video
-                    *ngIf="type === 'video'"
-                    class="h-full w-full object-contain object-center"
-                    auth
-                    [source]="resource.toString()"
-                    autoplay
-                    controls
-                ></video>
-            </div>
-        </main>
-        <footer
-            *ngIf="can_save && !loading"
-            class="flex items-center justify-end space-x-2 border-t border-base-300 p-2"
-        >
-            <button btn matRipple class="w-32" (click)="save.emit()">
-                {{ 'APP.CONCIERGE.SIGNAGE_MEDIA_SAVE' | translate }}
-            </button>
-        </footer>
-        <ng-template #load_state>
+        @if (!loading) {
+            <main class="bg-base-200">
+                <div
+                    class="flex h-[65vh] max-h-[65vh] w-[80vw] max-w-[80vw] items-center justify-center"
+                >
+                    @if (type === 'image') {
+                        <img
+                            class="h-full w-full object-contain object-center"
+                            auth
+                            [source]="resource.toString()"
+                        />
+                    }
+                    @if (type === 'video') {
+                        <video
+                            class="h-full w-full object-contain object-center"
+                            auth
+                            [source]="resource.toString()"
+                            autoplay
+                            controls
+                        ></video>
+                    }
+                </div>
+            </main>
+        } @else {
             <main
                 class="flex h-[20rem] max-h-[65vh] w-[28rem] max-w-[80vw] flex-col items-center justify-center p-8"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <p>{{ loading }}</p>
             </main>
-        </ng-template>
+        }
+        @if (can_save && !loading) {
+            <footer
+                class="flex items-center justify-end space-x-2 border-t border-base-300 p-2"
+            >
+                <button btn matRipple class="w-32" (click)="save.emit()">
+                    {{ 'APP.CONCIERGE.SIGNAGE_MEDIA_SAVE' | translate }}
+                </button>
+            </footer>
+        }
     `,
     styles: [``],
     standalone: false,

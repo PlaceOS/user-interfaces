@@ -78,70 +78,72 @@ import { ParkingStateService } from './parking-state.service';
         <ng-template #person_template let-row="row">
             <div class="px-4 py-2">
                 <div>{{ row.user_name || row.user_email }}</div>
-                <div
-                    *ngIf="row.user_name && row.user_email"
-                    class="text-xs opacity-30"
-                >
-                    {{ row.user_email }}
-                </div>
+                @if (row.user_name && row.user_email) {
+                    <div class="text-xs opacity-30">
+                        {{ row.user_email }}
+                    </div>
+                }
             </div>
         </ng-template>
         <ng-template #host_template let-row="row">
             <div class="px-4 py-2">
                 <div>{{ row.booked_by_name || row.booked_by_email }}</div>
-                <div
-                    *ngIf="row.booked_by_name && row.booked_by_email"
-                    class="text-xs opacity-30"
-                >
-                    {{ row.booked_by_email }}
-                </div>
+                @if (row.booked_by_name && row.booked_by_email) {
+                    <div class="text-xs opacity-30">
+                        {{ row.booked_by_email }}
+                    </div>
+                }
             </div>
         </ng-template>
         <ng-template #state_template let-row="row">
-            <div
-                *ngIf="!row?.checked_in && row.checked_out_at"
-                class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-base-300 text-2xl text-base-100"
-                [matTooltip]="
-                    'APP.CONCIERGE.PARKING_CHECKED_OUT_AT'
-                        | translate
-                            : {
-                                  time:
-                                      (row.checked_out_at * 1000
-                                      | date: time_format),
-                              }
-                "
-                matTooltipPosition="right"
-            >
-                <icon>done</icon>
-            </div>
-            <div
-                *ngIf="!row?.checked_in && !row.checked_out_at"
-                class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-warning text-2xl text-warning-content"
-                [matTooltip]="
-                    'APP.CONCIERGE.PARKING_NOT_CHECKED_IN' | translate
-                "
-                matTooltipPosition="right"
-            >
-                <icon>question_mark</icon>
-            </div>
-            <div
-                *ngIf="row?.checked_in"
-                class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-success text-2xl text-success-content"
-                [matTooltip]="'APP.CONCIERGE.PARKING_CHECKED_IN' | translate"
-                matTooltipPosition="right"
-            >
-                <icon>done</icon>
-            </div>
+            @if (!row?.checked_in && row.checked_out_at) {
+                <div
+                    class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-base-300 text-2xl text-base-100"
+                    [matTooltip]="
+                        'APP.CONCIERGE.PARKING_CHECKED_OUT_AT'
+                            | translate
+                                : {
+                                      time:
+                                          (row.checked_out_at * 1000
+                                          | date: time_format),
+                                  }
+                    "
+                    matTooltipPosition="right"
+                >
+                    <icon>done</icon>
+                </div>
+            }
+            @if (!row?.checked_in && !row.checked_out_at) {
+                <div
+                    class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-warning text-2xl text-warning-content"
+                    [matTooltip]="
+                        'APP.CONCIERGE.PARKING_NOT_CHECKED_IN' | translate
+                    "
+                    matTooltipPosition="right"
+                >
+                    <icon>question_mark</icon>
+                </div>
+            }
+            @if (row?.checked_in) {
+                <div
+                    class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-success text-2xl text-success-content"
+                    [matTooltip]="
+                        'APP.CONCIERGE.PARKING_CHECKED_IN' | translate
+                    "
+                    matTooltipPosition="right"
+                >
+                    <icon>done</icon>
+                </div>
+            }
         </ng-template>
         <ng-template #plate_template let-row="row">
             <div class="p-4 font-mono text-sm uppercase">
                 {{ row?.extension_data?.plate_number }}
-                <span
-                    *ngIf="!row?.extension_data?.plate_number"
-                    class="opacity-30"
-                >
-                    {{ 'COMMON.EMPTY' | translate }}
-                </span>
+                @if (!row?.extension_data?.plate_number) {
+                    <span class="opacity-30">
+                        {{ 'COMMON.EMPTY' | translate }}
+                    </span>
+                }
             </div>
         </ng-template>
         <ng-template #status_template let-row="row">
