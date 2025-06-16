@@ -115,8 +115,14 @@ export class AppComponent implements OnInit {
         const user_domain = user.email.split('@')[1];
         const domain_path_mapping = path_mappings[user_domain] || {};
         const redirect_domain = mappings[user_domain] || location.host;
-        const path = domain_path_mapping[this._continue] || this._continue;
-        const url = `${location.protocol}//${redirect_domain}${path}`;
+        let redirect_path = this._continue;
+        for (const path in domain_path_mapping) {
+            redirect_path = redirect_path.replace(
+                path,
+                domain_path_mapping[path],
+            );
+        }
+        const url = `${location.protocol}//${redirect_domain}${redirect_path}`;
         // Redirect user
         console.log('Redirect:', url);
         location.href = url;
