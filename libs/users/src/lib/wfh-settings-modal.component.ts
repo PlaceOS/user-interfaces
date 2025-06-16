@@ -348,7 +348,7 @@ export class WFHSettingsModalComponent implements OnInit {
                 };
             }
         }
-        if (!this._data.local) {
+        if (!this._data?.local) {
             const user = await lastValueFrom(showUser('current'));
             await lastValueFrom(
                 updateUser(user.id, {
@@ -368,7 +368,7 @@ export class WFHSettingsModalComponent implements OnInit {
         this.loading = false;
         this._dialog_ref.disableClose = false;
         if (close) {
-            if (!this._data.local) reloadUserData();
+            if (!this._data?.local) reloadUserData();
             this._dialog_ref.close(new_settings);
         }
     }
