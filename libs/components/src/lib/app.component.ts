@@ -109,6 +109,8 @@ export function initSentry(dsn: string, sample_rate = 0.1) {
     standalone: false,
 })
 export class AppComponent extends AsyncHandler implements OnInit {
+    private _zone = '';
+
     public get debug() {
         return (
             window.debug && this._settings.get('app.allow_debugging') === true
@@ -173,6 +175,9 @@ export class AppComponent extends AsyncHandler implements OnInit {
             if (params.has('x-api-key')) {
                 setAPI_Key(params.get('x-api-key'));
             }
+            if (params.has('building_id')) {
+                this._zone = params.get('building_id');
+            }
         });
         setNotifyOutlet(this._snackbar);
         setTranslationService(this._locale);
@@ -223,6 +228,10 @@ export class AppComponent extends AsyncHandler implements OnInit {
                 'warn',
             );
         }
+        this.timeout('set_initial_building', () => {
+            const bld = this._org.buildings.find((b) => b.id === this._zone);
+            if (bld) this._org.setBuilding(bld);
+        });
     }
 
     private onInitError() {
