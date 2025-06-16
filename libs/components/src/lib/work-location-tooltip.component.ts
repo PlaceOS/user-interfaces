@@ -39,88 +39,102 @@ import { WFHSettingsModalComponent } from 'libs/users/src/lib/wfh-settings-modal
             <h3 class="px-4 text-sm font-medium">
                 {{ now | date: 'fullDate' }}
             </h3>
-            <div
-                class="pb-2"
-                *ngIf="active_preference?.blocks?.length; else empty_state"
-            >
-                <div
-                    class="relative flex items-center px-4 py-2"
-                    *ngFor="
-                        let block of active_preference?.blocks;
-                        let i = index
-                    "
-                    [class.opacity-30]="now > timeFrom(block.end_time)"
-                >
-                    <div
-                        class="z-20 flex h-10 w-10 items-center justify-center rounded-full bg-base-200"
-                        [class.bg-base-200]="
-                            now < timeFrom(block.start_time) ||
-                            now > timeFrom(block.end_time)
-                        "
-                        [class.bg-info]="
-                            now >= timeFrom(block.start_time) &&
-                            now <= timeFrom(block.end_time)
-                        "
-                        [class.text-info-content]="
-                            now >= timeFrom(block.start_time) &&
-                            now <= timeFrom(block.end_time)
-                        "
-                    >
-                        <icon class="text-2xl">{{
-                            location_icon(timeFrom(block.start_time))
-                        }}</icon>
-                    </div>
-                    <div class="ml-2 flex-1">
-                        <button
-                            matRipple
-                            class="flex items-center space-x-2 rounded px-2 py-1 font-medium hover:bg-base-200"
-                            [matMenuTriggerFor]="work_menu"
+            @if (active_preference?.blocks?.length) {
+                <div class="pb-2">
+                    @for (
+                        block of active_preference?.blocks;
+                        track block;
+                        let i = $index
+                    ) {
+                        <div
+                            class="relative flex items-center px-4 py-2"
+                            [class.opacity-30]="now > timeFrom(block.end_time)"
                         >
-                            <div>
-                                {{ location(timeFrom(block.start_time)) }}
-                            </div>
-                            <icon>expand_more</icon>
-                        </button>
-                        <mat-menu #work_menu="matMenu">
-                            <button
-                                mat-menu-item
-                                *ngFor="let loc of locations"
-                                (click)="setLocation(i, loc.id)"
+                            <div
+                                class="z-20 flex h-10 w-10 items-center justify-center rounded-full bg-base-200"
+                                [class.bg-base-200]="
+                                    now < timeFrom(block.start_time) ||
+                                    now > timeFrom(block.end_time)
+                                "
+                                [class.bg-info]="
+                                    now >= timeFrom(block.start_time) &&
+                                    now <= timeFrom(block.end_time)
+                                "
+                                [class.text-info-content]="
+                                    now >= timeFrom(block.start_time) &&
+                                    now <= timeFrom(block.end_time)
+                                "
                             >
-                                <div class="flex items-center space-x-2">
-                                    <icon class="text-2xl">{{ loc.icon }}</icon>
-                                    <div class="pr-8">
-                                        {{ loc.name | translate }}
+                                <icon class="text-2xl">{{
+                                    location_icon(timeFrom(block.start_time))
+                                }}</icon>
+                            </div>
+                            <div class="ml-2 flex-1">
+                                <button
+                                    matRipple
+                                    class="flex items-center space-x-2 rounded px-2 py-1 font-medium hover:bg-base-200"
+                                    [matMenuTriggerFor]="work_menu"
+                                >
+                                    <div>
+                                        {{
+                                            location(timeFrom(block.start_time))
+                                        }}
                                     </div>
+                                    <icon>expand_more</icon>
+                                </button>
+                                <mat-menu #work_menu="matMenu">
+                                    @for (loc of locations; track loc) {
+                                        <button
+                                            mat-menu-item
+                                            (click)="setLocation(i, loc.id)"
+                                        >
+                                            <div
+                                                class="flex items-center space-x-2"
+                                            >
+                                                <icon class="text-2xl">{{
+                                                    loc.icon
+                                                }}</icon>
+                                                <div class="pr-8">
+                                                    {{ loc.name | translate }}
+                                                </div>
+                                            </div>
+                                        </button>
+                                    }
+                                </mat-menu>
+                                <div class="px-2 text-xs opacity-60">
+                                    {{
+                                        timeFrom(block.start_time)
+                                            | date: 'shortTime'
+                                    }}
+                                    &ndash;
+                                    {{
+                                        timeFrom(block.end_time)
+                                            | date: 'shortTime'
+                                    }}
                                 </div>
-                            </button>
-                        </mat-menu>
-                        <div class="px-2 text-xs opacity-60">
-                            {{ timeFrom(block.start_time) | date: 'shortTime' }}
-                            &ndash;
-                            {{ timeFrom(block.end_time) | date: 'shortTime' }}
+                            </div>
+                            @if (i > 0) {
+                                <div
+                                    class="absolute -top-2 left-7 h-4 w-0 -translate-x-px border-l-2 border-dashed border-base-200"
+                                ></div>
+                            }
                         </div>
-                    </div>
-                    <div
-                        *ngIf="i > 0"
-                        class="absolute -top-2 left-7 h-4 w-0 -translate-x-px border-l-2 border-dashed border-base-200"
-                    ></div>
+                    }
                 </div>
-            </div>
+            } @else {
+                <div
+                    class="flex w-full flex-col items-center justify-center space-y-2 p-8 opacity-30"
+                >
+                    <icon class="text-6xl">event_busy</icon>
+                    <p class="text-center text-sm">
+                        {{ 'COMMON.WORK_LOCATION_EMPTY' | translate }}
+                    </p>
+                    <p class="text-center text-sm">
+                        {{ 'COMMON.WORK_LOCATION_EDIT_INFO' | translate }}
+                    </p>
+                </div>
+            }
         </div>
-        <ng-template #empty_state>
-            <div
-                class="flex w-full flex-col items-center justify-center space-y-2 p-8 opacity-30"
-            >
-                <icon class="text-6xl">event_busy</icon>
-                <p class="text-center text-sm">
-                    {{ 'COMMON.WORK_LOCATION_EMPTY' | translate }}
-                </p>
-                <p class="text-center text-sm">
-                    {{ 'COMMON.WORK_LOCATION_EDIT_INFO' | translate }}
-                </p>
-            </div>
-        </ng-template>
     `,
     styles: [``],
     standalone: false,

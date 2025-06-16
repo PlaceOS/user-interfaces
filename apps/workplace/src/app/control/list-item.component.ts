@@ -7,48 +7,50 @@ import { Space } from '@placeos/spaces';
 @Component({
     selector: 'a-control-space-list-item',
     template: `
-        <div
-            class="mx-auto mb-2 flex max-w-[40rem] flex-wrap items-center overflow-hidden rounded border border-base-200 bg-base-100 p-2 pl-4 hover:border-info sm:space-x-4"
-            *ngIf="space"
-            [class.with-image]="show_image"
-        >
-            <div class="flex flex-1 flex-col">
-                <div class="text-xl">
-                    {{ space.display_name || space.name }}
-                </div>
-                <div class="flex w-full items-center text-sm">
-                    <div class="flex-1">{{ location }}</div>
-                    <div class="flex items-center space-x-2 text-lg">
-                        <icon class="text-2xl">account_circle</icon>
-                        <div>{{ space.capacity || '0' }}</div>
+        @if (space) {
+            <div
+                class="mx-auto mb-2 flex max-w-[40rem] flex-wrap items-center overflow-hidden rounded border border-base-200 bg-base-100 p-2 pl-4 hover:border-info sm:space-x-4"
+                [class.with-image]="show_image"
+            >
+                <div class="flex flex-1 flex-col">
+                    <div class="text-xl">
+                        {{ space.display_name || space.name }}
+                    </div>
+                    <div class="flex w-full items-center text-sm">
+                        <div class="flex-1">{{ location }}</div>
+                        <div class="flex items-center space-x-2 text-lg">
+                            <icon class="text-2xl">account_circle</icon>
+                            <div>{{ space.capacity || '0' }}</div>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div
-                class="mt-4 flex w-full items-center space-x-2 sm:mt-0 sm:w-auto sm:flex-col sm:space-x-0 sm:space-y-2"
-            >
-                <a
-                    btn
-                    matRipple
-                    control
-                    class="w-32 flex-1 sm:flex-none"
-                    [href]="space.support_url | safe: 'url'"
+                <div
+                    class="mt-4 flex w-full items-center space-x-2 sm:mt-0 sm:w-auto sm:flex-col sm:space-x-0 sm:space-y-2"
                 >
-                    Control
-                </a>
-                <a
-                    btn
-                    matRipple
-                    locate
-                    class="inverse w-32 flex-1 sm:flex-none"
-                    [routerLink]="['/explore']"
-                    [queryParams]="{ space: space.id }"
-                    *ngIf="allow_locate"
-                >
-                    Find
-                </a>
+                    <a
+                        btn
+                        matRipple
+                        control
+                        class="w-32 flex-1 sm:flex-none"
+                        [href]="space.support_url | safe: 'url'"
+                    >
+                        Control
+                    </a>
+                    @if (allow_locate) {
+                        <a
+                            btn
+                            matRipple
+                            locate
+                            class="inverse w-32 flex-1 sm:flex-none"
+                            [routerLink]="['/explore']"
+                            [queryParams]="{ space: space.id }"
+                        >
+                            Find
+                        </a>
+                    }
+                </div>
             </div>
-        </div>
+        }
     `,
     styles: [``],
     standalone: false,

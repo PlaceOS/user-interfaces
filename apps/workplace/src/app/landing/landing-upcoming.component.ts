@@ -50,46 +50,43 @@ import { LandingStateService } from './landing-state.service';
                 </a>
             </div>
             <div class="space-y-4 px-4">
-                <ng-container
-                    *ngIf="(upcoming_events | async)?.length; else empty_state"
-                >
-                    <ng-container
-                        *ngFor="
-                            let event of upcoming_events | async | slice: 0 : 5;
-                            trackBy: trackByFn
-                        "
+                @if ((upcoming_events | async)?.length) {
+                    @for (
+                        event of upcoming_events | async | slice: 0 : 5;
+                        track trackByFn($index, event)
+                    ) {
+                        @switch (type(event)) {
+                            @case ('event') {
+                                <event-card
+                                    [event]="event"
+                                    [show_day]="true"
+                                    [edit_fn]="edit_fn"
+                                    [remove_fn]="remove_fn"
+                                ></event-card>
+                            }
+                            @case ('booking') {
+                                <booking-card
+                                    [booking]="event"
+                                    [show_day]="true"
+                                    [edit_fn]="edit_booking_fn"
+                                    [remove_fn]="remove_fn"
+                                    [end_fn]="end_fn"
+                                ></booking-card>
+                            }
+                        }
+                    }
+                } @else {
+                    <div
+                        class="flex w-full flex-col items-center justify-center space-y-4 p-8"
                     >
-                        <ng-container [ngSwitch]="type(event)">
-                            <event-card
-                                *ngSwitchCase="'event'"
-                                [event]="event"
-                                [show_day]="true"
-                                [edit_fn]="edit_fn"
-                                [remove_fn]="remove_fn"
-                            ></event-card>
-                            <booking-card
-                                *ngSwitchCase="'booking'"
-                                [booking]="event"
-                                [show_day]="true"
-                                [edit_fn]="edit_booking_fn"
-                                [remove_fn]="remove_fn"
-                                [end_fn]="end_fn"
-                            ></booking-card>
-                        </ng-container>
-                    </ng-container>
-                </ng-container>
+                        <img src="assets/img/no-events.svg" class="mr-4" />
+                        <p class="opacity-30">
+                            {{ 'APP.WORKPLACE.UPCOMING_EMPTY' | translate }}
+                        </p>
+                    </div>
+                }
             </div>
         </div>
-        <ng-template #empty_state>
-            <div
-                class="flex w-full flex-col items-center justify-center space-y-4 p-8"
-            >
-                <img src="assets/img/no-events.svg" class="mr-4" />
-                <p class="opacity-30">
-                    {{ 'APP.WORKPLACE.UPCOMING_EMPTY' | translate }}
-                </p>
-            </div>
-        </ng-template>
     `,
     styles: [``],
     standalone: false,

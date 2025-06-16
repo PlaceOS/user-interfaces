@@ -9,109 +9,112 @@ import { PanelStateService } from '../panel-state.service';
 @Component({
     selector: 'panel-booking-list',
     template: `
-        <h2 class="mb-2 w-full px-4 py-2 font-medium" *ngIf="current | async">
-            Current
-            <span
-                class="ml-8 rounded bg-base-200 px-2 py-1 text-xs shadow"
-                *ngIf="!(started | async) && (starting_in | async)"
-            >
-                Starting in {{ starting_in | async }}
-            </span>
-            <span
-                class="ml-8 rounded bg-error px-2 py-1 text-xs text-white shadow"
-                *ngIf="(started | async) && !(pending | async)"
-            >
-                In Progress
-            </span>
-            <span
-                class="ml-8 rounded bg-warning px-2 py-1 text-xs text-white shadow"
-                *ngIf="
+        @if (current | async) {
+            <h2 class="mb-2 w-full px-4 py-2 font-medium">
+                Current
+                @if (!(started | async) && (starting_in | async)) {
+                    <span
+                        class="ml-8 rounded bg-base-200 px-2 py-1 text-xs shadow"
+                    >
+                        Starting in {{ starting_in | async }}
+                    </span>
+                }
+                @if ((started | async) && !(pending | async)) {
+                    <span
+                        class="ml-8 rounded bg-error px-2 py-1 text-xs text-white shadow"
+                    >
+                        In Progress
+                    </span>
+                }
+                @if (
                     ((current | async)?.state === 'upcoming' ||
                         (current | async)?.state === 'in_progress') &&
                     (pending | async)
-                "
-            >
-                Waiting to start
-            </span>
-        </h2>
-        <div class="mb-4 w-full" *ngIf="current | async; else empty_state">
-            <div
-                current
-                class="relative flex h-24 w-full max-w-full items-center rounded-lg border border-base-200 bg-base-100 px-4 text-lg shadow-md"
-                [class.text-white]="started | async"
-            >
+                ) {
+                    <span
+                        class="ml-8 rounded bg-warning px-2 py-1 text-xs text-white shadow"
+                    >
+                        Waiting to start
+                    </span>
+                }
+            </h2>
+        }
+        @if (current | async) {
+            <div class="mb-4 w-full">
                 <div
-                    color
-                    class="absolute -left-2 -right-2 bottom-2 top-2 z-0 rounded bg-primary"
-                    [class.opacity-100]="started | async"
-                    [class.opacity-0]="!(started | async)"
-                ></div>
-                <div
-                    class="relative z-10 w-24 text-base opacity-80"
-                    *ngIf="!(started | async)"
+                    current
+                    class="relative flex h-24 w-full max-w-full items-center rounded-lg border border-base-200 bg-base-100 px-4 text-lg shadow-md"
+                    [class.text-white]="started | async"
                 >
-                    <span [class.opacity-60]="started | async">{{
-                        (current | async)?.event_start * 1000
-                            | date: 'shortTime'
-                    }}</span
-                    ><br />
-                    <span [class.opacity-60]="!(started | async)">{{
-                        (current | async)?.event_end * 1000 | date: 'shortTime'
-                    }}</span>
-                </div>
-                <div
-                    class="relative z-10 flex w-24 flex-col text-base opacity-80"
-                    *ngIf="started | async"
-                >
-                    <div class="text-xs">Ends at:</div>
-                    <div>
+                    <div
+                        color
+                        class="absolute -left-2 -right-2 bottom-2 top-2 z-0 rounded bg-primary"
+                        [class.opacity-100]="started | async"
+                        [class.opacity-0]="!(started | async)"
+                    ></div>
+                    @if (!(started | async)) {
+                        <div class="relative z-10 w-24 text-base opacity-80">
+                            <span [class.opacity-60]="started | async">{{
+                                (current | async)?.event_start * 1000
+                                    | date: 'shortTime'
+                            }}</span
+                            ><br />
+                            <span [class.opacity-60]="!(started | async)">{{
+                                (current | async)?.event_end * 1000
+                                    | date: 'shortTime'
+                            }}</span>
+                        </div>
+                    }
+                    @if (started | async) {
+                        <div
+                            class="relative z-10 flex w-24 flex-col text-base opacity-80"
+                        >
+                            <div class="text-xs">Ends at:</div>
+                            <div>
+                                {{
+                                    (current | async)?.date +
+                                        (current | async)?.duration * 60 * 1000
+                                        | date: 'shortTime'
+                                }}
+                            </div>
+                        </div>
+                    }
+                    <div class="relative z-10 truncate">
                         {{
-                            (current | async)?.date +
-                                (current | async)?.duration * 60 * 1000
-                                | date: 'shortTime'
+                            (current | async)?.title || '&lt;Private Event&gt;'
                         }}
                     </div>
                 </div>
-                <div class="relative z-10 truncate">
-                    {{ (current | async)?.title || '&lt;Private Event&gt;' }}
-                </div>
             </div>
-        </div>
-        <h2
-            class="mb-2 w-full px-4 py-2 font-medium"
-            *ngIf="(upcoming | async)?.length"
-        >
-            Upcoming
-        </h2>
-        <ul
-            class="list-style-none m-0 w-full max-w-full divide-y divide-base-200 rounded border border-base-200 bg-base-100 p-0 text-base shadow"
-            *ngIf="(upcoming | async)?.length"
-        >
-            <li
-                upcoming
-                class="flex w-full items-center p-4"
-                *ngFor="let event of upcoming | async | slice: 0 : 2"
-            >
-                <div class="w-24 opacity-60">
-                    {{ event?.date | date: 'shortTime' }}
-                </div>
-                <div class="truncate">
-                    {{ event?.title || '&lt;Private Event&gt;' }}
-                </div>
-            </li>
-            <li
-                upcoming
-                class="flex w-full items-center p-4"
-                *ngIf="(upcoming | async)?.length > 2"
-            ></li>
-        </ul>
-        <ng-template #empty_state>
+        } @else {
             <div
                 class="flex w-full items-center justify-center rounded border border-base-200 bg-base-100 px-4 py-8 shadow-md"
             >
                 <p class="opacity-50">No upcoming events for today</p>
             </div>
-        </ng-template>
+        }
+        @if ((upcoming | async)?.length) {
+            <h2 class="mb-2 w-full px-4 py-2 font-medium">Upcoming</h2>
+        }
+        @if ((upcoming | async)?.length) {
+            <ul
+                class="list-style-none m-0 w-full max-w-full divide-y divide-base-200 rounded border border-base-200 bg-base-100 p-0 text-base shadow"
+            >
+                @for (event of upcoming | async | slice: 0 : 2; track event) {
+                    <li upcoming class="flex w-full items-center p-4">
+                        <div class="w-24 opacity-60">
+                            {{ event?.date | date: 'shortTime' }}
+                        </div>
+                        <div class="truncate">
+                            {{ event?.title || '&lt;Private Event&gt;' }}
+                        </div>
+                    </li>
+                }
+                @if ((upcoming | async)?.length > 2) {
+                    <li upcoming class="flex w-full items-center p-4"></li>
+                }
+            </ul>
+        }
     `,
     styles: [
         `

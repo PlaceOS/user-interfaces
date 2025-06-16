@@ -33,13 +33,14 @@ import { CustomTooltipData } from './custom-tooltip.component';
                 [ngModel]="(region | async)?.id"
                 class="flex flex-col space-y-2 px-2"
             >
-                <mat-radio-button
-                    *ngFor="let item of regions | async"
-                    [value]="item.id"
-                    (click)="setRegion(item)"
-                >
-                    {{ item.display_name || item.name }}
-                </mat-radio-button>
+                @for (item of regions | async; track item) {
+                    <mat-radio-button
+                        [value]="item.id"
+                        (click)="setRegion(item)"
+                    >
+                        {{ item.display_name || item.name }}
+                    </mat-radio-button>
+                }
             </mat-radio-group>
         </div>
     `,

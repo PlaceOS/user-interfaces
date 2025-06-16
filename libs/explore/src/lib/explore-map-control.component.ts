@@ -14,48 +14,48 @@ import { ExploreStateService } from './explore-state.service';
     selector: 'explore-map-controls',
     template: `
         <div class="flex w-full space-x-2">
-            <mat-form-field
-                overlay
-                buildings
-                class="no-subscript min-w-[10.5rem] flex-1"
-                has-bld="true"
-                *ngIf="(buildings | async)?.length > 1"
-                appearance="outline"
-            >
-                <mat-select
-                    placeholder="Select Building..."
-                    [ngModel]="building | async"
-                    (ngModelChange)="setBuilding($event)"
+            @if ((buildings | async)?.length > 1) {
+                <mat-form-field
+                    overlay
+                    buildings
+                    class="no-subscript min-w-[10.5rem] flex-1"
+                    has-bld="true"
+                    appearance="outline"
                 >
-                    <mat-option
-                        *ngFor="let bld of buildings | async"
-                        [value]="bld"
+                    <mat-select
+                        placeholder="Select Building..."
+                        [ngModel]="building | async"
+                        (ngModelChange)="setBuilding($event)"
                     >
-                        {{ bld.display_name || bld.name }}
-                    </mat-option>
-                </mat-select>
-            </mat-form-field>
-            <mat-form-field
-                overlay
-                levels
-                class="no-subscript min-w-[10.25rem] flex-1"
-                [attr.has-bld]="(buildings | async)?.length > 1"
-                *ngIf="(levels | async)?.length"
-                appearance="outline"
-            >
-                <mat-select
-                    placeholder="Select Level..."
-                    [ngModel]="level | async"
-                    (ngModelChange)="setLevel($event)"
+                        @for (bld of buildings | async; track bld.id) {
+                            <mat-option [value]="bld">
+                                {{ bld.display_name || bld.name }}
+                            </mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
+            }
+            @if ((levels | async)?.length) {
+                <mat-form-field
+                    overlay
+                    levels
+                    class="no-subscript min-w-[10.25rem] flex-1"
+                    [attr.has-bld]="(buildings | async)?.length > 1"
+                    appearance="outline"
                 >
-                    <mat-option
-                        *ngFor="let lvl of levels | async"
-                        [value]="lvl"
+                    <mat-select
+                        placeholder="Select Level..."
+                        [ngModel]="level | async"
+                        (ngModelChange)="setLevel($event)"
                     >
-                        {{ lvl.display_name || lvl.name }}
-                    </mat-option>
-                </mat-select>
-            </mat-form-field>
+                        @for (lvl of levels | async; track lvl.id) {
+                            <mat-option [value]="lvl">
+                                {{ lvl.display_name || lvl.name }}
+                            </mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
+            }
         </div>
     `,
     styles: [

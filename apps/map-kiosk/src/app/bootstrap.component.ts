@@ -25,234 +25,267 @@ import { first } from 'rxjs/operators';
                 <div>Map Kiosk</div>
                 <div class="rounded px-2 py-1 font-mono text-sm">SETUP</div>
             </header>
-            <div class="flex flex-col px-4" *ngIf="!loading; else load_state">
-                <ng-container *ngIf="(regions | async)?.length > 1">
-                    <label>Select a region from the dropdown below</label>
-                    <mat-form-field appearance="outline" class="no-subscript">
-                        <mat-select
-                            #select
-                            building
-                            [(ngModel)]="active_region"
-                            (ngModelChange)="setRegion($event)"
-                            placeholder="Select region"
+            @if (!loading) {
+                <div class="flex flex-col px-4">
+                    @if ((regions | async)?.length > 1) {
+                        <label>Select a region from the dropdown below</label>
+                        <mat-form-field
+                            appearance="outline"
+                            class="no-subscript"
                         >
-                            <mat-select-trigger>
-                                <div class="flex items-center space-x-4">
-                                    <div class="flex-1 truncate">
-                                        {{
-                                            active_region?.display_name ||
-                                                active_region?.name
-                                        }}
-                                    </div>
-                                    <div
-                                        class="!mr-4 rounded bg-base-200 px-1.5 font-mono text-[0.625rem]"
-                                    >
-                                        {{ active_region?.id }}
-                                    </div>
-                                </div>
-                            </mat-select-trigger>
-                            <mat-option
-                                *ngFor="let option of regions | async"
-                                [value]="option"
+                            <mat-select
+                                #select
+                                building
+                                [(ngModel)]="active_region"
+                                (ngModelChange)="setRegion($event)"
+                                placeholder="Select region"
                             >
-                                <div class="leading-tight">
-                                    <div>
-                                        {{ option.display_name || option.name }}
+                                <mat-select-trigger>
+                                    <div class="flex items-center space-x-4">
+                                        <div class="flex-1 truncate">
+                                            {{
+                                                active_region?.display_name ||
+                                                    active_region?.name
+                                            }}
+                                        </div>
+                                        <div
+                                            class="!mr-4 rounded bg-base-200 px-1.5 font-mono text-[0.625rem]"
+                                        >
+                                            {{ active_region?.id }}
+                                        </div>
                                     </div>
-                                    <div
-                                        class="font-mono text-[0.625rem] opacity-30"
-                                    >
-                                        <span class="hidden">&nbsp;[</span
-                                        >{{ option.id
-                                        }}<span class="hidden">]</span>
-                                    </div>
-                                </div>
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                </ng-container>
-                <ng-container *ngIf="(buildings | async)?.length">
-                    <label>Select a building from the dropdown below</label>
-                    <mat-form-field appearance="outline" class="no-subscript">
-                        <mat-select
-                            #select
-                            building
-                            [(ngModel)]="active_building"
-                            (ngModelChange)="setBuilding($event)"
-                            placeholder="Select building"
+                                </mat-select-trigger>
+                                @for (option of regions | async; track option) {
+                                    <mat-option [value]="option">
+                                        <div class="leading-tight">
+                                            <div>
+                                                {{
+                                                    option.display_name ||
+                                                        option.name
+                                                }}
+                                            </div>
+                                            <div
+                                                class="font-mono text-[0.625rem] opacity-30"
+                                            >
+                                                <span class="hidden"
+                                                    >&nbsp;[</span
+                                                >{{ option.id
+                                                }}<span class="hidden">]</span>
+                                            </div>
+                                        </div>
+                                    </mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
+                    }
+                    @if ((buildings | async)?.length) {
+                        <label>Select a building from the dropdown below</label>
+                        <mat-form-field
+                            appearance="outline"
+                            class="no-subscript"
                         >
-                            <mat-select-trigger>
-                                <div class="flex items-center space-x-4">
-                                    <div class="flex-1 truncate">
-                                        {{
-                                            active_building?.display_name ||
-                                                active_building?.name
-                                        }}
-                                    </div>
-                                    <div
-                                        class="!mr-4 rounded bg-base-200 px-1.5 font-mono text-[0.625rem]"
-                                    >
-                                        {{ active_building?.id }}
-                                    </div>
-                                </div>
-                            </mat-select-trigger>
-                            <mat-option
-                                *ngFor="let option of buildings | async"
-                                [value]="option"
+                            <mat-select
+                                #select
+                                building
+                                [(ngModel)]="active_building"
+                                (ngModelChange)="setBuilding($event)"
+                                placeholder="Select building"
                             >
-                                <div class="leading-tight">
-                                    <div>
-                                        {{ option.display_name || option.name }}
+                                <mat-select-trigger>
+                                    <div class="flex items-center space-x-4">
+                                        <div class="flex-1 truncate">
+                                            {{
+                                                active_building?.display_name ||
+                                                    active_building?.name
+                                            }}
+                                        </div>
+                                        <div
+                                            class="!mr-4 rounded bg-base-200 px-1.5 font-mono text-[0.625rem]"
+                                        >
+                                            {{ active_building?.id }}
+                                        </div>
                                     </div>
-                                    <div
-                                        class="font-mono text-[0.625rem] opacity-60"
-                                    >
-                                        <span class="hidden">&nbsp;[</span
-                                        >{{ option.id
-                                        }}<span class="hidden">]</span>
+                                </mat-select-trigger>
+                                @for (
+                                    option of buildings | async;
+                                    track option
+                                ) {
+                                    <mat-option [value]="option">
+                                        <div class="leading-tight">
+                                            <div>
+                                                {{
+                                                    option.display_name ||
+                                                        option.name
+                                                }}
+                                            </div>
+                                            <div
+                                                class="font-mono text-[0.625rem] opacity-60"
+                                            >
+                                                <span class="hidden"
+                                                    >&nbsp;[</span
+                                                >{{ option.id
+                                                }}<span class="hidden">]</span>
+                                            </div>
+                                        </div>
+                                    </mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
+                    }
+                    @if ((levels | async)?.length && active_building) {
+                        <div></div>
+                        <label>Select a level from the dropdown below</label>
+                        <mat-form-field
+                            appearance="outline"
+                            class="no-subscript"
+                        >
+                            <mat-select
+                                #select
+                                level
+                                [(ngModel)]="active_level"
+                                placeholder="Select level"
+                            >
+                                <mat-select-trigger>
+                                    <div class="flex items-center space-x-4">
+                                        <div class="flex-1 truncate">
+                                            {{
+                                                active_level?.display_name ||
+                                                    active_level?.name
+                                            }}
+                                        </div>
+                                        <div
+                                            class="!mr-4 rounded bg-base-200 px-1.5 font-mono text-[0.625rem]"
+                                        >
+                                            {{ active_level?.id }}
+                                        </div>
                                     </div>
-                                </div>
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                </ng-container>
-                <ng-container
-                    *ngIf="(levels | async)?.length && active_building"
+                                </mat-select-trigger>
+                                @for (option of levels | async; track option) {
+                                    <mat-option [value]="option">
+                                        <div class="leading-tight">
+                                            <div>
+                                                {{
+                                                    option.display_name ||
+                                                        option.name
+                                                }}
+                                            </div>
+                                            <div
+                                                class="font-mono text-[0.625rem] opacity-30"
+                                            >
+                                                <span class="hidden"
+                                                    >&nbsp;[</span
+                                                >{{ option.id
+                                                }}<span class="hidden">]</span>
+                                            </div>
+                                        </div>
+                                    </mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
+                        @if (active_level?.tags.includes('parking')) {
+                            <settings-toggle [(ngModel)]="parking" class="mt-2"
+                                >Show as fixed parking display</settings-toggle
+                            >
+                        }
+                    }
+                    @if (rotations && rotations.length) {
+                        <div></div>
+                        <label>
+                            Please select an orientation from the dropdown below
+                        </label>
+                        <mat-form-field
+                            appearance="outline"
+                            class="no-subscript"
+                        >
+                            <mat-select
+                                #select
+                                [(value)]="active_rotation"
+                                placeholder="Select orientation"
+                            >
+                                @for (option of rotations; track option) {
+                                    <mat-option [value]="option">
+                                        <div class="leading-tight">
+                                            <div>
+                                                {{
+                                                    option.display_name ||
+                                                        option.name
+                                                }}
+                                            </div>
+                                            <div
+                                                class="font-mono text-[0.625rem] opacity-30"
+                                            >
+                                                <span class="hidden"
+                                                    >&nbsp;[</span
+                                                >{{ option.id
+                                                }}<span class="hidden">]</span>
+                                            </div>
+                                        </div>
+                                    </mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
+                    }
+                    @if (locations && locations.length) {
+                        <div></div>
+                        <label>
+                            Please select an fixed location from the dropdown
+                            below
+                        </label>
+                        <mat-form-field
+                            appearance="outline"
+                            class="no-subscript"
+                        >
+                            <mat-select
+                                #select
+                                [(value)]="active_location"
+                                placeholder="Select location"
+                            >
+                                @for (option of locations; track option) {
+                                    <mat-option [value]="option">
+                                        <div class="leading-tight">
+                                            <div>
+                                                {{
+                                                    option.display_name ||
+                                                        option.name
+                                                }}
+                                            </div>
+                                            <div
+                                                class="font-mono text-[0.625rem] opacity-30"
+                                            >
+                                                <span class="hidden"
+                                                    >&nbsp;[</span
+                                                >{{ option.id
+                                                }}<span class="hidden">]</span>
+                                            </div>
+                                        </div>
+                                    </mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
+                    }
+                </div>
+            } @else {
+                <div class="m-auto flex flex-col items-center p-8">
+                    <mat-spinner [diameter]="32"></mat-spinner>
+                    <p>{{ loading }}</p>
+                </div>
+            }
+            @if (!loading) {
+                <div
+                    class="!mt-4 flex w-full items-center justify-end border-t border-base-300 px-4 py-2"
                 >
-                    <div></div>
-                    <label>Select a level from the dropdown below</label>
-                    <mat-form-field appearance="outline" class="no-subscript">
-                        <mat-select
-                            #select
-                            level
-                            [(ngModel)]="active_level"
-                            placeholder="Select level"
-                        >
-                            <mat-select-trigger>
-                                <div class="flex items-center space-x-4">
-                                    <div class="flex-1 truncate">
-                                        {{
-                                            active_level?.display_name ||
-                                                active_level?.name
-                                        }}
-                                    </div>
-                                    <div
-                                        class="!mr-4 rounded bg-base-200 px-1.5 font-mono text-[0.625rem]"
-                                    >
-                                        {{ active_level?.id }}
-                                    </div>
-                                </div>
-                            </mat-select-trigger>
-                            <mat-option
-                                *ngFor="let option of levels | async"
-                                [value]="option"
-                            >
-                                <div class="leading-tight">
-                                    <div>
-                                        {{ option.display_name || option.name }}
-                                    </div>
-                                    <div
-                                        class="font-mono text-[0.625rem] opacity-30"
-                                    >
-                                        <span class="hidden">&nbsp;[</span
-                                        >{{ option.id
-                                        }}<span class="hidden">]</span>
-                                    </div>
-                                </div>
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                    <settings-toggle
-                        *ngIf="active_level?.tags.includes('parking')"
-                        [(ngModel)]="parking"
-                        class="mt-2"
-                        >Show as fixed parking display</settings-toggle
+                    <button
+                        btn
+                        matRipple
+                        class="w-32"
+                        [disabled]="!active_building && !active_level"
+                        (click)="bootstrapKiosk()"
                     >
-                </ng-container>
-                <ng-container *ngIf="rotations && rotations.length">
-                    <div></div>
-                    <label>
-                        Please select an orientation from the dropdown below
-                    </label>
-                    <mat-form-field appearance="outline" class="no-subscript">
-                        <mat-select
-                            #select
-                            [(value)]="active_rotation"
-                            placeholder="Select orientation"
-                        >
-                            <mat-option
-                                *ngFor="let option of rotations"
-                                [value]="option"
-                            >
-                                <div class="leading-tight">
-                                    <div>
-                                        {{ option.display_name || option.name }}
-                                    </div>
-                                    <div
-                                        class="font-mono text-[0.625rem] opacity-30"
-                                    >
-                                        <span class="hidden">&nbsp;[</span
-                                        >{{ option.id
-                                        }}<span class="hidden">]</span>
-                                    </div>
-                                </div>
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                </ng-container>
-                <ng-container *ngIf="locations && locations.length">
-                    <div></div>
-                    <label>
-                        Please select an fixed location from the dropdown below
-                    </label>
-                    <mat-form-field appearance="outline" class="no-subscript">
-                        <mat-select
-                            #select
-                            [(value)]="active_location"
-                            placeholder="Select location"
-                        >
-                            <mat-option
-                                *ngFor="let option of locations"
-                                [value]="option"
-                            >
-                                <div class="leading-tight">
-                                    <div>
-                                        {{ option.display_name || option.name }}
-                                    </div>
-                                    <div
-                                        class="font-mono text-[0.625rem] opacity-30"
-                                    >
-                                        <span class="hidden">&nbsp;[</span
-                                        >{{ option.id
-                                        }}<span class="hidden">]</span>
-                                    </div>
-                                </div>
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                </ng-container>
-            </div>
-            <div
-                class="!mt-4 flex w-full items-center justify-end border-t border-base-300 px-4 py-2"
-                *ngIf="!loading"
-            >
-                <button
-                    btn
-                    matRipple
-                    class="w-32"
-                    [disabled]="!active_building && !active_level"
-                    (click)="bootstrapKiosk()"
-                >
-                    Finish Setup
-                </button>
-            </div>
+                        Finish Setup
+                    </button>
+                </div>
+            }
         </div>
-        <ng-template #load_state>
-            <div class="m-auto flex flex-col items-center p-8">
-                <mat-spinner [diameter]="32"></mat-spinner>
-                <p>{{ loading }}</p>
-            </div>
-        </ng-template>
     `,
     styles: [
         `

@@ -6,18 +6,15 @@ import { ControlStateService } from '../control-state.service';
     selector: 'device-output-list',
     template: `
         <div class="flex h-full w-full items-center overflow-x-auto">
-            <ng-container
-                *ngIf="
-                    (outputs | async)?.length > 1 || (preview_outputs | async)
-                "
-            >
-                <device-output-list-item
-                    *ngFor="let output of outputs | async"
-                    [item]="output"
-                    [active]="(active_output | async) === output.id"
-                    class="max-w-1/2 w-64 sm:min-w-64"
-                ></device-output-list-item>
-            </ng-container>
+            @if ((outputs | async)?.length > 1 || (preview_outputs | async)) {
+                @for (output of outputs | async; track output) {
+                    <device-output-list-item
+                        [item]="output"
+                        [active]="(active_output | async) === output.id"
+                        class="max-w-1/2 w-64 sm:min-w-64"
+                    ></device-output-list-item>
+                }
+            }
         </div>
     `,
     styles: [``],

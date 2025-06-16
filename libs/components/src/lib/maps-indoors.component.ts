@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import {
     Component,
     ElementRef,
@@ -46,22 +45,25 @@ const RESOURCE_MAP: Record<string, any> = {};
     selector: 'maps-indoors',
     template: `
         <div #map_container class="absolute inset-0 z-0"></div>
-        <button
-            *ngIf="focus && !show_directions && options?.controls"
-            btn
-            matRipple
-            class="absolute bottom-2 left-2 z-10 space-x-2 border-base-200 bg-base-100 text-base-content shadow"
-            (click)="toggleDirections()"
-        >
-            <icon>place</icon>
-            <div class="pr-2">
-                {{ viewing_directions ? 'Hide' : 'Show' }} Directions
-            </div>
-            <mat-spinner diameter="24" *ngIf="loading_directions"></mat-spinner>
-        </button>
+        @if (focus && !show_directions && options?.controls) {
+            <button
+                btn
+                matRipple
+                class="absolute bottom-2 left-2 z-10 space-x-2 border-base-200 bg-base-100 text-base-content shadow"
+                (click)="toggleDirections()"
+            >
+                <icon>place</icon>
+                <div class="pr-2">
+                    {{ viewing_directions ? 'Hide' : 'Show' }} Directions
+                </div>
+                @if (loading_directions) {
+                    <mat-spinner diameter="24"></mat-spinner>
+                }
+            </button>
+        }
     `,
     styles: [``],
-    imports: [CommonModule, MatRippleModule, MatProgressSpinnerModule],
+    imports: [MatRippleModule, MatProgressSpinnerModule],
 })
 export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
     @Input() public zone: BuildingLevel;

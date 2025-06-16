@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, Inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import {
@@ -70,15 +69,24 @@ export const FAV_PARKING_KEY = 'favourite_parking_spaces';
                         class="w-full border-b border-base-200"
                         [(view)]="view"
                     ></parking-space-filters-display>
-                    <parking-space-list
-                        *ngIf="view === 'list'; else map_view"
-                        [active]="displayed?.id"
-                        [selected]="selected_ids"
-                        [favorites]="favorites"
-                        (toggleFav)="toggleFavourite($event)"
-                        (onSelect)="displayed = $event"
-                        class="h-1/2 flex-1 bg-base-200"
-                    ></parking-space-list>
+                    @if (view === 'list') {
+                        <parking-space-list
+                            [active]="displayed?.id"
+                            [selected]="selected_ids"
+                            [favorites]="favorites"
+                            (toggleFav)="toggleFavourite($event)"
+                            (onSelect)="displayed = $event"
+                            class="h-1/2 flex-1 bg-base-200"
+                        ></parking-space-list>
+                    } @else {
+                        <parking-space-map
+                            class="h-1/2 w-full flex-1"
+                            [selected]="selected_ids"
+                            [is_displayed]="!!displayed"
+                            (onSelect)="displayed = $event"
+                        >
+                        </parking-space-map>
+                    }
                 </div>
                 <parking-space-details
                     [space]="displayed"
@@ -96,16 +104,17 @@ export const FAV_PARKING_KEY = 'favourite_parking_spaces';
             <footer
                 class="flex w-full flex-col-reverse items-center justify-end border-t border-base-200 p-2 sm:hidden"
             >
-                <button
-                    btn
-                    matRipple
-                    return
-                    class="inverse w-full sm:hidden"
-                    *ngIf="displayed"
-                    (click)="displayed = null"
-                >
-                    {{ 'COMMON.BACK' | translate }}
-                </button>
+                @if (displayed) {
+                    <button
+                        btn
+                        matRipple
+                        return
+                        class="inverse w-full sm:hidden"
+                        (click)="displayed = null"
+                    >
+                        {{ 'COMMON.BACK' | translate }}
+                    </button>
+                }
                 <button
                     btn
                     matRipple
@@ -162,19 +171,9 @@ export const FAV_PARKING_KEY = 'favourite_parking_spaces';
                 </button>
             </footer>
         </div>
-        <ng-template #map_view>
-            <parking-space-map
-                class="h-1/2 w-full flex-1"
-                [selected]="selected_ids"
-                [is_displayed]="!!displayed"
-                (onSelect)="displayed = $event"
-            >
-            </parking-space-map>
-        </ng-template>
     `,
     styles: [``],
     imports: [
-        CommonModule,
         ParkingSpaceMapComponent,
         TranslatePipe,
         IconComponent,

@@ -18,135 +18,139 @@ import { ParkingUser } from './parking-state.service';
                         ) | translate
                     }}
                 </h2>
-                <button *ngIf="!loading" icon matRipple mat-dialog-close>
-                    <icon>close</icon>
-                </button>
-            </header>
-            <main
-                *ngIf="!loading; else load_state"
-                class="flex max-h-[65vh] flex-col overflow-auto p-4"
-                [formGroup]="form"
-            >
-                <div class="mb-4 flex items-center space-x-2">
-                    <a-user-search-field
-                        name="user"
-                        formControlName="user"
-                        class="flex-1"
-                    ></a-user-search-field>
-                    <button
-                        icon
-                        matRipple
-                        class="h-12 w-12 min-w-12 rounded bg-secondary text-secondary-content"
-                        matTooltip="Clear Selected User"
-                        (click)="
-                            form.patchValue({
-                                user: null,
-                                email: null,
-                                name: null,
-                                phone: null,
-                            })
-                        "
-                    >
-                        <icon className="material-symbols-outlined">
-                            person_cancel
-                        </icon>
+                @if (!loading) {
+                    <button icon matRipple mat-dialog-close>
+                        <icon>close</icon>
                     </button>
-                </div>
-                <label for="name">{{ 'FORM.NAME' | translate }}</label>
-                <mat-form-field appearance="outline">
-                    <input
-                        matInput
-                        name="name"
-                        formControlName="name"
-                        placeholder="Name"
-                    />
-                    <mat-error>{{
-                        'FORM.NAME_REQUIRED' | translate
-                    }}</mat-error>
-                </mat-form-field>
-                <label for="email">{{ 'FORM.EMAIL' | translate }}</label>
-                <mat-form-field appearance="outline">
-                    <input
-                        matInput
-                        name="email"
-                        formControlName="email"
-                        [placeholder]="'FORM.EMAIL' | translate"
-                    />
-                    <mat-error>{{
-                        'FORM.EMAIL_REQUIRED' | translate
-                    }}</mat-error>
-                </mat-form-field>
-                <div class="flex items-center space-x-2">
-                    <div class="w-1/3 flex-1">
-                        <label for="plate-number">{{
-                            'EXPLORE.PARKING_PLATE_NUMBER' | translate
-                        }}</label>
-                        <mat-form-field appearance="outline" class="w-full">
-                            <input
-                                matInput
-                                name="plate-number"
-                                formControlName="plate_number"
-                                [placeholder]="
-                                    'EXPLORE.PARKING_PLATE_NUMBER' | translate
-                                "
-                            />
-                        </mat-form-field>
+                }
+            </header>
+            @if (!loading) {
+                <main
+                    class="flex max-h-[65vh] flex-col overflow-auto p-4"
+                    [formGroup]="form"
+                >
+                    <div class="mb-4 flex items-center space-x-2">
+                        <a-user-search-field
+                            name="user"
+                            formControlName="user"
+                            class="flex-1"
+                        ></a-user-search-field>
+                        <button
+                            icon
+                            matRipple
+                            class="h-12 w-12 min-w-12 rounded bg-secondary text-secondary-content"
+                            matTooltip="Clear Selected User"
+                            (click)="
+                                form.patchValue({
+                                    user: null,
+                                    email: null,
+                                    name: null,
+                                    phone: null,
+                                })
+                            "
+                        >
+                            <icon className="material-symbols-outlined">
+                                person_cancel
+                            </icon>
+                        </button>
                     </div>
-                    <div class="w-1/3 flex-1">
-                        <label for="car-color">{{
-                            'APP.CONCIERGE.PARKING_CAR_COLOUR' | translate
-                        }}</label>
-                        <mat-form-field appearance="outline" class="w-full">
-                            <input
-                                matInput
-                                name="car-color"
-                                formControlName="car_color"
-                                [placeholder]="
-                                    'APP.CONCIERGE.PARKING_CAR_COLOUR'
-                                        | translate
-                                "
-                            />
-                        </mat-form-field>
+                    <label for="name">{{ 'FORM.NAME' | translate }}</label>
+                    <mat-form-field appearance="outline">
+                        <input
+                            matInput
+                            name="name"
+                            formControlName="name"
+                            placeholder="Name"
+                        />
+                        <mat-error>{{
+                            'FORM.NAME_REQUIRED' | translate
+                        }}</mat-error>
+                    </mat-form-field>
+                    <label for="email">{{ 'FORM.EMAIL' | translate }}</label>
+                    <mat-form-field appearance="outline">
+                        <input
+                            matInput
+                            name="email"
+                            formControlName="email"
+                            [placeholder]="'FORM.EMAIL' | translate"
+                        />
+                        <mat-error>{{
+                            'FORM.EMAIL_REQUIRED' | translate
+                        }}</mat-error>
+                    </mat-form-field>
+                    <div class="flex items-center space-x-2">
+                        <div class="w-1/3 flex-1">
+                            <label for="plate-number">{{
+                                'EXPLORE.PARKING_PLATE_NUMBER' | translate
+                            }}</label>
+                            <mat-form-field appearance="outline" class="w-full">
+                                <input
+                                    matInput
+                                    name="plate-number"
+                                    formControlName="plate_number"
+                                    [placeholder]="
+                                        'EXPLORE.PARKING_PLATE_NUMBER'
+                                            | translate
+                                    "
+                                />
+                            </mat-form-field>
+                        </div>
+                        <div class="w-1/3 flex-1">
+                            <label for="car-color">{{
+                                'APP.CONCIERGE.PARKING_CAR_COLOUR' | translate
+                            }}</label>
+                            <mat-form-field appearance="outline" class="w-full">
+                                <input
+                                    matInput
+                                    name="car-color"
+                                    formControlName="car_color"
+                                    [placeholder]="
+                                        'APP.CONCIERGE.PARKING_CAR_COLOUR'
+                                            | translate
+                                    "
+                                />
+                            </mat-form-field>
+                        </div>
                     </div>
-                </div>
-                <label for="notes">{{ 'FORM.NOTES' | translate }}</label>
-                <mat-form-field appearance="outline">
-                    <textarea
-                        matInput
-                        name="notes"
-                        formControlName="notes"
-                        [placeholder]="'FORM.NOTES' | translate"
-                    ></textarea>
-                </mat-form-field>
-                <div class="mb-4 flex items-center">
-                    <settings-toggle
-                        class="flex-1"
-                        [name]="
-                            'APP.CONCIERGE.PARKING_USER_DENY_PLACEHOLER'
-                                | translate
-                        "
-                        formControlName="deny"
-                    >
-                    </settings-toggle>
-                </div>
-            </main>
-            <footer
-                *ngIf="!loading"
-                class="flex items-center justify-end space-x-2 border-t border-base-200 p-2"
-            >
-                <button btn matRipple class="w-32" (click)="postForm()">
-                    {{ 'COMMON.SAVE' | translate }}
-                </button>
-            </footer>
+                    <label for="notes">{{ 'FORM.NOTES' | translate }}</label>
+                    <mat-form-field appearance="outline">
+                        <textarea
+                            matInput
+                            name="notes"
+                            formControlName="notes"
+                            [placeholder]="'FORM.NOTES' | translate"
+                        ></textarea>
+                    </mat-form-field>
+                    <div class="mb-4 flex items-center">
+                        <settings-toggle
+                            class="flex-1"
+                            [name]="
+                                'APP.CONCIERGE.PARKING_USER_DENY_PLACEHOLER'
+                                    | translate
+                            "
+                            formControlName="deny"
+                        >
+                        </settings-toggle>
+                    </div>
+                </main>
+            } @else {
+                <main
+                    class="user-y-2 flex flex-col items-center justify-center p-8"
+                >
+                    <mat-spinner diameter="32"></mat-spinner>
+                    <p>{{ 'APP.CONCIERGE.PARKING_USER_SAVE' | translate }}</p>
+                </main>
+            }
+            @if (!loading) {
+                <footer
+                    class="flex items-center justify-end space-x-2 border-t border-base-200 p-2"
+                >
+                    <button btn matRipple class="w-32" (click)="postForm()">
+                        {{ 'COMMON.SAVE' | translate }}
+                    </button>
+                </footer>
+            }
         </div>
-        <ng-template #load_state>
-            <main
-                class="user-y-2 flex flex-col items-center justify-center p-8"
-            >
-                <mat-spinner diameter="32"></mat-spinner>
-                <p>{{ 'APP.CONCIERGE.PARKING_USER_SAVE' | translate }}</p>
-            </main>
-        </ng-template>
     `,
     styles: [``],
     standalone: false,

@@ -18,9 +18,7 @@ import { Space } from 'libs/spaces/src/lib/space.class';
             <h2 class="m-0 w-full bg-error px-4 py-2 text-2xl text-white">
                 {{ 'APP.BOOKING_PANEL.BOOTSTRAP_TITLE' | translate }}
             </h2>
-            <ng-container
-                *ngIf="!loading || loading === 'search'; else load_state"
-            >
+            @if (!loading || loading === 'search') {
                 <p class="description py-4">
                     {{ 'COMMON.BOOTSTRAP_DESCRIPTION' | translate }}
                 </p>
@@ -35,50 +33,47 @@ import { Space } from 'libs/spaces/src/lib/space.class';
                         [placeholder]="'COMMON.BOOTSTRAP_LABEL' | translate"
                         (ngModelChange)="system_id$.next($event)"
                     />
-                    <mat-spinner
-                        [diameter]="32"
-                        matSuffix
-                        *ngIf="loading === 'search'"
-                    ></mat-spinner>
+                    @if (loading === 'search') {
+                        <mat-spinner [diameter]="32" matSuffix></mat-spinner>
+                    }
                 </mat-form-field>
                 <mat-autocomplete #auto="matAutocomplete">
-                    <mat-option
-                        *ngFor="let option of space_list | async"
-                        [value]="option.id"
-                    >
-                        <div
-                            class="flex w-full items-center space-x-4 leading-tight"
-                        >
-                            <div class="flex flex-1 flex-col">
-                                <div>
-                                    {{ option.display_name || option.name }}
-                                </div>
-                                <div
-                                    class="text-xs opacity-30"
-                                    *ngIf="
+                    @for (option of space_list | async; track option) {
+                        <mat-option [value]="option.id">
+                            <div
+                                class="flex w-full items-center space-x-4 leading-tight"
+                            >
+                                <div class="flex flex-1 flex-col">
+                                    <div>
+                                        {{ option.display_name || option.name }}
+                                    </div>
+                                    @if (
                                         option.display_name &&
                                         option.display_name !== option.name
-                                    "
+                                    ) {
+                                        <div class="text-xs opacity-30">
+                                            {{ option.name }}
+                                        </div>
+                                    }
+                                </div>
+                                <div
+                                    class="rounded bg-base-200 px-2 py-1 font-mono text-[0.625rem]"
                                 >
-                                    {{ option.name }}
+                                    {{ option.id }}
                                 </div>
                             </div>
-                            <div
-                                class="rounded bg-base-200 px-2 py-1 font-mono text-[0.625rem]"
-                            >
-                                {{ option.id }}
-                            </div>
-                        </div>
-                    </mat-option>
-                    <mat-option
-                        class="pointer-events-none opacity-60"
-                        *ngIf="
-                            system_id$.getValue()?.length < 2 &&
-                            !(space_list | async)?.length
-                        "
-                    >
-                        {{ 'COMMON.BOOTSTRAP_INPUT_PLACEHOLDER' | translate }}
-                    </mat-option>
+                        </mat-option>
+                    }
+                    @if (
+                        system_id$.getValue()?.length < 2 &&
+                        !(space_list | async)?.length
+                    ) {
+                        <mat-option class="pointer-events-none opacity-60">
+                            {{
+                                'COMMON.BOOTSTRAP_INPUT_PLACEHOLDER' | translate
+                            }}
+                        </mat-option>
+                    }
                 </mat-autocomplete>
                 <button
                     btn
@@ -88,16 +83,15 @@ import { Space } from 'libs/spaces/src/lib/space.class';
                 >
                     {{ 'COMMON.BOOTSTRAP_SUBMIT' | translate }}
                 </button>
-            </ng-container>
-        </div>
-        <ng-template #load_state>
-            <div load class="my-16 flex flex-col items-center">
-                <mat-spinner [diameter]="32"></mat-spinner>
-                <div class="m-4">
-                    {{ 'COMMON.BOOTSTRAP_LOADING' | translate }}
+            } @else {
+                <div load class="my-16 flex flex-col items-center">
+                    <mat-spinner [diameter]="32"></mat-spinner>
+                    <div class="m-4">
+                        {{ 'COMMON.BOOTSTRAP_LOADING' | translate }}
+                    </div>
                 </div>
-            </div>
-        </ng-template>
+            }
+        </div>
     `,
     styles: [
         `

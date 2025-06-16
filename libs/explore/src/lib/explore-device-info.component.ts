@@ -3,7 +3,6 @@ import { getModule } from '@placeos/ts-client';
 import { differenceInMinutes, formatDistanceToNow } from 'date-fns';
 import { Observable } from 'rxjs';
 
-import { CommonModule } from '@angular/common';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
 import { MAP_FEATURE_DATA } from 'libs/components/src/lib/interactive-map.component';
@@ -61,13 +60,14 @@ const EMPTY = [];
             >
                 <div class="arrow"></div>
                 <div class="details">
-                    <p
-                        class="break-words"
-                        *ngIf="mac && !hide_fields.includes('mac')"
-                    >
-                        <label>{{ 'EXPLORE.DEVICE_MAC' | translate }}:</label>
-                        {{ mac }}
-                    </p>
+                    @if (mac && !hide_fields.includes('mac')) {
+                        <p class="break-words">
+                            <label
+                                >{{ 'EXPLORE.DEVICE_MAC' | translate }}:</label
+                            >
+                            {{ mac }}
+                        </p>
+                    }
                     <p>
                         <label
                             >{{ 'EXPLORE.DEVICE_ACCURACY' | translate }}:</label
@@ -82,41 +82,52 @@ const EMPTY = [];
                         >
                         {{ last_seen }}
                     </p>
-                    <p
-                        type
-                        *ngIf="
-                            manufacturer &&
-                            !hide_fields.includes('manufacturer')
-                        "
-                    >
-                        <label
-                            >{{
-                                'EXPLORE.DEVICE_MANUFACTURER' | translate
-                            }}:</label
-                        >
-                        {{ manufacturer }}
-                    </p>
-                    <p os *ngIf="os && !hide_fields.includes('os')">
-                        <label>{{ 'EXPLORE.DEVICE_OS' | translate }}:</label>
-                        {{ os }}
-                    </p>
-                    <p ssid *ngIf="ssid && !hide_fields.includes('ssid')">
-                        <label>{{ 'EXPLORE.DEVICE_SSID' | translate }}:</label>
-                        {{ ssid }}
-                    </p>
-                    <p
-                        username
-                        *ngIf="username && !hide_fields.includes('username')"
-                    >
-                        <label
-                            >{{ 'EXPLORE.DEVICE_USERNAME' | translate }}:</label
-                        >
-                        {{ user?.name || user?.username || username }}
-                    </p>
-                    <p user *ngIf="user && !hide_fields.includes('user')">
-                        <label>{{ 'EXPLORE.DEVICE_TYPE' | translate }}:</label>
-                        {{ user.type }}
-                    </p>
+                    @if (
+                        manufacturer && !hide_fields.includes('manufacturer')
+                    ) {
+                        <p type>
+                            <label
+                                >{{
+                                    'EXPLORE.DEVICE_MANUFACTURER' | translate
+                                }}:</label
+                            >
+                            {{ manufacturer }}
+                        </p>
+                    }
+                    @if (os && !hide_fields.includes('os')) {
+                        <p os>
+                            <label
+                                >{{ 'EXPLORE.DEVICE_OS' | translate }}:</label
+                            >
+                            {{ os }}
+                        </p>
+                    }
+                    @if (ssid && !hide_fields.includes('ssid')) {
+                        <p ssid>
+                            <label
+                                >{{ 'EXPLORE.DEVICE_SSID' | translate }}:</label
+                            >
+                            {{ ssid }}
+                        </p>
+                    }
+                    @if (username && !hide_fields.includes('username')) {
+                        <p username>
+                            <label
+                                >{{
+                                    'EXPLORE.DEVICE_USERNAME' | translate
+                                }}:</label
+                            >
+                            {{ user?.name || user?.username || username }}
+                        </p>
+                    }
+                    @if (user && !hide_fields.includes('user')) {
+                        <p user>
+                            <label
+                                >{{ 'EXPLORE.DEVICE_TYPE' | translate }}:</label
+                            >
+                            {{ user.type }}
+                        </p>
+                    }
                 </div>
             </div>
         </ng-template>
@@ -142,7 +153,7 @@ const EMPTY = [];
             }
         `,
     ],
-    imports: [CommonModule, TranslatePipe, CustomTooltipComponent],
+    imports: [TranslatePipe, CustomTooltipComponent],
 })
 export class ExploreDeviceInfoComponent extends AsyncHandler implements OnInit {
     /** Name of the user associated with the mac address */

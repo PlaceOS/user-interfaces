@@ -11,15 +11,11 @@ import { PointsStateService } from './points-state.service';
             <app-sidebar></app-sidebar>
             <main class="flex h-full w-1/2 flex-1 flex-col">
                 <points-topbar class="relative z-10">
-                    <button
-                        *ngIf="page === 'assets'"
-                        btn
-                        matRipple
-                        class="w-40"
-                        (click)="newAsset()"
-                    >
-                        {{ 'APP.CONCIERGE.POINTS_ASSETS_ADD' | translate }}
-                    </button>
+                    @if (page === 'assets') {
+                        <button btn matRipple class="w-40" (click)="newAsset()">
+                            {{ 'APP.CONCIERGE.POINTS_ASSETS_ADD' | translate }}
+                        </button>
+                    }
                 </points-topbar>
                 <div class="mb-4 px-8">
                     <nav mat-tab-nav-bar [tabPanel]="tabPanel">

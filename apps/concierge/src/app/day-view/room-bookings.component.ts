@@ -49,33 +49,30 @@ const EMPTY = [];
                         [placeholder]="'COMMON.LEVEL_ALL' | translate"
                         multiple
                     >
-                        <mat-option
-                            *ngFor="let level of levels | async"
-                            [value]="level.id"
-                        >
-                            <div class="flex flex-col-reverse">
-                                <div
-                                    class="text-xs opacity-30"
-                                    *ngIf="use_region"
-                                >
-                                    {{
-                                        (level.parent_id | building)
-                                            ?.display_name
-                                    }}
-                                    <span class="opacity-0"> - </span>
+                        @for (level of levels | async; track level) {
+                            <mat-option [value]="level.id">
+                                <div class="flex flex-col-reverse">
+                                    @if (use_region) {
+                                        <div class="text-xs opacity-30">
+                                            {{
+                                                (level.parent_id | building)
+                                                    ?.display_name
+                                            }}
+                                            <span class="opacity-0"> - </span>
+                                        </div>
+                                    }
+                                    <div>
+                                        {{ level.display_name || level.name }}
+                                    </div>
                                 </div>
-                                <div>
-                                    {{ level.display_name || level.name }}
-                                </div>
-                            </div>
-                        </mat-option>
+                            </mat-option>
+                        }
                     </mat-select>
                 </mat-form-field>
-                <ng-container *ngIf="allow_setup_breakdown">
-                    <div
-                        class="ml-8 mr-4 h-full border-l"
-                        *ngIf="!use_region"
-                    ></div>
+                @if (allow_setup_breakdown) {
+                    @if (!use_region) {
+                        <div class="ml-8 mr-4 h-full border-l"></div>
+                    }
                     <mat-slide-toggle
                         class="m-2"
                         [ngModel]="(ui_options | async)?.show_overflow"
@@ -87,7 +84,7 @@ const EMPTY = [];
                             {{ 'APP.CONCIERGE.SETUP_BREAKDOWN' | translate }}
                         </div>
                     </mat-slide-toggle>
-                </ng-container>
+                }
                 <div class="ml-8 mr-4 h-full border-l"></div>
                 <div
                     class="flex max-w-[calc(100%-16rem)] flex-1 items-center space-x-2"
@@ -107,55 +104,58 @@ const EMPTY = [];
                         <div
                             class="flex w-48 flex-col space-y-2 overflow-hidden"
                         >
-                            <mat-checkbox
-                                *ngFor="let type of types"
-                                [ngModel]="!type_list.includes(type.id)"
-                                (ngModelChange)="setFilter(type.id, !$event)"
-                            >
-                                {{ type.name }}
-                            </mat-checkbox>
+                            @for (type of types; track type) {
+                                <mat-checkbox
+                                    [ngModel]="!type_list.includes(type.id)"
+                                    (ngModelChange)="
+                                        setFilter(type.id, !$event)
+                                    "
+                                >
+                                    {{ type.name }}
+                                </mat-checkbox>
+                            }
                         </div>
                     </mat-menu>
                     <div
                         class="flex w-px flex-1 items-center space-x-2 overflow-x-auto px-2"
                     >
                         @for (type of types; track type.id) {
-                            <div
-                                class="flex items-center rounded-3xl border border-base-200"
-                                *ngIf="!type_list.includes(type.id)"
-                            >
+                            @if (!type_list.includes(type.id)) {
                                 <div
-                                    class="m-2 h-4 w-4 rounded-full"
-                                    [style.background-color]="type.color"
-                                ></div>
-                                <div class="truncate">
-                                    {{ type.name }}
-                                </div>
-                                <button
-                                    icon
-                                    matRipple
-                                    (click)="setFilter(type.id, true)"
+                                    class="flex items-center rounded-3xl border border-base-200"
                                 >
-                                    <icon class="text-xl">close</icon>
-                                </button>
-                            </div>
+                                    <div
+                                        class="m-2 h-4 w-4 rounded-full"
+                                        [style.background-color]="type.color"
+                                    ></div>
+                                    <div class="truncate">
+                                        {{ type.name }}
+                                    </div>
+                                    <button
+                                        icon
+                                        matRipple
+                                        (click)="setFilter(type.id, true)"
+                                    >
+                                        <icon class="text-xl">close</icon>
+                                    </button>
+                                </div>
+                            }
                         }
                     </div>
                 </div>
             </div>
             <div class="mt-4 flex h-px w-full flex-1 border-t border-base-200">
-                <room-bookings-timeline
-                    *ngIf="(period | async) === 'day'"
-                    class="relative z-0 w-1/2 flex-1"
-                />
-                <room-week-bookings-timeline
-                    *ngIf="(period | async) === 'week'"
-                    class="relative z-0 w-1/2 flex-1"
-                />
-                <room-bookings-approvals
-                    class="relative z-10"
-                    *ngIf="has_approvals"
-                />
+                @if ((period | async) === 'day') {
+                    <room-bookings-timeline class="relative z-0 w-1/2 flex-1" />
+                }
+                @if ((period | async) === 'week') {
+                    <room-week-bookings-timeline
+                        class="relative z-0 w-1/2 flex-1"
+                    />
+                }
+                @if (has_approvals) {
+                    <room-bookings-approvals class="relative z-10" />
+                }
             </div>
         </div>
     `,

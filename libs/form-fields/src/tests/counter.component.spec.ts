@@ -1,15 +1,16 @@
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { IconComponent, SafePipe } from '@placeos/components';
-import { MockComponent } from 'ng-mocks';
+import { MockComponent, MockPipe } from 'ng-mocks';
 
 import { FormsModule } from '@angular/forms';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { SafePipe } from 'libs/components/src/lib/safe.pipe';
 import { CounterComponent } from '../lib/counter.component';
 
 describe('CounterComponent', () => {
     let spectator: Spectator<CounterComponent>;
     const createComponent = createComponentFactory({
         component: CounterComponent,
-        declarations: [MockComponent(IconComponent), SafePipe],
+        declarations: [MockComponent(IconComponent), MockPipe(SafePipe)],
         imports: [FormsModule],
     });
 

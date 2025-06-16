@@ -15,74 +15,75 @@ export enum ZoomDirection {
 @Component({
     selector: 'camera-controls',
     template: `
-        <div class="flex flex-col" *ngIf="(camera_list | async)?.length">
-            <mat-form-field appearance="outline" class="m-4 h-12">
-                <mat-select
-                    [(ngModel)]="active_camera"
-                    (ngModelChange)="selectCamera($event)"
-                    [placeholder]="'APP.CONTROL.CAMERA_SELECT' | translate"
-                >
-                    <mat-option
-                        *ngFor="let cam of camera_list | async"
-                        [value]="cam"
+        @if ((camera_list | async)?.length) {
+            <div class="flex flex-col">
+                <mat-form-field appearance="outline" class="m-4 h-12">
+                    <mat-select
+                        [(ngModel)]="active_camera"
+                        (ngModelChange)="selectCamera($event)"
+                        [placeholder]="'APP.CONTROL.CAMERA_SELECT' | translate"
                     >
-                        {{ cam.name }}
-                    </mat-option>
-                </mat-select>
-            </mat-form-field>
-            <div class="p-4">
-                <h3 class="mb-2 text-xl font-medium">
-                    {{ 'APP.CONTROL.CONTROLS' | translate }}
-                </h3>
-                <div class="flex items-center space-x-2">
-                    <joystick
-                        [(pan)]="pan"
-                        [(tilt)]="tilt"
-                        (panChange)="moveCamera()"
-                        (tiltChange)="moveCamera()"
-                    ></joystick>
-                    <div
-                        zoom
-                        class="flex flex-col items-center rounded border border-base-200"
-                    >
-                        <button
-                            zoom-in
-                            icon
-                            matRipple
-                            class="rounded"
-                            (mousedown)="startZoom('in', $event)"
-                            (touchstart)="startZoom('in', $event)"
-                            (contextmenu)="$event.preventDefault()"
-                        >
-                            <icon>add</icon>
-                        </button>
+                        @for (cam of camera_list | async; track cam) {
+                            <mat-option [value]="cam">
+                                {{ cam.name }}
+                            </mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
+                <div class="p-4">
+                    <h3 class="mb-2 text-xl font-medium">
+                        {{ 'APP.CONTROL.CONTROLS' | translate }}
+                    </h3>
+                    <div class="flex items-center space-x-2">
+                        <joystick
+                            [(pan)]="pan"
+                            [(tilt)]="tilt"
+                            (panChange)="moveCamera()"
+                            (tiltChange)="moveCamera()"
+                        ></joystick>
                         <div
-                            class="flex h-10 w-10 items-center justify-center border-b border-t border-base-200 text-xs"
+                            zoom
+                            class="flex flex-col items-center rounded border border-base-200"
                         >
-                            {{ 'APP.CONTROL.ZOOM' | translate }}
+                            <button
+                                zoom-in
+                                icon
+                                matRipple
+                                class="rounded"
+                                (mousedown)="startZoom('in', $event)"
+                                (touchstart)="startZoom('in', $event)"
+                                (contextmenu)="$event.preventDefault()"
+                            >
+                                <icon>add</icon>
+                            </button>
+                            <div
+                                class="flex h-10 w-10 items-center justify-center border-b border-t border-base-200 text-xs"
+                            >
+                                {{ 'APP.CONTROL.ZOOM' | translate }}
+                            </div>
+                            <button
+                                zoom-out
+                                icon
+                                matRipple
+                                class="rounded"
+                                (mousedown)="startZoom('out', $event)"
+                                (touchstart)="startZoom('out', $event)"
+                                (contextmenu)="$event.preventDefault()"
+                            >
+                                <icon>remove</icon>
+                            </button>
                         </div>
-
-                        <button
-                            zoom-out
-                            icon
-                            matRipple
-                            class="rounded"
-                            (mousedown)="startZoom('out', $event)"
-                            (touchstart)="startZoom('out', $event)"
-                            (contextmenu)="$event.preventDefault()"
-                        >
-                            <icon>remove</icon>
-                        </button>
                     </div>
                 </div>
+                @if (!active_camera) {
+                    <div
+                        class="absolute inset-0 flex items-center justify-center bg-base-100 bg-opacity-75"
+                    >
+                        <p>{{ 'APP.CONTROL.CAMERA_SELECT_MSG' | translate }}</p>
+                    </div>
+                }
             </div>
-            <div
-                class="absolute inset-0 flex items-center justify-center bg-base-100 bg-opacity-75"
-                *ngIf="!active_camera"
-            >
-                <p>{{ 'APP.CONTROL.CAMERA_SELECT_MSG' | translate }}</p>
-            </div>
-        </div>
+        }
     `,
     styles: [``],
     standalone: false,

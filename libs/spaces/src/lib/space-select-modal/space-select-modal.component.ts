@@ -69,15 +69,25 @@ import { SpaceListComponent } from './space-list.component';
                         class="w-full border-b border-base-200"
                         [(view)]="view"
                     ></space-filters-display>
-                    <space-list
-                        *ngIf="view === 'list'; else map_view"
-                        [active]="displayed?.id"
-                        [selected]="selected_ids"
-                        [favorites]="favorites"
-                        (toggleFav)="toggleFavourite($event)"
-                        (onSelect)="displayed = $event"
-                        class="h-1/2 flex-1 bg-base-200"
-                    ></space-list>
+                    @if (view === 'list') {
+                        <space-list
+                            [active]="displayed?.id"
+                            [selected]="selected_ids"
+                            [favorites]="favorites"
+                            (toggleFav)="toggleFavourite($event)"
+                            (onSelect)="displayed = $event"
+                            class="h-1/2 flex-1 bg-base-200"
+                        ></space-list>
+                    } @else {
+                        <space-map
+                            class="h-1/2 w-full flex-1"
+                            [selected]="selected_ids"
+                            [is_displayed]="!!displayed"
+                            [active]="displayed?.id"
+                            (onSelect)="displayed = $event"
+                        >
+                        </space-map>
+                    }
                 </div>
                 <space-details
                     [space]="displayed"
@@ -96,16 +106,17 @@ import { SpaceListComponent } from './space-list.component';
             <footer
                 class="flex w-full flex-col-reverse items-center justify-end border-t border-base-200 px-2 pb-[5.5rem] pt-2 sm:hidden"
             >
-                <button
-                    btn
-                    matRipple
-                    name="spaces-return"
-                    class="inverse w-full sm:hidden"
-                    *ngIf="displayed"
-                    (click)="displayed = null"
-                >
-                    {{ 'COMMON.BACK' | translate }}
-                </button>
+                @if (displayed) {
+                    <button
+                        btn
+                        matRipple
+                        name="spaces-return"
+                        class="inverse w-full sm:hidden"
+                        (click)="displayed = null"
+                    >
+                        {{ 'COMMON.BACK' | translate }}
+                    </button>
+                }
                 <button
                     btn
                     matRipple
@@ -164,16 +175,6 @@ import { SpaceListComponent } from './space-list.component';
                 </button>
             </footer>
         </div>
-        <ng-template #map_view>
-            <space-map
-                class="h-1/2 w-full flex-1"
-                [selected]="selected_ids"
-                [is_displayed]="!!displayed"
-                [active]="displayed?.id"
-                (onSelect)="displayed = $event"
-            >
-            </space-map>
-        </ng-template>
     `,
     styles: [``],
     imports: [

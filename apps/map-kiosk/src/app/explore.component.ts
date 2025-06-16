@@ -52,7 +52,9 @@ import { first, map } from 'rxjs/operators';
             <div
                 class="absolute right-2 top-1/2 flex -translate-y-1/2 items-center"
             >
-                <explore-search *ngIf="can_search"></explore-search>
+                @if (can_search) {
+                    <explore-search></explore-search>
+                }
                 <button
                     icon
                     matRipple
@@ -69,12 +71,12 @@ import { first, map } from 'rxjs/operators';
                 </ng-template>
             </div>
         </div>
-        <ng-container *ngIf="(levels | async)?.length || legend.length">
+        @if ((levels | async)?.length || legend.length) {
             <div
                 options
                 class="flex items-center space-x-2 bg-base-content p-2 text-base-100 sm:hidden"
             >
-                <ng-container *ngIf="(levels | async)?.length">
+                @if ((levels | async)?.length) {
                     <button
                         btn
                         matRipple
@@ -85,16 +87,14 @@ import { first, map } from 'rxjs/operators';
                         <icon class="text-2xl">keyboard_arrow_down</icon>
                     </button>
                     <mat-menu #levelMenu="matMenu">
-                        <button
-                            mat-menu-item
-                            *ngFor="let lvl of levels | async"
-                            (click)="setLevel(lvl)"
-                        >
-                            {{ lvl.display_name || lvl.name }}
-                        </button>
+                        @for (lvl of levels | async; track lvl) {
+                            <button mat-menu-item (click)="setLevel(lvl)">
+                                {{ lvl.display_name || lvl.name }}
+                            </button>
+                        }
                     </mat-menu>
-                </ng-container>
-                <ng-container *ngIf="legend.length">
+                }
+                @if (legend.length) {
                     <button
                         btn
                         matRipple
@@ -105,28 +105,29 @@ import { first, map } from 'rxjs/operators';
                         <icon class="text-2xl">keyboard_arrow_down</icon>
                     </button>
                     <mat-menu #legendMenu="matMenu">
-                        <div
-                            class="flex w-full items-center space-x-4 rounded px-4 py-2 hover:bg-base-200"
-                            *ngFor="let value of legend"
-                        >
+                        @for (value of legend; track value) {
                             <div
-                                class="h-3 w-3 rounded-full"
-                                [style.background-color]="value.color"
-                            ></div>
-                            <div class="text-left opacity-60">
-                                {{ value.name }}
+                                class="flex w-full items-center space-x-4 rounded px-4 py-2 hover:bg-base-200"
+                            >
+                                <div
+                                    class="h-3 w-3 rounded-full"
+                                    [style.background-color]="value.color"
+                                ></div>
+                                <div class="text-left opacity-60">
+                                    {{ value.name }}
+                                </div>
                             </div>
-                        </div>
+                        }
                     </mat-menu>
-                </ng-container>
+                }
             </div>
-        </ng-container>
+        }
         <div class="flex h-1/2 flex-1">
             <div
                 sidebar
                 class="hidden w-[20rem] border-r border-base-300 bg-base-100 px-2 py-4 text-base-content sm:block"
             >
-                <ng-container *ngIf="(levels | async)?.length">
+                @if ((levels | async)?.length) {
                     <button
                         btn
                         matRipple
@@ -143,25 +144,26 @@ import { first, map } from 'rxjs/operators';
                     </button>
                     <div class="px-8" [@show]="show_levels ? 'show' : 'hide'">
                         <div class="space-y-2 py-4">
-                            <button
-                                *ngFor="let lvl of levels | async"
-                                btn
-                                matRipple
-                                class="clear w-full hover:bg-base-200 hover:opacity-100"
-                                [class.opacity-30]="
-                                    lvl.id !== (level | async)?.id
-                                "
-                                (click)="setLevel(lvl)"
-                            >
-                                <div class="w-full text-left">
-                                    {{ lvl.display_name || lvl.name }}
-                                </div>
-                            </button>
+                            @for (lvl of levels | async; track lvl) {
+                                <button
+                                    btn
+                                    matRipple
+                                    class="clear w-full hover:bg-base-200 hover:opacity-100"
+                                    [class.opacity-30]="
+                                        lvl.id !== (level | async)?.id
+                                    "
+                                    (click)="setLevel(lvl)"
+                                >
+                                    <div class="w-full text-left">
+                                        {{ lvl.display_name || lvl.name }}
+                                    </div>
+                                </button>
+                            }
                         </div>
                     </div>
                     <hr class="mx-auto w-[calc(100%-4rem)]" />
-                </ng-container>
-                <ng-container *ngIf="legend.length && legend_visible">
+                }
+                @if (legend.length && legend_visible) {
                     <button
                         btn
                         matRipple
@@ -178,22 +180,23 @@ import { first, map } from 'rxjs/operators';
                     </button>
                     <div class="px-8" [@show]="show_legend ? 'show' : 'hide'">
                         <div class="space-y-2 py-4">
-                            <div
-                                class="flex w-full items-center space-x-4 rounded px-4 py-2 hover:bg-base-200"
-                                *ngFor="let value of legend"
-                            >
+                            @for (value of legend; track value) {
                                 <div
-                                    class="h-3 w-3 rounded-full"
-                                    [style.background-color]="value.color"
-                                ></div>
-                                <div class="text-left opacity-60">
-                                    {{ value.name }}
+                                    class="flex w-full items-center space-x-4 rounded px-4 py-2 hover:bg-base-200"
+                                >
+                                    <div
+                                        class="h-3 w-3 rounded-full"
+                                        [style.background-color]="value.color"
+                                    ></div>
+                                    <div class="text-left opacity-60">
+                                        {{ value.name }}
+                                    </div>
                                 </div>
-                            </div>
+                            }
                         </div>
                     </div>
                     <hr class="mx-auto w-[calc(100%-4rem)]" />
-                </ng-container>
+                }
                 <button
                     btn
                     matRipple

@@ -21,17 +21,18 @@ import { ReportsStateService } from '../reports-state.service';
                 <h3 class="flex-1 text-xl font-bold">
                     {{ 'APP.CONCIERGE.REPORTS_ROOMS_UTIL_HEADER' | translate }}
                 </h3>
-                <button
-                    icon
-                    matRipple
-                    [matTooltip]="
-                        'APP.CONCIERGE.REPORTS_DOWNLOAD_TABLE' | translate
-                    "
-                    (click)="download()"
-                    *ngIf="!print"
-                >
-                    <icon>download</icon>
-                </button>
+                @if (!print) {
+                    <button
+                        icon
+                        matRipple
+                        [matTooltip]="
+                            'APP.CONCIERGE.REPORTS_DOWNLOAD_TABLE' | translate
+                        "
+                        (click)="download()"
+                    >
+                        <icon>download</icon>
+                    </button>
+                }
             </div>
             <simple-table
                 class="block w-full text-sm"
@@ -88,9 +89,11 @@ import { ReportsStateService } from '../reports-state.service';
             <ng-template #capacity_template let-data="data">
                 <div class="p-4">
                     {{ data < 1 ? '' : data }}
-                    <span class="opacity-30" *ngIf="data < 1">{{
-                        'COMMON.CAPACITY_EMPTY' | translate
-                    }}</span>
+                    @if (data < 1) {
+                        <span class="opacity-30">{{
+                            'COMMON.CAPACITY_EMPTY' | translate
+                        }}</span>
+                    }
                 </div>
             </ng-template>
         </div>

@@ -20,12 +20,13 @@ const PLAYLIST_ITEM_COUNTS = {};
             <h3 class="text-xl font-medium">
                 {{ item?.display_name || item?.name }}
             </h3>
-            <div
-                *ngIf="extra"
-                class="rounded-lg bg-base-200 px-2 py-1 font-mono text-xs uppercase"
-            >
-                {{ extra }}
-            </div>
+            @if (extra) {
+                <div
+                    class="rounded-lg bg-base-200 px-2 py-1 font-mono text-xs uppercase"
+                >
+                    {{ extra }}
+                </div>
+            }
         </div>
         <ng-content></ng-content>
         @if ((active_playlists | async).length > 0 && item) {

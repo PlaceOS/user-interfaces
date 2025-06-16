@@ -89,44 +89,35 @@ import { DesksStateService } from './desks-state.service';
             <ng-template #group_template let-row="row">
                 <div class="p-4 font-mono text-[0.625rem]">
                     {{ row.group || row.extension_data?.group }}
-                    <span
-                        class="opacity-30"
-                        *ngIf="!(row.group || row.extension_data?.group)"
-                    >
-                        {{ 'APP.CONCIERGE.DESKS_GROUP_EMPTY' | translate }}
-                    </span>
+                    @if (!(row.group || row.extension_data?.group)) {
+                        <span class="opacity-30">
+                            {{ 'APP.CONCIERGE.DESKS_GROUP_EMPTY' | translate }}
+                        </span>
+                    }
                 </div>
             </ng-template>
             <ng-template #period_template let-row="row">
                 <div class="p-2">
-                    <ng-container
-                        *ngIf="
-                            row.status !== 'declined' &&
-                            !row.deleted &&
-                            row.status !== 'ended'
-                        "
-                    >
+                    @if (
+                        row.status !== 'declined' &&
+                        !row.deleted &&
+                        row.status !== 'ended'
+                    ) {
                         <div class="p-2">
-                            <ng-container
-                                *ngIf="!row.all_day && row.duration <= 12 * 60"
-                            >
+                            @if (!row.all_day && row.duration <= 12 * 60) {
                                 {{ row.date | date: time_format }} &ndash;
                                 {{ row.date_end | date: time_format }}
-                            </ng-container>
-                            <ng-container
-                                *ngIf="row.all_day || row.duration > 12 * 60"
-                            >
+                            }
+                            @if (row.all_day || row.duration > 12 * 60) {
                                 {{ 'COMMON.ALL_DAY' | translate }}
-                            </ng-container>
+                            }
                         </div>
-                    </ng-container>
-                    <ng-container
-                        *ngIf="
-                            row.status === 'declined' ||
-                            row.deleted ||
-                            row.status === 'ended'
-                        "
-                    >
+                    }
+                    @if (
+                        row.status === 'declined' ||
+                        row.deleted ||
+                        row.status === 'ended'
+                    ) {
                         <div
                             class="rounded-3xl bg-error px-4 py-2 text-xs text-white"
                         >
@@ -139,7 +130,7 @@ import { DesksStateService } from './desks-state.service';
                                 ) | translate
                             }}
                         </div>
-                    </ng-container>
+                    }
                 </div>
             </ng-template>
             <ng-template #user_template let-row="row">
@@ -152,12 +143,11 @@ import { DesksStateService } from './desks-state.service';
                                 row.booked_by_email
                         }}
                     </div>
-                    <div
-                        *ngIf="row.user_name"
-                        class="select-all text-xs opacity-30"
-                    >
-                        {{ row.user_email }}
-                    </div>
+                    @if (row.user_name) {
+                        <div class="select-all text-xs opacity-30">
+                            {{ row.user_email }}
+                        </div>
+                    }
                 </div>
             </ng-template>
             <ng-template #status_template let-row="row">
@@ -190,18 +180,14 @@ import { DesksStateService } from './desks-state.service';
                                     ) | translate
                                 }}
                             </div>
-                            <icon class="text-2xl">
-                                arrow_drop_down
-                            </icon>
+                            <icon class="text-2xl"> arrow_drop_down </icon>
                         </div>
                     </button>
                 </div>
                 <mat-menu #menu="matMenu">
                     <button mat-menu-item (click)="approve(row)">
                         <div class="flex items-center space-x-2">
-                            <icon class="text-2xl"
-                                >event_available</icon
-                            >
+                            <icon class="text-2xl">event_available</icon>
                             <div class="pr-2">
                                 {{
                                     'APP.CONCIERGE.DESKS_ACTION_APPROVE'
@@ -248,9 +234,7 @@ import { DesksStateService } from './desks-state.service';
                                         | translate
                                 }}
                             </div>
-                            <icon class="text-2xl">
-                                arrow_drop_down
-                            </icon>
+                            <icon class="text-2xl"> arrow_drop_down </icon>
                         </div>
                     </button>
                 </div>
@@ -292,15 +276,16 @@ import { DesksStateService } from './desks-state.service';
                 </div>
             </ng-template>
         </div>
-        <button
-            btn
-            matRipple
-            class="absolute bottom-2 left-4 z-20 w-32"
-            *ngIf="!loading && (has_more_pages | async)"
-            (click)="loadMore()"
-        >
-            {{ 'COMMON.LOAD_MORE' | translate }}
-        </button>
+        @if (!loading && (has_more_pages | async)) {
+            <button
+                btn
+                matRipple
+                class="absolute bottom-2 left-4 z-20 w-32"
+                (click)="loadMore()"
+            >
+                {{ 'COMMON.LOAD_MORE' | translate }}
+            </button>
+        }
     `,
     styles: [
         `

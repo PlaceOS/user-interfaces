@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import {
     Component,
     EventEmitter,
@@ -9,6 +8,7 @@ import {
 } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { ViewerFeature } from '@placeos/svg-viewer';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { ImageCarouselComponent } from 'libs/components/src/lib/image-carousel.component';
 import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
 import { MapPinComponent } from 'libs/components/src/lib/map-pin.component';
@@ -19,7 +19,7 @@ import { Space } from '../space.class';
 @Component({
     selector: `space-details`,
     template: `
-        <ng-container *ngIf="space; else empty_state">
+        @if (space) {
             <section
                 image
                 class="relative w-full bg-neutral"
@@ -29,11 +29,12 @@ import { Space } from '../space.class';
                 [class.h-12]="!space.images?.length"
                 [class.!bg-transparent]="!space.images?.length"
             >
-                <image-carousel
-                    [images]="space.images"
-                    *ngIf="space.images?.length"
-                    class="absolute inset-0"
-                ></image-carousel>
+                @if (space.images?.length) {
+                    <image-carousel
+                        [images]="space.images"
+                        class="absolute inset-0"
+                    ></image-carousel>
+                }
                 <button
                     icon
                     matRipple
@@ -61,18 +62,19 @@ import { Space } from '../space.class';
                         {{ space.display_name || space.name }}
                     </h2>
                 </section>
-                <div
-                    class="my-2 rounded px-2 py-1 text-xs"
-                    *ngIf="alert"
-                    [class.bg-info]="alert[0] === 'info'"
-                    [class.text-info-content]="alert[0] === 'info'"
-                    [class.bg-warning]="alert[0] === 'warn'"
-                    [class.text-warning-content]="alert[0] === 'warn'"
-                    [class.bg-error]="alert[0] === 'closed'"
-                    [class.text-error-content]="alert[0] === 'closed'"
-                >
-                    {{ alert[1] }}
-                </div>
+                @if (alert) {
+                    <div
+                        class="my-2 rounded px-2 py-1 text-xs"
+                        [class.bg-info]="alert[0] === 'info'"
+                        [class.text-info-content]="alert[0] === 'info'"
+                        [class.bg-warning]="alert[0] === 'warn'"
+                        [class.text-warning-content]="alert[0] === 'warn'"
+                        [class.bg-error]="alert[0] === 'closed'"
+                        [class.text-error-content]="alert[0] === 'closed'"
+                    >
+                        {{ alert[1] }}
+                    </div>
+                }
                 <hr />
                 <section details class="space-y-2">
                     <h2 class="text-xl font-medium">
@@ -105,35 +107,36 @@ import { Space } from '../space.class';
                     </div>
                 </section>
                 <hr />
-                <section
-                    facilities
-                    class="space-y-2"
-                    *ngIf="space.features?.length"
-                >
-                    <h2 class="text-xl font-medium">
-                        {{ 'CALENDAR_EVENT.FACILITIES' | translate }}
-                    </h2>
-                    <div
-                        class="flex items-center space-x-2"
-                        *ngFor="let feature of space.features"
+                @if (space.features?.length) {
+                    <section facilities class="space-y-2">
+                        <h2 class="text-xl font-medium">
+                            {{ 'CALENDAR_EVENT.FACILITIES' | translate }}
+                        </h2>
+                        @for (feature of space.features; track feature) {
+                            <div class="flex items-center space-x-2">
+                                <!-- <icon>people</icon> -->
+                                <p>{{ feature }}</p>
+                            </div>
+                        }
+                    </section>
+                }
+                @if (!hide_map) {
+                    <section
+                        map
+                        class="relative mx-auto h-64 w-full overflow-hidden rounded border border-base-200 sm:h-48"
                     >
-                        <!-- <icon>people</icon> -->
-                        <p>{{ feature }}</p>
-                    </div>
-                </section>
-                <section
-                    map
-                    class="relative mx-auto h-64 w-full overflow-hidden rounded border border-base-200 sm:h-48"
-                    *ngIf="!hide_map"
-                >
-                    <interactive-map
-                        class="pointer-events-none"
-                        [src]="map_url"
-                        [focus]="space.map_id"
-                        [features]="features"
-                        [options]="{ disable_pan: true, disable_zoom: true }"
-                    ></interactive-map>
-                </section>
+                        <interactive-map
+                            class="pointer-events-none"
+                            [src]="map_url"
+                            [focus]="space.map_id"
+                            [features]="features"
+                            [options]="{
+                                disable_pan: true,
+                                disable_zoom: true,
+                            }"
+                        ></interactive-map>
+                    </section>
+                }
             </div>
             <div
                 class="border-t border-base-200 px-2 pb-[5.5rem] pt-2 shadow sm:hidden"
@@ -161,8 +164,7 @@ import { Space } from '../space.class';
                     </div>
                 </button>
             </div>
-        </ng-container>
-        <ng-template #empty_state>
+        } @else {
             <div
                 empty
                 class="flex flex-col items-center justify-center space-y-2 p-16"
@@ -171,7 +173,7 @@ import { Space } from '../space.class';
                     {{ 'CALENDAR_EVENT.SPACE_LIST_INFO' | translate }}
                 </p>
             </div>
-        </ng-template>
+        }
     `,
     styles: [
         `
@@ -187,11 +189,11 @@ import { Space } from '../space.class';
         `,
     ],
     imports: [
-        CommonModule,
         TranslatePipe,
         MatRippleModule,
         InteractiveMapComponent,
         ImageCarouselComponent,
+        IconComponent,
     ],
 })
 export class SpaceDetailsComponent implements OnChanges {

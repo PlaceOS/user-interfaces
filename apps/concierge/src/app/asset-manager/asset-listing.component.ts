@@ -8,38 +8,37 @@ import { AssetManagerStateService } from './asset-manager-state.service';
     template: `
         <asset-manager-topbar [active]="active"></asset-manager-topbar>
         <div class="flex h-1/2 w-full flex-1 flex-col px-8">
-            <nav
-                mat-tab-nav-bar
-                *ngIf="!is_new || active !== 'requests'"
-                [tabPanel]="tabPanel"
-            >
-                <a
-                    mat-tab-link
-                    [routerLink]="[base_route, 'list', 'requests']"
-                    [routerLinkActive]="'active'"
-                    [active]="active === 'requests'"
-                    (click)="active = 'requests'"
-                    *ngIf="!is_new"
-                >
-                    {{ 'APP.CONCIERGE.ASSETS_REQUESTS' | translate }}
-                </a>
-                <a
-                    mat-tab-link
-                    [routerLink]="[base_route, 'list', 'items']"
-                    [active]="active === 'items'"
-                    (click)="active = 'items'"
-                >
-                    {{ 'APP.CONCIERGE.ASSETS_PRODUCTS' | translate }}
-                </a>
-                <a
-                    mat-tab-link
-                    [routerLink]="[base_route, 'list', 'purchase-orders']"
-                    [active]="active === 'purchase-orders'"
-                    (click)="active = 'purchase-orders'"
-                >
-                    {{ 'APP.CONCIERGE.ASSETS_PO' | translate }}
-                </a>
-            </nav>
+            @if (!is_new || active !== 'requests') {
+                <nav mat-tab-nav-bar [tabPanel]="tabPanel">
+                    @if (!is_new) {
+                        <a
+                            mat-tab-link
+                            [routerLink]="[base_route, 'list', 'requests']"
+                            [routerLinkActive]="'active'"
+                            [active]="active === 'requests'"
+                            (click)="active = 'requests'"
+                        >
+                            {{ 'APP.CONCIERGE.ASSETS_REQUESTS' | translate }}
+                        </a>
+                    }
+                    <a
+                        mat-tab-link
+                        [routerLink]="[base_route, 'list', 'items']"
+                        [active]="active === 'items'"
+                        (click)="active = 'items'"
+                    >
+                        {{ 'APP.CONCIERGE.ASSETS_PRODUCTS' | translate }}
+                    </a>
+                    <a
+                        mat-tab-link
+                        [routerLink]="[base_route, 'list', 'purchase-orders']"
+                        [active]="active === 'purchase-orders'"
+                        (click)="active = 'purchase-orders'"
+                    >
+                        {{ 'APP.CONCIERGE.ASSETS_PO' | translate }}
+                    </a>
+                </nav>
+            }
             <mat-tab-nav-panel
                 class="h-1/2 w-full flex-1 overflow-visible"
                 #tabPanel

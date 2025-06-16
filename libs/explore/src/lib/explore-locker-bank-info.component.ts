@@ -5,7 +5,6 @@ import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.c
 import { MAP_FEATURE_DATA } from 'libs/components/src/lib/interactive-map.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 
-import { CommonModule } from '@angular/common';
 import { Locker, LockerBank } from 'libs/bookings/src/lib/locker.class';
 import { ExploreLockerBankModalComponent } from './explore-locker-bank-modal.component';
 
@@ -60,7 +59,7 @@ export interface LockerBankInfoData {
         >
     `,
     styles: [``],
-    imports: [CommonModule, TranslatePipe, CustomTooltipComponent],
+    imports: [TranslatePipe, CustomTooltipComponent],
 })
 export class ExploreLockerBankInfoComponent implements OnInit {
     public bank: LockerBank = this._details.bank;

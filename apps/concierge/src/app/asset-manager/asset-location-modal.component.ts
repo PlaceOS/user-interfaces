@@ -54,29 +54,30 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 <div
                     class="relative flex h-[60vh] w-1/2 flex-1 items-center justify-center border border-base-200 bg-base-200"
                 >
-                    <div
-                        class="absolute left-4 top-4 rounded-3xl border border-base-200 bg-base-100 px-4 py-2"
-                        *ngIf="selected"
-                    >
-                        {{ level(selected.zone)?.display_name || 'N/A' }}
-                    </div>
-                    <interactive-map
-                        *ngIf="selected; else empty_state"
-                        [src]="level(selected.zone)?.map_id || ''"
-                        [styles]="{
-                            '#Zones': { display: 'none' },
-                            '#zones': { display: 'none' },
-                        }"
-                        [features]="selected_feature"
-                    ></interactive-map>
+                    @if (selected) {
+                        <div
+                            class="absolute left-4 top-4 rounded-3xl border border-base-200 bg-base-100 px-4 py-2"
+                        >
+                            {{ level(selected.zone)?.display_name || 'N/A' }}
+                        </div>
+                    }
+                    @if (selected) {
+                        <interactive-map
+                            [src]="level(selected.zone)?.map_id || ''"
+                            [styles]="{
+                                '#Zones': { display: 'none' },
+                                '#zones': { display: 'none' },
+                            }"
+                            [features]="selected_feature"
+                        ></interactive-map>
+                    } @else {
+                        <p class="opacity-30">
+                            Select a space from the list to view map location
+                        </p>
+                    }
                 </div>
             </div>
         </div>
-        <ng-template #empty_state>
-            <p class="opacity-30">
-                Select a space from the list to view map location
-            </p>
-        </ng-template>
         <ng-template #level_template let-data="data">
             <div class="p-4">
                 {{ level(data)?.display_name || 'N/A' }}

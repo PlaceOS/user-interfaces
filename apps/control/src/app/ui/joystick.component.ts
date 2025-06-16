@@ -57,21 +57,15 @@ export enum JoystickPan {
             <div
                 class="absolute inset-0 flex items-center justify-end text-5xl"
             >
-                <icon style="transform: translateX(.5rem)"
-                    >chevron_right</icon
-                >
+                <icon style="transform: translateX(.5rem)">chevron_right</icon>
             </div>
             <div class="absolute inset-0 flex justify-center text-5xl">
-                <icon style="transform: translateY(-.5rem)"
-                    >expand_less</icon
-                >
+                <icon style="transform: translateY(-.5rem)">expand_less</icon>
             </div>
             <div
                 class="absolute inset-0 flex items-end justify-center text-5xl"
             >
-                <icon style="transform: translateY(.5rem)"
-                    >expand_more</icon
-                >
+                <icon style="transform: translateY(.5rem)">expand_more</icon>
             </div>
             <div
                 class="absolute bottom-12 left-12 right-12 top-12 flex items-center justify-center rounded-full bg-base-100"

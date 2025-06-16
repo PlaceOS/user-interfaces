@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
@@ -26,95 +25,96 @@ import { CateringStateService } from './catering-state.service';
             <h2 class="px-2 text-xl font-medium">
                 {{ 'CATERING.CHARGE_CODES_EDIT' | translate }}
             </h2>
-            <button icon matRipple mat-dialog-close *ngIf="!loading">
-                <icon>close</icon>
-            </button>
+            @if (!loading) {
+                <button icon matRipple mat-dialog-close>
+                    <icon>close</icon>
+                </button>
+            }
         </header>
-        <main
-            *ngIf="!loading; else load_state"
-            class="flex max-h-[65vh] min-h-[20rem] flex-col overflow-auto"
-        >
-            <ng-container *ngIf="charge_codes.length; else empty_state">
-                @for (code of charge_codes; track i; let i = $index) {
-                    <div
-                        class="flex w-full items-center space-x-2 px-2 py-1 hover:bg-base-200"
-                    >
-                        <mat-form-field
-                            appearance="outline"
-                            class="no-subscript flex-1"
-                        >
-                            <input
-                                matInput
-                                [(ngModel)]="charge_codes[i]"
-                                [placeholder]="
-                                    'CATERING.CHARGE_CODES' | translate
-                                "
-                            />
-                        </mat-form-field>
-                        <button
-                            icon
-                            matRipple
-                            class="h-12 w-12 rounded border border-error text-error"
-                            [matTooltip]="
-                                'CATERING.CHARGE_CODES_REMOVE' | translate
-                            "
-                            (click)="removeCode(i)"
-                        >
-                            <icon class="text-2xl">delete</icon>
-                        </button>
-                    </div>
-                }
-            </ng-container>
-        </main>
-        <footer
-            class="flex items-center space-x-2 border-t border-base-200 p-2"
-            *ngIf="!loading"
-        >
-            <button btn matRipple class="inverse relative w-48">
-                {{ 'CATERING.CHARGE_CODES_IMPORT' | translate }}
-                <input
-                    class="absolute inset-0 opacity-0"
-                    type="file"
-                    (change)="addCodesFromFile($event)"
-                />
-            </button>
-            <button
-                icon
-                matRipple
-                (click)="downloadTemplate()"
-                [matTooltip]="'CATERING.CHARGE_CODE_DOWNLOAD' | translate"
-                class="h-12 w-12 rounded border border-secondary text-secondary"
+        @if (!loading) {
+            <main
+                class="flex max-h-[65vh] min-h-[20rem] flex-col overflow-auto"
             >
-                <icon>download</icon>
-            </button>
-            <button btn matRipple class="w-48" (click)="newCode()">
-                {{ 'CATERING.CHARGE_CODES_ADD' | translate }}
-            </button>
-            <button btn matRipple class="w-48" (click)="saveChargeCodes()">
-                {{ 'COMMON.SAVE' | translate }}
-            </button>
-        </footer>
-        <ng-template #load_state>
+                @if (charge_codes.length) {
+                    @for (code of charge_codes; track i; let i = $index) {
+                        <div
+                            class="flex w-full items-center space-x-2 px-2 py-1 hover:bg-base-200"
+                        >
+                            <mat-form-field
+                                appearance="outline"
+                                class="no-subscript flex-1"
+                            >
+                                <input
+                                    matInput
+                                    [(ngModel)]="charge_codes[i]"
+                                    [placeholder]="
+                                        'CATERING.CHARGE_CODES' | translate
+                                    "
+                                />
+                            </mat-form-field>
+                            <button
+                                icon
+                                matRipple
+                                class="h-12 w-12 rounded border border-error text-error"
+                                [matTooltip]="
+                                    'CATERING.CHARGE_CODES_REMOVE' | translate
+                                "
+                                (click)="removeCode(i)"
+                            >
+                                <icon class="text-2xl">delete</icon>
+                            </button>
+                        </div>
+                    }
+                } @else {
+                    <main
+                        class="flex h-full min-h-[20rem] w-full flex-col items-center justify-center space-y-2"
+                    >
+                        <p class="opacity-30">
+                            {{ 'CATERING.CHARGE_CODE_EMPTY' | translate }}
+                        </p>
+                    </main>
+                }
+            </main>
+        } @else {
             <main
                 class="flex flex-col items-center justify-center space-y-2 p-20"
             >
                 <mat-spinner diameter="32"></mat-spinner>
                 <p>{{ 'CATERING.CHARGE_CODE_SAVE' | translate }}</p>
             </main>
-        </ng-template>
-        <ng-template #empty_state>
-            <main
-                class="flex h-full min-h-[20rem] w-full flex-col items-center justify-center space-y-2"
+        }
+        @if (!loading) {
+            <footer
+                class="flex items-center space-x-2 border-t border-base-200 p-2"
             >
-                <p class="opacity-30">
-                    {{ 'CATERING.CHARGE_CODE_EMPTY' | translate }}
-                </p>
-            </main>
-        </ng-template>
+                <button btn matRipple class="inverse relative w-48">
+                    {{ 'CATERING.CHARGE_CODES_IMPORT' | translate }}
+                    <input
+                        class="absolute inset-0 opacity-0"
+                        type="file"
+                        (change)="addCodesFromFile($event)"
+                    />
+                </button>
+                <button
+                    icon
+                    matRipple
+                    (click)="downloadTemplate()"
+                    [matTooltip]="'CATERING.CHARGE_CODE_DOWNLOAD' | translate"
+                    class="h-12 w-12 rounded border border-secondary text-secondary"
+                >
+                    <icon>download</icon>
+                </button>
+                <button btn matRipple class="w-48" (click)="newCode()">
+                    {{ 'CATERING.CHARGE_CODES_ADD' | translate }}
+                </button>
+                <button btn matRipple class="w-48" (click)="saveChargeCodes()">
+                    {{ 'COMMON.SAVE' | translate }}
+                </button>
+            </footer>
+        }
     `,
     styles: [``],
     imports: [
-        CommonModule,
         TranslatePipe,
         MatProgressSpinnerModule,
         MatRippleModule,

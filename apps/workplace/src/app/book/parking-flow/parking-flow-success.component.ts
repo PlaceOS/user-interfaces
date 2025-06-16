@@ -38,47 +38,52 @@ import { OrganisationService } from '@placeos/organisation';
                     }}
                 </p>
                 <img src="assets/icons/parking-success.svg" />
-                <div
-                    class="relative flex flex-col items-center space-y-4 p-4"
-                    *ngIf="show_links"
-                >
-                    <a
-                        btn
-                        matRipple
-                        name="desk-outlook-link"
-                        class="inverse flex w-64 items-center space-x-2 rounded p-2 pr-4"
-                        [href]="outlook_link | sanitize: 'url'"
-                        target="_blank"
-                        rel="noopener noreferer"
+                @if (show_links) {
+                    <div
+                        class="relative flex flex-col items-center space-y-4 p-4"
                     >
-                        <img src="assets/icons/outlook.svg" class="w-6" />
-                        <span>{{ 'BOOKINGS.LINK_OUTLOOK' | translate }}</span>
-                    </a>
-                    <a
-                        btn
-                        matRipple
-                        name="desk-google-link"
-                        class="inverse flex w-64 items-center space-x-2 rounded p-2 pr-4"
-                        [href]="google_link | sanitize: 'url'"
-                        target="_blank"
-                        rel="noopener noreferer"
-                    >
-                        <img src="assets/icons/gcal.svg" class="w-6" />
-                        <span>{{ 'BOOKINGS.LINK_GOOGLE' | translate }}</span>
-                    </a>
-                    <a
-                        btn
-                        matRipple
-                        name="desk-ical-link"
-                        class="inverse flex w-64 items-center space-x-2 rounded p-2 pr-4"
-                        [href]="ical_link | safe: 'url'"
-                        target="_blank"
-                        rel="noopener noreferer"
-                    >
-                        <icon class="text-xl">download</icon>
-                        <span>{{ 'BOOKINGS.LINK_ICAL' | translate }}</span>
-                    </a>
-                </div>
+                        <a
+                            btn
+                            matRipple
+                            name="desk-outlook-link"
+                            class="inverse flex w-64 items-center space-x-2 rounded p-2 pr-4"
+                            [href]="outlook_link | sanitize: 'url'"
+                            target="_blank"
+                            rel="noopener noreferer"
+                        >
+                            <img src="assets/icons/outlook.svg" class="w-6" />
+                            <span>{{
+                                'BOOKINGS.LINK_OUTLOOK' | translate
+                            }}</span>
+                        </a>
+                        <a
+                            btn
+                            matRipple
+                            name="desk-google-link"
+                            class="inverse flex w-64 items-center space-x-2 rounded p-2 pr-4"
+                            [href]="google_link | sanitize: 'url'"
+                            target="_blank"
+                            rel="noopener noreferer"
+                        >
+                            <img src="assets/icons/gcal.svg" class="w-6" />
+                            <span>{{
+                                'BOOKINGS.LINK_GOOGLE' | translate
+                            }}</span>
+                        </a>
+                        <a
+                            btn
+                            matRipple
+                            name="desk-ical-link"
+                            class="inverse flex w-64 items-center space-x-2 rounded p-2 pr-4"
+                            [href]="ical_link | safe: 'url'"
+                            target="_blank"
+                            rel="noopener noreferer"
+                        >
+                            <icon class="text-xl">download</icon>
+                            <span>{{ 'BOOKINGS.LINK_ICAL' | translate }}</span>
+                        </a>
+                    </div>
+                }
             </main>
             <footer
                 class="sticky bottom-0 mt-4 flex w-full items-center justify-center border-t border-base-200 bg-base-100 p-2"

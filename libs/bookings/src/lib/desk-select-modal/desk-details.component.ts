@@ -7,7 +7,6 @@ import {
 } from '@angular/core';
 import { ViewerFeature } from '@placeos/svg-viewer';
 
-import { CommonModule } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { ImageCarouselComponent } from 'libs/components/src/lib/image-carousel.component';
@@ -32,7 +31,7 @@ import { BookingAsset } from '../booking-form.service';
         `,
     ],
     template: `
-        <ng-container *ngIf="desk; else emptyState">
+        @if (desk) {
             <section
                 image
                 class="relative w-full bg-base-300"
@@ -42,11 +41,12 @@ import { BookingAsset } from '../booking-form.service';
                 [class.h-12]="!desk.images?.length"
                 [class.!bg-transparent]="!desk.images?.length"
             >
-                <image-carousel
-                    [images]="desk.images"
-                    *ngIf="desk.images?.length"
-                    class="absolute inset-0"
-                ></image-carousel>
+                @if (desk.images?.length) {
+                    <image-carousel
+                        [images]="desk.images"
+                        class="absolute inset-0"
+                    ></image-carousel>
+                }
                 <button
                     icon
                     matRipple
@@ -102,34 +102,37 @@ import { BookingAsset } from '../booking-form.service';
                         <p>{{ desk.zone?.display_name || desk.zone?.name }}</p>
                     </div>
                 </section>
-                <section
-                    facilities
-                    *ngIf="desk.features?.length"
-                    class="space-y-2 border-b pb-2"
-                >
-                    <h2 class="text-xl font-medium">
-                        {{ 'COMMON.FEATURES' | translate }}
-                    </h2>
-                    <div
-                        *ngFor="let feat of desk.features || []"
-                        class="flex flex-wrap items-center space-x-2"
+                @if (desk.features?.length) {
+                    <section facilities class="space-y-2 border-b pb-2">
+                        <h2 class="text-xl font-medium">
+                            {{ 'COMMON.FEATURES' | translate }}
+                        </h2>
+                        @for (feat of desk.features || []; track feat) {
+                            <div class="flex flex-wrap items-center space-x-2">
+                                <div for="feat" class="w-1/2 flex-1">
+                                    {{ feat }}
+                                </div>
+                            </div>
+                        }
+                    </section>
+                }
+                @if (!hide_map) {
+                    <section
+                        map
+                        class="relative mx-auto h-64 w-full overflow-hidden rounded border border-base-200 sm:h-48"
                     >
-                        <div for="feat" class="w-1/2 flex-1">{{ feat }}</div>
-                    </div>
-                </section>
-                <section
-                    map
-                    class="relative mx-auto h-64 w-full overflow-hidden rounded border border-base-200 sm:h-48"
-                    *ngIf="!hide_map"
-                >
-                    <interactive-map
-                        class="pointer-events-none"
-                        [src]="map_url"
-                        [focus]="desk.map_id || desk.id"
-                        [features]="features"
-                        [options]="{ disable_pan: true, disable_zoom: true }"
-                    ></interactive-map>
-                </section>
+                        <interactive-map
+                            class="pointer-events-none"
+                            [src]="map_url"
+                            [focus]="desk.map_id || desk.id"
+                            [features]="features"
+                            [options]="{
+                                disable_pan: true,
+                                disable_zoom: true,
+                            }"
+                        ></interactive-map>
+                    </section>
+                }
             </div>
             <div
                 class="border-t border-base-200 px-2 pb-[5.5rem] pt-2 shadow sm:hidden"
@@ -157,8 +160,7 @@ import { BookingAsset } from '../booking-form.service';
                     </div>
                 </button>
             </div>
-        </ng-container>
-        <ng-template #emptyState>
+        } @else {
             <div
                 empty
                 class="flex flex-col items-center justify-center space-y-2 p-16"
@@ -167,10 +169,9 @@ import { BookingAsset } from '../booking-form.service';
                     {{ 'BOOKINGS.DESK_SELECT_MSG' | translate }}
                 </p>
             </div>
-        </ng-template>
+        }
     `,
     imports: [
-        CommonModule,
         TranslatePipe,
         IconComponent,
         InteractiveMapComponent,

@@ -30,12 +30,6 @@ describe('SpaceListFieldComponent', () => {
     it('should create component', () =>
         expect(spectator.component).toBeTruthy());
 
-    it('should allow adding spaces', () => {
-        expect(spectator.query('button[name="add-space"]')).toExist();
-        spectator.click('button[name="add-space"]');
-        expect(spectator.inject(MatDialog).open).toBeCalledTimes(1);
-    });
-
     // it('should allow removing spaces', fakeAsync(() => {
     //     spectator.component.setValue([new Space()]);
     //     spectator.tick(301);

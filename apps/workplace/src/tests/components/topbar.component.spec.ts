@@ -1,13 +1,12 @@
 import { MatMenuModule } from '@angular/material/menu';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
-import {
-    CustomTooltipComponent,
-    IconComponent,
-    UserAvatarComponent,
-} from '@placeos/components';
-import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { MockComponent, MockDirective, MockProvider } from 'ng-mocks';
+
+import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
+import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { UserAvatarComponent } from 'libs/components/src/lib/user-avatar.component';
 import { GlobalSearchComponent } from '../../app/components/global-search.component';
 import { TopMenuComponent } from '../../app/components/top-menu.component';
 import { TopbarComponent } from '../../app/components/topbar.component';

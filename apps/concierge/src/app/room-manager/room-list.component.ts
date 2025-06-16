@@ -82,35 +82,37 @@ import { RoomManagementService } from './room-management.service';
             </div>
         </ng-template>
         <ng-template #bool_template let-data="data">
-            <div
-                [class.bg-error]="!data"
-                [class.bg-success]="data"
-                *ngIf="data"
-                class="mx-auto flex h-8 w-8 items-center justify-center rounded text-2xl text-white"
-            >
-                <icon>{{ data ? 'done' : 'close' }}</icon>
-            </div>
+            @if (data) {
+                <div
+                    [class.bg-error]="!data"
+                    [class.bg-success]="data"
+                    class="mx-auto flex h-8 w-8 items-center justify-center rounded text-2xl text-white"
+                >
+                    <icon>{{ data ? 'done' : 'close' }}</icon>
+                </div>
+            }
         </ng-template>
         <ng-template #alert_template let-data="data">
-            <div
-                [class.bg-warning]="data.status === 'warn'"
-                [class.bg-error]="data.status === 'closed'"
-                [class.bg-info]="data.status === 'info'"
-                [class.text-warning-content]="data.status === 'warn'"
-                [class.text-error-content]="data.status === 'closed'"
-                [class.text-info-content]="data.status === 'info'"
-                *ngIf="data"
-                [matTooltip]="data.message"
-                class="mx-auto flex h-8 w-8 items-center justify-center rounded text-2xl text-white"
-            >
-                <icon>{{
-                    data.status === 'warn'
-                        ? 'warning'
-                        : data.status === 'info'
-                          ? 'info'
-                          : 'close'
-                }}</icon>
-            </div>
+            @if (data) {
+                <div
+                    [class.bg-warning]="data.status === 'warn'"
+                    [class.bg-error]="data.status === 'closed'"
+                    [class.bg-info]="data.status === 'info'"
+                    [class.text-warning-content]="data.status === 'warn'"
+                    [class.text-error-content]="data.status === 'closed'"
+                    [class.text-info-content]="data.status === 'info'"
+                    [matTooltip]="data.message"
+                    class="mx-auto flex h-8 w-8 items-center justify-center rounded text-2xl text-white"
+                >
+                    <icon>{{
+                        data.status === 'warn'
+                            ? 'warning'
+                            : data.status === 'info'
+                              ? 'info'
+                              : 'close'
+                    }}</icon>
+                </div>
+            }
         </ng-template>
         <ng-template #action_template let-row="row">
             <div class="mx-auto p-1">
@@ -140,27 +142,28 @@ import { RoomManagementService } from './room-management.service';
                         }}</span>
                     </div>
                 </button>
-                <a
-                    mat-menu-item
-                    [href]="
-                        row.support_url || control_path + row.id
-                            | sanitize: 'url'
-                    "
-                    *ngIf="row.support_url || control_path"
-                    target="_blank"
-                    ref="noopener noreferrer"
-                >
-                    <div class="flex items-center space-x-2">
-                        <icon
-                            class="text-xl"
-                            className="material-symbols-rounded"
-                            >tv_remote</icon
-                        >
-                        <span>{{
-                            'APP.CONCIERGE.ROOMS_VIEW_CONTROL' | translate
-                        }}</span>
-                    </div>
-                </a>
+                @if (row.support_url || control_path) {
+                    <a
+                        mat-menu-item
+                        [href]="
+                            row.support_url || control_path + row.id
+                                | sanitize: 'url'
+                        "
+                        target="_blank"
+                        ref="noopener noreferrer"
+                    >
+                        <div class="flex items-center space-x-2">
+                            <icon
+                                class="text-xl"
+                                className="material-symbols-rounded"
+                                >tv_remote</icon
+                            >
+                            <span>{{
+                                'APP.CONCIERGE.ROOMS_VIEW_CONTROL' | translate
+                            }}</span>
+                        </div>
+                    </a>
+                }
             </mat-menu>
         </ng-template>
     `,

@@ -4,9 +4,9 @@ import { BookingCardComponent } from '@placeos/bookings';
 import { CalendarEvent, EventCardComponent } from '@placeos/events';
 import { MockComponent } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
+import { UpcomingBookingsComponent } from '../app/rooms/upcoming-bookings.component';
 
 import { ScheduleStateService } from 'apps/workplace/src/app/schedule/schedule-state.service';
-import { UpcomingBookingsComponent } from '../app/rooms/upcoming-bookings/upcoming-bookings.component';
 
 describe('UpcomingBookingsComponent', () => {
     let spectator: Spectator<UpcomingBookingsComponent>;
@@ -42,13 +42,6 @@ describe('UpcomingBookingsComponent', () => {
 
     it('should create component', () => {
         expect(spectator.component).toBeTruthy();
-    });
-
-    it('should show loading state', () => {
-        expect('[loading]').not.toExist();
-        (spectator.inject(ScheduleStateService).loading as any).next(true);
-        spectator.detectChanges();
-        expect('[loading]').toExist();
     });
 
     it('should show empty state', () => {

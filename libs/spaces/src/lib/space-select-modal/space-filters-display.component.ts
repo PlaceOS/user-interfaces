@@ -3,6 +3,7 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatRippleModule } from '@angular/material/core';
 import { AsyncHandler, SettingsService } from '@placeos/common';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
@@ -48,30 +49,33 @@ import { SpaceFiltersComponent } from './space-filters.component';
             filters
             class="flex w-[35rem] max-w-full flex-wrap items-center p-2 sm:max-w-[35rem]"
         >
-            <button
-                btn
-                matRipple
-                name="clear-space-filters"
-                class="mb-2 mr-2 min-h-[2rem]"
-                *ngIf="(options | async)?.features?.length > 1"
-                (click)="removeAllFeatures()"
-            >
-                {{ 'COMMON.FILTERS_CLEAR' | translate }}
-            </button>
-            <div filter-item zone *ngIf="location">
-                {{ location }}
-            </div>
+            @if ((options | async)?.features?.length > 1) {
+                <button
+                    btn
+                    matRipple
+                    name="clear-space-filters"
+                    class="mb-2 mr-2 min-h-[2rem]"
+                    (click)="removeAllFeatures()"
+                >
+                    {{ 'COMMON.FILTERS_CLEAR' | translate }}
+                </button>
+            }
+            @if (location) {
+                <div filter-item zone>
+                    {{ location }}
+                </div>
+            }
             <div filter-item date>
                 {{ start | date: 'mediumDate' }}
             </div>
             <div filter-item time>
-                <ng-container *ngIf="!all_day">
+                @if (!all_day) {
                     {{ start | date: time_format }} &mdash;
                     {{ end | date: time_format }}
-                </ng-container>
-                <ng-container *ngIf="all_day">
+                }
+                @if (all_day) {
                     {{ 'COMMON.ALL_DAY' | translate }}
-                </ng-container>
+                }
             </div>
             <div filter-item count>
                 {{
@@ -79,18 +83,20 @@ import { SpaceFiltersComponent } from './space-filters.component';
                         | translate: { count: (options | async)?.capacity || 2 }
                 }}
             </div>
-            <div filter-item *ngFor="let feat of (options | async)?.features">
-                <p class="truncate">{{ feat }}</p>
-                <button
-                    icon
-                    matRipple
-                    name="remove-space-filter"
-                    class="-mr-4"
-                    (click)="removeFeature(feat)"
-                >
-                    <icon>close</icon>
-                </button>
-            </div>
+            @for (feat of (options | async)?.features; track feat) {
+                <div filter-item>
+                    <p class="truncate">{{ feat }}</p>
+                    <button
+                        icon
+                        matRipple
+                        name="remove-space-filter"
+                        class="-mr-4"
+                        (click)="removeFeature(feat)"
+                    >
+                        <icon>close</icon>
+                    </button>
+                </div>
+            }
         </section>
     `,
     styles: [
@@ -118,7 +124,7 @@ import { SpaceFiltersComponent } from './space-filters.component';
             }
         `,
     ],
-    imports: [CommonModule, MatRippleModule, TranslatePipe],
+    imports: [CommonModule, MatRippleModule, TranslatePipe, IconComponent],
 })
 export class SpaceFiltersDisplayComponent
     extends AsyncHandler

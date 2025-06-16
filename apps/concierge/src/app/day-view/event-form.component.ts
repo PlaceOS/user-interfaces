@@ -9,179 +9,205 @@ import { map, tap } from 'rxjs/operators';
 @Component({
     selector: 'event-form',
     template: `
-        <form *ngIf="form" [formGroup]="form">
-            <div class="flex flex-col">
-                <label for="title"
-                    >{{ 'FORM.TITLE' | translate }}<span>*</span>:</label
-                >
-                <mat-form-field appearance="outline">
-                    <input
-                        matInput
-                        name="title"
-                        formControlName="title"
-                        placeholder="Meeting Title"
-                    />
-                    <mat-error>{{
-                        'FORM.TITLE_REQUIRED' | translate
-                    }}</mat-error>
-                </mat-form-field>
-            </div>
-            <div class="relative flex flex-col">
-                <label for="date"
-                    >{{ 'FORM.DATE' | translate }}<span>*</span>:</label
-                >
-                <a-date-field name="date" formControlName="date"></a-date-field>
-                <mat-checkbox
-                    formControlName="all_day"
-                    *ngIf="allow_all_day"
-                    class="absolute -top-2 right-0"
-                >
-                    {{ 'FORM.ALL_DAY' | translate }}
-                </mat-checkbox>
-            </div>
-            <div class="flex space-x-2" *ngIf="!form.value.all_day">
+        @if (form) {
+            <form [formGroup]="form">
+                <div class="flex flex-col">
+                    <label for="title"
+                        >{{ 'FORM.TITLE' | translate }}<span>*</span>:</label
+                    >
+                    <mat-form-field appearance="outline">
+                        <input
+                            matInput
+                            name="title"
+                            formControlName="title"
+                            placeholder="Meeting Title"
+                        />
+                        <mat-error>{{
+                            'FORM.TITLE_REQUIRED' | translate
+                        }}</mat-error>
+                    </mat-form-field>
+                </div>
+                <div class="relative flex flex-col">
+                    <label for="date"
+                        >{{ 'FORM.DATE' | translate }}<span>*</span>:</label
+                    >
+                    <a-date-field
+                        name="date"
+                        formControlName="date"
+                    ></a-date-field>
+                    @if (allow_all_day) {
+                        <mat-checkbox
+                            formControlName="all_day"
+                            class="absolute -top-2 right-0"
+                        >
+                            {{ 'FORM.ALL_DAY' | translate }}
+                        </mat-checkbox>
+                    }
+                </div>
+                @if (!form.value.all_day) {
+                    <div class="flex space-x-2">
+                        <div class="flex flex-1 flex-col">
+                            <label for="start-time"
+                                >{{ 'FORM.TIME_START' | translate
+                                }}<span>*</span>:</label
+                            >
+                            <a-time-field
+                                name="start-time"
+                                [ngModel]="form.get('date').value"
+                                (ngModelChange)="
+                                    form.patchValue({ date: $event })
+                                "
+                                [ngModelOptions]="{ standalone: true }"
+                                [use_24hr]="use_24hr_time"
+                            ></a-time-field>
+                        </div>
+                        <div class="flex flex-1 flex-col">
+                            <label for="duration"
+                                >{{ 'FORM.DURATION' | translate
+                                }}<span>*</span>:</label
+                            >
+                            <a-duration-field
+                                name="duration"
+                                [time]="form.controls?.date?.value"
+                                formControlName="duration"
+                                [use_24hr]="use_24hr_time"
+                            ></a-duration-field>
+                        </div>
+                    </div>
+                }
                 <div class="flex flex-1 flex-col">
-                    <label for="start-time"
-                        >{{ 'FORM.TIME_START' | translate
+                    <label for="organiser"
+                        >{{ 'FORM.HOST' | translate }}<span>*</span>:</label
+                    >
+                    <a-user-search-field
+                        name="organiser"
+                        formControlName="organiser"
+                        class="mb-4"
+                    ></a-user-search-field>
+                </div>
+                <div class="flex flex-1 flex-col">
+                    <label for="attendees">
+                        {{ 'CALENDAR_EVENT.ATTENDEES' | translate
                         }}<span>*</span>:</label
                     >
-                    <a-time-field
-                        name="start-time"
-                        [ngModel]="form.get('date').value"
-                        (ngModelChange)="form.patchValue({ date: $event })"
-                        [ngModelOptions]="{ standalone: true }"
-                        [use_24hr]="use_24hr_time"
-                    ></a-time-field>
+                    <a-user-list-field
+                        name="attendees"
+                        formControlName="attendees"
+                    ></a-user-list-field>
                 </div>
                 <div class="flex flex-1 flex-col">
-                    <label for="duration"
-                        >{{ 'FORM.DURATION' | translate }}<span>*</span>:</label
-                    >
-                    <a-duration-field
-                        name="duration"
-                        [time]="form.controls?.date?.value"
-                        formControlName="duration"
-                        [use_24hr]="use_24hr_time"
-                    ></a-duration-field>
+                    <label for="space">
+                        {{ 'RESOURCE.ROOM' | translate }}<span>*</span>
+                    </label>
+                    <space-list-field
+                        class="w-full"
+                        formControlName="resources"
+                    ></space-list-field>
                 </div>
-            </div>
-            <div class="flex flex-1 flex-col">
-                <label for="organiser"
-                    >{{ 'FORM.HOST' | translate }}<span>*</span>:</label
-                >
-                <a-user-search-field
-                    name="organiser"
-                    formControlName="organiser"
-                    class="mb-4"
-                ></a-user-search-field>
-            </div>
-            <div class="flex flex-1 flex-col">
-                <label for="attendees">
-                    {{ 'CALENDAR_EVENT.ATTENDEES' | translate
-                    }}<span>*</span>:</label
-                >
-                <a-user-list-field
-                    name="attendees"
-                    formControlName="attendees"
-                ></a-user-list-field>
-            </div>
-            <div class="flex flex-1 flex-col">
-                <label for="space">
-                    {{ 'RESOURCE.ROOM' | translate }}<span>*</span>
-                </label>
-                <space-list-field
-                    class="w-full"
-                    formControlName="resources"
-                ></space-list-field>
-            </div>
-            <div
-                class="py-2"
-                *ngIf="(has_catering | async) && form.contains('catering')"
-            >
-                <label for="catering">Catering:</label>
-                <catering-list-field
-                    name="catering"
-                    formControlName="catering"
-                    [options]="{
-                        date: form.value.date,
-                        duration: form.value.duration,
-                        all_day: form.value.all_day,
-                        zone_id: form.value.resources[0]?.level?.parent_id,
-                    }"
-                ></catering-list-field>
-                <mat-form-field
-                    appearance="outline"
-                    class="mt-2 w-full"
-                    *ngIf="form.value.catering?.length && has_codes | async"
-                    (openedChange)="focusInput()"
-                >
-                    <mat-select
-                        formControlName="catering_charge_code"
-                        placeholder="Charge Code"
-                    >
-                        <input
-                            #input
-                            class="sticky top-0 z-50 w-full rounded-none border-x-0 border-b border-t-0 border-base-200 bg-base-100 px-4 py-3 text-base focus:border-b"
-                            [ngModel]="code_filter.getValue()"
-                            (ngModelChange)="code_filter.next($event)"
-                            [ngModelOptions]="{ standalone: true }"
-                            placeholder="Search charge codes..."
-                        />
-                        <mat-option class="hidden"></mat-option>
-                        <mat-option
-                            *ngFor="let code of filtered_codes | async"
-                            [value]="code"
-                        >
-                            {{ code }}
-                        </mat-option>
-                    </mat-select>
-                    <mat-error> Catering charge code is required </mat-error>
-                </mat-form-field>
-                <mat-form-field
-                    appearance="outline"
-                    class="w-full"
-                    [class.mt-2]="
-                        !(form.value.catering?.length && has_codes | async)
-                    "
-                    *ngIf="form.value.catering?.length"
-                >
-                    <textarea
-                        matInput
-                        formControlName="catering_notes"
-                        placeholder="Extra catering details..."
-                    ></textarea>
-                    <mat-error> Catering Order notes are required </mat-error>
-                </mat-form-field>
-            </div>
-            <div class="mb-4 flex flex-1 flex-col" *ngIf="has_assets">
-                <label for="space">Assets:</label>
-                <asset-list-field
-                    [date]="form.value.date"
-                    [duration]="form.value.duration"
-                    formControlName="assets"
-                ></asset-list-field>
-            </div>
-            <div class="flex space-x-2">
-                <div class="flex flex-1 flex-col space-y-2">
-                    <label for="setup">Setup Duration</label>
-                    <a-duration-field
-                        name="setup"
-                        formControlName="setup_time"
-                        [min]="0"
-                        [custom_options]="[5, 10]"
-                    ></a-duration-field>
+                @if ((has_catering | async) && form.contains('catering')) {
+                    <div class="py-2">
+                        <label for="catering">Catering:</label>
+                        <catering-list-field
+                            name="catering"
+                            formControlName="catering"
+                            [options]="{
+                                date: form.value.date,
+                                duration: form.value.duration,
+                                all_day: form.value.all_day,
+                                zone_id:
+                                    form.value.resources[0]?.level?.parent_id,
+                            }"
+                        ></catering-list-field>
+                        @if (form.value.catering?.length && has_codes | async) {
+                            <mat-form-field
+                                appearance="outline"
+                                class="mt-2 w-full"
+                                (openedChange)="focusInput()"
+                            >
+                                <mat-select
+                                    formControlName="catering_charge_code"
+                                    placeholder="Charge Code"
+                                >
+                                    <input
+                                        #input
+                                        class="sticky top-0 z-50 w-full rounded-none border-x-0 border-b border-t-0 border-base-200 bg-base-100 px-4 py-3 text-base focus:border-b"
+                                        [ngModel]="code_filter.getValue()"
+                                        (ngModelChange)="
+                                            code_filter.next($event)
+                                        "
+                                        [ngModelOptions]="{ standalone: true }"
+                                        placeholder="Search charge codes..."
+                                    />
+                                    <mat-option class="hidden"></mat-option>
+                                    @for (
+                                        code of filtered_codes | async;
+                                        track code
+                                    ) {
+                                        <mat-option [value]="code">
+                                            {{ code }}
+                                        </mat-option>
+                                    }
+                                </mat-select>
+                                <mat-error>
+                                    Catering charge code is required
+                                </mat-error>
+                            </mat-form-field>
+                        }
+                        @if (form.value.catering?.length) {
+                            <mat-form-field
+                                appearance="outline"
+                                class="w-full"
+                                [class.mt-2]="
+                                    !(
+                                        form.value.catering?.length && has_codes
+                                        | async
+                                    )
+                                "
+                            >
+                                <textarea
+                                    matInput
+                                    formControlName="catering_notes"
+                                    placeholder="Extra catering details..."
+                                ></textarea>
+                                <mat-error>
+                                    Catering Order notes are required
+                                </mat-error>
+                            </mat-form-field>
+                        }
+                    </div>
+                }
+                @if (has_assets) {
+                    <div class="mb-4 flex flex-1 flex-col">
+                        <label for="space">Assets:</label>
+                        <asset-list-field
+                            [date]="form.value.date"
+                            [duration]="form.value.duration"
+                            formControlName="assets"
+                        ></asset-list-field>
+                    </div>
+                }
+                <div class="flex space-x-2">
+                    <div class="flex flex-1 flex-col space-y-2">
+                        <label for="setup">Setup Duration</label>
+                        <a-duration-field
+                            name="setup"
+                            formControlName="setup_time"
+                            [min]="0"
+                            [custom_options]="[5, 10]"
+                        ></a-duration-field>
+                    </div>
+                    <div class="flex flex-1 flex-col space-y-2">
+                        <label for="breakdown">Breakdown Duration</label>
+                        <a-duration-field
+                            name="breakdown"
+                            [min]="0"
+                            formControlName="breakdown_time"
+                            [custom_options]="[5, 10]"
+                        ></a-duration-field>
+                    </div>
                 </div>
-                <div class="flex flex-1 flex-col space-y-2">
-                    <label for="breakdown">Breakdown Duration</label>
-                    <a-duration-field
-                        name="breakdown"
-                        [min]="0"
-                        formControlName="breakdown_time"
-                        [custom_options]="[5, 10]"
-                    ></a-duration-field>
-                </div>
-            </div>
-        </form>
+            </form>
+        }
     `,
     styles: [``],
     standalone: false,

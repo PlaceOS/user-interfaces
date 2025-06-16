@@ -14,21 +14,22 @@ import { OrganisationService } from '@placeos/organisation';
             class="absolute inset-0 overflow-hidden bg-base-200"
             [class.hide-levels]="(options | async)?.show_levels"
         >
-            <interactive-map
-                class="absolute inset-0"
-                [src]="lvl?.map_id"
-                *ngFor="let lvl of levels | async; let i = index"
-                [class.active]="i === active_index"
-                [style.top]="-50 * (i - active_index) + '%'"
-                [style.bottom]="50 * (i - active_index) + '%'"
-                [zoom]="(positions | async).zoom"
-                [center]="(positions | async).center"
-                [styles]="i === active_index ? (styles | async) : {}"
-                [features]="i === active_index ? (features | async) : []"
-                [actions]="i === active_index ? (actions | async) : []"
-                [labels]="i === active_index ? (labels | async) : []"
-            >
-            </interactive-map>
+            @for (lvl of levels | async; track lvl; let i = $index) {
+                <interactive-map
+                    class="absolute inset-0"
+                    [src]="lvl?.map_id"
+                    [class.active]="i === active_index"
+                    [style.top]="-50 * (i - active_index) + '%'"
+                    [style.bottom]="50 * (i - active_index) + '%'"
+                    [zoom]="(positions | async).zoom"
+                    [center]="(positions | async).center"
+                    [styles]="i === active_index ? (styles | async) : {}"
+                    [features]="i === active_index ? (features | async) : []"
+                    [actions]="i === active_index ? (actions | async) : []"
+                    [labels]="i === active_index ? (labels | async) : []"
+                >
+                </interactive-map>
+            }
         </div>
     `,
     styles: [

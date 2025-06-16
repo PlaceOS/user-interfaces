@@ -27,17 +27,24 @@ import { startOfMinute } from 'date-fns';
                     [class.hidden]="loading$ | async"
                 >
                     @let event_list = events$ | async;
-                    <ng-container *ngIf="event_list?.length; else empty_state">
+                    @if (event_list?.length) {
                         @for (item of event_list; track item.id) {
-                            <event-card
-                                *ngIf="isEvent(item); else booking_card"
-                                [event]="item"
-                            ></event-card>
-                            <ng-template #booking_card>
+                            @if (isEvent(item)) {
+                                <event-card [event]="item"></event-card>
+                            } @else {
                                 <booking-card [booking]="item"></booking-card>
-                            </ng-template>
+                            }
                         }
-                    </ng-container>
+                    } @else {
+                        <div
+                            empty
+                            class="my-6 flex h-3/4 w-full flex-1 flex-col items-center justify-center space-y-2 p-8 text-center"
+                        >
+                            <p>
+                                {{ 'APP.WORKPLACE.UPCOMING_EMPTY' | translate }}
+                            </p>
+                        </div>
+                    }
                 </div>
                 <div
                     loading
@@ -49,14 +56,6 @@ import { startOfMinute } from 'date-fns';
                 </div>
             </div>
         </div>
-        <ng-template #empty_state>
-            <div
-                empty
-                class="my-6 flex h-3/4 w-full flex-1 flex-col items-center justify-center space-y-2 p-8 text-center"
-            >
-                <p>{{ 'APP.WORKPLACE.UPCOMING_EMPTY' | translate }}</p>
-            </div>
-        </ng-template>
     `,
     styles: [``],
     standalone: false,

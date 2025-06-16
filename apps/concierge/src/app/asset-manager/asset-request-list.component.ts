@@ -104,16 +104,17 @@ import { AssetManagerStateService } from './asset-manager-state.service';
         </ng-template>
         <ng-template #assets_template let-row="row">
             <div class="flex flex-col p-4">
-                <div
-                    *ngFor="
-                        let asset of row.extension_data?.request?.items || []
-                    "
-                >
-                    <span class="font-mono text-sm">
-                        {{ asset.quantity || 1 }}×
-                    </span>
-                    {{ asset.name }}
-                </div>
+                @for (
+                    asset of row.extension_data?.request?.items || [];
+                    track asset
+                ) {
+                    <div>
+                        <span class="font-mono text-sm">
+                            {{ asset.quantity || 1 }}×
+                        </span>
+                        {{ asset.name }}
+                    </div>
+                }
             </div>
         </ng-template>
         <ng-template #date_template let-row="row">
@@ -134,7 +135,9 @@ import { AssetManagerStateService } from './asset-manager-state.service';
         <ng-template #level_template let-row="row">
             <div class="p-4">
                 {{ level(row)?.display_name }}
-                <span class="opacity-30" *ngIf="!level(row)">N/A</span>
+                @if (!level(row)) {
+                    <span class="opacity-30">N/A</span>
+                }
             </div>
         </ng-template>
         <ng-template #approval_template let-row="row">

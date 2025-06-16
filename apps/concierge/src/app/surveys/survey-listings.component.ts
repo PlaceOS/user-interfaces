@@ -67,9 +67,11 @@ import { NewSurveyService } from './new-survey.service';
         <ng-template #level_template let-data="data">
             <div class="p-4">
                 {{ (data | level)?.display_name || (data | level)?.name }}
-                <span class="opacity-30" *ngIf="!(data | level)">
-                    {{ 'COMMON.LEVEL_ALL' | translate }}
-                </span>
+                @if (!(data | level)) {
+                    <span class="opacity-30">
+                        {{ 'COMMON.LEVEL_ALL' | translate }}
+                    </span>
+                }
             </div>
         </ng-template>
         <ng-template #trigger_template let-data="data">

@@ -9,16 +9,17 @@ export interface PopoutAction extends ApplicationIcon {
 @Component({
     selector: 'a-popout-menu',
     template: `
-        <button
-            icon
-            matRipple
-            class="small center absolute text-base shadow"
-            *ngFor="let item of actions; let i = index"
-            [style.top]="show ? -110 * i - 60 + '%' : ''"
-            (click)="action.emit(item.id); show = false"
-        >
-            <icon [icon]="item"></icon>
-        </button>
+        @for (item of actions; track item; let i = $index) {
+            <button
+                icon
+                matRipple
+                class="small center absolute text-base shadow"
+                [style.top]="show ? -110 * i - 60 + '%' : ''"
+                (click)="action.emit(item.id); show = false"
+            >
+                <icon [icon]="item"></icon>
+            </button>
+        }
         <button
             name="root"
             icon

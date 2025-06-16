@@ -44,7 +44,7 @@ import { AsyncHandler } from '@placeos/common';
             }
         </div>
         <div class="mt-4 flex w-full items-center justify-center space-x-2">
-            <ng-container *ngIf="!has_photo; else accept_state">
+            @if (!has_photo) {
                 <button
                     class="inverse flex-1"
                     btn
@@ -61,21 +61,20 @@ import { AsyncHandler } from '@placeos/common';
                 >
                     {{ 'APP.VISITOR_KIOSK.TAKE_PHOTO_ACTION' | translate }}
                 </button>
-            </ng-container>
+            } @else {
+                <button
+                    class="inverse flex-1"
+                    btn
+                    matRipple
+                    (click)="cancelPhoto()"
+                >
+                    {{ 'COMMON.CANCEL' | translate }}
+                </button>
+                <button btn matRipple class="flex-1" (click)="acceptPhoto()">
+                    {{ 'COMMON.ACCEPT' | translate }}
+                </button>
+            }
         </div>
-        <ng-template #accept_state>
-            <button
-                class="inverse flex-1"
-                btn
-                matRipple
-                (click)="cancelPhoto()"
-            >
-                {{ 'COMMON.CANCEL' | translate }}
-            </button>
-            <button btn matRipple class="flex-1" (click)="acceptPhoto()">
-                {{ 'COMMON.ACCEPT' | translate }}
-            </button>
-        </ng-template>
     `,
     styles: [
         `

@@ -39,48 +39,53 @@ import { AssetStateService } from '../asset-state.service';
                 />
             </mat-form-field>
         </div>
-        <h3 class="hidden px-2 py-2 font-medium sm:block" *ngIf="!search">
-            {{ 'COMMON.OPTIONS' | translate }}
-        </h3>
-        <div class="flex flex-col space-y-2 px-2" *ngIf="!search">
-            <settings-toggle
-                [name]="'BOOKINGS.ASSETS_DELIVER_TOGGLE' | translate"
-                [(ngModel)]="at_time"
-                (ngModelChange)="at_timeChange.next($event)"
-                [matTooltip]="exact_tooltip"
-            ></settings-toggle>
-            <ng-container *ngIf="day_options.length > 1">
-                <label>{{ 'BOOKINGS.ASSETS_DELIVER_DATE' | translate }}</label>
-                <mat-form-field
-                    appearance="outline"
-                    class="no-subscript mb-4 w-full"
-                >
-                    <mat-select
-                        [(ngModel)]="offset_day"
-                        (ngModelChange)="offset_dayChange.next($event)"
+        @if (!search) {
+            <h3 class="hidden px-2 py-2 font-medium sm:block">
+                {{ 'COMMON.OPTIONS' | translate }}
+            </h3>
+        }
+        @if (!search) {
+            <div class="flex flex-col space-y-2 px-2">
+                <settings-toggle
+                    [name]="'BOOKINGS.ASSETS_DELIVER_TOGGLE' | translate"
+                    [(ngModel)]="at_time"
+                    (ngModelChange)="at_timeChange.next($event)"
+                    [matTooltip]="exact_tooltip"
+                ></settings-toggle>
+                @if (day_options.length > 1) {
+                    <label>{{
+                        'BOOKINGS.ASSETS_DELIVER_DATE' | translate
+                    }}</label>
+                    <mat-form-field
+                        appearance="outline"
+                        class="no-subscript mb-4 w-full"
                     >
-                        <mat-option
-                            *ngFor="let day of day_options"
-                            [value]="day.id"
+                        <mat-select
+                            [(ngModel)]="offset_day"
+                            (ngModelChange)="offset_dayChange.next($event)"
                         >
-                            {{ day.value | date: 'mediumDate' }}
-                        </mat-option>
-                    </mat-select>
-                </mat-form-field>
-            </ng-container>
-            <label>{{ 'BOOKINGS.ASSETS_DELIVER_TIME' | translate }}</label>
-            <a-duration-field
-                [(ngModel)]="offset"
-                (ngModelChange)="offsetChange.next($event)"
-                [time]="
-                    offset_day > 0 ? start_of_date : (options | async)?.date
-                "
-                [step]="step_interval"
-                [min]="min_offset"
-                [max]="max_offset - 1"
-                [use_24hr]="use_24hr"
-            ></a-duration-field>
-        </div>
+                            @for (day of day_options; track day) {
+                                <mat-option [value]="day.id">
+                                    {{ day.value | date: 'mediumDate' }}
+                                </mat-option>
+                            }
+                        </mat-select>
+                    </mat-form-field>
+                }
+                <label>{{ 'BOOKINGS.ASSETS_DELIVER_TIME' | translate }}</label>
+                <a-duration-field
+                    [(ngModel)]="offset"
+                    (ngModelChange)="offsetChange.next($event)"
+                    [time]="
+                        offset_day > 0 ? start_of_date : (options | async)?.date
+                    "
+                    [step]="step_interval"
+                    [min]="min_offset"
+                    [max]="max_offset - 1"
+                    [use_24hr]="use_24hr"
+                ></a-duration-field>
+            </div>
+        }
         <h3 class="hidden px-2 py-4 font-medium sm:block">
             {{ 'COMMON.CATEGORIES' | translate }}
         </h3>

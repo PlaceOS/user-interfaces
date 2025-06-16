@@ -3,12 +3,13 @@
     "$schema": "../../node_modules/nx/schemas/project-schema.json",
     "sourceRoot": "apps/workplace-e2e/src",
     "projectType": "application",
+    "tags": [],
+    "implicitDependencies": ["workplace"],
     "targets": {
         "e2e": {
             "executor": "@nx/cypress:cypress",
             "options": {
                 "cypressConfig": "apps/workplace-e2e/cypress.config.js",
-                "tsConfig": "apps/workplace-e2e/tsconfig.e2e.json",
                 "devServerTarget": "workplace:serve"
             },
             "configurations": {
@@ -21,7 +22,5 @@
             "executor": "@nx/eslint:lint",
             "outputs": ["{options.outputFile}"]
         }
-    },
-    "tags": [],
-    "implicitDependencies": ["workplace"]
+    }
 }

@@ -42,157 +42,185 @@ export interface AppLocale {
                 <div class="">{{ user?.name }}</div>
                 <div class="truncate text-xs opacity-60">{{ user?.email }}</div>
             </div>
-            <div
-                class="w-full rounded border border-base-200 py-2"
-                *ngIf="features.includes('wfh') && active_block"
-            >
-                <h3 class="w-full px-4 pb-2 text-sm font-medium">
-                    Today's Work Location
-                </h3>
-                <div class="w-full">
-                    <div class="relative flex items-center px-4 py-2">
-                        <div
-                            class="z-20 flex h-10 w-10 items-center justify-center rounded-full bg-info text-info-content"
-                        >
-                            <icon class="text-2xl">{{
-                                location_icon(timeFrom(active_block.start_time))
-                            }}</icon>
-                        </div>
-                        <div class="ml-2 flex-1">
-                            {{ locations | json }}
-                            <button
-                                matRipple
-                                class="flex items-center space-x-2 rounded px-2 py-1 font-medium hover:bg-base-200"
-                                [matMenuTriggerFor]="work_menu"
+            @if (features.includes('wfh') && active_block) {
+                <div class="w-full rounded border border-base-200 py-2">
+                    <h3 class="w-full px-4 pb-2 text-sm font-medium">
+                        Today's Work Location
+                    </h3>
+                    <div class="w-full">
+                        <div class="relative flex items-center px-4 py-2">
+                            <div
+                                class="z-20 flex h-10 w-10 items-center justify-center rounded-full bg-info text-info-content"
                             >
-                                <div>
+                                <icon class="text-2xl">{{
+                                    location_icon(
+                                        timeFrom(active_block.start_time)
+                                    )
+                                }}</icon>
+                            </div>
+                            <div class="ml-2 flex-1">
+                                {{ locations | json }}
+                                <button
+                                    matRipple
+                                    class="flex items-center space-x-2 rounded px-2 py-1 font-medium hover:bg-base-200"
+                                    [matMenuTriggerFor]="work_menu"
+                                >
+                                    <div>
+                                        {{
+                                            location(
+                                                timeFrom(
+                                                    active_block.start_time
+                                                )
+                                            )
+                                        }}
+                                    </div>
+                                    <icon>expand_more</icon>
+                                </button>
+                                <mat-menu #work_menu="matMenu">
+                                    @for (loc of pref_locations; track loc) {
+                                        <button
+                                            mat-menu-item
+                                            (click)="
+                                                setLocation(
+                                                    active_index,
+                                                    loc.id
+                                                )
+                                            "
+                                        >
+                                            <div
+                                                class="flex items-center space-x-2"
+                                            >
+                                                <icon class="text-2xl">{{
+                                                    loc.icon
+                                                }}</icon>
+                                                <div class="pr-8">
+                                                    {{ loc.name | translate }}
+                                                </div>
+                                            </div>
+                                        </button>
+                                    }
+                                </mat-menu>
+                                <div class="px-2 text-xs opacity-60">
                                     {{
-                                        location(
-                                            timeFrom(active_block.start_time)
-                                        )
+                                        timeFrom(active_block.start_time)
+                                            | date: 'shortTime'
+                                    }}
+                                    &ndash;
+                                    {{
+                                        timeFrom(active_block.end_time)
+                                            | date: 'shortTime'
                                     }}
                                 </div>
-                                <icon>expand_more</icon>
-                            </button>
-                            <mat-menu #work_menu="matMenu">
-                                <button
-                                    mat-menu-item
-                                    *ngFor="let loc of pref_locations"
-                                    (click)="setLocation(active_index, loc.id)"
-                                >
-                                    <div class="flex items-center space-x-2">
-                                        <icon class="text-2xl">{{
-                                            loc.icon
-                                        }}</icon>
-                                        <div class="pr-8">
-                                            {{ loc.name | translate }}
-                                        </div>
-                                    </div>
-                                </button>
-                            </mat-menu>
-                            <div class="px-2 text-xs opacity-60">
-                                {{
-                                    timeFrom(active_block.start_time)
-                                        | date: 'shortTime'
-                                }}
-                                &ndash;
-                                {{
-                                    timeFrom(active_block.end_time)
-                                        | date: 'shortTime'
-                                }}
                             </div>
+                            @if (i > 0) {
+                                <div
+                                    class="absolute -top-2 left-7 h-4 w-0 -translate-x-px border-l-2 border-dashed border-base-200"
+                                ></div>
+                            }
                         </div>
-                        <div
-                            *ngIf="i > 0"
-                            class="absolute -top-2 left-7 h-4 w-0 -translate-x-px border-l-2 border-dashed border-base-200"
-                        ></div>
                     </div>
                 </div>
-            </div>
-            <div
-                customTooltip
-                *ngIf="(regions | async).length"
-                [content]="region_select"
-                class="relative"
-            >
-                <button btn matRipple class="clear h-[3.5rem] w-full text-left">
-                    <div class="flex w-full items-center space-x-2">
-                        <div
-                            class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
-                        >
-                            <icon>layers</icon>
+            }
+            @if ((regions | async).length) {
+                <div customTooltip [content]="region_select" class="relative">
+                    <button
+                        btn
+                        matRipple
+                        class="clear h-[3.5rem] w-full text-left"
+                    >
+                        <div class="flex w-full items-center space-x-2">
+                            <div
+                                class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
+                            >
+                                <icon>layers</icon>
+                            </div>
+                            <div class="w-px flex-1 truncate">
+                                {{
+                                    (region | async)?.display_name ||
+                                        (region | async)?.name
+                                }}
+                            </div>
+                            <icon class="text-2xl opacity-60">
+                                chevron_right
+                            </icon>
                         </div>
-                        <div class="w-px flex-1 truncate">
-                            {{
-                                (region | async)?.display_name ||
-                                    (region | async)?.name
-                            }}
+                    </button>
+                </div>
+            }
+            @if (!disable_building_select && !use_region) {
+                <div customTooltip [content]="building_select" class="relative">
+                    <button
+                        btn
+                        matRipple
+                        class="clear h-[3.5rem] w-full text-left"
+                    >
+                        <div class="flex w-full items-center space-x-2">
+                            <div
+                                class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
+                            >
+                                <icon>business</icon>
+                            </div>
+                            <div class="w-px flex-1 truncate">
+                                {{
+                                    (building | async)?.display_name ||
+                                        (building | async)?.name
+                                }}
+                            </div>
+                            <icon class="text-2xl opacity-60">
+                                chevron_right
+                            </icon>
                         </div>
-                        <icon class="text-2xl opacity-60"> chevron_right </icon>
-                    </div>
-                </button>
-            </div>
-            <div
-                customTooltip
-                [content]="building_select"
-                class="relative"
-                *ngIf="!disable_building_select && !use_region"
-            >
-                <button btn matRipple class="clear h-[3.5rem] w-full text-left">
-                    <div class="flex w-full items-center space-x-2">
-                        <div
-                            class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
-                        >
-                            <icon>business</icon>
+                    </button>
+                </div>
+            }
+            @if (features.includes('help')) {
+                <div customTooltip [content]="help_tooltip">
+                    <button
+                        btn
+                        matRipple
+                        class="clear h-[3.5rem] w-full text-left"
+                    >
+                        <div class="flex w-full items-center space-x-2">
+                            <div
+                                class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
+                            >
+                                <icon>help</icon>
+                            </div>
+                            <div class="flex-1">
+                                {{ 'COMMON.CONTROLS_HELP' | translate }}
+                            </div>
+                            <icon class="text-2xl opacity-60">
+                                chevron_right
+                            </icon>
                         </div>
-                        <div class="w-px flex-1 truncate">
-                            {{
-                                (building | async)?.display_name ||
-                                    (building | async)?.name
-                            }}
+                    </button>
+                </div>
+            }
+            @if (features.includes('wfh')) {
+                <div customTooltip [content]="work_location_tooltip">
+                    <button
+                        btn
+                        matRipple
+                        class="clear h-[3.5rem] w-full text-left"
+                    >
+                        <div class="flex w-full items-center space-x-2">
+                            <div
+                                class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
+                            >
+                                <icon>share_location</icon>
+                            </div>
+                            <div class="flex-1">
+                                {{
+                                    'COMMON.CONTROLS_WORK_LOCATION' | translate
+                                }}
+                            </div>
+                            <icon class="text-2xl opacity-60"
+                                >chevron_right</icon
+                            >
                         </div>
-                        <icon class="text-2xl opacity-60"> chevron_right </icon>
-                    </div>
-                </button>
-            </div>
-            <div
-                customTooltip
-                [content]="help_tooltip"
-                *ngIf="features.includes('help')"
-            >
-                <button btn matRipple class="clear h-[3.5rem] w-full text-left">
-                    <div class="flex w-full items-center space-x-2">
-                        <div
-                            class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
-                        >
-                            <icon>help</icon>
-                        </div>
-                        <div class="flex-1">
-                            {{ 'COMMON.CONTROLS_HELP' | translate }}
-                        </div>
-                        <icon class="text-2xl opacity-60"> chevron_right </icon>
-                    </div>
-                </button>
-            </div>
-            <div
-                *ngIf="features.includes('wfh')"
-                customTooltip
-                [content]="work_location_tooltip"
-            >
-                <button btn matRipple class="clear h-[3.5rem] w-full text-left">
-                    <div class="flex w-full items-center space-x-2">
-                        <div
-                            class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
-                        >
-                            <icon>share_location</icon>
-                        </div>
-                        <div class="flex-1">
-                            {{ 'COMMON.CONTROLS_WORK_LOCATION' | translate }}
-                        </div>
-                        <icon class="text-2xl opacity-60">chevron_right</icon>
-                    </div>
-                </button>
-            </div>
+                    </button>
+                </div>
+            }
             <div
                 customTooltip
                 [content]="accessibility_tooltip"
@@ -212,100 +240,113 @@ export interface AppLocale {
                     </div>
                 </button>
             </div>
-            <div
-                customTooltip
-                [content]="desk_height_tooltip"
-                [class.!border-b]="!locales?.length"
-                *ngIf="desk_height"
-            >
-                <button btn matRipple class="clear h-[3.5rem] w-full text-left">
-                    <div class="flex w-full items-center space-x-2">
-                        <div
-                            class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
-                        >
-                            <icon>desk</icon>
+            @if (desk_height) {
+                <div
+                    customTooltip
+                    [content]="desk_height_tooltip"
+                    [class.!border-b]="!locales?.length"
+                >
+                    <button
+                        btn
+                        matRipple
+                        class="clear h-[3.5rem] w-full text-left"
+                    >
+                        <div class="flex w-full items-center space-x-2">
+                            <div
+                                class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
+                            >
+                                <icon>desk</icon>
+                            </div>
+                            <div class="flex-1">
+                                {{ 'COMMON.CONTROLS_DESKS' | translate }}
+                            </div>
+                            <icon class="text-2xl opacity-60">
+                                chevron_right
+                            </icon>
                         </div>
-                        <div class="flex-1">
-                            {{ 'COMMON.CONTROLS_DESKS' | translate }}
-                        </div>
-                        <icon class="text-2xl opacity-60"> chevron_right </icon>
-                    </div>
-                </button>
-            </div>
+                    </button>
+                </div>
+            }
             <ng-template #desk_height_tooltip>
                 <desk-height-presets></desk-height-presets>
             </ng-template>
-            <div
-                customTooltip
-                [content]="language_tooltip"
-                *ngIf="locales?.length > 1"
-                class="!border-b"
-            >
-                <button btn matRipple class="clear h-[3.5rem] w-full text-left">
+            @if (locales?.length > 1) {
+                <div
+                    customTooltip
+                    [content]="language_tooltip"
+                    class="!border-b"
+                >
+                    <button
+                        btn
+                        matRipple
+                        class="clear h-[3.5rem] w-full text-left"
+                    >
+                        <div class="flex w-full items-center space-x-2">
+                            <div
+                                class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
+                            >
+                                <icon>language</icon>
+                            </div>
+                            <div
+                                class="flex flex-1 items-center justify-between space-x-4"
+                            >
+                                <div>
+                                    <div>
+                                        {{ 'COMMON.LANGUAGE' | translate }}
+                                    </div>
+                                    @if (
+                                        ('COMMON.LANGUAGE' | translate) !==
+                                        'Language'
+                                    ) {
+                                        <div class="text-xs opacity-30">
+                                            Language
+                                        </div>
+                                    }
+                                </div>
+                                <div
+                                    class="max-w-24 truncate rounded bg-base-200 px-2 py-1 text-sm"
+                                    [matTooltip]="active_locale | translate"
+                                >
+                                    {{ active_locale | translate }}
+                                </div>
+                            </div>
+                            <icon class="text-2xl opacity-60">
+                                chevron_right
+                            </icon>
+                        </div>
+                    </button>
+                </div>
+            }
+
+            @if (features.includes('support-ticket')) {
+                <button
+                    btn
+                    matRipple
+                    class="clear h-[3.5rem] w-full text-left"
+                    (click)="newSupportTicket()"
+                >
                     <div class="flex w-full items-center space-x-2">
                         <div
                             class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
                         >
-                            <icon>language</icon>
+                            <icon>support_agent</icon>
                         </div>
-                        <div
-                            class="flex flex-1 items-center justify-between space-x-4"
-                        >
-                            <div>
-                                <div>{{ 'COMMON.LANGUAGE' | translate }}</div>
-                                <div
-                                    *ngIf="
-                                        ('COMMON.LANGUAGE' | translate) !==
-                                        'Language'
-                                    "
-                                    class="text-xs opacity-30"
-                                >
-                                    Language
-                                </div>
-                            </div>
-                            <div
-                                class="max-w-24 truncate rounded bg-base-200 px-2 py-1 text-sm"
-                                [matTooltip]="active_locale | translate"
-                            >
-                                {{ active_locale | translate }}
-                            </div>
+                        <div class="flex-1">
+                            {{ 'COMMON.CONTROLS_SUPPORT' | translate }}
                         </div>
-                        <icon class="text-2xl opacity-60"> chevron_right </icon>
                     </div>
                 </button>
-            </div>
-
-            <button
-                btn
-                matRipple
-                class="clear h-[3.5rem] w-full text-left"
-                *ngIf="features.includes('support-ticket')"
-                (click)="newSupportTicket()"
-            >
-                <div class="flex w-full items-center space-x-2">
-                    <div
-                        class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
-                    >
-                        <icon>support_agent</icon>
-                    </div>
-                    <div class="flex-1">
-                        {{ 'COMMON.CONTROLS_SUPPORT' | translate }}
-                    </div>
-                </div>
-            </button>
+            }
             <div class="flex flex-col items-center p-4">
                 <div class="mb-4 flex items-center justify-center space-x-2">
                     <button btn matRipple class="inverse" (click)="logout()">
                         {{ 'COMMON.CONTROLS_SIGN_OUT' | translate }}
                     </button>
-                    <button
-                        btn
-                        matRipple
-                        *ngIf="has_new_version"
-                        (click)="reloadPage()"
-                    >
-                        {{ 'COMMON.CONTROLS_NEW_VERSION' | translate }}
-                    </button>
+                    @if (has_new_version) {
+                        <button btn matRipple (click)="reloadPage()">
+                            {{ 'COMMON.CONTROLS_NEW_VERSION' | translate }}
+                        </button>
+                    }
                 </div>
                 <div class="w-full text-xs opacity-60">
                     <ng-container>

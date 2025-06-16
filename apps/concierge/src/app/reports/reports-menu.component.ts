@@ -10,71 +10,78 @@ const DEFAULT_FEATURES = ['desks', 'spaces', 'catering', 'contact-tracing'];
             class="absolute inset-0 flex items-center justify-center overflow-auto bg-base-200"
         >
             <div class="grid w-full justify-items-center">
-                <a
-                    [routerLink]="['/reports', 'desks']"
-                    matRipple
-                    *ngIf="features.includes('desks')"
-                    class="flex h-64 w-64 flex-col items-center justify-center rounded border border-base-200 bg-base-100 p-4 shadow hover:opacity-80"
-                >
-                    <icon class="text-8xl">room</icon>
-                    <h3 class="mb-4 text-xl font-bold">Desks</h3>
-                    <div class="flex items-center">
-                        <p>View Report</p>
-                        <icon class="ml-2">chevron_right</icon>
-                    </div>
-                </a>
-                <a
-                    [routerLink]="['/reports', 'bookings']"
-                    matRipple
-                    *ngIf="features.includes('spaces')"
-                    class="flex h-64 w-64 flex-col items-center justify-center rounded border border-base-200 bg-base-100 p-4 shadow hover:opacity-80"
-                >
-                    <icon class="text-8xl">meeting_room</icon>
-                    <h3 class="mb-4 text-xl font-bold">Rooms</h3>
-                    <div class="flex items-center">
-                        <p>View Report</p>
-                        <icon class="ml-2">chevron_right</icon>
-                    </div>
-                </a>
-                <a
-                    [routerLink]="['/reports', 'catering']"
-                    matRipple
-                    *ngIf="features.includes('catering')"
-                    class="flex h-64 w-64 flex-col items-center justify-center rounded border border-base-200 bg-base-100 p-4 shadow hover:opacity-80"
-                >
-                    <icon class="text-8xl">room_service</icon>
-                    <h3 class="mb-4 text-xl font-bold">Catering</h3>
-                    <div class="flex items-center">
-                        <p>View Report</p>
-                        <icon class="ml-2">chevron_right</icon>
-                    </div>
-                </a>
-                <a
-                    [routerLink]="['/reports', 'contact-tracing']"
-                    matRipple
-                    *ngIf="features.includes('contact-tracing')"
-                    class="flex h-64 w-64 flex-col items-center justify-center rounded border border-base-200 bg-base-100 p-4 shadow hover:opacity-80"
-                >
-                    <icon class="text-8xl">connect_without_contact</icon>
-                    <h3 class="mb-4 text-xl font-bold">Contact Tracing</h3>
-                    <div class="flex items-center">
-                        <p>View Report</p>
-                        <icon class="ml-2">chevron_right</icon>
-                    </div>
-                </a>
-                <a
-                    [routerLink]="['/reports', report.id]"
-                    matRipple
-                    *ngFor="let report of custom_reports"
-                    class="flex h-64 w-64 flex-col items-center justify-center rounded border border-base-200 bg-base-100 p-4 shadow hover:opacity-80"
-                >
-                    <icon class="text-8xl">{{ report.icon }}</icon>
-                    <h3 class="mb-4 text-xl font-bold">{{ report.name }}</h3>
-                    <div class="flex items-center">
-                        <p>View Report</p>
-                        <icon class="ml-2">chevron_right</icon>
-                    </div>
-                </a>
+                @if (features.includes('desks')) {
+                    <a
+                        [routerLink]="['/reports', 'desks']"
+                        matRipple
+                        class="flex h-64 w-64 flex-col items-center justify-center rounded border border-base-200 bg-base-100 p-4 shadow hover:opacity-80"
+                    >
+                        <icon class="text-8xl">room</icon>
+                        <h3 class="mb-4 text-xl font-bold">Desks</h3>
+                        <div class="flex items-center">
+                            <p>View Report</p>
+                            <icon class="ml-2">chevron_right</icon>
+                        </div>
+                    </a>
+                }
+                @if (features.includes('spaces')) {
+                    <a
+                        [routerLink]="['/reports', 'bookings']"
+                        matRipple
+                        class="flex h-64 w-64 flex-col items-center justify-center rounded border border-base-200 bg-base-100 p-4 shadow hover:opacity-80"
+                    >
+                        <icon class="text-8xl">meeting_room</icon>
+                        <h3 class="mb-4 text-xl font-bold">Rooms</h3>
+                        <div class="flex items-center">
+                            <p>View Report</p>
+                            <icon class="ml-2">chevron_right</icon>
+                        </div>
+                    </a>
+                }
+                @if (features.includes('catering')) {
+                    <a
+                        [routerLink]="['/reports', 'catering']"
+                        matRipple
+                        class="flex h-64 w-64 flex-col items-center justify-center rounded border border-base-200 bg-base-100 p-4 shadow hover:opacity-80"
+                    >
+                        <icon class="text-8xl">room_service</icon>
+                        <h3 class="mb-4 text-xl font-bold">Catering</h3>
+                        <div class="flex items-center">
+                            <p>View Report</p>
+                            <icon class="ml-2">chevron_right</icon>
+                        </div>
+                    </a>
+                }
+                @if (features.includes('contact-tracing')) {
+                    <a
+                        [routerLink]="['/reports', 'contact-tracing']"
+                        matRipple
+                        class="flex h-64 w-64 flex-col items-center justify-center rounded border border-base-200 bg-base-100 p-4 shadow hover:opacity-80"
+                    >
+                        <icon class="text-8xl">connect_without_contact</icon>
+                        <h3 class="mb-4 text-xl font-bold">Contact Tracing</h3>
+                        <div class="flex items-center">
+                            <p>View Report</p>
+                            <icon class="ml-2">chevron_right</icon>
+                        </div>
+                    </a>
+                }
+                @for (report of custom_reports; track report) {
+                    <a
+                        [routerLink]="['/reports', report.id]"
+                        matRipple
+                        class="flex h-64 w-64 flex-col items-center justify-center rounded border border-base-200 bg-base-100 p-4 shadow hover:opacity-80"
+                    >
+                        <icon class="text-8xl">{{ report.icon }}</icon>
+                        <h3 class="mb-4 text-xl font-bold">
+                            {{ report.name }}
+                        </h3>
+                        <div class="flex items-center">
+                            <p>View Report</p>
+                            <icon class="ml-2">chevron_right</icon>
+                        </div>
+                    </a>
+                }
             </div>
         </div>
     `,

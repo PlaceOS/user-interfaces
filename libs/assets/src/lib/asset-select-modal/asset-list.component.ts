@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -22,119 +23,118 @@ import { AssetGroup } from '../asset.class';
             <p count class="mb-4 px-2 text-sm opacity-60">
                 {{ (assets | async)?.length || 0 }} result(s) found
             </p>
-            <ng-container *ngIf="!(loading | async); else load_state">
-                <ul
-                    class="list-style-none space-y-2 p-2"
-                    *ngIf="(assets | async)?.length; else empty_state"
-                >
-                    <li
-                        asset
-                        *ngFor="let asset of assets | async"
-                        matRipple
-                        class="relative w-full rounded-lg border border-base-200 bg-base-100 p-2 shadow"
-                    >
-                        <button
-                            select
-                            class="flex h-full w-full items-center pr-10"
-                            (click)="selectAsset(asset)"
-                        >
-                            <div
-                                class="relative mr-4 flex h-16 w-16 items-center justify-center overflow-hidden rounded-xl border border-base-200 bg-base-200"
+            @if (!(loading | async)) {
+                @if ((assets | async)?.length) {
+                    <ul class="list-style-none space-y-2 p-2">
+                        @for (asset of assets | async; track asset.id) {
+                            <li
+                                asset
+                                matRipple
+                                class="relative w-full rounded-lg border border-base-200 bg-base-100 p-2 shadow"
                             >
-                                <div
-                                    class="absolute left-1 top-1 flex h-6 w-6 items-center justify-center rounded-full border border-base-300 bg-base-200"
-                                    *ngIf="selected.includes(asset.id)"
+                                <button
+                                    select
+                                    class="flex h-full w-full items-center pr-10"
+                                    (click)="selectAsset(asset)"
                                 >
-                                    <span class="text-xs">
-                                        {{ asset.quantity || 1 }}
-                                    </span>
-                                </div>
-                                <img
-                                    auth
-                                    *ngIf="
-                                        asset.images?.length;
-                                        else placeholder
-                                    "
-                                    class="h-full object-cover"
-                                    [source]="asset.images[0]"
-                                />
-                                <ng-template #placeholder>
-                                    <img
-                                        class="m-auto"
-                                        src="assets/icons/asset-placeholder.svg"
-                                    />
-                                </ng-template>
-                            </div>
-                            <div class="flex-1 space-y-2 text-left">
-                                <div
-                                    class="flex items-center justify-between font-medium"
-                                >
-                                    <div>{{ asset.name || 'Asset' }}</div>
-                                    <div class="text-xs opacity-60">
-                                        {{ asset.category }}
+                                    <div
+                                        class="relative mr-4 flex h-16 w-16 items-center justify-center overflow-hidden rounded-xl border border-base-200 bg-base-200"
+                                    >
+                                        @if (selected.includes(asset.id)) {
+                                            <div
+                                                class="absolute left-1 top-1 flex h-6 w-6 items-center justify-center rounded-full border border-base-300 bg-base-200"
+                                            >
+                                                <span class="text-xs">
+                                                    {{ asset.quantity || 1 }}
+                                                </span>
+                                            </div>
+                                        }
+                                        @if (asset.images?.length) {
+                                            <img
+                                                auth
+                                                class="h-full object-cover"
+                                                [source]="asset.images[0]"
+                                            />
+                                        } @else {
+                                            <img
+                                                class="m-auto"
+                                                src="assets/icons/asset-placeholder.svg"
+                                            />
+                                        }
                                     </div>
-                                </div>
-                                <div
-                                    class="flex items-center space-x-2 text-sm"
+                                    <div class="flex-1 space-y-2 text-left">
+                                        <div
+                                            class="flex items-center justify-between font-medium"
+                                        >
+                                            <div>
+                                                {{ asset.name || 'Asset' }}
+                                            </div>
+                                            <div class="text-xs opacity-60">
+                                                {{ asset.category }}
+                                            </div>
+                                        </div>
+                                        <div
+                                            class="flex items-center space-x-2 text-sm"
+                                        >
+                                            <p>
+                                                {{
+                                                    'BOOKINGS.ASSETS_AVAILABLE'
+                                                        | translate
+                                                            : {
+                                                                  count:
+                                                                      asset.available ||
+                                                                      asset
+                                                                          .assets
+                                                                          ?.length ||
+                                                                      '0',
+                                                              }
+                                                }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </button>
+                                <button
+                                    icon
+                                    matRipple
+                                    fav
+                                    class="absolute right-1 top-1"
+                                    [class.text-info]="isFavourite(asset.id)"
+                                    (click)="toggleFav.emit(asset)"
                                 >
-                                    <p>
-                                        {{
-                                            'BOOKINGS.ASSETS_AVAILABLE'
-                                                | translate
-                                                    : {
-                                                          count:
-                                                              asset.available ||
-                                                              asset.assets
-                                                                  ?.length ||
-                                                              '0',
-                                                      }
-                                        }}
-                                    </p>
-                                </div>
-                            </div>
-                        </button>
-                        <button
-                            icon
-                            matRipple
-                            fav
-                            class="absolute right-1 top-1"
-                            [class.text-info]="isFavourite(asset.id)"
-                            (click)="toggleFav.emit(asset)"
-                        >
-                            <icon
-                                [className]="
-                                    isFavourite(asset.id)
-                                        ? 'material-symbols-rounded'
-                                        : 'material-symbols-outlined'
-                                "
-                                >favorite</icon
-                            >
-                        </button>
-                    </li>
-                </ul>
-            </ng-container>
+                                    <icon
+                                        [className]="
+                                            isFavourite(asset.id)
+                                                ? 'material-symbols-rounded'
+                                                : 'material-symbols-outlined'
+                                        "
+                                        >favorite</icon
+                                    >
+                                </button>
+                            </li>
+                        }
+                    </ul>
+                } @else {
+                    <div
+                        empty
+                        class="flex flex-col items-center justify-center space-y-2 p-16"
+                    >
+                        <p class="text-center opacity-30">
+                            {{ 'BOOKINGS.ASSETS_EMPTY' | translate }}
+                        </p>
+                    </div>
+                }
+            } @else {
+                <div
+                    loading
+                    class="flex flex-col items-center justify-center space-y-2 p-16"
+                >
+                    <mat-spinner [diameter]="32"></mat-spinner>
+                    <p class="opacity-30">
+                        {{ 'BOOKINGS.ASSETS_LOADING' | translate }}
+                    </p>
+                </div>
+            }
         </div>
-        <ng-template #empty_state>
-            <div
-                empty
-                class="flex flex-col items-center justify-center space-y-2 p-16"
-            >
-                <p class="text-center opacity-30">
-                    {{ 'BOOKINGS.ASSETS_EMPTY' | translate }}
-                </p>
-            </div>
-        </ng-template>
-        <ng-template #load_state>
-            <div
-                loading
-                class="flex flex-col items-center justify-center space-y-2 p-16"
-            >
-                <mat-spinner [diameter]="32"></mat-spinner>
-                <p class="opacity-30">
-                    {{ 'BOOKINGS.ASSETS_LOADING' | translate }}
-                </p>
-            </div>
-        </ng-template>
     `,
     styles: [
         `
@@ -149,6 +149,7 @@ import { AssetGroup } from '../asset.class';
         MatProgressSpinnerModule,
         MatRippleModule,
         TranslatePipe,
+        IconComponent,
     ],
 })
 export class AssetListComponent {

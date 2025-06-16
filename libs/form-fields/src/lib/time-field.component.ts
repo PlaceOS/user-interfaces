@@ -47,64 +47,74 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
                 <div class="truncate">
                     {{ active_time | date: time_format }}
                 </div>
-                <div class="truncate text-xs opacity-30" *ngIf="timezone && tz">
-                    {{ active_time | date: time_format + ' (z)' : tz }}
-                </div>
+                @if (timezone && tz) {
+                    <div class="truncate text-xs opacity-30">
+                        {{ active_time | date: time_format + ' (z)' : tz }}
+                    </div>
+                }
             </div>
             <icon class="text-2xl">arrow_drop_down</icon>
         </button>
         <mat-menu #menu="matMenu" class="max-h-[15rem] min-w-[18rem]">
-            <button
-                mat-menu-item
-                *ngIf="force_time"
-                [value]="force_time"
-                class="text-left"
-                (click)="setValue(force_time)"
-            >
-                <div class="flex items-center justify-between">
-                    <div class="flex flex-col leading-tight">
-                        <div class="">
-                            {{ force_time | date: time_format }}
+            @if (force_time) {
+                <button
+                    mat-menu-item
+                    [value]="force_time"
+                    class="text-left"
+                    (click)="setValue(force_time)"
+                >
+                    <div class="flex items-center justify-between">
+                        <div class="flex flex-col leading-tight">
+                            <div class="">
+                                {{ force_time | date: time_format }}
+                            </div>
+                            @if (timezone && tz) {
+                                <div class="text-xs opacity-30">
+                                    {{
+                                        force_time
+                                            | date: time_format + ' (z)' : tz
+                                    }}
+                                </div>
+                            }
                         </div>
-                        <div class="text-xs opacity-30" *ngIf="timezone && tz">
-                            {{ force_time | date: time_format + ' (z)' : tz }}
-                        </div>
+                        @if (active_time === force_time) {
+                            <icon class="ml-2 text-2xl"> done </icon>
+                        }
                     </div>
-                    <icon
-                        *ngIf="active_time === force_time"
-                        class="ml-2 text-2xl"
-                    >
-                        done
-                    </icon>
-                </div>
-            </button>
-            <button
-                mat-menu-item
-                *ngFor="let option of time_options"
-                [value]="option.id"
-                class="text-left"
-                (click)="setValue(option.id)"
-            >
-                <div class="flex items-center justify-between">
-                    <div class="flex flex-col leading-tight">
-                        <div class="">
-                            {{ option.date | date: time_format }}
-                            {{ extra_info_fn(option.date) }}
+                </button>
+            }
+            @for (option of time_options; track option.id) {
+                <button
+                    mat-menu-item
+                    [value]="option.id"
+                    class="text-left"
+                    (click)="setValue(option.id)"
+                >
+                    <div class="flex items-center justify-between">
+                        <div class="flex flex-col leading-tight">
+                            <div class="">
+                                {{ option.date | date: time_format }}
+                                {{ extra_info_fn(option.date) }}
+                            </div>
+                            @if (timezone && tz) {
+                                <div class="text-xs opacity-30">
+                                    {{
+                                        option.date
+                                            | date: time_format + ' (z)' : tz
+                                    }}
+                                </div>
+                            }
                         </div>
-                        <div class="text-xs opacity-30" *ngIf="timezone && tz">
-                            {{ option.date | date: time_format + ' (z)' : tz }}
-                        </div>
+                        @if (active_time === option.date) {
+                            <icon class="ml-2 text-2xl"> done </icon>
+                        }
                     </div>
-                    <icon
-                        *ngIf="active_time === option.date"
-                        class="ml-2 text-2xl"
-                    >
-                        done
-                    </icon>
-                </div>
-            </button>
+                </button>
+            }
         </mat-menu>
-        <mat-error *ngIf="!no_error"><ng-content></ng-content></mat-error>
+        @if (!no_error) {
+            <mat-error><ng-content></ng-content></mat-error>
+        }
     `,
     styles: [
         `

@@ -15,23 +15,23 @@ import { SignageStateService } from './signage-state.service';
                     <h2 class="text-2xl font-medium">
                         {{ 'APP.CONCIERGE.SIGNAGE_HEADER' | translate }}
                     </h2>
-                    <button
-                        btn
-                        matRipple
-                        class="w-40"
-                        *ngIf="
-                            active_link === 'Media' ||
-                            active_link === 'Displays'
-                        "
-                        (click)="newItem(active_link)"
-                    >
-                        {{
-                            (active_link === 'Displays'
-                                ? 'APP.CONCIERGE.SIGNAGE_DISPLAYS_ADD'
-                                : 'APP.CONCIERGE.SIGNAGE_PLAYLISTS_ADD'
-                            ) | translate
-                        }}
-                    </button>
+                    @if (
+                        active_link === 'Media' || active_link === 'Displays'
+                    ) {
+                        <button
+                            btn
+                            matRipple
+                            class="w-40"
+                            (click)="newItem(active_link)"
+                        >
+                            {{
+                                (active_link === 'Displays'
+                                    ? 'APP.CONCIERGE.SIGNAGE_DISPLAYS_ADD'
+                                    : 'APP.CONCIERGE.SIGNAGE_PLAYLISTS_ADD'
+                                ) | translate
+                            }}
+                        </button>
+                    }
                 </div>
                 <div class="px-8">
                     <nav mat-tab-nav-bar [tabPanel]="tabPanel">

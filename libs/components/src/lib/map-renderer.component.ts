@@ -55,61 +55,65 @@ function isSamePoint(p1: Point, p2: Point): boolean {
             class="absolute inset-0"
             [class.hidden]="!src"
         ></div>
-        <ng-container *ngIf="src; else empty_state">
-            <mat-spinner
-                *ngIf="!viewer || loading"
-                class="absolute"
-                [diameter]="48"
-            ></mat-spinner>
-        </ng-container>
-        <div hidden *ngIf="injectors?.length">
-            <ng-container
-                *ngFor="
-                    let element of features;
-                    let i = index;
-                    trackBy: trackByFn
-                "
-            >
-                <div *ngIf="element">
-                    <div
-                        #feature
-                        class="pointer-events-none"
-                        [attr.no-scale]="element.no_scale"
-                        [attr.el-id]="element.location"
-                        [attr.track-id]="element.track_id"
-                        [attr.view-id]="viewer"
-                        [ngSwitch]="type(element.content)"
-                    >
-                        <ng-container *ngSwitchCase="'component'">
-                            <ng-container
-                                *ngComponentOutlet="
-                                    element.content;
-                                    injector: injectors[i]
-                                "
-                            ></ng-container>
-                        </ng-container>
-                        <ng-container *ngSwitchCase="'html'">
-                            <div [innerHTML]="element.content | sanitize"></div>
-                        </ng-container>
-                        <ng-container *ngSwitchDefault>
-                            <ng-container
-                                *ngTemplateOutlet="
-                                    element.content;
-                                    context: element.data
-                                "
-                            ></ng-container>
-                        </ng-container>
-                    </div>
-                </div>
-            </ng-container>
-        </div>
-        <ng-template #empty_state>
+        @if (src) {
+            @if (!viewer || loading) {
+                <mat-spinner class="absolute" [diameter]="48"></mat-spinner>
+            }
+        } @else {
             <div class="absolute inset-0 flex items-center justify-center">
                 <div class="opacity-30">
                     {{ 'EXPLORE.MAP_EMPTY' | translate }}
                 </div>
             </div>
-        </ng-template>
+        }
+        @if (injectors?.length) {
+            <div hidden>
+                @for (
+                    element of features;
+                    track trackByFn(i, element);
+                    let i = $index
+                ) {
+                    @if (element) {
+                        <div>
+                            <div
+                                #feature
+                                class="pointer-events-none"
+                                [attr.no-scale]="element.no_scale"
+                                [attr.el-id]="element.location"
+                                [attr.track-id]="element.track_id"
+                                [attr.view-id]="viewer"
+                            >
+                                @switch (type(element.content)) {
+                                    @case ('component') {
+                                        <ng-container
+                                            *ngComponentOutlet="
+                                                element.content;
+                                                injector: injectors[i]
+                                            "
+                                        ></ng-container>
+                                    }
+                                    @case ('html') {
+                                        <div
+                                            [innerHTML]="
+                                                element.content | sanitize
+                                            "
+                                        ></div>
+                                    }
+                                    @default {
+                                        <ng-container
+                                            *ngTemplateOutlet="
+                                                element.content;
+                                                context: element.data
+                                            "
+                                        ></ng-container>
+                                    }
+                                }
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        }
     `,
     styles: [
         `

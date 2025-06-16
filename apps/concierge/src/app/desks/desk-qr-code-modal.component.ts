@@ -22,24 +22,25 @@ import { map } from 'rxjs/operators';
             <div
                 class="flex h-[calc(100vh-5rem)] flex-wrap overflow-auto print:h-auto"
             >
-                <a
-                    [href]="desk.qr_link | safe: 'url'"
-                    target="_blank"
-                    ref="noopener noreferrer"
-                    *ngFor="let desk of desks | async"
-                    class="mx-auto flex w-[28%] flex-col items-center justify-center landscape:w-[21%] print:h-[25vh] print:landscape:h-[33.33vh]"
-                >
-                    <div
-                        class="mx-4 my-2 block rounded-lg border border-base-200 bg-base-100 p-2"
+                @for (desk of desks | async; track desk) {
+                    <a
+                        [href]="desk.qr_link | safe: 'url'"
+                        target="_blank"
+                        ref="noopener noreferrer"
+                        class="mx-auto flex w-[28%] flex-col items-center justify-center landscape:w-[21%] print:h-[25vh] print:landscape:h-[33.33vh]"
                     >
-                        <img class="w-48" [src]="desk.qr_code" />
-                    </div>
-                    <div
-                        class="mx-4 my-1 w-[calc(100%-2rem)] rounded bg-base-200 p-1 text-center font-mono text-sm"
-                    >
-                        {{ desk.name || desk.id }}
-                    </div>
-                </a>
+                        <div
+                            class="mx-4 my-2 block rounded-lg border border-base-200 bg-base-100 p-2"
+                        >
+                            <img class="w-48" [src]="desk.qr_code" />
+                        </div>
+                        <div
+                            class="mx-4 my-1 w-[calc(100%-2rem)] rounded bg-base-200 p-1 text-center font-mono text-sm"
+                        >
+                            {{ desk.name || desk.id }}
+                        </div>
+                    </a>
+                }
             </div>
         </div>
     `,

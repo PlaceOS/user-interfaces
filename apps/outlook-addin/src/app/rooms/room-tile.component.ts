@@ -22,19 +22,22 @@ import { RoomConfirmService } from './room-confirm.service';
                     <div
                         class="text-gray-500 m-3 flex h-44 items-center justify-center rounded-lg bg-base-200"
                     >
-                        <img
-                            auth
-                            *ngIf="space?.images?.length > 0"
-                            [source]="space.images[0]"
-                            alt="image of building "
-                            width="100%"
-                            height="100%"
-                            class="z-20 flex rounded-lg"
-                        />
+                        @if (space?.images?.length > 0) {
+                            <img
+                                auth
+                                [source]="space.images[0]"
+                                alt="image of building "
+                                width="100%"
+                                height="100%"
+                                class="z-20 flex rounded-lg"
+                            />
+                        }
 
-                        <div *ngIf="space?.images?.length == 0">
-                            <icon class="text-[8rem]">image</icon>
-                        </div>
+                        @if (space?.images?.length == 0) {
+                            <div>
+                                <icon class="text-[8rem]">image</icon>
+                            </div>
+                        }
                     </div>
                     <div class="mb-4 flex flex-col">
                         <span class="mx-3 mt-1 text-xl font-bold">

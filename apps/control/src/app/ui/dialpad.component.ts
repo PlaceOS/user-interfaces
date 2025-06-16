@@ -7,28 +7,30 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
             dialpad
             class="relative flex w-60 flex-wrap items-center justify-center !text-base-content"
         >
-            <button
-                digit
-                matRipple
-                *ngFor="let digit of digits"
-                class="relative m-2 flex h-16 w-16 items-center justify-center rounded-lg bg-base-100 active:top-1"
-                (click)="pressed.emit(digit)"
-            >
-                {{ digit }}
-            </button>
-            <button
-                digit
-                matRipple
-                *ngIf="backspace"
-                class="m-2 flex h-16 w-60 flex-1 items-center justify-center rounded-lg bg-base-100 active:-bottom-1"
-                [class.absolute]="!inline"
-                [class.bottom-0]="!inline"
-                [class.-right-4]="!inline"
-                [class.translate-x-full]="!inline"
-                (click)="pressed.emit('')"
-            >
-                {{ 'APP.CONTROL.BACKSPACE' | translate }}
-            </button>
+            @for (digit of digits; track digit) {
+                <button
+                    digit
+                    matRipple
+                    class="relative m-2 flex h-16 w-16 items-center justify-center rounded-lg bg-base-100 active:top-1"
+                    (click)="pressed.emit(digit)"
+                >
+                    {{ digit }}
+                </button>
+            }
+            @if (backspace) {
+                <button
+                    digit
+                    matRipple
+                    class="m-2 flex h-16 w-60 flex-1 items-center justify-center rounded-lg bg-base-100 active:-bottom-1"
+                    [class.absolute]="!inline"
+                    [class.bottom-0]="!inline"
+                    [class.-right-4]="!inline"
+                    [class.translate-x-full]="!inline"
+                    (click)="pressed.emit('')"
+                >
+                    {{ 'APP.CONTROL.BACKSPACE' | translate }}
+                </button>
+            }
         </div>
     `,
     styles: [

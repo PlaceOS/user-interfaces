@@ -143,39 +143,46 @@ import { CateringStateService } from './catering-state.service';
             </div>
         </ng-template>
         <ng-template #child_template let-row="row">
-            <div
-                class="relative flex items-center space-x-2 border-b border-solid border-base-200 p-2"
-                *ngFor="let option of row.options"
-            >
+            @for (option of row.options; track option) {
                 <div
-                    class="absolute inset-y-0 left-0 w-2 bg-black opacity-10"
-                ></div>
-                <div class="flex-1 pl-4 pr-2">
-                    <div class="text">{{ option.name }}</div>
-                    <div class="text-xs opacity-60">
-                        {{ option.group }}
+                    class="relative flex items-center space-x-2 border-b border-solid border-base-200 p-2"
+                >
+                    <div
+                        class="absolute inset-y-0 left-0 w-2 bg-black opacity-10"
+                    ></div>
+                    <div class="flex-1 pl-4 pr-2">
+                        <div class="text">{{ option.name }}</div>
+                        <div class="text-xs opacity-60">
+                            {{ option.group }}
+                        </div>
                     </div>
+                    @if (can_edit) {
+                        <button
+                            icon
+                            matRipple
+                            [matTooltip]="
+                                'CATERING.ITEM_OPTION_EDIT' | translate
+                            "
+                            (click)="editOption(row, option)"
+                        >
+                            <icon>edit</icon>
+                        </button>
+                    }
+                    @if (can_edit) {
+                        <button
+                            icon
+                            matRipple
+                            class="!mr-1"
+                            [matTooltip]="
+                                'CATERING.ITEM_OPTION_REMOVE' | translate
+                            "
+                            (click)="removeOption(row, option)"
+                        >
+                            <icon class="text-error">delete</icon>
+                        </button>
+                    }
                 </div>
-                <button
-                    icon
-                    matRipple
-                    [matTooltip]="'CATERING.ITEM_OPTION_EDIT' | translate"
-                    (click)="editOption(row, option)"
-                    *ngIf="can_edit"
-                >
-                    <icon>edit</icon>
-                </button>
-                <button
-                    icon
-                    matRipple
-                    class="!mr-1"
-                    [matTooltip]="'CATERING.ITEM_OPTION_REMOVE' | translate"
-                    (click)="removeOption(row, option)"
-                    *ngIf="can_edit"
-                >
-                    <icon class="text-error">delete</icon>
-                </button>
-            </div>
+            }
         </ng-template>
     `,
     styles: [

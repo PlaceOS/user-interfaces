@@ -4,7 +4,6 @@ import { randomInt } from '@placeos/common';
 import { Attachment } from '@placeos/users';
 import { takeWhile } from 'rxjs/operators';
 
-import { CommonModule } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { uploadFiles } from '@placeos/cloud-uploads';
@@ -30,64 +29,62 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
                 />
             </div>
             <div class="flex h-48 w-1/2 flex-1 flex-col items-center">
-                <div
-                    list
-                    class="h-full w-full space-y-2 overflow-auto"
-                    *ngIf="list?.length; else empty_state"
-                >
-                    <div
-                        item
-                        *ngFor="let item of list"
-                        class="flex w-full items-center rounded border border-base-200 bg-base-100 hover:bg-base-200"
-                        [class.!bg-error]="item.progress < 1"
-                        [class.!bg-opacity-20]="item.progress < 1"
-                    >
-                        <div
-                            class="w-px flex-1 truncate px-2 font-mono text-sm"
-                        >
-                            {{ item.name }}
-                        </div>
-                        <ng-container
-                            *ngIf="item.progress >= 0 && item.progress < 100"
-                        >
-                            <div class="relative mx-1">
-                                <mat-progress-spinner
-                                    [diameter]="32"
-                                    mode="determinate"
-                                    [value]="item.progress"
-                                ></mat-progress-spinner>
-
+                @if (list?.length) {
+                    <div list class="h-full w-full space-y-2 overflow-auto">
+                        @for (item of list; track item) {
+                            <div
+                                item
+                                class="flex w-full items-center rounded border border-base-200 bg-base-100 hover:bg-base-200"
+                                [class.!bg-error]="item.progress < 1"
+                                [class.!bg-opacity-20]="item.progress < 1"
+                            >
                                 <div
-                                    class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-sm font-bold"
+                                    class="w-px flex-1 truncate px-2 font-mono text-sm"
                                 >
-                                    {{ item.progress }}
+                                    {{ item.name }}
                                 </div>
+                                @if (
+                                    item.progress >= 0 && item.progress < 100
+                                ) {
+                                    <div class="relative mx-1">
+                                        <mat-progress-spinner
+                                            [diameter]="32"
+                                            mode="determinate"
+                                            [value]="item.progress"
+                                        ></mat-progress-spinner>
+                                        <div
+                                            class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-sm font-bold"
+                                        >
+                                            {{ item.progress }}
+                                        </div>
+                                    </div>
+                                }
+                                @if (item.progress >= 100) {
+                                    <a
+                                        [href]="item.url"
+                                        icon
+                                        matRipple
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                    >
+                                        <icon>link</icon>
+                                    </a>
+                                }
+                                <button icon (click)="removeFile(item)">
+                                    <icon>close</icon>
+                                </button>
                             </div>
-                        </ng-container>
-                        <a
-                            [href]="item.url"
-                            icon
-                            matRipple
-                            *ngIf="item.progress >= 100"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >
-                            <icon>link</icon>
-                        </a>
-                        <button icon (click)="removeFile(item)">
-                            <icon>close</icon>
-                        </button>
+                        }
                     </div>
-                </div>
+                } @else {
+                    <div
+                        class="flex h-full w-full flex-col items-center justify-center"
+                    >
+                        <p class="opacity-30">No uploaded files</p>
+                    </div>
+                }
             </div>
         </div>
-        <ng-template #empty_state>
-            <div
-                class="flex h-full w-full flex-col items-center justify-center"
-            >
-                <p class="opacity-30">No uploaded files</p>
-            </div>
-        </ng-template>
     `,
     styles: [``],
     providers: [
@@ -97,12 +94,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
             multi: true,
         },
     ],
-    imports: [
-        CommonModule,
-        MatProgressSpinnerModule,
-        IconComponent,
-        MatRippleModule,
-    ],
+    imports: [MatProgressSpinnerModule, IconComponent, MatRippleModule],
 })
 export class UploadListFieldComponent implements ControlValueAccessor {
     public list: Attachment[] = [];

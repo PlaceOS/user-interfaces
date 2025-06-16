@@ -47,10 +47,14 @@ import { EnrolmentStateService } from './enrolment-state.service';
                     <upload-list formControlName="attachments"></upload-list>
                 </div>
             </div>
-            <div class="mb-4 flex flex-col" *ngIf="check_vaccine">
-                <label>Vaccination Proof:</label>
-                <upload-file formControlName="vaccination_proof"></upload-file>
-            </div>
+            @if (check_vaccine) {
+                <div class="mb-4 flex flex-col">
+                    <label>Vaccination Proof:</label>
+                    <upload-file
+                        formControlName="vaccination_proof"
+                    ></upload-file>
+                </div>
+            }
             <mat-checkbox
                 formControlName="accepted_terms_conditions"
                 class="mb-4"

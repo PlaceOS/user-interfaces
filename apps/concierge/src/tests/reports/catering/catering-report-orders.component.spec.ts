@@ -1,13 +1,14 @@
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { CustomTableComponent, IconComponent } from '@placeos/components';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
 import { SettingsService } from '@placeos/common';
+
 import { CateringReportOrdersComponent } from 'apps/concierge/src/app/reports/catering/catering-report-orders.component';
 import { CateringReportStateService } from 'apps/concierge/src/app/reports/catering/catering-report-state.service';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { SimpleTableComponent } from 'libs/components/src/lib/simple-table.component';
 
 describe('CateringReportOrdersComponent', () => {
@@ -15,7 +16,6 @@ describe('CateringReportOrdersComponent', () => {
     const createComponent = createComponentFactory({
         component: CateringReportOrdersComponent,
         declarations: [
-            MockComponent(CustomTableComponent),
             MockComponent(IconComponent),
             MockComponent(SimpleTableComponent),
         ],

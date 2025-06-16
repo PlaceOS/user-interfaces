@@ -16,8 +16,8 @@ import { debounceTime, filter, first } from 'rxjs/operators';
         <div
             class="h-full w-64 overflow-auto border-r border-base-200 py-2 pr-3"
         >
-            <ng-container *ngFor="let link of filtered_links">
-                <ng-container *ngIf="!link.children; else group_view">
+            @for (link of filtered_links; track link) {
+                @if (!link.children) {
                     <a
                         matRipple
                         class="my-1 flex w-full items-center space-x-2 rounded-r-full p-1 hover:bg-base-200"
@@ -27,44 +27,48 @@ import { debounceTime, filter, first } from 'rxjs/operators';
                         <icon class="text-2xl opacity-60">{{ link.icon }}</icon>
                         <span class="font-medium">{{ link.name }}</span>
                     </a>
-                </ng-container>
-                <ng-template #group_view>
-                    <button
-                        matRipple
-                        *ngIf="link.children?.length"
-                        class="my-1 flex w-full items-center space-x-2 rounded-r-full p-1 hover:bg-base-200"
-                        (click)="
-                            show_block[link.id || link._id] =
-                                !show_block[link.id || link._id]
-                        "
-                    >
-                        <icon class="text-2xl opacity-60">
-                            {{ link.icon }}
-                        </icon>
-                        <div class="flex-1 text-left font-medium">
-                            {{ link.name }}
-                        </div>
-                        <icon class="text-2xl">arrow_drop_down</icon>
-                    </button>
-                    <section
-                        class="w-full overflow-hidden"
-                        *ngIf="link.children?.length"
-                        [@show]="
-                            !show_block[link.id || link._id] ? 'show' : 'hide'
-                        "
-                    >
-                        <a
+                } @else {
+                    @if (link.children?.length) {
+                        <button
+                            matRipple
                             class="my-1 flex w-full items-center space-x-2 rounded-r-full p-1 hover:bg-base-200"
-                            *ngFor="let child of link.children"
-                            [routerLink]="child.route"
-                            routerLinkActive="active"
+                            (click)="
+                                show_block[link.id || link._id] =
+                                    !show_block[link.id || link._id]
+                            "
                         >
-                            <icon class="text-2xl"></icon>
-                            <span>{{ child.name }}</span>
-                        </a>
-                    </section>
-                </ng-template>
-            </ng-container>
+                            <icon class="text-2xl opacity-60">
+                                {{ link.icon }}
+                            </icon>
+                            <div class="flex-1 text-left font-medium">
+                                {{ link.name }}
+                            </div>
+                            <icon class="text-2xl">arrow_drop_down</icon>
+                        </button>
+                    }
+                    @if (link.children?.length) {
+                        <section
+                            class="w-full overflow-hidden"
+                            [@show]="
+                                !show_block[link.id || link._id]
+                                    ? 'show'
+                                    : 'hide'
+                            "
+                        >
+                            @for (child of link.children; track child) {
+                                <a
+                                    class="my-1 flex w-full items-center space-x-2 rounded-r-full p-1 hover:bg-base-200"
+                                    [routerLink]="child.route"
+                                    routerLinkActive="active"
+                                >
+                                    <icon class="text-2xl"></icon>
+                                    <span>{{ child.name }}</span>
+                                </a>
+                            }
+                        </section>
+                    }
+                }
+            }
         </div>
     `,
     styles: [

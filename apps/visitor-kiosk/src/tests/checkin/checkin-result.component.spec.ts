@@ -2,9 +2,10 @@ import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { of } from 'rxjs';
 
 import { SettingsService } from '@placeos/common';
-import { SanitizePipe, UserAvatarComponent } from '@placeos/components';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { LevelPipe } from 'libs/components/src/lib/level.pipe';
+import { SanitizePipe } from 'libs/components/src/lib/sanitise.pipe';
+import { UserAvatarComponent } from 'libs/components/src/lib/user-avatar.component';
 import { MockComponent, MockDirective, MockPipe, MockProvider } from 'ng-mocks';
 import { CheckinResultsComponent } from '../../app/checkin/checkin-result.component';
 import { CheckinStateService } from '../../app/checkin/checkin-state.service';

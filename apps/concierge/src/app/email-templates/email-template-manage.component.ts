@@ -30,14 +30,11 @@ import {
                         ) | translate
                     }}
                 </h2>
-                <a
-                    icon
-                    matRipple
-                    [routerLink]="['/email-templates']"
-                    *ngIf="!loading"
-                >
-                    <icon>close</icon>
-                </a>
+                @if (!loading) {
+                    <a icon matRipple [routerLink]="['/email-templates']">
+                        <icon>close</icon>
+                    </a>
+                }
             </header>
             <form
                 class="z-0 mx-auto my-2 w-full max-w-[40rem] overflow-visible p-4"
@@ -59,12 +56,11 @@ import {
                                 <mat-option value="">{{
                                     'COMMON.BUILDING_EMPTY' | translate
                                 }}</mat-option>
-                                <mat-option
-                                    *ngFor="let bld of buildings | async"
-                                    [value]="bld.id"
-                                >
-                                    {{ bld.display_name || bld.name }}
-                                </mat-option>
+                                @for (bld of buildings | async; track bld) {
+                                    <mat-option [value]="bld.id">
+                                        {{ bld.display_name || bld.name }}
+                                    </mat-option>
+                                }
                             </mat-select>
                             <mat-error>{{
                                 'COMMON.BUILDING_REQUIRED' | translate
@@ -72,23 +68,23 @@ import {
                         </mat-form-field>
                     </div>
                     <!-- <div class="flex-1 space-y-2 w-1/4">
-                        <label for="category">{{'COMMON.CATEGORY' | translate}}</label>
-                        <mat-form-field appearance="outline" class="w-full">
-                            <mat-select
-                                name="category"
-                                placeholder="Select Category"
-                                formControlName="category"
-                            >
-                                <mat-option value="internal">
-                                    Internal
-                                </mat-option>
-                                <mat-option value="external">
-                                    External
-                                </mat-option>
-                            </mat-select>
-                            <mat-error>A category is required</mat-error>
-                        </mat-form-field>
-                    </div> -->
+              <label for="category">{{'COMMON.CATEGORY' | translate}}</label>
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-select
+                  name="category"
+                  placeholder="Select Category"
+                  formControlName="category"
+                  >
+                  <mat-option value="internal">
+                    Internal
+                  </mat-option>
+                  <mat-option value="external">
+                    External
+                  </mat-option>
+                </mat-select>
+                <mat-error>A category is required</mat-error>
+              </mat-form-field>
+            </div> -->
                     <div class="w-1/4 flex-1 space-y-2 pb-6">
                         <label for="trigger">
                             {{ 'COMMON.TRIGGER' | translate }}
@@ -109,16 +105,15 @@ import {
                                             active_trigger?.module_name
                                     }}
                                 </div>
-                                <div
-                                    class="truncate opacity-30"
-                                    *ngIf="!active_trigger"
-                                >
-                                    {{ 'COMMON.TRIGGER_SELECT' | translate }}
-                                </div>
+                                @if (!active_trigger) {
+                                    <div class="truncate opacity-30">
+                                        {{
+                                            'COMMON.TRIGGER_SELECT' | translate
+                                        }}
+                                    </div>
+                                }
                             </div>
-                            <icon class="text-2xl">
-                                arrow_drop_down
-                            </icon>
+                            <icon class="text-2xl"> arrow_drop_down </icon>
                         </button>
                         <mat-menu #trigger_menu="matMenu" class="max-h-[24rem]">
                             <button
@@ -127,44 +122,47 @@ import {
                             >
                                 {{ 'COMMON.NONE' | translate }}
                             </button>
-                            <ng-container
-                                *ngFor="let group of definitions | async"
-                            >
+                            @for (group of definitions | async; track group) {
                                 <label class="p-4">{{ group.name }}</label>
-                                <button
-                                    mat-menu-item
-                                    *ngFor="let tmpl of group.items"
-                                    (click)="
-                                        form.patchValue({ trigger: tmpl.id })
-                                    "
-                                >
-                                    <div
-                                        class="flex items-center space-x-2 pl-2"
+                                @for (tmpl of group.items; track tmpl) {
+                                    <button
+                                        mat-menu-item
+                                        (click)="
+                                            form.patchValue({
+                                                trigger: tmpl.id,
+                                            })
+                                        "
                                     >
                                         <div
-                                            class="my-2 flex flex-1 flex-col-reverse leading-tight"
+                                            class="flex items-center space-x-2 pl-2"
                                         >
-                                            <div class="text-xs opacity-30">
-                                                {{ tmpl.description }}
+                                            <div
+                                                class="my-2 flex flex-1 flex-col-reverse leading-tight"
+                                            >
+                                                <div class="text-xs opacity-30">
+                                                    {{ tmpl.description }}
+                                                </div>
+                                                <div class="text-sm">
+                                                    {{
+                                                        tmpl.name ||
+                                                            tmpl.module_name
+                                                    }}
+                                                    <span class="opacity-0"
+                                                        >:</span
+                                                    >
+                                                </div>
                                             </div>
-                                            <div class="text-sm">
-                                                {{
-                                                    tmpl.name ||
-                                                        tmpl.module_name
-                                                }}
-                                                <span class="opacity-0">:</span>
-                                            </div>
-                                        </div>
-                                        <icon
-                                            class="text-2xl"
-                                            *ngIf="
+                                            @if (
                                                 form.value.trigger === tmpl.id
-                                            "
-                                            >done</icon
-                                        >
-                                    </div>
-                                </button>
-                            </ng-container>
+                                            ) {
+                                                <icon class="text-2xl"
+                                                    >done</icon
+                                                >
+                                            }
+                                        </div>
+                                    </button>
+                                }
+                            }
                         </mat-menu>
                     </div>
                     <button
@@ -181,30 +179,32 @@ import {
                         }}
                     </button>
                     <mat-menu #tracking_menu="matMenu" class="max-h-[24rem]">
-                        <button
-                            mat-menu-item
-                            *ngFor="let field of active_trigger?.fields || []"
-                            (click)="copyField(field.name)"
-                        >
-                            <div class="flex flex-col leading-tight">
-                                <div class="font-mono text-sm">
-                                    {{ field.name }}
+                        @for (
+                            field of active_trigger?.fields || [];
+                            track field
+                        ) {
+                            <button
+                                mat-menu-item
+                                (click)="copyField(field.name)"
+                            >
+                                <div class="flex flex-col leading-tight">
+                                    <div class="font-mono text-sm">
+                                        {{ field.name }}
+                                    </div>
+                                    <div class="text-xs opacity-30">
+                                        {{ field.description }}
+                                    </div>
                                 </div>
-                                <div class="text-xs opacity-30">
-                                    {{ field.description }}
-                                </div>
-                            </div>
-                        </button>
-                        <button
-                            mat-menu-item
-                            *ngIf="!(active_trigger?.fields || []).length"
-                            [disabled]="true"
-                        >
-                            {{
-                                'APP.CONCIERGE.EMAIL_TEMPLATES_PLACEHOLDERS_EMPTY'
-                                    | translate
-                            }}
-                        </button>
+                            </button>
+                        }
+                        @if (!(active_trigger?.fields || []).length) {
+                            <button mat-menu-item [disabled]="true">
+                                {{
+                                    'APP.CONCIERGE.EMAIL_TEMPLATES_PLACEHOLDERS_EMPTY'
+                                        | translate
+                                }}
+                            </button>
+                        }
                     </mat-menu>
                 </div>
                 <div class="flex items-center space-x-2">
@@ -259,14 +259,15 @@ import {
                     class="block min-h-[calc(100vh-32rem)]"
                 ></rich-text-input>
             </form>
-            <footer
-                class="fixed bottom-0 left-1/2 z-10 mx-auto my-2 flex w-full max-w-[640px] -translate-x-1/2 items-center justify-end rounded border-none bg-base-200 px-4 py-2"
-                *ngIf="!loading"
-            >
-                <button btn matRipple class="w-40" (click)="save()">
-                    {{ 'APP.CONCIERGE.EMAIL_TEMPLATES_SAVE' | translate }}
-                </button>
-            </footer>
+            @if (!loading) {
+                <footer
+                    class="fixed bottom-0 left-1/2 z-10 mx-auto my-2 flex w-full max-w-[640px] -translate-x-1/2 items-center justify-end rounded border-none bg-base-200 px-4 py-2"
+                >
+                    <button btn matRipple class="w-40" (click)="save()">
+                        {{ 'APP.CONCIERGE.EMAIL_TEMPLATES_SAVE' | translate }}
+                    </button>
+                </footer>
+            }
         </div>
         <ng-template #load_state>
             <div class="absolute inset-0 bg-base-100">

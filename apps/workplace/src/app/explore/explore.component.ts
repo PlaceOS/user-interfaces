@@ -4,7 +4,9 @@ import { DesksService } from '@placeos/bookings';
 @Component({
     selector: 'app-explore',
     template: `
-        <topbar *ngIf="!hide_nav"></topbar>
+        @if (!hide_nav) {
+            <topbar></topbar>
+        }
         <div class="flex h-1/2 flex-1 flex-col-reverse bg-base-200 sm:flex-row">
             <main
                 class="relative z-0 flex h-1/2 flex-1 flex-col overflow-hidden sm:h-auto"
@@ -13,7 +15,9 @@ import { DesksService } from '@placeos/bookings';
             </main>
         </div>
 
-        <footer-menu *ngIf="!hide_nav"></footer-menu>
+        @if (!hide_nav) {
+            <footer-menu></footer-menu>
+        }
     `,
     styles: [
         `

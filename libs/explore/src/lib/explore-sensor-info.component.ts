@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, Inject } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
 import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
@@ -32,31 +31,34 @@ let shown_id = '';
             <div
                 class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-lg border border-base-200 bg-base-100 p-2 text-xl"
             >
-                <div
-                    class="flex items-center space-x-2 whitespace-nowrap pr-2"
-                    *ngIf="temp"
-                >
-                    <icon>thermostat</icon>
-                    <div class="">{{ temp }}˚{{ temp_unit }}</div>
-                </div>
-                <div
-                    class="flex items-center space-x-2 whitespace-nowrap pr-2"
-                    *ngIf="humidity"
-                >
-                    <icon>opacity</icon>
-                    <div class="">{{ humidity }}%</div>
-                </div>
-                <div
-                    *ngIf="temp > 82"
-                    class="absolute right-0 top-0 -translate-y-1/2 translate-x-1/2 rounded-full border border-base-200 bg-base-100"
-                >
-                    <icon class="text-xl text-error">error</icon>
-                </div>
+                @if (temp) {
+                    <div
+                        class="flex items-center space-x-2 whitespace-nowrap pr-2"
+                    >
+                        <icon>thermostat</icon>
+                        <div class="">{{ temp }}˚{{ temp_unit }}</div>
+                    </div>
+                }
+                @if (humidity) {
+                    <div
+                        class="flex items-center space-x-2 whitespace-nowrap pr-2"
+                    >
+                        <icon>opacity</icon>
+                        <div class="">{{ humidity }}%</div>
+                    </div>
+                }
+                @if (temp > 82) {
+                    <div
+                        class="absolute right-0 top-0 -translate-y-1/2 translate-x-1/2 rounded-full border border-base-200 bg-base-100"
+                    >
+                        <icon class="text-xl text-error">error</icon>
+                    </div>
+                }
             </div>
         </ng-template>
     `,
     styles: [``],
-    imports: [CommonModule, CustomTooltipComponent, IconComponent],
+    imports: [CustomTooltipComponent, IconComponent],
 })
 export class ExploreSensorInfoComponent extends AsyncHandler {
     public readonly temp = this._details.temp || 0;

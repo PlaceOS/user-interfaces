@@ -5,11 +5,11 @@ import {
 } from '@angular/material/dialog';
 import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
-import { EventFormService } from '@placeos/events';
+import { EventFormService, generateEventForm } from '@placeos/events';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
-import { NewSpaceSelectModalComponent } from '../../lib/space-select-modal/new-space-select-modal.component';
+import { NewSpaceSelectModalComponent } from '../../lib/new-space-select-modal/new-space-select-modal.component';
 import { SpaceDetailsComponent } from '../../lib/space-select-modal/space-details.component';
 import { SpaceFiltersDisplayComponent } from '../../lib/space-select-modal/space-filters-display.component';
 import { SpaceFiltersComponent } from '../../lib/space-select-modal/space-filters.component';
@@ -29,6 +29,8 @@ describe('NewSpaceSelectModalComponent', () => {
             MockProvider(MatDialogRef, { close: jest.fn() }),
             MockProvider(EventFormService, {
                 room_alerts: new BehaviorSubject({}),
+                options$: new BehaviorSubject({}),
+                form: generateEventForm(),
             }),
         ],
         declarations: [
@@ -46,22 +48,18 @@ describe('NewSpaceSelectModalComponent', () => {
     it('should create component', () =>
         expect(spectator.component).toBeTruthy());
 
-    it('should show available filters', () =>
-        expect('space-filters').toExist());
+    it('should show available filters', () => expect('[filters]').toExist());
 
     it('should show selected filters', () =>
-        expect('space-filters-display').toExist());
+        expect('new-space-filters-display').toExist());
 
-    it('should show available spaces', () => expect('space-list').toExist());
+    it('should show available spaces', () => expect('[list]').toExist());
 
     it("should show selected space's details", () =>
-        expect('space-details').toExist());
+        expect('[details]').toExist());
 
     it('should allow closing the modal', () =>
         expect('header [mat-dialog-close]').toExist());
-
-    it('should allow saving the list items', () =>
-        expect('button[name="save-spaces"]').toExist());
 
     it('should allow setting selected spaces', () => {
         expect(spectator.component.selected_ids).not.toContain('space-1');

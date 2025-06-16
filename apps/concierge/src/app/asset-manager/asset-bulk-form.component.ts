@@ -97,25 +97,28 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                 'APP.CONCIERGE.ASSETS_ORDER_SELECT' | translate
                             "
                         >
-                            <mat-option
-                                *ngFor="let order of purchase_orders | async"
-                                [value]="order.id"
-                            >
-                                {{
-                                    order.purchase_order_number ||
-                                        order.invoice_number
-                                }}
-                            </mat-option>
-                            <mat-option
-                                *ngIf="!(purchase_orders | async)?.length"
-                                class="opacity-60"
-                                [disabled]="true"
-                            >
-                                {{
-                                    'APP.CONCIERGE.ASSETS_ORDER_ID_EMPTY'
-                                        | translate
-                                }}
-                            </mat-option>
+                            @for (
+                                order of purchase_orders | async;
+                                track order
+                            ) {
+                                <mat-option [value]="order.id">
+                                    {{
+                                        order.purchase_order_number ||
+                                            order.invoice_number
+                                    }}
+                                </mat-option>
+                            }
+                            @if (!(purchase_orders | async)?.length) {
+                                <mat-option
+                                    class="opacity-60"
+                                    [disabled]="true"
+                                >
+                                    {{
+                                        'APP.CONCIERGE.ASSETS_ORDER_ID_EMPTY'
+                                            | translate
+                                    }}
+                                </mat-option>
+                            }
                         </mat-select>
                         <mat-error>{{
                             'APP.CONCIERGE.ASSETS_ORDER_ID_REQUIRED' | translate

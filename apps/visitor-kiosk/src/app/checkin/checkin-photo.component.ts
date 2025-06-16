@@ -6,27 +6,27 @@ import { CheckinStateService } from './checkin-state.service';
 @Component({
     selector: 'checkin-photo',
     template: `
-        <div
-            class="relative flex w-[24rem] flex-col items-center overflow-hidden rounded bg-base-100 p-4 shadow"
-            *ngIf="!loading; else load_state"
-        >
-            <h3 class="mb-4 text-xl">
-                {{ 'APP.VISITOR_KIOSK.TAKE_PHOTO' | translate }}
-            </h3>
-            <a-take-photo
-                (captured)="handlePhoto($event)"
-                [back_text]="'APP.VISITOR_KIOSK.SKIP' | translate"
-                (back)="skip()"
-            ></a-take-photo>
-        </div>
-        <ng-template #load_state>
+        @if (!loading) {
+            <div
+                class="relative flex w-[24rem] flex-col items-center overflow-hidden rounded bg-base-100 p-4 shadow"
+            >
+                <h3 class="mb-4 text-xl">
+                    {{ 'APP.VISITOR_KIOSK.TAKE_PHOTO' | translate }}
+                </h3>
+                <a-take-photo
+                    (captured)="handlePhoto($event)"
+                    [back_text]="'APP.VISITOR_KIOSK.SKIP' | translate"
+                    (back)="skip()"
+                ></a-take-photo>
+            </div>
+        } @else {
             <div class="m-auto flex flex-col items-center">
                 <mat-spinner [diameter]="48"></mat-spinner>
                 <div class="my-4 text-lg text-white">
                     {{ 'APP.VISITOR_KIOSK.PRINT_LOADING' | translate }}
                 </div>
             </div>
-        </ng-template>
+        }
     `,
     styles: [``],
     standalone: false,

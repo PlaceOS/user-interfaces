@@ -3,7 +3,6 @@ import { AsyncHandler, SettingsService } from '@placeos/common';
 import { authority, isOnline, token } from '@placeos/ts-client';
 import { first } from 'rxjs/operators';
 
-import { CommonModule } from '@angular/common';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { TranslatePipe } from './translate.pipe';
@@ -11,19 +10,21 @@ import { TranslatePipe } from './translate.pipe';
 @Component({
     selector: 'global-loading',
     template: `
-        <div
-            *ngIf="!online"
-            class="fixed bottom-2 left-1/2 -translate-x-1/2 rounded-3xl bg-error px-4 py-2 text-xs text-white shadow"
-        >
-            {{ 'COMMON.SERVER_DOWN' | translate }}
-        </div>
-        <div
-            *ngIf="loading"
-            loader
-            class="pointer-events-auto fixed inset-0 flex items-center justify-center bg-base-100"
-        >
-            <mat-spinner [diameter]="64"></mat-spinner>
-        </div>
+        @if (!online) {
+            <div
+                class="fixed bottom-2 left-1/2 -translate-x-1/2 rounded-3xl bg-error px-4 py-2 text-xs text-white shadow"
+            >
+                {{ 'COMMON.SERVER_DOWN' | translate }}
+            </div>
+        }
+        @if (loading) {
+            <div
+                loader
+                class="pointer-events-auto fixed inset-0 flex items-center justify-center bg-base-100"
+            >
+                <mat-spinner [diameter]="64"></mat-spinner>
+            </div>
+        }
     `,
     styles: [
         `
@@ -37,7 +38,7 @@ import { TranslatePipe } from './translate.pipe';
             }
         `,
     ],
-    imports: [MatProgressSpinnerModule, CommonModule, TranslatePipe],
+    imports: [MatProgressSpinnerModule, TranslatePipe],
 })
 export class GlobalLoadingComponent extends AsyncHandler implements OnInit {
     public loading: boolean;

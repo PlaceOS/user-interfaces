@@ -44,50 +44,57 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
             <div
                 class="col-span-full grid grid-cols-7 border-b border-base-200"
             >
-                <div
-                    weekday
-                    *ngFor="let weekday of weekdays"
-                    class="relative flex items-center justify-center text-sm opacity-60"
-                >
-                    {{ weekday | date: 'EEE' }}
-                </div>
+                @for (weekday of weekdays; track weekday) {
+                    <div
+                        weekday
+                        class="relative flex items-center justify-center text-sm opacity-60"
+                    >
+                        {{ weekday | date: 'EEE' }}
+                    </div>
+                }
             </div>
-            <button
-                *ngFor="let day of month_days; trackBy: trackByFn"
-                class="relative h-9 w-9 rounded-full hover:bg-base-200"
-                [class.text-secondary-content]="day.is_start || day.is_end"
-                [disabled]="day.disabled"
-                (click)="selectDate(day.id)"
-                (mouseenter)="setHoveredDate(day.id)"
-            >
-                <div
-                    *ngIf="day.is_selected && !day.is_start && !day.is_end"
-                    class="absolute -inset-x-0.5 inset-y-0 border-y border-dashed border-base-content bg-base-200"
-                ></div>
-                <div
-                    *ngIf="day.is_start && end_after_start"
-                    class="absolute inset-y-0 -right-0.5 w-[calc(50%+2px)] border-y border-dashed border-base-content bg-base-200"
-                ></div>
-                <div
-                    *ngIf="day.is_end && end_after_start"
-                    class="absolute inset-y-0 -left-0.5 w-[calc(50%+2px)] border-y border-dashed border-base-content bg-base-200"
-                ></div>
-                <div
-                    *ngIf="day.is_start || day.is_end"
-                    class="absolute inset-0 z-10 flex items-center justify-center rounded-full bg-secondary"
-                ></div>
-                <div
-                    matRipple
-                    class="absolute inset-0 z-20 flex items-center justify-center rounded-full"
-                    [class.opacity-30]="!day.is_month"
+            @for (day of month_days; track trackByFn($index, day)) {
+                <button
+                    class="relative h-9 w-9 rounded-full hover:bg-base-200"
+                    [class.text-secondary-content]="day.is_start || day.is_end"
+                    [disabled]="day.disabled"
+                    (click)="selectDate(day.id)"
+                    (mouseenter)="setHoveredDate(day.id)"
                 >
-                    {{ day.id | date: 'd' }}
-                </div>
-                <div
-                    *ngIf="day.is_today"
-                    class="absolute -inset-[3px] z-10 flex items-center justify-center rounded-full border border-secondary"
-                ></div>
-            </button>
+                    @if (day.is_selected && !day.is_start && !day.is_end) {
+                        <div
+                            class="absolute -inset-x-0.5 inset-y-0 border-y border-dashed border-base-content bg-base-200"
+                        ></div>
+                    }
+                    @if (day.is_start && end_after_start) {
+                        <div
+                            class="absolute inset-y-0 -right-0.5 w-[calc(50%+2px)] border-y border-dashed border-base-content bg-base-200"
+                        ></div>
+                    }
+                    @if (day.is_end && end_after_start) {
+                        <div
+                            class="absolute inset-y-0 -left-0.5 w-[calc(50%+2px)] border-y border-dashed border-base-content bg-base-200"
+                        ></div>
+                    }
+                    @if (day.is_start || day.is_end) {
+                        <div
+                            class="absolute inset-0 z-10 flex items-center justify-center rounded-full bg-secondary"
+                        ></div>
+                    }
+                    <div
+                        matRipple
+                        class="absolute inset-0 z-20 flex items-center justify-center rounded-full"
+                        [class.opacity-30]="!day.is_month"
+                    >
+                        {{ day.id | date: 'd' }}
+                    </div>
+                    @if (day.is_today) {
+                        <div
+                            class="absolute -inset-[3px] z-10 flex items-center justify-center rounded-full border border-secondary"
+                        ></div>
+                    }
+                </button>
+            }
         </div>
     `,
     styles: [``],

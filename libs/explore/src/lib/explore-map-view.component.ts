@@ -54,49 +54,57 @@ const EMPTY = [];
             [options]="{ controls: true }"
             (mapInfo)="map_info = $event || {}"
         ></interactive-map>
-        <div
-            *ngIf="!(use_mapsindoors$ | async)"
-            controls
-            class="absolute left-2 top-2 max-w-[calc(100vw-1rem)] space-y-2 overflow-hidden rounded border border-base-200 bg-base-100 p-2"
-        >
-            <explore-map-controls></explore-map-controls>
-            <div class="flex items-center space-x-2" *ngIf="!hide_zones">
-                <mat-slide-toggle
-                    name="zones"
-                    class="ml-2"
-                    [ngModel]="!(options | async)?.disable?.includes('zones')"
-                    (ngModelChange)="toggleZones($event)"
-                ></mat-slide-toggle>
-                <label for="zones" class="mb-0">{{
-                    'EXPLORE.AREAS' | translate
-                }}</label>
-            </div>
-        </div>
-        <div
-            legend
-            *ngIf="show_legend && legend.length"
-            class="absolute bottom-2 left-2 rounded border border-base-200 bg-base-100 p-2"
-        >
-            <h3 class="mb-2 font-medium">{{ 'EXPLORE.LEGEND' | translate }}</h3>
+        @if (!(use_mapsindoors$ | async)) {
             <div
-                class="flex items-center space-x-2"
-                *ngFor="let pair of legend"
+                controls
+                class="absolute left-2 top-2 max-w-[calc(100vw-1rem)] space-y-2 overflow-hidden rounded border border-base-200 bg-base-100 p-2"
             >
-                <div
-                    class="h-3 w-3 rounded-full border border-base-200"
-                    [style.background-color]="pair[1]"
-                ></div>
-                <div class="text-sm">{{ pair[0] }}</div>
+                <explore-map-controls></explore-map-controls>
+                @if (!hide_zones) {
+                    <div class="flex items-center space-x-2">
+                        <mat-slide-toggle
+                            name="zones"
+                            class="ml-2"
+                            [ngModel]="
+                                !(options | async)?.disable?.includes('zones')
+                            "
+                            (ngModelChange)="toggleZones($event)"
+                        ></mat-slide-toggle>
+                        <label for="zones" class="mb-0">{{
+                            'EXPLORE.AREAS' | translate
+                        }}</label>
+                    </div>
+                }
             </div>
-        </div>
-        <button
-            class="absolute right-2 top-2 h-12 min-w-32 rounded-lg border border-base-300 bg-base-100 px-4 shadow"
-            matRipple
-            *ngIf="locate"
-            (click)="clearLocate()"
-        >
-            Clear Pin
-        </button>
+        }
+        @if (show_legend && legend.length) {
+            <div
+                legend
+                class="absolute bottom-2 left-2 rounded border border-base-200 bg-base-100 p-2"
+            >
+                <h3 class="mb-2 font-medium">
+                    {{ 'EXPLORE.LEGEND' | translate }}
+                </h3>
+                @for (pair of legend; track pair) {
+                    <div class="flex items-center space-x-2">
+                        <div
+                            class="h-3 w-3 rounded-full border border-base-200"
+                            [style.background-color]="pair[1]"
+                        ></div>
+                        <div class="text-sm">{{ pair[0] }}</div>
+                    </div>
+                }
+            </div>
+        }
+        @if (locate) {
+            <button
+                class="absolute right-2 top-2 h-12 min-w-32 rounded-lg border border-base-300 bg-base-100 px-4 shadow"
+                matRipple
+                (click)="clearLocate()"
+            >
+                Clear Pin
+            </button>
+        }
     `,
     styles: [
         `

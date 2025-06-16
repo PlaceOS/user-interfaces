@@ -10,12 +10,14 @@ import { EventStateService } from './event-state.service';
     template: `
         <div class="flex w-full items-center border-y border-base-200">
             <div class="flex-1 px-2 py-4">
-                <span *ngIf="is_today | async" class="text-xs text-info">{{
-                    ((period | async) === 'week'
-                        ? 'COMMON.WEEK_THIS'
-                        : 'COMMON.MONTH_THIS'
-                    ) | translate
-                }}</span>
+                @if (is_today | async) {
+                    <span class="text-xs text-info">{{
+                        ((period | async) === 'week'
+                            ? 'COMMON.WEEK_THIS'
+                            : 'COMMON.MONTH_THIS'
+                        ) | translate
+                    }}</span>
+                }
             </div>
             <div class="flex-2 flex items-center justify-center space-x-2">
                 <div class="pl-4 font-medium">
@@ -51,12 +53,11 @@ import { EventStateService } from './event-state.service';
         </div>
         <div class="h-4 w-full"></div>
         <div class="relative h-1/2 w-full flex-1 overflow-auto">
-            <event-week-view
-                *ngIf="(period | async) !== 'month'; else month_calendar"
-            ></event-week-view>
-            <ng-template #month_calendar>
+            @if ((period | async) !== 'month') {
+                <event-week-view></event-week-view>
+            } @else {
                 <event-month-view></event-month-view>
-            </ng-template>
+            }
         </div>
     `,
     styles: [

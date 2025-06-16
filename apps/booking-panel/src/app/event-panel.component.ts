@@ -46,13 +46,15 @@ import { PanelStateService } from './panel-state.service';
                             ending &#64;
                             {{ current_bkn?.event_end * 1000 | date: 'h:mma' }}
                         </p>
-                        <p class="text-xl" *ngIf="!hide_meeting_details">
-                            {{ 'APP.BOOKING_PANEL.HOST' | translate }}
-                            {{
-                                current_bkn?.organiser?.name ||
-                                    current_bkn?.host
-                            }}
-                        </p>
+                        @if (!hide_meeting_details) {
+                            <p class="text-xl">
+                                {{ 'APP.BOOKING_PANEL.HOST' | translate }}
+                                {{
+                                    current_bkn?.organiser?.name ||
+                                        current_bkn?.host
+                                }}
+                            </p>
+                        }
                         <p
                             class="line-clamp-6 text-base portrait:line-clamp-8"
                             [innerHTML]="current_bkn?.body | sanitize: 'html'"
@@ -78,9 +80,9 @@ import { PanelStateService } from './panel-state.service';
                             {{ next_bkn?.event_start * 1000 | date: 'h:mma' }}
                         </p>
                         <!-- <p class="text-xl" *ngIf="!hide_meeting_details">
-                            {{ 'APP.BOOKING_PANEL.HOST' | translate }}
-                            {{ next_bkn?.organiser?.name || next_bkn?.host }}
-                        </p> -->
+                {{ 'APP.BOOKING_PANEL.HOST' | translate }}
+                {{ next_bkn?.organiser?.name || next_bkn?.host }}
+              </p> -->
                     } @else {
                         <p class="text-2xl font-medium opacity-60">
                             {{ 'APP.BOOKING_PANEL.NO_UPCOMING' | translate }}

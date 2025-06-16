@@ -41,42 +41,42 @@ import { BookingFormService } from '../booking-form.service';
             <!-- TODO: filter chips -->
             <div filter-item date>{{ start | date: 'mediumDate' }}</div>
             <div filter-item time>
-                <ng-container *ngIf="!all_day">
+                @if (!all_day) {
                     {{ start | date: time_format }} &mdash;
                     {{ end | date: time_format }}
-                </ng-container>
-                <ng-container *ngIf="all_day">
+                }
+                @if (all_day) {
                     {{ 'COMMON.ALL_DAY' | translate }}
-                </ng-container>
+                }
             </div>
-            <div
-                filter-item
-                features
-                *ngFor="let feat of (options | async)?.features || []"
-            >
-                <p>{{ feat }}</p>
-                <button
-                    icon
-                    matRipple
-                    name="remove-desk-filter"
-                    class="-mr-4"
-                    (click)="setFeature(feat, false)"
-                >
-                    <icon class="text-base">close</icon>
-                </button>
-            </div>
-            <div filter-item *ngIf="(options | async)?.show_fav">
-                <span>{{ 'COMMON.FAVOURITES_ONLY' | translate }}</span>
-                <button
-                    icon
-                    matRipple
-                    name="remove-desk-favs-filter"
-                    class="-mr-4"
-                    (click)="setOptions({ show_fav: false })"
-                >
-                    <icon class="text-base">close</icon>
-                </button>
-            </div>
+            @for (feat of (options | async)?.features || []; track feat) {
+                <div filter-item features>
+                    <p>{{ feat }}</p>
+                    <button
+                        icon
+                        matRipple
+                        name="remove-desk-filter"
+                        class="-mr-4"
+                        (click)="setFeature(feat, false)"
+                    >
+                        <icon class="text-base">close</icon>
+                    </button>
+                </div>
+            }
+            @if ((options | async)?.show_fav) {
+                <div filter-item>
+                    <span>{{ 'COMMON.FAVOURITES_ONLY' | translate }}</span>
+                    <button
+                        icon
+                        matRipple
+                        name="remove-desk-favs-filter"
+                        class="-mr-4"
+                        (click)="setOptions({ show_fav: false })"
+                    >
+                        <icon class="text-base">close</icon>
+                    </button>
+                </div>
+            }
         </section>
     `,
     imports: [CommonModule, IconComponent, TranslatePipe, MatRippleModule],

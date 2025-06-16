@@ -23,71 +23,89 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
             (confirm)="save()"
         >
             <form system [formGroup]="form">
-                <div class="flex flex-col" *ngIf="form.controls.parent_id">
-                    <label
-                        for="zone"
-                        [class.error]="
-                            form.controls.parent_id.invalid &&
-                            form.controls.parent_id.touched
-                        "
-                    >
-                        {{ 'RESOURCE.BUILDING' | translate }}<span>*</span>
-                    </label>
-                    <mat-form-field appearance="outline">
-                        <mat-select
-                            formControlName="parent_id"
-                            [placeholder]="'COMMON.BUILDING_SELECT' | translate"
-                        >
-                            <mat-option
-                                *ngFor="let building of building_list | async"
-                                [value]="building.id"
-                            >
-                                {{ building.display_name || building.name }}
-                            </mat-option>
-                        </mat-select>
-                        <mat-error>{{
-                            'APP.CONCIERGE.LEVELS_BUILDING_REQUIRED' | translate
-                        }}</mat-error>
-                    </mat-form-field>
-                </div>
-                <div class="flex flex-col" *ngIf="form.controls.display_name">
-                    <label for="display-name">{{
-                        'FORM.DISPLAY_NAME' | translate
-                    }}</label>
-                    <mat-form-field appearance="outline">
-                        <input
-                            matInput
-                            name="display-name"
-                            [placeholder]="'FORM.DISPLAY_NAME' | translate"
-                            formControlName="display_name"
-                        />
-                    </mat-form-field>
-                </div>
-                <div class="flex space-x-4 pb-4" *ngIf="form.controls.parking">
-                    <settings-toggle
-                        class="flex-1"
-                        [name]="'APP.CONCIERGE.LEVELS_HAS_PARKING' | translate"
-                        formControlName="parking"
-                    >
-                    </settings-toggle>
-                    <div class="flex-1"></div>
-                </div>
-                <div class="flex flex-col" *ngIf="form.controls.map_id">
-                    <label for="map-id">{{
-                        'APP.CONCIERGE.LEVELS_MAP_URL' | translate
-                    }}</label>
-                    <mat-form-field appearance="outline">
-                        <input
-                            matInput
-                            name="map-id"
-                            [placeholder]="
-                                'APP.CONCIERGE.LEVELS_MAP_URL_PLACEHOLDER'
-                                    | translate
+                @if (form.controls.parent_id) {
+                    <div class="flex flex-col">
+                        <label
+                            for="zone"
+                            [class.error]="
+                                form.controls.parent_id.invalid &&
+                                form.controls.parent_id.touched
                             "
-                            formControlName="map_id"
-                        />
-                    </mat-form-field>
-                </div>
+                        >
+                            {{ 'RESOURCE.BUILDING' | translate }}<span>*</span>
+                        </label>
+                        <mat-form-field appearance="outline">
+                            <mat-select
+                                formControlName="parent_id"
+                                [placeholder]="
+                                    'COMMON.BUILDING_SELECT' | translate
+                                "
+                            >
+                                @for (
+                                    building of building_list | async;
+                                    track building
+                                ) {
+                                    <mat-option [value]="building.id">
+                                        {{
+                                            building.display_name ||
+                                                building.name
+                                        }}
+                                    </mat-option>
+                                }
+                            </mat-select>
+                            <mat-error>{{
+                                'APP.CONCIERGE.LEVELS_BUILDING_REQUIRED'
+                                    | translate
+                            }}</mat-error>
+                        </mat-form-field>
+                    </div>
+                }
+                @if (form.controls.display_name) {
+                    <div class="flex flex-col">
+                        <label for="display-name">{{
+                            'FORM.DISPLAY_NAME' | translate
+                        }}</label>
+                        <mat-form-field appearance="outline">
+                            <input
+                                matInput
+                                name="display-name"
+                                [placeholder]="'FORM.DISPLAY_NAME' | translate"
+                                formControlName="display_name"
+                            />
+                        </mat-form-field>
+                    </div>
+                }
+                @if (form.controls.parking) {
+                    <div class="flex space-x-4 pb-4">
+                        <settings-toggle
+                            class="flex-1"
+                            [name]="
+                                'APP.CONCIERGE.LEVELS_HAS_PARKING' | translate
+                            "
+                            formControlName="parking"
+                        >
+                        </settings-toggle>
+                        <div class="flex-1"></div>
+                    </div>
+                }
+                @if (form.controls.map_id) {
+                    <div class="flex flex-col">
+                        <label for="map-id">{{
+                            'APP.CONCIERGE.LEVELS_MAP_URL' | translate
+                        }}</label>
+                        <mat-form-field appearance="outline">
+                            <input
+                                matInput
+                                name="map-id"
+                                [placeholder]="
+                                    'APP.CONCIERGE.LEVELS_MAP_URL_PLACEHOLDER'
+                                        | translate
+                                "
+                                formControlName="map_id"
+                            />
+                        </mat-form-field>
+                    </div>
+                }
             </form>
         </fullscreen-modal-shell>
     `,

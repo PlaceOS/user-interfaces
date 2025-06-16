@@ -139,12 +139,13 @@ import { SignageStateService } from './signage-state.service';
                         </p>
                     </div>
                 }
-                <search-overlay
-                    *ngIf="adding"
-                    [item_list]="playlists | async"
-                    (selected)="addPlaylist($event)"
-                    (close)="adding = false"
-                ></search-overlay>
+                @if (adding) {
+                    <search-overlay
+                        [item_list]="playlists | async"
+                        (selected)="addPlaylist($event)"
+                        (close)="adding = false"
+                    ></search-overlay>
+                }
             </div>
         </div>
     `,

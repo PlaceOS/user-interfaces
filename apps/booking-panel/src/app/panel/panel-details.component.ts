@@ -12,58 +12,61 @@ import { PanelStateService } from '../panel-state.service';
                     '&lt;Unknown Space&gt;'
             }}
         </h1>
-        <p *ngIf="(space | async)?.description">
-            {{ (space | async)?.description }}
-        </p>
-        <div
-            class="flex flex-col items-center space-y-2"
-            *ngIf="!(options | async)?.hide_actions; else empty_state"
-        >
-            <button
-                event
-                btn
-                matRipple
-                class="w-48"
-                *ngIf="!(options | async)?.disable_book_now"
-                (click)="newEvent()"
-            >
-                <div class="flex items-center justify-center">
-                    <icon class="text-xl">add_circle_outline</icon>
-                    <span class="mx-2">New Event</span>
-                </div>
-            </button>
-            <button
-                control
-                btn
-                matRipple
-                class="w-48"
-                *ngIf="(options | async)?.control_ui"
-                (click)="viewControl()"
-            >
-                <div class="flex items-center justify-center">
-                    <icon class="text-xl">settings_remote</icon>
-                    <span class="mx-2">View Control</span>
-                </div>
-            </button>
-            <button
-                waiter
-                btn
-                matRipple
-                class="w-48"
-                *ngIf="(options | async)?.catering_ui"
-                (click)="callWaiter()"
-            >
-                <div class="flex items-center justify-center">
-                    <icon class="text-xl">room_service</icon>
-                    <span class="mx-2">Call Waiter</span>
-                </div>
-            </button>
-        </div>
-        <ng-template #empty_state>
+        @if ((space | async)?.description) {
+            <p>
+                {{ (space | async)?.description }}
+            </p>
+        }
+        @if (!(options | async)?.hide_actions) {
+            <div class="flex flex-col items-center space-y-2">
+                @if (!(options | async)?.disable_book_now) {
+                    <button
+                        event
+                        btn
+                        matRipple
+                        class="w-48"
+                        (click)="newEvent()"
+                    >
+                        <div class="flex items-center justify-center">
+                            <icon class="text-xl">add_circle_outline</icon>
+                            <span class="mx-2">New Event</span>
+                        </div>
+                    </button>
+                }
+                @if ((options | async)?.control_ui) {
+                    <button
+                        control
+                        btn
+                        matRipple
+                        class="w-48"
+                        (click)="viewControl()"
+                    >
+                        <div class="flex items-center justify-center">
+                            <icon class="text-xl">settings_remote</icon>
+                            <span class="mx-2">View Control</span>
+                        </div>
+                    </button>
+                }
+                @if ((options | async)?.catering_ui) {
+                    <button
+                        waiter
+                        btn
+                        matRipple
+                        class="w-48"
+                        (click)="callWaiter()"
+                    >
+                        <div class="flex items-center justify-center">
+                            <icon class="text-xl">room_service</icon>
+                            <span class="mx-2">Call Waiter</span>
+                        </div>
+                    </button>
+                }
+            </div>
+        } @else {
             <div class="flex flex-col items-center">
                 <p>No available actions for this space</p>
             </div>
-        </ng-template>
+        }
     `,
     styles: [
         `

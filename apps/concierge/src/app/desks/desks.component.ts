@@ -43,103 +43,117 @@ import { DesksStateService } from './desks-state.service';
                         [model]="(filters | async)?.search"
                         (modelChange)="setFilters({ search: $event })"
                     ></searchbar>
-                    <button
-                        btn
-                        matRipple
-                        *ngIf="path !== 'manage'"
-                        class="w-44 space-x-2"
-                        (click)="newDeskBooking()"
-                    >
-                        <div class="pl-2">
-                            {{ 'APP.CONCIERGE.NEW_BOOKING' | translate }}
-                        </div>
-                        <icon class="text-2xl">add</icon>
-                    </button>
-                    <button
-                        btn
-                        matRipple
-                        *ngIf="path === 'manage'"
-                        class="w-44 space-x-2"
-                        (click)="editDesk()"
-                    >
-                        <div class="pl-2">
-                            {{ 'APP.CONCIERGE.DESKS_NEW' | translate }}
-                        </div>
-                        <icon class="text-2xl">add</icon>
-                    </button>
+                    @if (path !== 'manage') {
+                        <button
+                            btn
+                            matRipple
+                            class="w-44 space-x-2"
+                            (click)="newDeskBooking()"
+                        >
+                            <div class="pl-2">
+                                {{ 'APP.CONCIERGE.NEW_BOOKING' | translate }}
+                            </div>
+                            <icon class="text-2xl">add</icon>
+                        </button>
+                    }
+                    @if (path === 'manage') {
+                        <button
+                            btn
+                            matRipple
+                            class="w-44 space-x-2"
+                            (click)="editDesk()"
+                        >
+                            <div class="pl-2">
+                                {{ 'APP.CONCIERGE.DESKS_NEW' | translate }}
+                            </div>
+                            <icon class="text-2xl">add</icon>
+                        </button>
+                    }
                 </div>
                 <div class="mb-4 flex w-full items-center space-x-2 px-8">
-                    <mat-form-field
-                        appearance="outline"
-                        class="no-subscript w-60"
-                        *ngIf="!manage"
-                    >
-                        <mat-select
-                            [ngModel]="(filters | async)?.zones"
-                            (ngModelChange)="updateZones($event)"
-                            [placeholder]="'COMMON.LEVEL_ALL' | translate"
-                            multiple
+                    @if (!manage) {
+                        <mat-form-field
+                            appearance="outline"
+                            class="no-subscript w-60"
                         >
-                            <mat-option
-                                *ngFor="let level of levels | async"
-                                [value]="level.id"
+                            <mat-select
+                                [ngModel]="(filters | async)?.zones"
+                                (ngModelChange)="updateZones($event)"
+                                [placeholder]="'COMMON.LEVEL_ALL' | translate"
+                                multiple
                             >
-                                <div class="flex flex-col-reverse">
-                                    <div
-                                        class="text-xs opacity-30"
-                                        *ngIf="use_region"
-                                    >
-                                        {{
-                                            (level.parent_id | building)
-                                                ?.display_name
-                                        }}
-                                        <span class="opacity-0"> - </span>
-                                    </div>
-                                    <div>
-                                        {{ level.display_name || level.name }}
-                                    </div>
-                                </div>
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                    <mat-form-field
-                        appearance="outline"
-                        class="no-subscript w-60"
-                        *ngIf="manage"
-                    >
-                        <mat-select
-                            [ngModel]="
-                                (filters | async)?.zones?.length
-                                    ? (filters | async)?.zones[0]
-                                    : ''
-                            "
-                            (ngModelChange)="updateZones([$event])"
-                            [placeholder]="'COMMON.LEVEL_ALL' | translate"
+                                @for (level of levels | async; track level) {
+                                    <mat-option [value]="level.id">
+                                        <div class="flex flex-col-reverse">
+                                            @if (use_region) {
+                                                <div class="text-xs opacity-30">
+                                                    {{
+                                                        (
+                                                            level.parent_id
+                                                            | building
+                                                        )?.display_name
+                                                    }}
+                                                    <span class="opacity-0">
+                                                        -
+                                                    </span>
+                                                </div>
+                                            }
+                                            <div>
+                                                {{
+                                                    level.display_name ||
+                                                        level.name
+                                                }}
+                                            </div>
+                                        </div>
+                                    </mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
+                    }
+                    @if (manage) {
+                        <mat-form-field
+                            appearance="outline"
+                            class="no-subscript w-60"
                         >
-                            <mat-option
-                                *ngFor="let level of levels | async"
-                                [value]="level.id"
+                            <mat-select
+                                [ngModel]="
+                                    (filters | async)?.zones?.length
+                                        ? (filters | async)?.zones[0]
+                                        : ''
+                                "
+                                (ngModelChange)="updateZones([$event])"
+                                [placeholder]="'COMMON.LEVEL_ALL' | translate"
                             >
-                                <div class="flex flex-col-reverse">
-                                    <div
-                                        class="text-xs opacity-30"
-                                        *ngIf="use_region"
-                                    >
-                                        {{
-                                            (level.parent_id | building)
-                                                ?.display_name
-                                        }}
-                                        <span class="opacity-0"> - </span>
-                                    </div>
-                                    <div>
-                                        {{ level.display_name || level.name }}
-                                    </div>
-                                </div>
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
+                                @for (level of levels | async; track level) {
+                                    <mat-option [value]="level.id">
+                                        <div class="flex flex-col-reverse">
+                                            @if (use_region) {
+                                                <div class="text-xs opacity-30">
+                                                    {{
+                                                        (
+                                                            level.parent_id
+                                                            | building
+                                                        )?.display_name
+                                                    }}
+                                                    <span class="opacity-0">
+                                                        -
+                                                    </span>
+                                                </div>
+                                            }
+                                            <div>
+                                                {{
+                                                    level.display_name ||
+                                                        level.name
+                                                }}
+                                            </div>
+                                        </div>
+                                    </mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
+                    }
                     <div class="w-px flex-1"></div>
-                    <ng-container *ngIf="path === 'events'">
+                    @if (path === 'events') {
                         <date-options
                             (dateChange)="setDate($event)"
                         ></date-options>
@@ -167,8 +181,8 @@ import { DesksStateService } from './desks-state.service';
                         >
                             <icon>event_busy</icon>
                         </button>
-                    </ng-container>
-                    <ng-container *ngIf="path === 'manage'">
+                    }
+                    @if (path === 'manage') {
                         <button
                             btn
                             icon
@@ -221,16 +235,17 @@ import { DesksStateService } from './desks-state.service';
                         >
                             <icon>lock_open</icon>
                         </button>
-                    </ng-container>
+                    }
                 </div>
                 <div class="relative h-1/2 w-full flex-1 overflow-auto px-8">
                     <router-outlet></router-outlet>
                 </div>
-                <mat-progress-bar
-                    class="w-full"
-                    *ngIf="(loading | async) && path === 'events'"
-                    mode="indeterminate"
-                ></mat-progress-bar>
+                @if ((loading | async) && path === 'events') {
+                    <mat-progress-bar
+                        class="w-full"
+                        mode="indeterminate"
+                    ></mat-progress-bar>
+                }
             </main>
         </div>
     `,

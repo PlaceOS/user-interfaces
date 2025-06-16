@@ -22,27 +22,28 @@ import { ControlStateService } from '../control-state.service';
                 bind="current_channel"
             ></i>
         </div>
-        <div
-            class="flex flex-wrap items-center justify-center p-8"
-            *ngIf="channel_list?.length"
-        >
-            <button
-                matRipple
-                class="m-2 flex h-28 w-32 flex-col items-center justify-center space-y-2 rounded border border-base-200"
-                [class.bg-base-200]="channel_url !== item.channel"
-                [class.bg-primary]="channel_url === item.channel"
-                [class.text-white]="channel_url === item.channel"
-                *ngFor="let item of channel_list"
-                (click)="setChannel(item.channel)"
-            >
-                <img
-                    *ngIf="item?.icon"
-                    [src]="item.icon"
-                    class="max-h-[3.5rem] max-w-[3.5rem]"
-                />
-                <div class="">{{ item.name }}</div>
-            </button>
-        </div>
+        @if (channel_list?.length) {
+            <div class="flex flex-wrap items-center justify-center p-8">
+                @for (item of channel_list; track item) {
+                    <button
+                        matRipple
+                        class="m-2 flex h-28 w-32 flex-col items-center justify-center space-y-2 rounded border border-base-200"
+                        [class.bg-base-200]="channel_url !== item.channel"
+                        [class.bg-primary]="channel_url === item.channel"
+                        [class.text-white]="channel_url === item.channel"
+                        (click)="setChannel(item.channel)"
+                    >
+                        @if (item?.icon) {
+                            <img
+                                [src]="item.icon"
+                                class="max-h-[3.5rem] max-w-[3.5rem]"
+                            />
+                        }
+                        <div class="">{{ item.name }}</div>
+                    </button>
+                }
+            </div>
+        }
     `,
     standalone: false,
 })

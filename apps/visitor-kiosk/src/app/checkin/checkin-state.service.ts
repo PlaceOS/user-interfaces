@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HashMap, i18n, notifyError, notifySuccess } from '@placeos/common';
 import { addMinutes, getUnixTime, isSameDay } from 'date-fns';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, lastValueFrom } from 'rxjs';
 
 import { Booking } from 'libs/bookings/src/lib/booking.class';
 import {
@@ -52,8 +52,8 @@ export class CheckinStateService {
             new GuestUser({
                 email: booking.asset_id,
                 name: booking.asset_name,
-                organisation: booking.extension_data.organisation,
-                phone: booking.extension_data.phone,
+                organisation: booking.extension_data?.organisation,
+                phone: booking.extension_data?.phone,
             }),
         );
         this.metadata = metadata;
@@ -122,8 +122,8 @@ export class CheckinStateService {
                     ...booking.extension_data,
                     organisation:
                         form.value.organisation ||
-                        booking.extension_data.organisation,
-                    phone: form.value.phone || booking.extension_data.phone,
+                        booking.extension_data?.organisation,
+                    phone: form.value.phone || booking.extension_data?.phone,
                 },
             }).toJSON(),
         ).toPromise();
@@ -148,7 +148,7 @@ export class CheckinStateService {
         const guest = this._guest.getValue();
         const event = this._booking.getValue() || guest.extension_data.event;
         if (!guest || !event) return;
-        const checkin_fn = checkinBooking(event.id, state).toPromise();
+        const checkin_fn = lastValueFrom(checkinBooking(event.id, state));
         const vars = {
             guest: guest.name,
             host: event.user_name || event.user_email,

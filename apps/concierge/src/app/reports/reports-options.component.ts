@@ -20,18 +20,24 @@ import { combineLatest } from 'rxjs';
                     [placeholder]="'COMMON.LEVEL_ALL' | translate"
                     multiple
                 >
-                    <mat-option
-                        *ngFor="let level of levels | async"
-                        [value]="level.id"
-                    >
-                        <div class="flex flex-col-reverse">
-                            <div class="text-xs opacity-30" *ngIf="use_region">
-                                {{ (level.parent_id | building)?.display_name }}
-                                <span class="opacity-0"> - </span>
+                    @for (level of levels | async; track level) {
+                        <mat-option [value]="level.id">
+                            <div class="flex flex-col-reverse">
+                                @if (use_region) {
+                                    <div class="text-xs opacity-30">
+                                        {{
+                                            (level.parent_id | building)
+                                                ?.display_name
+                                        }}
+                                        <span class="opacity-0"> - </span>
+                                    </div>
+                                }
+                                <div>
+                                    {{ level.display_name || level.name }}
+                                </div>
                             </div>
-                            <div>{{ level.display_name || level.name }}</div>
-                        </div>
-                    </mat-option>
+                        </mat-option>
+                    }
                 </mat-select>
             </mat-form-field>
             <date-range-field [week_start]="week_start">
@@ -52,10 +58,14 @@ import { combineLatest } from 'rxjs';
                 [disabled]="!!loading"
                 (click)="generate.emit()"
             >
-                <mat-spinner *ngIf="loading" [diameter]="32"></mat-spinner>
-                <p *ngIf="!loading">
-                    {{ 'APP.CONCIERGE.REPORTS_GENERATE' | translate }}
-                </p>
+                @if (loading) {
+                    <mat-spinner [diameter]="32"></mat-spinner>
+                }
+                @if (!loading) {
+                    <p>
+                        {{ 'APP.CONCIERGE.REPORTS_GENERATE' | translate }}
+                    </p>
+                }
             </button>
             <div class="flex-1"></div>
             <button

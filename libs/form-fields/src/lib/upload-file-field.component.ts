@@ -4,7 +4,6 @@ import { randomInt } from '@placeos/common';
 import { Attachment } from '@placeos/users';
 import { takeWhile } from 'rxjs/operators';
 
-import { CommonModule } from '@angular/common';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { uploadFiles } from '@placeos/cloud-uploads';
 import * as blobUtil from 'blob-util';
@@ -21,53 +20,53 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
                 class="absolute inset-0 z-10 max-w-full opacity-0"
                 (change)="onFileEvent($event)"
             />
-            <div
-                item
-                *ngIf="item; else empty_state"
-                class="relative z-50 flex w-full items-center rounded border border-base-200 bg-base-100 hover:bg-base-200"
-                [class.!bg-error]="item.progress < 1"
-                [class.!bg-opacity-20]="item.progress < 1"
-            >
-                <div class="w-px flex-1 truncate px-2 font-mono text-sm">
-                    {{ item.name }}
-                </div>
-                <ng-container *ngIf="item.progress >= 0 && item.progress < 100">
-                    <div class="relative mx-1">
-                        <mat-progress-spinner
-                            [diameter]="32"
-                            mode="determinate"
-                            [value]="item.progress"
-                        ></mat-progress-spinner>
-
-                        <div
-                            class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-sm font-bold"
-                        >
-                            {{ item.progress }}
-                        </div>
-                    </div>
-                </ng-container>
-                <a
-                    [href]="item.url"
-                    icon
-                    matRipple
-                    *ngIf="item.progress >= 100"
-                    target="_blank"
-                    rel="noopener noreferrer"
+            @if (item) {
+                <div
+                    item
+                    class="relative z-50 flex w-full items-center rounded border border-base-200 bg-base-100 hover:bg-base-200"
+                    [class.!bg-error]="item.progress < 1"
+                    [class.!bg-opacity-20]="item.progress < 1"
                 >
-                    <icon>link</icon>
-                </a>
-                <button icon (click)="writeValue(null)">
-                    <icon>close</icon>
-                </button>
-            </div>
+                    <div class="w-px flex-1 truncate px-2 font-mono text-sm">
+                        {{ item.name }}
+                    </div>
+                    @if (item.progress >= 0 && item.progress < 100) {
+                        <div class="relative mx-1">
+                            <mat-progress-spinner
+                                [diameter]="32"
+                                mode="determinate"
+                                [value]="item.progress"
+                            ></mat-progress-spinner>
+                            <div
+                                class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-sm font-bold"
+                            >
+                                {{ item.progress }}
+                            </div>
+                        </div>
+                    }
+                    @if (item.progress >= 100) {
+                        <a
+                            [href]="item.url"
+                            icon
+                            matRipple
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            <icon>link</icon>
+                        </a>
+                    }
+                    <button icon (click)="writeValue(null)">
+                        <icon>close</icon>
+                    </button>
+                </div>
+            } @else {
+                <div
+                    class="z-0 flex h-full w-full flex-col items-center justify-center"
+                >
+                    <p class="opacity-30">Drop file or click to upload file</p>
+                </div>
+            }
         </div>
-        <ng-template #empty_state>
-            <div
-                class="z-0 flex h-full w-full flex-col items-center justify-center"
-            >
-                <p class="opacity-30">Drop file or click to upload file</p>
-            </div>
-        </ng-template>
     `,
     styles: [``],
     providers: [
@@ -77,7 +76,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
             multi: true,
         },
     ],
-    imports: [CommonModule, MatProgressSpinnerModule, IconComponent],
+    imports: [MatProgressSpinnerModule, IconComponent],
 })
 export class UploadFileFieldComponent implements ControlValueAccessor {
     public item: Attachment;

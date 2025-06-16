@@ -3,13 +3,14 @@
     "$schema": "../../node_modules/nx/schemas/project-schema.json",
     "sourceRoot": "apps/timetable-e2e/src",
     "projectType": "application",
+    "tags": [],
+    "implicitDependencies": ["timetable"],
     "targets": {
         "e2e": {
             "executor": "@nx/cypress:cypress",
             "options": {
                 "cypressConfig": "apps/timetable-e2e/cypress.json",
-                "devServerTarget": "timetable:serve:development",
-                "tsConfig": "apps/timetable-e2e/tsconfig.json"
+                "devServerTarget": "timetable:serve:development"
             },
             "configurations": {
                 "production": {
@@ -21,7 +22,5 @@
             "executor": "@nx/eslint:lint",
             "outputs": ["{options.outputFile}"]
         }
-    },
-    "tags": [],
-    "implicitDependencies": ["timetable"]
+    }
 }

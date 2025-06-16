@@ -14,19 +14,19 @@ import { OrganisationService } from '@placeos/organisation';
                 {{ 'APP.WORKPLACE.PARKING_CONFIRM_TITLE' | translate }}
             </h2>
             <div class="">
-                <mat-spinner
-                    diameter="32"
-                    *ngIf="loading | async"
-                ></mat-spinner>
-                <button
-                    icon
-                    name="close-locker-confirm"
-                    matRipple
-                    *ngIf="show_close"
-                    (click)="dismiss()"
-                >
-                    <icon class="text-2xl">close</icon>
-                </button>
+                @if (loading | async) {
+                    <mat-spinner diameter="32"></mat-spinner>
+                }
+                @if (show_close) {
+                    <button
+                        icon
+                        name="close-locker-confirm"
+                        matRipple
+                        (click)="dismiss()"
+                    >
+                        <icon class="text-2xl">close</icon>
+                    </button>
+                }
             </div>
         </header>
         <section period class="flex space-x-1 px-2 py-4 text-base">
@@ -52,43 +52,45 @@ import { OrganisationService } from '@placeos/organisation';
                 </div>
             </div>
         </section>
-        <section
-            resource
-            class="flex space-x-1 border-t px-2 py-4 text-base"
-            *ngIf="booking_asset?.id"
-        >
-            <icon class="text-2xl text-success">done</icon>
-            <div details class="space-y-2 text-base">
-                <h3 class="text-xl">
-                    {{ booking_asset?.name || booking_asset?.id || '' }}
-                </h3>
-                <div class="flex items-center space-x-2">
-                    <icon>person</icon>
-                    <span>{{ 'RESOURCE.PARKING_SPACE' | translate }}</span>
-                </div>
-                <div class="flex items-center space-x-2">
-                    <icon>place</icon>
-                    <div>{{ location }}</div>
-                </div>
-                <ng-container *ngFor="let feat of booking_asset.features">
-                    <div features class="flex items-center space-x-2">
-                        <icon>arrow_upward</icon>
-                        <div>{{ feat }}</div>
-                    </div>
-                </ng-container>
-            </div>
-        </section>
-        <footer class="mt-4 w-full border-t border-base-200 p-2">
-            <button
-                confirm
-                btn
-                matRipple
-                class="w-full"
-                *ngIf="!(loading | async)"
-                (click)="postForm()"
+        @if (booking_asset?.id) {
+            <section
+                resource
+                class="flex space-x-1 border-t px-2 py-4 text-base"
             >
-                {{ 'COMMON.CONFIRM' | translate }}
-            </button>
+                <icon class="text-2xl text-success">done</icon>
+                <div details class="space-y-2 text-base">
+                    <h3 class="text-xl">
+                        {{ booking_asset?.name || booking_asset?.id || '' }}
+                    </h3>
+                    <div class="flex items-center space-x-2">
+                        <icon>person</icon>
+                        <span>{{ 'RESOURCE.PARKING_SPACE' | translate }}</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <icon>place</icon>
+                        <div>{{ location }}</div>
+                    </div>
+                    @for (feat of booking_asset.features; track feat) {
+                        <div features class="flex items-center space-x-2">
+                            <icon>arrow_upward</icon>
+                            <div>{{ feat }}</div>
+                        </div>
+                    }
+                </div>
+            </section>
+        }
+        <footer class="mt-4 w-full border-t border-base-200 p-2">
+            @if (!(loading | async)) {
+                <button
+                    confirm
+                    btn
+                    matRipple
+                    class="w-full"
+                    (click)="postForm()"
+                >
+                    {{ 'COMMON.CONFIRM' | translate }}
+                </button>
+            }
         </footer>
     `,
     styles: [

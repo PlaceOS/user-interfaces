@@ -16,6 +16,7 @@ import {
     ViewChild,
 } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
+import { SanitizePipe } from './sanitise.pipe';
 
 @Injectable()
 export class CustomTooltipData<T = any> {
@@ -33,24 +34,26 @@ export class CustomTooltipData<T = any> {
         <ng-content></ng-content>
 
         <ng-template cdk-portal>
-            <div custom-tooltip class="relative print:hidden" [ngSwitch]="type">
-                <ng-container *ngSwitchCase="'component'">
-                    <ng-container
-                        *ngComponentOutlet="content; injector: injector"
-                    ></ng-container>
-                </ng-container>
-                <ng-container *ngSwitchCase="'html'">
-                    <div [innerHTML]="content | sanitize"></div>
-                </ng-container>
-                <ng-container *ngSwitchDefault>
-                    <ng-container
-                        *ngTemplateOutlet="content; context: data"
-                    ></ng-container>
-                </ng-container>
+            <div custom-tooltip class="relative print:hidden">
+                @switch (type) {
+                    @case ('component') {
+                        <ng-container
+                            *ngComponentOutlet="content; injector: injector"
+                        ></ng-container>
+                    }
+                    @case ('html') {
+                        <div [innerHTML]="content | sanitize"></div>
+                    }
+                    @default {
+                        <ng-container
+                            *ngTemplateOutlet="content; context: data"
+                        ></ng-container>
+                    }
+                }
             </div>
         </ng-template>
     `,
-    imports: [CommonModule, PortalModule],
+    imports: [CommonModule, PortalModule, SanitizePipe],
 })
 export class CustomTooltipComponent<T = any>
     extends AsyncHandler

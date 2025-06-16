@@ -116,7 +116,8 @@
                 "production": {
                     "buildTarget": "concierge:build:production"
                 }
-            }
+            },
+            "continuous": true
         },
         "lint": {
             "executor": "@nx/eslint:lint",

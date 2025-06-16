@@ -46,39 +46,40 @@ import { debounceTime, first, map } from 'rxjs/operators';
                                 class="arrow absolute left-0 top-0 -translate-y-1/2"
                             ></div>
                         </div>
-                        <div
-                            *ngFor="let hr of hours"
-                            hour
-                            class="relative z-10 min-h-[2rem] w-full flex-1 border-b border-white/50"
-                        >
+                        @for (hr of hours; track hr) {
                             <div
-                                text
-                                class="absolute left-1/2 top-0 w-8 -translate-x-1/2 -translate-y-1/2 bg-[#212121] text-center text-white"
+                                hour
+                                class="relative z-10 min-h-[2rem] w-full flex-1 border-b border-white/50"
                             >
-                                {{ hr }}
+                                <div
+                                    text
+                                    class="absolute left-1/2 top-0 w-8 -translate-x-1/2 -translate-y-1/2 bg-[#212121] text-center text-white"
+                                >
+                                    {{ hr }}
+                                </div>
+                                <div
+                                    class="absolute inset-x-0 top-1/2 w-full border-b border-white/50"
+                                ></div>
                             </div>
-                            <div
-                                class="absolute inset-x-0 top-1/2 w-full border-b border-white/50"
-                            ></div>
-                        </div>
+                        }
                     </div>
                 </div>
-                <ng-container *ngIf="spaces.length; else empty_state">
-                    <space-timetable
-                        *ngFor="let space of spaces"
-                        class="relative z-10 min-w-[24vw] flex-1 border-r border-white/50"
-                        [space]="space"
-                    ></space-timetable>
-                </ng-container>
+                @if (spaces.length) {
+                    @for (space of spaces; track space) {
+                        <space-timetable
+                            class="relative z-10 min-w-[24vw] flex-1 border-r border-white/50"
+                            [space]="space"
+                        ></space-timetable>
+                    }
+                } @else {
+                    <div
+                        class="flex min-w-[30vw] flex-1 flex-col items-center justify-center text-white opacity-60"
+                    >
+                        <p>No spaces have been selected</p>
+                    </div>
+                }
             </div>
         </div>
-        <ng-template #empty_state>
-            <div
-                class="flex min-w-[30vw] flex-1 flex-col items-center justify-center text-white opacity-60"
-            >
-                <p>No spaces have been selected</p>
-            </div>
-        </ng-template>
     `,
     styles: [
         `

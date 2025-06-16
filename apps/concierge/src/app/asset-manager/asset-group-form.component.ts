@@ -58,12 +58,14 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                             [placeholder]="'COMMON.CATEGORY' | translate"
                             (click)="current_category = form.value.category_id"
                         >
-                            <mat-option
-                                *ngFor="let category of categories | async"
-                                [value]="category.id"
-                            >
-                                {{ category.name }}
-                            </mat-option>
+                            @for (
+                                category of categories | async;
+                                track category
+                            ) {
+                                <mat-option [value]="category.id">
+                                    {{ category.name }}
+                                </mat-option>
+                            }
                             <mat-option
                                 (click)="newCategory()"
                                 class="relative"

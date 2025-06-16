@@ -33,12 +33,13 @@ import { EventsStateService } from './events-state.service';
 @Component({
     selector: 'room-bookings-timeline',
     template: `
-        <div
-            class="mx-2 mt-2 w-[calc(100%-1rem)] rounded-lg bg-info p-2 text-center text-xs text-info-content"
-            *ngIf="timezone && tz"
-        >
-            {{ 'APP.CONCIERGE.TIMEZONE_DIFF' | translate }}
-        </div>
+        @if (timezone && tz) {
+            <div
+                class="mx-2 mt-2 w-[calc(100%-1rem)] rounded-lg bg-info p-2 text-center text-xs text-info-content"
+            >
+                {{ 'APP.CONCIERGE.TIMEZONE_DIFF' | translate }}
+            </div>
+        }
         <div
             class="relative z-20 flex items-center justify-center space-x-2 border-b border-base-200 p-2"
         >
@@ -48,12 +49,13 @@ import { EventsStateService } from './events-state.service';
                 [is_new]="true"
                 [hide_today]="true"
             ></date-options>
-            <div
-                class="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-info"
-                *ngIf="is_today | async"
-            >
-                {{ 'COMMON.TODAY' | translate }}
-            </div>
+            @if (is_today | async) {
+                <div
+                    class="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-info"
+                >
+                    {{ 'COMMON.TODAY' | translate }}
+                </div>
+            }
             <div class="absolute right-8 top-1/2 -translate-y-1/2">
                 <room-booking-search
                     (selected)="viewEvent($event, $event.system?.id, true)"
@@ -80,134 +82,146 @@ import { EventsStateService } from './events-state.service';
                 class="sticky top-0 z-20 flex items-center border-b border-base-300 bg-base-100"
                 [style.width]="(spaces | async)?.length * block_width + 'rem'"
             >
-                <div
-                    *ngFor="let space of spaces | async"
-                    class="relative flex h-full w-56 items-center justify-center"
-                >
-                    <div class="truncate">
-                        {{ space.display_name || space.name }}
-                    </div>
+                @for (space of spaces | async; track space) {
                     <div
-                        class="absolute -left-px bottom-0 h-2 w-px bg-base-300"
-                    ></div>
-                </div>
+                        class="relative flex h-full w-56 items-center justify-center"
+                    >
+                        <div class="truncate">
+                            {{ space.display_name || space.name }}
+                        </div>
+                        <div
+                            class="absolute -left-px bottom-0 h-2 w-px bg-base-300"
+                        ></div>
+                    </div>
+                }
             </div>
             <div
                 hour-blocks
                 class="sticky left-0 z-10 overflow-visible border-r border-base-300 bg-base-100"
                 [style.height]="block_range * block_height + 'rem'"
             >
-                <div
-                    *ngFor="let hour of hours; let i = index"
-                    class="relative w-full"
-                    [style.height]="block_height + 'rem'"
-                >
+                @for (hour of hours; track hour; let i = $index) {
                     <div
-                        class="absolute -top-px right-0 h-px w-2 bg-base-300"
-                    ></div>
-                    <div
-                        class="absolute -top-px right-3 -translate-y-1/2 text-xs opacity-60"
-                        *ngIf="i !== 0"
+                        class="relative w-full"
+                        [style.height]="block_height + 'rem'"
                     >
-                        {{ formatHour(hour) }}
+                        <div
+                            class="absolute -top-px right-0 h-px w-2 bg-base-300"
+                        ></div>
+                        @if (i !== 0) {
+                            <div
+                                class="absolute -top-px right-3 -translate-y-1/2 text-xs opacity-60"
+                            >
+                                {{ formatHour(hour) }}
+                            </div>
+                        }
                     </div>
-                </div>
-                <div
-                    class="absolute right-0 h-2 w-2 -translate-y-1/2 translate-x-1/2 rounded-full bg-secondary"
-                    *ngIf="(show_time | async) && timeToOffset(now) < 100"
-                    [style.top]="'calc(' + timeToOffset(now) + '% + 1px)'"
-                ></div>
+                }
+                @if ((show_time | async) && timeToOffset(now) < 100) {
+                    <div
+                        class="absolute right-0 h-2 w-2 -translate-y-1/2 translate-x-1/2 rounded-full bg-secondary"
+                        [style.top]="'calc(' + timeToOffset(now) + '% + 1px)'"
+                    ></div>
+                }
             </div>
             <div space-blocks class="relative overflow-hidden">
-                <div
-                    *ngFor="let hour of hours; let i = index"
-                    class="relative w-full border-b border-base-200"
-                    [style.height]="block_height + 'rem'"
-                ></div>
-                <div
-                    *ngFor="let space of spaces | async; let i = index"
-                    class="absolute top-0 h-full w-px bg-base-200"
-                    [style.left]="'calc(' + i * block_width + 'rem - 1px)'"
-                ></div>
+                @for (hour of hours; track hour; let i = $index) {
+                    <div
+                        class="relative w-full border-b border-base-200"
+                        [style.height]="block_height + 'rem'"
+                    ></div>
+                }
+                @for (space of spaces | async; track space; let i = $index) {
+                    <div
+                        class="absolute top-0 h-full w-px bg-base-200"
+                        [style.left]="'calc(' + i * block_width + 'rem - 1px)'"
+                    ></div>
+                }
 
-                <ng-container
-                    *ngFor="let space of spaces | async; let i = index"
-                >
-                    <ng-container
-                        *ngFor="let event of (events | async)[space.id] || []"
-                    >
-                        <button
-                            event
-                            matRipple
-                            class="absolute w-52 text-left hover:opacity-90"
-                            [style.left]="i * block_width + 0.25 + 'rem'"
-                            [style.top]="timeToOffset(event.date) + '%'"
-                            [style.height]="endToOffset(event.duration) + '%'"
-                            (click)="viewEvent(event, space.id)"
-                            [matTooltip]="eventTooltip(event)"
-                            *ngIf="
-                                !event.is_system_event ||
-                                (ui_options | async).show_overflow
-                            "
-                        >
-                            <div
-                                class="relative h-full w-full overflow-hidden rounded-lg border border-base-200 bg-base-100 px-3 py-1 text-xs shadow hover:bg-base-200"
-                                [class.opacity-60]="event.state === 'done'"
-                                [class.!rounded-none]="event.is_system_event"
-                                [class.!border-secondary]="
-                                    event.is_system_event
+                @for (space of spaces | async; track space; let i = $index) {
+                    @for (
+                        event of (events | async)[space.id] || [];
+                        track event
+                    ) {
+                        @if (
+                            !event.is_system_event ||
+                            (ui_options | async).show_overflow
+                        ) {
+                            <button
+                                event
+                                matRipple
+                                class="absolute w-52 text-left hover:opacity-90"
+                                [style.left]="i * block_width + 0.25 + 'rem'"
+                                [style.top]="timeToOffset(event.date) + '%'"
+                                [style.height]="
+                                    endToOffset(event.duration) + '%'
                                 "
+                                (click)="viewEvent(event, space.id)"
+                                [matTooltip]="eventTooltip(event)"
                             >
-                                <ng-container *ngIf="event.is_system_event">
-                                    <div
-                                        class="absolute -inset-px bg-secondary opacity-30"
-                                    ></div>
-                                </ng-container>
-                                <ng-container *ngIf="!event.is_system_event">
-                                    <div
-                                        class="absolute inset-y-0 left-0 w-1"
-                                        [class.bg-secondary]="
-                                            event.status !== 'cancelled'
-                                        "
-                                        [class.bg-error]="
-                                            event.status === 'cancelled'
-                                        "
-                                    ></div>
-                                    <p
-                                        class="truncate"
-                                        [class.opacity-60]="
-                                            event.status === 'cancelled'
-                                        "
-                                    >
-                                        {{
-                                            event.all_day
-                                                ? 'All Day'
-                                                : (event.date
-                                                  | date: time_format : tz)
-                                        }}
-                                        &ndash;
-                                        {{ event.title }}
-                                    </p>
-                                    <p
-                                        class="truncate"
-                                        [class.opacity-60]="
-                                            event.status === 'cancelled'
-                                        "
-                                    >
-                                        {{
-                                            event.organiser?.name || event.host
-                                        }}
-                                    </p>
-                                </ng-container>
-                            </div>
-                        </button>
-                    </ng-container>
-                </ng-container>
-                <div
-                    *ngIf="show_time | async"
-                    class="absolute inset-x-0 h-[2px] bg-secondary"
-                    [style.top]="timeToOffset(now) + '%'"
-                ></div>
+                                <div
+                                    class="relative h-full w-full overflow-hidden rounded-lg border border-base-200 bg-base-100 px-3 py-1 text-xs shadow hover:bg-base-200"
+                                    [class.opacity-60]="event.state === 'done'"
+                                    [class.!rounded-none]="
+                                        event.is_system_event
+                                    "
+                                    [class.!border-secondary]="
+                                        event.is_system_event
+                                    "
+                                >
+                                    @if (event.is_system_event) {
+                                        <div
+                                            class="absolute -inset-px bg-secondary opacity-30"
+                                        ></div>
+                                    }
+                                    @if (!event.is_system_event) {
+                                        <div
+                                            class="absolute inset-y-0 left-0 w-1"
+                                            [class.bg-secondary]="
+                                                event.status !== 'cancelled'
+                                            "
+                                            [class.bg-error]="
+                                                event.status === 'cancelled'
+                                            "
+                                        ></div>
+                                        <p
+                                            class="truncate"
+                                            [class.opacity-60]="
+                                                event.status === 'cancelled'
+                                            "
+                                        >
+                                            {{
+                                                event.all_day
+                                                    ? 'All Day'
+                                                    : (event.date
+                                                      | date: time_format : tz)
+                                            }}
+                                            &ndash;
+                                            {{ event.title }}
+                                        </p>
+                                        <p
+                                            class="truncate"
+                                            [class.opacity-60]="
+                                                event.status === 'cancelled'
+                                            "
+                                        >
+                                            {{
+                                                event.organiser?.name ||
+                                                    event.host
+                                            }}
+                                        </p>
+                                    }
+                                </div>
+                            </button>
+                        }
+                    }
+                }
+                @if (show_time | async) {
+                    <div
+                        class="absolute inset-x-0 h-[2px] bg-secondary"
+                        [style.top]="timeToOffset(now) + '%'"
+                    ></div>
+                }
             </div>
         </div>
     `,

@@ -1,12 +1,12 @@
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import {
-    ActionIconComponent,
-    IconComponent,
-    UserAvatarComponent,
-} from '@placeos/components';
-import { StaffUser } from '@placeos/users';
 import { MockComponent } from 'ng-mocks';
+
+import { ActionIconComponent } from '@placeos/components';
+import { StaffUser } from '@placeos/users';
+
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { UserAvatarComponent } from 'libs/components/src/lib/user-avatar.component';
 import { StaffDetailsComponent } from '../../app/staff/staff-details.component';
 import { StaffStateService } from '../../app/staff/staff-state.service';
 

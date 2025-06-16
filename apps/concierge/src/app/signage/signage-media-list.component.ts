@@ -64,20 +64,19 @@ import { SignageStateService } from './signage-state.service';
                             class="flex min-h-10 min-w-10 items-center justify-center rounded-2xl border-4 border-dashed border-base-400 bg-base-300"
                             *cdkDragPlaceholder
                         >
-                            <icon class="text-2xl text-base-100">
-                                add
-                            </icon>
+                            <icon class="text-2xl text-base-100"> add </icon>
                         </div>
                         <div
                             preview
                             class="relative h-36 w-full overflow-hidden rounded-lg bg-base-200"
                         >
-                            <img
-                                auth
-                                [source]="media.thumbnail_url"
-                                *ngIf="media.thumbnail_url"
-                                class="h-full w-full rounded-lg object-contain"
-                            />
+                            @if (media.thumbnail_url) {
+                                <img
+                                    auth
+                                    [source]="media.thumbnail_url"
+                                    class="h-full w-full rounded-lg object-contain"
+                                />
+                            }
                             <div
                                 class="absolute left-1 top-1 rounded-lg px-2 py-1 font-mono text-xs capitalize"
                                 [class.bg-info]="media.media_type === 'video'"
@@ -98,12 +97,13 @@ import { SignageStateService } from './signage-state.service';
                                     ) | translate
                                 }}
                             </div>
-                            <div
-                                class="absolute bottom-1 right-1 rounded-lg bg-info px-2 py-1 font-mono text-xs capitalize text-info-content"
-                                *ngIf="media.play_time"
-                            >
-                                {{ media.play_time / 1000 | mediaDuration }}
-                            </div>
+                            @if (media.play_time) {
+                                <div
+                                    class="absolute bottom-1 right-1 rounded-lg bg-info px-2 py-1 font-mono text-xs capitalize text-info-content"
+                                >
+                                    {{ media.play_time / 1000 | mediaDuration }}
+                                </div>
+                            }
                         </div>
                         <div
                             class="relative top-1 flex w-full items-center justify-between"
@@ -143,35 +143,39 @@ import { SignageStateService } from './signage-state.service';
                                         />
                                     </mat-form-field>
                                 </div>
-                                <button
-                                    mat-menu-item
-                                    [disabled]="true"
-                                    *ngIf="!((playlists | async)?.length > 0)"
-                                >
-                                    {{
-                                        'APP.CONCIERGE.SIGNAGE_PLAYLISTS_EMPTY'
-                                            | translate
-                                    }}
-                                </button>
+                                @if (!((playlists | async)?.length > 0)) {
+                                    <button mat-menu-item [disabled]="true">
+                                        {{
+                                            'APP.CONCIERGE.SIGNAGE_PLAYLISTS_EMPTY'
+                                                | translate
+                                        }}
+                                    </button>
+                                }
 
-                                <button
-                                    mat-menu-item
-                                    *ngFor="let playlist of playlists | async"
-                                    (click)="addToPlaylist(media.id, playlist)"
-                                >
-                                    <div class="flex items-center space-x-2">
-                                        <div class="pr-2">
-                                            {{ playlist.name }}
+                                @for (
+                                    playlist of playlists | async;
+                                    track playlist
+                                ) {
+                                    <button
+                                        mat-menu-item
+                                        (click)="
+                                            addToPlaylist(media.id, playlist)
+                                        "
+                                    >
+                                        <div
+                                            class="flex items-center space-x-2"
+                                        >
+                                            <div class="pr-2">
+                                                {{ playlist.name }}
+                                            </div>
                                         </div>
-                                    </div>
-                                </button>
+                                    </button>
+                                }
                             </mat-menu>
                             <mat-menu #menu="matMenu">
                                 <button mat-menu-item (click)="editItem(media)">
                                     <div class="flex items-center space-x-2">
-                                        <icon class="text-2xl"
-                                            >edit</icon
-                                        >
+                                        <icon class="text-2xl">edit</icon>
                                         <div class="pr-2">
                                             {{
                                                 'APP.CONCIERGE.SIGNAGE_MEDIA_EDIT'
@@ -185,9 +189,7 @@ import { SignageStateService } from './signage-state.service';
                                     [matMenuTriggerFor]="playlist_menu"
                                 >
                                     <div class="flex items-center space-x-2">
-                                        <icon class="text-2xl"
-                                            >add</icon
-                                        >
+                                        <icon class="text-2xl">add</icon>
                                         <div class="pr-2">
                                             {{
                                                 'APP.CONCIERGE.SIGNAGE_MEDIA_ADD_PLAYLIST'
@@ -201,9 +203,7 @@ import { SignageStateService } from './signage-state.service';
                                     (click)="previewItem(media)"
                                 >
                                     <div class="flex items-center space-x-2">
-                                        <icon class="text-2xl"
-                                            >visibility</icon
-                                        >
+                                        <icon class="text-2xl">visibility</icon>
                                         <div class="pr-2">
                                             {{
                                                 'APP.CONCIERGE.SIGNAGE_MEDIA_PREVIEW'

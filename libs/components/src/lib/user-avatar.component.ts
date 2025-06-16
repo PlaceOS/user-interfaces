@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { User } from 'libs/users/src/lib/user.class';
 import { AuthenticatedImageDirective } from './authenticated-image.directive';
@@ -6,25 +5,26 @@ import { AuthenticatedImageDirective } from './authenticated-image.directive';
 @Component({
     selector: 'a-user-avatar',
     template: `
-        <div
-            class="flex h-[2.5em] w-[2.5em] items-center justify-center overflow-hidden rounded-full border-2 border-base-100 bg-base-200"
-            *ngIf="user"
-            [attr.user-id]="user.id"
-        >
+        @if (user) {
             <div
-                initials
-                class="text-[1em] uppercase text-base-content opacity-60"
-                *ngIf="!user.photo; else image_state"
+                class="flex h-[2.5em] w-[2.5em] items-center justify-center overflow-hidden rounded-full border-2 border-base-100 bg-base-200"
+                [attr.user-id]="user.id"
             >
-                {{ initials }}
+                @if (!user.photo) {
+                    <div
+                        initials
+                        class="text-[1em] uppercase text-base-content opacity-60"
+                    >
+                        {{ initials }}
+                    </div>
+                } @else {
+                    <img auth class="h-full w-full" [source]="user.photo" />
+                }
             </div>
-        </div>
-        <ng-template #image_state>
-            <img auth class="h-full w-full" [source]="user.photo" />
-        </ng-template>
+        }
     `,
     styles: [``],
-    imports: [CommonModule, AuthenticatedImageDirective],
+    imports: [AuthenticatedImageDirective],
 })
 export class UserAvatarComponent {
     /** User to display avatar for */

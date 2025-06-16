@@ -20,25 +20,25 @@ import { BehaviorSubject, combineLatest } from 'rxjs';
                     (ngModelChange)="search.next($event)"
                     placeholder="Search..."
                 />
-                <mat-spinner
-                    matSuffix
-                    class="top-2"
-                    *ngIf="loading"
-                    [diameter]="32"
-                ></mat-spinner>
+                @if (loading) {
+                    <mat-spinner
+                        matSuffix
+                        class="top-2"
+                        [diameter]="32"
+                    ></mat-spinner>
+                }
             </mat-form-field>
         </div>
         @let spaces = filtered_spaces | async;
-        <div
-            class="flex w-full flex-1 flex-col overflow-auto p-4"
-            *ngIf="spaces.length; else empty_state"
-        >
-            <a-control-space-list-item
-                *ngFor="let space of spaces"
-                [space]="space"
-            ></a-control-space-list-item>
-        </div>
-        <ng-template #empty_state>
+        @if (spaces.length) {
+            <div class="flex w-full flex-1 flex-col overflow-auto p-4">
+                @for (space of spaces; track space.id) {
+                    <a-control-space-list-item
+                        [space]="space"
+                    ></a-control-space-list-item>
+                }
+            </div>
+        } @else {
             <div class="flex flex-col items-center space-y-4 p-8 opacity-30">
                 <icon class="text-6xl">no_meeting_room</icon>
                 <p>
@@ -49,7 +49,7 @@ import { BehaviorSubject, combineLatest } from 'rxjs';
                     }}
                 </p>
             </div>
-        </ng-template>
+        }
     `,
     styles: [
         `

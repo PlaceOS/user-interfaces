@@ -3,12 +3,13 @@
     "$schema": "../../node_modules/nx/schemas/project-schema.json",
     "sourceRoot": "apps/booking-panel-e2e/src",
     "projectType": "application",
+    "tags": [],
+    "implicitDependencies": ["booking-panel"],
     "targets": {
         "e2e": {
             "executor": "@nx/cypress:cypress",
             "options": {
                 "cypressConfig": "apps/booking-panel-e2e/cypress.config.js",
-                "tsConfig": "apps/booking-panel-e2e/tsconfig.e2e.json",
                 "devServerTarget": "booking-panel:serve"
             },
             "configurations": {
@@ -21,7 +22,5 @@
             "executor": "@nx/eslint:lint",
             "outputs": ["{options.outputFile}"]
         }
-    },
-    "tags": [],
-    "implicitDependencies": ["booking-panel"]
+    }
 }

@@ -31,17 +31,18 @@ import { NewSurveyService } from './new-survey.service';
                         <div
                             class="flex h-40 w-32 items-center justify-center bg-base-300"
                         >
-                            <img
-                                auth
-                                *ngIf="building.images?.length"
-                                class="h-full w-full object-cover object-center"
-                                [source]="building.images[0]"
-                            />
-                            <icon
-                                *ngIf="!building.images?.length"
-                                class="text-6xl text-base-100"
-                                >domain</icon
-                            >
+                            @if (building.images?.length) {
+                                <img
+                                    auth
+                                    class="h-full w-full object-cover object-center"
+                                    [source]="building.images[0]"
+                                />
+                            }
+                            @if (!building.images?.length) {
+                                <icon class="text-6xl text-base-100"
+                                    >domain</icon
+                                >
+                            }
                         </div>
                         <div class="flex-1 py-4">
                             <h3 class="mb-4 text-2xl font-medium">

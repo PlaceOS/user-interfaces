@@ -44,26 +44,28 @@ import { VisitorsStateService } from './visitors-state.service';
                             [placeholder]="'COMMON.LEVEL_ALL' | translate"
                             multiple
                         >
-                            <mat-option
-                                *ngFor="let level of levels | async"
-                                [value]="level.id"
-                            >
-                                <div class="flex flex-col-reverse">
-                                    <div
-                                        class="text-xs opacity-30"
-                                        *ngIf="use_region"
-                                    >
-                                        {{
-                                            (level.parent_id | building)
-                                                ?.display_name
-                                        }}
-                                        <span class="opacity-0"> - </span>
+                            @for (level of levels | async; track level) {
+                                <mat-option [value]="level.id">
+                                    <div class="flex flex-col-reverse">
+                                        @if (use_region) {
+                                            <div class="text-xs opacity-30">
+                                                {{
+                                                    (level.parent_id | building)
+                                                        ?.display_name
+                                                }}
+                                                <span class="opacity-0">
+                                                    -
+                                                </span>
+                                            </div>
+                                        }
+                                        <div>
+                                            {{
+                                                level.display_name || level.name
+                                            }}
+                                        </div>
                                     </div>
-                                    <div>
-                                        {{ level.display_name || level.name }}
-                                    </div>
-                                </div>
-                            </mat-option>
+                                </mat-option>
+                            }
                         </mat-select>
                     </mat-form-field>
                     <div class="w-2 flex-1"></div>
@@ -72,11 +74,12 @@ import { VisitorsStateService } from './visitors-state.service';
                 <div class="mx-8 h-1/2 flex-1 overflow-auto">
                     <guest-listings></guest-listings>
                 </div>
-                <mat-progress-bar
-                    class="w-full"
-                    *ngIf="loading | async"
-                    mode="indeterminate"
-                ></mat-progress-bar>
+                @if (loading | async) {
+                    <mat-progress-bar
+                        class="w-full"
+                        mode="indeterminate"
+                    ></mat-progress-bar>
+                }
             </main>
         </div>
     `,

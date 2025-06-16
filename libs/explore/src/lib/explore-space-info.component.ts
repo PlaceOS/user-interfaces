@@ -52,16 +52,18 @@ export interface SpaceInfoData {
                         [class.h-32]="space.images[0]"
                         [class.h-8]="!space.images[0]"
                     >
-                        <img
-                            auth
-                            *ngIf="space.images[0]"
-                            [source]="space.images[0]"
-                            class="min-h-full min-w-full object-cover"
-                        />
-                        <div
-                            class="absolute inset-0 bg-neutral opacity-30"
-                            *ngIf="space.images[0]"
-                        ></div>
+                        @if (space.images[0]) {
+                            <img
+                                auth
+                                [source]="space.images[0]"
+                                class="min-h-full min-w-full object-cover"
+                            />
+                        }
+                        @if (space.images[0]) {
+                            <div
+                                class="absolute inset-0 bg-neutral opacity-30"
+                            ></div>
+                        }
                     </div>
                     <div class="absolute left-2 top-2 flex flex-wrap text-sm">
                         <div
@@ -78,34 +80,38 @@ export interface SpaceInfoData {
                                 ) | translate
                             }}
                         </div>
-                        <div available-until *ngIf="status !== 'not-bookable'">
-                            {{ available_until }}
-                        </div>
+                        @if (status !== 'not-bookable') {
+                            <div available-until>
+                                {{ available_until }}
+                            </div>
+                        }
                     </div>
                     <div class="flex flex-col px-2 py-4">
                         <h4 class="mb-2 px-2 text-xl font-medium">
                             {{ space.display_name || space.name }}
                         </h4>
-                        <div
-                            capacity
-                            class="mb-2 px-2 text-base"
-                            *ngIf="space.capacity >= 0"
-                        >
-                            <span>{{ 'COMMON.CAPACITY' | translate }}: </span
-                            >{{ space.capacity }}
-                            {{ space.capacity === 1 ? 'person' : 'people' }}
-                        </div>
-                        <ul
-                            class="flex flex-wrap"
-                            *ngIf="space.features?.length > 0 && show_features"
-                        >
-                            <li
-                                class="m-1 rounded-2xl bg-base-200 px-2 py-1 text-xs font-medium"
-                                *ngFor="let feature of space.features"
-                            >
-                                {{ feature }}
-                            </li>
-                        </ul>
+                        @if (space.capacity >= 0) {
+                            <div capacity class="mb-2 px-2 text-base">
+                                <span
+                                    >{{ 'COMMON.CAPACITY' | translate }}: </span
+                                >{{ space.capacity }}
+                                {{ space.capacity === 1 ? 'person' : 'people' }}
+                            </div>
+                        }
+                        @if (space.features?.length > 0 && show_features) {
+                            <ul class="flex flex-wrap">
+                                @for (
+                                    feature of space.features;
+                                    track feature
+                                ) {
+                                    <li
+                                        class="m-1 rounded-2xl bg-base-200 px-2 py-1 text-xs font-medium"
+                                    >
+                                        {{ feature }}
+                                    </li>
+                                }
+                            </ul>
+                        }
                     </div>
                 </div>
             </div>

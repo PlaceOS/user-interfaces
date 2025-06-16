@@ -14,9 +14,11 @@ import { BookingFormService } from '../booking-form.service';
             filters
             class="sticky -top-1 z-20 -mx-1 !mb-4 flex w-[calc(100%+0.5rem)] flex-wrap items-center rounded border border-base-300 bg-base-100 p-1 !pr-10 sm:!pr-1"
         >
-            <div filter-item zone *ngIf="location">
-                {{ location }}
-            </div>
+            @if (location) {
+                <div filter-item zone>
+                    {{ location }}
+                </div>
+            }
             <div filter-item date>
                 {{ start | date: 'mediumDate' }}
             </div>
@@ -30,17 +32,19 @@ import { BookingFormService } from '../booking-form.service';
                         | translate: { count: (options | async)?.capcaity || 2 }
                 }}
             </div>
-            <div filter-item *ngFor="let feat of (options | async)?.features">
-                <p>{{ feat }}</p>
-                <button
-                    icon
-                    matRipple
-                    class="-mr-4"
-                    (click)="removeFeature(feat)"
-                >
-                    <icon>close</icon>
-                </button>
-            </div>
+            @for (feat of (options | async)?.features; track feat) {
+                <div filter-item>
+                    <p>{{ feat }}</p>
+                    <button
+                        icon
+                        matRipple
+                        class="-mr-4"
+                        (click)="removeFeature(feat)"
+                    >
+                        <icon>close</icon>
+                    </button>
+                </div>
+            }
         </section>
     `,
     styles: [

@@ -37,77 +37,82 @@ import { ExploreSearchService } from '@placeos/explore';
                     (ngModelChange)="setFilter($event)"
                     (blur)="hideInput()"
                 />
-                <mat-spinner
-                    *ngIf="loading | async"
-                    [diameter]="32"
-                ></mat-spinner>
+                @if (loading | async) {
+                    <mat-spinner [diameter]="32"></mat-spinner>
+                }
             </div>
-            <div
-                search
-                class="absolute bottom-0 right-2 flex max-h-[40vh] max-w-[calc(100vw-4rem)] translate-y-[calc(100%-1rem)] flex-col items-center overflow-auto rounded-b border border-base-200 bg-base-100 pt-4 shadow"
-                [ngClass]="{
-                    'w-[32rem]': show,
-                    'w-px': !show,
-                    'opacity-100': show,
-                    'opacity-0': !show,
-                    'pointer-events-none': !show,
-                }"
-                *ngIf="filter_str"
-            >
+            @if (filter_str) {
                 <div
-                    empty
-                    class="w-full p-4 text-center opacity-60"
-                    *ngIf="
-                        !(results | async)?.length && filter_str;
-                        else empty_state
-                    "
+                    search
+                    class="absolute bottom-0 right-2 flex max-h-[40vh] max-w-[calc(100vw-4rem)] translate-y-[calc(100%-1rem)] flex-col items-center overflow-auto rounded-b border border-base-200 bg-base-100 pt-4 shadow"
+                    [ngClass]="{
+                        'w-[32rem]': show,
+                        'w-px': !show,
+                        'opacity-100': show,
+                        'opacity-0': !show,
+                        'pointer-events-none': !show,
+                    }"
                 >
-                    {{ 'APP.WORKPLACE.GLOBAL_SEARCH_EMPTY' | translate }}
+                    @if (!(results | async)?.length && filter_str) {
+                        <div empty class="w-full p-4 text-center opacity-60">
+                            {{
+                                'APP.WORKPLACE.GLOBAL_SEARCH_EMPTY' | translate
+                            }}
+                        </div>
+                    } @else {
+                        @if (!(results | async)?.length) {
+                            <div
+                                empty
+                                class="w-full p-4 text-center opacity-60"
+                            >
+                                {{
+                                    'APP.WORKPLACE.GLOBAL_SEARCH_START'
+                                        | translate
+                                }}
+                            </div>
+                        }
+                    }
+                    @if (!(loading | async) && filter_str) {
+                        @for (
+                            option of results | async | slice: 0 : 100;
+                            track option
+                        ) {
+                            <a
+                                matRipple
+                                [routerLink]="['/explore']"
+                                [queryParams]="
+                                    option.type === 'space'
+                                        ? { space: option.id }
+                                        : option.type === 'user' ||
+                                            option.is_role
+                                          ? { user: option.id }
+                                          : {
+                                                locate: option.id,
+                                                name: option.name,
+                                                zone: option.zone,
+                                            }
+                                "
+                                class="flex h-14 min-h-14 w-full items-center px-4 py-2 leading-tight hover:bg-base-200"
+                            >
+                                <div class="flex-1 overflow-hidden">
+                                    <div class="w-full truncate">
+                                        {{ option.name }}
+                                    </div>
+                                    <div class="text-xs opacity-60">
+                                        {{ option.description }}
+                                    </div>
+                                </div>
+                                <div
+                                    class="rounded bg-secondary p-2 text-xs font-medium capitalize text-secondary-content text-white"
+                                >
+                                    {{ option.type }}
+                                </div>
+                            </a>
+                        }
+                    }
                 </div>
-                <ng-container *ngIf="!(loading | async) && filter_str">
-                    <a
-                        matRipple
-                        *ngFor="let option of results | async | slice: 0 : 100"
-                        [routerLink]="['/explore']"
-                        [queryParams]="
-                            option.type === 'space'
-                                ? { space: option.id }
-                                : option.type === 'user' || option.is_role
-                                  ? { user: option.id }
-                                  : {
-                                        locate: option.id,
-                                        name: option.name,
-                                        zone: option.zone,
-                                    }
-                        "
-                        class="flex h-14 min-h-14 w-full items-center px-4 py-2 leading-tight hover:bg-base-200"
-                    >
-                        <div class="flex-1 overflow-hidden">
-                            <div class="w-full truncate">
-                                {{ option.name }}
-                            </div>
-                            <div class="text-xs opacity-60">
-                                {{ option.description }}
-                            </div>
-                        </div>
-                        <div
-                            class="rounded bg-secondary p-2 text-xs font-medium capitalize text-secondary-content text-white"
-                        >
-                            {{ option.type }}
-                        </div>
-                    </a>
-                </ng-container>
-            </div>
+            }
         </div>
-        <ng-template #empty_state>
-            <div
-                empty
-                *ngIf="!(results | async)?.length"
-                class="w-full p-4 text-center opacity-60"
-            >
-                {{ 'APP.WORKPLACE.GLOBAL_SEARCH_START' | translate }}
-            </div>
-        </ng-template>
     `,
     styles: [
         `

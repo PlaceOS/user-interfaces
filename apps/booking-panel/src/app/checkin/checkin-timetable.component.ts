@@ -32,33 +32,37 @@ interface EventBlock {
     selector: 'checkin-timetable',
     template: `
         <div class="relative flex h-20 items-center px-2">
-            <button
-                *ngFor="let blk of blocks"
-                class="relative h-full"
-                [style.min-width]="1 * step + 'px'"
-                (click)="event.emit(blk.id)"
-            >
-                <div
-                    *ngIf="blk.minutes % 60 === 0"
-                    class="absolute left-0 top-1 whitespace-nowrap text-xs"
+            @for (blk of blocks; track blk) {
+                <button
+                    class="relative h-full"
+                    [style.min-width]="1 * step + 'px'"
+                    (click)="event.emit(blk.id)"
                 >
-                    {{ blk.hour }}
-                </div>
-                <div
-                    *ngIf="blk.minutes % 15 === 0"
-                    class="absolute bottom-0 left-0 w-px bg-neutral"
-                    [style.height]="height(blk.minutes)"
-                ></div>
-            </button>
-            <ng-container *ngFor="let blk of event_blocks">
-                <div
-                    event
-                    *ngIf="blk.start + blk.length >= 0 && blk.start < 24 * 60"
-                    class="absolute bottom-0 h-[3.5rem] bg-base-200 opacity-40"
-                    [style.left]="8 + blk.start + 'px'"
-                    [style.width]="blk.length + 'px'"
-                ></div>
-            </ng-container>
+                    @if (blk.minutes % 60 === 0) {
+                        <div
+                            class="absolute left-0 top-1 whitespace-nowrap text-xs"
+                        >
+                            {{ blk.hour }}
+                        </div>
+                    }
+                    @if (blk.minutes % 15 === 0) {
+                        <div
+                            class="absolute bottom-0 left-0 w-px bg-neutral"
+                            [style.height]="height(blk.minutes)"
+                        ></div>
+                    }
+                </button>
+            }
+            @for (blk of event_blocks; track blk) {
+                @if (blk.start + blk.length >= 0 && blk.start < 24 * 60) {
+                    <div
+                        event
+                        class="absolute bottom-0 h-[3.5rem] bg-base-200 opacity-40"
+                        [style.left]="8 + blk.start + 'px'"
+                        [style.width]="blk.length + 'px'"
+                    ></div>
+                }
+            }
             <div
                 current
                 class="pointer-events-none absolute bottom-0 h-[3.5rem] w-0.5 bg-primary"

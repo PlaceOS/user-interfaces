@@ -4,12 +4,10 @@ import { MatSelectModule } from '@angular/material/select';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { BookingFormService } from '@placeos/bookings';
 import { MapsPeopleService, SettingsService } from '@placeos/common';
-import {
-    IconComponent,
-    IndoorMapsComponent,
-    InteractiveMapComponent,
-} from '@placeos/components';
 import { Desk, OrganisationService } from '@placeos/organisation';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { IndoorMapsComponent } from 'libs/components/src/lib/indoor-maps.component';
+import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 import { take } from 'rxjs/operators';

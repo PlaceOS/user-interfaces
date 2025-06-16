@@ -16,14 +16,18 @@ import { ApplicationIcon } from 'libs/common/src/lib/types';
                 {{ content }}
                 <ng-content></ng-content>
             </icon>
-            <div [class]="'state center ' + state" *ngIf="!loading && state">
-                <icon>
-                    {{ state === 'success' ? 'done' : 'close' }}
-                </icon>
-            </div>
-            <div class="loader center" *ngIf="loading">
-                <mat-spinner [diameter]="16"></mat-spinner>
-            </div>
+            @if (!loading && state) {
+                <div [class]="'state center ' + state">
+                    <icon>
+                        {{ state === 'success' ? 'done' : 'close' }}
+                    </icon>
+                </div>
+            }
+            @if (loading) {
+                <div class="loader center">
+                    <mat-spinner [diameter]="16"></mat-spinner>
+                </div>
+            }
         </button>
     `,
     styles: [

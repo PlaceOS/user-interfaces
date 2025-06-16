@@ -18,43 +18,47 @@ const VALID_TYPES = ['not_started', 'wrong_resource', 'other'];
                 <div class="py-4">
                     <img src="assets/icons/not-found.svg" class="h-64" />
                 </div>
-                <p class="max-w-[32rem] text-center" [ngSwitch]="type">
-                    <ng-container *ngSwitchCase="'not_started'">
-                        Booking has not started yet. Please try again once the
-                        booking has commenced.
-                    </ng-container>
-                    <ng-container *ngSwitchCase="'wrong_resource'">
-                        You have booking with a difference resource.
-                    </ng-container>
-                    <ng-container *ngSwitchDefault>
-                        You do not have a booking. Would you like to book the
-                        set resource?
-                    </ng-container>
+                <p class="max-w-[32rem] text-center">
+                    @switch (type) {
+                        @case ('not_started') {
+                            Booking has not started yet. Please try again once
+                            the booking has commenced.
+                        }
+                        @case ('wrong_resource') {
+                            You have booking with a difference resource.
+                        }
+                        @default {
+                            You do not have a booking. Would you like to book
+                            the set resource?
+                        }
+                    }
                 </p>
             </main>
             <footer
                 class="mt-4 flex w-full items-center justify-center space-x-2 border-t border-base-200 p-2"
             >
-                <a
-                    btn
-                    matRipple
-                    class="w-full max-w-[32rem]"
-                    [routerLink]="['/book', 'code']"
-                    [queryParams]="{ asset_id: asset_id }"
-                    *ngIf="type === 'not_started'"
-                >
-                    {{ 'APP.WORKPLACE.TRY_AGAIN' | translate }}
-                </a>
-                <a
-                    btn
-                    matRipple
-                    class="w-full max-w-[32rem]"
-                    [routerLink]="['/book', 'desk']"
-                    [queryParams]="{ asset_id: asset_id }"
-                    *ngIf="type === 'no_booking'"
-                >
-                    {{ 'APP.WORKPLACE.BOOK' | translate }}
-                </a>
+                @if (type === 'not_started') {
+                    <a
+                        btn
+                        matRipple
+                        class="w-full max-w-[32rem]"
+                        [routerLink]="['/book', 'code']"
+                        [queryParams]="{ asset_id: asset_id }"
+                    >
+                        {{ 'APP.WORKPLACE.TRY_AGAIN' | translate }}
+                    </a>
+                }
+                @if (type === 'no_booking') {
+                    <a
+                        btn
+                        matRipple
+                        class="w-full max-w-[32rem]"
+                        [routerLink]="['/book', 'desk']"
+                        [queryParams]="{ asset_id: asset_id }"
+                    >
+                        {{ 'APP.WORKPLACE.BOOK' | translate }}
+                    </a>
+                }
                 <a
                     btn
                     matRipple

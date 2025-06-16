@@ -18,34 +18,38 @@ import { Observable } from 'rxjs';
         </header>
         <main class="h-[32rem] max-h-[65vh] min-w-[28rem]">
             @for (category of list | async; track category) {
-                <div
-                    class="hover:bg-base-200:bg-base-300 m-2 flex items-center space-x-2 rounded border border-base-200 p-2"
-                    *ngIf="category.id"
-                >
-                    <div class="flex-1 truncate px-2">{{ category.name }}</div>
-                    <button
-                        icon
-                        matRipple
-                        [matTooltip]="
-                            'APP.CONCIERGE.ASSETS_CATEGORY_EDIT' | translate
-                        "
-                        class="h-12 w-12 rounded border border-secondary text-secondary"
-                        (click)="edit(category)"
+                @if (category.id) {
+                    <div
+                        class="hover:bg-base-200:bg-base-300 m-2 flex items-center space-x-2 rounded border border-base-200 p-2"
                     >
-                        <icon>edit</icon>
-                    </button>
-                    <button
-                        icon
-                        matRipple
-                        [matTooltip]="
-                            'APP.CONCIERGE.ASSETS_CATEGORY_REMOVE' | translate
-                        "
-                        class="h-12 w-12 rounded border border-error text-error"
-                        (click)="remove(category)"
-                    >
-                        <icon>delete</icon>
-                    </button>
-                </div>
+                        <div class="flex-1 truncate px-2">
+                            {{ category.name }}
+                        </div>
+                        <button
+                            icon
+                            matRipple
+                            [matTooltip]="
+                                'APP.CONCIERGE.ASSETS_CATEGORY_EDIT' | translate
+                            "
+                            class="h-12 w-12 rounded border border-secondary text-secondary"
+                            (click)="edit(category)"
+                        >
+                            <icon>edit</icon>
+                        </button>
+                        <button
+                            icon
+                            matRipple
+                            [matTooltip]="
+                                'APP.CONCIERGE.ASSETS_CATEGORY_REMOVE'
+                                    | translate
+                            "
+                            class="h-12 w-12 rounded border border-error text-error"
+                            (click)="remove(category)"
+                        >
+                            <icon>delete</icon>
+                        </button>
+                    </div>
+                }
             }
         </main>
         <button

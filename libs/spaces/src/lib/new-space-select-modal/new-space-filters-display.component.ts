@@ -13,30 +13,33 @@ import { OrganisationService } from 'libs/organisation/src/lib/organisation.serv
             filters
             class="sticky -top-1 z-20 -mx-1 !mb-4 flex w-[calc(100%+0.5rem)] flex-wrap items-center rounded border border-base-300 bg-base-100 p-1 !pr-10 sm:!pr-1"
         >
-            <button
-                btn
-                matRipple
-                name="clear-space-filters"
-                class="mb-2 mr-2 min-h-[2rem]"
-                *ngIf="(options | async)?.features?.length > 1"
-                (click)="removeAllFeatures()"
-            >
-                {{ 'COMMON.FILTERS_CLEAR' | translate }}
-            </button>
-            <div filter-item zone *ngIf="location">
-                {{ location }}
-            </div>
+            @if ((options | async)?.features?.length > 1) {
+                <button
+                    btn
+                    matRipple
+                    name="clear-space-filters"
+                    class="mb-2 mr-2 min-h-[2rem]"
+                    (click)="removeAllFeatures()"
+                >
+                    {{ 'COMMON.FILTERS_CLEAR' | translate }}
+                </button>
+            }
+            @if (location) {
+                <div filter-item zone>
+                    {{ location }}
+                </div>
+            }
             <div filter-item date>
                 {{ start | date: 'mediumDate' }}
             </div>
             <div filter-item time>
-                <ng-container *ngIf="!all_day">
+                @if (!all_day) {
                     {{ start | date: time_format }} &mdash;
                     {{ end | date: time_format }}
-                </ng-container>
-                <ng-container *ngIf="all_day">
+                }
+                @if (all_day) {
                     {{ 'COMMON.ALL_DAY' | translate }}
-                </ng-container>
+                }
             </div>
             <div filter-item count>
                 {{
@@ -44,18 +47,20 @@ import { OrganisationService } from 'libs/organisation/src/lib/organisation.serv
                         | translate: { count: (options | async)?.capacity || 2 }
                 }}
             </div>
-            <div filter-item *ngFor="let feat of (options | async)?.features">
-                <p class="truncate">{{ feat }}</p>
-                <button
-                    icon
-                    matRipple
-                    name="remove-space-filter"
-                    class="-mr-4"
-                    (click)="removeFeature(feat)"
-                >
-                    <icon>close</icon>
-                </button>
-            </div>
+            @for (feat of (options | async)?.features; track feat) {
+                <div filter-item>
+                    <p class="truncate">{{ feat }}</p>
+                    <button
+                        icon
+                        matRipple
+                        name="remove-space-filter"
+                        class="-mr-4"
+                        (click)="removeFeature(feat)"
+                    >
+                        <icon>close</icon>
+                    </button>
+                </div>
+            }
         </section>
     `,
     styles: [

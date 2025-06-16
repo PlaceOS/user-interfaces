@@ -29,12 +29,11 @@ import { ControlStateService } from '../control-state.service';
                             [ngModel]="calendar | async"
                             (ngModelChange)="setCalendar($event)"
                         >
-                            <mat-option
-                                *ngFor="let cal of calendars | async"
-                                [value]="cal"
-                            >
-                                {{ cal.name || cal.summary }}
-                            </mat-option>
+                            @for (cal of calendars | async; track cal) {
+                                <mat-option [value]="cal">
+                                    {{ cal.name || cal.summary }}
+                                </mat-option>
+                            }
                         </mat-select>
                         <mat-hint>
                             {{ 'APP.CONTROL.MEETING_JOIN_INFO' | translate }}
@@ -48,44 +47,44 @@ import { ControlStateService } from '../control-state.service';
                                 : { count: (events | async)?.length || '0' }
                     }}
                 </h3>
-                <ng-container *ngIf="!loading; else load_state">
-                    <div
-                        class="space-y-2 overflow-auto"
-                        *ngIf="(events | async)?.length; else empty_state"
-                    >
-                        <button
-                            btn
-                            matRipple
-                            class="flex w-full items-center rounded border border-base-200 p-4"
-                            *ngFor="let event of events | async"
-                            (click)="select(event)"
+                @if (!loading) {
+                    @if ((events | async)?.length) {
+                        <div class="space-y-2 overflow-auto">
+                            @for (event of events | async; track event) {
+                                <button
+                                    btn
+                                    matRipple
+                                    class="flex w-full items-center rounded border border-base-200 p-4"
+                                    (click)="select(event)"
+                                >
+                                    <div
+                                        class="w-1/2 flex-1 truncate text-left"
+                                    >
+                                        {{ event?.title }}
+                                    </div>
+                                    <div class="text-sm opacity-60">
+                                        {{ event?.date | date: 'shortTime' }}
+                                    </div>
+                                </button>
+                            }
+                        </div>
+                    } @else {
+                        <div
+                            class="flex h-32 w-full items-center justify-center opacity-40"
                         >
-                            <div class="w-1/2 flex-1 truncate text-left">
-                                {{ event?.title }}
-                            </div>
-                            <div class="text-sm opacity-60">
-                                {{ event?.date | date: 'shortTime' }}
-                            </div>
-                        </button>
+                            {{ 'APP.CONTROL.MEETINGS_EMPTY' | translate }}
+                        </div>
+                    }
+                } @else {
+                    <div
+                        class="flex h-32 w-full items-center justify-center opacity-40"
+                    >
+                        <mat-spinner [diameter]="32"></mat-spinner>
+                        <p>{{ 'APP.CONTROL.MEETINGS_LOADING' | translate }}</p>
                     </div>
-                </ng-container>
+                }
             </div>
         </div>
-        <ng-template #empty_state>
-            <div
-                class="flex h-32 w-full items-center justify-center opacity-40"
-            >
-                {{ 'APP.CONTROL.MEETINGS_EMPTY' | translate }}
-            </div>
-        </ng-template>
-        <ng-template #load_state>
-            <div
-                class="flex h-32 w-full items-center justify-center opacity-40"
-            >
-                <mat-spinner [diameter]="32"></mat-spinner>
-                <p>{{ 'APP.CONTROL.MEETINGS_LOADING' | translate }}</p>
-            </div>
-        </ng-template>
     `,
     styles: [``],
     standalone: false,

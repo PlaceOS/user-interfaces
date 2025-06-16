@@ -37,134 +37,139 @@ const URL_STARTS = [
 @Component({
     selector: `debug-console`,
     template: `
-        <div
-            class="absolute bottom-2 left-2 z-[998] flex h-[24rem] max-h-[65vh] w-[40rem] max-w-[80vw] flex-col overflow-hidden rounded border border-base-300 bg-base-200 text-base-content shadow"
-            *ngIf="show"
-        >
+        @if (show) {
             <div
-                class="flex items-center justify-between border-b border-base-300 bg-base-100"
-            >
-                <div class="p-2">{{ 'COMMON.CONSOLE' | translate }}</div>
-                <button icon matRipple (click)="show = false">
-                    <icon>close</icon>
-                </button>
-            </div>
-            <cdk-virtual-scroll-viewport
-                itemSize="32"
-                *ngIf="(filtered_logs | async)?.length; else empty_state"
-                class="h-[30rem] max-h-full w-full flex-1"
+                class="absolute bottom-2 left-2 z-[998] flex h-[24rem] max-h-[65vh] w-[40rem] max-w-[80vw] flex-col overflow-hidden rounded border border-base-300 bg-base-200 text-base-content shadow"
             >
                 <div
-                    class="flex h-8 max-w-full items-center space-x-1 truncate p-2 font-mono text-sm hover:bg-base-100"
-                    *cdkVirtualFor="
-                        let log of filtered_logs | async;
-                        trackBy: trackByFn
-                    "
+                    class="flex items-center justify-between border-b border-base-300 bg-base-100"
                 >
-                    <div
-                        class="bg-base-100/10 rounded p-1 font-mono text-xs uppercase"
+                    <div class="p-2">{{ 'COMMON.CONSOLE' | translate }}</div>
+                    <button icon matRipple (click)="show = false">
+                        <icon>close</icon>
+                    </button>
+                </div>
+                @if ((filtered_logs | async)?.length) {
+                    <cdk-virtual-scroll-viewport
+                        itemSize="32"
+                        class="h-[30rem] max-h-full w-full flex-1"
                     >
-                        {{ log.timestamp | date: 'MMM d HH:mm:ss' }}
-                    </div>
-                    <div
-                        [class]="
-                            'p-1 text-xs uppercase ' +
-                            colors[log.type] +
-                            ' rounded font-mono'
-                        "
-                    >
-                        {{ log.type }}
-                    </div>
-                    <div
-                        [class]="
-                            'p-1 text-xs capitalize ' +
-                            colors[log.subtype] +
-                            ' w-16 rounded text-center font-mono'
-                        "
-                    >
-                        {{ log.subtype }}
-                    </div>
-                    <div
-                        class="pl-1 font-mono"
-                        *ngFor="let obj of log.data"
-                        [attr.data-type]="type(obj)"
-                    >
-                        <ng-container [ngSwitch]="type(obj)">
-                            <ng-container *ngSwitchCase="'link'">
-                                <a
-                                    class="font-mono"
-                                    [href]="obj | sanitize"
-                                    target="_blank"
-                                    rel="noopener noreferer"
-                                    >{{ obj }}</a
+                        <div
+                            class="flex h-8 max-w-full items-center space-x-1 truncate p-2 font-mono text-sm hover:bg-base-100"
+                            *cdkVirtualFor="
+                                let log of filtered_logs | async;
+                                trackBy: trackByFn
+                            "
+                        >
+                            <div
+                                class="bg-base-100/10 rounded p-1 font-mono text-xs uppercase"
+                            >
+                                {{ log.timestamp | date: 'MMM d HH:mm:ss' }}
+                            </div>
+                            <div
+                                [class]="
+                                    'p-1 text-xs uppercase ' +
+                                    colors[log.type] +
+                                    ' rounded font-mono'
+                                "
+                            >
+                                {{ log.type }}
+                            </div>
+                            <div
+                                [class]="
+                                    'p-1 text-xs capitalize ' +
+                                    colors[log.subtype] +
+                                    ' w-16 rounded text-center font-mono'
+                                "
+                            >
+                                {{ log.subtype }}
+                            </div>
+                            @for (obj of log.data; track obj) {
+                                <div
+                                    class="pl-1 font-mono"
+                                    [attr.data-type]="type(obj)"
                                 >
-                            </ng-container>
-                            <ng-container *ngSwitchCase="'object'">
-                                [<span
-                                    class="font-mono underline hover:text-info"
-                                    customTooltip
-                                    xPosition="center"
-                                    yPosition="bottom"
-                                    [content]="json_tooltip"
-                                    [data]="obj"
-                                    [hover]="true"
-                                    [backdrop]="false"
-                                    >Object</span
-                                >]
-                            </ng-container>
-                            <ng-container *ngSwitchDefault>{{
-                                obj
-                            }}</ng-container>
-                        </ng-container>
+                                    @switch (type(obj)) {
+                                        @case ('link') {
+                                            <a
+                                                class="font-mono"
+                                                [href]="obj | sanitize"
+                                                target="_blank"
+                                                rel="noopener noreferer"
+                                                >{{ obj }}</a
+                                            >
+                                        }
+                                        @case ('object') {
+                                            [<span
+                                                class="font-mono underline hover:text-info"
+                                                customTooltip
+                                                xPosition="center"
+                                                yPosition="bottom"
+                                                [content]="json_tooltip"
+                                                [data]="obj"
+                                                [hover]="true"
+                                                [backdrop]="false"
+                                                >Object</span
+                                            >]
+                                        }
+                                        @default {
+                                            {{ obj }}
+                                        }
+                                    }
+                                </div>
+                            }
+                        </div>
+                        <div class="h-8 w-full"></div>
+                    </cdk-virtual-scroll-viewport>
+                } @else {
+                    <div
+                        class="flex h-[30rem] w-full flex-1 flex-col items-center justify-center"
+                    >
+                        <div class="text-2xl opacity-30">
+                            No {{ filter.getValue() ? 'matching' : '' }} logs
+                        </div>
+                    </div>
+                }
+                <div
+                    class="absolute bottom-1 right-1 flex w-[20rem] items-center overflow-hidden rounded-lg p-1"
+                >
+                    <div
+                        class="absolute inset-0 z-0 bg-base-content opacity-60"
+                    ></div>
+                    <div
+                        class="absolute inset-1 z-0 rounded bg-base-content opacity-90"
+                    ></div>
+                    <input
+                        #search_input
+                        name="log-filter"
+                        [ngModel]="filter | async"
+                        (ngModelChange)="filter.next($event)"
+                        placeholder="Filter logs..."
+                        class="relative flex-1 rounded border-none px-2 py-1 font-mono text-sm text-base-100"
+                    />
+                    <div
+                        class="relative px-2 text-center font-mono text-xs text-base-100"
+                    >
+                        @if ((filter | async)?.length) {
+                            <span class="font-mono">
+                                {{ (filtered_logs | async)?.length || '0' }} of
+                            </span>
+                        }
+                        {{ (logs | async)?.length }}
                     </div>
                 </div>
-                <div class="h-8 w-full"></div>
-            </cdk-virtual-scroll-viewport>
-            <div
-                class="absolute bottom-1 right-1 flex w-[20rem] items-center overflow-hidden rounded-lg p-1"
-            >
-                <div
-                    class="absolute inset-0 z-0 bg-base-content opacity-60"
-                ></div>
-                <div
-                    class="absolute inset-1 z-0 rounded bg-base-content opacity-90"
-                ></div>
-                <input
-                    #search_input
-                    name="log-filter"
-                    [ngModel]="filter | async"
-                    (ngModelChange)="filter.next($event)"
-                    placeholder="Filter logs..."
-                    class="relative flex-1 rounded border-none px-2 py-1 font-mono text-sm text-base-100"
-                />
-                <div
-                    class="relative px-2 text-center font-mono text-xs text-base-100"
-                >
-                    <span class="font-mono" *ngIf="(filter | async)?.length">
-                        {{ (filtered_logs | async)?.length || '0' }} of
-                    </span>
-                    {{ (logs | async)?.length }}
-                </div>
             </div>
-        </div>
-        <button
-            activation
-            *ngIf="can_activate"
-            class="absolute bottom-0 right-0 h-12 w-12"
-            (mousedown)="onStart()"
-            (touchstart)="onStart()"
-            (mouseup)="onEnd()"
-            (touchend)="onEnd()"
-        ></button>
-        <ng-template #empty_state>
-            <div
-                class="flex h-[30rem] w-full flex-1 flex-col items-center justify-center"
-            >
-                <div class="text-2xl opacity-30">
-                    No {{ filter.getValue() ? 'matching' : '' }} logs
-                </div>
-            </div>
-        </ng-template>
+        }
+        @if (can_activate) {
+            <button
+                activation
+                class="absolute bottom-0 right-0 h-12 w-12"
+                (mousedown)="onStart()"
+                (touchstart)="onStart()"
+                (mouseup)="onEnd()"
+                (touchend)="onEnd()"
+            ></button>
+        }
     `,
     styles: [``],
     standalone: false,

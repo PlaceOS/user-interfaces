@@ -1,5 +1,5 @@
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
-import { CommonModule } from '@angular/common';
+
 import { Component, forwardRef, Input } from '@angular/core';
 import {
     ControlValueAccessor,
@@ -68,15 +68,17 @@ export function removeChipItem<T = string>(
     template: `
         <mat-form-field appearance="outline" class="w-full">
             <mat-chip-grid #chipList aria-label="Zone Tags">
-                <mat-chip-row
-                    *ngFor="let item of value"
-                    (removed)="remove(item)"
-                >
-                    <span class="max-w-md truncate">{{ item }}</span>
-                    <button matChipRemove [attr.aria-label]="'Remove ' + item">
-                        <icon>cancel</icon>
-                    </button>
-                </mat-chip-row>
+                @for (item of value; track item) {
+                    <mat-chip-row (removed)="remove(item)">
+                        <span class="max-w-md truncate">{{ item }}</span>
+                        <button
+                            matChipRemove
+                            [attr.aria-label]="'Remove ' + item"
+                        >
+                            <icon>cancel</icon>
+                        </button>
+                    </mat-chip-row>
+                }
             </mat-chip-grid>
             <input
                 [placeholder]="placeholder || 'User groups...'"
@@ -96,7 +98,7 @@ export function removeChipItem<T = string>(
             multi: true,
         },
     ],
-    imports: [MatFormFieldModule, MatChipsModule, IconComponent, CommonModule],
+    imports: [MatFormFieldModule, MatChipsModule, IconComponent],
 })
 export class ItemListFieldComponent<T = any> implements ControlValueAccessor {
     @Input() public separators: number[] = [ENTER, COMMA];

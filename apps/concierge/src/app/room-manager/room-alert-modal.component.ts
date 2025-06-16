@@ -15,59 +15,60 @@ import { PlaceSystem, showMetadata, updateMetadata } from '@placeos/ts-client';
                         | translate: { name: room.display_name || room.name }
                 }}
             </h2>
-            <button btn icon mat-dialog-close *ngIf="!loading">
-                <icon>close</icon>
-            </button>
+            @if (!loading) {
+                <button btn icon mat-dialog-close>
+                    <icon>close</icon>
+                </button>
+            }
         </header>
-        <main
-            class="flex max-h-[65vh] min-w-[24rem] flex-col overflow-y-auto overflow-x-hidden p-4"
-            *ngIf="!loading; else load_state"
-            [formGroup]="form"
-        >
-            <label for="status">{{ 'COMMON.STATUS' | translate }}</label>
-            <mat-form-field appearance="outline">
-                <mat-select name="status" formControlName="status">
-                    <mat-option value="">{{
-                        'APP.CONCIERGE.ROOMS_ALERT_TYPE_NONE' | translate
-                    }}</mat-option>
-                    <mat-option value="info">{{
-                        'APP.CONCIERGE.ROOMS_ALERT_TYPE_INFO' | translate
-                    }}</mat-option>
-                    <mat-option value="warn">{{
-                        'APP.CONCIERGE.ROOMS_ALERT_TYPE_WARNING' | translate
-                    }}</mat-option>
-                    <mat-option value="closed">{{
-                        'APP.CONCIERGE.ROOMS_ALERT_TYPE_CLOSED' | translate
-                    }}</mat-option>
-                </mat-select>
-            </mat-form-field>
-            <label for="message">{{
-                'APP.CONCIERGE.ROOMS_ALERT_MSG' | translate
-            }}</label>
-            <mat-form-field appearance="outline">
-                <textarea
-                    matInput
-                    name="message"
-                    formControlName="message"
-                ></textarea>
-            </mat-form-field>
-        </main>
-        <footer
-            class="flex justify-end border-t border-base-200 p-2"
-            *ngIf="!loading"
-        >
-            <button btn class="w-32" (click)="save()">
-                {{ 'COMMON.SAVE' | translate }}
-            </button>
-        </footer>
-        <ng-template #load_state>
+        @if (!loading) {
+            <main
+                class="flex max-h-[65vh] min-w-[24rem] flex-col overflow-y-auto overflow-x-hidden p-4"
+                [formGroup]="form"
+            >
+                <label for="status">{{ 'COMMON.STATUS' | translate }}</label>
+                <mat-form-field appearance="outline">
+                    <mat-select name="status" formControlName="status">
+                        <mat-option value="">{{
+                            'APP.CONCIERGE.ROOMS_ALERT_TYPE_NONE' | translate
+                        }}</mat-option>
+                        <mat-option value="info">{{
+                            'APP.CONCIERGE.ROOMS_ALERT_TYPE_INFO' | translate
+                        }}</mat-option>
+                        <mat-option value="warn">{{
+                            'APP.CONCIERGE.ROOMS_ALERT_TYPE_WARNING' | translate
+                        }}</mat-option>
+                        <mat-option value="closed">{{
+                            'APP.CONCIERGE.ROOMS_ALERT_TYPE_CLOSED' | translate
+                        }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <label for="message">{{
+                    'APP.CONCIERGE.ROOMS_ALERT_MSG' | translate
+                }}</label>
+                <mat-form-field appearance="outline">
+                    <textarea
+                        matInput
+                        name="message"
+                        formControlName="message"
+                    ></textarea>
+                </mat-form-field>
+            </main>
+        } @else {
             <div class="flex h-64 w-64 flex-col items-center justify-center">
                 <mat-spinner diameter="32"></mat-spinner>
                 <p class="mt-4">
                     {{ 'APP.CONCIERGE.ROOMS_SAVING' | translate }}
                 </p>
             </div>
-        </ng-template>
+        }
+        @if (!loading) {
+            <footer class="flex justify-end border-t border-base-200 p-2">
+                <button btn class="w-32" (click)="save()">
+                    {{ 'COMMON.SAVE' | translate }}
+                </button>
+            </footer>
+        }
     `,
     styles: [``],
     standalone: false,

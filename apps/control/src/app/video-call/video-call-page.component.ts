@@ -14,186 +14,200 @@ import { VideoCallStateService } from './video-call-state.service';
 @Component({
     selector: '[video-call-page]',
     template: `
-        <div class="h-full w-full p-2" *ngIf="!loading; else load_state">
-            <div class="flex h-1/2 flex-1">
-                <div
-                    class="flex flex-1 flex-col items-center justify-center space-y-2 p-2"
-                >
-                    <mat-form-field
-                        appearance="outline"
-                        class="h-12 w-full"
-                        *ngIf="(camera_list | async)?.length > 1"
+        @if (!loading) {
+            <div class="h-full w-full p-2">
+                <div class="flex h-1/2 flex-1">
+                    <div
+                        class="flex flex-1 flex-col items-center justify-center space-y-2 p-2"
                     >
-                        <mat-select
-                            [ngModel]="selected_camera"
-                            (ngModelChange)="selectCamera($event)"
-                            placeholder="Select Camera"
-                        >
-                            <mat-option
-                                *ngFor="let cam of camera_list | async"
-                                [value]="cam.id"
+                        @if ((camera_list | async)?.length > 1) {
+                            <mat-form-field
+                                appearance="outline"
+                                class="h-12 w-full"
                             >
-                                {{ cam.name }}
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                    <mat-form-field
-                        appearance="outline"
-                        *ngIf="present_output && (presentables$ | async)"
-                        class="h-[3.5rem] w-full"
-                    >
-                        <mat-select
-                            ngModel
-                            (ngModelChange)="setPresentationSource($event)"
-                            placeholder="Select presentation source"
-                        >
-                            <mat-option
-                                *ngFor="let opt of presentables$ | async"
-                                [value]="opt"
-                                >{{ opt.name }}</mat-option
+                                <mat-select
+                                    [ngModel]="selected_camera"
+                                    (ngModelChange)="selectCamera($event)"
+                                    placeholder="Select Camera"
+                                >
+                                    @for (
+                                        cam of camera_list | async;
+                                        track cam
+                                    ) {
+                                        <mat-option [value]="cam.id">
+                                            {{ cam.name }}
+                                        </mat-option>
+                                    }
+                                </mat-select>
+                            </mat-form-field>
+                        }
+                        @if (present_output && (presentables$ | async)) {
+                            <mat-form-field
+                                appearance="outline"
+                                class="h-[3.5rem] w-full"
                             >
-                        </mat-select>
-                    </mat-form-field>
-                    <p class="pb-2">
-                        {{ 'APP.CONTROL.VC_CONTENT_DEST' | translate }}
-                    </p>
-                    <mat-form-field
-                        appearance="outline"
-                        class="h-[3.5rem] w-full"
-                    >
-                        <mat-select
-                            [ngModel]="presentation_mode | async"
-                            (ngModelChange)="setPresentationMode($event)"
-                            placeholder="Select HDMI content destination"
+                                <mat-select
+                                    ngModel
+                                    (ngModelChange)="
+                                        setPresentationSource($event)
+                                    "
+                                    placeholder="Select presentation source"
+                                >
+                                    @for (
+                                        opt of presentables$ | async;
+                                        track opt
+                                    ) {
+                                        <mat-option [value]="opt">{{
+                                            opt.name
+                                        }}</mat-option>
+                                    }
+                                </mat-select>
+                            </mat-form-field>
+                        }
+                        <p class="pb-2">
+                            {{ 'APP.CONTROL.VC_CONTENT_DEST' | translate }}
+                        </p>
+                        <mat-form-field
+                            appearance="outline"
+                            class="h-[3.5rem] w-full"
                         >
-                            <mat-option value="None">{{
-                                'APP.CONTROL.VC_CONTENT_DEST_HIDE' | translate
-                            }}</mat-option>
-                            <mat-option value="Local">{{
-                                'APP.CONTROL.VC_CONTENT_DEST_LOCAL' | translate
-                            }}</mat-option>
-                            <mat-option value="Remote">{{
-                                'APP.CONTROL.VC_CONTENT_DEST_ALL' | translate
-                            }}</mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                    <p class="pb-2">
-                        {{ 'APP.CONTROL.VC_LAYOUT' | translate }}
-                    </p>
-                    <mat-form-field
-                        appearance="outline"
-                        class="h-[3.5rem] w-full"
-                    >
-                        <mat-select
-                            [ngModel]="video_layout | async"
-                            (ngModelChange)="setVideoLayout($event)"
-                            [placeholder]="
-                                'APP.CONTROL.VC_LAYOUT_SELECT' | translate
-                            "
-                        >
-                            <mat-option
-                                *ngFor="let layout of video_layouts"
-                                [value]="layout"
+                            <mat-select
+                                [ngModel]="presentation_mode | async"
+                                (ngModelChange)="setPresentationMode($event)"
+                                placeholder="Select HDMI content destination"
                             >
-                                {{ layout }}
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                </div>
-                <div class="flex flex-1 items-center justify-center p-2">
-                    <dialpad
-                        [backspace]="false"
-                        (pressed)="sentDTMF($event)"
-                    ></dialpad>
-                </div>
-                <div
-                    class="flex flex-1 flex-col items-center justify-center space-y-4 p-2"
-                >
-                    <button
-                        btn
-                        matRipple
-                        class="error w-full"
-                        (click)="endCall()"
+                                <mat-option value="None">{{
+                                    'APP.CONTROL.VC_CONTENT_DEST_HIDE'
+                                        | translate
+                                }}</mat-option>
+                                <mat-option value="Local">{{
+                                    'APP.CONTROL.VC_CONTENT_DEST_LOCAL'
+                                        | translate
+                                }}</mat-option>
+                                <mat-option value="Remote">{{
+                                    'APP.CONTROL.VC_CONTENT_DEST_ALL'
+                                        | translate
+                                }}</mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                        <p class="pb-2">
+                            {{ 'APP.CONTROL.VC_LAYOUT' | translate }}
+                        </p>
+                        <mat-form-field
+                            appearance="outline"
+                            class="h-[3.5rem] w-full"
+                        >
+                            <mat-select
+                                [ngModel]="video_layout | async"
+                                (ngModelChange)="setVideoLayout($event)"
+                                [placeholder]="
+                                    'APP.CONTROL.VC_LAYOUT_SELECT' | translate
+                                "
+                            >
+                                @for (layout of video_layouts; track layout) {
+                                    <mat-option [value]="layout">
+                                        {{ layout }}
+                                    </mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+                    <div class="flex flex-1 items-center justify-center p-2">
+                        <dialpad
+                            [backspace]="false"
+                            (pressed)="sentDTMF($event)"
+                        ></dialpad>
+                    </div>
+                    <div
+                        class="flex flex-1 flex-col items-center justify-center space-y-4 p-2"
                     >
-                        <div class="flex items-center space-x-4">
-                            <icon>call_end</icon>
-                            <span>{{
-                                'APP.CONTROL.VC_END_CALL' | translate
-                            }}</span>
-                        </div>
-                    </button>
-                    <button
-                        btn
-                        matRipple
-                        class="w-full"
-                        (click)="toggleMute()"
-                        [class.inverse]="!(mic_mute | async)"
-                    >
-                        <div class="flex items-center space-x-4">
-                            <icon>{{
-                                (mic_mute | async) ? 'mic_off' : 'mic'
-                            }}</icon>
-                            <span>{{
-                                ((mic_mute | async)
-                                    ? 'APP.CONTROL.VC_MICS_UNMUTE'
-                                    : 'APP.CONTROL.VC_MICS_MUTE'
-                                ) | translate
-                            }}</span>
-                        </div>
-                    </button>
-                    <button
-                        btn
-                        matRipple
-                        class="w-full"
-                        [class.inverse]="(call | async)?.Status !== 'OnHold'"
-                        (click)="toggleOnHold()"
-                    >
-                        <div class="flex items-center space-x-4">
-                            <icon>{{
+                        <button
+                            btn
+                            matRipple
+                            class="error w-full"
+                            (click)="endCall()"
+                        >
+                            <div class="flex items-center space-x-4">
+                                <icon>call_end</icon>
+                                <span>{{
+                                    'APP.CONTROL.VC_END_CALL' | translate
+                                }}</span>
+                            </div>
+                        </button>
+                        <button
+                            btn
+                            matRipple
+                            class="w-full"
+                            (click)="toggleMute()"
+                            [class.inverse]="!(mic_mute | async)"
+                        >
+                            <div class="flex items-center space-x-4">
+                                <icon>{{
+                                    (mic_mute | async) ? 'mic_off' : 'mic'
+                                }}</icon>
+                                <span>{{
+                                    ((mic_mute | async)
+                                        ? 'APP.CONTROL.VC_MICS_UNMUTE'
+                                        : 'APP.CONTROL.VC_MICS_MUTE'
+                                    ) | translate
+                                }}</span>
+                            </div>
+                        </button>
+                        <button
+                            btn
+                            matRipple
+                            class="w-full"
+                            [class.inverse]="
                                 (call | async)?.Status !== 'OnHold'
-                                    ? 'stop'
-                                    : 'play_arrow'
-                            }}</icon>
-                            <span>{{
-                                ((call | async)?.Status !== 'OnHold'
-                                    ? 'APP.CONTROL.VC_ON_HOLD'
-                                    : 'APP.CONTROL.VC_RESUME'
-                                ) | translate
-                            }}</span>
-                        </div>
-                    </button>
-                    <button
-                        btn
-                        matRipple
-                        class="w-full"
-                        (click)="toggleCamera()"
-                        [class.inverse]="show_camera_pip | async"
-                    >
-                        <div class="flex items-center space-x-4">
-                            <icon>{{
-                                !(show_camera_pip | async)
-                                    ? 'visibility_off'
-                                    : 'visibility'
-                            }}</icon>
-                            <span>{{
-                                ((show_camera_pip | async)
-                                    ? 'APP.CONTROL.VC_PIP_HIDE'
-                                    : 'APP.CONTROL.VC_PIP_SHOW'
-                                ) | translate
-                            }}</span>
-                        </div>
-                    </button>
+                            "
+                            (click)="toggleOnHold()"
+                        >
+                            <div class="flex items-center space-x-4">
+                                <icon>{{
+                                    (call | async)?.Status !== 'OnHold'
+                                        ? 'stop'
+                                        : 'play_arrow'
+                                }}</icon>
+                                <span>{{
+                                    ((call | async)?.Status !== 'OnHold'
+                                        ? 'APP.CONTROL.VC_ON_HOLD'
+                                        : 'APP.CONTROL.VC_RESUME'
+                                    ) | translate
+                                }}</span>
+                            </div>
+                        </button>
+                        <button
+                            btn
+                            matRipple
+                            class="w-full"
+                            (click)="toggleCamera()"
+                            [class.inverse]="show_camera_pip | async"
+                        >
+                            <div class="flex items-center space-x-4">
+                                <icon>{{
+                                    !(show_camera_pip | async)
+                                        ? 'visibility_off'
+                                        : 'visibility'
+                                }}</icon>
+                                <span>{{
+                                    ((show_camera_pip | async)
+                                        ? 'APP.CONTROL.VC_PIP_HIDE'
+                                        : 'APP.CONTROL.VC_PIP_SHOW'
+                                    ) | translate
+                                }}</span>
+                            </div>
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
-        <ng-template #load_state>
+        } @else {
             <div
                 class="flex h-full w-full flex-col items-center justify-center space-y-2 p-24 text-black"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <p>{{ loading }}</p>
             </div>
-        </ng-template>
+        }
     `,
     styles: [
         `

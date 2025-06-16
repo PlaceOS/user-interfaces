@@ -33,14 +33,17 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
             <h2 class="text-xl font-medium capitalize">
                 {{ 'APP.WORKPLACE.MEETING_CONFIRM' | translate }}
             </h2>
-            <button icon matRipple mat-dialog-close *ngIf="!(loading | async)">
-                <icon>close</icon>
-            </button>
-            <mat-spinner
-                diameter="32"
-                class="absolute right-2 top-1/2 -translate-y-1/2"
-                *ngIf="loading | async"
-            ></mat-spinner>
+            @if (!(loading | async)) {
+                <button icon matRipple mat-dialog-close>
+                    <icon>close</icon>
+                </button>
+            }
+            @if (loading | async) {
+                <mat-spinner
+                    diameter="32"
+                    class="absolute right-2 top-1/2 -translate-y-1/2"
+                ></mat-spinner>
+            }
         </header>
         <main
             class="max-w-screen grid max-h-[65vh] w-full flex-1 grid-cols-2 gap-4 overflow-auto px-4 py-2"
@@ -61,83 +64,27 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                         <icon class="text-2xl">today</icon>
                         <div date>{{ event.date | date: 'fullDate' }}</div>
                     </div>
-                    <div
-                        class="flex items-center space-x-2"
-                        *ngIf="event.recurrence?.pattern"
-                    >
-                        <icon class="text-2xl">update</icon>
-                        <div date>{{ formatted_recurrence }}</div>
-                    </div>
+                    @if (event.recurrence?.pattern) {
+                        <div class="flex items-center space-x-2">
+                            <icon class="text-2xl">update</icon>
+                            <div date>{{ formatted_recurrence }}</div>
+                        </div>
+                    }
                     <div class="flex items-center space-x-2">
                         <icon class="text-2xl">schedule</icon>
                         <div class="flex flex-col leading-tight">
                             <div time>{{ formattedTime() }}</div>
-                            <div class="text-xs opacity-30" *ngIf="timezone">
-                                {{ formattedTime(tz) }}
-                            </div>
+                            @if (timezone) {
+                                <div class="text-xs opacity-30">
+                                    {{ formattedTime(tz) }}
+                                </div>
+                            }
                         </div>
                     </div>
                 </div>
             </div>
-            <div *ngIf="event.resources?.length">
-                <div class="mb-2 flex items-center space-x-4">
-                    <div
-                        class="flex items-center justify-center rounded-full border border-success text-success"
-                    >
-                        <icon class="text-2xl">done</icon>
-                    </div>
-                    <h3 class="text-xl">
-                        {{ 'APP.WORKPLACE.MEETING_BOOKED_ROOM' | translate }}
-                    </h3>
-                </div>
-                <div class="space-y-1 pl-10">
-                    @for (s of event.resources; track s.email) {
-                        @let space = s.email | space | async;
-                        @let level = space?.zones | level;
-                        <div class="flex items-center space-x-2">
-                            <icon class="text-2xl">layers</icon>
-                            <div>
-                                {{ level?.display_name || level?.name }},
-                                {{ s.display_name || s.name }}
-                            </div>
-                        </div>
-                    }
-                    <div class="flex items-center space-x-2" *ngIf="location">
-                        <icon class="text-2xl">place</icon>
-                        <div>{{ location }}</div>
-                    </div>
-                </div>
-            </div>
-            <div *ngIf="event.attendees?.length">
-                <div class="mb-2 flex items-center space-x-4">
-                    <div
-                        class="flex items-center justify-center rounded-full border border-success text-success"
-                    >
-                        <icon class="text-2xl">done</icon>
-                    </div>
-                    <h3 class="text-xl">
-                        {{
-                            'CALENDAR_EVENT.ATTENDEE_COUNT'
-                                | translate: { count: event.attendees?.length }
-                        }}
-                    </h3>
-                </div>
-                <div class="pl-10" attendee-list>
-                    <mat-chip-list #chipList aria-label="User selection">
-                        <mat-chip *ngFor="let user of event.attendees">
-                            <div class="flex items-center">
-                                <icon class="mr-2">business</icon>
-                                {{ user.name || user.email }}
-                            </div>
-                        </mat-chip>
-                    </mat-chip-list>
-                </div>
-            </div>
-            <div
-                class="col-span-2"
-                *ngIf="event.catering?.length || event.assets?.length"
-            >
-                <div class="w-full" *ngIf="event.catering?.length">
+            @if (event.resources?.length) {
+                <div>
                     <div class="mb-2 flex items-center space-x-4">
                         <div
                             class="flex items-center justify-center rounded-full border border-success text-success"
@@ -145,231 +92,361 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                             <icon class="text-2xl">done</icon>
                         </div>
                         <h3 class="text-xl">
-                            {{ 'RESOURCE.CATERING' | translate }}
+                            {{
+                                'APP.WORKPLACE.MEETING_BOOKED_ROOM' | translate
+                            }}
                         </h3>
                     </div>
-                    <div class="flex w-full flex-col space-y-2 pl-12">
-                        <div
-                            order
-                            *ngFor="let order of catering_orders"
-                            class="overflow-hidden rounded-xl border bg-base-100"
-                            [class.border-error]="end_time < order.deliver_at"
-                            [class.border-base-300]="
-                                end_time >= order.deliver_at
-                            "
-                        >
-                            <div class="flex items-center space-x-2 p-3">
-                                <div class="flex flex-1 items-center space-x-2">
-                                    <div class="text-sm">
-                                        {{
-                                            'CALENDAR_EVENT.CATERING_ORDER_AT'
-                                                | translate
-                                                    : {
-                                                          time:
-                                                              order.deliver_at
-                                                              | date
-                                                                  : 'MMM d, ' +
-                                                                        time_format,
-                                                      }
-                                        }}
-                                    </div>
-                                    <div
-                                        class="flex h-6 w-6 items-center justify-center rounded-full bg-error text-error-content"
-                                        [matTooltip]="err_tooltip"
-                                        *ngIf="end_time < order.deliver_at"
-                                    >
-                                        <icon>priority_high</icon>
-                                    </div>
-                                    <div class="flex-1"></div>
-                                    <div
-                                        class="rounded bg-success px-2 py-1 text-xs text-success-content"
-                                    >
-                                        {{
-                                            'COMMON.ITEM_COUNT'
-                                                | translate
-                                                    : {
-                                                          count: order.item_count,
-                                                      }
-                                        }}
-                                    </div>
-                                    <div
-                                        class="rounded bg-info px-2 py-1 text-xs text-info-content"
-                                    >
-                                        Total:
-                                        {{
-                                            order.total_cost / 100
-                                                | currency: currency_code
-                                        }}
-                                    </div>
+                    <div class="space-y-1 pl-10">
+                        @for (s of event.resources; track s.email) {
+                            @let space = s.email | space | async;
+                            @let level = space?.zones | level;
+                            <div class="flex items-center space-x-2">
+                                <icon class="text-2xl">layers</icon>
+                                <div>
+                                    {{ level?.display_name || level?.name }},
+                                    {{ s.display_name || s.name }}
                                 </div>
                             </div>
-                            <div
-                                class="flex flex-col divide-y divide-base-100 bg-base-200"
-                            >
-                                <div
-                                    class="flex items-center space-x-2 px-3 py-1 hover:opacity-90"
-                                    *ngFor="let item of order.items"
-                                >
-                                    <div class="flex flex-1 items-center">
-                                        <span class="text-sm">{{
-                                            item.name || 'Item'
-                                        }}</span>
-                                        <span
-                                            class="ml-4 text-xs font-normal opacity-60"
-                                            *ngIf="item.option_list?.length"
-                                            [matTooltip]="optionList(item)"
-                                        >
-                                            {{
-                                                'CALENDAR_EVENT.CATERING_ORDER_OPTION_COUNT'
-                                                    | translate
-                                                        : {
-                                                              count:
-                                                                  item
-                                                                      .option_list
-                                                                      ?.length ||
-                                                                  '0',
-                                                          }
-                                            }}
-                                        </span>
-                                    </div>
-                                    <div
-                                        class="rounded bg-success px-2 py-1 text-xs text-success-content"
-                                    >
-                                        x{{ item.quantity }}
-                                    </div>
-                                    <div
-                                        class="rounded bg-info px-2 py-1 text-xs text-info-content"
-                                    >
-                                        {{
-                                            item.unit_price_with_options / 100
-                                                | currency: currency_code
-                                        }}
-                                        ea
-                                    </div>
-                                    <div
-                                        class="rounded bg-info px-2 py-1 text-xs text-info-content"
-                                    >
-                                        {{
-                                            item.total_cost / 100
-                                                | currency: currency_code
-                                        }}
-                                    </div>
-                                </div>
+                        }
+                        @if (location) {
+                            <div class="flex items-center space-x-2">
+                                <icon class="text-2xl">place</icon>
+                                <div>{{ location }}</div>
                             </div>
-                        </div>
+                        }
                     </div>
                 </div>
-                <div class="w-ull col-span-2" *ngIf="assets?.length">
+            }
+            @if (event.attendees?.length) {
+                <div>
                     <div class="mb-2 flex items-center space-x-4">
                         <div
                             class="flex items-center justify-center rounded-full border border-success text-success"
-                            [class.!border-error]="has_conflict"
-                            [class.!text-error]="has_conflict"
                         >
-                            <icon>{{ has_conflict ? 'close' : 'done' }}</icon>
+                            <icon class="text-2xl">done</icon>
                         </div>
                         <h3 class="text-xl">
-                            {{ 'RESOURCE.ASSETS' | translate }}
+                            {{
+                                'CALENDAR_EVENT.ATTENDEE_COUNT'
+                                    | translate
+                                        : { count: event.attendees?.length }
+                            }}
                         </h3>
                     </div>
-                    <div
-                        request
-                        *ngFor="let request of assets"
-                        class="w-full overflow-hidden rounded-xl border bg-base-100"
-                        [class.border-error]="end_time < request.deliver_at"
-                        [class.border-base-300]="end_time >= request.deliver_at"
-                    >
-                        <div class="flex items-center space-x-2 p-3">
-                            <div class="flex flex-1 items-center space-x-2">
-                                <div class="text-sm">
-                                    {{
-                                        'CALENDAR_EVENT.ASSETS_REQUESTED_FOR'
-                                            | translate
-                                                : {
-                                                      time:
-                                                          request.deliver_at_time
-                                                          | date
-                                                              : 'MMM d, ' +
-                                                                    time_format,
-                                                  }
-                                    }}
-                                </div>
-                                <div
-                                    class="flex h-6 w-6 items-center justify-center rounded-full bg-error text-error-content"
-                                    [matTooltip]="err_tooltip(request)"
-                                    *ngIf="
-                                        end_time < request.deliver_at ||
-                                        request.conflict
-                                    "
-                                >
-                                    <icon>priority_high</icon>
-                                </div>
-                                <div class="flex-1"></div>
-                                <div
-                                    class="rounded bg-success px-2 py-1 text-xs text-success-content"
-                                >
-                                    {{
-                                        'COMMON.ITEM_COUNT'
-                                            | translate
-                                                : { count: request.item_count }
-                                    }}
-                                </div>
-                            </div>
-                        </div>
-                        <div
-                            class="flex flex-col divide-y divide-base-100 bg-base-200"
-                        >
-                            <div
-                                class="flex items-center space-x-2 px-3 py-1 hover:opacity-90"
-                                *ngFor="let item of request.items"
-                            >
-                                <div class="flex flex-1 items-center">
-                                    <span class="text-sm">{{
-                                        item.name || 'Item'
-                                    }}</span>
-                                </div>
-                                <div
-                                    class="rounded bg-success px-2 py-1 text-xs text-success-content"
-                                >
-                                    x{{ item.quantity }}
-                                </div>
-                            </div>
-                        </div>
+                    <div class="pl-10" attendee-list>
+                        <mat-chip-list #chipList aria-label="User selection">
+                            @for (user of event.attendees; track user) {
+                                <mat-chip>
+                                    <div class="flex items-center">
+                                        <icon class="mr-2">business</icon>
+                                        {{ user.name || user.email }}
+                                    </div>
+                                </mat-chip>
+                            }
+                        </mat-chip-list>
                     </div>
                 </div>
-            </div>
-            <div class="relative space-y-2 py-4 pl-16 pr-4" *ngIf="event.body">
-                <div
-                    class="absolute left-4 top-4 flex items-center justify-center rounded-full border border-success text-2xl text-success"
-                >
-                    <icon>done</icon>
+            }
+            @if (event.catering?.length || event.assets?.length) {
+                <div class="col-span-2">
+                    @if (event.catering?.length) {
+                        <div class="w-full">
+                            <div class="mb-2 flex items-center space-x-4">
+                                <div
+                                    class="flex items-center justify-center rounded-full border border-success text-success"
+                                >
+                                    <icon class="text-2xl">done</icon>
+                                </div>
+                                <h3 class="text-xl">
+                                    {{ 'RESOURCE.CATERING' | translate }}
+                                </h3>
+                            </div>
+                            <div class="flex w-full flex-col space-y-2 pl-12">
+                                @for (order of catering_orders; track order) {
+                                    <div
+                                        order
+                                        class="overflow-hidden rounded-xl border bg-base-100"
+                                        [class.border-error]="
+                                            end_time < order.deliver_at
+                                        "
+                                        [class.border-base-300]="
+                                            end_time >= order.deliver_at
+                                        "
+                                    >
+                                        <div
+                                            class="flex items-center space-x-2 p-3"
+                                        >
+                                            <div
+                                                class="flex flex-1 items-center space-x-2"
+                                            >
+                                                <div class="text-sm">
+                                                    {{
+                                                        'CALENDAR_EVENT.CATERING_ORDER_AT'
+                                                            | translate
+                                                                : {
+                                                                      time:
+                                                                          order.deliver_at
+                                                                          | date
+                                                                              : 'MMM d, ' +
+                                                                                    time_format,
+                                                                  }
+                                                    }}
+                                                </div>
+                                                @if (
+                                                    end_time < order.deliver_at
+                                                ) {
+                                                    <div
+                                                        class="flex h-6 w-6 items-center justify-center rounded-full bg-error text-error-content"
+                                                        [matTooltip]="
+                                                            err_tooltip
+                                                        "
+                                                    >
+                                                        <icon
+                                                            >priority_high</icon
+                                                        >
+                                                    </div>
+                                                }
+                                                <div class="flex-1"></div>
+                                                <div
+                                                    class="rounded bg-success px-2 py-1 text-xs text-success-content"
+                                                >
+                                                    {{
+                                                        'COMMON.ITEM_COUNT'
+                                                            | translate
+                                                                : {
+                                                                      count: order.item_count,
+                                                                  }
+                                                    }}
+                                                </div>
+                                                <div
+                                                    class="rounded bg-info px-2 py-1 text-xs text-info-content"
+                                                >
+                                                    Total:
+                                                    {{
+                                                        order.total_cost / 100
+                                                            | currency
+                                                                : currency_code
+                                                    }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div
+                                            class="flex flex-col divide-y divide-base-100 bg-base-200"
+                                        >
+                                            @for (
+                                                item of order.items;
+                                                track item
+                                            ) {
+                                                <div
+                                                    class="flex items-center space-x-2 px-3 py-1 hover:opacity-90"
+                                                >
+                                                    <div
+                                                        class="flex flex-1 items-center"
+                                                    >
+                                                        <span class="text-sm">{{
+                                                            item.name || 'Item'
+                                                        }}</span>
+                                                        @if (
+                                                            item.option_list
+                                                                ?.length
+                                                        ) {
+                                                            <span
+                                                                class="ml-4 text-xs font-normal opacity-60"
+                                                                [matTooltip]="
+                                                                    optionList(
+                                                                        item
+                                                                    )
+                                                                "
+                                                            >
+                                                                {{
+                                                                    'CALENDAR_EVENT.CATERING_ORDER_OPTION_COUNT'
+                                                                        | translate
+                                                                            : {
+                                                                                  count:
+                                                                                      item
+                                                                                          .option_list
+                                                                                          ?.length ||
+                                                                                      '0',
+                                                                              }
+                                                                }}
+                                                            </span>
+                                                        }
+                                                    </div>
+                                                    <div
+                                                        class="rounded bg-success px-2 py-1 text-xs text-success-content"
+                                                    >
+                                                        x{{ item.quantity }}
+                                                    </div>
+                                                    <div
+                                                        class="rounded bg-info px-2 py-1 text-xs text-info-content"
+                                                    >
+                                                        {{
+                                                            item.unit_price_with_options /
+                                                                100
+                                                                | currency
+                                                                    : currency_code
+                                                        }}
+                                                        ea
+                                                    </div>
+                                                    <div
+                                                        class="rounded bg-info px-2 py-1 text-xs text-info-content"
+                                                    >
+                                                        {{
+                                                            item.total_cost /
+                                                                100
+                                                                | currency
+                                                                    : currency_code
+                                                        }}
+                                                    </div>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                    @if (assets?.length) {
+                        <div class="w-ull col-span-2">
+                            <div class="mb-2 flex items-center space-x-4">
+                                <div
+                                    class="flex items-center justify-center rounded-full border border-success text-success"
+                                    [class.!border-error]="has_conflict"
+                                    [class.!text-error]="has_conflict"
+                                >
+                                    <icon>{{
+                                        has_conflict ? 'close' : 'done'
+                                    }}</icon>
+                                </div>
+                                <h3 class="text-xl">
+                                    {{ 'RESOURCE.ASSETS' | translate }}
+                                </h3>
+                            </div>
+                            @for (request of assets; track request) {
+                                <div
+                                    request
+                                    class="w-full overflow-hidden rounded-xl border bg-base-100"
+                                    [class.border-error]="
+                                        end_time < request.deliver_at
+                                    "
+                                    [class.border-base-300]="
+                                        end_time >= request.deliver_at
+                                    "
+                                >
+                                    <div
+                                        class="flex items-center space-x-2 p-3"
+                                    >
+                                        <div
+                                            class="flex flex-1 items-center space-x-2"
+                                        >
+                                            <div class="text-sm">
+                                                {{
+                                                    'CALENDAR_EVENT.ASSETS_REQUESTED_FOR'
+                                                        | translate
+                                                            : {
+                                                                  time:
+                                                                      request.deliver_at_time
+                                                                      | date
+                                                                          : 'MMM d, ' +
+                                                                                time_format,
+                                                              }
+                                                }}
+                                            </div>
+                                            @if (
+                                                end_time < request.deliver_at ||
+                                                request.conflict
+                                            ) {
+                                                <div
+                                                    class="flex h-6 w-6 items-center justify-center rounded-full bg-error text-error-content"
+                                                    [matTooltip]="
+                                                        err_tooltip(request)
+                                                    "
+                                                >
+                                                    <icon>priority_high</icon>
+                                                </div>
+                                            }
+                                            <div class="flex-1"></div>
+                                            <div
+                                                class="rounded bg-success px-2 py-1 text-xs text-success-content"
+                                            >
+                                                {{
+                                                    'COMMON.ITEM_COUNT'
+                                                        | translate
+                                                            : {
+                                                                  count: request.item_count,
+                                                              }
+                                                }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div
+                                        class="flex flex-col divide-y divide-base-100 bg-base-200"
+                                    >
+                                        @for (
+                                            item of request.items;
+                                            track item
+                                        ) {
+                                            <div
+                                                class="flex items-center space-x-2 px-3 py-1 hover:opacity-90"
+                                            >
+                                                <div
+                                                    class="flex flex-1 items-center"
+                                                >
+                                                    <span class="text-sm">{{
+                                                        item.name || 'Item'
+                                                    }}</span>
+                                                </div>
+                                                <div
+                                                    class="rounded bg-success px-2 py-1 text-xs text-success-content"
+                                                >
+                                                    x{{ item.quantity }}
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
                 </div>
-                <h3 class="!mt-0 text-xl">
-                    {{ 'CALENDAR_EVENT.NOTES_HEADER' | translate }}
-                </h3>
-                <div [innerHTML]="event.body | sanitize"></div>
-            </div>
-            <div
-                *ngIf="requires_approval"
-                class="mt-2 rounded !border-none bg-warning px-2 py-1 text-center text-sm text-warning-content"
-            >
-                {{ 'CALENDAR_EVENT.APPROVAL_REQUIRED_MSG' | translate }}
-            </div>
+            }
+            @if (event.body) {
+                <div class="relative space-y-2 py-4 pl-16 pr-4">
+                    <div
+                        class="absolute left-4 top-4 flex items-center justify-center rounded-full border border-success text-2xl text-success"
+                    >
+                        <icon>done</icon>
+                    </div>
+                    <h3 class="!mt-0 text-xl">
+                        {{ 'CALENDAR_EVENT.NOTES_HEADER' | translate }}
+                    </h3>
+                    <div [innerHTML]="event.body | sanitize"></div>
+                </div>
+            }
+            @if (requires_approval) {
+                <div
+                    class="mt-2 rounded !border-none bg-warning px-2 py-1 text-center text-sm text-warning-content"
+                >
+                    {{ 'CALENDAR_EVENT.APPROVAL_REQUIRED_MSG' | translate }}
+                </div>
+            }
         </main>
-        <footer
-            class="flex items-center justify-end border-t border-base-200 p-2"
-            *ngIf="!(loading | async)"
-        >
-            <button
-                btn
-                name="confirm-meeting"
-                matRipple
-                class="w-32"
-                (click)="postForm()"
+        @if (!(loading | async)) {
+            <footer
+                class="flex items-center justify-end border-t border-base-200 p-2"
             >
-                {{ 'COMMON.CONFIRM' | translate }}
-            </button>
-        </footer>
+                <button
+                    btn
+                    name="confirm-meeting"
+                    matRipple
+                    class="w-32"
+                    (click)="postForm()"
+                >
+                    {{ 'COMMON.CONFIRM' | translate }}
+                </button>
+            </footer>
+        }
     `,
     styles: [``],
     providers: [SpacePipe],

@@ -111,7 +111,8 @@
                 "production": {
                     "buildTarget": "visitor-kiosk:build:production"
                 }
-            }
+            },
+            "continuous": true
         },
         "lint": {
             "executor": "@nx/eslint:lint",

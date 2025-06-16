@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, Inject } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
@@ -18,65 +17,57 @@ import { saveEvent, updateEventMetadata } from './events.fn';
     template: `
         <header class="min-h-16 space-x-4">
             <h2>{{ 'CALENDAR_EVENT.SETUP_BREAKDOWN_HEADER' | translate }}</h2>
-            <button btn icon mat-dialog-close matRipple *ngIf="!loading">
-                <icon>close</icon>
-            </button>
+            @if (!loading) {
+                <button btn icon mat-dialog-close matRipple>
+                    <icon>close</icon>
+                </button>
+            }
         </header>
-        <main
-            class="w-full min-w-[20rem] p-4"
-            [formGroup]="form"
-            *ngIf="!loading; else load_state"
-        >
-            <div class="flex flex-col space-y-2">
-                <label for="setup">{{
-                    'CALENDAR_EVENT.SETUP_DURATION' | translate
-                }}</label>
-                <a-duration-field
-                    name="setup"
-                    formControlName="setup"
-                    [min]="0"
-                    [custom_options]="[5, 10]"
-                ></a-duration-field>
-            </div>
-            <div class="flex flex-col space-y-2">
-                <label for="breakdown">
-                    {{
-                        'CALENDAR_EVENT.BREAKDOWN_DURATION' | translate
-                    }}Breakdown Duration</label
-                >
-                <a-duration-field
-                    name="breakdown"
-                    [min]="0"
-                    formControlName="breakdown"
-                    [custom_options]="[5, 10]"
-                ></a-duration-field>
-            </div>
-        </main>
-        <footer
-            *ngIf="!loading"
-            class="flex justify-end border-t border-base-200 px-4 py-2"
-        >
-            <button btn matRipple (click)="save()">
-                {{ 'COMMON.SAVE' | translate }}
-            </button>
-        </footer>
-        <ng-template #load_state>
+        @if (!loading) {
+            <main class="w-full min-w-[20rem] p-4" [formGroup]="form">
+                <div class="flex flex-col space-y-2">
+                    <label for="setup">{{
+                        'CALENDAR_EVENT.SETUP_DURATION' | translate
+                    }}</label>
+                    <a-duration-field
+                        name="setup"
+                        formControlName="setup"
+                        [min]="0"
+                        [custom_options]="[5, 10]"
+                    ></a-duration-field>
+                </div>
+                <div class="flex flex-col space-y-2">
+                    <label for="breakdown">
+                        {{
+                            'CALENDAR_EVENT.BREAKDOWN_DURATION' | translate
+                        }}Breakdown Duration</label
+                    >
+                    <a-duration-field
+                        name="breakdown"
+                        [min]="0"
+                        formControlName="breakdown"
+                        [custom_options]="[5, 10]"
+                    ></a-duration-field>
+                </div>
+            </main>
+        } @else {
             <div class="flex h-64 w-64 flex-col items-center justify-center">
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <p class="p-4 text-center">
                     Saving setup and breakdown durations...
                 </p>
             </div>
-        </ng-template>
+        }
+        @if (!loading) {
+            <footer class="flex justify-end border-t border-base-200 px-4 py-2">
+                <button btn matRipple (click)="save()">
+                    {{ 'COMMON.SAVE' | translate }}
+                </button>
+            </footer>
+        }
     `,
     styles: [``],
-    imports: [
-        CommonModule,
-        MatRippleModule,
-        TranslatePipe,
-        IconComponent,
-        MatDialogModule,
-    ],
+    imports: [MatRippleModule, TranslatePipe, IconComponent, MatDialogModule],
 })
 export class SetupBreakdownModalComponent {
     public loading = false;

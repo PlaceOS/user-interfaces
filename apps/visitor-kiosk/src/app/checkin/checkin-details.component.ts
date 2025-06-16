@@ -7,100 +7,104 @@ import { CheckinStateService } from './checkin-state.service';
 @Component({
     selector: '[checkin-details]',
     template: `
-        <form
-            *ngIf="(form | async) && !loading; else load_state"
-            [formGroup]="form | async"
-            class="relative flex w-[36rem] flex-col items-center overflow-hidden rounded bg-base-100 p-4 shadow"
-        >
-            <h3 class="m-4 text-2xl">Confirm Details</h3>
-            <div field class="flex flex-col">
-                <label form="host">{{
-                    'APP.VISITOR_KIOSK.HOST' | translate
-                }}</label>
-                <mat-form-field appearance="outline">
-                    <input
-                        matInput
-                        name="host"
-                        formControlName="host"
-                        [placeholder]="'APP.VISITOR_KIOSK.HOST' | translate"
-                    />
-                    <mat-error>
-                        {{ 'APP.VISITOR_KIOSK.EMAIL_REQUIRED' | translate }}
-                    </mat-error>
-                </mat-form-field>
-            </div>
-            <div field class="flex flex-col">
-                <label form="name">{{
-                    'APP.VISITOR_KIOSK.NAME' | translate
-                }}</label>
-                <mat-form-field appearance="outline">
-                    <input
-                        matInput
-                        name="name"
-                        formControlName="name"
-                        [placeholder]="'APP.VISITOR_KIOSK.NAME' | translate"
-                    />
-                    <mat-error>Please enter your full name</mat-error>
-                </mat-form-field>
-            </div>
-            <div field class="flex flex-col">
-                <label form="email">{{
-                    'APP.VISITOR_KIOSK.NAME' | translate
-                }}</label>
-                <mat-form-field appearance="outline">
-                    <input
-                        matInput
-                        name="email"
-                        formControlName="email"
-                        [placeholder]="'APP.VISITOR_KIOSK.EMAIL' | translate"
-                    />
-                    <mat-error>{{
-                        'APP.VISITOR_KIOSK.EMAIL_REQUIRED' | translate
-                    }}</mat-error>
-                </mat-form-field>
-            </div>
-            <div field class="flex flex-col">
-                <label form="email">{{
-                    'APP.VISITOR_KIOSK.PHONE' | translate
-                }}</label>
-                <mat-form-field appearance="outline">
-                    <input
-                        matInput
-                        name="phone"
-                        type="tel"
-                        formControlName="phone"
-                        [placeholder]="'APP.VISITOR_KIOSK.PHONE' | translate"
-                    />
-                </mat-form-field>
-            </div>
-            <div field class="flex flex-col">
-                <label form="org">{{
-                    'APP.VISITOR_KIOSK.ORGANISATION' | translate
-                }}</label>
-                <mat-form-field appearance="outline">
-                    <input
-                        matInput
-                        name="org"
-                        formControlName="organisation"
-                        [placeholder]="
-                            'APP.VISITOR_KIOSK.ORGANISATION' | translate
-                        "
-                    />
-                </mat-form-field>
-            </div>
-            <button next btn matRipple (click)="updateGuest()">
-                {{ 'APP.VISITOR_KIOSK.CONTINUE' | translate }}
-            </button>
-            <a
-                icon
-                matRipple
-                class="absolute right-0 top-0"
-                [routerLink]="['/welcome']"
+        @if ((form | async) && !loading) {
+            <form
+                [formGroup]="form | async"
+                class="relative flex w-[36rem] flex-col items-center overflow-hidden rounded bg-base-100 p-4 shadow"
             >
-                <icon>close</icon>
-            </a>
-        </form>
-        <ng-template #load_state>
+                <h3 class="m-4 text-2xl">Confirm Details</h3>
+                <div field class="flex flex-col">
+                    <label form="host">{{
+                        'APP.VISITOR_KIOSK.HOST' | translate
+                    }}</label>
+                    <mat-form-field appearance="outline">
+                        <input
+                            matInput
+                            name="host"
+                            formControlName="host"
+                            [placeholder]="'APP.VISITOR_KIOSK.HOST' | translate"
+                        />
+                        <mat-error>
+                            {{ 'APP.VISITOR_KIOSK.EMAIL_REQUIRED' | translate }}
+                        </mat-error>
+                    </mat-form-field>
+                </div>
+                <div field class="flex flex-col">
+                    <label form="name">{{
+                        'APP.VISITOR_KIOSK.NAME' | translate
+                    }}</label>
+                    <mat-form-field appearance="outline">
+                        <input
+                            matInput
+                            name="name"
+                            formControlName="name"
+                            [placeholder]="'APP.VISITOR_KIOSK.NAME' | translate"
+                        />
+                        <mat-error>Please enter your full name</mat-error>
+                    </mat-form-field>
+                </div>
+                <div field class="flex flex-col">
+                    <label form="email">{{
+                        'APP.VISITOR_KIOSK.NAME' | translate
+                    }}</label>
+                    <mat-form-field appearance="outline">
+                        <input
+                            matInput
+                            name="email"
+                            formControlName="email"
+                            [placeholder]="
+                                'APP.VISITOR_KIOSK.EMAIL' | translate
+                            "
+                        />
+                        <mat-error>{{
+                            'APP.VISITOR_KIOSK.EMAIL_REQUIRED' | translate
+                        }}</mat-error>
+                    </mat-form-field>
+                </div>
+                <div field class="flex flex-col">
+                    <label form="email">{{
+                        'APP.VISITOR_KIOSK.PHONE' | translate
+                    }}</label>
+                    <mat-form-field appearance="outline">
+                        <input
+                            matInput
+                            name="phone"
+                            type="tel"
+                            formControlName="phone"
+                            [placeholder]="
+                                'APP.VISITOR_KIOSK.PHONE' | translate
+                            "
+                        />
+                    </mat-form-field>
+                </div>
+                <div field class="flex flex-col">
+                    <label form="org">{{
+                        'APP.VISITOR_KIOSK.ORGANISATION' | translate
+                    }}</label>
+                    <mat-form-field appearance="outline">
+                        <input
+                            matInput
+                            name="org"
+                            formControlName="organisation"
+                            [placeholder]="
+                                'APP.VISITOR_KIOSK.ORGANISATION' | translate
+                            "
+                        />
+                    </mat-form-field>
+                </div>
+                <button next btn matRipple (click)="updateGuest()">
+                    {{ 'APP.VISITOR_KIOSK.CONTINUE' | translate }}
+                </button>
+                <a
+                    icon
+                    matRipple
+                    class="absolute right-0 top-0"
+                    [routerLink]="['/welcome']"
+                >
+                    <icon>close</icon>
+                </a>
+            </form>
+        } @else {
             <div
                 class="absolute inset-0 flex flex-col items-center justify-center"
             >
@@ -113,7 +117,7 @@ import { CheckinStateService } from './checkin-state.service';
                     </div>
                 </div>
             </div>
-        </ng-template>
+        }
     `,
     styles: [
         `

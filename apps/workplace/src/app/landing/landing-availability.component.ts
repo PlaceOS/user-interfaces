@@ -9,145 +9,157 @@ import { LandingStateService } from './landing-state.service';
     selector: 'landing-availability',
     template: `
         <div class="py-2">
-            <div
-                class="mb-2 px-4 font-medium sm:mb-4 sm:text-lg"
-                *ngIf="!hide_rooms || !hide_spaces"
-            >
-                {{ 'APP.WORKPLACE.AVAILABLE_LIST_HEADER' | translate }}
-            </div>
-            <div
-                class="flex items-center space-x-2 px-4 text-sm sm:text-base"
-                *ngIf="!hide_spaces"
-            >
-                <div>
-                    {{ 'APP.WORKPLACE.AVAILABLE_LIST_SPACES' | translate }}
+            @if (!hide_rooms || !hide_spaces) {
+                <div class="mb-2 px-4 font-medium sm:mb-4 sm:text-lg">
+                    {{ 'APP.WORKPLACE.AVAILABLE_LIST_HEADER' | translate }}
                 </div>
-            </div>
-            <div
-                class="mx-4 flex w-[calc(100%-2rem)] snap-x items-center space-x-2 overflow-auto py-2"
-                [class.mb-4]="!hide_rooms"
-                *ngIf="!hide_spaces"
-            >
-                <button
-                    name="landing-view-space"
-                    matRipple
-                    *ngFor="let lvl of levels_free | async"
-                    class="flex w-64 snap-start items-center space-x-4 rounded border border-base-200 bg-base-100 p-2 shadow"
-                    [routerLink]="['/explore']"
-                    [queryParams]="{ level: lvl.id }"
+            }
+            @if (!hide_spaces) {
+                <div
+                    class="flex items-center space-x-2 px-4 text-sm sm:text-base"
                 >
-                    <div
-                        class="flex h-16 w-16 min-w-[4rem] items-center justify-center overflow-hidden rounded bg-base-200"
-                    >
-                        <img
-                            auth
-                            *ngIf="lvl?.images?.length; else placeholder"
-                            [source]="lvl?.images[0]"
-                            class="h-full w-full object-cover object-center"
-                        />
-                        <ng-template #placeholder>
-                            <img
-                                class="h-1/2 w-1/2 object-contain object-center"
-                                src="assets/icons/desk-placeholder.svg"
-                            />
-                        </ng-template>
+                    <div>
+                        {{ 'APP.WORKPLACE.AVAILABLE_LIST_SPACES' | translate }}
                     </div>
-                    <div class="text-left">
-                        <div class="max-w-full truncate px-1.5 font-medium">
-                            {{ lvl.display_name || lvl.name }}
-                        </div>
-                        <div
-                            class="flex max-w-full items-center truncate text-sm opacity-60"
-                        >
-                            <icon class="text-blue-500 text-lg"
-                                >place</icon
-                            >
-                            <span>{{
-                                building(lvl.parent_id)?.display_name ||
-                                    building(lvl.parent_id)?.name
-                            }}</span>
-                        </div>
-                    </div>
-                </button>
-                <span
-                    *ngIf="!(levels_free | async).length"
-                    class="mb-2 text-sm opacity-60"
-                >
-                    {{
-                        'APP.WORKPLACE.AVAILABLE_LIST_SPACES_EMPTY' | translate
-                    }}
-                </span>
-            </div>
-            <div
-                class="flex items-center space-x-2 px-4 text-sm sm:text-base"
-                *ngIf="!hide_rooms"
-            >
-                <div>
-                    {{ 'APP.WORKPLACE.AVAILABLE_LIST_ROOMS' | translate }}
                 </div>
-                <mat-spinner
-                    diameter="24"
-                    *ngIf="loading_spaces | async"
-                ></mat-spinner>
-            </div>
-            <div
-                class="mx-4 flex w-[calc(100%-2rem)] snap-x items-center space-x-2 overflow-auto py-2"
-                *ngIf="!hide_rooms"
-            >
-                <button
-                    name="landing-book-room"
-                    matRipple
-                    *ngFor="
-                        let space of space_list | async;
-                        trackBy: trackBySpaceId
-                    "
-                    class="flex w-64 snap-start items-center space-x-4 rounded border border-base-200 bg-base-100 p-2 shadow"
-                    (click)="book(space)"
+            }
+            @if (!hide_spaces) {
+                <div
+                    class="mx-4 flex w-[calc(100%-2rem)] snap-x items-center space-x-2 overflow-auto py-2"
+                    [class.mb-4]="!hide_rooms"
                 >
-                    <div
-                        class="flex h-16 w-16 min-w-[4rem] items-center justify-center overflow-hidden rounded bg-base-200"
-                    >
-                        <img
-                            auth
-                            *ngIf="
-                                (space.id | space | async)?.images?.length;
-                                else space_placeholder
-                            "
-                            [source]="(space.id | space | async)?.images[0]"
-                            class="h-full w-full object-cover object-center"
-                        />
-                    </div>
-                    <div class="text-left">
-                        <div class="max-w-full truncate px-1.5 font-medium">
-                            {{ space.display_name || space.name }}
-                        </div>
-                        <div
-                            class="flex max-w-full items-center truncate text-sm opacity-60"
+                    @for (lvl of levels_free | async; track lvl) {
+                        <button
+                            name="landing-view-space"
+                            matRipple
+                            class="flex w-64 snap-start items-center space-x-4 rounded border border-base-200 bg-base-100 p-2 shadow"
+                            [routerLink]="['/explore']"
+                            [queryParams]="{ level: lvl.id }"
                         >
-                            <icon class="text-blue-500 text-lg"
-                                >place</icon
+                            <div
+                                class="flex h-16 w-16 min-w-[4rem] items-center justify-center overflow-hidden rounded bg-base-200"
                             >
-                            <span>{{
-                                level(space.zones)?.display_name ||
-                                    level(space.zones)?.name
-                            }}</span>
-                        </div>
-                    </div>
-                </button>
-                <span
-                    *ngIf="!(space_list | async)?.length"
-                    class="mb-2 text-sm opacity-60"
+                                @if (lvl?.images?.length) {
+                                    <img
+                                        auth
+                                        [source]="lvl?.images[0]"
+                                        class="h-full w-full object-cover object-center"
+                                    />
+                                } @else {
+                                    <img
+                                        class="h-1/2 w-1/2 object-contain object-center"
+                                        src="assets/icons/desk-placeholder.svg"
+                                    />
+                                }
+                            </div>
+                            <div class="text-left">
+                                <div
+                                    class="max-w-full truncate px-1.5 font-medium"
+                                >
+                                    {{ lvl.display_name || lvl.name }}
+                                </div>
+                                <div
+                                    class="flex max-w-full items-center truncate text-sm opacity-60"
+                                >
+                                    <icon class="text-blue-500 text-lg"
+                                        >place</icon
+                                    >
+                                    <span>{{
+                                        building(lvl.parent_id)?.display_name ||
+                                            building(lvl.parent_id)?.name
+                                    }}</span>
+                                </div>
+                            </div>
+                        </button>
+                    }
+                    @if (!(levels_free | async).length) {
+                        <span class="mb-2 text-sm opacity-60">
+                            {{
+                                'APP.WORKPLACE.AVAILABLE_LIST_SPACES_EMPTY'
+                                    | translate
+                            }}
+                        </span>
+                    }
+                </div>
+            }
+            @if (!hide_rooms) {
+                <div
+                    class="flex items-center space-x-2 px-4 text-sm sm:text-base"
                 >
-                    {{ 'APP.WORKPLACE.AVAILABLE_LIST_ROOMS_EMPTY' | translate }}
-                </span>
-            </div>
+                    <div>
+                        {{ 'APP.WORKPLACE.AVAILABLE_LIST_ROOMS' | translate }}
+                    </div>
+                    @if (loading_spaces | async) {
+                        <mat-spinner diameter="24"></mat-spinner>
+                    }
+                </div>
+            }
+            @if (!hide_rooms) {
+                <div
+                    class="mx-4 flex w-[calc(100%-2rem)] snap-x items-center space-x-2 overflow-auto py-2"
+                >
+                    @for (
+                        space of space_list | async;
+                        track trackBySpaceId($index, space)
+                    ) {
+                        <button
+                            name="landing-book-room"
+                            matRipple
+                            class="flex w-64 snap-start items-center space-x-4 rounded border border-base-200 bg-base-100 p-2 shadow"
+                            (click)="book(space)"
+                        >
+                            <div
+                                class="flex h-16 w-16 min-w-[4rem] items-center justify-center overflow-hidden rounded bg-base-200"
+                            >
+                                @if (
+                                    (space.id | space | async)?.images?.length
+                                ) {
+                                    <img
+                                        auth
+                                        [source]="
+                                            (space.id | space | async)
+                                                ?.images[0]
+                                        "
+                                        class="h-full w-full object-cover object-center"
+                                    />
+                                } @else {
+                                    <img
+                                        class="h-1/2 w-1/2 object-contain object-center"
+                                        src="assets/icons/room-placeholder.svg"
+                                    />
+                                }
+                            </div>
+                            <div class="text-left">
+                                <div
+                                    class="max-w-full truncate px-1.5 font-medium"
+                                >
+                                    {{ space.display_name || space.name }}
+                                </div>
+                                <div
+                                    class="flex max-w-full items-center truncate text-sm opacity-60"
+                                >
+                                    <icon class="text-blue-500 text-lg"
+                                        >place</icon
+                                    >
+                                    <span>{{
+                                        level(space.zones)?.display_name ||
+                                            level(space.zones)?.name
+                                    }}</span>
+                                </div>
+                            </div>
+                        </button>
+                    }
+                    @if (!(space_list | async)?.length) {
+                        <span class="mb-2 text-sm opacity-60">
+                            {{
+                                'APP.WORKPLACE.AVAILABLE_LIST_ROOMS_EMPTY'
+                                    | translate
+                            }}
+                        </span>
+                    }
+                </div>
+            }
         </div>
-        <ng-template #space_placeholder>
-            <img
-                class="h-1/2 w-1/2 object-contain object-center"
-                src="assets/icons/room-placeholder.svg"
-            />
-        </ng-template>
     `,
     styles: [
         `

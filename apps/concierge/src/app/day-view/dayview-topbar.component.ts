@@ -37,12 +37,11 @@ import { BookingUIOptions, EventsStateService } from './events-state.service';
                     (ngModelChange)="updateZones($event)"
                     [placeholder]="'COMMON.LEVEL_ALL' | translate"
                 >
-                    <mat-option
-                        *ngFor="let level of levels | async"
-                        [value]="level.id"
-                    >
-                        {{ level.display_name || level.name }}
-                    </mat-option>
+                    @for (level of levels | async; track level) {
+                        <mat-option [value]="level.id">
+                            {{ level.display_name || level.name }}
+                        </mat-option>
+                    }
                 </mat-select>
             </mat-form-field>
             <mat-form-field appearance="outline">
@@ -53,19 +52,22 @@ import { BookingUIOptions, EventsStateService } from './events-state.service';
                     placeholder="No Events"
                 >
                     <mat-select-trigger>Legend</mat-select-trigger>
-                    <mat-option *ngFor="let type of types" [value]="type.id">
-                        {{ type.name }}
-                    </mat-option>
+                    @for (type of types; track type) {
+                        <mat-option [value]="type.id">
+                            {{ type.name }}
+                        </mat-option>
+                    }
                 </mat-select>
             </mat-form-field>
-            <mat-slide-toggle
-                class="m-2"
-                [ngModel]="(ui_options | async)?.show_overflow"
-                (ngModelChange)="updateUIOptions({ show_overflow: $event })"
-                *ngIf="allow_setup_breakdown"
-            >
-                <div class="text-xs">Setup / Breakdown</div>
-            </mat-slide-toggle>
+            @if (allow_setup_breakdown) {
+                <mat-slide-toggle
+                    class="m-2"
+                    [ngModel]="(ui_options | async)?.show_overflow"
+                    (ngModelChange)="updateUIOptions({ show_overflow: $event })"
+                >
+                    <div class="text-xs">Setup / Breakdown</div>
+                </mat-slide-toggle>
+            }
             <div class="w-0 flex-1"></div>
             <!-- <searchbar class="mr-2"></searchbar> -->
             <date-options (dateChange)="setDate($event)"></date-options>

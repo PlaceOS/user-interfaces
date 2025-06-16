@@ -22,183 +22,205 @@ import { DesksStateService } from '../desks/desks-state.service';
                     ) | translate
                 }}
             </h2>
-            <button icon matRipple mat-dialog-close *ngIf="!loading">
-                <icon>close</icon>
-            </button>
+            @if (!loading) {
+                <button icon matRipple mat-dialog-close>
+                    <icon>close</icon>
+                </button>
+            }
         </header>
-        <main
-            class="min-w-[28rem] overflow-hidden px-4 py-2"
-            *ngIf="form"
-            [formGroup]="form"
-        >
-            <div class="flex flex-col">
-                <label>{{ 'APP.CONCIERGE.POINTS_TYPE' | translate }}</label>
-                <mat-form-field appearance="outline" class="h-[3.25rem] flex-1">
-                    <mat-select
-                        formControlName="type"
-                        placeholder="Select asset type"
+        @if (form) {
+            <main
+                class="min-w-[28rem] overflow-hidden px-4 py-2"
+                [formGroup]="form"
+            >
+                <div class="flex flex-col">
+                    <label>{{ 'APP.CONCIERGE.POINTS_TYPE' | translate }}</label>
+                    <mat-form-field
+                        appearance="outline"
+                        class="h-[3.25rem] flex-1"
                     >
-                        <mat-option value="space">{{
-                            'RESOURCE.ROOM' | translate
-                        }}</mat-option>
-                        <mat-option value="desk">{{
-                            'RESOURCE.DESK' | translate
-                        }}</mat-option>
-                    </mat-select>
-                </mat-form-field>
-            </div>
-            <div class="flex flex-col">
-                <label>{{ 'RESOURCE.ASSET' | translate }}</label>
-                <mat-form-field appearance="outline" class="h-[3.25rem] flex-1">
-                    <icon
-                        matPrefix
-                        class="text-2xl"
-                        [class.opacity-30]="!form.get('type').value"
-                        >search</icon
-                    >
-                    <input
-                        matInput
-                        formControlName="name"
-                        [placeholder]="
-                            'APP.CONCIERGE.POINTS_ASSETS_SEARCH' | translate
-                        "
-                        [matAutocomplete]="auto"
-                    />
-                    <mat-spinner
-                        *ngIf="loading"
-                        matSuffix
-                        [diameter]="32"
-                    ></mat-spinner>
-                </mat-form-field>
-                <mat-autocomplete #auto="matAutocomplete">
-                    <mat-option
-                        *ngFor="let option of asset_options | async"
-                        [value]="option?.display_name || option?.name"
-                    >
-                        {{ option?.display_name || option?.name }}
-                    </mat-option>
-                    <mat-option
-                        [disabled]="true"
-                        *ngIf="!(asset_options | async)?.length"
-                    >
-                        {{
-                            'APP.CONCIERGE.POINTS_ASSETS_SEARCH_EMPTY'
-                                | translate
-                        }}
-                    </mat-option>
-                </mat-autocomplete>
-            </div>
-            <div class="mb-4 flex items-center">
-                <settings-toggle
-                    [name]="'APP.CONCIERGE.POINTS_ACCEPT' | translate"
-                    formControlName="accept_points"
-                    class="w-full"
-                ></settings-toggle>
-            </div>
-            <div class="mb-4 flex space-x-4">
-                <div class="flex flex-1 flex-col">
-                    <label>{{
-                        'APP.CONCIERGE.POINTS_STANDARD_RATE' | translate
-                    }}</label>
-                    <a-counter
-                        class="w-full"
-                        formControlName="unit_price"
-                        [min]="500"
-                        [max]="80000"
-                        [step]="500"
-                        [render_fn]="renderPrice"
-                    ></a-counter>
+                        <mat-select
+                            formControlName="type"
+                            placeholder="Select asset type"
+                        >
+                            <mat-option value="space">{{
+                                'RESOURCE.ROOM' | translate
+                            }}</mat-option>
+                            <mat-option value="desk">{{
+                                'RESOURCE.DESK' | translate
+                            }}</mat-option>
+                        </mat-select>
+                    </mat-form-field>
                 </div>
-                <div class="flex flex-1 flex-col">
-                    <label>{{
-                        'APP.CONCIERGE.POINTS_DISCOUNT_CAP' | translate
-                    }}</label>
-                    <a-counter
-                        class="w-full"
-                        formControlName="discount_cap"
-                        [min]="0"
-                        [max]="100"
-                        [step]="5"
-                        [render_fn]="renderPercent"
-                    ></a-counter>
-                </div>
-            </div>
-            <div class="">
-                <label>{{
-                    'APP.CONCIERGE.POINTS_RATE_RULES' | translate
-                }}</label>
-                <div>
-                    <div
-                        rule
-                        class="flex items-center"
-                        *ngFor="
-                            let rule of form.get('custom_rates')?.value || []
-                        "
+                <div class="flex flex-col">
+                    <label>{{ 'RESOURCE.ASSET' | translate }}</label>
+                    <mat-form-field
+                        appearance="outline"
+                        class="h-[3.25rem] flex-1"
                     >
-                        <div class="flex w-1/2 flex-1 items-center space-x-2">
-                            <mat-form-field
-                                appearance="outline"
-                                class="flex-2 h-[3.25rem] w-32"
+                        <icon
+                            matPrefix
+                            class="text-2xl"
+                            [class.opacity-30]="!form.get('type').value"
+                            >search</icon
+                        >
+                        <input
+                            matInput
+                            formControlName="name"
+                            [placeholder]="
+                                'APP.CONCIERGE.POINTS_ASSETS_SEARCH' | translate
+                            "
+                            [matAutocomplete]="auto"
+                        />
+                        @if (loading) {
+                            <mat-spinner
+                                matSuffix
+                                [diameter]="32"
+                            ></mat-spinner>
+                        }
+                    </mat-form-field>
+                    <mat-autocomplete #auto="matAutocomplete">
+                        @for (option of asset_options | async; track option) {
+                            <mat-option
+                                [value]="option?.display_name || option?.name"
                             >
-                                <mat-select
-                                    [(ngModel)]="rule.type"
-                                    [ngModelOptions]="{ standalone: true }"
-                                >
-                                    <mat-option value="before">
-                                        {{
-                                            'APP.CONCIERGE.POINTS_RATE_RULES_BEFORE'
-                                                | translate
-                                        }}
-                                    </mat-option>
-                                    <mat-option value="between">
-                                        {{
-                                            'APP.CONCIERGE.POINTS_RATE_RULES_BETWEEN'
-                                                | translate
-                                        }}
-                                    </mat-option>
-                                    <mat-option value="after">
-                                        {{
-                                            'APP.CONCIERGE.POINTS_RATE_RULES_AFTER'
-                                                | translate
-                                        }}
-                                    </mat-option>
-                                </mat-select>
-                            </mat-form-field>
-                            <a-time-field
-                                class="mt-2 w-40 flex-1"
-                                [(ngModel)]="rule.first"
-                                [ngModelOptions]="{ standalone: true }"
-                            ></a-time-field>
-                            <a-time-field
-                                class="mt-2 w-40 flex-1"
-                                [(ngModel)]="rule.second"
-                                [from]="rule.first"
-                                [ngModelOptions]="{ standalone: true }"
-                                *ngIf="rule.type === 'between'"
-                            ></a-time-field>
-                        </div>
-                        <span class="mx-2">&#64;</span>
+                                {{ option?.display_name || option?.name }}
+                            </mat-option>
+                        }
+                        @if (!(asset_options | async)?.length) {
+                            <mat-option [disabled]="true">
+                                {{
+                                    'APP.CONCIERGE.POINTS_ASSETS_SEARCH_EMPTY'
+                                        | translate
+                                }}
+                            </mat-option>
+                        }
+                    </mat-autocomplete>
+                </div>
+                <div class="mb-4 flex items-center">
+                    <settings-toggle
+                        [name]="'APP.CONCIERGE.POINTS_ACCEPT' | translate"
+                        formControlName="accept_points"
+                        class="w-full"
+                    ></settings-toggle>
+                </div>
+                <div class="mb-4 flex space-x-4">
+                    <div class="flex flex-1 flex-col">
+                        <label>{{
+                            'APP.CONCIERGE.POINTS_STANDARD_RATE' | translate
+                        }}</label>
                         <a-counter
-                            class="rounded border border-base-200"
-                            [(ngModel)]="rule.rate"
-                            [ngModelOptions]="{ standalone: true }"
+                            class="w-full"
+                            formControlName="unit_price"
+                            [min]="500"
+                            [max]="80000"
+                            [step]="500"
+                            [render_fn]="renderPrice"
+                        ></a-counter>
+                    </div>
+                    <div class="flex flex-1 flex-col">
+                        <label>{{
+                            'APP.CONCIERGE.POINTS_DISCOUNT_CAP' | translate
+                        }}</label>
+                        <a-counter
+                            class="w-full"
+                            formControlName="discount_cap"
                             [min]="0"
-                            [max]="300"
+                            [max]="100"
                             [step]="5"
                             [render_fn]="renderPercent"
                         ></a-counter>
                     </div>
                 </div>
-                <button btn matRipple class="clear w-full" (click)="newRule()">
-                    <div class="flex w-full items-center justify-center">
-                        <icon class="text-lg">add</icon>
-                        <span class="underline">{{
-                            'APP.CONCIERGE.POINTS_RATE_RULES_NEW' | translate
-                        }}</span>
+                <div class="">
+                    <label>{{
+                        'APP.CONCIERGE.POINTS_RATE_RULES' | translate
+                    }}</label>
+                    <div>
+                        @for (
+                            rule of form.get('custom_rates')?.value || [];
+                            track rule
+                        ) {
+                            <div rule class="flex items-center">
+                                <div
+                                    class="flex w-1/2 flex-1 items-center space-x-2"
+                                >
+                                    <mat-form-field
+                                        appearance="outline"
+                                        class="flex-2 h-[3.25rem] w-32"
+                                    >
+                                        <mat-select
+                                            [(ngModel)]="rule.type"
+                                            [ngModelOptions]="{
+                                                standalone: true,
+                                            }"
+                                        >
+                                            <mat-option value="before">
+                                                {{
+                                                    'APP.CONCIERGE.POINTS_RATE_RULES_BEFORE'
+                                                        | translate
+                                                }}
+                                            </mat-option>
+                                            <mat-option value="between">
+                                                {{
+                                                    'APP.CONCIERGE.POINTS_RATE_RULES_BETWEEN'
+                                                        | translate
+                                                }}
+                                            </mat-option>
+                                            <mat-option value="after">
+                                                {{
+                                                    'APP.CONCIERGE.POINTS_RATE_RULES_AFTER'
+                                                        | translate
+                                                }}
+                                            </mat-option>
+                                        </mat-select>
+                                    </mat-form-field>
+                                    <a-time-field
+                                        class="mt-2 w-40 flex-1"
+                                        [(ngModel)]="rule.first"
+                                        [ngModelOptions]="{ standalone: true }"
+                                    ></a-time-field>
+                                    @if (rule.type === 'between') {
+                                        <a-time-field
+                                            class="mt-2 w-40 flex-1"
+                                            [(ngModel)]="rule.second"
+                                            [from]="rule.first"
+                                            [ngModelOptions]="{
+                                                standalone: true,
+                                            }"
+                                        ></a-time-field>
+                                    }
+                                </div>
+                                <span class="mx-2">&#64;</span>
+                                <a-counter
+                                    class="rounded border border-base-200"
+                                    [(ngModel)]="rule.rate"
+                                    [ngModelOptions]="{ standalone: true }"
+                                    [min]="0"
+                                    [max]="300"
+                                    [step]="5"
+                                    [render_fn]="renderPercent"
+                                ></a-counter>
+                            </div>
+                        }
                     </div>
-                </button>
-            </div>
-        </main>
+                    <button
+                        btn
+                        matRipple
+                        class="clear w-full"
+                        (click)="newRule()"
+                    >
+                        <div class="flex w-full items-center justify-center">
+                            <icon class="text-lg">add</icon>
+                            <span class="underline">{{
+                                'APP.CONCIERGE.POINTS_RATE_RULES_NEW'
+                                    | translate
+                            }}</span>
+                        </div>
+                    </button>
+                </div>
+            </main>
+        }
         <footer
             class="flex items-center justify-end space-x-2 border-t border-base-200 p-2"
         >

@@ -35,91 +35,92 @@ import { AsyncHandler, LocaleService, SettingsService } from '@placeos/common';
                             <icon class="text-2xl">chevron_right</icon>
                         </div>
                     </a>
-                    <a
-                        btn
-                        matRipple
-                        [routerLink]="['/register']"
-                        class="w-40 bg-base-100 text-base-content"
-                        *ngIf="can_register"
-                    >
-                        <div class="flex items-center space-x-2">
-                            <div class="ml-2">
-                                {{ 'APP.VISITOR_KIOSK.REGISTER' | translate }}
+                    @if (can_register) {
+                        <a
+                            btn
+                            matRipple
+                            [routerLink]="['/register']"
+                            class="w-40 bg-base-100 text-base-content"
+                        >
+                            <div class="flex items-center space-x-2">
+                                <div class="ml-2">
+                                    {{
+                                        'APP.VISITOR_KIOSK.REGISTER' | translate
+                                    }}
+                                </div>
+                                <icon class="text-2xl">chevron_right</icon>
                             </div>
-                            <icon class="text-2xl">chevron_right</icon>
-                        </div>
-                    </a>
-                    <a
-                        *ngIf="level"
-                        btn
-                        matRipple
-                        [routerLink]="['/explore', level]"
-                        class="w-40 bg-base-100 text-base-content"
-                    >
-                        <div class="flex items-center space-x-2">
-                            <div class="ml-2">
-                                {{ 'APP.VISITOR_KIOSK.EXPLORE' | translate }}
+                        </a>
+                    }
+                    @if (level) {
+                        <a
+                            btn
+                            matRipple
+                            [routerLink]="['/explore', level]"
+                            class="w-40 bg-base-100 text-base-content"
+                        >
+                            <div class="flex items-center space-x-2">
+                                <div class="ml-2">
+                                    {{
+                                        'APP.VISITOR_KIOSK.EXPLORE' | translate
+                                    }}
+                                </div>
+                                <icon class="text-2xl">place</icon>
                             </div>
-                            <icon class="text-2xl">place</icon>
-                        </div>
-                    </a>
+                        </a>
+                    }
                 </div>
             </div>
             <div class="absolute right-4 top-4 text-2xl text-white">
                 {{ now | date: 'mediumDate' }} {{ now | date: 'shortTime' }}
             </div>
-            <button
-                class="absolute left-4 top-4"
-                *ngIf="locales.length > 1"
-                [matMenuTriggerFor]="menu"
-            >
-                <div class="flex items-center justify-between">
-                    <icon class="text-2xl text-white">language</icon>
-                    <div class="ml-2 text-left leading-tight text-white">
-                        <div>{{ 'COMMON.LANGUAGE' | translate }}</div>
-                        <div
-                            *ngIf="
-                                ('COMMON.LANGUAGE' | translate) !== 'Language'
-                            "
-                            class="text-xs opacity-30"
-                        >
-                            Language
-                        </div>
-                    </div>
-                    <div
-                        class="ml-4 max-w-24 truncate rounded bg-base-200 px-2 py-1 text-sm"
-                        [matTooltip]="active_locale | translate"
-                    >
-                        {{ active_locale | translate }}
-                    </div>
-                </div>
-            </button>
-            <mat-menu #menu="matMenu">
+            @if (locales.length > 1) {
                 <button
-                    mat-menu-item
-                    *ngFor="let lang of locales"
-                    (click)="setLocale(lang.id)"
+                    class="absolute left-4 top-4"
+                    [matMenuTriggerFor]="menu"
                 >
-                    <div
-                        class="flex h-14 min-w-[24rem] items-center justify-between space-x-8"
-                    >
-                        <div
-                            class="leading-tight"
-                            [class.mt-2]="
-                                (lang.name | translate) !== lang.local
-                            "
-                        >
-                            <div>{{ lang.name | translate }}</div>
-                            <div
-                                *ngIf="(lang.name | translate) !== lang.local"
-                                class="text-xs opacity-30"
-                            >
-                                {{ lang.local }}
-                            </div>
+                    <div class="flex items-center justify-between">
+                        <icon class="text-2xl text-white">language</icon>
+                        <div class="ml-2 text-left leading-tight text-white">
+                            <div>{{ 'COMMON.LANGUAGE' | translate }}</div>
+                            @if (
+                                ('COMMON.LANGUAGE' | translate) !== 'Language'
+                            ) {
+                                <div class="text-xs opacity-30">Language</div>
+                            }
                         </div>
-                        <!-- <div class="text-3xl">{{ lang.flag }}</div> -->
+                        <div
+                            class="ml-4 max-w-24 truncate rounded bg-base-200 px-2 py-1 text-sm"
+                            [matTooltip]="active_locale | translate"
+                        >
+                            {{ active_locale | translate }}
+                        </div>
                     </div>
                 </button>
+            }
+            <mat-menu #menu="matMenu">
+                @for (lang of locales; track lang) {
+                    <button mat-menu-item (click)="setLocale(lang.id)">
+                        <div
+                            class="flex h-14 min-w-[24rem] items-center justify-between space-x-8"
+                        >
+                            <div
+                                class="leading-tight"
+                                [class.mt-2]="
+                                    (lang.name | translate) !== lang.local
+                                "
+                            >
+                                <div>{{ lang.name | translate }}</div>
+                                @if ((lang.name | translate) !== lang.local) {
+                                    <div class="text-xs opacity-30">
+                                        {{ lang.local }}
+                                    </div>
+                                }
+                            </div>
+                            <!-- <div class="text-3xl">{{ lang.flag }}</div> -->
+                        </div>
+                    </button>
+                }
             </mat-menu>
             <img
                 src="assets/img/building.png"

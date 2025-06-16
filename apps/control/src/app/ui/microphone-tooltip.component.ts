@@ -14,175 +14,192 @@ import { ControlStateService } from '../control-state.service';
             <h3 class="mb-2 text-xl font-medium">
                 {{ 'APP.CONTROL.ACTION_MICS' | translate }}
             </h3>
-            <ng-container
-                *ngIf="
-                    (mic_list | async)?.length || (microphones | async)?.length;
-                    else empty_state
-                "
-            >
-                <div class="w-full" *ngFor="let mic of mic_list | async">
-                    <label [for]="mic.id">{{ mic.name }}</label>
-                    <div class="flex flex-wrap" *ngIf="mic.rooms">
-                        @for (room of mic.rooms; track room.name) {
+            @if ((mic_list | async)?.length || (microphones | async)?.length) {
+                @for (mic of mic_list | async; track mic) {
+                    <div class="w-full">
+                        <label [for]="mic.id">{{ mic.name }}</label>
+                        @if (mic.rooms) {
+                            <div class="flex flex-wrap">
+                                @for (room of mic.rooms; track room.name) {
+                                    <div hidden>
+                                        <i
+                                            binding
+                                            [sys]="id"
+                                            [mod]="mic.module_id || mic.mod"
+                                            [bind]="mic.binding"
+                                            [(model)]="room.state"
+                                        ></i>
+                                    </div>
+                                    <settings-toggle
+                                        class="m-1"
+                                        [toggle]="true"
+                                        [ngModel]="
+                                            room.state !== mic.falsy_value
+                                        "
+                                        (ngModelChange)="
+                                            setRoomMute(
+                                                mic.name,
+                                                room.name,
+                                                !$event
+                                            )
+                                        "
+                                    >
+                                        {{ room.name }}
+                                    </settings-toggle>
+                                }
+                            </div>
+                        }
+                        <div
+                            class="flex w-64 items-center space-x-2"
+                            [attr.name]="mic.id"
+                        >
+                            <button
+                                mute
+                                icon
+                                matRipple
+                                (click)="mute[mic.id] = !mute[mic.id]"
+                            >
+                                <icon>{{
+                                    mute[mic.id]
+                                        ? 'volume_off'
+                                        : volume[mic.id] > 0
+                                          ? 'volume_up'
+                                          : 'volume_mute'
+                                }}</icon>
+                            </button>
+                            <mat-slider class="flex-1">
+                                <input
+                                    matSliderThumb
+                                    [ngModel]="
+                                        !mute[mic.id] ? volume[mic.id] : 0
+                                    "
+                                    (ngModelChange)="
+                                        setVolume(mic.id, $event); onChange()
+                                    "
+                                />
+                            </mat-slider>
+                        </div>
+                        @if (mic?.mod) {
                             <div hidden>
                                 <i
                                     binding
                                     [sys]="id"
-                                    [mod]="mic.module_id || mic.mod"
-                                    [bind]="mic.binding"
-                                    [(model)]="room.state"
+                                    [mod]="mic.mod"
+                                    bind="volume"
+                                    exec="volume"
+                                    [ignore]="changing"
+                                    [(model)]="volume[mic.id]"
+                                ></i>
+                                <i
+                                    binding
+                                    [sys]="id"
+                                    [mod]="mic.mod"
+                                    bind="mute"
+                                    exec="mute"
+                                    [(model)]="mute[mic.id]"
                                 ></i>
                             </div>
-                            <settings-toggle
-                                class="m-1"
-                                [toggle]="true"
-                                [ngModel]="room.state !== mic.falsy_value"
-                                (ngModelChange)="
-                                    setRoomMute(mic.name, room.name, !$event)
-                                "
-                            >
-                                {{ room.name }}
-                            </settings-toggle>
                         }
                     </div>
-                    <div
-                        class="flex w-64 items-center space-x-2"
-                        [attr.name]="mic.id"
-                    >
-                        <button
-                            mute
-                            icon
-                            matRipple
-                            (click)="mute[mic.id] = !mute[mic.id]"
+                }
+                @for (mic of microphones | async; track mic; let i = $index) {
+                    <div class="w-full">
+                        <label [for]="mic.name">{{ mic.name }}</label>
+                        @if (mic.rooms) {
+                            <div class="mt-2 flex flex-wrap">
+                                @for (room of mic.rooms; track room.name) {
+                                    <div hidden>
+                                        <i
+                                            binding
+                                            [sys]="id"
+                                            [mod]="mic.module_id || mic.mod"
+                                            [bind]="mic.binding"
+                                            [(model)]="room.state"
+                                        ></i>
+                                    </div>
+                                    <settings-toggle
+                                        class="m-1"
+                                        [toggle]="true"
+                                        [ngModel]="
+                                            room.state !== mic.falsy_value
+                                        "
+                                        (ngModelChange)="
+                                            setRoomMute(
+                                                mic.name,
+                                                room.name,
+                                                !$event
+                                            )
+                                        "
+                                    >
+                                        {{ room.name }}
+                                    </settings-toggle>
+                                }
+                            </div>
+                        }
+                        <div
+                            class="flex min-w-64 items-center space-x-2"
+                            [attr.name]="mic.name"
                         >
-                            <icon>{{
-                                mute[mic.id]
-                                    ? 'volume_off'
-                                    : volume[mic.id] > 0
-                                      ? 'volume_up'
-                                      : 'volume_mute'
-                            }}</icon>
-                        </button>
-                        <mat-slider class="flex-1">
-                            <input
-                                matSliderThumb
-                                [ngModel]="!mute[mic.id] ? volume[mic.id] : 0"
-                                (ngModelChange)="
-                                    setVolume(mic.id, $event); onChange()
-                                "
-                            />
-                        </mat-slider>
-                    </div>
-                    <div hidden *ngIf="mic?.mod">
-                        <i
-                            binding
-                            [sys]="id"
-                            [mod]="mic.mod"
-                            bind="volume"
-                            exec="volume"
-                            [ignore]="changing"
-                            [(model)]="volume[mic.id]"
-                        ></i>
-                        <i
-                            binding
-                            [sys]="id"
-                            [mod]="mic.mod"
-                            bind="mute"
-                            exec="mute"
-                            [(model)]="mute[mic.id]"
-                        ></i>
-                    </div>
-                </div>
-                <div
-                    class="w-full"
-                    *ngFor="let mic of microphones | async; let i = index"
-                >
-                    <label [for]="mic.name">{{ mic.name }}</label>
-                    <div class="mt-2 flex flex-wrap" *ngIf="mic.rooms">
-                        @for (room of mic.rooms; track room.name) {
+                            <button
+                                mute
+                                icon
+                                matRipple
+                                [disabled]="!mic.mute_id?.length"
+                                (click)="mute[i] = !mute[i]"
+                            >
+                                <icon>{{
+                                    mute[i]
+                                        ? 'volume_off'
+                                        : volume[i] > 0
+                                          ? 'volume_up'
+                                          : 'volume_mute'
+                                }}</icon>
+                            </button>
+                            <mat-slider
+                                [disabled]="!mic.level_id?.length"
+                                [min]="mic.min_level || 0"
+                                [max]="mic.max_level || 100"
+                                class="flex-1"
+                            >
+                                <input
+                                    matSliderThumb
+                                    [ngModel]="!mute[i] ? volume[i] : 0"
+                                    (ngModelChange)="
+                                        setVolume(i, $event); onChange()
+                                    "
+                            /></mat-slider>
+                        </div>
+                        @if (mic.module_id) {
                             <div hidden>
                                 <i
                                     binding
                                     [sys]="id"
-                                    [mod]="mic.module_id || mic.mod"
-                                    [bind]="mic.binding"
-                                    [(model)]="room.state"
+                                    [mod]="mic.module_id"
+                                    [bind]="mic.level_feedback"
+                                    exec="fader"
+                                    [ignore]="changing"
+                                    [params]="[mic.level_id, volume[i]]"
+                                    [(model)]="volume[i]"
+                                ></i>
+                                <i
+                                    binding
+                                    [sys]="id"
+                                    [mod]="mic.module_id"
+                                    [bind]="mic.mute_feedback"
+                                    exec="mute"
+                                    [params]="[mic.mute_id, mute[i]]"
+                                    [(model)]="mute[i]"
                                 ></i>
                             </div>
-                            <settings-toggle
-                                class="m-1"
-                                [toggle]="true"
-                                [ngModel]="room.state !== mic.falsy_value"
-                                (ngModelChange)="
-                                    setRoomMute(mic.name, room.name, !$event)
-                                "
-                            >
-                                {{ room.name }}
-                            </settings-toggle>
                         }
                     </div>
-                    <div
-                        class="flex min-w-64 items-center space-x-2"
-                        [attr.name]="mic.name"
-                    >
-                        <button
-                            mute
-                            icon
-                            matRipple
-                            [disabled]="!mic.mute_id?.length"
-                            (click)="mute[i] = !mute[i]"
-                        >
-                            <icon>{{
-                                mute[i]
-                                    ? 'volume_off'
-                                    : volume[i] > 0
-                                      ? 'volume_up'
-                                      : 'volume_mute'
-                            }}</icon>
-                        </button>
-                        <mat-slider
-                            [disabled]="!mic.level_id?.length"
-                            [min]="mic.min_level || 0"
-                            [max]="mic.max_level || 100"
-                            class="flex-1"
-                        >
-                            <input
-                                matSliderThumb
-                                [ngModel]="!mute[i] ? volume[i] : 0"
-                                (ngModelChange)="
-                                    setVolume(i, $event); onChange()
-                                "
-                        /></mat-slider>
-                    </div>
-                    <div hidden *ngIf="mic.module_id">
-                        <i
-                            binding
-                            [sys]="id"
-                            [mod]="mic.module_id"
-                            [bind]="mic.level_feedback"
-                            exec="fader"
-                            [ignore]="changing"
-                            [params]="[mic.level_id, volume[i]]"
-                            [(model)]="volume[i]"
-                        ></i>
-                        <i
-                            binding
-                            [sys]="id"
-                            [mod]="mic.module_id"
-                            [bind]="mic.mute_feedback"
-                            exec="mute"
-                            [params]="[mic.mute_id, mute[i]]"
-                            [(model)]="mute[i]"
-                        ></i>
-                    </div>
+                }
+            } @else {
+                <div class="flex items-center justify-center p-8">
+                    <p>{{ 'APP.CONTROL.MICS_EMPTY' | translate }}</p>
                 </div>
-            </ng-container>
+            }
         </div>
-        <ng-template #empty_state>
-            <div class="flex items-center justify-center p-8">
-                <p>{{ 'APP.CONTROL.MICS_EMPTY' | translate }}</p>
-            </div>
-        </ng-template>
     `,
     styles: [``],
     standalone: false,

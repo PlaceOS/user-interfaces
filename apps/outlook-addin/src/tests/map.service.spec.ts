@@ -16,7 +16,7 @@ import { MapService } from '../app/rooms/map.service';
 import { nextValueFrom } from '@placeos/common';
 import { ComponentsModule, MapPinComponent } from '@placeos/components';
 import { RoomConfirmService } from '../app/rooms/room-confirm.service';
-import { RoomTileComponent } from '../app/rooms/room-tile/room-tile.component';
+import { RoomTileComponent } from '../app/rooms/room-tile.component';
 import { mockSpace } from './test-mocks';
 
 describe('MapService', () => {

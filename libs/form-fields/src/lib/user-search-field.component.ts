@@ -21,7 +21,6 @@ import {
     switchMap,
 } from 'rxjs/operators';
 
-import { CommonModule } from '@angular/common';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -55,63 +54,63 @@ import { User } from 'libs/users/src/lib/user.class';
                 (focus)="cancelReset()"
             />
             <icon matPrefix class="relative text-2xl">search</icon>
-            <mat-spinner *ngIf="loading" matSuffix diameter="16"></mat-spinner>
+            @if (loading) {
+                <mat-spinner matSuffix diameter="16"></mat-spinner>
+            }
         </mat-form-field>
         <mat-autocomplete
             #auto="matAutocomplete"
             (optionSelected)="setValue($event.option.value)"
         >
-            <mat-option
-                *ngFor="let option of user_list"
-                (click)="setValue(option); blurInput()"
-            >
-                <div class="leading-tight">{{ option.name }}</div>
-                <div class="w-full text-xs opacity-60">
-                    {{ option.email }}
-                    <span
-                        *ngIf="
+            @for (option of user_list; track option) {
+                <mat-option (click)="setValue(option); blurInput()">
+                    <div class="leading-tight">{{ option.name }}</div>
+                    <div class="w-full text-xs opacity-60">
+                        {{ option.email }}
+                        @if (
                             option.username && option.username !== option.email
+                        ) {
+                            <span>
+                                (<span class="truncate">{{
+                                    option.username
+                                }}</span
+                                >)
+                            </span>
+                        }
+                    </div>
+                </mat-option>
+            }
+            @if (search_str && validate && validate(search_str)) {
+                <mat-option class="pointer-events-none relative">
+                    <div
+                        class="pointer-events-auto absolute inset-0 px-4"
+                        (mousedown)="
+                            $event.stopPropagation(); $event.preventDefault()
+                        "
+                        (touchstart)="
+                            $event.stopPropagation(); $event.preventDefault()
+                        "
+                        (click)="
+                            setValue(search_str);
+                            $event.stopPropagation();
+                            $event.preventDefault()
                         "
                     >
-                        (<span class="truncate">{{ option.username }}</span
-                        >)
-                    </span>
-                </div>
-            </mat-option>
-            <mat-option
-                *ngIf="search_str && validate && validate(search_str)"
-                class="pointer-events-none relative"
-            >
-                <div
-                    class="pointer-events-auto absolute inset-0 px-4"
-                    (mousedown)="
-                        $event.stopPropagation(); $event.preventDefault()
-                    "
-                    (touchstart)="
-                        $event.stopPropagation(); $event.preventDefault()
-                    "
-                    (click)="
-                        setValue(search_str);
-                        $event.stopPropagation();
-                        $event.preventDefault()
-                    "
-                >
-                    <div class="pointer-events-none">
-                        {{
-                            'FORM.USER_ADD_EXTERNAL'
-                                | translate: { name: search_str }
-                        }}
+                        <div class="pointer-events-none">
+                            {{
+                                'FORM.USER_ADD_EXTERNAL'
+                                    | translate: { name: search_str }
+                            }}
+                        </div>
                     </div>
-                </div>
-            </mat-option>
-            <mat-option
-                *ngIf="!user_list?.length && (search_str || error)"
-                [disabled]="!empty_fn"
-                (click)="empty_fn()"
-            >
-                {{ (search_str ? 'FORM.USER_EMPTY' : '') | translate }}
-                {{ error }}
-            </mat-option>
+                </mat-option>
+            }
+            @if (!user_list?.length && (search_str || error)) {
+                <mat-option [disabled]="!empty_fn" (click)="empty_fn()">
+                    {{ (search_str ? 'FORM.USER_EMPTY' : '') | translate }}
+                    {{ error }}
+                </mat-option>
+            }
         </mat-autocomplete>
     `,
     styles: [
@@ -133,7 +132,6 @@ import { User } from 'libs/users/src/lib/user.class';
         },
     ],
     imports: [
-        CommonModule,
         MatFormFieldModule,
         MatInputModule,
         MatProgressSpinnerModule,

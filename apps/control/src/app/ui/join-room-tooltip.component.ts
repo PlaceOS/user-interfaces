@@ -11,16 +11,17 @@ import { ControlStateService } from '../control-state.service';
             <h3 class="mb-2 text-center font-medium">
                 {{ 'APP.CONTROL.ACTION_JOIN_ROOMS' | translate }}
             </h3>
-            <button
-                btn
-                matRipple
-                *ngFor="let mode of modes | async"
-                (click)="join(mode.id)"
-                [class.inverse]="mode.id !== (active | async)"
-                class="w-64"
-            >
-                {{ mode.name }}
-            </button>
+            @for (mode of modes | async; track mode) {
+                <button
+                    btn
+                    matRipple
+                    (click)="join(mode.id)"
+                    [class.inverse]="mode.id !== (active | async)"
+                    class="w-64"
+                >
+                    {{ mode.name }}
+                </button>
+            }
         </div>
     `,
     styles: [``],

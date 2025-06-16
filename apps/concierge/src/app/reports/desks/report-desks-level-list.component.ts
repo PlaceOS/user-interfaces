@@ -26,17 +26,19 @@ import { ReportsStateService } from '../reports-state.service';
                                 | translate
                         }}
                     </h3>
-                    <button
-                        icon
-                        matRipple
-                        [matTooltip]="
-                            'APP.CONCIERGE.REPORTS_DOWNLOAD_TABLE' | translate
-                        "
-                        *ngIf="!print"
-                        (click)="download()"
-                    >
-                        <icon>download</icon>
-                    </button>
+                    @if (!print) {
+                        <button
+                            icon
+                            matRipple
+                            [matTooltip]="
+                                'APP.CONCIERGE.REPORTS_DOWNLOAD_TABLE'
+                                    | translate
+                            "
+                            (click)="download()"
+                        >
+                            <icon>download</icon>
+                        </button>
+                    }
                 </div>
                 <simple-table
                     class="block w-full text-sm"

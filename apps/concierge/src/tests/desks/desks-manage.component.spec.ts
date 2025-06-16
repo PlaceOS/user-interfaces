@@ -5,7 +5,6 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
-import { CustomTableComponent, IconComponent } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { BehaviorSubject, of } from 'rxjs';
@@ -18,6 +17,7 @@ jest.mock('@placeos/ts-client');
 jest.mock('@placeos/common');
 
 import { MatDialog } from '@angular/material/dialog';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { SimpleTableComponent } from 'libs/components/src/lib/simple-table.component';
 
 describe('DesksManageComponent', () => {
@@ -42,7 +42,6 @@ describe('DesksManageComponent', () => {
             MockProvider(MatDialog, { open: jest.fn() }),
         ],
         declarations: [
-            MockComponent(CustomTableComponent),
             MockComponent(ItemListFieldComponent),
             MockComponent(IconComponent),
             MockComponent(SimpleTableComponent),

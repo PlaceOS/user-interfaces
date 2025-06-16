@@ -53,12 +53,11 @@ declare let mapsindoors: any;
                             [(ngModel)]="level"
                             (ngModelChange)="onChange()"
                         >
-                            <mat-option
-                                *ngFor="let lvl of level_list | async"
-                                [value]="lvl"
-                            >
-                                {{ lvl.display_name || lvl.name }}
-                            </mat-option>
+                            @for (lvl of level_list | async; track lvl) {
+                                <mat-option [value]="lvl">
+                                    {{ lvl.display_name || lvl.name }}
+                                </mat-option>
+                            }
                         </mat-select>
                     </mat-form-field>
                     <mat-form-field
@@ -89,109 +88,47 @@ declare let mapsindoors: any;
                                                   ?.length || 0,
                                       }
                         }}
-                        <span *ngIf="last_page">
-                            {{ page * 100 + 1 }} -
-                            {{
-                                (search_results | async)?.length >
-                                page * 100 + 100
-                                    ? page * 100 + 100
-                                    : (search_results | async)?.length
-                            }}
-                        </span>
+                        @if (last_page) {
+                            <span>
+                                {{ page * 100 + 1 }} -
+                                {{
+                                    (search_results | async)?.length >
+                                    page * 100 + 100
+                                        ? page * 100 + 100
+                                        : (search_results | async)?.length
+                                }}
+                            </span>
+                        }
                     </div>
-                    <ng-container
-                        *ngIf="
-                            (search_results | async)?.length;
-                            else empty_state
-                        "
-                    >
-                        <button
-                            btn
-                            matRipple
-                            *ngFor="
-                                let poi of search_results
-                                    | async
-                                    | slice: page * 100 : page * 100 + 100
-                            "
-                            class="clear flex w-full items-center rounded text-left hover:bg-base-200"
-                            [class.!bg-primary]="poi.id === selected.value"
-                            [class.!text-primary-content]="
-                                poi.id === selected.value
-                            "
-                            (click)="selected.next(poi.id)"
-                            (mouseover)="hovered.next(poi.id)"
-                        >
-                            <div class="flex w-full flex-col">
-                                <div class="">{{ poi.name || poi.id }}</div>
-                                <div
-                                    class="text-xs opacity-30"
-                                    *ngIf="poi.location"
-                                >
-                                    {{ poi.location }}
+                    @if ((search_results | async)?.length) {
+                        @for (
+                            poi of search_results
+                                | async
+                                | slice: page * 100 : page * 100 + 100;
+                            track poi
+                        ) {
+                            <button
+                                btn
+                                matRipple
+                                class="clear flex w-full items-center rounded text-left hover:bg-base-200"
+                                [class.!bg-primary]="poi.id === selected.value"
+                                [class.!text-primary-content]="
+                                    poi.id === selected.value
+                                "
+                                (click)="selected.next(poi.id)"
+                                (mouseover)="hovered.next(poi.id)"
+                            >
+                                <div class="flex w-full flex-col">
+                                    <div class="">{{ poi.name || poi.id }}</div>
+                                    @if (poi.location) {
+                                        <div class="text-xs opacity-30">
+                                            {{ poi.location }}
+                                        </div>
+                                    }
                                 </div>
-                            </div>
-                        </button>
-                    </ng-container>
-                    <div
-                        pagination
-                        *ngIf="last_page > 0"
-                        class="sticky bottom-0 z-10 flex w-full items-center justify-center space-x-1 bg-base-100 p-2"
-                    >
-                        <button
-                            icon
-                            matRipple
-                            class="rounded border border-base-200"
-                            [disabled]="page === 0"
-                            (click)="page = page - 1"
-                        >
-                            <icon>chevron_left</icon>
-                        </button>
-                        <button
-                            icon
-                            matRipple
-                            [class.!bg-secondary]="page === 0"
-                            [class.text-secondary-content]="page === 0"
-                            [class.!rounded-full]="page === 0"
-                            (click)="page = 0"
-                        >
-                            1
-                        </button>
-                        <button icon [class.opacity-0]="page < 2">
-                            <icon>more_horiz</icon>
-                        </button>
-                        <button
-                            icon
-                            matRipple
-                            class="!bg-secondary text-secondary-content"
-                            [class.opacity-0]="page == 0 || page == last_page"
-                        >
-                            {{ page + 1 }}
-                        </button>
-                        <button icon [class.opacity-0]="page > last_page - 2">
-                            <icon>more_horiz</icon>
-                        </button>
-                        <button
-                            icon
-                            matRipple
-                            class="rounded border border-base-200"
-                            [class.!bg-secondary]="page === last_page"
-                            [class.text-secondary-content]="page === last_page"
-                            [class.!rounded-full]="page === last_page"
-                            (click)="page = last_page"
-                        >
-                            {{ last_page + 1 }}
-                        </button>
-                        <button
-                            icon
-                            matRipple
-                            class="rounded border border-base-200"
-                            [disabled]="page === last_page"
-                            (click)="page = page + 1"
-                        >
-                            <icon>chevron_right</icon>
-                        </button>
-                    </div>
-                    <ng-template #empty_state>
+                            </button>
+                        }
+                    } @else {
                         <div
                             class="flex h-full flex-1 flex-col items-center justify-center space-y-4"
                         >
@@ -206,7 +143,74 @@ declare let mapsindoors: any;
                                 }}
                             </div>
                         </div>
-                    </ng-template>
+                    }
+                    @if (last_page > 0) {
+                        <div
+                            pagination
+                            class="sticky bottom-0 z-10 flex w-full items-center justify-center space-x-1 bg-base-100 p-2"
+                        >
+                            <button
+                                icon
+                                matRipple
+                                class="rounded border border-base-200"
+                                [disabled]="page === 0"
+                                (click)="page = page - 1"
+                            >
+                                <icon>chevron_left</icon>
+                            </button>
+                            <button
+                                icon
+                                matRipple
+                                [class.!bg-secondary]="page === 0"
+                                [class.text-secondary-content]="page === 0"
+                                [class.!rounded-full]="page === 0"
+                                (click)="page = 0"
+                            >
+                                1
+                            </button>
+                            <button icon [class.opacity-0]="page < 2">
+                                <icon>more_horiz</icon>
+                            </button>
+                            <button
+                                icon
+                                matRipple
+                                class="!bg-secondary text-secondary-content"
+                                [class.opacity-0]="
+                                    page == 0 || page == last_page
+                                "
+                            >
+                                {{ page + 1 }}
+                            </button>
+                            <button
+                                icon
+                                [class.opacity-0]="page > last_page - 2"
+                            >
+                                <icon>more_horiz</icon>
+                            </button>
+                            <button
+                                icon
+                                matRipple
+                                class="rounded border border-base-200"
+                                [class.!bg-secondary]="page === last_page"
+                                [class.text-secondary-content]="
+                                    page === last_page
+                                "
+                                [class.!rounded-full]="page === last_page"
+                                (click)="page = last_page"
+                            >
+                                {{ last_page + 1 }}
+                            </button>
+                            <button
+                                icon
+                                matRipple
+                                class="rounded border border-base-200"
+                                [disabled]="page === last_page"
+                                (click)="page = page + 1"
+                            >
+                                <icon>chevron_right</icon>
+                            </button>
+                        </div>
+                    }
                 </div>
                 <div actions class="border-t border-base-200 p-2">
                     <button

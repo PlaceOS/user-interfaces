@@ -12,33 +12,34 @@ import { PanelStateService } from '../panel-state.service';
         >
             <panel-view-details class="w-full flex-1"></panel-view-details>
             <panel-view-status class="w-full flex-1"></panel-view-status>
-            <div
-                *ngIf="show_offline"
-                class="absolute inset-0 z-40 bg-contain bg-center bg-no-repeat"
-                [style.background-color]="offline_color"
-                [style.background-image]="
-                    'url(' + offline_image + ')' | safe: 'resource'
-                "
-            >
+            @if (show_offline) {
                 <div
-                    class="absolute left-4 top-4 flex w-1/2 items-center justify-center rounded bg-warning p-4 text-5xl font-medium text-white shadow"
+                    class="absolute inset-0 z-40 bg-contain bg-center bg-no-repeat"
+                    [style.background-color]="offline_color"
+                    [style.background-image]="
+                        'url(' + offline_image + ')' | safe: 'resource'
+                    "
                 >
-                    {{
-                        name ||
-                            (system | async)?.display_name ||
-                            (system | async)?.name ||
-                            '&lt;Unknown Space&gt;'
-                    }}
-                </div>
-                <div
-                    class="absolute bottom-4 right-4 flex max-w-[25%] flex-col items-center text-center"
-                >
-                    <div class="text-8xl">{{ capacity }}</div>
-                    <div class="text-3xl">
-                        {{ 'APP.BOOKING_PANEL.ROOM_CAPACITY' | translate }}
+                    <div
+                        class="absolute left-4 top-4 flex w-1/2 items-center justify-center rounded bg-warning p-4 text-5xl font-medium text-white shadow"
+                    >
+                        {{
+                            name ||
+                                (system | async)?.display_name ||
+                                (system | async)?.name ||
+                                '&lt;Unknown Space&gt;'
+                        }}
+                    </div>
+                    <div
+                        class="absolute bottom-4 right-4 flex max-w-[25%] flex-col items-center text-center"
+                    >
+                        <div class="text-8xl">{{ capacity }}</div>
+                        <div class="text-3xl">
+                            {{ 'APP.BOOKING_PANEL.ROOM_CAPACITY' | translate }}
+                        </div>
                     </div>
                 </div>
-            </div>
+            }
             <div class="absolute bottom-0 right-0 p-2">
                 <div class="w-full text-xs opacity-40">
                     <ng-container

@@ -32,12 +32,13 @@ import { CustomTooltipData } from './custom-tooltip.component';
                         [class.border-info]="active_locale === lang.id"
                     >
                         <div>{{ lang.name | translate }}</div>
-                        <div
-                            *ngIf="(lang.name | translate) !== lang.local"
-                            class="rounded bg-base-300 px-2 py-1 text-xs opacity-60"
-                        >
-                            {{ lang.local }}
-                        </div>
+                        @if ((lang.name | translate) !== lang.local) {
+                            <div
+                                class="rounded bg-base-300 px-2 py-1 text-xs opacity-60"
+                            >
+                                {{ lang.local }}
+                            </div>
+                        }
                     </div>
                     <!-- <div class="text-3xl">{{ lang.flag }}</div> -->
                 </button>

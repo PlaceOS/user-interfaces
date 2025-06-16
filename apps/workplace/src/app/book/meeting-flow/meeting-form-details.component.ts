@@ -16,176 +16,198 @@ import {
 @Component({
     selector: 'meeting-form-details',
     template: `
-        <div *ngIf="form" [formGroup]="form">
-            <div class="flex flex-wrap items-center sm:space-x-2">
-                <div class="min-w-[256px] flex-1">
-                    <label for="title">{{ 'FORM.TITLE' | translate }}</label>
-                    <mat-form-field appearance="outline" class="w-full">
-                        <input
-                            matInput
-                            name="title"
-                            formControlName="title"
-                            [placeholder]="
-                                'CALENDAR_EVENT.TITLE_PLACEHOLDER' | translate
-                            "
-                        />
-                        <mat-error>
-                            {{ 'FORM.TITLE_REQUIRED' | translate }}
-                        </mat-error>
-                    </mat-form-field>
+        @if (form) {
+            <div [formGroup]="form">
+                <div class="flex flex-wrap items-center sm:space-x-2">
+                    <div class="min-w-[256px] flex-1">
+                        <label for="title">{{
+                            'FORM.TITLE' | translate
+                        }}</label>
+                        <mat-form-field appearance="outline" class="w-full">
+                            <input
+                                matInput
+                                name="title"
+                                formControlName="title"
+                                [placeholder]="
+                                    'CALENDAR_EVENT.TITLE_PLACEHOLDER'
+                                        | translate
+                                "
+                            />
+                            <mat-error>
+                                {{ 'FORM.TITLE_REQUIRED' | translate }}
+                            </mat-error>
+                        </mat-form-field>
+                    </div>
+                    @if (!allow_multiday) {
+                        <div class="relative min-w-[256px] flex-1">
+                            <label for="date">
+                                {{ 'FORM.DATE' | translate }}<span>*</span>
+                            </label>
+                            <a-date-field
+                                name="date"
+                                formControlName="date"
+                                [to]="end_date"
+                                [use_24hr]="use_24hr"
+                                [timezone]="timezone"
+                            >
+                                {{ 'FORM.DATE_ERROR' | translate }}
+                            </a-date-field>
+                            @if (allow_all_day) {
+                                <mat-checkbox
+                                    formControlName="all_day"
+                                    class="absolute -top-2 right-2"
+                                >
+                                    {{ 'COMMON.ALL_DAY' | translate }}
+                                </mat-checkbox>
+                            }
+                        </div>
+                    }
                 </div>
-                <div
-                    class="relative min-w-[256px] flex-1"
-                    *ngIf="!allow_multiday"
-                >
-                    <label for="date">
-                        {{ 'FORM.DATE' | translate }}<span>*</span>
-                    </label>
-                    <a-date-field
-                        name="date"
-                        formControlName="date"
-                        [to]="end_date"
-                        [use_24hr]="use_24hr"
-                        [timezone]="timezone"
-                    >
-                        {{ 'FORM.DATE_ERROR' | translate }}
-                    </a-date-field>
-                    <mat-checkbox
-                        formControlName="all_day"
-                        *ngIf="allow_all_day"
-                        class="absolute -top-2 right-2"
-                    >
-                        {{ 'COMMON.ALL_DAY' | translate }}
-                    </mat-checkbox>
-                </div>
+                @if (allow_multiday) {
+                    <div class="flex flex-wrap items-center sm:space-x-2">
+                        <div class="relative min-w-[256px] flex-1">
+                            <label for="date">
+                                {{ 'FORM.DATE' | translate }}<span>*</span>
+                            </label>
+                            <a-date-field
+                                name="date"
+                                formControlName="date"
+                                [to]="end_date"
+                                [use_24hr]="use_24hr"
+                                [timezone]="timezone"
+                                [range]="1"
+                            >
+                                {{ 'FORM.DATE_ERROR' | translate }}
+                            </a-date-field>
+                            @if (allow_all_day) {
+                                <mat-checkbox
+                                    formControlName="all_day"
+                                    class="absolute -top-2 right-2"
+                                >
+                                    {{ 'COMMON.ALL_DAY' | translate }}
+                                </mat-checkbox>
+                            }
+                        </div>
+                        <div class="relative min-w-[256px] flex-1">
+                            <label for="date">
+                                {{ 'FORM.DATE_END' | translate }}<span>*</span>
+                            </label>
+                            <a-date-field
+                                name="date"
+                                formControlName="date_end"
+                                [from]="start_date"
+                                [to]="end_date"
+                                [use_24hr]="use_24hr"
+                                [timezone]="timezone"
+                                [range]="2"
+                            >
+                                {{ 'FORM.DATE_ERROR' | translate }}
+                            </a-date-field>
+                        </div>
+                    </div>
+                }
+                @if (!form.value.all_day) {
+                    <div class="flex items-center space-x-2">
+                        <div class="w-1/3 flex-1">
+                            <label for="start-time">
+                                {{ 'FORM.TIME_START' | translate }}
+                                <span>*</span>
+                            </label>
+                            <a-time-field
+                                name="start-time"
+                                [ngModel]="form.getRawValue().date"
+                                (ngModelChange)="
+                                    form.patchValue({ date: $event })
+                                "
+                                [ngModelOptions]="{ standalone: true }"
+                                [disabled]="form.controls.date.disabled"
+                                [use_24hr]="use_24hr"
+                                [timezone]="timezone"
+                            ></a-time-field>
+                        </div>
+                        @if (allow_multiday) {
+                            <div class="w-1/3 flex-1">
+                                <label for="end-time">
+                                    {{ 'FORM.TIME_END' | translate
+                                    }}<span>*</span>
+                                </label>
+                                <a-time-field
+                                    name="end-time"
+                                    [ngModel]="form.value.date_end"
+                                    (ngModelChange)="
+                                        form.patchValue({ date_end: $event })
+                                    "
+                                    [ngModelOptions]="{ standalone: true }"
+                                    [from]="
+                                        form?.getRawValue()?.date +
+                                        30 * 60 * 1000
+                                    "
+                                    [use_24hr]="use_24hr"
+                                    [extra_info_fn]="duration_info"
+                                    [timezone]="timezone"
+                                ></a-time-field>
+                            </div>
+                        }
+                        @if (!allow_multiday) {
+                            <div class="w-1/3 flex-1">
+                                <label for="end-time">
+                                    {{ 'FORM.TIME_END' | translate
+                                    }}<span>*</span>
+                                </label>
+                                <a-duration-field
+                                    name="end-time"
+                                    formControlName="duration"
+                                    [time]="form?.getRawValue()?.date"
+                                    [max]="max_duration"
+                                    [use_24hr]="use_24hr"
+                                    [timezone]="timezone"
+                                ></a-duration-field>
+                            </div>
+                        }
+                    </div>
+                }
+                @if (can_book_for_anyone) {
+                    <div class="flex w-full flex-col">
+                        <label for="host">
+                            {{ 'FORM.HOST' | translate }}<span>*</span>
+                        </label>
+                        <a-user-search-field
+                            name="host"
+                            formControlName="organiser"
+                        ></a-user-search-field>
+                    </div>
+                }
+                @if (can_book_for_others) {
+                    <div class="flex w-full flex-col">
+                        <label for="host">
+                            {{ 'FORM.HOST' | translate }}<span>*</span>
+                        </label>
+                        <host-select-field
+                            name="host"
+                            formControlName="organiser"
+                        ></host-select-field>
+                    </div>
+                }
+                @if (allow_recurrence) {
+                    <div class="flex w-full flex-col">
+                        <label for="recurrence">
+                            {{ 'FORM.RECURRENCE' | translate }}<span>*</span>
+                        </label>
+                        <recurrence-field
+                            name="recurrence"
+                            type="event"
+                            [date]="form.getRawValue().date"
+                            formControlName="recurrence"
+                        ></recurrence-field>
+                        @if (form.value.id) {
+                            <mat-checkbox formControlName="update_master">
+                                {{ 'FORM.UPDATE_FUTURE' | translate }}
+                            </mat-checkbox>
+                        }
+                    </div>
+                }
             </div>
-            <div
-                class="flex flex-wrap items-center sm:space-x-2"
-                *ngIf="allow_multiday"
-            >
-                <div class="relative min-w-[256px] flex-1">
-                    <label for="date">
-                        {{ 'FORM.DATE' | translate }}<span>*</span>
-                    </label>
-                    <a-date-field
-                        name="date"
-                        formControlName="date"
-                        [to]="end_date"
-                        [use_24hr]="use_24hr"
-                        [timezone]="timezone"
-                        [range]="1"
-                    >
-                        {{ 'FORM.DATE_ERROR' | translate }}
-                    </a-date-field>
-                    <mat-checkbox
-                        formControlName="all_day"
-                        *ngIf="allow_all_day"
-                        class="absolute -top-2 right-2"
-                    >
-                        {{ 'COMMON.ALL_DAY' | translate }}
-                    </mat-checkbox>
-                </div>
-                <div class="relative min-w-[256px] flex-1">
-                    <label for="date">
-                        {{ 'FORM.DATE_END' | translate }}<span>*</span>
-                    </label>
-                    <a-date-field
-                        name="date"
-                        formControlName="date_end"
-                        [from]="start_date"
-                        [to]="end_date"
-                        [use_24hr]="use_24hr"
-                        [timezone]="timezone"
-                        [range]="2"
-                    >
-                        {{ 'FORM.DATE_ERROR' | translate }}
-                    </a-date-field>
-                </div>
-            </div>
-            <div
-                class="flex items-center space-x-2"
-                *ngIf="!form.value.all_day"
-            >
-                <div class="w-1/3 flex-1">
-                    <label for="start-time">
-                        {{ 'FORM.TIME_START' | translate }}
-                        <span>*</span>
-                    </label>
-                    <a-time-field
-                        name="start-time"
-                        [ngModel]="form.getRawValue().date"
-                        (ngModelChange)="form.patchValue({ date: $event })"
-                        [ngModelOptions]="{ standalone: true }"
-                        [disabled]="form.controls.date.disabled"
-                        [use_24hr]="use_24hr"
-                        [timezone]="timezone"
-                    ></a-time-field>
-                </div>
-                <div class="w-1/3 flex-1" *ngIf="allow_multiday">
-                    <label for="end-time">
-                        {{ 'FORM.TIME_END' | translate }}<span>*</span>
-                    </label>
-                    <a-time-field
-                        name="end-time"
-                        [ngModel]="form.value.date_end"
-                        (ngModelChange)="form.patchValue({ date_end: $event })"
-                        [ngModelOptions]="{ standalone: true }"
-                        [from]="form?.getRawValue()?.date + 30 * 60 * 1000"
-                        [use_24hr]="use_24hr"
-                        [extra_info_fn]="duration_info"
-                        [timezone]="timezone"
-                    ></a-time-field>
-                </div>
-                <div class="w-1/3 flex-1" *ngIf="!allow_multiday">
-                    <label for="end-time">
-                        {{ 'FORM.TIME_END' | translate }}<span>*</span>
-                    </label>
-                    <a-duration-field
-                        name="end-time"
-                        formControlName="duration"
-                        [time]="form?.getRawValue()?.date"
-                        [max]="max_duration"
-                        [use_24hr]="use_24hr"
-                        [timezone]="timezone"
-                    ></a-duration-field>
-                </div>
-            </div>
-            <div *ngIf="can_book_for_anyone" class="flex w-full flex-col">
-                <label for="host">
-                    {{ 'FORM.HOST' | translate }}<span>*</span>
-                </label>
-                <a-user-search-field
-                    name="host"
-                    formControlName="organiser"
-                ></a-user-search-field>
-            </div>
-            <div *ngIf="can_book_for_others" class="flex w-full flex-col">
-                <label for="host">
-                    {{ 'FORM.HOST' | translate }}<span>*</span>
-                </label>
-                <host-select-field
-                    name="host"
-                    formControlName="organiser"
-                ></host-select-field>
-            </div>
-            <div *ngIf="allow_recurrence" class="flex w-full flex-col">
-                <label for="recurrence">
-                    {{ 'FORM.RECURRENCE' | translate }}<span>*</span>
-                </label>
-                <recurrence-field
-                    name="recurrence"
-                    type="event"
-                    [date]="form.getRawValue().date"
-                    formControlName="recurrence"
-                ></recurrence-field>
-                <mat-checkbox
-                    *ngIf="form.value.id"
-                    formControlName="update_master"
-                >
-                    {{ 'FORM.UPDATE_FUTURE' | translate }}
-                </mat-checkbox>
-            </div>
-        </div>
+        }
     `,
     styles: [],
     standalone: false,

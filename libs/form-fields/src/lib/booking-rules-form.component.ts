@@ -56,12 +56,11 @@ import { ItemListFieldComponent } from './item-list-field.component';
                             <mat-option value="*">{{
                                 'COMMON.ZONE_ANY' | translate
                             }}</mat-option>
-                            <mat-option
-                                *ngFor="let zone of building_zones | async"
-                                [value]="zone.id"
-                            >
-                                {{ zone.display_name || zone.name }}
-                            </mat-option>
+                            @for (zone of building_zones | async; track zone) {
+                                <mat-option [value]="zone.id">
+                                    {{ zone.display_name || zone.name }}
+                                </mat-option>
+                            }
                         </mat-select>
                         <mat-error>{{
                             'COMMON.ZONE_REQUIRED' | translate
@@ -95,13 +94,14 @@ import { ItemListFieldComponent } from './item-list-field.component';
                     </settings-toggle>
                 </div>
                 <div class="flex flex-1 flex-col">
-                    <settings-toggle
-                        *ngIf="!form.value.rules.hidden"
-                        formControlName="auto_approve"
-                        [name]="'BOOKINGS.AUTO_APPROVE' | translate"
-                        [info]="'BOOKINGS.AUTO_APPROVE_INFO' | translate"
-                    >
-                    </settings-toggle>
+                    @if (!form.value.rules.hidden) {
+                        <settings-toggle
+                            formControlName="auto_approve"
+                            [name]="'BOOKINGS.AUTO_APPROVE' | translate"
+                            [info]="'BOOKINGS.AUTO_APPROVE_INFO' | translate"
+                        >
+                        </settings-toggle>
+                    }
                 </div>
             </div>
             <div class="flex flex-col">
@@ -151,284 +151,271 @@ import { ItemListFieldComponent } from './item-list-field.component';
                     </mat-select>
                 </mat-form-field>
             </div>
-            <div
-                class="flex flex-col"
-                *ngIf="available_conditions.includes('groups')"
-                formGroupName="conditions"
-            >
-                <label for="groups">
-                    {{
-                        (form.value.rules.hidden
-                            ? 'BOOKINGS.GROUPS_DENY'
-                            : 'BOOKINGS.GROUPS_ALLOW'
-                        ) | translate
-                    }}
-                </label>
-                <item-list-field
-                    name="groups"
-                    formControlName="groups"
-                    [placeholder]="'BOOKINGS.GROUPS' | translate"
-                ></item-list-field>
-            </div>
-            <div
-                class="flex flex-col"
-                *ngIf="available_conditions.includes('locations')"
-                formGroupName="conditions"
-            >
-                <label for="locations">
-                    {{ 'BOOKINGS.CONDITION_LOCATION' | translate }}
-                </label>
-                <item-list-field
-                    name="locations"
-                    formControlName="locations"
-                    [placeholder]="'BOOKINGS.CONDITION_LOCATION' | translate"
-                ></item-list-field>
-            </div>
-            <div
-                class="flex flex-col"
-                *ngIf="available_conditions.includes('tags')"
-                formGroupName="conditions"
-            >
-                <label for="tags">
-                    {{ 'BOOKINGS.CONDITION_TAGS' | translate }}
-                </label>
-                <item-list-field
-                    name="tags"
-                    formControlName="tags"
-                    [placeholder]="'BOOKINGS.CONDITION_TAGS' | translate"
-                ></item-list-field>
-            </div>
-            <div
-                class="flex items-center space-x-2"
-                *ngIf="
-                    available_conditions.includes('min_length') ||
-                    available_conditions.includes('max_length')
-                "
-                formGroupName="conditions"
-            >
-                <div
-                    class="flex flex-1 flex-col"
-                    *ngIf="available_conditions.includes('min_length')"
-                >
-                    <label for="min_length">
+            @if (available_conditions.includes('groups')) {
+                <div class="flex flex-col" formGroupName="conditions">
+                    <label for="groups">
                         {{
                             (form.value.rules.hidden
-                                ? 'BOOKINGS.MIN_LENGTH_DENY'
-                                : 'BOOKINGS.MIN_LENGTH_ALLOW'
+                                ? 'BOOKINGS.GROUPS_DENY'
+                                : 'BOOKINGS.GROUPS_ALLOW'
                             ) | translate
                         }}
                     </label>
-                    <a-duration-field
-                        name="min_length"
-                        [min]="15"
-                        [max]="1440"
-                        [step]="15"
-                        formControlName="min_length"
-                    ></a-duration-field>
+                    <item-list-field
+                        name="groups"
+                        formControlName="groups"
+                        [placeholder]="'BOOKINGS.GROUPS' | translate"
+                    ></item-list-field>
                 </div>
+            }
+            @if (available_conditions.includes('locations')) {
+                <div class="flex flex-col" formGroupName="conditions">
+                    <label for="locations">
+                        {{ 'BOOKINGS.CONDITION_LOCATION' | translate }}
+                    </label>
+                    <item-list-field
+                        name="locations"
+                        formControlName="locations"
+                        [placeholder]="
+                            'BOOKINGS.CONDITION_LOCATION' | translate
+                        "
+                    ></item-list-field>
+                </div>
+            }
+            @if (available_conditions.includes('tags')) {
+                <div class="flex flex-col" formGroupName="conditions">
+                    <label for="tags">
+                        {{ 'BOOKINGS.CONDITION_TAGS' | translate }}
+                    </label>
+                    <item-list-field
+                        name="tags"
+                        formControlName="tags"
+                        [placeholder]="'BOOKINGS.CONDITION_TAGS' | translate"
+                    ></item-list-field>
+                </div>
+            }
+            @if (
+                available_conditions.includes('min_length') ||
+                available_conditions.includes('max_length')
+            ) {
                 <div
-                    class="flex flex-1 flex-col"
-                    *ngIf="available_conditions.includes('max_length')"
+                    class="flex items-center space-x-2"
+                    formGroupName="conditions"
                 >
-                    <label for="max_length">
+                    @if (available_conditions.includes('min_length')) {
+                        <div class="flex flex-1 flex-col">
+                            <label for="min_length">
+                                {{
+                                    (form.value.rules.hidden
+                                        ? 'BOOKINGS.MIN_LENGTH_DENY'
+                                        : 'BOOKINGS.MIN_LENGTH_ALLOW'
+                                    ) | translate
+                                }}
+                            </label>
+                            <a-duration-field
+                                name="min_length"
+                                [min]="15"
+                                [max]="1440"
+                                [step]="15"
+                                formControlName="min_length"
+                            ></a-duration-field>
+                        </div>
+                    }
+                    @if (available_conditions.includes('max_length')) {
+                        <div class="flex flex-1 flex-col">
+                            <label for="max_length">
+                                {{
+                                    (form.value.rules.hidden
+                                        ? 'BOOKINGS.MAX_LENGTH_DENY'
+                                        : 'BOOKINGS.MAX_LENGTH_ALLOW'
+                                    ) | translate
+                                }}
+                            </label>
+                            <a-duration-field
+                                name="max_length"
+                                [min]="form.value.conditions.min_length || 15"
+                                [max]="1440"
+                                [step]="15"
+                                formControlName="max_length"
+                            ></a-duration-field>
+                        </div>
+                    }
+                </div>
+            }
+            @if (available_conditions.includes('is_before')) {
+                <div class="flex flex-col" formGroupName="conditions">
+                    <label for="is-before">
                         {{
                             (form.value.rules.hidden
-                                ? 'BOOKINGS.MAX_LENGTH_DENY'
-                                : 'BOOKINGS.MAX_LENGTH_ALLOW'
+                                ? 'BOOKINGS.BEFORE_DENY'
+                                : 'BOOKINGS.BEFORE_ALLOW'
                             ) | translate
                         }}
                     </label>
-                    <a-duration-field
-                        name="max_length"
-                        [min]="form.value.conditions.min_length || 15"
-                        [max]="1440"
-                        [step]="15"
-                        formControlName="max_length"
-                    ></a-duration-field>
-                </div>
-            </div>
-            <div
-                class="flex flex-col"
-                *ngIf="available_conditions.includes('is_before')"
-                formGroupName="conditions"
-            >
-                <label for="is-before">
-                    {{
-                        (form.value.rules.hidden
-                            ? 'BOOKINGS.BEFORE_DENY'
-                            : 'BOOKINGS.BEFORE_ALLOW'
-                        ) | translate
-                    }}
-                </label>
-                <mat-form-field appearance="outline" class="flex-1">
-                    <mat-select name="is-before" formControlName="is_before">
-                        <mat-option
-                            *ngFor="let time of duration_blocks"
-                            [value]="time"
-                        >
-                            {{ time }}
-                        </mat-option>
-                    </mat-select>
-                    <mat-error>{{
-                        'BOOKINGS.BEFORE_REQUIRED' | translate
-                    }}</mat-error>
-                </mat-form-field>
-            </div>
-            <div
-                class="flex flex-col"
-                *ngIf="available_conditions.includes('is_after')"
-                formGroupName="conditions"
-            >
-                <label for="is-after">
-                    {{
-                        (form.value.rules.hidden
-                            ? 'BOOKINGS.AFTER_DENY'
-                            : 'BOOKINGS.AFTER_ALLOW'
-                        ) | translate
-                    }}
-                </label>
-                <mat-form-field appearance="outline" class="flex-1">
-                    <mat-select name="is-after" formControlName="is_after">
-                        <mat-option
-                            *ngFor="let time of duration_blocks"
-                            [value]="time"
-                        >
-                            {{ time }}
-                        </mat-option>
-                    </mat-select>
-                    <mat-error>
-                        {{ 'BOOKINGS.AFTER_REQUIRED' | translate }}
-                    </mat-error>
-                </mat-form-field>
-            </div>
-            <div
-                class="flex flex-col"
-                *ngIf="available_conditions.includes('is_period')"
-                formGroupName="conditions"
-            >
-                <label for="is-after">
-                    {{
-                        (form.value.rules.hidden
-                            ? 'BOOKINGS.BETWEEN_DATES_ALLOW'
-                            : 'BOOKINGS.BETWEEN_DATES_DENY'
-                        ) | translate
-                    }}
-                </label>
-                <div class="flex items-center space-x-2">
-                    <a-date-field
-                        class="flex-1"
-                        [ngModel]="form.value.conditions.is_period[0]"
-                        [ngModelOptions]="{ standalone: true }"
-                        (ngModelChange)="
-                            setIsPeriod(
-                                $event,
-                                form.value.conditions.is_period[1]
-                            )
-                        "
-                    >
-                    </a-date-field>
-                    <a-date-field
-                        class="flex-1"
-                        [from]="form.value.conditions.is_period[0]"
-                        [ngModel]="form.value.conditions.is_period[1]"
-                        [ngModelOptions]="{ standalone: true }"
-                        (ngModelChange)="
-                            setIsPeriod(
-                                form.value.conditions.is_period[0],
-                                $event
-                            )
-                        "
-                    >
-                    </a-date-field>
-                </div>
-            </div>
-            <div
-                class="flex flex-col"
-                *ngIf="available_conditions.includes('is_between')"
-                formGroupName="conditions"
-            >
-                <label for="is_between">
-                    {{
-                        (form.value.rules.hidden
-                            ? 'BOOKINGS.BETWEEN_HOURS_ALLOW'
-                            : 'BOOKINGS.BETWEEN_HOURS_DENY'
-                        ) | translate
-                    }}
-                </label>
-                <div class="flex w-full items-center space-x-2">
                     <mat-form-field appearance="outline" class="flex-1">
                         <mat-select
-                            name="start-time"
-                            [ngModel]="form.value.conditions.is_between[0] || 6"
-                            [ngModelOptions]="{ standalone: true }"
-                            (ngModelChange)="
-                                setIsBetween(
-                                    $event,
-                                    form.value.conditions.is_between[1]
-                                )
-                            "
+                            name="is-before"
+                            formControlName="is_before"
                         >
-                            <mat-option
-                                *ngFor="let time of time_blocks"
-                                [value]="time.id"
-                            >
-                                {{ time.value | date: time_format }}
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
-
-                    <mat-form-field appearance="outline" class="flex-1">
-                        <mat-select
-                            name="end-time"
-                            [ngModel]="
-                                form.value.conditions.is_between[1] || 18
-                            "
-                            (ngModelChange)="
-                                setIsBetween(
-                                    form.value.conditions.is_between[0],
-                                    $event
-                                )
-                            "
-                            [ngModelOptions]="{ standalone: true }"
-                        >
-                            <ng-container *ngFor="let time of time_blocks">
-                                <mat-option
-                                    [value]="time.id"
-                                    *ngIf="
-                                        time.id >
-                                        (form.value.conditions.is_between[0] ||
-                                            6)
-                                    "
-                                >
-                                    {{ time.value | date: time_format }}
+                            @for (time of duration_blocks; track time) {
+                                <mat-option [value]="time">
+                                    {{ time }}
                                 </mat-option>
-                            </ng-container>
+                            }
                         </mat-select>
                         <mat-error>{{
-                            'BOOKINGS.BETWEEN_HOURS_REQUIRED' | translate
+                            'BOOKINGS.BEFORE_REQUIRED' | translate
                         }}</mat-error>
                     </mat-form-field>
                 </div>
-            </div>
-            <div
-                class="flex flex-col"
-                *ngIf="available_conditions.includes('resource_ids')"
-                formGroupName="conditions"
-            >
-                <label for="resource_ids">
-                    {{
-                        (form.value.rules.hidden
-                            ? 'BOOKINGS.RESOURCES_ALLOW'
-                            : 'BOOKINGS.RESOURCES_DENY'
-                        ) | translate
-                    }}
-                </label>
-                <item-list-field
-                    name="resource_ids"
-                    formControlName="resource_ids"
-                    [placeholder]="'BOOKINGS.RESOURCES_PLACEHOLDER' | translate"
-                ></item-list-field>
-            </div>
+            }
+            @if (available_conditions.includes('is_after')) {
+                <div class="flex flex-col" formGroupName="conditions">
+                    <label for="is-after">
+                        {{
+                            (form.value.rules.hidden
+                                ? 'BOOKINGS.AFTER_DENY'
+                                : 'BOOKINGS.AFTER_ALLOW'
+                            ) | translate
+                        }}
+                    </label>
+                    <mat-form-field appearance="outline" class="flex-1">
+                        <mat-select name="is-after" formControlName="is_after">
+                            @for (time of duration_blocks; track time) {
+                                <mat-option [value]="time">
+                                    {{ time }}
+                                </mat-option>
+                            }
+                        </mat-select>
+                        <mat-error>
+                            {{ 'BOOKINGS.AFTER_REQUIRED' | translate }}
+                        </mat-error>
+                    </mat-form-field>
+                </div>
+            }
+            @if (available_conditions.includes('is_period')) {
+                <div class="flex flex-col" formGroupName="conditions">
+                    <label for="is-after">
+                        {{
+                            (form.value.rules.hidden
+                                ? 'BOOKINGS.BETWEEN_DATES_ALLOW'
+                                : 'BOOKINGS.BETWEEN_DATES_DENY'
+                            ) | translate
+                        }}
+                    </label>
+                    <div class="flex items-center space-x-2">
+                        <a-date-field
+                            class="flex-1"
+                            [ngModel]="form.value.conditions.is_period[0]"
+                            [ngModelOptions]="{ standalone: true }"
+                            (ngModelChange)="
+                                setIsPeriod(
+                                    $event,
+                                    form.value.conditions.is_period[1]
+                                )
+                            "
+                        >
+                        </a-date-field>
+                        <a-date-field
+                            class="flex-1"
+                            [from]="form.value.conditions.is_period[0]"
+                            [ngModel]="form.value.conditions.is_period[1]"
+                            [ngModelOptions]="{ standalone: true }"
+                            (ngModelChange)="
+                                setIsPeriod(
+                                    form.value.conditions.is_period[0],
+                                    $event
+                                )
+                            "
+                        >
+                        </a-date-field>
+                    </div>
+                </div>
+            }
+            @if (available_conditions.includes('is_between')) {
+                <div class="flex flex-col" formGroupName="conditions">
+                    <label for="is_between">
+                        {{
+                            (form.value.rules.hidden
+                                ? 'BOOKINGS.BETWEEN_HOURS_ALLOW'
+                                : 'BOOKINGS.BETWEEN_HOURS_DENY'
+                            ) | translate
+                        }}
+                    </label>
+                    <div class="flex w-full items-center space-x-2">
+                        <mat-form-field appearance="outline" class="flex-1">
+                            <mat-select
+                                name="start-time"
+                                [ngModel]="
+                                    form.value.conditions.is_between[0] || 6
+                                "
+                                [ngModelOptions]="{ standalone: true }"
+                                (ngModelChange)="
+                                    setIsBetween(
+                                        $event,
+                                        form.value.conditions.is_between[1]
+                                    )
+                                "
+                            >
+                                @for (time of time_blocks; track time) {
+                                    <mat-option [value]="time.id">
+                                        {{ time.value | date: time_format }}
+                                    </mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
+                        <mat-form-field appearance="outline" class="flex-1">
+                            <mat-select
+                                name="end-time"
+                                [ngModel]="
+                                    form.value.conditions.is_between[1] || 18
+                                "
+                                (ngModelChange)="
+                                    setIsBetween(
+                                        form.value.conditions.is_between[0],
+                                        $event
+                                    )
+                                "
+                                [ngModelOptions]="{ standalone: true }"
+                            >
+                                @for (time of time_blocks; track time) {
+                                    @if (
+                                        time.id >
+                                        (form.value.conditions.is_between[0] ||
+                                            6)
+                                    ) {
+                                        <mat-option [value]="time.id">
+                                            {{ time.value | date: time_format }}
+                                        </mat-option>
+                                    }
+                                }
+                            </mat-select>
+                            <mat-error>{{
+                                'BOOKINGS.BETWEEN_HOURS_REQUIRED' | translate
+                            }}</mat-error>
+                        </mat-form-field>
+                    </div>
+                </div>
+            }
+            @if (available_conditions.includes('resource_ids')) {
+                <div class="flex flex-col" formGroupName="conditions">
+                    <label for="resource_ids">
+                        {{
+                            (form.value.rules.hidden
+                                ? 'BOOKINGS.RESOURCES_ALLOW'
+                                : 'BOOKINGS.RESOURCES_DENY'
+                            ) | translate
+                        }}
+                    </label>
+                    <item-list-field
+                        name="resource_ids"
+                        formControlName="resource_ids"
+                        [placeholder]="
+                            'BOOKINGS.RESOURCES_PLACEHOLDER' | translate
+                        "
+                    ></item-list-field>
+                </div>
+            }
         </div>
     `,
     styles: [

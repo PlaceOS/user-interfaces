@@ -68,9 +68,11 @@ import { RecurrenceModalComponent } from './recurrence-modal.component';
                         Anually on {{ date | date: 'LLLL dd' }}
                     </mat-option>
                 }
-                <mat-option *ngIf="value?._custom" value="custom_display">
-                    {{ formatted_value }}
-                </mat-option>
+                @if (value?._custom) {
+                    <mat-option value="custom_display">
+                        {{ formatted_value }}
+                    </mat-option>
+                }
                 <mat-option
                     value="custom"
                     (click)="openCustomRecurrenceModal()"

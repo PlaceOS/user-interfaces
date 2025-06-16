@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Output } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
@@ -10,54 +9,70 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
 @Component({
     selector: 'desk-question-modal',
     template: `
-        <div *ngIf="!failure; else fail_state" class="relative">
-            <h2 class="p-4 text-xl">COVID-19 Questionnaire</h2>
-            <main class="p-4" [formGroup]="form">
-                <div class="mb-4 flex flex-col">
-                    <label>
-                        Have you travelled overseas within the last 14
-                        days?<span>*</span>
-                    </label>
-                    <mat-radio-group
-                        formControlName="travelled"
-                        class="space-x-2"
-                    >
-                        <mat-radio-button [value]="true">Yes</mat-radio-button>
-                        <mat-radio-button [value]="false">No</mat-radio-button>
-                    </mat-radio-group>
-                </div>
-                <div class="mb-4 flex flex-col">
-                    <label>
-                        Are you unwell or experiencing any cold or flu-like
-                        symptoms?<span>*</span>
-                    </label>
-                    <mat-radio-group formControlName="unwell" class="space-x-2">
-                        <mat-radio-button [value]="true">Yes</mat-radio-button>
-                        <mat-radio-button [value]="false">No</mat-radio-button>
-                    </mat-radio-group>
-                </div>
-                <div class="flex flex-col">
-                    <label>
-                        Have you had contact with anyone with suspected
-                        COVID-19?<span>*</span>
-                    </label>
-                    <mat-radio-group
-                        formControlName="contact"
-                        class="space-x-2"
-                    >
-                        <mat-radio-button [value]="true">Yes</mat-radio-button>
-                        <mat-radio-button [value]="false">No</mat-radio-button>
-                    </mat-radio-group>
-                </div>
-            </main>
-            <footer class="flex items-center justify-center p-2">
-                <button btn matRipple (click)="submit()">Submit</button>
-            </footer>
-            <button close icon matRipple mat-dialog-close>
-                <icon>close</icon>
-            </button>
-        </div>
-        <ng-template #fail_state>
+        @if (!failure) {
+            <div class="relative">
+                <h2 class="p-4 text-xl">COVID-19 Questionnaire</h2>
+                <main class="p-4" [formGroup]="form">
+                    <div class="mb-4 flex flex-col">
+                        <label>
+                            Have you travelled overseas within the last 14
+                            days?<span>*</span>
+                        </label>
+                        <mat-radio-group
+                            formControlName="travelled"
+                            class="space-x-2"
+                        >
+                            <mat-radio-button [value]="true"
+                                >Yes</mat-radio-button
+                            >
+                            <mat-radio-button [value]="false"
+                                >No</mat-radio-button
+                            >
+                        </mat-radio-group>
+                    </div>
+                    <div class="mb-4 flex flex-col">
+                        <label>
+                            Are you unwell or experiencing any cold or flu-like
+                            symptoms?<span>*</span>
+                        </label>
+                        <mat-radio-group
+                            formControlName="unwell"
+                            class="space-x-2"
+                        >
+                            <mat-radio-button [value]="true"
+                                >Yes</mat-radio-button
+                            >
+                            <mat-radio-button [value]="false"
+                                >No</mat-radio-button
+                            >
+                        </mat-radio-group>
+                    </div>
+                    <div class="flex flex-col">
+                        <label>
+                            Have you had contact with anyone with suspected
+                            COVID-19?<span>*</span>
+                        </label>
+                        <mat-radio-group
+                            formControlName="contact"
+                            class="space-x-2"
+                        >
+                            <mat-radio-button [value]="true"
+                                >Yes</mat-radio-button
+                            >
+                            <mat-radio-button [value]="false"
+                                >No</mat-radio-button
+                            >
+                        </mat-radio-group>
+                    </div>
+                </main>
+                <footer class="flex items-center justify-center p-2">
+                    <button btn matRipple (click)="submit()">Submit</button>
+                </footer>
+                <button close icon matRipple mat-dialog-close>
+                    <icon>close</icon>
+                </button>
+            </div>
+        } @else {
             <main failure class="relative pt-8">
                 <p class="p-4">
                     Your request to work from the office has been rejected based
@@ -69,7 +84,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
                     <icon>close</icon>
                 </button>
             </main>
-        </ng-template>
+        }
     `,
     styles: [
         `
@@ -86,7 +101,6 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
         `,
     ],
     imports: [
-        CommonModule,
         IconComponent,
         MatDialogModule,
         MatRippleModule,

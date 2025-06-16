@@ -13,30 +13,30 @@ import { ControlStateService } from '../control-state.service';
             <h3 class="mb-2 text-xl font-medium">
                 {{ 'APP.CONTROL.ACTION_LIGHT_SCENES' | translate }}
             </h3>
-            <ng-container *ngIf="(scenes | async).length; else empty_state">
-                <button
-                    state
-                    btn
-                    matRipple
-                    class="w-64"
-                    *ngFor="let item of scenes | async"
-                    [class.inverse]="(scene | async) !== item.id"
-                    (click)="setScene(item.name)"
-                >
-                    <div class="flex flex-1 items-center space-x-4">
-                        <icon [style.opacity]="item.opacity || 1">{{
-                            item.icon
-                        }}</icon>
-                        <div class="flex-1">{{ item.name }}</div>
-                    </div>
-                </button>
-            </ng-container>
+            @if ((scenes | async).length) {
+                @for (item of scenes | async; track item) {
+                    <button
+                        state
+                        btn
+                        matRipple
+                        class="w-64"
+                        [class.inverse]="(scene | async) !== item.id"
+                        (click)="setScene(item.name)"
+                    >
+                        <div class="flex flex-1 items-center space-x-4">
+                            <icon [style.opacity]="item.opacity || 1">{{
+                                item.icon
+                            }}</icon>
+                            <div class="flex-1">{{ item.name }}</div>
+                        </div>
+                    </button>
+                }
+            } @else {
+                <div class="flex items-center justify-center p-8">
+                    <p>{{ 'APP.CONTROL.LIGHT_SCENES_EMPTY' | translate }}</p>
+                </div>
+            }
         </div>
-        <ng-template #empty_state>
-            <div class="flex items-center justify-center p-8">
-                <p>{{ 'APP.CONTROL.LIGHT_SCENES_EMPTY' | translate }}</p>
-            </div>
-        </ng-template>
     `,
     styles: [``],
     standalone: false,

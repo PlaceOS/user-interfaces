@@ -67,105 +67,108 @@ const EMPTY_FAVS: string[] = [];
             </div>
         </div>
         <div list class="space-y-2">
-            <div
-                space
-                class="relative flex w-full items-center rounded-lg border border-base-200 p-2 shadow"
-                *ngFor="let space of space_list | async"
-            >
+            @for (space of space_list | async; track space) {
                 <div
-                    class="mr-4 flex h-24 w-24 items-center justify-center overflow-hidden rounded-xl bg-base-200"
+                    space
+                    class="relative flex w-full items-center rounded-lg border border-base-200 p-2 shadow"
                 >
-                    <img
-                        auth
-                        *ngIf="space.images?.length; else placeholder"
-                        [source]="space.images[0]"
-                        class="min-h-full object-cover"
-                    />
-                    <ng-template #placeholder>
-                        <img
-                            class="m-auto"
-                            src="assets/icons/room-placeholder.svg"
-                        />
-                    </ng-template>
-                </div>
-                <div class="pb-4 sm:space-y-2">
-                    <div class="font-medium">
-                        {{
-                            space.display_name || space.name || 'Meeting Space'
-                        }}
-                    </div>
-                    <div class="flex items-center space-x-2 text-sm">
-                        <icon class="text-blue-500">place</icon>
-                        <p>
-                            {{
-                                space.location ||
-                                    level(space.zones)?.display_name ||
-                                    level(space.zones)?.name
-                            }}
-                        </p>
-                    </div>
-                    <div class="flex items-center space-x-2 text-sm">
-                        <icon class="text-blue-500">people</icon>
-                        <p>
-                            {{
-                                'CALENDAR_EVENT.CAPACITY_COUNT'
-                                    | translate
-                                        : {
-                                              count:
-                                                  space.capacity < 1
-                                                      ? 2
-                                                      : space.capacity,
-                                          }
-                            }}
-                        </p>
-                    </div>
                     <div
-                        class="absolute bottom-0 right-0 flex items-center justify-end text-xs"
+                        class="mr-4 flex h-24 w-24 items-center justify-center overflow-hidden rounded-xl bg-base-200"
                     >
-                        <button
-                            btn
-                            matRipple
-                            name="edit-space"
-                            class="clear"
-                            (click)="changeSpaces(space)"
-                        >
-                            <div class="flex items-center space-x-2">
-                                <icon>edit</icon>
-                                {{ 'COMMON.CHANGE' | translate }}
-                            </div>
-                        </button>
-                        <button
-                            btn
-                            matRipple
-                            name="remove-space"
-                            class="clear"
-                            (click)="removeSpace(space)"
-                        >
-                            <div class="flex items-center space-x-2">
-                                <icon>close</icon>
-                                {{ 'COMMON.REMOVE' | translate }}
-                            </div>
-                        </button>
+                        @if (space.images?.length) {
+                            <img
+                                auth
+                                [source]="space.images[0]"
+                                class="min-h-full object-cover"
+                            />
+                        } @else {
+                            <img
+                                class="m-auto"
+                                src="assets/icons/room-placeholder.svg"
+                            />
+                        }
                     </div>
-                </div>
-                <button
-                    icon
-                    matRipple
-                    name="toggle-space-favourite"
-                    class="absolute right-1 top-1"
-                    [class.text-info]="favorites.includes(space?.id)"
-                    (click)="toggleFavourite(space)"
-                >
-                    <icon
-                        [className]="
-                            favorites.includes(space?.id)
-                                ? 'material-symbols-rounded'
-                                : 'material-symbols-outlined'
-                        "
-                        >favorite</icon
+                    <div class="pb-4 sm:space-y-2">
+                        <div class="font-medium">
+                            {{
+                                space.display_name ||
+                                    space.name ||
+                                    'Meeting Space'
+                            }}
+                        </div>
+                        <div class="flex items-center space-x-2 text-sm">
+                            <icon class="text-blue-500">place</icon>
+                            <p>
+                                {{
+                                    space.location ||
+                                        level(space.zones)?.display_name ||
+                                        level(space.zones)?.name
+                                }}
+                            </p>
+                        </div>
+                        <div class="flex items-center space-x-2 text-sm">
+                            <icon class="text-blue-500">people</icon>
+                            <p>
+                                {{
+                                    'CALENDAR_EVENT.CAPACITY_COUNT'
+                                        | translate
+                                            : {
+                                                  count:
+                                                      space.capacity < 1
+                                                          ? 2
+                                                          : space.capacity,
+                                              }
+                                }}
+                            </p>
+                        </div>
+                        <div
+                            class="absolute bottom-0 right-0 flex items-center justify-end text-xs"
+                        >
+                            <button
+                                btn
+                                matRipple
+                                name="edit-space"
+                                class="clear"
+                                (click)="changeSpaces(space)"
+                            >
+                                <div class="flex items-center space-x-2">
+                                    <icon>edit</icon>
+                                    {{ 'COMMON.CHANGE' | translate }}
+                                </div>
+                            </button>
+                            <button
+                                btn
+                                matRipple
+                                name="remove-space"
+                                class="clear"
+                                (click)="removeSpace(space)"
+                            >
+                                <div class="flex items-center space-x-2">
+                                    <icon>close</icon>
+                                    {{ 'COMMON.REMOVE' | translate }}
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+                    <button
+                        icon
+                        matRipple
+                        name="toggle-space-favourite"
+                        class="absolute right-1 top-1"
+                        [class.text-info]="favorites.includes(space?.id)"
+                        (click)="toggleFavourite(space)"
                     >
-                </button>
-            </div>
+                        <icon
+                            [className]="
+                                favorites.includes(space?.id)
+                                    ? 'material-symbols-rounded'
+                                    : 'material-symbols-outlined'
+                            "
+                            >favorite</icon
+                        >
+                    </button>
+                </div>
+            }
         </div>
         <button
             btn

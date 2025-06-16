@@ -5,6 +5,7 @@ import { unique } from 'libs/common/src/lib/general';
 import { DialogEvent, HashMap } from 'libs/common/src/lib/types';
 
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import { MatRadioModule } from '@angular/material/radio';
@@ -27,65 +28,80 @@ export interface CateringOrderOptionsModalData {
             </button>
         </header>
         <main class="overflow-auto">
-            <div
-                class="border-b border-base-200 pb-2 pt-1"
-                *ngFor="let group of groups"
-                [attr.group]="group.name"
-            >
-                <div class="p-2 font-medium capitalize">{{ group.name }}</div>
-                <div class="flex flex-col pl-6">
-                    <ng-container *ngIf="!group.multiple; else multi_options">
-                        <mat-radio-group
-                            class="flex flex-col"
-                            aria-label="Select an option"
-                            ngModel
-                            (ngModelChange)="updateGroupOption(group, $event)"
-                        >
-                            <mat-radio-button class="mx-0 my-1" value="">
-                                <span class="p-2 font-medium">None</span>
-                            </mat-radio-button>
-                            <mat-radio-button
-                                class="mx-0 my-1"
-                                *ngFor="let opt of group?.options"
-                                [value]="opt.id"
+            @for (group of groups; track group) {
+                <div
+                    class="border-b border-base-200 pb-2 pt-1"
+                    [attr.group]="group.name"
+                >
+                    <div class="p-2 font-medium capitalize">
+                        {{ group.name }}
+                    </div>
+                    <div class="flex flex-col pl-6">
+                        @if (!group.multiple) {
+                            <mat-radio-group
+                                class="flex flex-col"
+                                aria-label="Select an option"
+                                ngModel
+                                (ngModelChange)="
+                                    updateGroupOption(group, $event)
+                                "
                             >
-                                <div class="flex items-center justify-center">
-                                    <div class="w-1/2 flex-1 p-2 font-medium">
-                                        {{ opt.name }}
-                                    </div>
-                                    <div
-                                        class="text-xs opacity-60"
-                                        *ngIf="opt.unit_price"
+                                <mat-radio-button class="mx-0 my-1" value="">
+                                    <span class="p-2 font-medium">None</span>
+                                </mat-radio-button>
+                                @for (opt of group?.options; track opt) {
+                                    <mat-radio-button
+                                        class="mx-0 my-1"
+                                        [value]="opt.id"
                                     >
-                                        +{{
-                                            opt.unit_price / 100
-                                                | currency: code
-                                        }}
-                                    </div>
-                                </div>
-                            </mat-radio-button>
-                        </mat-radio-group>
-                    </ng-container>
-                    <ng-template #multi_options>
-                        <mat-checkbox
-                            *ngFor="let opt of group?.options"
-                            [(ngModel)]="option_state[opt.id]"
-                        >
-                            <div class="flex items-center justify-center">
-                                <div class="w-1/2 flex-1 p-2 font-medium">
-                                    {{ opt.name }}
-                                </div>
-                                <div
-                                    class="text-xs opacity-60"
-                                    *ngIf="opt.unit_price"
+                                        <div
+                                            class="flex items-center justify-center"
+                                        >
+                                            <div
+                                                class="w-1/2 flex-1 p-2 font-medium"
+                                            >
+                                                {{ opt.name }}
+                                            </div>
+                                            @if (opt.unit_price) {
+                                                <div class="text-xs opacity-60">
+                                                    +{{
+                                                        opt.unit_price / 100
+                                                            | currency: code
+                                                    }}
+                                                </div>
+                                            }
+                                        </div>
+                                    </mat-radio-button>
+                                }
+                            </mat-radio-group>
+                        } @else {
+                            @for (opt of group?.options; track opt) {
+                                <mat-checkbox
+                                    [(ngModel)]="option_state[opt.id]"
                                 >
-                                    +{{ opt.unit_price / 100 | currency: code }}
-                                </div>
-                            </div>
-                        </mat-checkbox>
-                    </ng-template>
+                                    <div
+                                        class="flex items-center justify-center"
+                                    >
+                                        <div
+                                            class="w-1/2 flex-1 p-2 font-medium"
+                                        >
+                                            {{ opt.name }}
+                                        </div>
+                                        @if (opt.unit_price) {
+                                            <div class="text-xs opacity-60">
+                                                +{{
+                                                    opt.unit_price / 100
+                                                        | currency: code
+                                                }}
+                                            </div>
+                                        }
+                                    </div>
+                                </mat-checkbox>
+                            }
+                        }
+                    </div>
                 </div>
-            </div>
+            }
         </main>
         <footer class="p-2">
             <button btn matRipple class="w-32" (click)="saveOptions()">
@@ -110,6 +126,7 @@ export interface CateringOrderOptionsModalData {
         MatRadioModule,
         MatDialogModule,
         IconComponent,
+        FormsModule,
     ],
 })
 export class CateringOrderOptionsModalComponent {

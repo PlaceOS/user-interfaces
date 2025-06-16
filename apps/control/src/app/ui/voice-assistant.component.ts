@@ -6,17 +6,18 @@ import { VoiceAssistantService } from './voice-assistant.service';
 @Component({
     selector: 'voice-assistant',
     template: `
-        <ng-container *ngIf="available | async">
+        @if (available | async) {
             <div
                 class="m-4 flex h-12 w-12 items-center justify-center overflow-visible rounded-full"
                 [class.bg-base-400]="!(active | async)"
                 [class.bg-success]="active | async"
                 [class.bg-error]="error.speech_recognition"
             >
-                <span
-                    *ngIf="active | async"
-                    class="absolute inline-flex h-10 w-10 animate-ping rounded-full bg-success opacity-75"
-                ></span>
+                @if (active | async) {
+                    <span
+                        class="absolute inline-flex h-10 w-10 animate-ping rounded-full bg-success opacity-75"
+                    ></span>
+                }
                 <icon class="text-2xl">{{
                     error.speech_recognition ? 'mic_off' : 'mic'
                 }}</icon>
@@ -26,24 +27,25 @@ import { VoiceAssistantService } from './voice-assistant.service';
                     (click)="activate(); $event.stopPropagation()"
                 ></button>
             </div>
-            <div
-                class="absolute left-2 top-1/2 max-w-[30vw] -translate-x-full -translate-y-1/2 rounded-xl bg-info p-2 text-xs text-info-content shadow"
-                *ngIf="(active | async) && (progress | async)"
-            >
-                <div class="flex items-center space-x-2">
-                    <icon class="text-2xl">{{
-                        icons[(progress | async)?.function] || 'info'
-                    }}</icon>
-                    <p class="truncate pr-4 text-sm">
-                        {{
-                            (progress | async)?.message ||
-                                (progress | async)?.function ||
-                                'Empty'
-                        }}
-                    </p>
+            @if ((active | async) && (progress | async)) {
+                <div
+                    class="absolute left-2 top-1/2 max-w-[30vw] -translate-x-full -translate-y-1/2 rounded-xl bg-info p-2 text-xs text-info-content shadow"
+                >
+                    <div class="flex items-center space-x-2">
+                        <icon class="text-2xl">{{
+                            icons[(progress | async)?.function] || 'info'
+                        }}</icon>
+                        <p class="truncate pr-4 text-sm">
+                            {{
+                                (progress | async)?.message ||
+                                    (progress | async)?.function ||
+                                    'Empty'
+                            }}
+                        </p>
+                    </div>
                 </div>
-            </div>
-        </ng-container>
+            }
+        }
     `,
     styles: [
         `

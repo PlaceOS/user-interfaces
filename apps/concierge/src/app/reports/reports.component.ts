@@ -9,11 +9,12 @@ import { Router } from '@angular/router';
             <app-sidebar class="screen-only"></app-sidebar>
             <main class="relative flex h-full w-1/2 flex-1 flex-col">
                 <router-outlet></router-outlet>
-                <div
-                    reports-menu
-                    *ngIf="path === 'reports'"
-                    class="screen-only absolute inset-0"
-                ></div>
+                @if (path === 'reports') {
+                    <div
+                        reports-menu
+                        class="screen-only absolute inset-0"
+                    ></div>
+                }
             </main>
         </div>
     `,

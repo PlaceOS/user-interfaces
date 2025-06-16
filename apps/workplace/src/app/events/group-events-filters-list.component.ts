@@ -32,15 +32,16 @@ import { GroupEventsStateService } from './group-events-state.service';
                     &ndash;
                     {{ (options | async)?.end | date: 'MMM d, y' }}
                 </div>
-                <div
-                    class="m-1 flex items-center rounded-3xl border border-base-400 pl-4 pr-1"
-                    *ngFor="let tag of (filters | async)?.tags || []"
-                >
-                    <div class="mr-2 flex-1 text-sm">{{ tag }}</div>
-                    <button icon matRipple (click)="removeTag(tag)">
-                        <icon>close</icon>
-                    </button>
-                </div>
+                @for (tag of (filters | async)?.tags || []; track tag) {
+                    <div
+                        class="m-1 flex items-center rounded-3xl border border-base-400 pl-4 pr-1"
+                    >
+                        <div class="mr-2 flex-1 text-sm">{{ tag }}</div>
+                        <button icon matRipple (click)="removeTag(tag)">
+                            <icon>close</icon>
+                        </button>
+                    </div>
+                }
             </div>
         </div>
     `,

@@ -18,46 +18,49 @@ import { showMetadata, updateMetadata } from '@placeos/ts-client';
             <h3 class="text-xl font-medium">
                 {{ 'APP.CONCIERGE.INDUCTION_HEADER' | translate }}
             </h3>
-            <button icon matRipple mat-dialog-close *ngIf="!loading">
-                <icon class="text-2xl">close</icon>
-            </button>
+            @if (!loading) {
+                <button icon matRipple mat-dialog-close>
+                    <icon class="text-2xl">close</icon>
+                </button>
+            }
         </header>
-        <main
-            class="flex flex-col space-y-2 px-4"
-            *ngIf="!loading; else load_state"
-        >
-            <settings-toggle
-                [(ngModel)]="is_enabled"
-                [name]="'APP.CONCIERGE.INDUCTION_ENABLE' | translate"
-            ></settings-toggle>
-            <mat-form-field
-                appearance="outline"
-                class="h-[50vh] w-[36rem] max-w-[80vw]"
-            >
-                <textarea
-                    matInput
-                    [(ngModel)]="induction_details"
-                    [placeholder]="
-                        'APP.CONCIERGE.INDUCTION_DETAILS' | translate
-                    "
-                    class="h-[calc(50vh-2rem)] w-[34rem] max-w-[calc(80vw-2rem)] resize-none"
-                ></textarea>
-            </mat-form-field>
-        </main>
-        <footer
-            class="mt-2 flex justify-end border-t border-base-200 px-4 py-2"
-            *ngIf="!loading"
-        >
-            <button btn matRipple class="w-32" (click)="save()">Save</button>
-        </footer>
-        <ng-template #load_state>
+        @if (!loading) {
+            <main class="flex flex-col space-y-2 px-4">
+                <settings-toggle
+                    [(ngModel)]="is_enabled"
+                    [name]="'APP.CONCIERGE.INDUCTION_ENABLE' | translate"
+                ></settings-toggle>
+                <mat-form-field
+                    appearance="outline"
+                    class="h-[50vh] w-[36rem] max-w-[80vw]"
+                >
+                    <textarea
+                        matInput
+                        [(ngModel)]="induction_details"
+                        [placeholder]="
+                            'APP.CONCIERGE.INDUCTION_DETAILS' | translate
+                        "
+                        class="h-[calc(50vh-2rem)] w-[34rem] max-w-[calc(80vw-2rem)] resize-none"
+                    ></textarea>
+                </mat-form-field>
+            </main>
+        } @else {
             <main
                 class="flex flex-col items-center justify-center space-y-2 p-32"
             >
                 <mat-spinner [diameter]="48"></mat-spinner>
                 <p>{{ loading }}</p>
             </main>
-        </ng-template>
+        }
+        @if (!loading) {
+            <footer
+                class="mt-2 flex justify-end border-t border-base-200 px-4 py-2"
+            >
+                <button btn matRipple class="w-32" (click)="save()">
+                    Save
+                </button>
+            </footer>
+        }
     `,
     styles: [``],
     standalone: false,

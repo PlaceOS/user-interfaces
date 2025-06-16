@@ -18,7 +18,7 @@ import { CateringOrderStateService } from './catering-order-state.service';
     selector: 'catering-item-list',
     template: `
         <div class="h-full w-full overflow-auto py-2">
-            <ng-container *ngIf="(list | async)?.length">
+            @if ((list | async)?.length) {
                 <h3 class="px-2 font-bold">
                     {{ 'CATERING.ORDER_SELECTED_HEADER' | translate }}
                 </h3>
@@ -28,20 +28,20 @@ import { CateringOrderStateService } from './catering-order-state.service';
                             | translate: { count: (list | async)?.length || 0 }
                     }}
                 </p>
-
                 <ul class="list-style-none space-y-2 p-2">
-                    <catering-item-list-item
-                        class="block"
-                        *ngFor="let item of list | async"
-                        [item]="item"
-                        [active]="active === item.custom_id"
-                        [selected]="true"
-                        [favourite]="isFavourite(item.id)"
-                        (toggleFav)="toggleFav.emit(item.id)"
-                        (select)="selectItem(item, true)"
-                    ></catering-item-list-item>
+                    @for (item of list | async; track item.custom_id) {
+                        <catering-item-list-item
+                            class="block"
+                            [item]="item"
+                            [active]="active === item.custom_id"
+                            [selected]="true"
+                            [favourite]="isFavourite(item.id)"
+                            (toggleFav)="toggleFav.emit(item.id)"
+                            (select)="selectItem(item, true)"
+                        ></catering-item-list-item>
+                    }
                 </ul>
-            </ng-container>
+            }
             <h3 class="px-2 font-bold">{{ 'COMMON.RESULTS' | translate }}</h3>
             <p count class="mb-2 px-2 text-sm opacity-60">
                 {{
@@ -49,46 +49,44 @@ import { CateringOrderStateService } from './catering-order-state.service';
                         | translate: { count: (item_list | async)?.length || 0 }
                 }}
             </p>
-            <ng-container *ngIf="!(loading | async); else load_state">
-                <ul
-                    class="list-style-none space-y-2 p-2"
-                    *ngIf="(item_list | async)?.length; else empty_state"
+            @if (!(loading | async)) {
+                @if ((item_list | async)?.length) {
+                    <ul class="list-style-none space-y-2 p-2">
+                        @for (item of item_list | async; track item.custom_id) {
+                            <catering-item-list-item
+                                class="block"
+                                [item]="item"
+                                [active]="active === item.custom_id"
+                                [selected]="selected.includes(item.custom_id)"
+                                [favourite]="isFavourite(item.id)"
+                                [code]="code"
+                                (toggleFav)="toggleFav(item.id)"
+                                (select)="selectItem(item, true)"
+                            ></catering-item-list-item>
+                        }
+                    </ul>
+                } @else {
+                    <div
+                        empty
+                        class="flex flex-col items-center justify-center space-y-2 p-16"
+                    >
+                        <p class="text-center opacity-30">
+                            {{ 'CATERING.ORDER_ITEMS_EMPTY' | translate }}
+                        </p>
+                    </div>
+                }
+            } @else {
+                <div
+                    loading
+                    class="flex flex-col items-center justify-center space-y-2 p-16"
                 >
-                    <catering-item-list-item
-                        class="block"
-                        *ngFor="let item of item_list | async"
-                        [item]="item"
-                        [active]="active === item.custom_id"
-                        [selected]="selected.includes(item.custom_id)"
-                        [favourite]="isFavourite(item.id)"
-                        [code]="code"
-                        (toggleFav)="toggleFav(item.id)"
-                        (select)="selectItem(item, true)"
-                    ></catering-item-list-item>
-                </ul>
-            </ng-container>
+                    <mat-spinner [diameter]="32"></mat-spinner>
+                    <p class="opacity-30">
+                        {{ 'CATERING.ORDER_ITEMS_LOADING' | translate }}
+                    </p>
+                </div>
+            }
         </div>
-        <ng-template #empty_state>
-            <div
-                empty
-                class="flex flex-col items-center justify-center space-y-2 p-16"
-            >
-                <p class="text-center opacity-30">
-                    {{ 'CATERING.ORDER_ITEMS_EMPTY' | translate }}
-                </p>
-            </div>
-        </ng-template>
-        <ng-template #load_state>
-            <div
-                loading
-                class="flex flex-col items-center justify-center space-y-2 p-16"
-            >
-                <mat-spinner [diameter]="32"></mat-spinner>
-                <p class="opacity-30">
-                    {{ 'CATERING.ORDER_ITEMS_LOADING' | translate }}
-                </p>
-            </div>
-        </ng-template>
     `,
     styles: [``],
     imports: [

@@ -59,96 +59,105 @@ export async function openBookingModal(
                     <h2 class="px-2 text-xl font-medium">
                         {{ 'APP.BOOKING_PANEL.BOOKING_NEW' | translate }}
                     </h2>
-                    <button icon matRipple mat-dialog-close *ngIf="!loading">
-                        <icon>close</icon>
-                    </button>
+                    @if (!loading) {
+                        <button icon matRipple mat-dialog-close>
+                            <icon>close</icon>
+                        </button>
+                    }
                 </header>
-                <div
-                    *ngIf="form && !loading; else load_state"
-                    [formGroup]="form"
-                    class="w-full px-4"
-                >
+                @if (form && !loading) {
+                    <div form [formGroup]="form" class="w-full px-4">
+                        @if (!hide_host && form.controls.organiser) {
+                            <div class="field">
+                                <label for="host"
+                                    >{{
+                                        'APP.BOOKING_PANEL.BOOKING_HOST'
+                                            | translate
+                                    }}<span>*</span></label
+                                >
+                                <a-user-search-field
+                                    name="host"
+                                    [query_fn]="searchStaff"
+                                    formControlName="organiser"
+                                    class="mb-2"
+                                ></a-user-search-field>
+                            </div>
+                        }
+                        <div class="flex space-x-2">
+                            @if (form.controls.date && future) {
+                                <div class="flex-1">
+                                    <label for="start-time">{{
+                                        'FORM.TIME_START' | translate
+                                    }}</label>
+                                    <a-time-field
+                                        name="start-time"
+                                        formControlName="date"
+                                    ></a-time-field>
+                                </div>
+                            }
+                            @if (form.controls.duration) {
+                                <div class="flex-1">
+                                    <label for="duration">{{
+                                        'FORM.DURATION' | translate
+                                    }}</label>
+                                    <a-duration-field
+                                        [min]="min_duration"
+                                        [max]="max_duration"
+                                        [step]="max_duration < 120 ? 5 : 15"
+                                        name="duration"
+                                        formControlName="duration"
+                                    ></a-duration-field>
+                                </div>
+                            }
+                        </div>
+                        @if (form.controls.title) {
+                            <div class="flex flex-col">
+                                <label for="title">{{
+                                    'FORM.TITLE' | translate
+                                }}</label>
+                                <mat-form-field
+                                    appearance="outline"
+                                    class="w-full"
+                                >
+                                    <input
+                                        matInput
+                                        name="title"
+                                        [placeholder]="'FORM.TITLE' | translate"
+                                        formControlName="title"
+                                    />
+                                </mat-form-field>
+                            </div>
+                        }
+                    </div>
+                } @else {
                     <div
-                        class="field"
-                        *ngIf="!hide_host && form.controls.organiser"
+                        class="flex h-64 flex-col items-center justify-center space-y-4 p-8"
                     >
-                        <label for="host"
-                            >{{ 'APP.BOOKING_PANEL.BOOKING_HOST' | translate
-                            }}<span>*</span></label
-                        >
-                        <a-user-search-field
-                            name="host"
-                            [query_fn]="searchStaff"
-                            formControlName="organiser"
-                            class="mb-2"
-                        ></a-user-search-field>
+                        <mat-spinner [diameter]="32"></mat-spinner>
+                        <p>
+                            {{
+                                'APP.BOOKING_PANEL.BOOKING_LOADING' | translate
+                            }}
+                        </p>
                     </div>
-                    <div class="flex space-x-2">
-                        <div
-                            class="flex-1"
-                            *ngIf="form.controls.date && future"
-                        >
-                            <label for="start-time">{{
-                                'FORM.TIME_START' | translate
-                            }}</label>
-                            <a-time-field
-                                name="start-time"
-                                formControlName="date"
-                            ></a-time-field>
-                        </div>
-                        <div class="flex-1" *ngIf="form.controls.duration">
-                            <label for="duration">{{
-                                'FORM.DURATION' | translate
-                            }}</label>
-                            <a-duration-field
-                                [min]="min_duration"
-                                [max]="max_duration"
-                                [step]="max_duration < 120 ? 5 : 15"
-                                name="duration"
-                                formControlName="duration"
-                            ></a-duration-field>
-                        </div>
-                    </div>
-                    <div class="flex flex-col" *ngIf="form.controls.title">
-                        <label for="title">{{
-                            'FORM.TITLE' | translate
-                        }}</label>
-                        <mat-form-field appearance="outline" class="w-full">
-                            <input
-                                matInput
-                                name="title"
-                                [placeholder]="'FORM.TITLE' | translate"
-                                formControlName="title"
-                            />
-                        </mat-form-field>
-                    </div>
-                </div>
-                <footer
-                    *ngIf="!loading"
-                    class="flex w-full items-center justify-end space-x-2 border-t border-base-200 px-4 py-2"
-                >
-                    <button
-                        btn
-                        matRipple
-                        name="save"
-                        class="w-32"
-                        (click)="save()"
+                }
+                @if (!loading) {
+                    <footer
+                        class="flex w-full items-center justify-end space-x-2 border-t border-base-200 px-4 py-2"
                     >
-                        {{ 'COMMON.SAVE' | translate }}
-                    </button>
-                </footer>
+                        <button
+                            btn
+                            matRipple
+                            name="save"
+                            class="w-32"
+                            (click)="save()"
+                        >
+                            {{ 'COMMON.SAVE' | translate }}
+                        </button>
+                    </footer>
+                }
             </div>
         </div>
-        <ng-template #load_state>
-            <div
-                class="flex h-64 flex-col items-center justify-center space-y-4 p-8"
-            >
-                <mat-spinner [diameter]="32"></mat-spinner>
-                <p>
-                    {{ 'APP.BOOKING_PANEL.BOOKING_LOADING' | translate }}
-                </p>
-            </div>
-        </ng-template>
     `,
     styles: [``],
     standalone: false,

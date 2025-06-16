@@ -28,7 +28,7 @@ interface CateringOptionGroup {
 @Component({
     selector: 'new-catering-item-details',
     template: `
-        <ng-container *ngIf="item; else empty_state">
+        @if (item) {
             <section image class="relative h-64 w-full bg-base-200 sm:h-40">
                 <image-carousel
                     [images]="item.images"
@@ -67,9 +67,11 @@ interface CateringOptionGroup {
                         <h2 class="mb-2 mt-4 text-xl font-medium">
                             {{ item.name }}
                         </h2>
-                        <p *ngIf="item.unit_price">
-                            {{ item.unit_price / 100 | currency: code }}
-                        </p>
+                        @if (item.unit_price) {
+                            <p>
+                                {{ item.unit_price / 100 | currency: code }}
+                            </p>
+                        }
                     </div>
                     <a-counter
                         [(ngModel)]="item.quantity"
@@ -81,107 +83,132 @@ interface CateringOptionGroup {
                     ></a-counter>
                 </section>
                 <section class="flex flex-wrap items-center">
-                    <div
-                        class="m-1 rounded-2xl bg-base-200 px-2 py-1 text-sm capitalize"
-                        *ngFor="let tag of item.tags"
-                    >
-                        {{ tag }}
-                    </div>
+                    @for (tag of item.tags; track tag) {
+                        <div
+                            class="m-1 rounded-2xl bg-base-200 px-2 py-1 text-sm capitalize"
+                        >
+                            {{ tag }}
+                        </div>
+                    }
                 </section>
                 <section details class="space-y-2">
                     <div class="flex flex-col space-y-4">
-                        <div
-                            *ngFor="let group of groups"
-                            [attr.group]="group.name"
-                            class="relative space-y-2 rounded border border-base-400 px-3 pb-2 pt-4"
-                        >
-                            <h3
-                                class="text-md absolute left-2 top-0 -translate-y-1/2 bg-base-100 px-2 font-medium"
+                        @for (group of groups; track group) {
+                            <div
+                                [attr.group]="group.name"
+                                class="relative space-y-2 rounded border border-base-400 px-3 pb-2 pt-4"
                             >
-                                {{ group.name }}
-                            </h3>
-                            <div class="flex flex-col">
-                                <ng-container
-                                    *ngIf="!group.multiple; else multi_options"
+                                <h3
+                                    class="text-md absolute left-2 top-0 -translate-y-1/2 bg-base-100 px-2 font-medium"
                                 >
-                                    <mat-radio-group
-                                        class="flex flex-col"
-                                        aria-label="Select an option"
-                                        [(ngModel)]="group_state[group.name]"
-                                        (ngModelChange)="
-                                            updateGroupOption(group, $event)
-                                        "
-                                        [disabled]="item?.in_order"
-                                    >
-                                        <mat-radio-button class="m-0" value="">
-                                            <div
-                                                class="p-2 font-medium opacity-60"
-                                            >
-                                                {{ 'COMMON.NONE' | translate }}
-                                            </div>
-                                        </mat-radio-button>
-                                        <mat-radio-button
-                                            class="m-0"
-                                            *ngFor="let opt of group?.options"
-                                            [value]="opt.id"
+                                    {{ group.name }}
+                                </h3>
+                                <div class="flex flex-col">
+                                    @if (!group.multiple) {
+                                        <mat-radio-group
+                                            class="flex flex-col"
+                                            aria-label="Select an option"
+                                            [(ngModel)]="
+                                                group_state[group.name]
+                                            "
+                                            (ngModelChange)="
+                                                updateGroupOption(group, $event)
+                                            "
+                                            [disabled]="item?.in_order"
                                         >
-                                            <div
-                                                class="flex max-w-[calc(100vw-4rem)] items-center justify-center sm:max-w-[15rem]"
+                                            <mat-radio-button
+                                                class="m-0"
+                                                value=""
                                             >
                                                 <div
-                                                    class="w-1/2 flex-1 whitespace-normal p-2 font-medium capitalize"
+                                                    class="p-2 font-medium opacity-60"
                                                 >
-                                                    {{ opt.name }}
-                                                </div>
-                                                <div
-                                                    class="text-xs opacity-60"
-                                                    *ngIf="opt.unit_price"
-                                                >
-                                                    +{{
-                                                        opt.unit_price / 100
-                                                            | currency: code
+                                                    {{
+                                                        'COMMON.NONE'
+                                                            | translate
                                                     }}
                                                 </div>
-                                            </div>
-                                        </mat-radio-button>
-                                    </mat-radio-group>
-                                </ng-container>
-                                <ng-template #multi_options>
-                                    <mat-checkbox
-                                        *ngFor="let opt of group?.options"
-                                        [(ngModel)]="option_state[opt.id]"
-                                        (ngModelChange)="
-                                            updateCheckedState(opt.id, $event)
-                                        "
-                                        [disabled]="item?.in_order"
-                                    >
-                                        <div
-                                            class="flex items-center justify-center"
-                                        >
-                                            <div
-                                                class="w-1/2 flex-1 p-2 font-medium"
+                                            </mat-radio-button>
+                                            @for (
+                                                opt of group?.options;
+                                                track opt
+                                            ) {
+                                                <mat-radio-button
+                                                    class="m-0"
+                                                    [value]="opt.id"
+                                                >
+                                                    <div
+                                                        class="flex max-w-[calc(100vw-4rem)] items-center justify-center sm:max-w-[15rem]"
+                                                    >
+                                                        <div
+                                                            class="w-1/2 flex-1 whitespace-normal p-2 font-medium capitalize"
+                                                        >
+                                                            {{ opt.name }}
+                                                        </div>
+                                                        @if (opt.unit_price) {
+                                                            <div
+                                                                class="text-xs opacity-60"
+                                                            >
+                                                                +{{
+                                                                    opt.unit_price /
+                                                                        100
+                                                                        | currency
+                                                                            : code
+                                                                }}
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                </mat-radio-button>
+                                            }
+                                        </mat-radio-group>
+                                    } @else {
+                                        @for (
+                                            opt of group?.options;
+                                            track opt
+                                        ) {
+                                            <mat-checkbox
+                                                [(ngModel)]="
+                                                    option_state[opt.id]
+                                                "
+                                                (ngModelChange)="
+                                                    updateCheckedState(
+                                                        opt.id,
+                                                        $event
+                                                    )
+                                                "
+                                                [disabled]="item?.in_order"
                                             >
-                                                {{ opt.name }}
-                                            </div>
-                                            <div
-                                                class="text-xs opacity-60"
-                                                *ngIf="opt.unit_price"
-                                            >
-                                                +{{
-                                                    opt.unit_price / 100
-                                                        | currency: code
-                                                }}
-                                            </div>
-                                        </div>
-                                    </mat-checkbox>
-                                </ng-template>
+                                                <div
+                                                    class="flex items-center justify-center"
+                                                >
+                                                    <div
+                                                        class="w-1/2 flex-1 p-2 font-medium"
+                                                    >
+                                                        {{ opt.name }}
+                                                    </div>
+                                                    @if (opt.unit_price) {
+                                                        <div
+                                                            class="text-xs opacity-60"
+                                                        >
+                                                            +{{
+                                                                opt.unit_price /
+                                                                    100
+                                                                    | currency
+                                                                        : code
+                                                            }}
+                                                        </div>
+                                                    }
+                                                </div>
+                                            </mat-checkbox>
+                                        }
+                                    }
+                                </div>
                             </div>
-                        </div>
+                        }
                     </div>
                 </section>
             </div>
-        </ng-container>
-        <ng-template #empty_state>
+        } @else {
             <div
                 empty
                 class="flex flex-col items-center justify-center space-y-2 p-16"
@@ -190,7 +217,7 @@ interface CateringOptionGroup {
                     {{ 'CATERING.ORDER_ITEM_SELECT' | translate }}
                 </p>
             </div>
-        </ng-template>
+        }
     `,
     styles: [``],
     imports: [

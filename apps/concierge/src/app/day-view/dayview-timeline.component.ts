@@ -28,21 +28,22 @@ const HOUR_BLOCKS = new Array(24).fill(0).map((_, idx) => {
                         class="absolute bottom-8 left-0 right-0 top-0 bg-base-100"
                     ></div>
                 </div>
-                <div
-                    *ngFor="let time of blocks"
-                    change-transform
-                    class="relative z-10 h-16 border-r border-base-300"
-                    [style.transform]="'translateY(-' + scroll.y + 'px)'"
-                >
+                @for (time of blocks; track time) {
                     <div
-                        class="absolute top-0 w-full -translate-y-1/2 transform text-center text-xs opacity-40"
+                        change-transform
+                        class="relative z-10 h-16 border-r border-base-300"
+                        [style.transform]="'translateY(-' + scroll.y + 'px)'"
                     >
-                        {{ time }}
+                        <div
+                            class="absolute top-0 w-full -translate-y-1/2 transform text-center text-xs opacity-40"
+                        >
+                            {{ time }}
+                        </div>
+                        <div
+                            class="absolute right-0 top-0 h-px w-2 bg-base-300"
+                        ></div>
                     </div>
-                    <div
-                        class="absolute right-0 top-0 h-px w-2 bg-base-300"
-                    ></div>
-                </div>
+                }
                 <div class="absolute right-0 top-8 h-8 w-px bg-base-300"></div>
             </div>
             <div class="flex h-full w-1/2 flex-1 flex-col">
@@ -50,20 +51,23 @@ const HOUR_BLOCKS = new Array(24).fill(0).map((_, idx) => {
                     header
                     class="relative flex h-16 w-full overflow-hidden border-b border-base-300 border-opacity-50 bg-base-100"
                 >
-                    <div
-                        *ngFor="let space of space_list | async"
-                        change-transform
-                        class="relative h-16 w-48 min-w-[12rem]"
-                        [style.transform]="'translateX(-' + scroll.x + 'px)'"
-                    >
+                    @for (space of space_list | async; track space) {
                         <div
-                            bar
-                            class="absolute -left-px bottom-0 h-8 w-px bg-base-300"
-                        ></div>
-                        <div class="name m-2 text-center">
-                            {{ space.display_name || space.name }}
+                            change-transform
+                            class="relative h-16 w-48 min-w-[12rem]"
+                            [style.transform]="
+                                'translateX(-' + scroll.x + 'px)'
+                            "
+                        >
+                            <div
+                                bar
+                                class="absolute -left-px bottom-0 h-8 w-px bg-base-300"
+                            ></div>
+                            <div class="name m-2 text-center">
+                                {{ space.display_name || space.name }}
+                            </div>
                         </div>
-                    </div>
+                    }
                 </div>
                 <div
                     #scroll_el
@@ -71,30 +75,34 @@ const HOUR_BLOCKS = new Array(24).fill(0).map((_, idx) => {
                     class="relative flex flex-1 overflow-auto"
                     (scroll)="onScroll($event)"
                 >
-                    <dayview-space
-                        *ngFor="let space of space_list | async"
-                        [space]="space"
-                        class="h-[96rem] w-48 min-w-[12rem] border-r border-base-300"
-                    ></dayview-space>
-                    <div
-                        *ngFor="let time of blocks; let i = index"
-                        class="absolute left-0 h-px min-w-full bg-base-300"
-                        [style.width]="
-                            (space_list | async)?.length * 12 + 'rem'
-                        "
-                        [style.top]="i * 4 + 'rem'"
-                    ></div>
+                    @for (space of space_list | async; track space) {
+                        <dayview-space
+                            [space]="space"
+                            class="h-[96rem] w-48 min-w-[12rem] border-r border-base-300"
+                        ></dayview-space>
+                    }
+                    @for (time of blocks; track time; let i = $index) {
+                        <div
+                            class="absolute left-0 h-px min-w-full bg-base-300"
+                            [style.width]="
+                                (space_list | async)?.length * 12 + 'rem'
+                            "
+                            [style.top]="i * 4 + 'rem'"
+                        ></div>
+                    }
                 </div>
             </div>
-            <mat-progress-bar
-                *ngIf="loading | async"
-                mode="indeterminate"
-                class="absolute bottom-0 left-0 right-0"
-            ></mat-progress-bar>
-            <view-event-details
-                *ngIf="event | async"
-                [event]="event | async"
-            ></view-event-details>
+            @if (loading | async) {
+                <mat-progress-bar
+                    mode="indeterminate"
+                    class="absolute bottom-0 left-0 right-0"
+                ></mat-progress-bar>
+            }
+            @if (event | async) {
+                <view-event-details
+                    [event]="event | async"
+                ></view-event-details>
+            }
         </div>
     `,
     styles: [

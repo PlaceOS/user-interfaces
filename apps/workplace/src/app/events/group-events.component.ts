@@ -12,28 +12,28 @@ import { GroupEventsStateService } from './group-events-state.service';
             <group-events-sidebar></group-events-sidebar>
             <div class="h-full w-full flex-1 overflow-auto p-2 sm:w-1/2 sm:p-4">
                 <group-events-filters-list></group-events-filters-list>
-                <group-event-card
-                    *ngIf="featured | async"
-                    [event]="featured | async"
-                    [featured]="true"
-                    class="mx-auto my-2 w-[64rem] max-w-full"
-                ></group-event-card>
-                <ng-container
-                    *ngIf="(event_list | async)?.length; else no_events"
-                >
+                @if (featured | async) {
+                    <group-event-card
+                        [event]="featured | async"
+                        [featured]="true"
+                        class="mx-auto my-2 w-[64rem] max-w-full"
+                    ></group-event-card>
+                }
+                @if ((event_list | async)?.length) {
                     <div
                         class="mx-auto mt-2 flex w-[64rem] max-w-full flex-wrap"
                     >
-                        <group-event-card
-                            *ngFor="
-                                let event of events_without_featured | async
-                            "
-                            [event]="event"
-                            class="m-2"
-                        ></group-event-card>
+                        @for (
+                            event of events_without_featured | async;
+                            track event
+                        ) {
+                            <group-event-card
+                                [event]="event"
+                                class="m-2"
+                            ></group-event-card>
+                        }
                     </div>
-                </ng-container>
-                <ng-template #no_events>
+                } @else {
                     <div
                         class="flex h-full w-full flex-col items-center justify-center space-y-2"
                     >
@@ -45,7 +45,7 @@ import { GroupEventsStateService } from './group-events-state.service';
                             {{ 'APP.WORKPLACE.EVENTS_RETRY' | translate }}
                         </div>
                     </div>
-                </ng-template>
+                }
             </div>
         </main>
         <footer-menu></footer-menu>

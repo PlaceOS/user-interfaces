@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, Inject } from '@angular/core';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { MAP_FEATURE_DATA } from 'libs/components/src/lib/interactive-map.component';
@@ -66,21 +65,21 @@ import { MAP_FEATURE_DATA } from 'libs/components/src/lib/interactive-map.compon
             <div
                 class="absolute left-0 top-0 flex h-3/4 w-full items-center justify-center"
             >
-                <div
-                    class="relative z-10 h-4 w-4 rounded-full border-2 border-[#0B421D] bg-base-100"
-                    *ngIf="!selected"
-                ></div>
-                <icon
-                    class="relative z-10 text-2xl text-white"
-                    *ngIf="selected"
-                >
-                    done
-                </icon>
+                @if (!selected) {
+                    <div
+                        class="relative z-10 h-4 w-4 rounded-full border-2 border-[#0B421D] bg-base-100"
+                    ></div>
+                }
+                @if (selected) {
+                    <icon class="relative z-10 text-2xl text-white">
+                        done
+                    </icon>
+                }
             </div>
         </div>
     `,
     styles: [],
-    imports: [CommonModule, IconComponent],
+    imports: [IconComponent],
 })
 export class NewSpaceLocationPinComponent {
     public readonly selected = this._data.selected === true;

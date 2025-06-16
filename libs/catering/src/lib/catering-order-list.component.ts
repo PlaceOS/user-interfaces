@@ -116,12 +116,13 @@ import { statusList } from './catering.vars';
                 @if (space || !data?.location) {
                     <div class="px-4 py-2">
                         {{ space?.display_name || space?.name || '' }}
-                        <span
-                            class="opacity-30"
-                            *ngIf="!(space?.display_name || space?.name)"
-                        >
-                            {{ 'CATERING.ORDERS_LOCATION_EMPTY' | translate }}
-                        </span>
+                        @if (!(space?.display_name || space?.name)) {
+                            <span class="opacity-30">
+                                {{
+                                    'CATERING.ORDERS_LOCATION_EMPTY' | translate
+                                }}
+                            </span>
+                        }
                     </div>
                 } @else {
                     <div class="px-4 py-2">{{ data?.location }}</div>
@@ -131,12 +132,9 @@ import { statusList } from './catering.vars';
                 <div class="px-4 py-2">
                     <div>
                         {{ data?.organiser?.name || data?.host || '' }}
-                        <span
-                            class="opacity-30"
-                            *ngIf="!(data?.organiser?.name || data?.host)"
-                        >
-                            Unknown Host
-                        </span>
+                        @if (!(data?.organiser?.name || data?.host)) {
+                            <span class="opacity-30"> Unknown Host </span>
+                        }
                     </div>
                     <div class="text-xs opacity-30">
                         {{ data?.organiser?.email || data?.host }}
@@ -159,20 +157,21 @@ import { statusList } from './catering.vars';
                     </button>
                 </div>
                 <mat-menu #menu="matMenu">
-                    <button
-                        mat-menu-item
-                        *ngFor="let status of statuses"
-                        class="flex items-center"
-                        (click)="updateStatus(row, status.id)"
-                    >
-                        <div class="flex items-center space-x-2">
-                            <div
-                                class="mr-2 h-4 w-4 rounded-full"
-                                [style.background-color]="status.colour"
-                            ></div>
-                            <span class="mr-2 w-20">{{ status.name }}</span>
-                        </div>
-                    </button>
+                    @for (status of statuses; track status) {
+                        <button
+                            mat-menu-item
+                            class="flex items-center"
+                            (click)="updateStatus(row, status.id)"
+                        >
+                            <div class="flex items-center space-x-2">
+                                <div
+                                    class="mr-2 h-4 w-4 rounded-full"
+                                    [style.background-color]="status.colour"
+                                ></div>
+                                <span class="mr-2 w-20">{{ status.name }}</span>
+                            </div>
+                        </button>
+                    }
                 </mat-menu>
             </ng-template>
             <ng-template #actions_template let-row="row">
@@ -217,18 +216,18 @@ import { statusList } from './catering.vars';
                 </div>
             </ng-template>
             <ng-template #child_template let-row="row">
-                <ul
-                    *ngIf="row?.items.length"
-                    class="relative z-0 m-0 w-full list-none p-0"
-                >
-                    <li
-                        catering-order-item
-                        class="flex items-center"
-                        *ngFor="let item of row.items; let i = index"
-                        [order_id]="row?.id"
-                        [item]="item"
-                    ></li>
-                </ul>
+                @if (row?.items.length) {
+                    <ul class="relative z-0 m-0 w-full list-none p-0">
+                        @for (item of row.items; track item; let i = $index) {
+                            <li
+                                catering-order-item
+                                class="flex items-center"
+                                [order_id]="row?.id"
+                                [item]="item"
+                            ></li>
+                        }
+                    </ul>
+                }
             </ng-template>
         </div>
     `,

@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, Inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import {
@@ -88,18 +87,28 @@ export const FAV_PARKING_KEY = 'favourite_parking_spaces';
                     [class.md:block]="!displayed"
                     [class.p-2]="view === 'list'"
                 >
-                    <new-parking-space-filters-display
-                        *ngIf="view === 'list'"
-                        [(view)]="view"
-                    ></new-parking-space-filters-display>
-                    <new-parking-space-list
-                        *ngIf="view === 'list'; else map_view"
-                        [active]="displayed?.id"
-                        [selected]="selected_ids"
-                        [favorites]="favorites"
-                        (toggleFav)="toggleFavourite($event)"
-                        (onSelect)="displayed = $event"
-                    ></new-parking-space-list>
+                    @if (view === 'list') {
+                        <new-parking-space-filters-display
+                            [(view)]="view"
+                        ></new-parking-space-filters-display>
+                    }
+                    @if (view === 'list') {
+                        <new-parking-space-list
+                            [active]="displayed?.id"
+                            [selected]="selected_ids"
+                            [favorites]="favorites"
+                            (toggleFav)="toggleFavourite($event)"
+                            (onSelect)="displayed = $event"
+                        ></new-parking-space-list>
+                    } @else {
+                        <new-parking-space-map
+                            class="h-full w-full"
+                            [is_displayed]="!!displayed"
+                            [active]="displayed?.id"
+                            (onSelect)="displayed = $event"
+                        >
+                        </new-parking-space-map>
+                    }
                 </div>
                 <div
                     class="h-full w-full overflow-auto rounded border border-base-300 shadow sm:w-[20rem] lg:block"
@@ -119,15 +128,18 @@ export const FAV_PARKING_KEY = 'favourite_parking_spaces';
                         (close)="displayed = null"
                     ></new-parking-space-details>
                 </div>
-                <button
-                    icon
-                    matRipple
-                    class="absolute right-2 top-3 z-20 border border-base-200 bg-base-100 sm:hidden"
-                    (click)="show_filters = !show_filters"
-                    *ngIf="!displayed"
-                >
-                    <icon>{{ show_filters ? 'close' : 'filter_list' }}</icon>
-                </button>
+                @if (!displayed) {
+                    <button
+                        icon
+                        matRipple
+                        class="absolute right-2 top-3 z-20 border border-base-200 bg-base-100 sm:hidden"
+                        (click)="show_filters = !show_filters"
+                    >
+                        <icon>{{
+                            show_filters ? 'close' : 'filter_list'
+                        }}</icon>
+                    </button>
+                }
             </main>
             <footer
                 class="flex w-full items-center justify-between space-x-2 rounded border-none bg-base-200 p-2"
@@ -170,19 +182,9 @@ export const FAV_PARKING_KEY = 'favourite_parking_spaces';
                 </button>
             </footer>
         </div>
-        <ng-template #map_view>
-            <new-parking-space-map
-                class="h-full w-full"
-                [is_displayed]="!!displayed"
-                [active]="displayed?.id"
-                (onSelect)="displayed = $event"
-            >
-            </new-parking-space-map>
-        </ng-template>
     `,
     styles: [``],
     imports: [
-        CommonModule,
         TranslatePipe,
         IconComponent,
         MatRippleModule,

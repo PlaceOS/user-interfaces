@@ -5,6 +5,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import {
     addDays,
@@ -31,65 +32,71 @@ import { AssetStateService } from '../asset-state.service';
                 />
             </mat-form-field>
         </div>
-        <h3 class="hidden px-2 py-2 font-medium sm:block" *ngIf="!search">
-            {{ 'COMMON.OPTIONS' | translate }}
-        </h3>
-        <div class="flex flex-col px-2" *ngIf="!search">
-            <mat-checkbox
-                [(ngModel)]="at_time"
-                (ngModelChange)="at_timeChange.next($event)"
-                [matTooltip]="exact_tooltip"
-            >
-                {{ 'BOOKINGS.ASSETS_DELIVER_TOGGLE' | translate }}
-            </mat-checkbox>
-            <ng-container *ngIf="day_options.length > 1">
-                <label>{{ 'BOOKINGS.ASSETS_DELIVER_DATE' | translate }}</label>
-                <mat-form-field
-                    appearance="outline"
-                    class="no-subscript mb-4 w-full"
+        @if (!search) {
+            <h3 class="hidden px-2 py-2 font-medium sm:block">
+                {{ 'COMMON.OPTIONS' | translate }}
+            </h3>
+        }
+        @if (!search) {
+            <div class="flex flex-col px-2">
+                <mat-checkbox
+                    [(ngModel)]="at_time"
+                    (ngModelChange)="at_timeChange.next($event)"
+                    [matTooltip]="exact_tooltip"
                 >
-                    <mat-select
-                        [(ngModel)]="offset_day"
-                        (ngModelChange)="offset_dayChange.next($event)"
+                    {{ 'BOOKINGS.ASSETS_DELIVER_TOGGLE' | translate }}
+                </mat-checkbox>
+                @if (day_options.length > 1) {
+                    <label>{{
+                        'BOOKINGS.ASSETS_DELIVER_DATE' | translate
+                    }}</label>
+                    <mat-form-field
+                        appearance="outline"
+                        class="no-subscript mb-4 w-full"
                     >
-                        <mat-option
-                            *ngFor="let day of day_options"
-                            [value]="day.id"
+                        <mat-select
+                            [(ngModel)]="offset_day"
+                            (ngModelChange)="offset_dayChange.next($event)"
                         >
-                            {{ day.value | date: 'mediumDate' }}
-                        </mat-option>
-                    </mat-select>
-                </mat-form-field>
-            </ng-container>
-            <label>{{ 'BOOKINGS.ASSETS_DELIVER_TIME' | translate }}</label>
-            <a-duration-field
-                [(ngModel)]="offset"
-                (ngModelChange)="offsetChange.next($event)"
-                [time]="
-                    offset_day > 0 ? start_of_date : (options | async)?.date
-                "
-                [step]="step_interval"
-                [min]="min_offset"
-                [max]="max_offset - 1"
-                [use_24hr]="use_24hr"
-            ></a-duration-field>
-        </div>
-        <h3 class="hidden px-2 py-4 font-medium sm:block" *ngIf="!search">
-            Catergories
-        </h3>
+                            @for (day of day_options; track day) {
+                                <mat-option [value]="day.id">
+                                    {{ day.value | date: 'mediumDate' }}
+                                </mat-option>
+                            }
+                        </mat-select>
+                    </mat-form-field>
+                }
+                <label>{{ 'BOOKINGS.ASSETS_DELIVER_TIME' | translate }}</label>
+                <a-duration-field
+                    [(ngModel)]="offset"
+                    (ngModelChange)="offsetChange.next($event)"
+                    [time]="
+                        offset_day > 0 ? start_of_date : (options | async)?.date
+                    "
+                    [step]="step_interval"
+                    [min]="min_offset"
+                    [max]="max_offset - 1"
+                    [use_24hr]="use_24hr"
+                ></a-duration-field>
+            </div>
+        }
+        @if (!search) {
+            <h3 class="hidden px-2 py-4 font-medium sm:block">Catergories</h3>
+        }
         <div
             class="flex flex-col px-2"
             [class.sm:hidden]="search"
             [class.sm:pt-1]="!search"
         >
-            <mat-checkbox
-                *ngFor="let item of categories | async"
-                [attr.name]="item"
-                [ngModel]="(category | async) === item.id"
-                (ngModelChange)="toggleCategory(item.id)"
-            >
-                {{ item.name }}
-            </mat-checkbox>
+            @for (item of categories | async; track item) {
+                <mat-checkbox
+                    [attr.name]="item"
+                    [ngModel]="(category | async) === item.id"
+                    (ngModelChange)="toggleCategory(item.id)"
+                >
+                    {{ item.name }}
+                </mat-checkbox>
+            }
         </div>
     `,
     styles: [
@@ -110,6 +117,7 @@ import { AssetStateService } from '../asset-state.service';
         MatSelectModule,
         TranslatePipe,
         DurationFieldComponent,
+        MatTooltipModule,
     ],
 })
 export class AssetFiltersComponent extends AsyncHandler {

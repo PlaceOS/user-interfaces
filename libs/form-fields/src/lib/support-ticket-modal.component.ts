@@ -44,119 +44,142 @@ export interface SupportRequestType {
                 <icon class="text-2xl">close</icon>
             </button>
         </header>
-        <main class="w-[32rem] max-w-[85vw]" *ngIf="!loading; else load_state">
-            <form class="px-4 py-2" [formGroup]="form">
-                <div class="flex flex-wrap items-center sm:space-x-2">
-                    <div class="flex flex-1 flex-col">
-                        <label
-                            >{{ 'FORM.NAME' | translate }}<span>*</span></label
-                        >
-                        <mat-form-field appearance="outline">
-                            <input
-                                matInput
-                                [placeholder]="'FORM.NAME' | translate"
-                                formControlName="name"
-                            />
-                            <mat-error>{{
-                                'FORM.NAME_REQUIRED' | translate
-                            }}</mat-error>
+        @if (!loading) {
+            <main class="w-[32rem] max-w-[85vw]">
+                <form class="px-4 py-2" [formGroup]="form">
+                    <div class="flex flex-wrap items-center sm:space-x-2">
+                        <div class="flex flex-1 flex-col">
+                            <label
+                                >{{ 'FORM.NAME' | translate
+                                }}<span>*</span></label
+                            >
+                            <mat-form-field appearance="outline">
+                                <input
+                                    matInput
+                                    [placeholder]="'FORM.NAME' | translate"
+                                    formControlName="name"
+                                />
+                                <mat-error>{{
+                                    'FORM.NAME_REQUIRED' | translate
+                                }}</mat-error>
+                            </mat-form-field>
+                        </div>
+                        <div class="flex flex-1 flex-col">
+                            <label
+                                >{{ 'FORM.EMAIL' | translate
+                                }}<span>*</span></label
+                            >
+                            <mat-form-field appearance="outline">
+                                <input
+                                    matInput
+                                    [placeholder]="'FORM.EMAIL' | translate"
+                                    formControlName="email"
+                                />
+                                <mat-error>{{
+                                    'FORM.EMAIL_REQUIRED' | translate
+                                }}</mat-error>
+                            </mat-form-field>
+                        </div>
+                    </div>
+                    <div class="flex flex-col">
+                        <label>{{
+                            'COMMON.SUPPORT_LOCATION' | translate
+                        }}</label>
+                        <mat-form-field appearance="outline" class="w-full">
+                            <mat-select
+                                [placeholder]="
+                                    'COMMON.SUPPORT_LOCATION' | translate
+                                "
+                                formControlName="location"
+                            >
+                                @for (bld of buildings | async; track bld) {
+                                    <mat-option
+                                        [value]="bld.display_name || bld.name"
+                                    >
+                                        {{ bld.display_name || bld.name }}
+                                    </mat-option>
+                                }
+                            </mat-select>
                         </mat-form-field>
                     </div>
-                    <div class="flex flex-1 flex-col">
-                        <label
-                            >{{ 'FORM.EMAIL' | translate }}<span>*</span></label
-                        >
-                        <mat-form-field appearance="outline">
-                            <input
-                                matInput
-                                [placeholder]="'FORM.EMAIL' | translate"
-                                formControlName="email"
-                            />
-                            <mat-error>{{
-                                'FORM.EMAIL_REQUIRED' | translate
-                            }}</mat-error>
-                        </mat-form-field>
-                    </div>
-                </div>
-                <div class="flex flex-col">
-                    <label>{{ 'COMMON.SUPPORT_LOCATION' | translate }}</label>
-                    <mat-form-field appearance="outline" class="w-full">
-                        <mat-select
+                    @if (support_request_types?.length) {
+                        <div class="flex flex-col">
+                            <label>{{
+                                'COMMON.SUPPORT_TYPE' | translate
+                            }}</label>
+                            <mat-form-field appearance="outline" class="w-full">
+                                <mat-select
+                                    [placeholder]="
+                                        'COMMON.SUPPORT_TYPE' | translate
+                                    "
+                                    formControlName="issue_type"
+                                >
+                                    @for (
+                                        type of support_request_types;
+                                        track type
+                                    ) {
+                                        <mat-option
+                                            [value]="type?.name || type"
+                                        >
+                                            {{ type.name || type }}
+                                        </mat-option>
+                                    }
+                                </mat-select>
+                            </mat-form-field>
+                        </div>
+                    }
+                    <div class="">
+                        <label class="mb-4">
+                            {{ 'COMMON.SUPPORT_DESCRIPTION' | translate }}
+                            <span>*</span>
+                        </label>
+                        <rich-text-input
                             [placeholder]="
-                                'COMMON.SUPPORT_LOCATION' | translate
+                                'COMMON.SUPPORT_DESCRIPTION' | translate
                             "
-                            formControlName="location"
-                        >
-                            <mat-option
-                                *ngFor="let bld of buildings | async"
-                                [value]="bld.display_name || bld.name"
-                            >
-                                {{ bld.display_name || bld.name }}
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
+                            formControlName="description"
+                        ></rich-text-input>
+                        @if (desc_error) {
+                            <mat-error class="my-2 text-xs">
+                                {{
+                                    'COMMON.SUPPORT_DESCRIPTION_REQUIRED'
+                                        | translate
+                                }}
+                            </mat-error>
+                        }
+                    </div>
+                    @if (allow_images) {
+                        <div class="pt-4">
+                            <label class="mb-4">{{
+                                'COMMON.SUPPORT_IMAGES' | translate
+                            }}</label>
+                            <image-list-field
+                                formControlName="images"
+                            ></image-list-field>
+                        </div>
+                    }
+                </form>
+                <div class="mb-2 text-center text-xs italic">
+                    {{ 'COMMON.SUPPORT_MSG' | translate }}
                 </div>
-                <div
-                    class="flex flex-col"
-                    *ngIf="support_request_types?.length"
-                >
-                    <label>{{ 'COMMON.SUPPORT_TYPE' | translate }}</label>
-                    <mat-form-field appearance="outline" class="w-full">
-                        <mat-select
-                            [placeholder]="'COMMON.SUPPORT_TYPE' | translate"
-                            formControlName="issue_type"
-                        >
-                            <mat-option
-                                *ngFor="let type of support_request_types"
-                                [value]="type?.name || type"
-                            >
-                                {{ type.name || type }}
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                </div>
-                <div class="">
-                    <label class="mb-4">
-                        {{ 'COMMON.SUPPORT_DESCRIPTION' | translate }}
-                        <span>*</span>
-                    </label>
-                    <rich-text-input
-                        [placeholder]="'COMMON.SUPPORT_DESCRIPTION' | translate"
-                        formControlName="description"
-                    ></rich-text-input>
-                    <mat-error class="my-2 text-xs" *ngIf="desc_error">
-                        {{ 'COMMON.SUPPORT_DESCRIPTION_REQUIRED' | translate }}
-                    </mat-error>
-                </div>
-                <div *ngIf="allow_images" class="pt-4">
-                    <label class="mb-4">{{
-                        'COMMON.SUPPORT_IMAGES' | translate
-                    }}</label>
-                    <image-list-field
-                        formControlName="images"
-                    ></image-list-field>
-                </div>
-            </form>
-            <div class="mb-2 text-center text-xs italic">
-                {{ 'COMMON.SUPPORT_MSG' | translate }}
-            </div>
-        </main>
-        <footer
-            class="flex items-center justify-end border-t border-base-200 px-4 py-2"
-            *ngIf="!loading"
-        >
-            <button btn matRipple class="w-32" (click)="submit()">
-                {{ 'COMMON.SUBMIT' | translate }}
-            </button>
-        </footer>
-        <ng-template #load_state>
+            </main>
+        } @else {
             <main
                 class="flex min-h-[24rem] w-[32rem] max-w-[100vw] flex-col items-center justify-center space-y-2"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <p>{{ 'COMMON.SUPPORT_LOADING' | translate }}</p>
             </main>
-        </ng-template>
+        }
+        @if (!loading) {
+            <footer
+                class="flex items-center justify-end border-t border-base-200 px-4 py-2"
+            >
+                <button btn matRipple class="w-32" (click)="submit()">
+                    {{ 'COMMON.SUBMIT' | translate }}
+                </button>
+            </footer>
+        }
     `,
     styles: [
         `

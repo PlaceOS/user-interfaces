@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, forwardRef, Input } from '@angular/core';
 import {
     ControlValueAccessor,
@@ -25,9 +24,11 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
                 value
                 class="relative z-0 -mx-px flex h-12 min-w-16 flex-1 items-center justify-center rounded border border-secondary p-1 focus-within:z-20"
             >
-                <span *ngIf="!focused" class="px-3">
-                    {{ (render_fn ? render_fn(value) : value) || '0' }}
-                </span>
+                @if (!focused) {
+                    <span class="px-3">
+                        {{ (render_fn ? render_fn(value) : value) || '0' }}
+                    </span>
+                }
                 <input
                     type="text"
                     class="absolute inset-0 rounded-none p-2 opacity-0 focus:opacity-100"
@@ -78,7 +79,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
             multi: true,
         },
     ],
-    imports: [CommonModule, FormsModule, IconComponent],
+    imports: [FormsModule, IconComponent],
 })
 export class CompactCounterComponent implements ControlValueAccessor {
     /** Size of a single step */

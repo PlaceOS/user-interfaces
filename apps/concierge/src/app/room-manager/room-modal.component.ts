@@ -47,123 +47,127 @@ import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.compone
             (confirm)="save()"
         >
             <form system [formGroup]="form">
-                <div class="flex flex-col" *ngIf="form.controls.zone">
-                    <label
-                        for="zone"
-                        [class.error]="
-                            form.controls.zone.invalid &&
-                            form.controls.zone.touched
-                        "
-                    >
-                        {{ 'RESOURCE.LEVEL' | translate }}<span>*</span>
-                    </label>
-                    <mat-form-field appearance="outline">
-                        <mat-select
-                            formControlName="zone"
-                            [placeholder]="
-                                'APP.CONCIERGE.ROOMS_SELECT_LEVEL' | translate
-                            "
-                        >
-                            <mat-option
-                                *ngFor="let level of levels | async"
-                                [value]="level.id"
-                            >
-                                {{ level.display_name || level.name }}
-                            </mat-option>
-                        </mat-select>
-                        <mat-error>{{
-                            'APP.CONCIERGE.ROOMS_LEVEL_REQUIRED' | translate
-                        }}</mat-error>
-                    </mat-form-field>
-                </div>
-                <div class="flex space-x-2">
-                    <div
-                        class="flex flex-1 flex-col"
-                        *ngIf="form.controls.name"
-                    >
+                @if (form.controls.zone) {
+                    <div class="flex flex-col">
                         <label
-                            for="system-name"
+                            for="zone"
                             [class.error]="
-                                form.controls.name.invalid &&
-                                form.controls.name.touched
+                                form.controls.zone.invalid &&
+                                form.controls.zone.touched
                             "
                         >
-                            {{ 'FORM.NAME' | translate }}<span>*</span>
+                            {{ 'RESOURCE.LEVEL' | translate }}<span>*</span>
                         </label>
                         <mat-form-field appearance="outline">
-                            <input
-                                matInput
-                                name="system-name"
-                                [placeholder]="'FORM.NAME' | translate"
-                                formControlName="name"
-                                required
-                            />
-                            <mat-error *ngIf="form.controls.name.invalid">
-                                {{ 'FORM.NAME_REQUIRED' | translate }}
-                            </mat-error>
-                        </mat-form-field>
-                    </div>
-                    <div
-                        class="flex flex-1 flex-col"
-                        *ngIf="form.controls.email"
-                    >
-                        <label
-                            for="system-email"
-                            [class.error]="
-                                form.controls.email.invalid &&
-                                form.controls.email.touched
-                            "
-                        >
-                            {{ 'FORM.EMAIL' | translate }}
-                        </label>
-                        <mat-form-field appearance="outline">
-                            <input
-                                matInput
-                                name="system-email"
-                                [placeholder]="'FORM.EMAIL' | translate"
-                                formControlName="email"
-                            />
-                            <mat-error *ngIf="form.controls.email.invalid">
-                                {{ 'FORM.EMAIL_REQUIRED' | translate }}
-                            </mat-error>
-                        </mat-form-field>
-                    </div>
-                </div>
-                <div class="flex space-x-2">
-                    <div
-                        class="flex flex-1 flex-col"
-                        *ngIf="form.controls.display_name"
-                    >
-                        <label for="display-name">{{
-                            'FORM.DISPLAY_NAME' | translate
-                        }}</label>
-                        <mat-form-field appearance="outline">
-                            <input
-                                matInput
-                                name="display-name"
-                                [placeholder]="'FORM.DISPLAY_NAME' | translate"
-                                formControlName="display_name"
-                            />
-                        </mat-form-field>
-                    </div>
-                    <div
-                        class="flex flex-1 flex-col"
-                        *ngIf="form.controls.display_name"
-                    >
-                        <label for="code-name">{{
-                            'APP.CONCIERGE.ROOMS_CODE' | translate
-                        }}</label>
-                        <mat-form-field appearance="outline">
-                            <input
-                                matInput
-                                name="code-name"
+                            <mat-select
+                                formControlName="zone"
                                 [placeholder]="
-                                    'APP.CONCIERGE.ROOMS_CODE' | translate
+                                    'APP.CONCIERGE.ROOMS_SELECT_LEVEL'
+                                        | translate
                                 "
-                                formControlName="code"
-                            />
+                            >
+                                @for (level of levels | async; track level) {
+                                    <mat-option [value]="level.id">
+                                        {{ level.display_name || level.name }}
+                                    </mat-option>
+                                }
+                            </mat-select>
+                            <mat-error>{{
+                                'APP.CONCIERGE.ROOMS_LEVEL_REQUIRED' | translate
+                            }}</mat-error>
                         </mat-form-field>
                     </div>
+                }
+                <div class="flex space-x-2">
+                    @if (form.controls.name) {
+                        <div class="flex flex-1 flex-col">
+                            <label
+                                for="system-name"
+                                [class.error]="
+                                    form.controls.name.invalid &&
+                                    form.controls.name.touched
+                                "
+                            >
+                                {{ 'FORM.NAME' | translate }}<span>*</span>
+                            </label>
+                            <mat-form-field appearance="outline">
+                                <input
+                                    matInput
+                                    name="system-name"
+                                    [placeholder]="'FORM.NAME' | translate"
+                                    formControlName="name"
+                                    required
+                                />
+                                @if (form.controls.name.invalid) {
+                                    <mat-error>
+                                        {{ 'FORM.NAME_REQUIRED' | translate }}
+                                    </mat-error>
+                                }
+                            </mat-form-field>
+                        </div>
+                    }
+                    @if (form.controls.email) {
+                        <div class="flex flex-1 flex-col">
+                            <label
+                                for="system-email"
+                                [class.error]="
+                                    form.controls.email.invalid &&
+                                    form.controls.email.touched
+                                "
+                            >
+                                {{ 'FORM.EMAIL' | translate }}
+                            </label>
+                            <mat-form-field appearance="outline">
+                                <input
+                                    matInput
+                                    name="system-email"
+                                    [placeholder]="'FORM.EMAIL' | translate"
+                                    formControlName="email"
+                                />
+                                @if (form.controls.email.invalid) {
+                                    <mat-error>
+                                        {{ 'FORM.EMAIL_REQUIRED' | translate }}
+                                    </mat-error>
+                                }
+                            </mat-form-field>
+                        </div>
+                    }
+                </div>
+                <div class="flex space-x-2">
+                    @if (form.controls.display_name) {
+                        <div class="flex flex-1 flex-col">
+                            <label for="display-name">{{
+                                'FORM.DISPLAY_NAME' | translate
+                            }}</label>
+                            <mat-form-field appearance="outline">
+                                <input
+                                    matInput
+                                    name="display-name"
+                                    [placeholder]="
+                                        'FORM.DISPLAY_NAME' | translate
+                                    "
+                                    formControlName="display_name"
+                                />
+                            </mat-form-field>
+                        </div>
+                    }
+                    @if (form.controls.display_name) {
+                        <div class="flex flex-1 flex-col">
+                            <label for="code-name">{{
+                                'APP.CONCIERGE.ROOMS_CODE' | translate
+                            }}</label>
+                            <mat-form-field appearance="outline">
+                                <input
+                                    matInput
+                                    name="code-name"
+                                    [placeholder]="
+                                        'APP.CONCIERGE.ROOMS_CODE' | translate
+                                    "
+                                    formControlName="code"
+                                />
+                            </mat-form-field>
+                        </div>
+                    }
                 </div>
                 <div class="flex space-x-2" [formGroup]="settings_form">
                     <div class="flex flex-1 flex-col space-y-2">
@@ -210,119 +214,128 @@ import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.compone
                     </div>
                 </div>
                 <div class="mb-4 flex space-x-2">
-                    <div
-                        class="flex flex-1 flex-col pt-4"
-                        *ngIf="form.controls.approval"
-                    >
-                        <settings-toggle
-                            [name]="'COMMON.REQUIRE_APPROVAL' | translate"
-                            formControlName="approval"
-                        >
-                        </settings-toggle>
-                    </div>
-                    <div
-                        class="flex flex-1 flex-col pt-4"
-                        *ngIf="form.controls.bookable"
-                    >
-                        <settings-toggle
-                            [name]="'COMMON.BOOKABLE' | translate"
-                            formControlName="bookable"
-                        >
-                        </settings-toggle>
-                    </div>
-                </div>
-                <div class="mb-4 flex flex-col" *ngIf="form.controls.capacity">
-                    <label
-                        for="capacity"
-                        [class.error]="
-                            form.controls.capacity.invalid &&
-                            form.controls.capacity.touched
-                        "
-                    >
-                        {{ 'COMMON.CAPACITY' | translate }}
-                    </label>
-                    <a-counter
-                        name="capacity"
-                        class="w-full"
-                        formControlName="capacity"
-                        [min]="0"
-                        [max]="256"
-                    ></a-counter>
-                </div>
-                <div class="flex flex-col" *ngIf="form.controls.description">
-                    <label for="description">{{
-                        'COMMON.DESCRIPTION' | translate
-                    }}</label>
-                    <mat-form-field appearance="outline">
-                        <textarea
-                            matInput
-                            name="description"
-                            [placeholder]="'COMMON.DESCRIPTION' | translate"
-                            formControlName="description"
-                        ></textarea>
-                    </mat-form-field>
-                </div>
-                <div class="flex flex-col" *ngIf="form.controls.features">
-                    <label
-                        [class.error]="
-                            form.controls.features.invalid &&
-                            form.controls.features.touched
-                        "
-                    >
-                        {{ 'COMMON.FEATURES' | translate }}
-                    </label>
-                    <mat-form-field appearance="outline">
-                        <mat-chip-grid
-                            #chipList
-                            [aria-label]="'COMMON.FEATRUES' | translate"
-                        >
-                            <mat-chip-row
-                                *ngFor="let feature of feature_list"
-                                [selectable]="true"
-                                [removable]="true"
-                                (removed)="removeFeature(feature)"
+                    @if (form.controls.approval) {
+                        <div class="flex flex-1 flex-col pt-4">
+                            <settings-toggle
+                                [name]="'COMMON.REQUIRE_APPROVAL' | translate"
+                                formControlName="approval"
                             >
-                                {{ feature }}
-                                <icon matChipRemove>close</icon>
-                            </mat-chip-row>
-                            <input
-                                [placeholder]="'COMMON.FEATURES' | translate"
-                                [matChipInputFor]="chipList"
-                                [matChipInputSeparatorKeyCodes]="separators"
-                                [matChipInputAddOnBlur]="true"
-                                (matChipInputTokenEnd)="addFeature($event)"
-                            />
-                        </mat-chip-grid>
-                    </mat-form-field>
+                            </settings-toggle>
+                        </div>
+                    }
+                    @if (form.controls.bookable) {
+                        <div class="flex flex-1 flex-col pt-4">
+                            <settings-toggle
+                                [name]="'COMMON.BOOKABLE' | translate"
+                                formControlName="bookable"
+                            >
+                            </settings-toggle>
+                        </div>
+                    }
                 </div>
-                <div class="flex flex-col" *ngIf="form.controls.map_id">
-                    <label for="map_id">{{
-                        'EXPLORE.MAP_ID' | translate
-                    }}</label>
-                    <div class="flex space-x-2">
-                        <mat-form-field appearance="outline">
-                            <input
-                                matInput
-                                name="map_id"
-                                [placeholder]="
-                                    'EXPLORE.MAP_ID_PLACEHOLDER' | translate
-                                "
-                                formControlName="map_id"
-                            />
-                        </mat-form-field>
-                        <button
-                            icon
-                            matRipple
-                            class="h-12 w-12 rounded border border-secondary text-secondary"
-                            [matTooltip]="
-                                'APP.CONCIERGE.POI_MAP_SELECT' | translate
+                @if (form.controls.capacity) {
+                    <div class="mb-4 flex flex-col">
+                        <label
+                            for="capacity"
+                            [class.error]="
+                                form.controls.capacity.invalid &&
+                                form.controls.capacity.touched
                             "
-                            (click)="selectItemfromMap()"
                         >
-                            <icon>place</icon>
-                        </button>
+                            {{ 'COMMON.CAPACITY' | translate }}
+                        </label>
+                        <a-counter
+                            name="capacity"
+                            class="w-full"
+                            formControlName="capacity"
+                            [min]="0"
+                            [max]="256"
+                        ></a-counter>
                     </div>
-                </div>
+                }
+                @if (form.controls.description) {
+                    <div class="flex flex-col">
+                        <label for="description">{{
+                            'COMMON.DESCRIPTION' | translate
+                        }}</label>
+                        <mat-form-field appearance="outline">
+                            <textarea
+                                matInput
+                                name="description"
+                                [placeholder]="'COMMON.DESCRIPTION' | translate"
+                                formControlName="description"
+                            ></textarea>
+                        </mat-form-field>
+                    </div>
+                }
+                @if (form.controls.features) {
+                    <div class="flex flex-col">
+                        <label
+                            [class.error]="
+                                form.controls.features.invalid &&
+                                form.controls.features.touched
+                            "
+                        >
+                            {{ 'COMMON.FEATURES' | translate }}
+                        </label>
+                        <mat-form-field appearance="outline">
+                            <mat-chip-grid
+                                #chipList
+                                [aria-label]="'COMMON.FEATRUES' | translate"
+                            >
+                                @for (feature of feature_list; track feature) {
+                                    <mat-chip-row
+                                        [selectable]="true"
+                                        [removable]="true"
+                                        (removed)="removeFeature(feature)"
+                                    >
+                                        {{ feature }}
+                                        <icon matChipRemove>close</icon>
+                                    </mat-chip-row>
+                                }
+                                <input
+                                    [placeholder]="
+                                        'COMMON.FEATURES' | translate
+                                    "
+                                    [matChipInputFor]="chipList"
+                                    [matChipInputSeparatorKeyCodes]="separators"
+                                    [matChipInputAddOnBlur]="true"
+                                    (matChipInputTokenEnd)="addFeature($event)"
+                                />
+                            </mat-chip-grid>
+                        </mat-form-field>
+                    </div>
+                }
+                @if (form.controls.map_id) {
+                    <div class="flex flex-col">
+                        <label for="map_id">{{
+                            'EXPLORE.MAP_ID' | translate
+                        }}</label>
+                        <div class="flex space-x-2">
+                            <mat-form-field appearance="outline">
+                                <input
+                                    matInput
+                                    name="map_id"
+                                    [placeholder]="
+                                        'EXPLORE.MAP_ID_PLACEHOLDER' | translate
+                                    "
+                                    formControlName="map_id"
+                                />
+                            </mat-form-field>
+                            <button
+                                icon
+                                matRipple
+                                class="h-12 w-12 rounded border border-secondary text-secondary"
+                                [matTooltip]="
+                                    'APP.CONCIERGE.POI_MAP_SELECT' | translate
+                                "
+                                (click)="selectItemfromMap()"
+                            >
+                                <icon>place</icon>
+                            </button>
+                        </div>
+                    </div>
+                }
                 <div class="flex flex-col">
                     <label for="timezone">{{
                         'COMMON.TIMEZONE' | translate
@@ -337,24 +350,29 @@ import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.compone
                         />
                     </mat-form-field>
                     <mat-autocomplete #auto="matAutocomplete">
-                        <mat-option
-                            *ngFor="let tz of filtered_timezones"
-                            [value]="tz"
-                        >
-                            {{ tz }}
-                        </mat-option>
-                        <mat-option *ngIf="!timezones.length" [disabled]="true">
-                            {{ 'COMMON.TIMEZONE_EMPTY' | translate }}
-                        </mat-option>
+                        @for (tz of filtered_timezones; track tz) {
+                            <mat-option [value]="tz">
+                                {{ tz }}
+                            </mat-option>
+                        }
+                        @if (!timezones.length) {
+                            <mat-option [disabled]="true">
+                                {{ 'COMMON.TIMEZONE_EMPTY' | translate }}
+                            </mat-option>
+                        }
                     </mat-autocomplete>
                 </div>
-                <div class="flex flex-col" *ngIf="form.controls.images">
-                    <label for="images">{{ 'COMMON.IMAGE' | translate }}</label>
-                    <image-list-field
-                        name="images"
-                        formControlName="images"
-                    ></image-list-field>
-                </div>
+                @if (form.controls.images) {
+                    <div class="flex flex-col">
+                        <label for="images">{{
+                            'COMMON.IMAGE' | translate
+                        }}</label>
+                        <image-list-field
+                            name="images"
+                            formControlName="images"
+                        ></image-list-field>
+                    </div>
+                }
             </form>
         </fullscreen-modal-shell>
     `,

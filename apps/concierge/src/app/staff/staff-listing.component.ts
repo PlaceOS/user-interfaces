@@ -10,16 +10,17 @@ const CHARS = '#abcdefghijklmnopqrstuvwxyz'.split('');
     selector: 'staff-listings',
     template: `
         <div class="flex w-full items-center justify-center p-2">
-            <div
-                letter
-                *ngFor="let group of groups"
-                class="flex h-6 w-6 cursor-pointer items-center justify-center text-xs capitalize"
-                [class.disabled]="(user_list | async)[group].length <= 0"
-                [class.active]="group === active_group"
-                (click)="scrollTo(group)"
-            >
-                {{ group }}
-            </div>
+            @for (group of groups; track group) {
+                <div
+                    letter
+                    class="flex h-6 w-6 cursor-pointer items-center justify-center text-xs capitalize"
+                    [class.disabled]="(user_list | async)[group].length <= 0"
+                    [class.active]="group === active_group"
+                    (click)="scrollTo(group)"
+                >
+                    {{ group }}
+                </div>
+            }
         </div>
         <div
             class="relative w-full flex-1 overflow-auto bg-base-200"
@@ -27,9 +28,9 @@ const CHARS = '#abcdefghijklmnopqrstuvwxyz'.split('');
             #container
             (scroll)="onScroll($event)"
         >
-            <ng-container *ngIf="user_count | async; else empty_state">
-                <ng-container *ngFor="let group of groups">
-                    <ng-container *ngIf="(user_list | async)[group].length">
+            @if (user_count | async) {
+                @for (group of groups; track group) {
+                    @if ((user_list | async)[group].length) {
                         <div
                             group
                             [id]="'letter-' + (group === '#' ? '0' : group)"
@@ -37,34 +38,36 @@ const CHARS = '#abcdefghijklmnopqrstuvwxyz'.split('');
                         >
                             {{ group }}
                         </div>
-                        <staff-details
-                            *ngFor="
-                                let user of (user_list | async)[group];
-                                let i = index
-                            "
-                            [id]="'letter-' + group + '-' + i"
-                            [user]="user"
-                            [onsite]="
-                                (events | async)
-                                    ? (events | async)[user.email]
-                                    : false
-                            "
-                        ></staff-details>
-                    </ng-container>
-                </ng-container>
-            </ng-container>
+                        @for (
+                            user of (user_list | async)[group];
+                            track user;
+                            let i = $index
+                        ) {
+                            <staff-details
+                                [id]="'letter-' + group + '-' + i"
+                                [user]="user"
+                                [onsite]="
+                                    (events | async)
+                                        ? (events | async)[user.email]
+                                        : false
+                                "
+                            ></staff-details>
+                        }
+                    }
+                }
+            } @else {
+                <div
+                    class="absolute inset-0 flex flex-col items-center justify-center"
+                >
+                    <p>
+                        {{ 'APP.CONCIERGE.DIRECTORY_SEARCH_EMPTY' | translate }}
+                    </p>
+                </div>
+            }
         </div>
-        <mat-progress-bar
-            *ngIf="loading | async"
-            mode="indeterminate"
-        ></mat-progress-bar>
-        <ng-template #empty_state>
-            <div
-                class="absolute inset-0 flex flex-col items-center justify-center"
-            >
-                <p>{{ 'APP.CONCIERGE.DIRECTORY_SEARCH_EMPTY' | translate }}</p>
-            </div>
-        </ng-template>
+        @if (loading | async) {
+            <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+        }
     `,
     styles: [
         `

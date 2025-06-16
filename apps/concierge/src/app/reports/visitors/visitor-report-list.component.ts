@@ -16,17 +16,18 @@ import { VisitorsReportService } from './visitors-report.service';
                         'APP.CONCIERGE.REPORTS_VISITORS_LIST_HEADER' | translate
                     }}
                 </h3>
-                <button
-                    icon
-                    matRipple
-                    [matTooltip]="
-                        'APP.CONCIERGE.REPORTS_DOWNLOAD_TABLE' | translate
-                    "
-                    (click)="download()"
-                    *ngIf="!print"
-                >
-                    <icon>download</icon>
-                </button>
+                @if (!print) {
+                    <button
+                        icon
+                        matRipple
+                        [matTooltip]="
+                            'APP.CONCIERGE.REPORTS_DOWNLOAD_TABLE' | translate
+                        "
+                        (click)="download()"
+                    >
+                        <icon>download</icon>
+                    </button>
+                }
             </div>
             <simple-table
                 class="block w-full text-sm"

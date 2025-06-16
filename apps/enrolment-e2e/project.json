@@ -3,13 +3,14 @@
     "$schema": "../../node_modules/nx/schemas/project-schema.json",
     "sourceRoot": "apps/enrolment-e2e/src",
     "projectType": "application",
+    "tags": [],
+    "implicitDependencies": ["enrolment"],
     "targets": {
         "e2e": {
             "executor": "@nx/cypress:cypress",
             "options": {
                 "cypressConfig": "apps/enrolment-e2e/cypress.json",
-                "devServerTarget": "enrolment:serve:development",
-                "tsConfig": "apps/enrolment-e2e/tsconfig.json"
+                "devServerTarget": "enrolment:serve:development"
             },
             "configurations": {
                 "production": {
@@ -21,7 +22,5 @@
             "executor": "@nx/eslint:lint",
             "outputs": ["{options.outputFile}"]
         }
-    },
-    "tags": [],
-    "implicitDependencies": ["enrolment"]
+    }
 }

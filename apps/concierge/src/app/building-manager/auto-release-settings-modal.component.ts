@@ -43,179 +43,199 @@ import { map } from 'rxjs/operators';
             <h3 class="text-xl font-medium">
                 {{ 'APP.CONCIERGE.AUTO_RELEASE_HEADER' | translate }}
             </h3>
-            <button icon matRipple mat-dialog-close *ngIf="!loading">
-                <icon class="text-2xl">close</icon>
-            </button>
+            @if (!loading) {
+                <button icon matRipple mat-dialog-close>
+                    <icon class="text-2xl">close</icon>
+                </button>
+            }
         </header>
-        <main
-            class="w-[32rem] overflow-auto px-4"
-            *ngIf="!loading; else load_state"
-        >
-            <div class="flex space-x-2">
-                <div class="flex-1">
-                    <label>
-                        {{ 'APP.CONCIERGE.AUTO_RELEASE_NOTIFY' | translate }}
-                    </label>
-                    <a-duration-field
-                        [min]="-15"
-                        [max]="60"
-                        [step]="5"
-                        [(ngModel)]="settings.time_before"
-                    ></a-duration-field>
-                </div>
-                <div class="flex-1">
-                    <label>{{
-                        'APP.CONCIERGE.AUTO_RELEASE_CANCEL' | translate
-                    }}</label>
-                    <a-duration-field
-                        [min]="0"
-                        [max]="60"
-                        [step]="5"
-                        [(ngModel)]="settings.time_after"
-                    ></a-duration-field>
-                </div>
-            </div>
-            <div class="flex items-end space-x-2">
-                <div class="flex-1">
-                    <label>{{
-                        'APP.CONCIERGE.AUTO_RELEASE_ALL_DAY_START' | translate
-                    }}</label>
-                    <a-time-field
-                        [no_past_times]="false"
-                        [ngModel]="start_hour"
-                        (ngModelChange)="setStartHour($event)"
-                    ></a-time-field>
-                </div>
-                <settings-toggle
-                    class="mb-4 flex-1"
-                    [name]="
-                        'APP.CONCIERGE.AUTO_RELEASE_OUTSIDE_HOURS' | translate
-                    "
-                    [(ngModel)]="settings.release_outside_hours"
-                ></settings-toggle>
-            </div>
-            <label>{{
-                'APP.CONCIERGE.AUTO_RELEASE_DEFAULT_HOURS' | translate
-            }}</label>
-            <div class="my-2 grid grid-cols-2 gap-2">
-                @if (!settings.default_work_preferences?.length) {
-                    <div
-                        class="col-span-2 mb-2 flex w-full items-center justify-center rounded bg-base-200 py-4 opacity-30"
-                    >
-                        {{
-                            'APP.CONCIERGE.AUTO_RELEASE_DEFAULT_HOURS_EMPTY'
-                                | translate
-                        }}
+        @if (!loading) {
+            <main class="w-[32rem] overflow-auto px-4">
+                <div class="flex space-x-2">
+                    <div class="flex-1">
+                        <label>
+                            {{
+                                'APP.CONCIERGE.AUTO_RELEASE_NOTIFY' | translate
+                            }}
+                        </label>
+                        <a-duration-field
+                            [min]="-15"
+                            [max]="60"
+                            [step]="5"
+                            [(ngModel)]="settings.time_before"
+                        ></a-duration-field>
                     </div>
-                } @else {
-                    @for (pref of default_work_preferences; track pref.date) {
-                        @if (pref.blocks.length) {
-                            <div
-                                class="relative rounded border border-base-300 px-2 pb-2 pt-4"
-                            >
+                    <div class="flex-1">
+                        <label>{{
+                            'APP.CONCIERGE.AUTO_RELEASE_CANCEL' | translate
+                        }}</label>
+                        <a-duration-field
+                            [min]="0"
+                            [max]="60"
+                            [step]="5"
+                            [(ngModel)]="settings.time_after"
+                        ></a-duration-field>
+                    </div>
+                </div>
+                <div class="flex items-end space-x-2">
+                    <div class="flex-1">
+                        <label>{{
+                            'APP.CONCIERGE.AUTO_RELEASE_ALL_DAY_START'
+                                | translate
+                        }}</label>
+                        <a-time-field
+                            [no_past_times]="false"
+                            [ngModel]="start_hour"
+                            (ngModelChange)="setStartHour($event)"
+                        ></a-time-field>
+                    </div>
+                    <settings-toggle
+                        class="mb-4 flex-1"
+                        [name]="
+                            'APP.CONCIERGE.AUTO_RELEASE_OUTSIDE_HOURS'
+                                | translate
+                        "
+                        [(ngModel)]="settings.release_outside_hours"
+                    ></settings-toggle>
+                </div>
+                <label>{{
+                    'APP.CONCIERGE.AUTO_RELEASE_DEFAULT_HOURS' | translate
+                }}</label>
+                <div class="my-2 grid grid-cols-2 gap-2">
+                    @if (!settings.default_work_preferences?.length) {
+                        <div
+                            class="col-span-2 mb-2 flex w-full items-center justify-center rounded bg-base-200 py-4 opacity-30"
+                        >
+                            {{
+                                'APP.CONCIERGE.AUTO_RELEASE_DEFAULT_HOURS_EMPTY'
+                                    | translate
+                            }}
+                        </div>
+                    } @else {
+                        @for (
+                            pref of default_work_preferences;
+                            track pref.date
+                        ) {
+                            @if (pref.blocks.length) {
                                 <div
-                                    class="absolute -top-2 left-2 rounded bg-base-100 px-2 text-sm"
+                                    class="relative rounded border border-base-300 px-2 pb-2 pt-4"
                                 >
-                                    <span class="relative -top-0.5">{{
-                                        pref.date | date: 'EEEE'
-                                    }}</span>
-                                </div>
-                                @for (block of pref.blocks; track block.i) {
-                                    <div class="mb-1 text-xs opacity-60">
-                                        {{ block.start | date: 'shortTime' }} -
-                                        {{ block.end | date: 'shortTime' }} |
-                                        {{ block.location }}
+                                    <div
+                                        class="absolute -top-2 left-2 rounded bg-base-100 px-2 text-sm"
+                                    >
+                                        <span class="relative -top-0.5">{{
+                                            pref.date | date: 'EEEE'
+                                        }}</span>
                                     </div>
-                                }
-                            </div>
+                                    @for (block of pref.blocks; track block.i) {
+                                        <div class="mb-1 text-xs opacity-60">
+                                            {{
+                                                block.start | date: 'shortTime'
+                                            }}
+                                            -
+                                            {{
+                                                block.end | date: 'shortTime'
+                                            }}
+                                            |
+                                            {{ block.location }}
+                                        </div>
+                                    }
+                                </div>
+                            }
                         }
                     }
-                }
-            </div>
-            <button
-                btn
-                matRipple
-                (click)="setDefaultWorkHourPreferences()"
-                class="mb-4 w-full"
-            >
-                {{ 'APP.CONCIERGE.AUTO_RELEASE_DEFAULT_HOURS_SET' | translate }}
-            </button>
-            <label>{{ 'APP.CONCIERGE.AUTO_RELEASE_TYPES' | translate }}</label>
-            <mat-form-field appearance="outline" class="w-full">
-                <mat-select
-                    multiple
-                    [(ngModel)]="settings.resources"
-                    [placeholder]="
-                        'APP.CONCIERGE.AUTO_RELEASE_TYPES' | translate
-                    "
+                </div>
+                <button
+                    btn
+                    matRipple
+                    (click)="setDefaultWorkHourPreferences()"
+                    class="mb-4 w-full"
                 >
-                    <!-- <mat-option value="room">
-                        Rooms
-                    </mat-option> -->
-                    <mat-option value="desk">
-                        {{ 'RESOURCE.DESKS' | translate }}
-                    </mat-option>
-                    <mat-option value="visitor">
-                        {{ 'RESOURCE.VISITORS' | translate }}
-                    </mat-option>
-                    <mat-option value="parking">
-                        {{ 'RESOURCE.PARKING' | translate }}
-                    </mat-option>
-                    <mat-option value="locker">
-                        {{ 'RESOURCE.LOCKERS' | translate }}
-                    </mat-option>
-                </mat-select>
-            </mat-form-field>
-            @for (name of types; track name) {
-                @if (settings.resources.includes(name)) {
-                    <div
-                        class="mb-4 space-y-4 rounded-lg border border-base-200"
+                    {{
+                        'APP.CONCIERGE.AUTO_RELEASE_DEFAULT_HOURS_SET'
+                            | translate
+                    }}
+                </button>
+                <label>{{
+                    'APP.CONCIERGE.AUTO_RELEASE_TYPES' | translate
+                }}</label>
+                <mat-form-field appearance="outline" class="w-full">
+                    <mat-select
+                        multiple
+                        [(ngModel)]="settings.resources"
+                        [placeholder]="
+                            'APP.CONCIERGE.AUTO_RELEASE_TYPES' | translate
+                        "
                     >
-                        <settings-toggle
-                            [name]="
-                                'APP.CONCIERGE.AUTO_RELEASE_' +
-                                    name.toUpperCase() | translate
-                            "
-                            [ngModel]="settings.custom?.includes(name)"
-                            (ngModelChange)="toggleCustom(name, $event)"
-                        ></settings-toggle>
+                        <!-- <mat-option value="room">
+                Rooms
+              </mat-option> -->
+                        <mat-option value="desk">
+                            {{ 'RESOURCE.DESKS' | translate }}
+                        </mat-option>
+                        <mat-option value="visitor">
+                            {{ 'RESOURCE.VISITORS' | translate }}
+                        </mat-option>
+                        <mat-option value="parking">
+                            {{ 'RESOURCE.PARKING' | translate }}
+                        </mat-option>
+                        <mat-option value="locker">
+                            {{ 'RESOURCE.LOCKERS' | translate }}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+                @for (name of types; track name) {
+                    @if (settings.resources.includes(name)) {
                         <div
-                            class="flex h-14 space-x-2 px-2"
-                            *ngIf="settings.custom?.includes(name)"
+                            class="mb-4 space-y-4 rounded-lg border border-base-200"
                         >
-                            <a-duration-field
-                                [min]="-15"
-                                [max]="60"
-                                [step]="5"
-                                [(ngModel)]="settings[name + '_time_before']"
-                            ></a-duration-field>
-                            <a-duration-field
-                                [min]="0"
-                                [max]="60"
-                                [step]="5"
-                                [(ngModel)]="settings[name + '_time_after']"
-                            ></a-duration-field>
+                            <settings-toggle
+                                [name]="
+                                    'APP.CONCIERGE.AUTO_RELEASE_' +
+                                        name.toUpperCase() | translate
+                                "
+                                [ngModel]="settings.custom?.includes(name)"
+                                (ngModelChange)="toggleCustom(name, $event)"
+                            ></settings-toggle>
+                            @if (settings.custom?.includes(name)) {
+                                <div class="flex h-14 space-x-2 px-2">
+                                    <a-duration-field
+                                        [min]="-15"
+                                        [max]="60"
+                                        [step]="5"
+                                        [(ngModel)]="
+                                            settings[name + '_time_before']
+                                        "
+                                    ></a-duration-field>
+                                    <a-duration-field
+                                        [min]="0"
+                                        [max]="60"
+                                        [step]="5"
+                                        [(ngModel)]="
+                                            settings[name + '_time_after']
+                                        "
+                                    ></a-duration-field>
+                                </div>
+                            }
                         </div>
-                    </div>
+                    }
                 }
-            }
-        </main>
-        <footer
-            class="flex justify-end border-t border-base-200 px-4 py-2"
-            *ngIf="!loading"
-        >
-            <button btn matRipple class="w-32" (click)="save()">
-                {{ 'COMMON.SAVE' | translate }}
-            </button>
-        </footer>
-        <ng-template #load_state>
+            </main>
+        } @else {
             <main
                 class="flex flex-col items-center justify-center space-y-2 p-32"
             >
                 <mat-spinner [diameter]="48"></mat-spinner>
                 <p>{{ loading }}</p>
             </main>
-        </ng-template>
+        }
+        @if (!loading) {
+            <footer class="flex justify-end border-t border-base-200 px-4 py-2">
+                <button btn matRipple class="w-32" (click)="save()">
+                    {{ 'COMMON.SAVE' | translate }}
+                </button>
+            </footer>
+        }
     `,
     styles: [``],
     standalone: false,

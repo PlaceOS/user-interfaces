@@ -12,16 +12,13 @@ import { TimetableStateService } from './timetable-state.service';
         >
             {{ space?.display_name || space?.name }}
         </div>
-        <div
-            space
-            class="relative h-1/2 w-full flex-1"
-            *ngIf="space?.id && bookings"
-        >
-            <space-event-details
-                *ngFor="let event of bookings | async"
-                [event]="event"
-            ></space-event-details>
-        </div>
+        @if (space?.id && bookings) {
+            <div space class="relative h-1/2 w-full flex-1">
+                @for (event of bookings | async; track event) {
+                    <space-event-details [event]="event"></space-event-details>
+                }
+            </div>
+        }
     `,
     styles: [
         `

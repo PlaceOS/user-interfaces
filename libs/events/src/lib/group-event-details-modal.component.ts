@@ -45,23 +45,25 @@ import {
             <div
                 class="relative flex h-52 w-full items-center justify-between overflow-hidden bg-base-200"
             >
-                <img
-                    *ngIf="event.extension_data?.images?.length"
-                    auth
-                    [source]="event.extension_data?.images[0]"
-                    class="absolute left-1/2 top-1/2 min-h-full min-w-full -translate-x-1/2 -translate-y-1/2 object-cover"
-                />
+                @if (event.extension_data?.images?.length) {
+                    <img
+                        auth
+                        [source]="event.extension_data?.images[0]"
+                        class="absolute left-1/2 top-1/2 min-h-full min-w-full -translate-x-1/2 -translate-y-1/2 object-cover"
+                    />
+                }
             </div>
 
-            <div
-                class="absolute left-0 top-0 flex items-center space-x-2 rounded-br bg-info py-2 pl-2 pr-4 text-sm text-info-content"
-                *ngIf="featured"
-            >
-                <icon class="text-base">star</icon>
-                <div class="uppercase">
-                    {{ 'CALENDAR_EVENT.GROUP_FEATURED' | translate }}
+            @if (featured) {
+                <div
+                    class="absolute left-0 top-0 flex items-center space-x-2 rounded-br bg-info py-2 pl-2 pr-4 text-sm text-info-content"
+                >
+                    <icon class="text-base">star</icon>
+                    <div class="uppercase">
+                        {{ 'CALENDAR_EVENT.GROUP_FEATURED' | translate }}
+                    </div>
                 </div>
-            </div>
+            }
             <button
                 icon
                 mat-dialog-close
@@ -77,7 +79,7 @@ import {
                     {{ event.title }}
                 </h3>
                 <div class="flex items-center space-x-2">
-                    <ng-container *ngIf="!concierge">
+                    @if (!concierge) {
                         <div
                             btn
                             class="flex h-10 items-center space-x-2 rounded px-4"
@@ -118,7 +120,7 @@ import {
                                 }}
                             </div>
                         </div>
-                    </ng-container>
+                    }
                     <button
                         btn
                         matRipple
@@ -276,26 +278,32 @@ import {
                             <icon>place</icon>
                         </div>
                         <div class="flex flex-col text-sm">
-                            <div *ngIf="is_onsite && has_space">
-                                {{ (system_id | space | async)?.display_name }}
-                            </div>
-                            <div
-                                *ngIf="is_onsite && !has_space"
-                                class="opacity-30"
-                            >
-                                {{
-                                    'CALENDAR_EVENT.GROUP_UNCONFIRMED'
-                                        | translate
-                                }}
-                            </div>
-                            <div *ngIf="is_online" class="opacity-30">
-                                {{
-                                    (is_onsite
-                                        ? 'CALENDAR_EVENT.GROUP_BOTH_LOCATIONS'
-                                        : 'CALENDAR_EVENT.GROUP_REMOTE'
-                                    ) | translate
-                                }}
-                            </div>
+                            @if (is_onsite && has_space) {
+                                <div>
+                                    {{
+                                        (system_id | space | async)
+                                            ?.display_name
+                                    }}
+                                </div>
+                            }
+                            @if (is_onsite && !has_space) {
+                                <div class="opacity-30">
+                                    {{
+                                        'CALENDAR_EVENT.GROUP_UNCONFIRMED'
+                                            | translate
+                                    }}
+                                </div>
+                            }
+                            @if (is_online) {
+                                <div class="opacity-30">
+                                    {{
+                                        (is_onsite
+                                            ? 'CALENDAR_EVENT.GROUP_BOTH_LOCATIONS'
+                                            : 'CALENDAR_EVENT.GROUP_REMOTE'
+                                        ) | translate
+                                    }}
+                                </div>
+                            }
                         </div>
                     </div>
                     <button
@@ -328,103 +336,115 @@ import {
                             event-details
                             [innerHTML]="body | sanitize"
                         ></span>
-                        <span
-                            *ngIf="!raw_description.trim()"
-                            class="opacity-30"
-                        >
-                            {{
-                                'CALENDAR_EVENT.GROUP_NO_DESCRIPTION'
-                                    | translate
-                            }}
-                        </span>
+                        @if (!raw_description.trim()) {
+                            <span class="opacity-30">
+                                {{
+                                    'CALENDAR_EVENT.GROUP_NO_DESCRIPTION'
+                                        | translate
+                                }}
+                            </span>
+                        }
                     </div>
                 </div>
                 <div>
-                    <div class="flex w-[20rem]" *ngIf="level">
-                        <div class="w-full border border-base-300">
-                            <button
-                                matRipple
-                                class="relative h-40 w-full bg-base-200"
-                                (click)="viewLocation()"
-                            >
-                                <interactive-map
-                                    *ngIf="!showing_map"
-                                    [src]="level?.map_id"
-                                    [features]="features"
-                                    [styles]="styles"
-                                ></interactive-map>
-                            </button>
-                            <div class="space-y-2 p-4">
-                                <div *ngIf="is_onsite && has_space">
-                                    {{
-                                        (system_id | space | async)
-                                            ?.display_name
-                                    }}
-                                </div>
-                                <div
-                                    *ngIf="is_onsite && !has_space"
-                                    class="opacity-30"
+                    @if (level) {
+                        <div class="flex w-[20rem]">
+                            <div class="w-full border border-base-300">
+                                <button
+                                    matRipple
+                                    class="relative h-40 w-full bg-base-200"
+                                    (click)="viewLocation()"
                                 >
-                                    {{
-                                        'CALENDAR_EVENT.GROUP_UNCONFIRMED'
-                                            | translate
-                                    }}
+                                    @if (!showing_map) {
+                                        <interactive-map
+                                            [src]="level?.map_id"
+                                            [features]="features"
+                                            [styles]="styles"
+                                        ></interactive-map>
+                                    }
+                                </button>
+                                <div class="space-y-2 p-4">
+                                    @if (is_onsite && has_space) {
+                                        <div>
+                                            {{
+                                                (system_id | space | async)
+                                                    ?.display_name
+                                            }}
+                                        </div>
+                                    }
+                                    @if (is_onsite && !has_space) {
+                                        <div class="opacity-30">
+                                            {{
+                                                'CALENDAR_EVENT.GROUP_UNCONFIRMED'
+                                                    | translate
+                                            }}
+                                        </div>
+                                    }
+                                    <div class="!mt-0 text-sm opacity-30">
+                                        @if (building && level) {
+                                            <span>
+                                                {{
+                                                    building.display_name ||
+                                                        building.name
+                                                }},
+                                                {{
+                                                    level?.display_name ||
+                                                        level?.name
+                                                }}
+                                            </span>
+                                        }
+                                        @if (!building || !level) {
+                                            <span class="opacity-30">
+                                                {{
+                                                    'CALENDAR_EVENT.GROUP_NO_LOCATION'
+                                                        | translate
+                                                }}
+                                            </span>
+                                        }
+                                    </div>
+                                    @if (is_online) {
+                                        <a
+                                            class="mt-4 opacity-30"
+                                            [class.underline]="
+                                                event.meeting_url
+                                            "
+                                            [href]="event.meeting_url"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                        >
+                                            {{
+                                                (is_onsite
+                                                    ? 'CALENDAR_EVENT.GROUP_BOTH_LOCATIONS'
+                                                    : 'CALENDAR_EVENT.GROUP_REMOTE'
+                                                ) | translate
+                                            }}
+                                        </a>
+                                    }
                                 </div>
-                                <div class="!mt-0 text-sm opacity-30">
-                                    <span *ngIf="building && level">
-                                        {{
-                                            building.display_name ||
-                                                building.name
-                                        }},
-                                        {{ level?.display_name || level?.name }}
-                                    </span>
-                                    <span
-                                        *ngIf="!building || !level"
-                                        class="opacity-30"
-                                    >
-                                        {{
-                                            'CALENDAR_EVENT.GROUP_NO_LOCATION'
-                                                | translate
-                                        }}
-                                    </span>
-                                </div>
-                                <a
-                                    *ngIf="is_online"
-                                    class="mt-4 opacity-30"
-                                    [class.underline]="event.meeting_url"
-                                    [href]="event.meeting_url"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                >
-                                    {{
-                                        (is_onsite
-                                            ? 'CALENDAR_EVENT.GROUP_BOTH_LOCATIONS'
-                                            : 'CALENDAR_EVENT.GROUP_REMOTE'
-                                        ) | translate
-                                    }}
-                                </a>
                             </div>
                         </div>
-                    </div>
+                    }
                 </div>
             </div>
         </div>
-        <div class="absolute inset-0 z-50" *ngIf="show_attendees">
-            <button
-                class="absolute inset-0 bg-base-content opacity-60"
-                (click)="show_attendees = false"
-            ></button>
-            <div
-                class="absolute inset-y-8 left-1/2 w-[24rem] -translate-x-1/2 overflow-hidden rounded shadow"
-            >
-                <attendee-list
-                    [show_host]="false"
-                    [list]="event.attendees"
-                    [host]="event.user_email"
+        @if (show_attendees) {
+            <div class="absolute inset-0 z-50">
+                <button
+                    class="absolute inset-0 bg-base-content opacity-60"
                     (click)="show_attendees = false"
-                ></attendee-list>
+                ></button>
+                <div
+                    class="absolute inset-y-8 left-1/2 w-[24rem] -translate-x-1/2 overflow-hidden rounded shadow"
+                >
+                    <attendee-list
+                        [show_host]="false"
+                        [list]="event.attendees"
+                        [host]="event.user_email"
+                        (click)="show_attendees = false"
+                    ></attendee-list>
+                </div>
             </div>
-        </div>
+        }
     `,
     styles: [``],
     imports: [

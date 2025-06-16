@@ -60,12 +60,13 @@ import { LevelManagementService } from './level-management.service';
             </button>
         </ng-template>
         <ng-template #parking_template let-row="row">
-            <div
-                *ngIf="row.tags?.includes('parking')"
-                class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-success text-2xl text-success-content"
-            >
-                <icon>done</icon>
-            </div>
+            @if (row.tags?.includes('parking')) {
+                <div
+                    class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-success text-2xl text-success-content"
+                >
+                    <icon>done</icon>
+                </div>
+            }
         </ng-template>
         <ng-template #action_template let-row="row">
             <div class="flex w-full justify-center space-x-2 p-1">

@@ -33,121 +33,136 @@ import { ParkingService } from './parking.service';
 @Component({
     selector: 'booking-card',
     template: `
-        <h4 class="mb-2 flex items-center" *ngIf="booking">
-            <span *ngIf="show_day" day>{{ day }},&nbsp;</span>
-            {{ booking?.date | date: time_format }}
-            <span class="px-2 text-xs"
-                >({{ booking?.date | date: 'zzzz' }})</span
-            >
-        </h4>
-        <a
-            name="view-booking-details"
-            class="relative w-full cursor-pointer overflow-hidden"
-            [routerLink]="['./']"
-            [queryParams]="{ booking: booking?.id }"
-            (click)="viewDetails()"
-            *ngIf="booking"
-        >
-            <div
-                class="relative w-full rounded-xl border border-base-300 bg-base-100 py-4 shadow"
-            >
-                <h4 class="px-4 text-lg">{{ booking?.title }}</h4>
-                <div class="mx-4 my-2 flex items-center space-x-2">
-                    <status-pill [status]="status">{{ period }}</status-pill>
-                    <icon
-                        *ngIf="booking.instance"
-                        class="text-2xl"
-                        [matTooltip]="recurr_tooltip"
-                        >event_repeat</icon
-                    >
-                </div>
-                <div
-                    class="divide-base-200-500 flex flex-col flex-wrap space-y-2 py-2 sm:flex-row sm:space-y-0 sm:divide-x"
+        @if (booking) {
+            <h4 class="mb-2 flex items-center">
+                @if (show_day) {
+                    <span day>{{ day }},&nbsp;</span>
+                }
+                {{ booking?.date | date: time_format }}
+                <span class="px-2 text-xs"
+                    >({{ booking?.date | date: 'zzzz' }})</span
                 >
-                    <div class="flex max-w-[33%] items-center px-4">
-                        @switch (type) {
-                            @case ('desk') {
-                                <icon
-                                    [matTooltip]="'RESOURCE.DESK' | translate"
-                                    matTooltipPosition="right"
-                                    >desk</icon
-                                >
-                            }
-                            @case ('locker') {
-                                <icon
-                                    [matTooltip]="'RESOURCE.LOCKER' | translate"
-                                    matTooltipPosition="right"
-                                    >lock</icon
-                                >
-                            }
-                            @case ('parking') {
-                                <icon
-                                    [matTooltip]="
-                                        'RESOURCE.PARKING' | translate
-                                    "
-                                    matTooltipPosition="right"
-                                    >drive_eta</icon
-                                >
-                            }
-                            @case ('visitor') {
-                                <icon
-                                    [matTooltip]="
-                                        'RESOURCE.VISITOR' | translate
-                                    "
-                                    matTooltipPosition="right"
-                                    >people</icon
-                                >
-                            }
-                            @default {
-                                <icon>book</icon>
-                            }
+            </h4>
+        }
+        @if (booking) {
+            <a
+                name="view-booking-details"
+                class="relative w-full cursor-pointer overflow-hidden"
+                [routerLink]="['./']"
+                [queryParams]="{ booking: booking?.id }"
+                (click)="viewDetails()"
+            >
+                <div
+                    class="relative w-full rounded-xl border border-base-300 bg-base-100 py-4 shadow"
+                >
+                    <h4 class="px-4 text-lg">{{ booking?.title }}</h4>
+                    <div class="mx-4 my-2 flex items-center space-x-2">
+                        <status-pill [status]="status">{{
+                            period
+                        }}</status-pill>
+                        @if (booking.instance) {
+                            <icon class="text-2xl" [matTooltip]="recurr_tooltip"
+                                >event_repeat</icon
+                            >
                         }
-                        <div class="mx-2 w-1/2 flex-1 truncate">
-                            {{
-                                raw_description ||
-                                    booking?.asset_name ||
-                                    booking?.asset_id
-                            }}
+                    </div>
+                    <div
+                        class="divide-base-200-500 flex flex-col flex-wrap space-y-2 py-2 sm:flex-row sm:space-y-0 sm:divide-x"
+                    >
+                        <div class="flex max-w-[33%] items-center px-4">
+                            @switch (type) {
+                                @case ('desk') {
+                                    <icon
+                                        [matTooltip]="
+                                            'RESOURCE.DESK' | translate
+                                        "
+                                        matTooltipPosition="right"
+                                        >desk</icon
+                                    >
+                                }
+                                @case ('locker') {
+                                    <icon
+                                        [matTooltip]="
+                                            'RESOURCE.LOCKER' | translate
+                                        "
+                                        matTooltipPosition="right"
+                                        >lock</icon
+                                    >
+                                }
+                                @case ('parking') {
+                                    <icon
+                                        [matTooltip]="
+                                            'RESOURCE.PARKING' | translate
+                                        "
+                                        matTooltipPosition="right"
+                                        >drive_eta</icon
+                                    >
+                                }
+                                @case ('visitor') {
+                                    <icon
+                                        [matTooltip]="
+                                            'RESOURCE.VISITOR' | translate
+                                        "
+                                        matTooltipPosition="right"
+                                        >people</icon
+                                    >
+                                }
+                                @default {
+                                    <icon>book</icon>
+                                }
+                            }
+                            <div class="mx-2 w-1/2 flex-1 truncate">
+                                {{
+                                    raw_description ||
+                                        booking?.asset_name ||
+                                        booking?.asset_id
+                                }}
+                            </div>
                         </div>
+                        @if (location) {
+                            <div class="flex items-center px-4">
+                                <icon>place</icon>
+                                <div class="mx-2 truncate">{{ location }}</div>
+                            </div>
+                        }
                     </div>
-                    <div class="flex items-center px-4" *ngIf="location">
-                        <icon>place</icon>
-                        <div class="mx-2 truncate">{{ location }}</div>
-                    </div>
-                </div>
-                <icon
-                    class="absolute right-1 top-1/2 -translate-y-1/2 text-4xl"
-                >
-                    chevron_right
-                </icon>
-                <div
-                    class="bg-warning/50 absolute right-2 top-2 rounded-xl px-2 py-1 text-xs"
-                    *ngIf="
+                    <icon
+                        class="absolute right-1 top-1/2 -translate-y-1/2 text-4xl"
+                    >
+                        chevron_right
+                    </icon>
+                    @if (
                         !for_current_user &&
                         booking?.booking_type !== 'group-event'
-                    "
-                >
-                    {{ 'BOOKINGS.ASSOCIATE' | translate }}
+                    ) {
+                        <div
+                            class="bg-warning/50 absolute right-2 top-2 rounded-xl px-2 py-1 text-xs"
+                        >
+                            {{ 'BOOKINGS.ASSOCIATE' | translate }}
+                        </div>
+                    }
+                    @if (booking?.booking_type === 'group-event') {
+                        <div
+                            class="bg-warning/50 absolute right-2 top-2 rounded-xl px-2 py-1 text-xs"
+                        >
+                            {{ 'BOOKINGS.EVENT' | translate }}
+                        </div>
+                    }
+                    @if (is_reserved_parking_space | async) {
+                        <div
+                            class="bg-warning/50 absolute right-2 top-2 rounded-xl px-2 py-1 text-xs"
+                        >
+                            {{
+                                (booking.status !== 'declined'
+                                    ? 'BOOKINGS.RESERVED'
+                                    : 'BOOKINGS.RELEASED'
+                                ) | translate
+                            }}
+                        </div>
+                    }
                 </div>
-                <div
-                    class="bg-warning/50 absolute right-2 top-2 rounded-xl px-2 py-1 text-xs"
-                    *ngIf="booking?.booking_type === 'group-event'"
-                >
-                    {{ 'BOOKINGS.EVENT' | translate }}
-                </div>
-                <div
-                    class="bg-warning/50 absolute right-2 top-2 rounded-xl px-2 py-1 text-xs"
-                    *ngIf="is_reserved_parking_space | async"
-                >
-                    {{
-                        (booking.status !== 'declined'
-                            ? 'BOOKINGS.RESERVED'
-                            : 'BOOKINGS.RELEASED'
-                        ) | translate
-                    }}
-                </div>
-            </div>
-        </a>
+            </a>
+        }
     `,
     styles: [
         `

@@ -51,9 +51,11 @@ import { UrlManagementService } from './url-management.service';
         <ng-template #desc_template let-data="data">
             <div class="p-4 text-xs">
                 {{ data }}
-                <span class="opacity-30" *ngIf="!data">
-                    {{ 'COMMON.DESCRIPTION_EMPTY' | translate }}
-                </span>
+                @if (!data) {
+                    <span class="opacity-30">
+                        {{ 'COMMON.DESCRIPTION_EMPTY' | translate }}
+                    </span>
+                }
             </div>
         </ng-template>
         <ng-template #action_template let-row="row">

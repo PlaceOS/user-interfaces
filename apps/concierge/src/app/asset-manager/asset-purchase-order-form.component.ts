@@ -131,41 +131,49 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         ></a-date-field>
                     </div>
                 </div>
-                <h3 *ngIf="item?.id" class="mb-2 font-medium">
-                    {{
-                        'APP.CONCIERGE.ASSETS_PURCHASE_ASSETS'
-                            | translate
-                                : { count: (asset_list | async)?.length || '0' }
-                    }}
-                </h3>
-                <simple-table
-                    class="block w-full text-sm"
-                    *ngIf="item?.id"
-                    [data]="(asset_list | async) || []"
-                    [columns]="[
-                        { key: 'name', name: 'FORM.NAME' | translate },
-                        {
-                            key: 'identifier',
-                            name:
-                                'APP.CONCIERGE.ASSETS_ITEM_ASSET_NAME'
-                                | translate,
-                        },
-                        {
-                            key: 'serial_number',
-                            name:
-                                'APP.CONCIERGE.ASSETS_ITEM_ASSET_SERIAL'
-                                | translate,
-                        },
-                        {
-                            key: 'actions',
-                            name: ' ',
-                            content: action_template,
-                        },
-                    ]"
-                    [empty_message]="
-                        'APP.CONCIERGE.ASSETS_PURCHASE_ASSETS_EMPTY' | translate
-                    "
-                ></simple-table>
+                @if (item?.id) {
+                    <h3 class="mb-2 font-medium">
+                        {{
+                            'APP.CONCIERGE.ASSETS_PURCHASE_ASSETS'
+                                | translate
+                                    : {
+                                          count:
+                                              (asset_list | async)?.length ||
+                                              '0',
+                                      }
+                        }}
+                    </h3>
+                }
+                @if (item?.id) {
+                    <simple-table
+                        class="block w-full text-sm"
+                        [data]="(asset_list | async) || []"
+                        [columns]="[
+                            { key: 'name', name: 'FORM.NAME' | translate },
+                            {
+                                key: 'identifier',
+                                name:
+                                    'APP.CONCIERGE.ASSETS_ITEM_ASSET_NAME'
+                                    | translate,
+                            },
+                            {
+                                key: 'serial_number',
+                                name:
+                                    'APP.CONCIERGE.ASSETS_ITEM_ASSET_SERIAL'
+                                    | translate,
+                            },
+                            {
+                                key: 'actions',
+                                name: ' ',
+                                content: action_template,
+                            },
+                        ]"
+                        [empty_message]="
+                            'APP.CONCIERGE.ASSETS_PURCHASE_ASSETS_EMPTY'
+                                | translate
+                        "
+                    ></simple-table>
+                }
             </form>
         </fullscreen-modal-shell>
     `,

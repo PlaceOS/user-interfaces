@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, ElementRef, Inject } from '@angular/core';
 import { SettingsService } from '@placeos/common';
 import { ParkingSpace } from 'libs/bookings/src/lib/parking.service';
@@ -31,19 +30,22 @@ interface ParkingSpaceExtended extends ParkingSpace {
                         {{ status }}
                     </div>
                 </div>
-                <div
-                    class="relative flex h-full flex-col rounded bg-base-100 px-2 leading-tight text-base-content shadow"
-                    *ngIf="is_concierge && plate_number"
-                >
+                @if (is_concierge && plate_number) {
                     <div
-                        class="w-full whitespace-nowrap pt-1 text-center text-[0.625rem] font-medium"
+                        class="relative flex h-full flex-col rounded bg-base-100 px-2 leading-tight text-base-content shadow"
                     >
-                        {{ 'EXPLORE.PARKING_PLATE_NUMBER' | translate }}
+                        <div
+                            class="w-full whitespace-nowrap pt-1 text-center text-[0.625rem] font-medium"
+                        >
+                            {{ 'EXPLORE.PARKING_PLATE_NUMBER' | translate }}
+                        </div>
+                        <div
+                            class="w-full pb-1 text-center font-mono uppercase"
+                        >
+                            {{ plate_number || 'PLATE NO 1' }}
+                        </div>
                     </div>
-                    <div class="w-full pb-1 text-center font-mono uppercase">
-                        {{ plate_number || 'PLATE NO 1' }}
-                    </div>
-                </div>
+                }
             </div>
         </div>
     `,
@@ -59,7 +61,7 @@ interface ParkingSpaceExtended extends ParkingSpace {
             }
         `,
     ],
-    imports: [CommonModule, TranslatePipe],
+    imports: [TranslatePipe],
 })
 export class ExploreParkingInfoComponent {
     public readonly status =

@@ -60,19 +60,22 @@ import { ParkingStateService } from './parking-state.service';
             </button>
         </ng-template>
         <ng-template #denied_template let-data="data">
-            <div
-                *ngIf="data"
-                class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-error text-2xl text-error-content"
-            >
-                <icon>close</icon>
-            </div>
+            @if (data) {
+                <div
+                    class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-error text-2xl text-error-content"
+                >
+                    <icon>close</icon>
+                </div>
+            }
         </ng-template>
         <ng-template #plate_template let-data="data">
             <div class="p-4 font-mono text-sm uppercase">
                 {{ data }}
-                <span *ngIf="!data" class="opacity-30">
-                    {{ 'COMMON.EMPTY' | translate }}
-                </span>
+                @if (!data) {
+                    <span class="opacity-30">
+                        {{ 'COMMON.EMPTY' | translate }}
+                    </span>
+                }
             </div>
         </ng-template>
         <ng-template #action_template let-row="row">

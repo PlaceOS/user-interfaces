@@ -78,12 +78,13 @@ import { SignageStateService } from './signage-state.service';
                         ) | translate
                     }}
                 </div>
-                <div
-                    class="m-1 ml-2 rounded bg-secondary px-2 py-1 text-xs text-secondary-content"
-                    *ngIf="(selected_playlist | async)?.random"
-                >
-                    {{ 'APP.CONCIERGE.SIGNAGE_SHUFFLE' | translate }}
-                </div>
+                @if ((selected_playlist | async)?.random) {
+                    <div
+                        class="m-1 ml-2 rounded bg-secondary px-2 py-1 text-xs text-secondary-content"
+                    >
+                        {{ 'APP.CONCIERGE.SIGNAGE_SHUFFLE' | translate }}
+                    </div>
+                }
                 <div
                     class="m-1 rounded bg-base-200 px-2 py-2 text-xs"
                     matTooltip="Default Transition Animation"
@@ -131,7 +132,7 @@ import { SignageStateService } from './signage-state.service';
                     [cdkDropListConnectedTo]="playlist_ids"
                     (cdkDropListDropped)="drop($event)"
                 >
-                    <ng-container *ngFor="let item of media | async">
+                    @for (item of media | async; track item) {
                         <div
                             cdkDrag
                             class="relative flex h-20 w-full items-center space-x-2 rounded-lg border border-base-300 bg-base-100 p-2"
@@ -232,7 +233,7 @@ import { SignageStateService } from './signage-state.service';
                                 </button>
                             </mat-menu>
                         </div>
-                    </ng-container>
+                    }
                 </div>
             } @else {
                 <div

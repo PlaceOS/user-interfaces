@@ -22,7 +22,7 @@ import {
                     class="clear font-medium"
                     (click)="resetMonth()"
                 >
-                    {{ date_list[6]?.id || active_date | date: 'LLLL YYYY' }}
+                    {{ date_list[6]?.id || active_date | date: 'LLLL yyyy' }}
                 </button>
                 <div class="flex items-center">
                     <button icon matRipple (click)="changeMonth(-1)">
@@ -41,30 +41,31 @@ import {
                 </div>
             </div>
             <div class="mb-2 grid grid-cols-7 gap-2">
-                <div
-                    class="mx-2 w-10 text-center opacity-60"
-                    *ngFor="let day of date_list | slice: 0 : 7"
-                >
-                    {{ day.id | date: 'EE' }}
-                </div>
-                <button
-                    icon
-                    matRipple
-                    class="mx-2 h-9 min-w-[calc(14%-1rem)] flex-1 overflow-visible"
-                    *ngFor="let day of list"
-                    [class.text-opacity-30]="!day.is_month"
-                    [class.text-white]="day.id === active_date"
-                    [class.text-black]="day.id !== active_date"
-                    [class.bg-primary]="day.id === active_date"
-                    [class.font-normal]="day.id !== active_date"
-                    (click)="setValue(day.id)"
-                >
-                    <div
-                        class="absolute -inset-0.5 rounded-full border border-primary"
-                        *ngIf="day.is_today"
-                    ></div>
-                    {{ day.id | date: 'd' }}
-                </button>
+                @for (day of date_list | slice: 0 : 7; track day) {
+                    <div class="mx-2 w-10 text-center opacity-60">
+                        {{ day.id | date: 'EE' }}
+                    </div>
+                }
+                @for (day of list; track day) {
+                    <button
+                        icon
+                        matRipple
+                        class="mx-2 h-9 min-w-[calc(14%-1rem)] flex-1 overflow-visible"
+                        [class.text-opacity-30]="!day.is_month"
+                        [class.text-white]="day.id === active_date"
+                        [class.text-black]="day.id !== active_date"
+                        [class.bg-primary]="day.id === active_date"
+                        [class.font-normal]="day.id !== active_date"
+                        (click)="setValue(day.id)"
+                    >
+                        @if (day.is_today) {
+                            <div
+                                class="absolute -inset-0.5 rounded-full border border-primary"
+                            ></div>
+                        }
+                        {{ day.id | date: 'd' }}
+                    </button>
+                }
             </div>
         </div>
     `,

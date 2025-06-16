@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
@@ -15,26 +14,23 @@ export interface ChangelogModalData {
     selector: 'changelog-modal',
     template: `
         <fullscreen-modal-shell [heading]="'Changelog'" [hide_confirm]="true">
-            <div
-                *ngIf="changelog; else empty_state"
-                class="markdown"
-                [innerHTML]="changelog | safe: 'html'"
-            ></div>
+            @if (changelog) {
+                <div
+                    class="markdown"
+                    [innerHTML]="changelog | safe: 'html'"
+                ></div>
+            } @else {
+                <div
+                    class="flex flex-col items-center justify-center space-y-2"
+                >
+                    <icon class="text-3xl">close</icon>
+                    <div class="text">No changelog</div>
+                </div>
+            }
         </fullscreen-modal-shell>
-        <ng-template #empty_state>
-            <div class="flex flex-col items-center justify-center space-y-2">
-                <icon class="text-3xl">close</icon>
-                <div class="text">No changelog</div>
-            </div>
-        </ng-template>
     `,
     styles: [``],
-    imports: [
-        CommonModule,
-        FullscreenModalShellComponent,
-        SafePipe,
-        IconComponent,
-    ],
+    imports: [FullscreenModalShellComponent, SafePipe, IconComponent],
 })
 export class ChangelogModalComponent {
     /** Whether the changelog is loading */

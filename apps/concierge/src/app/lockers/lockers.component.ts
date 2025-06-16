@@ -19,11 +19,12 @@ import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component'
                         <router-outlet></router-outlet>
                     </div>
                 </div>
-                <mat-progress-bar
-                    class="w-full"
-                    *ngIf="(loading | async) && path === 'events'"
-                    mode="indeterminate"
-                ></mat-progress-bar>
+                @if ((loading | async) && path === 'events') {
+                    <mat-progress-bar
+                        class="w-full"
+                        mode="indeterminate"
+                    ></mat-progress-bar>
+                }
             </main>
         </div>
     `,

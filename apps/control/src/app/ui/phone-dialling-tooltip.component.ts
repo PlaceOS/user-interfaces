@@ -15,37 +15,23 @@ import { ControlStateService } from '../control-state.service';
                     [ngModel]="(system | async)?.phone"
                     [placeholder]="'APP.CONTROL.PHONE' | translate"
                 />
-                <button
-                    *ngIf="(system | async)?.phone"
-                    icon
-                    matRipple
-                    matSuffix
-                    (click)="clear()"
-                >
-                    <icon>close</icon>
-                </button>
+                @if ((system | async)?.phone) {
+                    <button icon matRipple matSuffix (click)="clear()">
+                        <icon>close</icon>
+                    </button>
+                }
             </mat-form-field>
             <dialpad [inline]="true" (pressed)="handleInput($event)"></dialpad>
-            <button
-                btn
-                matRipple
-                class="w-full"
-                (click)="dialPhone()"
-                *ngIf="
-                    !((system | async)?.offhook || (system | async)?.ringing)
-                "
-            >
-                {{ 'APP.CONTROL.PHONE_DIAL' | translate }}
-            </button>
-            <button
-                *ngIf="(system | async)?.offhook || (system | async)?.ringing"
-                btn
-                matRipple
-                class="inverse w-full"
-                (click)="hangup()"
-            >
-                {{ 'APP.CONTROL.PHONE_HANGUP' | translate }}
-            </button>
+            @if (!((system | async)?.offhook || (system | async)?.ringing)) {
+                <button btn matRipple class="w-full" (click)="dialPhone()">
+                    {{ 'APP.CONTROL.PHONE_DIAL' | translate }}
+                </button>
+            }
+            @if ((system | async)?.offhook || (system | async)?.ringing) {
+                <button btn matRipple class="inverse w-full" (click)="hangup()">
+                    {{ 'APP.CONTROL.PHONE_HANGUP' | translate }}
+                </button>
+            }
         </div>
     `,
     styles: [``],

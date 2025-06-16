@@ -6,6 +6,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { MockComponent, MockModule } from 'ng-mocks';
 
+import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
 import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.component';
 import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-field.component';
@@ -20,6 +21,7 @@ describe('BookingModalComponent', () => {
             MockComponent(UserSearchFieldComponent),
             MockComponent(TimeFieldComponent),
             MockComponent(DurationFieldComponent),
+            MockComponent(IconComponent),
         ],
         imports: [
             MockModule(MatDialogModule),
@@ -40,7 +42,7 @@ describe('BookingModalComponent', () => {
 
     it('should show a form', () => {
         expect(spectator.component.form).toBeTruthy();
-        expect('form').toExist();
+        expect('[form]').toExist();
     });
 
     it('should allow for submitting the form', () => {

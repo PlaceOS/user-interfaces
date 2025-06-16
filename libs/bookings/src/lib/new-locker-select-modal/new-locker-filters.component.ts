@@ -46,95 +46,99 @@ import { BookingFormService } from '../booking-form.service';
                 <h2 class="mb-1 text-lg font-medium">
                     {{ 'BOOKINGS.DETAILS' | translate }}
                 </h2>
-                <div
-                    class="flex min-w-[8rem] flex-1 flex-col"
-                    *ngIf="
-                        !hide_levels &&
-                        (!(use_region && (regions | async)?.length) ||
-                            !(!use_region && (buildings | async)?.length > 1))
-                    "
-                >
-                    <label for="location">
-                        {{ 'BOOKINGS.LOCATION' | translate }}
-                    </label>
-                    <mat-form-field
-                        appearance="outline"
-                        class="w-full"
-                        *ngIf="use_region && (regions | async)?.length"
-                    >
-                        <mat-select
-                            name="region"
-                            [ngModel]="region"
-                            (ngModelChange)="setRegion($event)"
-                            [ngModelOptions]="{ standalone: true }"
-                            [placeholder]="'COMMON.REGION_ANY' | translate"
-                        >
-                            <mat-option
-                                *ngFor="let reg of regions | async"
-                                [value]="reg"
-                            >
-                                {{ reg.display_name || reg.name }}
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                    <mat-form-field
-                        appearance="outline"
-                        class="w-full"
-                        *ngIf="!use_region && (buildings | async)?.length > 1"
-                    >
-                        <mat-select
-                            name="building"
-                            [ngModel]="building | async"
-                            (ngModelChange)="setBuilding($event)"
-                            [ngModelOptions]="{ standalone: true }"
-                            [placeholder]="
-                                (building | async)?.display_name ||
-                                (building | async)?.name
-                            "
-                        >
-                            <mat-option
-                                *ngFor="let bld of buildings | async"
-                                [value]="bld"
-                            >
-                                {{ bld.display_name || bld.name }}
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                    <mat-form-field
-                        appearance="outline"
-                        class="w-full"
-                        *ngIf="!hide_levels"
-                    >
-                        <mat-select
-                            name="location"
-                            [ngModel]="(options | async)?.zone_id"
-                            (ngModelChange)="setOptions({ zone_id: $event })"
-                            [ngModelOptions]="{ standalone: true }"
-                            [placeholder]="'COMMON.LEVEL_ANY' | translate"
-                        >
-                            <mat-option
-                                *ngFor="let lvl of levels | async"
-                                [value]="lvl.id"
-                            >
-                                <div class="flex flex-col-reverse">
-                                    <div
-                                        class="text-xs opacity-30"
-                                        *ngIf="use_region"
-                                    >
-                                        {{
-                                            (lvl.parent_id | building)
-                                                ?.display_name
-                                        }}
-                                        <span class="opacity-0"> - </span>
-                                    </div>
-                                    <div>
-                                        {{ lvl.display_name || lvl.name }}
-                                    </div>
-                                </div>
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                </div>
+                @if (
+                    !hide_levels &&
+                    (!(use_region && (regions | async)?.length) ||
+                        !(!use_region && (buildings | async)?.length > 1))
+                ) {
+                    <div class="flex min-w-[8rem] flex-1 flex-col">
+                        <label for="location">
+                            {{ 'BOOKINGS.LOCATION' | translate }}
+                        </label>
+                        @if (use_region && (regions | async)?.length) {
+                            <mat-form-field appearance="outline" class="w-full">
+                                <mat-select
+                                    name="region"
+                                    [ngModel]="region"
+                                    (ngModelChange)="setRegion($event)"
+                                    [ngModelOptions]="{ standalone: true }"
+                                    [placeholder]="
+                                        'COMMON.REGION_ANY' | translate
+                                    "
+                                >
+                                    @for (reg of regions | async; track reg) {
+                                        <mat-option [value]="reg">
+                                            {{ reg.display_name || reg.name }}
+                                        </mat-option>
+                                    }
+                                </mat-select>
+                            </mat-form-field>
+                        }
+                        @if (!use_region && (buildings | async)?.length > 1) {
+                            <mat-form-field appearance="outline" class="w-full">
+                                <mat-select
+                                    name="building"
+                                    [ngModel]="building | async"
+                                    (ngModelChange)="setBuilding($event)"
+                                    [ngModelOptions]="{ standalone: true }"
+                                    [placeholder]="
+                                        (building | async)?.display_name ||
+                                        (building | async)?.name
+                                    "
+                                >
+                                    @for (bld of buildings | async; track bld) {
+                                        <mat-option [value]="bld">
+                                            {{ bld.display_name || bld.name }}
+                                        </mat-option>
+                                    }
+                                </mat-select>
+                            </mat-form-field>
+                        }
+                        @if (!hide_levels) {
+                            <mat-form-field appearance="outline" class="w-full">
+                                <mat-select
+                                    name="location"
+                                    [ngModel]="(options | async)?.zone_id"
+                                    (ngModelChange)="
+                                        setOptions({ zone_id: $event })
+                                    "
+                                    [ngModelOptions]="{ standalone: true }"
+                                    [placeholder]="
+                                        'COMMON.LEVEL_ANY' | translate
+                                    "
+                                >
+                                    @for (lvl of levels | async; track lvl) {
+                                        <mat-option [value]="lvl.id">
+                                            <div class="flex flex-col-reverse">
+                                                @if (use_region) {
+                                                    <div
+                                                        class="text-xs opacity-30"
+                                                    >
+                                                        {{
+                                                            (
+                                                                lvl.parent_id
+                                                                | building
+                                                            )?.display_name
+                                                        }}
+                                                        <span class="opacity-0">
+                                                            -
+                                                        </span>
+                                                    </div>
+                                                }
+                                                <div>
+                                                    {{
+                                                        lvl.display_name ||
+                                                            lvl.name
+                                                    }}
+                                                </div>
+                                            </div>
+                                        </mat-option>
+                                    }
+                                </mat-select>
+                            </mat-form-field>
+                        }
+                    </div>
+                }
 
                 <!-- Date -->
                 <div class="min-w-[256px] flex-1">
@@ -148,97 +152,104 @@ import { BookingFormService } from '../booking-form.service';
                     </a-date-field>
                 </div>
                 <!-- All Day -->
-                <div *ngIf="allow_all_day" class="-mt-2 mb-2 flex justify-end">
-                    <mat-checkbox formControlName="all_day">
-                        {{ 'COMMON.ALL_DAY' | translate }}
-                    </mat-checkbox>
-                </div>
+                @if (allow_all_day) {
+                    <div class="-mt-2 mb-2 flex justify-end">
+                        <mat-checkbox formControlName="all_day">
+                            {{ 'COMMON.ALL_DAY' | translate }}
+                        </mat-checkbox>
+                    </div>
+                }
                 <!-- Start End -->
-                <div
-                    class="flex items-center space-x-2"
-                    *ngIf="!form.value.all_day"
-                >
-                    <div class="w-1/3 flex-1">
-                        <label>{{ 'FORM.TIME_START' | translate }}</label>
-                        <a-time-field
-                            name="start-time"
-                            [ngModel]="form.value.date"
-                            (ngModelChange)="form.patchValue({ date: $event })"
-                            [ngModelOptions]="{ standalone: true }"
-                            [use_24hr]="use_24hr"
-                            [disabled]="disable_start"
-                        ></a-time-field>
+                @if (!form.value.all_day) {
+                    <div class="flex items-center space-x-2">
+                        <div class="w-1/3 flex-1">
+                            <label>{{ 'FORM.TIME_START' | translate }}</label>
+                            <a-time-field
+                                name="start-time"
+                                [ngModel]="form.value.date"
+                                (ngModelChange)="
+                                    form.patchValue({ date: $event })
+                                "
+                                [ngModelOptions]="{ standalone: true }"
+                                [use_24hr]="use_24hr"
+                                [disabled]="disable_start"
+                            ></a-time-field>
+                        </div>
+                        @if (!hide_end) {
+                            <div class="w-1/3 flex-1">
+                                <label>{{ 'FORM.TIME_END' | translate }}</label>
+                                <a-duration-field
+                                    [ngModel]="form.value.duration"
+                                    (ngModelChange)="
+                                        form.patchValue({ duration: $event })
+                                    "
+                                    [ngModelOptions]="{ standalone: true }"
+                                    [time]="form.get('date')?.value"
+                                    [max]="10 * 60"
+                                    [min]="60"
+                                    [step]="60"
+                                    [use_24hr]="use_24hr"
+                                >
+                                </a-duration-field>
+                            </div>
+                        }
                     </div>
-                    <div class="w-1/3 flex-1" *ngIf="!hide_end">
-                        <label>{{ 'FORM.TIME_END' | translate }}</label>
-                        <a-duration-field
-                            [ngModel]="form.value.duration"
-                            (ngModelChange)="
-                                form.patchValue({ duration: $event })
-                            "
-                            [ngModelOptions]="{ standalone: true }"
-                            [time]="form.get('date')?.value"
-                            [max]="10 * 60"
-                            [min]="60"
-                            [step]="60"
-                            [use_24hr]="use_24hr"
-                        >
-                        </a-duration-field>
-                    </div>
-                </div>
+                }
             </section>
-            <section favs class="space-y-4 pb-4" *ngIf="!hide_levels">
-                <!-- <settings-toggle
-                    [name]="'APP.WORKPLACE.FAVOURITES_SHOW' | translate"
-                    [ngModel]="(options | async)?.show_fav"
-                    (ngModelChange)="setOptions({ show_fav: $event })"
-                    [ngModelOptions]="{ standalone: true }"
-                ></settings-toggle> -->
-                <settings-toggle
-                    [name]="'BOOKINGS.LOCKER_ACCESSIBLE_SHOW' | translate"
-                    [ngModel]="(options | async)?.show_accessible"
-                    (ngModelChange)="setOptions({ show_accessible: $event })"
-                    [ngModelOptions]="{ standalone: true }"
-                ></settings-toggle>
-            </section>
-            <section
-                class="space-y-2"
-                features
-                *ngIf="(features | async)?.length && !hide_levels"
-            >
-                <h2 class="mt-2 text-lg font-medium">
-                    {{ 'COMMON.TYPE' | translate }}
-                </h2>
-                <div
-                    *ngFor="let feat of features | async"
-                    class="flex flex-wrap items-center space-x-2"
-                >
+            @if (!hide_levels) {
+                <section favs class="space-y-4 pb-4">
+                    <!-- <settings-toggle
+              [name]="'APP.WORKPLACE.FAVOURITES_SHOW' | translate"
+              [ngModel]="(options | async)?.show_fav"
+              (ngModelChange)="setOptions({ show_fav: $event })"
+              [ngModelOptions]="{ standalone: true }"
+            ></settings-toggle> -->
                     <settings-toggle
-                        class="w-full capitalize"
-                        [name]="feat"
-                        [ngModel]="
-                            ((options | async)?.features || []).includes(feat)
+                        [name]="'BOOKINGS.LOCKER_ACCESSIBLE_SHOW' | translate"
+                        [ngModel]="(options | async)?.show_accessible"
+                        (ngModelChange)="
+                            setOptions({ show_accessible: $event })
                         "
-                        (ngModelChange)="setFeature(feat, $event)"
                         [ngModelOptions]="{ standalone: true }"
                     ></settings-toggle>
-                </div>
-            </section>
+                </section>
+            }
+            @if ((features | async)?.length && !hide_levels) {
+                <section class="space-y-2" features>
+                    <h2 class="mt-2 text-lg font-medium">
+                        {{ 'COMMON.TYPE' | translate }}
+                    </h2>
+                    @for (feat of features | async; track feat) {
+                        <div class="flex flex-wrap items-center space-x-2">
+                            <settings-toggle
+                                class="w-full capitalize"
+                                [name]="feat"
+                                [ngModel]="
+                                    (
+                                        (options | async)?.features || []
+                                    ).includes(feat)
+                                "
+                                (ngModelChange)="setFeature(feat, $event)"
+                                [ngModelOptions]="{ standalone: true }"
+                            ></settings-toggle>
+                        </div>
+                    }
+                </section>
+            }
         </form>
-        <div
-            class="w-full border-t border-base-200 px-2 py-2"
-            *ngIf="can_close"
-        >
-            <button
-                btn
-                matRipple
-                name="apply-locker-filters"
-                class="w-full"
-                (click)="close()"
-            >
-                {{ 'COMMON.APPLY' | translate }}
-            </button>
-        </div>
+        @if (can_close) {
+            <div class="w-full border-t border-base-200 px-2 py-2">
+                <button
+                    btn
+                    matRipple
+                    name="apply-locker-filters"
+                    class="w-full"
+                    (click)="close()"
+                >
+                    {{ 'COMMON.APPLY' | translate }}
+                </button>
+            </div>
+        }
     `,
     imports: [
         CommonModule,

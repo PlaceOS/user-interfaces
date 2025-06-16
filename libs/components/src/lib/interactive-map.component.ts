@@ -81,42 +81,43 @@ export interface MapMetadata {
                 <ng-content></ng-content>
             </map-renderer>
         }
-        <div
-            zoom
-            *ngIf="options?.controls"
-            class="absolute bottom-16 right-1 flex flex-col divide-y divide-base-200 overflow-hidden rounded border border-base-200 bg-base-100 text-base-content shadow"
-        >
-            <button
-                icon
-                matRipple
-                [matTooltip]="'EXPLORE.ZOOM_IN' | translate"
-                matTooltipPosition="left"
-                class="rounded-none"
-                (click)="zoom = zoom * 1.1"
+        @if (options?.controls) {
+            <div
+                zoom
+                class="absolute bottom-16 right-1 flex flex-col divide-y divide-base-200 overflow-hidden rounded border border-base-200 bg-base-100 text-base-content shadow"
             >
-                <icon>add</icon>
-            </button>
-            <button
-                icon
-                matRipple
-                [matTooltip]="'EXPLORE.ZOOM_OUT' | translate"
-                matTooltipPosition="left"
-                class="rounded-none"
-                (click)="zoom = zoom * (10 / 11)"
-            >
-                <icon>remove</icon>
-            </button>
-            <button
-                icon
-                matRipple
-                [matTooltip]="'EXPLORE.ZOOM_RESET' | translate"
-                matTooltipPosition="left"
-                class="rounded-none"
-                (click)="reset = reset + 1"
-            >
-                <icon>refresh</icon>
-            </button>
-        </div>
+                <button
+                    icon
+                    matRipple
+                    [matTooltip]="'EXPLORE.ZOOM_IN' | translate"
+                    matTooltipPosition="left"
+                    class="rounded-none"
+                    (click)="zoom = zoom * 1.1"
+                >
+                    <icon>add</icon>
+                </button>
+                <button
+                    icon
+                    matRipple
+                    [matTooltip]="'EXPLORE.ZOOM_OUT' | translate"
+                    matTooltipPosition="left"
+                    class="rounded-none"
+                    (click)="zoom = zoom * (10 / 11)"
+                >
+                    <icon>remove</icon>
+                </button>
+                <button
+                    icon
+                    matRipple
+                    [matTooltip]="'EXPLORE.ZOOM_RESET' | translate"
+                    matTooltipPosition="left"
+                    class="rounded-none"
+                    (click)="reset = reset + 1"
+                >
+                    <icon>refresh</icon>
+                </button>
+            </div>
+        }
     `,
     styles: [``],
     imports: [

@@ -1,8 +1,10 @@
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { IconComponent, InteractiveMapComponent } from '@placeos/components';
-import { OrganisationService } from '@placeos/organisation';
-import { ImageCarouselComponent } from 'libs/components/src/lib/image-carousel.component';
 import { MockComponent } from 'ng-mocks';
+
+import { OrganisationService } from '@placeos/organisation';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { ImageCarouselComponent } from 'libs/components/src/lib/image-carousel.component';
+import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
 import { SpaceDetailsComponent } from '../../lib/space-select-modal/space-details.component';
 import { Space } from '../../lib/space.class';
 

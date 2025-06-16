@@ -58,39 +58,40 @@ interface DateItem {
             <div
                 class="mb-2 flex items-center border-b border-base-200 pb-2 text-sm"
             >
-                <div
-                    class="flex-1 text-center opacity-60"
-                    *ngFor="let day of date_list | slice: 0 : 7"
-                >
-                    {{ day?.id | date: 'EE' }}
-                </div>
+                @for (day of date_list | slice: 0 : 7; track day) {
+                    <div class="flex-1 text-center opacity-60">
+                        {{ day?.id | date: 'EE' }}
+                    </div>
+                }
             </div>
             <div class="flex flex-wrap items-center justify-between">
-                <button
-                    icon
-                    name="schedule-set-date"
-                    class="relative my-0.5 h-9 w-9 min-w-[14%] overflow-visible"
-                    *ngFor="let day of date_list"
-                    [class.hover:bg-base-100]="day.id !== active_date"
-                    [class.!text-base-300]="!day.is_month"
-                    [class.text-secondary-content]="day.id === active_date"
-                    [class.text-base-content]="day.id !== active_date"
-                    [class.bg-secondary]="day.id === active_date"
-                    [class.font-normal]="day.id !== active_date"
-                    (click)="setValue(day.id)"
-                    [disabled]="day.id < from || day.id > to"
-                >
-                    {{ day.id | date: 'd' }}
-                    <div
-                        class="absolute -inset-[2px] overflow-hidden rounded-full border border-secondary"
-                        matRipple
-                        *ngIf="today === day.id"
-                    ></div>
-                    <div
-                        class="absolute inset-0 overflow-hidden rounded-full"
-                        matRipple
-                    ></div>
-                </button>
+                @for (day of date_list; track day) {
+                    <button
+                        icon
+                        name="schedule-set-date"
+                        class="relative my-0.5 h-9 w-9 min-w-[14%] overflow-visible"
+                        [class.hover:bg-base-100]="day.id !== active_date"
+                        [class.!text-base-300]="!day.is_month"
+                        [class.text-secondary-content]="day.id === active_date"
+                        [class.text-base-content]="day.id !== active_date"
+                        [class.bg-secondary]="day.id === active_date"
+                        [class.font-normal]="day.id !== active_date"
+                        (click)="setValue(day.id)"
+                        [disabled]="day.id < from || day.id > to"
+                    >
+                        {{ day.id | date: 'd' }}
+                        @if (today === day.id) {
+                            <div
+                                class="absolute -inset-[2px] overflow-hidden rounded-full border border-secondary"
+                                matRipple
+                            ></div>
+                        }
+                        <div
+                            class="absolute inset-0 overflow-hidden rounded-full"
+                            matRipple
+                        ></div>
+                    </button>
+                }
             </div>
         </div>
     `,

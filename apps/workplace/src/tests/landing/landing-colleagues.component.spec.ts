@@ -1,10 +1,13 @@
 import { FormGroup, FormsModule } from '@angular/forms';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
-import { SettingsService } from '@placeos/common';
-import { IconComponent, UserAvatarComponent } from '@placeos/components';
-import { EventFormService } from '@placeos/events';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
+
+import { SettingsService } from '@placeos/common';
+import { EventFormService } from '@placeos/events';
+
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { UserAvatarComponent } from 'libs/components/src/lib/user-avatar.component';
 import { LandingColleaguesComponent } from '../../app/landing/landing-colleagues.component';
 import { LandingStateService } from '../../app/landing/landing-state.service';
 

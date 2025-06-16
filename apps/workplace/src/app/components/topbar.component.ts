@@ -24,7 +24,9 @@ const EMPTY = [];
                     alt="Logo"
                     [source]="logo?.src || logo"
                 />
-                <span *ngIf="title">{{ title }}</span>
+                @if (title) {
+                    <span>{{ title }}</span>
+                }
             </a>
             <div
                 class="relative hidden h-full w-1/2 flex-1 items-center justify-center sm:flex"
@@ -32,7 +34,9 @@ const EMPTY = [];
                 <top-menu></top-menu>
             </div>
             <div class="flex w-48 items-center justify-end">
-                <global-search *ngIf="search"></global-search>
+                @if (search) {
+                    <global-search></global-search>
+                }
                 <button
                     icon
                     matRipple

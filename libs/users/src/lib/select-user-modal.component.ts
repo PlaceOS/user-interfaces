@@ -45,26 +45,28 @@ import { StaffUser } from './user.class';
                 />
             </mat-form-field>
             <div class="relative z-0 w-full space-y-2">
-                <button
-                    class="w-full rounded border border-base-300 p-2 text-left hover:bg-base-200"
-                    matRipple
-                    *ngFor="let user of users | async"
-                    (click)="select(user)"
-                >
-                    <div>{{ user.name }}</div>
-                    <div class="text-xs opacity-30">{{ user.email }}</div>
-                </button>
-                <div
-                    class="flex h-32 w-full items-center justify-center p-8 opacity-30"
-                    *ngIf="!(users | async).length"
-                >
-                    {{
-                        (search.value
-                            ? 'COMMON.SELECT_USER_EMPTY_MATCHES'
-                            : 'COMMON.SELECT_USER_EMPTY'
-                        ) | translate
-                    }}
-                </div>
+                @for (user of users | async; track user) {
+                    <button
+                        class="w-full rounded border border-base-300 p-2 text-left hover:bg-base-200"
+                        matRipple
+                        (click)="select(user)"
+                    >
+                        <div>{{ user.name }}</div>
+                        <div class="text-xs opacity-30">{{ user.email }}</div>
+                    </button>
+                }
+                @if (!(users | async).length) {
+                    <div
+                        class="flex h-32 w-full items-center justify-center p-8 opacity-30"
+                    >
+                        {{
+                            (search.value
+                                ? 'COMMON.SELECT_USER_EMPTY_MATCHES'
+                                : 'COMMON.SELECT_USER_EMPTY'
+                            ) | translate
+                        }}
+                    </div>
+                }
             </div>
         </main>
     </div>`,

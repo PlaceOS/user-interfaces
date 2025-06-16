@@ -10,8 +10,9 @@ import {
 import { of } from 'rxjs';
 
 import { MatMenuModule } from '@angular/material/menu';
-import { IconComponent, SanitizePipe } from '@placeos/components';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { SanitizePipe } from 'libs/components/src/lib/sanitise.pipe';
 import { TopbarHeaderComponent } from '../app/components/topbar-header.component';
 import { WelcomeComponent } from '../app/welcome.component';
 

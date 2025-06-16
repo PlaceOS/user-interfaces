@@ -15,34 +15,29 @@ import { i18n, notifyError, notifySuccess } from '@placeos/common';
                     {{ item?.asset_name }}
                 </span>
             </h2>
-            <button icon mat-dialog-close *ngIf="!loading">
-                <icon>close</icon>
-            </button>
+            @if (!loading) {
+                <button icon mat-dialog-close>
+                    <icon>close</icon>
+                </button>
+            }
         </header>
-        <main
-            class="max-h-[65vh] w-[36rem] overflow-auto p-4"
-            *ngIf="!loading; else loading_template"
-        >
-            <mat-form-field appearance="outline" class="no-subscript w-full">
-                <textarea
-                    matInput
-                    [(ngModel)]="notes"
-                    class="h-[60vh] max-h-[64rem] resize-none"
-                    [placeholder]="
-                        'APP.CONCIERGE.VISITORS_NOTES_HEADERS' | translate
-                    "
-                ></textarea>
-            </mat-form-field>
-        </main>
-        <footer
-            class="flex justify-end space-x-2 border-t border-base-200 p-2"
-            *ngIf="!loading"
-        >
-            <button btn matRipple class="w-32" (click)="save()">
-                {{ 'COMMON.SAVE' | translate }}
-            </button>
-        </footer>
-        <ng-template #loading_template>
+        @if (!loading) {
+            <main class="max-h-[65vh] w-[36rem] overflow-auto p-4">
+                <mat-form-field
+                    appearance="outline"
+                    class="no-subscript w-full"
+                >
+                    <textarea
+                        matInput
+                        [(ngModel)]="notes"
+                        class="h-[60vh] max-h-[64rem] resize-none"
+                        [placeholder]="
+                            'APP.CONCIERGE.VISITORS_NOTES_HEADERS' | translate
+                        "
+                    ></textarea>
+                </mat-form-field>
+            </main>
+        } @else {
             <div
                 loading
                 class="absolute inset-0 flex flex-col items-center justify-center space-y-2 bg-base-100"
@@ -50,7 +45,16 @@ import { i18n, notifyError, notifySuccess } from '@placeos/common';
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <p>{{ 'APP.CONCIERGE.VISITORS_NOTES_SAVING' | translate }}</p>
             </div>
-        </ng-template>
+        }
+        @if (!loading) {
+            <footer
+                class="flex justify-end space-x-2 border-t border-base-200 p-2"
+            >
+                <button btn matRipple class="w-32" (click)="save()">
+                    {{ 'COMMON.SAVE' | translate }}
+                </button>
+            </footer>
+        }
     `,
     styles: [``],
     standalone: false,

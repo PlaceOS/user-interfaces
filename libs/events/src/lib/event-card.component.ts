@@ -33,120 +33,132 @@ import { GroupEventDetailsModalComponent } from './group-event-details-modal.com
 @Component({
     selector: 'event-card',
     template: `
-        <h4 class="mb-2 flex items-center" *ngIf="event" date>
-            <span *ngIf="show_day" day>{{ day }},&nbsp;</span>
-            {{ event?.date | date: time_format }}
-            <span class="px-2 text-xs">({{ event?.date | date: 'zzzz' }})</span>
-        </h4>
-        <a
-            name="view-event-details"
-            class="relative w-full cursor-pointer"
-            [routerLink]="['./']"
-            [queryParams]="{ event: event?.id }"
-            (click)="viewDetails()"
-            *ngIf="event"
-        >
-            <div
-                class="relative w-full rounded-xl border border-base-300 bg-base-100 py-4 shadow"
+        @if (event) {
+            <h4 class="mb-2 flex items-center" date>
+                @if (show_day) {
+                    <span day>{{ day }},&nbsp;</span>
+                }
+                {{ event?.date | date: time_format }}
+                <span class="px-2 text-xs"
+                    >({{ event?.date | date: 'zzzz' }})</span
+                >
+            </h4>
+        }
+        @if (event) {
+            <a
+                name="view-event-details"
+                class="relative w-full cursor-pointer"
+                [routerLink]="['./']"
+                [queryParams]="{ event: event?.id }"
+                (click)="viewDetails()"
             >
-                <h4 class="px-4 text-lg">{{ event?.title }}</h4>
-                <div class="mx-4 my-2 flex items-center space-x-2">
-                    <status-pill [status]="status">
-                        <div
-                            class="flex flex-col leading-tight"
-                            [class.pr-4]="timezone && tz"
-                        >
-                            <div>{{ period }}</div>
+                <div
+                    class="relative w-full rounded-xl border border-base-300 bg-base-100 py-4 shadow"
+                >
+                    <h4 class="px-4 text-lg">{{ event?.title }}</h4>
+                    <div class="mx-4 my-2 flex items-center space-x-2">
+                        <status-pill [status]="status">
                             <div
-                                class="text-xs opacity-30"
-                                *ngIf="timezone && tz"
+                                class="flex flex-col leading-tight"
+                                [class.pr-4]="timezone && tz"
                             >
-                                {{ period_tz }}
+                                <div>{{ period }}</div>
+                                @if (timezone && tz) {
+                                    <div class="text-xs opacity-30">
+                                        {{ period_tz }}
+                                    </div>
+                                }
+                            </div>
+                        </status-pill>
+                        @if (event.recurring_event_id) {
+                            <icon class="text-2xl" [matTooltip]="recurr_tooltip"
+                                >event_repeat</icon
+                            >
+                        }
+                    </div>
+                    <div
+                        class="divide-base-200-500 flex flex-col flex-wrap space-y-2 py-2 sm:flex-row sm:space-y-0 sm:divide-x"
+                    >
+                        <div class="flex items-center px-4">
+                            <icon
+                                [matTooltip]="'RESOURCE.ROOM' | translate"
+                                matTooltipPosition="right"
+                                >meeting_room</icon
+                            >
+                            <div class="mx-2 truncate">
+                                {{ location }}
                             </div>
                         </div>
-                    </status-pill>
+                        <div class="flex items-center px-4">
+                            <icon>person_outline</icon>
+                            <div class="mx-2">
+                                {{
+                                    event?.organiser?.name ||
+                                        event?.organiser?.email
+                                }}
+                            </div>
+                        </div>
+                        @if (event?.ext('catering')?.length) {
+                            <div class="flex items-center px-4">
+                                <icon>restaurant</icon>
+                                <div class="mx-2">
+                                    {{ 'CALENDAR_EVENT.CATERED' | translate }}
+                                </div>
+                            </div>
+                        }
+                        <div class="flex items-center px-4">
+                            <icon>people</icon>
+                            <div class="mx-2">
+                                {{
+                                    'CALENDAR_EVENT.ATTENDEE_COUNT'
+                                        | translate
+                                            : {
+                                                  count:
+                                                      event?.attendees
+                                                          ?.length || 0,
+                                              }
+                                }}
+                            </div>
+                        </div>
+                    </div>
                     <icon
-                        *ngIf="event.recurring_event_id"
-                        class="text-2xl"
-                        [matTooltip]="recurr_tooltip"
-                        >event_repeat</icon
+                        class="absolute right-1 top-1/2 -translate-y-1/2 text-4xl"
                     >
-                </div>
-                <div
-                    class="divide-base-200-500 flex flex-col flex-wrap space-y-2 py-2 sm:flex-row sm:space-y-0 sm:divide-x"
-                >
-                    <div class="flex items-center px-4">
-                        <icon
-                            [matTooltip]="'RESOURCE.ROOM' | translate"
-                            matTooltipPosition="right"
-                            >meeting_room</icon
-                        >
-                        <div class="mx-2 truncate">
-                            {{ location }}
-                        </div>
-                    </div>
-                    <div class="flex items-center px-4">
-                        <icon>person_outline</icon>
-                        <div class="mx-2">
-                            {{
-                                event?.organiser?.name ||
-                                    event?.organiser?.email
-                            }}
-                        </div>
-                    </div>
-                    <div
-                        class="flex items-center px-4"
-                        *ngIf="event?.ext('catering')?.length"
-                    >
-                        <icon>restaurant</icon>
-                        <div class="mx-2">
-                            {{ 'CALENDAR_EVENT.CATERED' | translate }}
-                        </div>
-                    </div>
-                    <div class="flex items-center px-4">
-                        <icon>people</icon>
-                        <div class="mx-2">
-                            {{
-                                'CALENDAR_EVENT.ATTENDEE_COUNT'
-                                    | translate
-                                        : {
-                                              count:
-                                                  event?.attendees?.length || 0,
-                                          }
-                            }}
-                        </div>
-                    </div>
-                </div>
-                <icon
-                    class="absolute right-1 top-1/2 -translate-y-1/2 text-4xl"
-                >
-                    chevron_right
-                </icon>
-                <div
-                    class="absolute bottom-2 right-2 flex items-center pr-4 text-sm sm:bottom-auto sm:top-2 sm:text-base"
-                    *ngIf="event?.attendees?.length"
-                >
-                    <div
-                        class="h-10 w-6"
-                        *ngFor="
-                            let user of event?.attendees
-                                | slice
-                                    : 0
-                                    : (event?.attendees?.length === 6 ? 6 : 5)
-                        "
-                    >
-                        <a-user-avatar [user]="user"></a-user-avatar>
-                    </div>
-                    <div class="h-10 w-6" *ngIf="event?.attendees?.length > 6">
+                        chevron_right
+                    </icon>
+                    @if (event?.attendees?.length) {
                         <div
-                            class="flex h-10 w-10 items-center justify-center rounded-full border-2 border-base-100 bg-secondary text-secondary-content"
+                            class="absolute bottom-2 right-2 flex items-center pr-4 text-sm sm:bottom-auto sm:top-2 sm:text-base"
                         >
-                            +{{ event?.attendees?.length - 5 }}
+                            @for (
+                                user of event?.attendees
+                                    | slice
+                                        : 0
+                                        : (event?.attendees?.length === 6
+                                              ? 6
+                                              : 5);
+                                track user
+                            ) {
+                                <div class="h-10 w-6">
+                                    <a-user-avatar
+                                        [user]="user"
+                                    ></a-user-avatar>
+                                </div>
+                            }
+                            @if (event?.attendees?.length > 6) {
+                                <div class="h-10 w-6">
+                                    <div
+                                        class="flex h-10 w-10 items-center justify-center rounded-full border-2 border-base-100 bg-secondary text-secondary-content"
+                                    >
+                                        +{{ event?.attendees?.length - 5 }}
+                                    </div>
+                                </div>
+                            }
                         </div>
-                    </div>
+                    }
                 </div>
-            </div>
-        </a>
+            </a>
+        }
     `,
     styles: [
         `

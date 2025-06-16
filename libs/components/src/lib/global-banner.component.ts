@@ -14,27 +14,28 @@ export interface BannerDetails {
 @Component({
     selector: 'global-banner',
     template: `
-        <div
-            class="flex w-full items-center space-x-4 p-4 print:hidden"
-            [class.bg-info]="
-                (banner | async).type === 'info' || !(banner | async).type
-            "
-            [class.text-info-content]="
-                (banner | async).type === 'info' || !(banner | async).type
-            "
-            [class.bg-warning]="(banner | async).type === 'warn'"
-            [class.text-warning-content]="(banner | async).type === 'warn'"
-            [class.bg-error]="(banner | async).type === 'error'"
-            [class.text-error-content]="(banner | async).type === 'error'"
-            *ngIf="!(has_been_closed | async) && (banner | async)"
-        >
-            <div class="flex-1">
-                {{ (banner | async)?.content || (banner | async)?.message }}
+        @if (!(has_been_closed | async) && (banner | async)) {
+            <div
+                class="flex w-full items-center space-x-4 p-4 print:hidden"
+                [class.bg-info]="
+                    (banner | async).type === 'info' || !(banner | async).type
+                "
+                [class.text-info-content]="
+                    (banner | async).type === 'info' || !(banner | async).type
+                "
+                [class.bg-warning]="(banner | async).type === 'warn'"
+                [class.text-warning-content]="(banner | async).type === 'warn'"
+                [class.bg-error]="(banner | async).type === 'error'"
+                [class.text-error-content]="(banner | async).type === 'error'"
+            >
+                <div class="flex-1">
+                    {{ (banner | async)?.content || (banner | async)?.message }}
+                </div>
+                <button icon matRipple (click)="close()">
+                    <icon>close</icon>
+                </button>
             </div>
-            <button icon matRipple (click)="close()">
-                <icon>close</icon>
-            </button>
-        </div>
+        }
     `,
     styles: [
         `

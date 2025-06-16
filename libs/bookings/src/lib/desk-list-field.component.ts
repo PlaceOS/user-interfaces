@@ -2,7 +2,6 @@ import { Component, forwardRef, Input } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 
-import { CommonModule } from '@angular/common';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
@@ -18,95 +17,110 @@ const EMPTY_FAVS: string[] = [];
     selector: `desk-list-field`,
     template: `
         <div list class="space-y-2">
-            <div
-                desk
-                class="relative flex w-full items-center rounded-lg border border-base-200 p-2 shadow"
-                *ngFor="let item of items"
-            >
-                <div *ngIf="features?.length" class="flex flex-col">
-                    <label for="title">Type</label>
-                    <div features class="flex flex-wrap items-center space-x-2">
-                        <mat-checkbox
-                            *ngFor="let opt of features"
-                            [ngModel]="(selected_features || []).includes(opt)"
-                            (ngModelChange)="setFeature(opt, $event)"
-                            [ngModelOptions]="{ standalone: true }"
-                        >
-                            {{ opt }}
-                        </mat-checkbox>
-                    </div>
-                </div>
+            @for (item of items; track item) {
                 <div
-                    class="mr-4 flex h-20 w-20 items-center justify-center overflow-hidden rounded-xl bg-base-200"
+                    desk
+                    class="relative flex w-full items-center rounded-lg border border-base-200 p-2 shadow"
                 >
-                    <img
-                        auth
-                        *ngIf="item.images?.length; else placeholder"
-                        [source]="item.images[0]"
-                        class="min-h-full object-cover"
-                    />
-                    <ng-template #placeholder>
-                        <img
-                            class="m-auto"
-                            src="assets/icons/desk-placeholder.svg"
-                        />
-                    </ng-template>
-                </div>
-                <div class="space-y-2 pb-4">
-                    <div class="font-medium">
-                        {{ item.name || item.id || item.map_id || 'Desk' }}
-                    </div>
-                    <div class="flex items-center space-x-2 text-sm">
-                        <icon class="text-blue-500">place</icon>
-                        <p>{{ item.zone?.display_name || item.zone?.name }}</p>
-                    </div>
+                    @if (features?.length) {
+                        <div class="flex flex-col">
+                            <label for="title">Type</label>
+                            <div
+                                features
+                                class="flex flex-wrap items-center space-x-2"
+                            >
+                                @for (opt of features; track opt) {
+                                    <mat-checkbox
+                                        [ngModel]="
+                                            (selected_features || []).includes(
+                                                opt
+                                            )
+                                        "
+                                        (ngModelChange)="
+                                            setFeature(opt, $event)
+                                        "
+                                        [ngModelOptions]="{ standalone: true }"
+                                    >
+                                        {{ opt }}
+                                    </mat-checkbox>
+                                }
+                            </div>
+                        </div>
+                    }
                     <div
-                        class="absolute bottom-0 right-0 flex items-center justify-end text-xs"
+                        class="mr-4 flex h-20 w-20 items-center justify-center overflow-hidden rounded-xl bg-base-200"
                     >
-                        <button
-                            btn
-                            matRipple
-                            name="edit-desk"
-                            class="clear"
-                            (click)="changeResources(item)"
-                        >
-                            <div class="flex items-center space-x-2">
-                                <icon>edit</icon>
-                                {{ 'COMMON.CHANGE' | translate }}
-                            </div>
-                        </button>
-                        <button
-                            btn
-                            matRipple
-                            name="remove-desk"
-                            class="clear"
-                            (click)="removeResource(item)"
-                        >
-                            <div class="flex items-center space-x-2">
-                                <icon>close</icon>
-                                {{ 'COMMON.REMOVE' | translate }}
-                            </div>
-                        </button>
+                        @if (item.images?.length) {
+                            <img
+                                auth
+                                [source]="item.images[0]"
+                                class="min-h-full object-cover"
+                            />
+                        } @else {
+                            <img
+                                class="m-auto"
+                                src="assets/icons/desk-placeholder.svg"
+                            />
+                        }
                     </div>
-                </div>
-                <button
-                    icon
-                    matRipple
-                    name="toggle-desk-favourite"
-                    class="absolute right-1 top-1"
-                    [class.text-info]="favorites.includes(item?.id)"
-                    (click)="toggleFavourite(item)"
-                >
-                    <icon
-                        [className]="
-                            favorites.includes(item?.id)
-                                ? 'material-symbols-rounded'
-                                : 'material-symbols-outlined'
-                        "
-                        >favorite</icon
+                    <div class="space-y-2 pb-4">
+                        <div class="font-medium">
+                            {{ item.name || item.id || item.map_id || 'Desk' }}
+                        </div>
+                        <div class="flex items-center space-x-2 text-sm">
+                            <icon class="text-blue-500">place</icon>
+                            <p>
+                                {{ item.zone?.display_name || item.zone?.name }}
+                            </p>
+                        </div>
+                        <div
+                            class="absolute bottom-0 right-0 flex items-center justify-end text-xs"
+                        >
+                            <button
+                                btn
+                                matRipple
+                                name="edit-desk"
+                                class="clear"
+                                (click)="changeResources(item)"
+                            >
+                                <div class="flex items-center space-x-2">
+                                    <icon>edit</icon>
+                                    {{ 'COMMON.CHANGE' | translate }}
+                                </div>
+                            </button>
+                            <button
+                                btn
+                                matRipple
+                                name="remove-desk"
+                                class="clear"
+                                (click)="removeResource(item)"
+                            >
+                                <div class="flex items-center space-x-2">
+                                    <icon>close</icon>
+                                    {{ 'COMMON.REMOVE' | translate }}
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+                    <button
+                        icon
+                        matRipple
+                        name="toggle-desk-favourite"
+                        class="absolute right-1 top-1"
+                        [class.text-info]="favorites.includes(item?.id)"
+                        (click)="toggleFavourite(item)"
                     >
-                </button>
-            </div>
+                        <icon
+                            [className]="
+                                favorites.includes(item?.id)
+                                    ? 'material-symbols-rounded'
+                                    : 'material-symbols-outlined'
+                            "
+                            >favorite</icon
+                        >
+                    </button>
+                </div>
+            }
         </div>
         <button
             btn
@@ -132,13 +146,7 @@ const EMPTY_FAVS: string[] = [];
             multi: true,
         },
     ],
-    imports: [
-        CommonModule,
-        IconComponent,
-        TranslatePipe,
-        MatRippleModule,
-        MatCheckboxModule,
-    ],
+    imports: [IconComponent, TranslatePipe, MatRippleModule, MatCheckboxModule],
 })
 export class DeskListFieldComponent implements ControlValueAccessor {
     @Input() public features: string[] = [];

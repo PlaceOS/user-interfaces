@@ -29,12 +29,13 @@ import { EventsStateService } from './events-state.service';
 @Component({
     selector: 'room-week-bookings-timeline',
     template: `
-        <div
-            class="mx-2 mt-2 w-[calc(100%-1rem)] rounded-lg bg-info p-2 text-center text-xs text-info-content"
-            *ngIf="timezone && tz"
-        >
-            {{ 'APP.CONCIERGE.TIMEZONE_DIFF' | translate }}
-        </div>
+        @if (timezone && tz) {
+            <div
+                class="mx-2 mt-2 w-[calc(100%-1rem)] rounded-lg bg-info p-2 text-center text-xs text-info-content"
+            >
+                {{ 'APP.CONCIERGE.TIMEZONE_DIFF' | translate }}
+            </div>
+        }
         <div
             class="relative z-20 flex items-center justify-center space-x-2 border-b border-base-200 p-2"
         >
@@ -45,12 +46,13 @@ import { EventsStateService } from './events-state.service';
                 [is_new]="true"
                 [hide_today]="true"
             ></date-options>
-            <div
-                class="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-info"
-                *ngIf="this_week | async"
-            >
-                {{ 'COMMON.WEEK_THIS' | translate }}
-            </div>
+            @if (this_week | async) {
+                <div
+                    class="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-info"
+                >
+                    {{ 'COMMON.WEEK_THIS' | translate }}
+                </div>
+            }
             <div class="absolute right-8 top-1/2 -translate-y-1/2">
                 <room-booking-search
                     (selected)="viewEvent($event, $event.system?.id, true)"
@@ -77,23 +79,25 @@ import { EventsStateService } from './events-state.service';
                 class="sticky top-0 z-20 flex min-w-[calc(100%-3rem)] items-center border-b border-base-300 bg-base-100"
                 [style.width]="(days | async)?.length * 12 + 'rem'"
             >
-                <div
-                    *ngFor="let date of days | async"
-                    class="relative flex h-full min-w-48 flex-1 flex-col items-center justify-center leading-tight"
-                >
-                    <div class="truncate">
-                        {{ date | date: 'EEE, MMM d' : tz }}
-                    </div>
+                @for (date of days | async; track date) {
                     <div
-                        class="absolute bottom-1 left-1/2 -translate-x-1/2 text-xs text-info"
-                        *ngIf="isToday(date)"
+                        class="relative flex h-full min-w-48 flex-1 flex-col items-center justify-center leading-tight"
                     >
-                        {{ 'COMMON.TODAY' | translate }}
+                        <div class="truncate">
+                            {{ date | date: 'EEE, MMM d' : tz }}
+                        </div>
+                        @if (isToday(date)) {
+                            <div
+                                class="absolute bottom-1 left-1/2 -translate-x-1/2 text-xs text-info"
+                            >
+                                {{ 'COMMON.TODAY' | translate }}
+                            </div>
+                        }
+                        <div
+                            class="absolute -left-px bottom-0 h-2 w-px bg-base-300"
+                        ></div>
                     </div>
-                    <div
-                        class="absolute -left-px bottom-0 h-2 w-px bg-base-300"
-                    ></div>
-                </div>
+                }
             </div>
             <div
                 empty-block
@@ -109,44 +113,64 @@ import { EventsStateService } from './events-state.service';
                 class="relative flex min-w-[calc(100%-3rem)] overflow-hidden"
                 [style.width]="(days | async)?.length * 12 + 'rem'"
             >
-                <div
-                    class="min-w-48 flex-1 overflow-hidden border-r border-base-200 p-2"
-                    *ngFor="let date of days | async; let i = index"
-                >
-                    <button
-                        matRipple
-                        *ngFor="let event of (events | async)[date] || []"
-                        class="flex w-full space-x-2 rounded p-2 text-left hover:bg-base-200"
-                        (click)="viewEvent(event)"
+                @for (date of days | async; track date; let i = $index) {
+                    <div
+                        class="min-w-48 flex-1 overflow-hidden border-r border-base-200 p-2"
                     >
-                        <div
-                            class="my-1.5 h-2 w-2 rounded-full"
-                            [style.background-color]="typeColor(event.type)"
-                        ></div>
-                        <div class="w-1/2 flex-1">
-                            <div
-                                class="truncate text-sm"
-                                [class.line-through]="event.state === 'done'"
+                        @for (
+                            event of (events | async)[date] || [];
+                            track event
+                        ) {
+                            <button
+                                matRipple
+                                class="flex w-full space-x-2 rounded p-2 text-left hover:bg-base-200"
+                                (click)="viewEvent(event)"
                             >
-                                {{ event.title }}
-                            </div>
-                            <div class="flex-1 text-xs opacity-60">
-                                {{ event.date | date: time_format : tz }}
-                                &ndash;
-                                {{ event.date_end | date: time_format : tz }}
-                                <span *ngIf="tz">{{
-                                    event.date_end | date: 'zzzz' : tz
-                                }}</span>
-                            </div>
-                            <div class="truncate text-xs opacity-30">
-                                {{ event.system?.display_name }}
-                            </div>
-                            <div class="truncate text-xs opacity-30">
-                                {{ (event.host | user)?.name || event.host }}
-                            </div>
-                        </div>
-                    </button>
-                </div>
+                                <div
+                                    class="my-1.5 h-2 w-2 rounded-full"
+                                    [style.background-color]="
+                                        typeColor(event.type)
+                                    "
+                                ></div>
+                                <div class="w-1/2 flex-1">
+                                    <div
+                                        class="truncate text-sm"
+                                        [class.line-through]="
+                                            event.state === 'done'
+                                        "
+                                    >
+                                        {{ event.title }}
+                                    </div>
+                                    <div class="flex-1 text-xs opacity-60">
+                                        {{
+                                            event.date | date: time_format : tz
+                                        }}
+                                        &ndash;
+                                        {{
+                                            event.date_end
+                                                | date: time_format : tz
+                                        }}
+                                        @if (tz) {
+                                            <span>{{
+                                                event.date_end
+                                                    | date: 'zzzz' : tz
+                                            }}</span>
+                                        }
+                                    </div>
+                                    <div class="truncate text-xs opacity-30">
+                                        {{ event.system?.display_name }}
+                                    </div>
+                                    <div class="truncate text-xs opacity-30">
+                                        {{
+                                            (event.host | user)?.name ||
+                                                event.host
+                                        }}
+                                    </div>
+                                </div>
+                            </button>
+                        }
+                    </div>
+                }
             </div>
         </div>
     `,

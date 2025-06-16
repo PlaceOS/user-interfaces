@@ -11,6 +11,7 @@ import {
 } from '@placeos/common';
 
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -39,166 +40,191 @@ export interface CateringOrderModalData {
 @Component({
     selector: 'app-catering-order-modal',
     template: `
-        <div class="main min-w-[20rem]" *ngIf="!loading; else load_state">
-            <ng-container *ngIf="!show_order_details; else order_details">
-                <mat-tab-group>
-                    <ng-container *ngFor="let cat of categories">
-                        <mat-tab
-                            *ngIf="(menu_items || {})[cat].length"
-                            [label]="cat"
-                        >
-                            <div class="list">
-                                <div
-                                    item
-                                    class="flex items-center border-b border-base-200 p-2"
-                                    *ngFor="let item of (menu_items || {})[cat]"
-                                >
+        @if (!loading) {
+            <div class="main min-w-[20rem]">
+                @if (!show_order_details) {
+                    <mat-tab-group>
+                        @for (cat of categories; track cat) {
+                            @if ((menu_items || {})[cat].length) {
+                                <mat-tab [label]="cat">
+                                    <div class="list">
+                                        @for (
+                                            item of (menu_items || {})[cat];
+                                            track item
+                                        ) {
+                                            <div
+                                                item
+                                                class="flex items-center border-b border-base-200 p-2"
+                                            >
+                                                <div class="w-1/2 flex-1">
+                                                    <div class="w-1/2 flex-1">
+                                                        {{ item.name }}
+                                                    </div>
+                                                    @if (item.options.length) {
+                                                        <div
+                                                            class="text-xs no-underline"
+                                                        >
+                                                            {{
+                                                                'CATERING.ITEM_OPTION_AVAILABLE'
+                                                                    | translate
+                                                            }}
+                                                        </div>
+                                                    }
+                                                </div>
+                                                <div
+                                                    class="mx-2 rounded bg-primary px-4 py-2 text-xs font-medium text-white"
+                                                >
+                                                    {{
+                                                        item.unit_price / 100
+                                                            | currency: code
+                                                    }}
+                                                </div>
+                                                @if (!item.options.length) {
+                                                    <a-counter
+                                                        ngDefaultControl
+                                                        [ngModel]="
+                                                            item.quantity
+                                                        "
+                                                        (ngModelChange)="
+                                                            updateItemQuantity(
+                                                                item,
+                                                                $event
+                                                            )
+                                                        "
+                                                    ></a-counter>
+                                                }
+                                                @if (item.options.length) {
+                                                    <div
+                                                        class="flex items-center"
+                                                    >
+                                                        <div
+                                                            [matTooltip]="
+                                                                item.quantity
+                                                                    ? 'Items with options must be removed from order confirmation page'
+                                                                    : ''
+                                                            "
+                                                        >
+                                                            <button
+                                                                icon
+                                                                matRipple
+                                                                [disabled]="
+                                                                    true
+                                                                "
+                                                            >
+                                                                <icon
+                                                                    >remove</icon
+                                                                >
+                                                            </button>
+                                                        </div>
+                                                        <div
+                                                            class="count flex h-12 w-12 items-center justify-center"
+                                                        >
+                                                            {{ item.quantity }}
+                                                        </div>
+                                                        <button
+                                                            icon
+                                                            matRipple
+                                                            (click)="
+                                                                addItem(item)
+                                                            "
+                                                        >
+                                                            <icon>add</icon>
+                                                        </button>
+                                                    </div>
+                                                }
+                                            </div>
+                                        }
+                                    </div>
+                                </mat-tab>
+                            }
+                        }
+                    </mat-tab-group>
+                } @else {
+                    <header class="h-[3.25rem]">
+                        <h3>
+                            {{ 'CATERING.ORDERS_CONFIRM' | translate }}
+                        </h3>
+                    </header>
+                    <div class="list">
+                        @for (item of order.items; track item) {
+                            <div
+                                item
+                                class="flex items-center border-b border-base-200 p-2"
+                            >
+                                <div class="w-1/2 flex-1">
                                     <div class="w-1/2 flex-1">
-                                        <div class="w-1/2 flex-1">
-                                            {{ item.name }}
-                                        </div>
+                                        {{ item.name }}
+                                    </div>
+                                    @if (item.options.length) {
                                         <div
-                                            class="text-xs no-underline"
-                                            *ngIf="item.options.length"
+                                            class="text-xs underline"
+                                            [matTooltip]="optionsFor(item)"
                                         >
                                             {{
-                                                'CATERING.ITEM_OPTION_AVAILABLE'
+                                                'CATERING.ORDERS_SELECTED'
                                                     | translate
+                                                        : {
+                                                              count: item
+                                                                  .options
+                                                                  .length,
+                                                          }
                                             }}
                                         </div>
-                                    </div>
-                                    <div
-                                        class="mx-2 rounded bg-primary px-4 py-2 text-xs font-medium text-white"
-                                    >
-                                        {{
-                                            item.unit_price / 100
-                                                | currency: code
-                                        }}
-                                    </div>
-                                    <a-counter
-                                        ngDefaultControl
-                                        [ngModel]="item.quantity"
-                                        (ngModelChange)="
-                                            updateItemQuantity(item, $event)
-                                        "
-                                        *ngIf="!item.options.length"
-                                    ></a-counter>
-                                    <div
-                                        class="flex items-center"
-                                        *ngIf="item.options.length"
-                                    >
-                                        <div
-                                            [matTooltip]="
-                                                item.quantity
-                                                    ? 'Items with options must be removed from order confirmation page'
-                                                    : ''
-                                            "
-                                        >
-                                            <button
-                                                icon
-                                                matRipple
-                                                [disabled]="true"
-                                            >
-                                                <icon>remove</icon>
-                                            </button>
-                                        </div>
-                                        <div
-                                            class="count flex h-12 w-12 items-center justify-center"
-                                        >
-                                            {{ item.quantity }}
-                                        </div>
-                                        <button
-                                            icon
-                                            matRipple
-                                            (click)="addItem(item)"
-                                        >
-                                            <icon>add</icon>
-                                        </button>
-                                    </div>
+                                    }
                                 </div>
+                                <div
+                                    class="mx-2 rounded bg-primary px-4 py-2 text-xs font-medium text-white"
+                                >
+                                    {{ item.total_cost / 100 | currency: code }}
+                                </div>
+                                <a-counter
+                                    [ngModel]="item.quantity"
+                                    (ngModelChange)="
+                                        updateItemQuantity(item, $event)
+                                    "
+                                ></a-counter>
                             </div>
-                        </mat-tab>
-                    </ng-container>
-                </mat-tab-group>
-            </ng-container>
-        </div>
-        <footer
-            *ngIf="!loading"
-            class="flex items-center justify-center space-x-2 border-t border-base-200 p-2"
-        >
-            <ng-container *ngIf="!show_order_details; else order_actions">
-                <button btn matRipple class="inverse" mat-dialog-close>
-                    {{ 'COMMON.CANCEL' | translate }}
-                </button>
-                <button
-                    confirm
-                    btn
-                    matRipple
-                    [disabled]="!order.item_count"
-                    [matBadge]="order.item_count"
-                    [matBadgeHidden]="!order.item_count"
-                    matBadgeColor="warn"
-                    (click)="show_order_details = true"
-                >
-                    {{ 'COMMON.CONFIRM' | translate }}
-                </button>
-            </ng-container>
-            <ng-template #order_actions>
-                <button
-                    matRipple
-                    class="inverse"
-                    (click)="show_order_details = false"
-                >
-                    {{ 'COMMON.BACK' | translate }}
-                </button>
-                <button save btn matRipple (click)="saveOrder()">
-                    {{ 'CATERING.ORDERS_SAVE' | translate }}
-                </button>
-            </ng-template>
-        </footer>
-        <ng-template #load_state>
+                        }
+                    </div>
+                }
+            </div>
+        } @else {
             <div class="flex w-64 flex-col items-center space-y-2 p-8">
                 <mat-spinner diameter="32"></mat-spinner>
                 <p>{{ loading }}</p>
             </div>
-        </ng-template>
-        <ng-template #order_details>
-            <header class="h-[3.25rem]">
-                <h3>
-                    {{ 'CATERING.ORDERS_CONFIRM' | translate }}
-                </h3>
-            </header>
-            <div class="list">
-                <div
-                    item
-                    class="flex items-center border-b border-base-200 p-2"
-                    *ngFor="let item of order.items"
-                >
-                    <div class="w-1/2 flex-1">
-                        <div class="w-1/2 flex-1">{{ item.name }}</div>
-                        <div
-                            class="text-xs underline"
-                            *ngIf="item.options.length"
-                            [matTooltip]="optionsFor(item)"
-                        >
-                            {{
-                                'CATERING.ORDERS_SELECTED'
-                                    | translate: { count: item.options.length }
-                            }}
-                        </div>
-                    </div>
-                    <div
-                        class="mx-2 rounded bg-primary px-4 py-2 text-xs font-medium text-white"
+        }
+        @if (!loading) {
+            <footer
+                class="flex items-center justify-center space-x-2 border-t border-base-200 p-2"
+            >
+                @if (!show_order_details) {
+                    <button btn matRipple class="inverse" mat-dialog-close>
+                        {{ 'COMMON.CANCEL' | translate }}
+                    </button>
+                    <button
+                        confirm
+                        btn
+                        matRipple
+                        [disabled]="!order.item_count"
+                        (click)="show_order_details = true"
                     >
-                        {{ item.total_cost / 100 | currency: code }}
-                    </div>
-                    <a-counter
-                        [ngModel]="item.quantity"
-                        (ngModelChange)="updateItemQuantity(item, $event)"
-                    ></a-counter>
-                </div>
-            </div>
-        </ng-template>
+                        {{ 'COMMON.CONFIRM' | translate }}
+                    </button>
+                } @else {
+                    <button
+                        matRipple
+                        class="inverse"
+                        (click)="show_order_details = false"
+                    >
+                        {{ 'COMMON.BACK' | translate }}
+                    </button>
+                    <button save btn matRipple (click)="saveOrder()">
+                        {{ 'CATERING.ORDERS_SAVE' | translate }}
+                    </button>
+                }
+            </footer>
+        }
     `,
     styles: [
         `
@@ -245,6 +271,7 @@ export interface CateringOrderModalData {
         MatProgressSpinnerModule,
         MatTabsModule,
         IconComponent,
+        FormsModule,
     ],
 })
 export class CateringOrderModalComponent

@@ -1,6 +1,6 @@
 import { Overlay, OverlayRef } from '@angular/cdk/overlay';
 import { CdkPortal, PortalModule } from '@angular/cdk/portal';
-import { CommonModule } from '@angular/common';
+
 import {
     Component,
     ElementRef,
@@ -30,40 +30,41 @@ const DEFAULT_KEYS = [
                 keyboard-view
                 class="flex w-screen flex-col space-y-4 border-t border-base-200 bg-base-200 p-2"
             >
-                <div
-                    row
-                    class="flex items-center justify-center space-x-2"
-                    *ngFor="let row of keyset"
-                >
-                    <ng-container *ngFor="let key of row">
-                        <button
-                            matRipple
-                            [attr.key]="key"
-                            tabindex="0"
-                            class="relative cursor-pointer rounded-xl border border-base-200 bg-base-100 p-2"
-                            [class.special]="key[0] === '{' && key.length > 1"
-                            [class.space]="key === '{space}'"
-                            (focus)="focusInput()"
-                            (click)="handleKeyPress(key)"
-                        >
-                            {{
-                                key === '{space}'
-                                    ? 'Space'
-                                    : key === '{caps}'
-                                      ? 'Caps Lock'
-                                      : key === '{backspace}'
-                                        ? 'Backspace'
-                                        : key
-                            }}
-                            <div
-                                *ngIf="key === '{caps}'"
-                                dot
-                                class="absolute right-2 top-2 h-2 w-2 rounded-full bg-base-200"
-                                [class.bg-success]="state === 'shift'"
-                            ></div>
-                        </button>
-                    </ng-container>
-                </div>
+                @for (row of keyset; track row[0]) {
+                    <div row class="flex items-center justify-center space-x-2">
+                        @for (key of row; track key) {
+                            <button
+                                matRipple
+                                [attr.key]="key"
+                                tabindex="0"
+                                class="relative cursor-pointer rounded-xl border border-base-200 bg-base-100 p-2"
+                                [class.special]="
+                                    key[0] === '{' && key.length > 1
+                                "
+                                [class.space]="key === '{space}'"
+                                (focus)="focusInput()"
+                                (click)="handleKeyPress(key)"
+                            >
+                                {{
+                                    key === '{space}'
+                                        ? 'Space'
+                                        : key === '{caps}'
+                                          ? 'Caps Lock'
+                                          : key === '{backspace}'
+                                            ? 'Backspace'
+                                            : key
+                                }}
+                                @if (key === '{caps}') {
+                                    <div
+                                        dot
+                                        class="absolute right-2 top-2 h-2 w-2 rounded-full bg-base-200"
+                                        [class.bg-success]="state === 'shift'"
+                                    ></div>
+                                }
+                            </button>
+                        }
+                    </div>
+                }
             </div>
         </ng-template>
     `,
@@ -99,7 +100,7 @@ const DEFAULT_KEYS = [
             }
         `,
     ],
-    imports: [CommonModule, MatRippleModule, PortalModule],
+    imports: [MatRippleModule, PortalModule],
 })
 export class VirtualKeyboardComponent
     extends AsyncHandler

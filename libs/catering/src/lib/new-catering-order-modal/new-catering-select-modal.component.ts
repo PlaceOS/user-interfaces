@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, Inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
@@ -78,15 +77,18 @@ const EMPTY_FAVS: string[] = [];
                         (close)="displayed = null"
                     ></new-catering-item-details>
                 </div>
-                <button
-                    icon
-                    matRipple
-                    class="absolute right-2 top-3 z-20 border border-base-200 bg-base-100 sm:hidden"
-                    (click)="show_filters = !show_filters"
-                    *ngIf="!displayed"
-                >
-                    <icon>{{ show_filters ? 'close' : 'filter_list' }}</icon>
-                </button>
+                @if (!displayed) {
+                    <button
+                        icon
+                        matRipple
+                        class="absolute right-2 top-3 z-20 border border-base-200 bg-base-100 sm:hidden"
+                        (click)="show_filters = !show_filters"
+                    >
+                        <icon>{{
+                            show_filters ? 'close' : 'filter_list'
+                        }}</icon>
+                    </button>
+                }
             </main>
             <footer
                 class="flex w-full items-center justify-between space-x-2 rounded border-none bg-base-200 p-2"
@@ -132,7 +134,6 @@ const EMPTY_FAVS: string[] = [];
     `,
     styles: [``],
     imports: [
-        CommonModule,
         TranslatePipe,
         IconComponent,
         MatRippleModule,

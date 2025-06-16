@@ -38,107 +38,115 @@ import { combineLatest } from 'rxjs';
                     [placeholder]="'COMMON.LEVEL_ALL' | translate"
                     multiple
                 >
-                    <mat-option
-                        *ngFor="let level of levels | async"
-                        [value]="level.id"
-                    >
-                        <div class="flex flex-col-reverse">
-                            <div class="text-xs opacity-30" *ngIf="use_region">
-                                {{ (level.parent_id | building)?.display_name }}
-                                <span class="opacity-0"> - </span>
+                    @for (level of levels | async; track level) {
+                        <mat-option [value]="level.id">
+                            <div class="flex flex-col-reverse">
+                                @if (use_region) {
+                                    <div class="text-xs opacity-30">
+                                        {{
+                                            (level.parent_id | building)
+                                                ?.display_name
+                                        }}
+                                        <span class="opacity-0"> - </span>
+                                    </div>
+                                }
+                                <div>
+                                    {{ level.display_name || level.name }}
+                                </div>
                             </div>
-                            <div>
-                                {{ level.display_name || level.name }}
-                            </div>
-                        </div>
-                    </mat-option>
+                        </mat-option>
+                    }
                 </mat-select>
             </mat-form-field>
-            <mat-form-field
-                appearance="outline"
-                class="no-subscript w-60"
-                *ngIf="(caterers | async)?.length > 1"
-            >
-                <mat-select
-                    [ngModel]="filters?.caterer"
-                    (ngModelChange)="setCaterer($event)"
-                    [placeholder]="'CATERING.CATERERS_ALL' | translate"
+            @if ((caterers | async)?.length > 1) {
+                <mat-form-field appearance="outline" class="no-subscript w-60">
+                    <mat-select
+                        [ngModel]="filters?.caterer"
+                        (ngModelChange)="setCaterer($event)"
+                        [placeholder]="'CATERING.CATERERS_ALL' | translate"
+                    >
+                        <mat-option value="">{{
+                            'CATERING.CATERERS_ALL' | translate
+                        }}</mat-option>
+                        @for (caterer of caterers | async; track caterer) {
+                            <mat-option [value]="caterer || '<empty>'">
+                                {{
+                                    caterer ||
+                                        '[' +
+                                            ('CATERING.CATERER_EMPTY'
+                                                | translate) +
+                                            ']'
+                                }}
+                            </mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
+            }
+            @if (page === 'menu') {
+                <div class="w-2 flex-1"></div>
+            }
+            @if (page === 'menu' && (!zones[0] || zones[0] === building?.id)) {
+                <button
+                    icon
+                    matRipple
+                    [matTooltip]="'CATERING.MENU_ADD' | translate"
+                    class="h-12 w-12 rounded bg-secondary text-secondary-content"
+                    (click)="addItem()"
                 >
-                    <mat-option value="">{{
-                        'CATERING.CATERERS_ALL' | translate
-                    }}</mat-option>
-                    <mat-option
-                        *ngFor="let caterer of caterers | async"
-                        [value]="caterer || '<empty>'"
-                    >
-                        {{
-                            caterer ||
-                                '[' +
-                                    ('CATERING.CATERER_EMPTY' | translate) +
-                                    ']'
-                        }}
-                    </mat-option>
-                </mat-select>
-            </mat-form-field>
-            <div *ngIf="page === 'menu'" class="w-2 flex-1"></div>
-            <button
-                *ngIf="
-                    page === 'menu' && (!zones[0] || zones[0] === building?.id)
-                "
-                icon
-                matRipple
-                [matTooltip]="'CATERING.MENU_ADD' | translate"
-                class="h-12 w-12 rounded bg-secondary text-secondary-content"
-                (click)="addItem()"
-            >
-                <icon class="text-2xl">add</icon>
-            </button>
-            <button
-                *ngIf="page === 'menu'"
-                icon
-                matRipple
-                [matTooltip]="'CATERING.BOOKING_RULES' | translate"
-                class="h-12 w-12 rounded bg-secondary text-secondary-content"
-                (click)="editConfig()"
-            >
-                <icon class="text-2xl">menu_book</icon>
-            </button>
-            <button
-                *ngIf="page === 'menu'"
-                icon
-                matRipple
-                [matTooltip]="'CATERING.MENU_IMPORT' | translate"
-                class="h-12 w-12 rounded bg-secondary text-secondary-content"
-                (click)="importMenu()"
-            >
-                <icon class="text-2xl">cloud_upload</icon>
-            </button>
-            <button
-                *ngIf="page === 'menu'"
-                icon
-                matRipple
-                [matTooltip]="'CATERING.ROOM_AVAILABILITY' | translate"
-                class="h-12 w-12 rounded bg-secondary text-secondary-content"
-                (click)="setRoomAvailability()"
-            >
-                <icon class="text-2xl">event_available</icon>
-            </button>
-            <button
-                *ngIf="page === 'menu'"
-                icon
-                matRipple
-                [matTooltip]="'CATERING.CHARGE_CODES' | translate"
-                class="h-12 w-12 rounded bg-secondary text-secondary-content"
-                (click)="setChargeCodes()"
-            >
-                <icon class="text-2xl">payments</icon>
-            </button>
-            <div *ngIf="page !== 'menu'" class="w-2 flex-1"></div>
+                    <icon class="text-2xl">add</icon>
+                </button>
+            }
+            @if (page === 'menu') {
+                <button
+                    icon
+                    matRipple
+                    [matTooltip]="'CATERING.BOOKING_RULES' | translate"
+                    class="h-12 w-12 rounded bg-secondary text-secondary-content"
+                    (click)="editConfig()"
+                >
+                    <icon class="text-2xl">menu_book</icon>
+                </button>
+            }
+            @if (page === 'menu') {
+                <button
+                    icon
+                    matRipple
+                    [matTooltip]="'CATERING.MENU_IMPORT' | translate"
+                    class="h-12 w-12 rounded bg-secondary text-secondary-content"
+                    (click)="importMenu()"
+                >
+                    <icon class="text-2xl">cloud_upload</icon>
+                </button>
+            }
+            @if (page === 'menu') {
+                <button
+                    icon
+                    matRipple
+                    [matTooltip]="'CATERING.ROOM_AVAILABILITY' | translate"
+                    class="h-12 w-12 rounded bg-secondary text-secondary-content"
+                    (click)="setRoomAvailability()"
+                >
+                    <icon class="text-2xl">event_available</icon>
+                </button>
+            }
+            @if (page === 'menu') {
+                <button
+                    icon
+                    matRipple
+                    [matTooltip]="'CATERING.CHARGE_CODES' | translate"
+                    class="h-12 w-12 rounded bg-secondary text-secondary-content"
+                    (click)="setChargeCodes()"
+                >
+                    <icon class="text-2xl">payments</icon>
+                </button>
+            }
+            @if (page !== 'menu') {
+                <div class="w-2 flex-1"></div>
+            }
             <!-- <searchbar class="mr-2"></searchbar> -->
-            <date-options
-                *ngIf="page !== 'menu'"
-                (dateChange)="setDate($event)"
-            ></date-options>
+            @if (page !== 'menu') {
+                <date-options (dateChange)="setDate($event)"></date-options>
+            }
         </div>
     `,
     styles: [

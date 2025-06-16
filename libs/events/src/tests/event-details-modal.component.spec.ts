@@ -2,13 +2,6 @@ import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
-import {
-    BindingDirective,
-    IconComponent,
-    ImageCarouselComponent,
-    InteractiveMapComponent,
-    UserAvatarComponent,
-} from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
 import { Space } from '@placeos/spaces';
 import {
@@ -20,7 +13,12 @@ import {
 import { AttendeeListComponent } from '../lib/attendee-list.component';
 
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { BindingDirective } from 'libs/components/src/lib/binding.directive';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { ImageCarouselComponent } from 'libs/components/src/lib/image-carousel.component';
+import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
 import { StatusPillComponent } from 'libs/components/src/lib/status-pill.component';
+import { UserAvatarComponent } from 'libs/components/src/lib/user-avatar.component';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 import { EventDetailsModalComponent } from '../lib/event-details-modal.component';
 import { CalendarEvent } from '../lib/event.class';

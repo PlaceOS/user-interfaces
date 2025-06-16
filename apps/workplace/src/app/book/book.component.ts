@@ -3,13 +3,17 @@ import { Component } from '@angular/core';
 @Component({
     selector: 'placeos-book',
     template: `
-        <topbar *ngIf="!hide_nav"></topbar>
+        @if (!hide_nav) {
+            <topbar></topbar>
+        }
         <div class="flex h-1/2 flex-1 flex-col-reverse sm:flex-row">
             <main class="flex h-1/2 flex-1 flex-col overflow-hidden sm:h-auto">
                 <router-outlet></router-outlet>
             </main>
         </div>
-        <footer-menu class="z-10" *ngIf="!hide_nav"></footer-menu>
+        @if (!hide_nav) {
+            <footer-menu class="z-10"></footer-menu>
+        }
     `,
     styles: [
         `

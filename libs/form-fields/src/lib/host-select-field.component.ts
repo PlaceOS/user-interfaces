@@ -27,21 +27,21 @@ import { catchError, map, shareReplay, switchMap } from 'rxjs/operators';
                     item?.email ? item.name || item.email : 'Select host'
                 "
             >
-                <mat-option
-                    *ngFor="let user of users | async"
-                    [value]="user?.email"
-                    class="leading-tight"
-                >
-                    <div class="flex flex-col">
-                        <div>{{ user.name }}</div>
-                        <span class="hidden">&nbsp;|&nbsp;</span>
-                        <div class="text-xs opacity-60">{{ user?.email }}</div>
-                    </div>
-                </mat-option>
+                @for (user of users | async; track user) {
+                    <mat-option [value]="user?.email" class="leading-tight">
+                        <div class="flex flex-col">
+                            <div>{{ user.name }}</div>
+                            <span class="hidden">&nbsp;|&nbsp;</span>
+                            <div class="text-xs opacity-60">
+                                {{ user?.email }}
+                            </div>
+                        </div>
+                    </mat-option>
+                }
             </mat-select>
             <mat-error>Host is required</mat-error>
         </mat-form-field>
-        <ng-container *ngIf="users | async"></ng-container>
+        @if (users | async) {}
     `,
     styles: [``],
     providers: [

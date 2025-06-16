@@ -13,7 +13,10 @@ import { currentUser } from '@placeos/common';
             </div>
             <div class="mb-4 text-center text-lg leading-10 text-white">
                 Thank you, your {{ type }} booking was successful!<br />
-                {{ extra }} <br *ngIf="extra" />
+                {{ extra }}
+                @if (extra) {
+                    <br />
+                }
                 An event has been added to {{ title }} calendar
             </div>
             <div class="flex items-center space-x-2">

@@ -58,3 +58,4 @@ locales.tsv
 .nx/workspace-data
 # Sentry Config File
 .sentryclirc
+.github/instructions/nx.instructions.md

@@ -21,38 +21,37 @@ import { showMetadata, updateMetadata } from '@placeos/ts-client';
             >
                 {{ 'APP.CONCIERGE.SUPPORT_TYPES_ADD' | translate }}
             </button>
-            <div
-                class="flex w-full items-center space-x-2"
-                *ngFor="let item of item_list; let i = index; trackBy: identify"
-            >
-                <input
-                    type="text"
-                    class="flex-1 rounded border border-base-200 px-4 py-3"
-                    [placeholder]="
-                        'APP.CONCIERGE.SUPPORT_TYPES_NAME' | translate
-                    "
-                    [(ngModel)]="item_list[i].name"
-                />
-                <input
-                    type="email"
-                    class="flex-[2] rounded border border-base-200 px-4 py-3"
-                    [placeholder]="
-                        'APP.CONCIERGE.SUPPORT_TYPES_EMAIL' | translate
-                    "
-                    [(ngModel)]="item_list[i].email"
-                />
-                <button
-                    icon
-                    matRipple
-                    [matTooltip]="
-                        'APP.CONCIERGE.SUPPORT_TYPES_REMOVE' | translate
-                    "
-                    class="h-12 w-12 rounded border border-error text-error"
-                    (click)="item_list.splice(i, 1)"
-                >
-                    <icon class="text-2xl">delete</icon>
-                </button>
-            </div>
+            @for (item of item_list; track identify(i, item); let i = $index) {
+                <div class="flex w-full items-center space-x-2">
+                    <input
+                        type="text"
+                        class="flex-1 rounded border border-base-200 px-4 py-3"
+                        [placeholder]="
+                            'APP.CONCIERGE.SUPPORT_TYPES_NAME' | translate
+                        "
+                        [(ngModel)]="item_list[i].name"
+                    />
+                    <input
+                        type="email"
+                        class="flex-[2] rounded border border-base-200 px-4 py-3"
+                        [placeholder]="
+                            'APP.CONCIERGE.SUPPORT_TYPES_EMAIL' | translate
+                        "
+                        [(ngModel)]="item_list[i].email"
+                    />
+                    <button
+                        icon
+                        matRipple
+                        [matTooltip]="
+                            'APP.CONCIERGE.SUPPORT_TYPES_REMOVE' | translate
+                        "
+                        class="h-12 w-12 rounded border border-error text-error"
+                        (click)="item_list.splice(i, 1)"
+                    >
+                        <icon class="text-2xl">delete</icon>
+                    </button>
+                </div>
+            }
         </main>
         <footer
             class="flex items-center justify-end border-t border-base-200 p-2"

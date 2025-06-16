@@ -1,8 +1,9 @@
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { CustomTooltipData, SanitizePipe } from '@placeos/components';
 import { ControlStateService } from '../../app/control-state.service';
 
-import { MockPipe } from 'ng-mocks';
+import { CustomTooltipData } from 'libs/components/src/lib/custom-tooltip.component';
+import { SanitizePipe } from 'libs/components/src/lib/sanitise.pipe';
+import { MockPipe, MockProvider } from 'ng-mocks';
 import { PowerTooltipComponent } from '../../app/ui/power-tooltip.component';
 
 describe('PowerTooltipComponent', () => {
@@ -11,14 +12,8 @@ describe('PowerTooltipComponent', () => {
         component: PowerTooltipComponent,
         declarations: [MockPipe(SanitizePipe)],
         providers: [
-            {
-                provide: ControlStateService,
-                useValue: { powerOff: jest.fn() },
-            },
-            {
-                provide: CustomTooltipData,
-                useValue: { close: jest.fn() },
-            },
+            MockProvider(ControlStateService, { powerOff: jest.fn() }),
+            MockProvider(CustomTooltipData, { close: jest.fn() }),
         ],
     });
 

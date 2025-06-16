@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { IconComponent } from './icon.component';
 
@@ -24,14 +23,24 @@ export type StatusValue = 'success' | 'warning' | 'error' | 'info' | 'neutral';
                 [class.text-base-content]="status === 'neutral'"
                 [class.opacity-40]="status === 'neutral'"
             >
-                <icon class="text-2xl" [ngSwitch]="status">
-                    <ng-container *ngSwitchCase="'success'">
-                        check_circle
-                    </ng-container>
-                    <ng-container *ngSwitchCase="'error'">cancel</ng-container>
-                    <ng-container *ngSwitchCase="'neutral'">block</ng-container>
-                    <ng-container *ngSwitchCase="'info'">info</ng-container>
-                    <ng-container *ngSwitchDefault>warning</ng-container>
+                <icon class="text-2xl">
+                    @switch (status) {
+                        @case ('success') {
+                            check_circle
+                        }
+                        @case ('error') {
+                            cancel
+                        }
+                        @case ('neutral') {
+                            block
+                        }
+                        @case ('info') {
+                            info
+                        }
+                        @default {
+                            warning
+                        }
+                    }
                 </icon>
             </div>
             <div
@@ -43,7 +52,7 @@ export type StatusValue = 'success' | 'warning' | 'error' | 'info' | 'neutral';
         </div>
     `,
     styles: [``],
-    imports: [CommonModule, IconComponent],
+    imports: [IconComponent],
 })
 export class StatusPillComponent {
     @Input() public status: string;

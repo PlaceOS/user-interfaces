@@ -2,11 +2,12 @@ import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { IconComponent, InteractiveMapComponent } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 
 import { SettingsService } from '@placeos/common';
+import { IconComponent } from '../lib/icon.component';
+import { InteractiveMapComponent } from '../lib/interactive-map.component';
 import { MapLocateModalComponent } from '../lib/map-locate-modal.component';
 
 describe('MapLocateModalComponent', () => {

@@ -46,9 +46,11 @@ import { ParkingSpaceFiltersComponent } from './parking-filters.component';
             filters
             class="flex w-[35rem] max-w-full flex-wrap items-center p-2 sm:max-w-[35rem]"
         >
-            <div filter-item zone *ngIf="location">
-                {{ location }}
-            </div>
+            @if (location) {
+                <div filter-item zone>
+                    {{ location }}
+                </div>
+            }
             <div filter-item date>
                 {{ start | date: 'mediumDate' }}
             </div>
@@ -62,17 +64,19 @@ import { ParkingSpaceFiltersComponent } from './parking-filters.component';
                         | translate: { count: (options | async)?.capcaity || 2 }
                 }}
             </div>
-            <div filter-item *ngFor="let feat of (options | async)?.features">
-                <p>{{ feat }}</p>
-                <button
-                    icon
-                    matRipple
-                    class="-mr-4"
-                    (click)="removeFeature(feat)"
-                >
-                    <icon>close</icon>
-                </button>
-            </div>
+            @for (feat of (options | async)?.features; track feat) {
+                <div filter-item>
+                    <p>{{ feat }}</p>
+                    <button
+                        icon
+                        matRipple
+                        class="-mr-4"
+                        (click)="removeFeature(feat)"
+                    >
+                        <icon>close</icon>
+                    </button>
+                </div>
+            }
         </section>
     `,
     styles: [

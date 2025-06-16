@@ -1,15 +1,16 @@
 import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
-import { MockComponent } from 'ng-mocks';
+import { MockComponent, MockPipe } from 'ng-mocks';
 import { first } from 'rxjs/operators';
 
-import { IconComponent, SafePipe } from '@placeos/components';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { SafePipe } from 'libs/components/src/lib/safe.pipe';
 import { ActionFieldComponent } from '../lib/action-field.component';
 
 describe('ActionFieldComponent', () => {
     let spectator: Spectator<ActionFieldComponent>;
     const createComponent = createComponentFactory({
         component: ActionFieldComponent,
-        declarations: [MockComponent(IconComponent), SafePipe],
+        declarations: [MockComponent(IconComponent), MockPipe(SafePipe)],
     });
 
     beforeEach(() => (spectator = createComponent()));

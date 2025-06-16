@@ -9,12 +9,11 @@ import { EventsStateService } from './events-state.service';
 @Component({
     selector: 'dayview-space',
     template: `
-        <ng-container *ngIf="space">
-            <dayview-event
-                *ngFor="let event of events | async"
-                [event]="event"
-            ></dayview-event>
-        </ng-container>
+        @if (space) {
+            @for (event of events | async; track event) {
+                <dayview-event [event]="event"></dayview-event>
+            }
+        }
     `,
     styles: [
         `

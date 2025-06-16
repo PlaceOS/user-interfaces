@@ -15,17 +15,18 @@ import { AssetsReportService } from './assets-report.service';
                             | translate
                     }}
                 </h3>
-                <button
-                    icon
-                    matRipple
-                    [matTooltip]="
-                        'APP.CONCIERGE.REPORTS_DOWNLOAD_TABLE' | translate
-                    "
-                    (click)="download()"
-                    *ngIf="!print"
-                >
-                    <icon>download</icon>
-                </button>
+                @if (!print) {
+                    <button
+                        icon
+                        matRipple
+                        [matTooltip]="
+                            'APP.CONCIERGE.REPORTS_DOWNLOAD_TABLE' | translate
+                        "
+                        (click)="download()"
+                    >
+                        <icon>download</icon>
+                    </button>
+                }
             </div>
             <simple-table
                 class="block w-full text-sm"
@@ -65,9 +66,11 @@ import { AssetsReportService } from './assets-report.service';
             ></simple-table>
             <ng-template #date_template let-data="data">
                 <div class="p-4">
-                    <span class="opacity-30" *ngIf="!data">{{
-                        'COMMON.DATE_EMPTY' | translate
-                    }}</span>
+                    @if (!data) {
+                        <span class="opacity-30">{{
+                            'COMMON.DATE_EMPTY' | translate
+                        }}</span>
+                    }
                     {{ data ? (data * 1000 | date: 'mediumDate') : '' }}
                 </div>
             </ng-template>

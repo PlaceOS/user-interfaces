@@ -23,66 +23,74 @@ import {
             [loading]="loading ? ('APP.CONCIERGE.URLS_SAVING' | translate) : ''"
         >
             <form [formGroup]="form">
-                <div class="flex flex-col" *ngIf="form.controls.name">
-                    <label for="name">
-                        {{ 'FORM.NAME' | translate }}<span>*</span>
-                    </label>
-                    <mat-form-field appearance="outline">
-                        <input
-                            matInput
-                            name="name"
-                            placeholder="Name"
-                            formControlName="name"
-                        />
-                    </mat-form-field>
-                </div>
-                <div class="flex flex-col" *ngIf="form.controls.uri">
-                    <label for="uri">
-                        {{ 'APP.CONCIERGE.URLS_URI' | translate }}<span>*</span>
-                    </label>
-                    <mat-form-field appearance="outline">
-                        <input
-                            matInput
-                            name="uri"
-                            [placeholder]="'APP.CONCIERGE.URLS_URI' | translate"
-                            formControlName="uri"
-                        />
-                    </mat-form-field>
-                </div>
-                <div class="flex flex-col" *ngIf="form.controls.description">
-                    <label for="description">
-                        {{ 'COMMON.DESCRIPTION' | translate }}
-                    </label>
-                    <rich-text-input
-                        name="description"
-                        formControlName="description"
-                    ></rich-text-input>
-                </div>
-                <div
-                    class="item-center flex space-x-4 pb-4"
-                    *ngIf="form.controls.enabled"
-                >
-                    <settings-toggle
-                        class="flex-1"
-                        [name]="'APP.CONCIERGE.URLS_ENABLED' | translate"
-                        formControlName="enabled"
-                    >
-                    </settings-toggle>
-                    <div class="flex-1"></div>
-                </div>
+                @if (form.controls.name) {
+                    <div class="flex flex-col">
+                        <label for="name">
+                            {{ 'FORM.NAME' | translate }}<span>*</span>
+                        </label>
+                        <mat-form-field appearance="outline">
+                            <input
+                                matInput
+                                name="name"
+                                placeholder="Name"
+                                formControlName="name"
+                            />
+                        </mat-form-field>
+                    </div>
+                }
+                @if (form.controls.uri) {
+                    <div class="flex flex-col">
+                        <label for="uri">
+                            {{ 'APP.CONCIERGE.URLS_URI' | translate
+                            }}<span>*</span>
+                        </label>
+                        <mat-form-field appearance="outline">
+                            <input
+                                matInput
+                                name="uri"
+                                [placeholder]="
+                                    'APP.CONCIERGE.URLS_URI' | translate
+                                "
+                                formControlName="uri"
+                            />
+                        </mat-form-field>
+                    </div>
+                }
+                @if (form.controls.description) {
+                    <div class="flex flex-col">
+                        <label for="description">
+                            {{ 'COMMON.DESCRIPTION' | translate }}
+                        </label>
+                        <rich-text-input
+                            name="description"
+                            formControlName="description"
+                        ></rich-text-input>
+                    </div>
+                }
+                @if (form.controls.enabled) {
+                    <div class="item-center flex space-x-4 pb-4">
+                        <settings-toggle
+                            class="flex-1"
+                            [name]="'APP.CONCIERGE.URLS_ENABLED' | translate"
+                            formControlName="enabled"
+                        >
+                        </settings-toggle>
+                        <div class="flex-1"></div>
+                    </div>
+                }
                 <!-- <div class="flex flex-col" *ngIf="form.controls.valid_from">
-                    <label for="uri" >{{ 'APP.CONCIERGE.VALID_FROM' | translate }}</label>
-                    <a-date-field formControlName="valid_from"></a-date-field>
-                </div>
-                <div class="flex flex-col" *ngIf="form.controls.valid_to">
-                    <label for="uri" >
-                        {{'APP.CONCIERGE.VALID_UNTIL' | translate}}<span>*</span>
-                    </label>
-                    <a-date-field
-                        formControlName="valid_until"
-                        [from]="form.value.valid_from"
-                    ></a-date-field>
-                </div> -->
+            <label for="uri" >{{ 'APP.CONCIERGE.VALID_FROM' | translate }}</label>
+            <a-date-field formControlName="valid_from"></a-date-field>
+          </div>
+          <div class="flex flex-col" *ngIf="form.controls.valid_to">
+            <label for="uri" >
+              {{'APP.CONCIERGE.VALID_UNTIL' | translate}}<span>*</span>
+            </label>
+            <a-date-field
+              formControlName="valid_until"
+              [from]="form.value.valid_from"
+            ></a-date-field>
+          </div> -->
             </form>
         </fullscreen-modal-shell>
     `,

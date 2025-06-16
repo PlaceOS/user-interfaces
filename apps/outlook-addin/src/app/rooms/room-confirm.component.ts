@@ -72,17 +72,20 @@ import { RoomConfirmService } from './room-confirm.service';
                         >Attendees
                     </span>
 
-                    <div
-                        class="text-gray-700 mt-2 flex flex-row items-center text-sm"
-                        *ngFor="let attendee of attendees"
-                    >
-                        <div class="flex flex-col">
-                            <icon class="flex items-center">people</icon>
+                    @for (attendee of attendees; track attendee) {
+                        <div
+                            class="text-gray-700 mt-2 flex flex-row items-center text-sm"
+                        >
+                            <div class="flex flex-col">
+                                <icon class="flex items-center">people</icon>
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="w-full">{{
+                                    attendee?.email
+                                }}</span>
+                            </div>
                         </div>
-                        <div class="flex flex-col">
-                            <span class="w-full">{{ attendee?.email }}</span>
-                        </div>
-                    </div>
+                    }
 
                     <div
                         class="text-gray-700 mt-2 flex flex-row items-center text-sm"

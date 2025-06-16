@@ -4,7 +4,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import * as common_lib from '@placeos/common';
 import { SettingsService } from '@placeos/common';
-import { IconComponent, UserAvatarComponent } from '@placeos/components';
 import { generateMockUser, User } from '@placeos/users';
 import { MockComponent, MockPipe, MockProvider } from 'ng-mocks';
 
@@ -12,6 +11,8 @@ jest.mock('@placeos/common');
 
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { UserAvatarComponent } from 'libs/components/src/lib/user-avatar.component';
 import { PlaceUserPipe } from '../lib/place-user.pipe';
 import { UserListFieldComponent } from '../lib/user-list-field.component';
 import { UserSearchFieldComponent } from '../lib/user-search-field.component';

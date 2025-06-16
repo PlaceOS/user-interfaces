@@ -46,14 +46,20 @@ export interface DeskInfoData {
                     <h4 map-id class="m-0 font-medium">
                         {{ name || map_id || id }}
                     </h4>
-                    <p user class="mt-2 text-sm" *ngIf="user">{{ user }}</p>
-                    <p user class="mt-1 text-sm" *ngIf="user && department">
-                        {{ department }}
-                    </p>
-                    <p start class="mt-1 text-sm" *ngIf="start">
-                        {{ start | date: 'shortTime' }} &ndash;
-                        {{ end | date: 'shortTime' }}
-                    </p>
+                    @if (user) {
+                        <p user class="mt-2 text-sm">{{ user }}</p>
+                    }
+                    @if (user && department) {
+                        <p user class="mt-1 text-sm">
+                            {{ department }}
+                        </p>
+                    }
+                    @if (start) {
+                        <p start class="mt-1 text-sm">
+                            {{ start | date: 'shortTime' }} &ndash;
+                            {{ end | date: 'shortTime' }}
+                        </p>
+                    }
                 </div>
             </div>
         </ng-template>

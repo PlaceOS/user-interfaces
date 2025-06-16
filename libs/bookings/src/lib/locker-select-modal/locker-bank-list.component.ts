@@ -35,112 +35,135 @@ import { Locker, LockerBank } from '../locker.class';
                     | translate: { count: (locker_banks | async)?.length || 0 }
             }}
         </p>
-        <ng-container *ngIf="!(loading | async)?.length; else load_state">
-            <ul
-                class="list-style-none space-y-2 overflow-hidden"
-                *ngIf="(locker_banks | async)?.length; else empty_state"
-            >
-                <li
-                    locker_bank
-                    *ngFor="let locker_bank of locker_banks | async"
-                    class="relative w-full overflow-hidden rounded-lg border border-base-200 bg-base-100 shadow"
-                    [class.!border-blue-400]="active === locker_bank.id"
-                >
-                    <button
-                        name="select-locker_bank"
-                        matRipple
-                        class="flex h-full w-full p-2"
-                        (click)="selectLockerBank(locker_bank)"
-                    >
-                        <div
-                            class="relative mr-4 flex h-20 w-20 items-center justify-center rounded-xl bg-base-200"
+        @if (!(loading | async)?.length) {
+            @if ((locker_banks | async)?.length) {
+                <ul class="list-style-none space-y-2 overflow-hidden">
+                    @for (
+                        locker_bank of locker_banks | async;
+                        track locker_bank
+                    ) {
+                        <li
+                            locker_bank
+                            class="relative w-full overflow-hidden rounded-lg border border-base-200 bg-base-100 shadow"
+                            [class.!border-blue-400]="active === locker_bank.id"
                         >
-                            <div
-                                class="absolute left-1 top-1 flex h-6 w-6 items-center justify-center rounded-full border border-neutral bg-base-200 text-white"
-                                *ngIf="selected.includes(locker_bank.id)"
+                            <button
+                                name="select-locker_bank"
+                                matRipple
+                                class="flex h-full w-full p-2"
+                                (click)="selectLockerBank(locker_bank)"
                             >
-                                <icon>done</icon>
-                            </div>
-                            <img
-                                auth
-                                *ngIf="
-                                    locker_bank.images?.length;
-                                    else placeholder
-                                "
-                                class="h-full object-cover"
-                                [source]="locker_bank.images[0]"
-                            />
-                            <ng-template #placeholder>
-                                <img
-                                    class="m-auto"
-                                    src="assets/icons/locker-placeholder.svg"
-                                />
-                            </ng-template>
-                        </div>
-                        <div class="flex-1 space-y-2 pt-2 text-left">
-                            <span class="font-medium">
-                                {{
-                                    locker_bank.name ||
-                                        locker_bank.id ||
-                                        'Locker_bank'
-                                }}
-                            </span>
-                            <div class="flex items-center space-x-2 text-sm">
-                                <icon class="text-blue-500">place</icon>
-                                <p class="text-xs">
-                                    {{
-                                        (locker_bank.zones | level)
-                                            ? (locker_bank.zones | level)
-                                                  ?.display_name ||
-                                              (locker_bank.zones | level)?.name
-                                            : ''
-                                    }}
-                                </p>
-                            </div>
-                            <div class="flex items-center space-x-2 text-sm">
-                                <icon class="text-blue-500">people</icon>
-                                <p class="text-xs">
-                                    {{
-                                        'COMMON.AVAILABLE_COUNT'
-                                            | translate
-                                                : {
-                                                      count:
-                                                          locker_bank.available ||
-                                                          0,
-                                                      total:
-                                                          locker_bank.lockers
-                                                              .length || 1,
-                                                  }
-                                    }}
-                                </p>
-                            </div>
-                        </div>
-                    </button>
-                    <!-- <button
-                        icon
-                        matRipple
-                        name="toggle-locker_bank-favourite"
-                        class="absolute top-1 right-1"
-                        [class.text-info]="isFavourite(locker_bank.id)"
-                        (click)="toggleFav.emit(locker_bank)"
-                    >
-                        <icon
+                                <div
+                                    class="relative mr-4 flex h-20 w-20 items-center justify-center rounded-xl bg-base-200"
+                                >
+                                    @if (selected.includes(locker_bank.id)) {
+                                        <div
+                                            class="absolute left-1 top-1 flex h-6 w-6 items-center justify-center rounded-full border border-neutral bg-base-200 text-white"
+                                        >
+                                            <icon>done</icon>
+                                        </div>
+                                    }
+                                    @if (locker_bank.images?.length) {
+                                        <img
+                                            auth
+                                            class="h-full object-cover"
+                                            [source]="locker_bank.images[0]"
+                                        />
+                                    } @else {
+                                        <img
+                                            class="m-auto"
+                                            src="assets/icons/locker-placeholder.svg"
+                                        />
+                                    }
+                                </div>
+                                <div class="flex-1 space-y-2 pt-2 text-left">
+                                    <span class="font-medium">
+                                        {{
+                                            locker_bank.name ||
+                                                locker_bank.id ||
+                                                'Locker_bank'
+                                        }}
+                                    </span>
+                                    <div
+                                        class="flex items-center space-x-2 text-sm"
+                                    >
+                                        <icon class="text-blue-500">place</icon>
+                                        <p class="text-xs">
+                                            {{
+                                                (locker_bank.zones | level)
+                                                    ? (
+                                                          locker_bank.zones
+                                                          | level
+                                                      )?.display_name ||
+                                                      (
+                                                          locker_bank.zones
+                                                          | level
+                                                      )?.name
+                                                    : ''
+                                            }}
+                                        </p>
+                                    </div>
+                                    <div
+                                        class="flex items-center space-x-2 text-sm"
+                                    >
+                                        <icon class="text-blue-500"
+                                            >people</icon
+                                        >
+                                        <p class="text-xs">
+                                            {{
+                                                'COMMON.AVAILABLE_COUNT'
+                                                    | translate
+                                                        : {
+                                                              count:
+                                                                  locker_bank.available ||
+                                                                  0,
+                                                              total:
+                                                                  locker_bank
+                                                                      .lockers
+                                                                      .length ||
+                                                                  1,
+                                                          }
+                                            }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </button>
+                            <!-- <button
+                icon
+                matRipple
+                name="toggle-locker_bank-favourite"
+                class="absolute top-1 right-1"
+                [class.text-info]="isFavourite(locker_bank.id)"
+                (click)="toggleFav.emit(locker_bank)"
+                >
+                <icon
                         [className]="
                         isFavourite(locker_bank.id)
                                 ? 'material-symbols-rounded'
                                 : 'material-symbols-outlined'
                         ">favorite</icon>
-                    </button> -->
-                    <div
-                        class="absolute bottom-2 right-2 rounded bg-base-200 px-2 py-1 font-mono text-xs"
-                        *ngIf="locker_bank.tags?.length"
-                    >
-                        {{ locker_bank.tags[0] }}
-                    </div>
-                </li>
-            </ul>
-        </ng-container>
-        <ng-template #load_state>
+              </button> -->
+                            @if (locker_bank.tags?.length) {
+                                <div
+                                    class="absolute bottom-2 right-2 rounded bg-base-200 px-2 py-1 font-mono text-xs"
+                                >
+                                    {{ locker_bank.tags[0] }}
+                                </div>
+                            }
+                        </li>
+                    }
+                </ul>
+            } @else {
+                <div
+                    empty
+                    class="flex flex-col items-center justify-center space-y-2 p-16"
+                >
+                    <p class="text-center opacity-30">
+                        {{ 'BOOKINGS.LOCKER_LIST_EMPTY' | translate }}
+                    </p>
+                </div>
+            }
+        } @else {
             <div
                 loading
                 class="flex flex-col items-center justify-center space-y-2 p-16"
@@ -150,17 +173,7 @@ import { Locker, LockerBank } from '../locker.class';
                     {{ 'BOOKINGS.LOCKER_LIST_LOADING' | translate }}
                 </p>
             </div>
-        </ng-template>
-        <ng-template #empty_state>
-            <div
-                empty
-                class="flex flex-col items-center justify-center space-y-2 p-16"
-            >
-                <p class="text-center opacity-30">
-                    {{ 'BOOKINGS.LOCKER_LIST_EMPTY' | translate }}
-                </p>
-            </div>
-        </ng-template>
+        }
     `,
     imports: [
         CommonModule,

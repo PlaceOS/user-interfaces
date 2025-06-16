@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Output } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -29,47 +28,49 @@ interface ImportItem {
             <h2 class="px-2 text-xl font-medium">
                 {{ 'CATERING.MENU_IMPORT' | translate }}
             </h2>
-            <button icon matRipple mat-dialog-close *ngIf="!loading">
-                <icon>close</icon>
-            </button>
-        </header>
-        <main *ngIf="!loading; else load_state">
-            <div
-                class="relative mx-2 flex h-[24rem] w-[24rem] cursor-pointer flex-col items-center justify-center space-y-4 rounded-xl border-4 border-dashed border-base-300 p-4 hover:bg-base-200"
-            >
-                <icon class="text-8xl opacity-30">cloud_upload</icon>
-                <p class="px-4 text-center opacity-30">
-                    {{ 'CATERING.MENU_IMPORT_FILE_SELECT' | translate }}
-                </p>
-                <input
-                    type="file"
-                    class="absolute inset-0 opacity-0"
-                    (change)="handleFileEvent($event)"
-                />
-            </div>
-            <div class="flex items-center justify-center p-2">
-                <button
-                    btn
-                    matRipple
-                    class="w-full"
-                    (click)="downloadTemplate()"
-                >
-                    {{ 'CATERING.MENU_IMPORT_TEMPLATE' | translate }}
+            @if (!loading) {
+                <button icon matRipple mat-dialog-close>
+                    <icon>close</icon>
                 </button>
-            </div>
-        </main>
-        <ng-template #load_state>
+            }
+        </header>
+        @if (!loading) {
+            <main>
+                <div
+                    class="relative mx-2 flex h-[24rem] w-[24rem] cursor-pointer flex-col items-center justify-center space-y-4 rounded-xl border-4 border-dashed border-base-300 p-4 hover:bg-base-200"
+                >
+                    <icon class="text-8xl opacity-30">cloud_upload</icon>
+                    <p class="px-4 text-center opacity-30">
+                        {{ 'CATERING.MENU_IMPORT_FILE_SELECT' | translate }}
+                    </p>
+                    <input
+                        type="file"
+                        class="absolute inset-0 opacity-0"
+                        (change)="handleFileEvent($event)"
+                    />
+                </div>
+                <div class="flex items-center justify-center p-2">
+                    <button
+                        btn
+                        matRipple
+                        class="w-full"
+                        (click)="downloadTemplate()"
+                    >
+                        {{ 'CATERING.MENU_IMPORT_TEMPLATE' | translate }}
+                    </button>
+                </div>
+            </main>
+        } @else {
             <main
                 class="flex h-[24rem] w-[24rem] flex-col items-center justify-center space-y-2 p-8"
             >
                 <mat-spinner diameter="32"></mat-spinner>
                 <p>{{ loading }}</p>
             </main>
-        </ng-template>
+        }
     `,
     styles: [``],
     imports: [
-        CommonModule,
         TranslatePipe,
         IconComponent,
         MatRippleModule,

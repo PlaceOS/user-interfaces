@@ -1,12 +1,13 @@
 import { MatMenuModule } from '@angular/material/menu';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
-import { CustomTooltipComponent, IconComponent } from '@placeos/components';
 import { MockComponent, MockDirective, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 import { ControlStateService } from '../app/control-state.service';
 
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
+import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TopbarHeaderComponent } from '../app/topbar-header.component';
 import { VideoCallStateService } from '../app/video-call/video-call-state.service';
 

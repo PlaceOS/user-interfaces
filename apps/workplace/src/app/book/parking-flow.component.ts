@@ -6,40 +6,47 @@ import { AsyncHandler } from '@placeos/common';
 @Component({
     selector: 'placeos-parking-flow',
     template: `
-        <ng-container *ngIf="!(deny_parking_access | async); else deny_state">
-            <ng-container
-                *ngIf="
-                    !(assigned_space | async) || !(has_booking | async);
-                    else assigned_state
-                "
-            >
-                <div class="z-50 h-full w-full bg-base-100" [ngSwitch]="view">
-                    <parking-flow-success *ngSwitchCase="'success'">
-                    </parking-flow-success>
-                    <parking-flow-confirm *ngSwitchCase="'confirm'">
-                    </parking-flow-confirm>
-                    <parking-flow-form *ngSwitchDefault></parking-flow-form>
+        @if (!(deny_parking_access | async)) {
+            @if (!(assigned_space | async) || !(has_booking | async)) {
+                <div class="z-50 h-full w-full bg-base-100">
+                    @switch (view) {
+                        @case ('success') {
+                            <parking-flow-success> </parking-flow-success>
+                        }
+                        @case ('confirm') {
+                            <parking-flow-confirm> </parking-flow-confirm>
+                        }
+                        @default {
+                            <parking-flow-form></parking-flow-form>
+                        }
+                    }
                 </div>
-            </ng-container>
-        </ng-container>
-        <ng-template #assigned_state>
-            <div
-                class="z-50 flex h-full w-full flex-col items-center justify-center space-y-4 bg-base-100"
-            >
-                <img src="assets/icons/parking-success.svg" class="h-64 w-64" />
-                <p>
-                    {{
-                        'APP.WORKPLACE.PARKING_ASSIGNED'
-                            | translate
-                                : { name: (assigned_space | async)?.name }
-                    }}
-                </p>
-                <a btn matRipple class="w-48" [routerLink]="['/your-bookings']">
-                    {{ 'APP.WORKPLACE.VIEW_SCHEDULE' | translate }}
-                </a>
-            </div>
-        </ng-template>
-        <ng-template #deny_state>
+            } @else {
+                <div
+                    class="z-50 flex h-full w-full flex-col items-center justify-center space-y-4 bg-base-100"
+                >
+                    <img
+                        src="assets/icons/parking-success.svg"
+                        class="h-64 w-64"
+                    />
+                    <p>
+                        {{
+                            'APP.WORKPLACE.PARKING_ASSIGNED'
+                                | translate
+                                    : { name: (assigned_space | async)?.name }
+                        }}
+                    </p>
+                    <a
+                        btn
+                        matRipple
+                        class="w-48"
+                        [routerLink]="['/your-bookings']"
+                    >
+                        {{ 'APP.WORKPLACE.VIEW_SCHEDULE' | translate }}
+                    </a>
+                </div>
+            }
+        } @else {
             <div
                 class="z-50 flex h-full w-full flex-col items-center justify-center space-y-4 bg-base-100"
             >
@@ -49,7 +56,7 @@ import { AsyncHandler } from '@placeos/common';
                     building.
                 </p>
             </div>
-        </ng-template>
+        }
     `,
     styles: [
         `

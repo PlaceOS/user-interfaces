@@ -10,78 +10,82 @@ import { SettingsService } from '@placeos/common';
         <div
             class="mx-4 mb-4 flex w-[calc(100%-2rem)] snap-x space-x-2 overflow-auto"
         >
-            <a
-                matRipple
-                class="flex w-64 min-w-64 snap-start items-center space-x-4 rounded border border-base-200 bg-base-100 p-2 shadow"
-                [routerLink]="['/book', 'meeting']"
-                *ngIf="features.includes('spaces')"
-            >
-                <div
-                    class="flex h-16 min-w-[4rem] items-center justify-center rounded bg-base-200"
+            @if (features.includes('spaces')) {
+                <a
+                    matRipple
+                    class="flex w-64 min-w-64 snap-start items-center space-x-4 rounded border border-base-200 bg-base-100 p-2 shadow"
+                    [routerLink]="['/book', 'meeting']"
                 >
-                    <img
-                        class="h-1/2 w-1/2 object-contain object-center"
-                        src="assets/icons/room-placeholder.svg"
-                    />
-                </div>
-                <div class="text-xl">
-                    {{ 'APP.WORKPLACE.QUICK_LINK_ROOMS' | translate }}
-                </div>
-            </a>
-            <a
-                matRipple
-                class="flex w-64 min-w-64 snap-start items-center space-x-4 rounded border border-base-200 bg-base-100 p-2 shadow"
-                [routerLink]="['/book', 'desk']"
-                *ngIf="features.includes('desks')"
-            >
-                <div
-                    class="flex h-16 min-w-[4rem] items-center justify-center rounded bg-base-200"
+                    <div
+                        class="flex h-16 min-w-[4rem] items-center justify-center rounded bg-base-200"
+                    >
+                        <img
+                            class="h-1/2 w-1/2 object-contain object-center"
+                            src="assets/icons/room-placeholder.svg"
+                        />
+                    </div>
+                    <div class="text-xl">
+                        {{ 'APP.WORKPLACE.QUICK_LINK_ROOMS' | translate }}
+                    </div>
+                </a>
+            }
+            @if (features.includes('desks')) {
+                <a
+                    matRipple
+                    class="flex w-64 min-w-64 snap-start items-center space-x-4 rounded border border-base-200 bg-base-100 p-2 shadow"
+                    [routerLink]="['/book', 'desk']"
                 >
-                    <img
-                        class="h-1/2 w-1/2 object-contain object-center"
-                        src="assets/icons/desk-placeholder.svg"
-                    />
-                </div>
-                <div class="text-xl">
-                    {{ 'APP.WORKPLACE.QUICK_LINK_DESKS' | translate }}
-                </div>
-            </a>
-            <a
-                matRipple
-                class="flex w-64 min-w-64 snap-start items-center space-x-4 rounded border border-base-200 bg-base-100 p-2 shadow"
-                [routerLink]="['/book', 'parking']"
-                *ngIf="features.includes('parking')"
-            >
-                <div
-                    class="flex h-16 min-w-[4rem] items-center justify-center rounded bg-base-200"
+                    <div
+                        class="flex h-16 min-w-[4rem] items-center justify-center rounded bg-base-200"
+                    >
+                        <img
+                            class="h-1/2 w-1/2 object-contain object-center"
+                            src="assets/icons/desk-placeholder.svg"
+                        />
+                    </div>
+                    <div class="text-xl">
+                        {{ 'APP.WORKPLACE.QUICK_LINK_DESKS' | translate }}
+                    </div>
+                </a>
+            }
+            @if (features.includes('parking')) {
+                <a
+                    matRipple
+                    class="flex w-64 min-w-64 snap-start items-center space-x-4 rounded border border-base-200 bg-base-100 p-2 shadow"
+                    [routerLink]="['/book', 'parking']"
                 >
-                    <img
-                        class="h-1/2 w-1/2 object-contain object-center"
-                        src="assets/icons/car-placeholder.svg"
-                    />
-                </div>
-                <div class="text-xl">
-                    {{ 'APP.WORKPLACE.QUICK_LINK_PARKING' | translate }}
-                </div>
-            </a>
-            <a
-                matRipple
-                class="flex w-64 min-w-64 snap-start items-center space-x-4 rounded border border-base-200 bg-base-100 p-2 shadow"
-                [routerLink]="['/book', 'locker']"
-                *ngIf="features.includes('parking')"
-            >
-                <div
-                    class="flex h-16 min-w-[4rem] items-center justify-center rounded bg-base-200"
+                    <div
+                        class="flex h-16 min-w-[4rem] items-center justify-center rounded bg-base-200"
+                    >
+                        <img
+                            class="h-1/2 w-1/2 object-contain object-center"
+                            src="assets/icons/car-placeholder.svg"
+                        />
+                    </div>
+                    <div class="text-xl">
+                        {{ 'APP.WORKPLACE.QUICK_LINK_PARKING' | translate }}
+                    </div>
+                </a>
+            }
+            @if (features.includes('parking')) {
+                <a
+                    matRipple
+                    class="flex w-64 min-w-64 snap-start items-center space-x-4 rounded border border-base-200 bg-base-100 p-2 shadow"
+                    [routerLink]="['/book', 'locker']"
                 >
-                    <img
-                        class="h-1/2 w-1/2 object-contain object-center"
-                        src="assets/icons/locker-placeholder.svg"
-                    />
-                </div>
-                <div class="text-xl">
-                    {{ 'APP.WORKPLACE.QUICK_LINK_LOCKERS' | translate }}
-                </div>
-            </a>
+                    <div
+                        class="flex h-16 min-w-[4rem] items-center justify-center rounded bg-base-200"
+                    >
+                        <img
+                            class="h-1/2 w-1/2 object-contain object-center"
+                            src="assets/icons/locker-placeholder.svg"
+                        />
+                    </div>
+                    <div class="text-xl">
+                        {{ 'APP.WORKPLACE.QUICK_LINK_LOCKERS' | translate }}
+                    </div>
+                </a>
+            }
         </div>
     `,
     styles: [``],
