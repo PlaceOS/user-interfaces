@@ -73,7 +73,9 @@ import { UrlManagementService } from './url-management.service';
                     <div class="rounded bg-base-100 py-2 shadow">
                         <div class="" printable>
                             <a
-                                [href]="row.uri | safe: 'url'"
+                                [href]="
+                                    '/r/' + row.id.split('-')[1] | safe: 'url'
+                                "
                                 target="_blank"
                                 ref="noopener noreferrer"
                                 class="mx-4 my-2 block rounded-lg border border-base-200 bg-base-100 p-2"
@@ -134,12 +136,16 @@ export class UrlListComponent {
         return `${window.location.origin}${path}`;
     }
 
-    public async loadQrCode(item: ShortURL) {
-        (item as any).qr_code = await getShortUrlQRCode(item.id);
-    }
-
     constructor(
         private _manager: UrlManagementService,
         private _settings: SettingsService,
     ) {}
+
+    public async loadQrCode(item: ShortURL) {
+        (item as any).qr_code = await getShortUrlQRCode(item.id);
+    }
+
+    public print() {
+        window.print();
+    }
 }

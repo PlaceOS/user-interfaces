@@ -15,6 +15,7 @@ const context = [
     '/scripts',
     '/login',
     '/backoffice',
+    '/r',
 ];
 const ws_context = ['/control/websocket', '/api'];
 

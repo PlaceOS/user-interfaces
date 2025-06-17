@@ -68,11 +68,7 @@ import {
                         matRipple
                         customTooltip
                         [content]="qr_menu"
-                        (click)="
-                            !row.short_link_id
-                                ? loadQrCode(row)
-                                : loadPublicQrCode(row)
-                        "
+                        (click)="loadQrCode(row)"
                     >
                         <icon>qr_code</icon>
                     </button>
