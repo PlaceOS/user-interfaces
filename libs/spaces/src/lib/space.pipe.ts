@@ -32,6 +32,7 @@ setInterval(() => {
 })
 export class SpacePipe {
     constructor(@Optional() private _org?: OrganisationService) {}
+
     /**
      * Get details of the space with the given ID
      * @param space_id ID or Email of the space

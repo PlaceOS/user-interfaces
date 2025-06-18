@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output, inject } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ViewerFeature, ViewerStyles } from '@placeos/svg-viewer';
 
@@ -69,6 +69,11 @@ export interface Locatable {
     standalone: false,
 })
 export class MapLocateModalComponent extends AsyncHandler implements OnInit {
+    private _data = inject<{
+        item: Locatable;
+    }>(MAT_DIALOG_DATA);
+    private _org = inject(OrganisationService);
+
     /** Emitter for user action on the modal */
     @Output() public event = new EventEmitter();
     /** Space to show the location of on the map */
@@ -82,10 +87,7 @@ export class MapLocateModalComponent extends AsyncHandler implements OnInit {
         return this.item.level || this._org.levelWithID(this.item.zones || []);
     }
 
-    constructor(
-        @Inject(MAT_DIALOG_DATA) private _data: { item: Locatable },
-        private _org: OrganisationService,
-    ) {
+    constructor() {
         super();
         if (!this.item.level?.id) {
             delete this.item.level;

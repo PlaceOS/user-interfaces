@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import {
     FormControl,
     FormGroup,
@@ -119,6 +119,16 @@ import { User } from 'libs/users/src/lib/user.class';
     ],
 })
 export class SetDatetimeModalComponent {
+    private _data = inject<{
+        date: number;
+        duration: number;
+        until: number;
+        host: boolean;
+        user?: User;
+        resource: BookingAsset;
+    }>(MAT_DIALOG_DATA);
+    private _settings = inject(SettingsService);
+
     public host = this._data.host;
     public form = new FormGroup({
         user: new FormControl(this._data.user),
@@ -132,17 +142,4 @@ export class SetDatetimeModalComponent {
     public get use_24hr_time() {
         return this._settings.get('app.use_24_hour_time');
     }
-
-    constructor(
-        @Inject(MAT_DIALOG_DATA)
-        private _data: {
-            date: number;
-            duration: number;
-            until: number;
-            host: boolean;
-            user?: User;
-            resource: BookingAsset;
-        },
-        private _settings: SettingsService,
-    ) {}
 }

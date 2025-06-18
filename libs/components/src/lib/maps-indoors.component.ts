@@ -7,6 +7,7 @@ import {
     Output,
     SimpleChanges,
     ViewChild,
+    inject,
 } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -66,6 +67,9 @@ const RESOURCE_MAP: Record<string, any> = {};
     imports: [MatRippleModule, MatProgressSpinnerModule],
 })
 export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
+    private _maps_people = inject(MapsPeopleService);
+    private _org = inject(OrganisationService);
+
     @Input() public zone: BuildingLevel;
     @Input() public metadata: MapMetadata;
     @Input() public options: any;
@@ -88,10 +92,7 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
     @ViewChild('map_container', { static: true })
     private _container: ElementRef<HTMLDivElement>;
 
-    constructor(
-        private _maps_people: MapsPeopleService,
-        private _org: OrganisationService,
-    ) {
+    constructor() {
         super();
         const data =
             sessionStorage.getItem('PLACEOS.mapsindoors.resources') || '{}';

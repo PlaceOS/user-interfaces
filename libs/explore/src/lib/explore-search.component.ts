@@ -1,4 +1,10 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import {
+    Component,
+    ElementRef,
+    OnInit,
+    ViewChild,
+    inject,
+} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
 
@@ -125,6 +131,11 @@ import { ExploreSearchService, SearchResult } from './explore-search.service';
     ],
 })
 export class ExploreSearchComponent extends AsyncHandler implements OnInit {
+    private _el = inject<ElementRef<HTMLElement>>(ElementRef);
+    private _search = inject(ExploreSearchService);
+    private _router = inject(Router);
+    private _route = inject(ActivatedRoute);
+
     public show = false;
     public search_str = '';
     public right_size = false;
@@ -136,12 +147,7 @@ export class ExploreSearchComponent extends AsyncHandler implements OnInit {
     @ViewChild('button', { static: true })
     private _button_el: ElementRef<HTMLButtonElement>;
 
-    constructor(
-        private _el: ElementRef<HTMLElement>,
-        private _search: ExploreSearchService,
-        private _router: Router,
-        private _route: ActivatedRoute,
-    ) {
+    constructor() {
         super();
     }
 

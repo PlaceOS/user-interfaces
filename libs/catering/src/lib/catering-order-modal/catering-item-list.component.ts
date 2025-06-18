@@ -6,6 +6,7 @@ import {
     OnChanges,
     Output,
     SimpleChanges,
+    inject,
 } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
@@ -97,6 +98,8 @@ import { CateringOrderStateService } from './catering-order-state.service';
     ],
 })
 export class CateringItemListComponent implements OnChanges {
+    private _state = inject(CateringOrderStateService);
+
     @Input() public active = '';
     @Input() public selected = '';
     @Input() public selected_items: CateringItem[] = [];
@@ -111,8 +114,6 @@ export class CateringItemListComponent implements OnChanges {
     public get code() {
         return this._state.currency_code;
     }
-
-    constructor(private _state: CateringOrderStateService) {}
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.selected_items) {

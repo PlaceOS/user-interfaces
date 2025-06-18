@@ -1,4 +1,4 @@
-import { Component, forwardRef, Input } from '@angular/core';
+import { Component, forwardRef, inject, Input } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 
@@ -158,6 +158,9 @@ const EMPTY_FAVS: string[] = [];
     ],
 })
 export class LockerListFieldComponent implements ControlValueAccessor {
+    private _settings = inject(SettingsService);
+    private _dialog = inject(MatDialog);
+
     @Input() public features: string[] = [];
     public room_size = 3;
     public items: BookingAsset[] = [];
@@ -170,11 +173,6 @@ export class LockerListFieldComponent implements ControlValueAccessor {
     public get favorites() {
         return this._settings.get<string[]>(FAV_LOCKER_KEY) || EMPTY_FAVS;
     }
-
-    constructor(
-        private _settings: SettingsService,
-        private _dialog: MatDialog,
-    ) {}
 
     /** Add or edit selected items */
     public changeResources() {

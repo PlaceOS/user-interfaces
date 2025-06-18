@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import {
     MAT_DIALOG_DATA,
@@ -90,6 +90,10 @@ import { CalendarEvent } from './event.class';
     ],
 })
 export class EventLinkModalComponent {
+    private _event = inject<CalendarEvent>(MAT_DIALOG_DATA);
+    private _dialog =
+        inject<MatDialogRef<EventLinkModalComponent>>(MatDialogRef);
+
     public readonly outlook_link = generateMicrosoftCalendarLink(
         this._event as any,
     );
@@ -99,11 +103,6 @@ export class EventLinkModalComponent {
     public readonly ical_link = generateCalendarFileLink(this._event as any);
 
     public has_actioned = false;
-
-    constructor(
-        @Inject(MAT_DIALOG_DATA) private _event: CalendarEvent,
-        private _dialog: MatDialogRef<EventLinkModalComponent>,
-    ) {}
 
     public close() {
         if (!this.has_actioned) {

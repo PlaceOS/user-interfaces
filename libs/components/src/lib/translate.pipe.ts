@@ -1,4 +1,4 @@
-import { Pipe, PipeTransform } from '@angular/core';
+import { Pipe, PipeTransform, inject } from '@angular/core';
 
 import { LocaleService } from 'libs/common/src/lib/locale.service';
 
@@ -6,7 +6,7 @@ import { LocaleService } from 'libs/common/src/lib/locale.service';
     name: 'translate',
 })
 export class TranslatePipe implements PipeTransform {
-    constructor(private _locale: LocaleService) {}
+    private _locale = inject(LocaleService);
 
     public transform(
         value: string,

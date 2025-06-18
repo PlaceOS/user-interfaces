@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Event, NavigationEnd, Router } from '@angular/router';
 import {
@@ -100,6 +100,13 @@ export interface EventFlowOptions {
     providedIn: 'root',
 })
 export class OldEventFormService extends AsyncHandler {
+    private _org = inject(OrganisationService);
+    private _router = inject(Router);
+    private _payments = inject(PaymentsService);
+    private _settings = inject(SettingsService);
+    private _assets = inject(AssetStateService);
+    private _dialog = inject(MatDialog);
+
     private _view = new BehaviorSubject<EventFlowView>('form');
     private _options = new BehaviorSubject<EventFlowOptions>({
         zone_ids: [],
@@ -382,14 +389,7 @@ export class OldEventFormService extends AsyncHandler {
         return this._settings.get('app.events.use_bookings') !== true;
     }
 
-    constructor(
-        private _org: OrganisationService,
-        private _router: Router,
-        private _payments: PaymentsService,
-        private _settings: SettingsService,
-        private _assets: AssetStateService,
-        private _dialog: MatDialog,
-    ) {
+    constructor() {
         super();
         this._space_pipe = new SpacePipe(this._org);
         this.subscription(

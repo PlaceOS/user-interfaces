@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -121,6 +121,9 @@ import { AssetStateService } from '../asset-state.service';
     ],
 })
 export class AssetFiltersComponent extends AsyncHandler {
+    private _state = inject(AssetStateService);
+    private _settings = inject(SettingsService);
+
     @Input() public search = false;
 
     @Input() public at_time = false;
@@ -178,10 +181,7 @@ export class AssetFiltersComponent extends AsyncHandler {
     public readonly setSearch = (s) => this._state.setSearch(s);
     public readonly toggleCategory = (c) => this._state.toggleCategory(c);
 
-    constructor(
-        private _state: AssetStateService,
-        private _settings: SettingsService,
-    ) {
+    constructor() {
         super();
     }
 

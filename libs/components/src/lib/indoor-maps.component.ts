@@ -7,6 +7,7 @@ import {
     OnInit,
     SimpleChanges,
     ViewChild,
+    inject,
 } from '@angular/core';
 import {
     AsyncHandler,
@@ -197,6 +198,10 @@ export class IndoorMapsComponent
     extends AsyncHandler
     implements OnInit, OnChanges, AfterViewInit
 {
+    private _api_service = inject(MapsPeopleService);
+    private _state = inject(ExploreStateService);
+    private _org = inject(OrganisationService);
+
     /** Custom CSS styles to apply to the map */
     @Input() public styles: ViewerStyles;
     /** List of available user actions for the map */
@@ -252,11 +257,7 @@ export class IndoorMapsComponent
     @ViewChild('searchInput', { static: true }) searchElement: ElementRef;
     @ViewChild('searchResultItems') searchResults: ElementRef;
 
-    constructor(
-        private _api_service: MapsPeopleService,
-        private _state: ExploreStateService,
-        private _org: OrganisationService,
-    ) {
+    constructor() {
         super();
     }
 

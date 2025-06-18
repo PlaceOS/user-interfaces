@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import {
     AsyncHandler,
     SettingsService,
@@ -28,6 +28,9 @@ export interface ChatMessage {
     providedIn: 'root',
 })
 export class ChatService extends AsyncHandler {
+    private _org = inject(OrganisationService);
+    private _settings = inject(SettingsService);
+
     private _binding = new BehaviorSubject('');
     private _chat_messages = new BehaviorSubject<ChatMessage[]>([]);
     private _progress_message = new BehaviorSubject<ChatMessage | null>(null);
@@ -108,10 +111,7 @@ export class ChatService extends AsyncHandler {
         return !!this._socket;
     }
 
-    constructor(
-        private _org: OrganisationService,
-        private _settings: SettingsService,
-    ) {
+    constructor() {
         super();
     }
 

@@ -1,6 +1,6 @@
 import { COMMA, ENTER, SPACE } from '@angular/cdk/keycodes';
 import { CurrencyPipe } from '@angular/common';
-import { Component, EventEmitter, Inject, Output } from '@angular/core';
+import { Component, EventEmitter, Output, inject } from '@angular/core';
 import {
     FormControl,
     FormGroup,
@@ -368,6 +368,9 @@ export interface CateringItemModalData {
     ],
 })
 export class CateringItemModalComponent {
+    private _data = inject<CateringItemModalData>(MAT_DIALOG_DATA);
+    private _org = inject(OrganisationService);
+
     /** Emitter for events on the modal */
     @Output() public event = new EventEmitter<DialogEvent>();
     /** Form fields for item */
@@ -430,11 +433,6 @@ export class CateringItemModalComponent {
     public hasTag(tag: string) {
         return this.tag_list.includes(tag);
     }
-
-    constructor(
-        @Inject(MAT_DIALOG_DATA) private _data: CateringItemModalData,
-        private _org: OrganisationService,
-    ) {}
 
     /**
      * Add a tag to the list of tags for the item

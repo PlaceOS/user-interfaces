@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 
 import { MAP_FEATURE_DATA } from 'libs/common/src/lib/types';
 
@@ -67,6 +67,8 @@ export interface MapPinData {
     standalone: false,
 })
 export class MapPinComponent implements OnInit {
+    private _details = inject<MapPinData>(MAP_FEATURE_DATA);
+
     /** Message to display above the pin */
     public readonly message = this._details.message;
     /** Fill colour for the pin SVG */
@@ -78,8 +80,6 @@ export class MapPinComponent implements OnInit {
 
     public show: boolean;
     public show_message: boolean;
-
-    constructor(@Inject(MAP_FEATURE_DATA) private _details: MapPinData) {}
 
     public ngOnInit() {
         setTimeout(() => (this.show = true), 300);

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import {
     AsyncHandler,
     SettingsService,
@@ -43,6 +43,9 @@ export interface ParkingUser {
     providedIn: 'root',
 })
 export class ParkingService extends AsyncHandler {
+    private _org = inject(OrganisationService);
+    private _settings = inject(SettingsService);
+
     private _loading = new BehaviorSubject<string[]>([]);
 
     public readonly loading =
@@ -183,10 +186,7 @@ export class ParkingService extends AsyncHandler {
         shareReplay(1),
     );
 
-    constructor(
-        private _org: OrganisationService,
-        private _settings: SettingsService,
-    ) {
+    constructor() {
         super();
         this.subscription('spaces', this.assigned_space.subscribe());
     }

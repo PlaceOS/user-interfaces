@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output, inject } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Observable } from 'rxjs';
 
@@ -278,6 +278,9 @@ export class CateringOrderModalComponent
     extends AsyncHandler
     implements OnInit
 {
+    private _org = inject(OrganisationService);
+    private _data = inject<CateringOrderModalData>(MAT_DIALOG_DATA);
+
     /** Emitter for events on the modal */
     @Output() public event = new EventEmitter<DialogEvent>();
     /** Whether changes are being saved */
@@ -299,10 +302,7 @@ export class CateringOrderModalComponent
         return this._org.currency_code;
     }
 
-    constructor(
-        private _org: OrganisationService,
-        @Inject(MAT_DIALOG_DATA) private _data: CateringOrderModalData,
-    ) {
+    constructor() {
         super();
         this.loading = i18n('CATERING.MENU_LOADING');
     }

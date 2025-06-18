@@ -1,6 +1,12 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
-import { Component, ElementRef, forwardRef, ViewChild } from '@angular/core';
+import {
+    Component,
+    ElementRef,
+    forwardRef,
+    inject,
+    ViewChild,
+} from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 import { Upload } from '@placeos/cloud-uploads';
@@ -220,6 +226,10 @@ export interface UploadDetails {
     ],
 })
 export class ImageListFieldComponent extends AsyncHandler {
+    private _clipboard = inject(Clipboard);
+    private _uploads = inject(UploadsService);
+    private _dialog = inject(MatDialog);
+
     /** List of images */
     public list: string[] = [];
     /** List of images */
@@ -244,11 +254,7 @@ export class ImageListFieldComponent extends AsyncHandler {
     @ViewChild('image_list') private _list_el: ElementRef<HTMLDivElement>;
     @ViewChild('file_input') private _file_input: ElementRef<HTMLInputElement>;
 
-    constructor(
-        private _clipboard: Clipboard,
-        private _uploads: UploadsService,
-        private _dialog: MatDialog,
-    ) {
+    constructor() {
         super();
     }
 

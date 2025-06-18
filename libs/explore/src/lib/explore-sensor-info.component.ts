@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
 import { MAP_FEATURE_DATA } from 'libs/common/src/lib/types';
 import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
@@ -61,6 +61,8 @@ let shown_id = '';
     imports: [CustomTooltipComponent, IconComponent],
 })
 export class ExploreSensorInfoComponent extends AsyncHandler {
+    private _details = inject<SensorInfoData>(MAP_FEATURE_DATA);
+
     public readonly temp = this._details.temp || 0;
     public readonly temp_unit = this._details.temp_unit || 'C';
     public readonly humidity = this._details.humidity || 0;
@@ -73,7 +75,7 @@ export class ExploreSensorInfoComponent extends AsyncHandler {
         this.timeout('show', () => (shown_id = value ? this._details.id : ''));
     }
 
-    constructor(@Inject(MAP_FEATURE_DATA) private _details: SensorInfoData) {
+    constructor() {
         super();
     }
 }

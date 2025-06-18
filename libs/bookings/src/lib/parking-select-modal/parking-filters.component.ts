@@ -1,4 +1,4 @@
-import { Component, Input, Optional } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { SettingsService } from '@placeos/common';
 import { addDays, endOfDay } from 'date-fns';
@@ -277,6 +277,13 @@ import { BookingFormService } from '../booking-form.service';
     ],
 })
 export class ParkingSpaceFiltersComponent {
+    private _bsheet_ref = inject<
+        MatBottomSheetRef<ParkingSpaceFiltersComponent>
+    >(MatBottomSheetRef, { optional: true });
+    private _state = inject(BookingFormService);
+    private _org = inject(OrganisationService);
+    private _settings = inject(SettingsService);
+
     @Input() public hide_levels: boolean;
 
     public can_close = false;
@@ -356,13 +363,7 @@ export class ParkingSpaceFiltersComponent {
             : '';
     }
 
-    constructor(
-        @Optional()
-        private _bsheet_ref: MatBottomSheetRef<ParkingSpaceFiltersComponent>,
-        private _state: BookingFormService,
-        private _org: OrganisationService,
-        private _settings: SettingsService,
-    ) {
+    constructor() {
         this.can_close = !!this._bsheet_ref;
     }
 }

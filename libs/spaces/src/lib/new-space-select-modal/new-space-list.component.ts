@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 
@@ -232,6 +232,9 @@ import { Space } from '../space.class';
     ],
 })
 export class NewSpaceListComponent {
+    private _event_form = inject(EventFormService);
+    private _org = inject(OrganisationService);
+
     @Input() public active = '';
     @Input() public selected = '';
     @Input() public favorites: string[] = [];
@@ -241,11 +244,6 @@ export class NewSpaceListComponent {
 
     public readonly available_spaces = this._event_form.available_spaces;
     public readonly room_alerts = this._event_form.room_alerts;
-
-    constructor(
-        private _event_form: EventFormService,
-        private _org: OrganisationService,
-    ) {}
 
     public level(zones: string[]) {
         return this._org.levelWithID(zones);

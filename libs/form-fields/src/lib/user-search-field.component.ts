@@ -3,6 +3,7 @@ import {
     Component,
     ElementRef,
     forwardRef,
+    inject,
     Input,
     OnInit,
     ViewChild,
@@ -145,6 +146,8 @@ export class UserSearchFieldComponent
     extends AsyncHandler
     implements OnInit, ControlValueAccessor
 {
+    private _settings = inject(SettingsService);
+
     /** Whether form field is disabled */
     @Input() public disabled: boolean;
     /** Placeholder text to display */
@@ -207,7 +210,7 @@ export class UserSearchFieldComponent
         }),
     );
 
-    constructor(private _settings: SettingsService) {
+    constructor() {
         super();
     }
 

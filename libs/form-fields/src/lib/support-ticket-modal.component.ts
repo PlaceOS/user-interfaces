@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import {
     FormControl,
     FormGroup,
@@ -206,6 +206,11 @@ export interface SupportRequestType {
     ],
 })
 export class SupportTicketModalComponent {
+    private _dialog_ref =
+        inject<MatDialogRef<SupportTicketModalComponent>>(MatDialogRef);
+    private _org = inject(OrganisationService);
+    private _settings = inject(SettingsService);
+
     public loading = false;
     public readonly form = new FormGroup({
         name: new FormControl('', [Validators.required]),
@@ -236,12 +241,6 @@ export class SupportTicketModalComponent {
     }
 
     public readonly buildings = this._org.building_list;
-
-    constructor(
-        private _dialog_ref: MatDialogRef<SupportTicketModalComponent>,
-        private _org: OrganisationService,
-        private _settings: SettingsService,
-    ) {}
 
     public ngOnInit() {
         const user = currentUser();

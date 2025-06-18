@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import {
@@ -75,6 +75,9 @@ import { Booking } from './booking.class';
     ],
 })
 export class BookingLinkModalComponent {
+    private _event = inject<Booking>(MAT_DIALOG_DATA);
+    private _settings = inject(SettingsService);
+
     public readonly outlook_link = generateMicrosoftCalendarLink(
         this._event as any,
     );
@@ -82,9 +85,4 @@ export class BookingLinkModalComponent {
         this._event as any,
     );
     public readonly ical_link = generateCalendarFileLink(this._event as any);
-
-    constructor(
-        @Inject(MAT_DIALOG_DATA) private _event: Booking,
-        private _settings: SettingsService,
-    ) {}
 }

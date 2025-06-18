@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnDestroy, forwardRef } from '@angular/core';
+import { Component, Input, OnDestroy, forwardRef, inject } from '@angular/core';
 import {
     ControlValueAccessor,
     FormsModule,
@@ -204,6 +204,10 @@ const EMPTY_FAVS: string[] = [];
 export class SpaceListFieldComponent
     implements ControlValueAccessor, OnDestroy
 {
+    private _settings = inject(SettingsService);
+    private _org = inject(OrganisationService);
+    private _dialog = inject(MatDialog);
+
     @Input() multiday = false;
     public room_size = 4;
     public spaces = new BehaviorSubject<Space[]>([]);
@@ -217,12 +221,6 @@ export class SpaceListFieldComponent
     public get favorites() {
         return this._settings.get<string[]>('favourite_spaces') || EMPTY_FAVS;
     }
-
-    constructor(
-        private _settings: SettingsService,
-        private _org: OrganisationService,
-        private _dialog: MatDialog,
-    ) {}
 
     public ngOnDestroy() {
         if (this._dialog_ref) this._dialog_ref.close();

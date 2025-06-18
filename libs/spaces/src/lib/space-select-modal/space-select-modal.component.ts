@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import {
     MAT_DIALOG_DATA,
@@ -190,6 +190,16 @@ import { SpaceListComponent } from './space-list.component';
     ],
 })
 export class SpaceSelectModalComponent {
+    private _dialog_ref =
+        inject<MatDialogRef<SpaceSelectModalComponent>>(MatDialogRef);
+    private _settings = inject(SettingsService);
+    private _event_form = inject(EventFormService);
+    private _data = inject<{
+        spaces: Space[];
+        options: Partial<EventFormOptions>;
+        multiday?: boolean;
+    }>(MAT_DIALOG_DATA);
+
     public displayed?: Space;
     public selected: Space[] = [];
     public view = 'list';
@@ -204,17 +214,9 @@ export class SpaceSelectModalComponent {
         return this._settings.get<string[]>('favourite_spaces') || [];
     }
 
-    constructor(
-        private _dialog_ref: MatDialogRef<SpaceSelectModalComponent>,
-        private _settings: SettingsService,
-        private _event_form: EventFormService,
-        @Inject(MAT_DIALOG_DATA)
-        private _data: {
-            spaces: Space[];
-            options: Partial<EventFormOptions>;
-            multiday?: boolean;
-        },
-    ) {
+    constructor() {
+        const _data = this._data;
+
         this.selected = [...(_data.spaces || [])];
         this._event_form.setOptions(_data.options);
         this._event_form.setFilters(_data.options as any);

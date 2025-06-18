@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import { marked } from 'marked';
@@ -33,10 +33,10 @@ export interface ChangelogModalData {
     imports: [FullscreenModalShellComponent, SafePipe, IconComponent],
 })
 export class ChangelogModalComponent {
+    private _data = inject<ChangelogModalData>(MAT_DIALOG_DATA);
+
     /** Whether the changelog is loading */
     public loading: boolean;
-
-    constructor(@Inject(MAT_DIALOG_DATA) private _data: ChangelogModalData) {}
 
     /** HTML string for rendering the change log */
     public get changelog(): string {

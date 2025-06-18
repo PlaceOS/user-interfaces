@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import {
@@ -251,6 +251,13 @@ import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.componen
     ],
 })
 export class WFHSettingsModalComponent implements OnInit {
+    private _data = inject<{
+        local?: boolean;
+        preferences?: WorktimePreference[];
+    }>(MAT_DIALOG_DATA);
+    private _dialog_ref =
+        inject<MatDialogRef<WFHSettingsModalComponent>>(MatDialogRef);
+
     public options = [];
     public option = '';
     public settings: WorktimePreference[] = [];
@@ -275,12 +282,6 @@ export class WFHSettingsModalComponent implements OnInit {
     public get now() {
         return startOfMinute(Date.now()).getTime();
     }
-
-    constructor(
-        @Inject(MAT_DIALOG_DATA)
-        private _data: { local?: boolean; preferences?: WorktimePreference[] },
-        private _dialog_ref: MatDialogRef<WFHSettingsModalComponent>,
-    ) {}
 
     public ngOnInit() {
         const user = currentUser();

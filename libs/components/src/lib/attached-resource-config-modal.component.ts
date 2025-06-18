@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Inject, Output } from '@angular/core';
+import { Component, EventEmitter, Output, inject } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { AsyncHandler } from '@placeos/common';
 
@@ -240,6 +240,8 @@ export interface AttachedResourceConfigModalData {
     standalone: false,
 })
 export class AttachedResourceConfigModalComponent extends AsyncHandler {
+    private _data = inject<AttachedResourceConfigModalData>(MAT_DIALOG_DATA);
+
     /** Emitter for events on the modal */
     @Output() public event = new EventEmitter<DialogEvent>();
     /** Whether changes are being saved */
@@ -261,10 +263,10 @@ export class AttachedResourceConfigModalComponent extends AsyncHandler {
         return !!this._data.saveNotes;
     }
 
-    constructor(
-        @Inject(MAT_DIALOG_DATA) private _data: AttachedResourceConfigModalData,
-    ) {
+    constructor() {
         super();
+        const _data = this._data;
+
         this.rulesets = (_data.config || []).map((set) => {
             set.rules = set.rules.map((i) => [
                 i[0],

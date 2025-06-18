@@ -6,6 +6,7 @@ import {
     OnInit,
     Output,
     SimpleChanges,
+    inject,
 } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { first } from 'rxjs/operators';
@@ -477,6 +478,10 @@ export class InviteVisitorFormComponent
     extends AsyncHandler
     implements OnInit, OnChanges
 {
+    private _service = inject(BookingFormService);
+    private _settings = inject(SettingsService);
+    private _org = inject(OrganisationService);
+
     @Input() public date: number;
     @Output() public done = new EventEmitter<void>();
 
@@ -532,11 +537,7 @@ export class InviteVisitorFormComponent
         return this._settings.get('app.use_24_hour_time');
     }
 
-    constructor(
-        private _service: BookingFormService,
-        private _settings: SettingsService,
-        private _org: OrganisationService,
-    ) {
+    constructor() {
         super();
     }
 

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { BehaviorSubject } from 'rxjs';
 
@@ -9,11 +9,13 @@ import { UploadDetails, UploadPermissions, uploadFile } from './uploads';
     providedIn: 'root',
 })
 export class UploadsService {
+    private _dialog = inject(MatDialog);
+
     private _upload_list = new BehaviorSubject<UploadDetails[]>([]);
 
     public readonly upload_list = this._upload_list.asObservable();
 
-    constructor(private _dialog: MatDialog) {
+    constructor() {
         if (localStorage) {
             this._upload_list.next(
                 JSON.parse(localStorage.getItem('BACKOFFICE.uploads') || '[]'),

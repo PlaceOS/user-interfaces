@@ -1,6 +1,7 @@
 import {
     Component,
     EventEmitter,
+    inject,
     Input,
     OnChanges,
     OnInit,
@@ -95,6 +96,10 @@ export class ParkingSpaceMapComponent
     extends AsyncHandler
     implements OnInit, OnChanges
 {
+    private _state = inject(BookingFormService);
+    private _settings = inject(SettingsService);
+    private _org = inject(OrganisationService);
+
     @Input() public is_displayed = false;
     @Input() public active = '';
     @Output() public onSelect = new EventEmitter<BookingAsset>();
@@ -202,11 +207,7 @@ export class ParkingSpaceMapComponent
         return !!this._settings.get('app.use_region');
     }
 
-    constructor(
-        private _state: BookingFormService,
-        private _settings: SettingsService,
-        private _org: OrganisationService,
-    ) {
+    constructor() {
         super();
     }
 

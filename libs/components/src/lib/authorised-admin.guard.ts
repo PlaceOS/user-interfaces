@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import {
     ActivatedRouteSnapshot,
     Route,
@@ -15,7 +15,7 @@ import { first } from 'rxjs/operators';
     providedIn: 'root',
 })
 export class AuthorisedAdminGuard {
-    constructor(private _router: Router) {}
+    private _router = inject(Router);
 
     public async canActivate(
         next?: ActivatedRouteSnapshot,

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, Inject, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, inject } from '@angular/core';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { MAP_FEATURE_DATA } from 'libs/common/src/lib/types';
 import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
@@ -145,6 +145,10 @@ export interface SpaceInfoData {
     imports: [CommonModule, CustomTooltipComponent, TranslatePipe],
 })
 export class ExploreSpaceInfoComponent implements OnInit {
+    private _details = inject<SpaceInfoData>(MAP_FEATURE_DATA);
+    private _settings = inject(SettingsService);
+    private _element = inject<ElementRef<HTMLElement>>(ElementRef);
+
     /** Space to display details for */
     public readonly space = this._details.space;
     /** List of upcoming events for space */
@@ -159,12 +163,6 @@ export class ExploreSpaceInfoComponent implements OnInit {
     public get show_features() {
         return !this._settings.get('app.spaces.hide_features');
     }
-
-    constructor(
-        @Inject(MAP_FEATURE_DATA) private _details: SpaceInfoData,
-        private _settings: SettingsService,
-        private _element: ElementRef<HTMLElement>,
-    ) {}
 
     public ngOnInit() {
         setTimeout(() => this.updateOffset(), 200);

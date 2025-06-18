@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
 import { first } from 'rxjs/operators';
@@ -72,6 +72,11 @@ import { ExploreStateService } from './explore-state.service';
     imports: [CommonModule, MatFormFieldModule, MatSelectModule, FormsModule],
 })
 export class ExploreMapControlComponent extends AsyncHandler implements OnInit {
+    private _org = inject(OrganisationService);
+    private _state = inject(ExploreStateService);
+    private _router = inject(Router);
+    private _route = inject(ActivatedRoute);
+
     /** List of available buildings */
     public readonly buildings = this._org.active_buildings;
     /** Currently active building */
@@ -96,12 +101,7 @@ export class ExploreMapControlComponent extends AsyncHandler implements OnInit {
     /** Set the currenly active building */
     public readonly setBuilding = (bld) => (this._org.building = bld);
 
-    constructor(
-        private _org: OrganisationService,
-        private _state: ExploreStateService,
-        private _router: Router,
-        private _route: ActivatedRoute,
-    ) {
+    constructor() {
         super();
     }
 

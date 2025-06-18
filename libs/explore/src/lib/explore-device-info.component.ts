@@ -1,4 +1,4 @@
-import { Component, ElementRef, Inject, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, inject } from '@angular/core';
 import { getModule } from '@placeos/ts-client';
 import { differenceInMinutes, formatDistanceToNow } from 'date-fns';
 import { Observable } from 'rxjs';
@@ -156,6 +156,10 @@ const EMPTY = [];
     imports: [TranslatePipe, CustomTooltipComponent],
 })
 export class ExploreDeviceInfoComponent extends AsyncHandler implements OnInit {
+    private _details = inject<DeviceInfoData>(MAP_FEATURE_DATA);
+    private _settings = inject(SettingsService);
+    private _element = inject<ElementRef<HTMLElement>>(ElementRef);
+
     /** Name of the user associated with the mac address */
     public username = '';
     /** User details associated with device */
@@ -211,11 +215,7 @@ export class ExploreDeviceInfoComponent extends AsyncHandler implements OnInit {
               : '#e53935';
     }
 
-    constructor(
-        @Inject(MAP_FEATURE_DATA) private _details: DeviceInfoData,
-        private _settings: SettingsService,
-        private _element: ElementRef<HTMLElement>,
-    ) {
+    constructor() {
         super();
     }
 

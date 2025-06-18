@@ -5,6 +5,7 @@ import {
     ElementRef,
     EventEmitter,
     HostListener,
+    inject,
     Injector,
     Input,
     OnChanges,
@@ -135,6 +136,8 @@ export class MapRendererComponent
     extends AsyncHandler
     implements AfterViewInit, OnChanges, OnInit, OnDestroy
 {
+    private _injector = inject(Injector);
+
     /** URL to the SVG file */
     @Input() public src: string;
     /** Custom CSS styles to apply to the SVG file */
@@ -201,7 +204,7 @@ export class MapRendererComponent
               : 'component';
     }
 
-    constructor(private _injector: Injector) {
+    constructor() {
         super();
     }
 

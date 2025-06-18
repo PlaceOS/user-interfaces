@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Inject, Output } from '@angular/core';
+import { Component, EventEmitter, Output, inject } from '@angular/core';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
@@ -148,17 +148,15 @@ import { TranslatePipe } from './translate.pipe';
     ],
 })
 export class AvailableRoomsStateModalComponent {
+    private _data = inject(MAT_DIALOG_DATA);
+    private _org = inject(OrganisationService);
+
     @Output() public change = new EventEmitter<string[]>();
     public loading = false;
     public selected: string[] = [];
     public readonly rooms = requestSpacesForZone(this._org.building.id);
     public readonly type: string = this._data.type;
     public disabled_rooms: string[] = this._data.disabled_rooms;
-
-    constructor(
-        @Inject(MAT_DIALOG_DATA) private _data: any,
-        private _org: OrganisationService,
-    ) {}
 
     public async toggleRoom(id: string) {
         if (id === '*') {

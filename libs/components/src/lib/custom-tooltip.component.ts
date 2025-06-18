@@ -14,6 +14,7 @@ import {
     TemplateRef,
     Type,
     ViewChild,
+    inject,
 } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
 import { SanitizePipe } from './sanitise.pipe';
@@ -22,6 +23,7 @@ import { SanitizePipe } from './sanitise.pipe';
 export class CustomTooltipData<T = any> {
     data: T;
     close: () => void;
+
     constructor(d) {
         this.data = d.data;
         this.close = d.close || (() => null);
@@ -59,6 +61,10 @@ export class CustomTooltipComponent<T = any>
     extends AsyncHandler
     implements OnChanges, OnDestroy
 {
+    private _element = inject<ElementRef<HTMLElement>>(ElementRef);
+    private _overlay = inject(Overlay);
+    private _injector = inject(Injector);
+
     /** Horizontal position of the rendered overlay */
     @Input('xPosition') public x_pos: 'start' | 'center' | 'end' = 'end';
     /** Vertical position of the rendered overlay */
@@ -89,11 +95,7 @@ export class CustomTooltipComponent<T = any>
     @HostListener('mouseleave') public readonly onLeave = () =>
         this.hover ? this.close() : '';
 
-    constructor(
-        private _element: ElementRef<HTMLElement>,
-        private _overlay: Overlay,
-        private _injector: Injector,
-    ) {
+    constructor() {
         super();
     }
 

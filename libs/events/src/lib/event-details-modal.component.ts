@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, inject, OnInit, Output } from '@angular/core';
 import {
     MAT_DIALOG_DATA,
     MatDialog,
@@ -714,6 +714,16 @@ const EMPTY_ACTIONS = [];
     ],
 })
 export class EventDetailsModalComponent implements OnInit {
+    private _data = inject<{
+        event: CalendarEvent;
+        edit_fn: (i) => void;
+        remove_fn: (i, s) => void;
+    }>(MAT_DIALOG_DATA);
+    private _org = inject(OrganisationService);
+    private _space_pipe = inject(SpacePipe);
+    private _settings = inject(SettingsService);
+    private _dialog = inject(MatDialog);
+
     @Output() public action = new EventEmitter();
     public edit = this._data.edit_fn;
     public remove = this._data.remove_fn;
@@ -822,18 +832,7 @@ export class EventDetailsModalComponent implements OnInit {
         return 'warning';
     }
 
-    constructor(
-        @Inject(MAT_DIALOG_DATA)
-        private _data: {
-            event: CalendarEvent;
-            edit_fn: (i) => void;
-            remove_fn: (i, s) => void;
-        },
-        private _org: OrganisationService,
-        private _space_pipe: SpacePipe,
-        private _settings: SettingsService,
-        private _dialog: MatDialog,
-    ) {
+    constructor() {
         const doc = new DOMParser().parseFromString(
             this.event.body,
             'text/html',

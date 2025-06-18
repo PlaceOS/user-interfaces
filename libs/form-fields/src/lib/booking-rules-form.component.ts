@@ -6,6 +6,7 @@ import {
     OnChanges,
     Output,
     SimpleChanges,
+    inject,
 } from '@angular/core';
 import {
     FormControl,
@@ -440,6 +441,9 @@ import { ItemListFieldComponent } from './item-list-field.component';
     ],
 })
 export class BookingRulesFormComponent implements OnChanges {
+    private _org = inject(OrganisationService);
+    private _settings = inject(SettingsService);
+
     @Input() public ruleset?: BookingRuleset;
     @Input() public save = false;
     @Output() public rulesetChange = new EventEmitter<BookingRuleset>();
@@ -514,11 +518,6 @@ export class BookingRulesFormComponent implements OnChanges {
     public get time_format() {
         return this._settings.time_format;
     }
-
-    constructor(
-        private _org: OrganisationService,
-        private _settings: SettingsService,
-    ) {}
 
     public ngOnChanges(changes: SimpleChanges): void {
         if (changes.ruleset && this.ruleset) {

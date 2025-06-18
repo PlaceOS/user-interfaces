@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { SettingsService } from '@placeos/common';
 import { DEFAULT_COLOURS } from 'libs/explore/src/lib/explore-spaces.service';
@@ -76,6 +76,8 @@ import { Locker, LockerBank } from './locker.class';
     imports: [MatRippleModule],
 })
 export class LockerGridComponent {
+    private _settings = inject(SettingsService);
+
     @Input() public show_name = true;
     @Input() public default_status = 'busy';
     @Input() public bank: LockerBank;
@@ -91,8 +93,6 @@ export class LockerGridComponent {
         }
         return columns;
     }
-
-    constructor(private _settings: SettingsService) {}
 
     public color(status: string) {
         const colours = this._settings.get('app.explore.colors') || {};

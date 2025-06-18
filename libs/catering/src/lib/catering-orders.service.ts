@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { endOfDay, format, getUnixTime, startOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
 import {
@@ -78,6 +78,9 @@ const BOOKINGS: Record<string, Booking> = {};
     providedIn: 'root',
 })
 export class CateringOrdersService extends AsyncHandler {
+    private _settings = inject(SettingsService);
+    private _org = inject(OrganisationService);
+
     private _poll = new BehaviorSubject<number>(0);
     private _loading = new BehaviorSubject<boolean>(false);
     private _space_pipe = new SpacePipe(this._org);
@@ -245,10 +248,7 @@ export class CateringOrdersService extends AsyncHandler {
         ),
     );
 
-    constructor(
-        private _settings: SettingsService,
-        private _org: OrganisationService,
-    ) {
+    constructor() {
         super();
         this.subscription('changes', this.orders.subscribe());
     }

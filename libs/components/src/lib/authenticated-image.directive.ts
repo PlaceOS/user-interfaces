@@ -4,6 +4,7 @@ import {
     Input,
     OnChanges,
     SimpleChanges,
+    inject,
 } from '@angular/core';
 import { apiKey, authority, token } from '@placeos/ts-client';
 
@@ -18,11 +19,12 @@ export class AuthenticatedImageDirective
     extends AsyncHandler
     implements OnChanges
 {
+    private _element =
+        inject<ElementRef<HTMLImageElement | HTMLVideoElement>>(ElementRef);
+
     @Input() public source: string;
 
-    constructor(
-        private _element: ElementRef<HTMLImageElement | HTMLVideoElement>,
-    ) {
+    constructor() {
         super();
     }
 

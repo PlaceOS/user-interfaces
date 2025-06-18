@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
     PlaceMetadata,
@@ -64,6 +64,11 @@ export interface CateringSettings {
     providedIn: 'root',
 })
 export class CateringStateService extends AsyncHandler {
+    private _org = inject(OrganisationService);
+    private _dialog = inject(MatDialog);
+    private _settings = inject(SettingsService);
+    private _orders = inject(CateringOrdersService);
+
     private _updated = new BehaviorSubject(0);
     /** Active menu */
     private _menu = new BehaviorSubject<CateringItem[]>([]);
@@ -147,12 +152,7 @@ export class CateringStateService extends AsyncHandler {
         return unique(menu.map((i) => i.caterer));
     }
 
-    constructor(
-        private _org: OrganisationService,
-        private _dialog: MatDialog,
-        private _settings: SettingsService,
-        private _orders: CateringOrdersService,
-    ) {
+    constructor() {
         super();
         this.subscription(
             'building',

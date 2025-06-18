@@ -4,6 +4,7 @@ import {
     ElementRef,
     EventEmitter,
     forwardRef,
+    inject,
     Input,
     Output,
     ViewChild,
@@ -258,6 +259,9 @@ export class UserListFieldComponent
     extends AsyncHandler
     implements ControlValueAccessor
 {
+    private _dialog = inject(MatDialog);
+    private _settings = inject(SettingsService);
+
     @Input() public time = Date.now();
     /** Whether form field is disabled */
     @Input() public disabled: boolean;
@@ -350,10 +354,7 @@ export class UserListFieldComponent
         return validateEmail(this.search$.getValue());
     }
 
-    constructor(
-        private _dialog: MatDialog,
-        private _settings: SettingsService,
-    ) {
+    constructor() {
         super();
     }
 

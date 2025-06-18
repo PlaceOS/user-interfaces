@@ -1,4 +1,4 @@
-import { Component, Input, Optional } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { SettingsService } from '@placeos/common';
 import { addDays, endOfDay } from 'date-fns';
@@ -267,6 +267,14 @@ import { BookingFormService } from '../booking-form.service';
     ],
 })
 export class DeskFiltersComponent {
+    private _bsheet_ref = inject<MatBottomSheetRef<DeskFiltersComponent>>(
+        MatBottomSheetRef,
+        { optional: true },
+    );
+    private _state = inject(BookingFormService);
+    private _org = inject(OrganisationService);
+    private _settings = inject(SettingsService);
+
     @Input() public hide_levels: boolean;
 
     public can_close = false;
@@ -349,13 +357,7 @@ export class DeskFiltersComponent {
             : '';
     }
 
-    constructor(
-        @Optional()
-        private _bsheet_ref: MatBottomSheetRef<DeskFiltersComponent>,
-        private _state: BookingFormService,
-        private _org: OrganisationService,
-        private _settings: SettingsService,
-    ) {
+    constructor() {
         this.can_close = !!this._bsheet_ref;
     }
 }

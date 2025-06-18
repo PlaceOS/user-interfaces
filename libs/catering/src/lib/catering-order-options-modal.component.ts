@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Inject, Output } from '@angular/core';
+import { Component, EventEmitter, Output, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 
 import { unique } from 'libs/common/src/lib/general';
@@ -130,6 +130,8 @@ export interface CateringOrderOptionsModalData {
     ],
 })
 export class CateringOrderOptionsModalComponent {
+    private _data = inject<CateringOrderOptionsModalData>(MAT_DIALOG_DATA);
+
     /** Emitter for events on the modal */
     @Output() public event = new EventEmitter<DialogEvent>();
     /** List of option groups */
@@ -138,9 +140,7 @@ export class CateringOrderOptionsModalComponent {
     public option_state: HashMap<boolean> = {};
     public readonly code = this._data.code;
 
-    constructor(
-        @Inject(MAT_DIALOG_DATA) private _data: CateringOrderOptionsModalData,
-    ) {
+    constructor() {
         const groups = unique(
             this._data.options.map((i) => i.group || 'Other'),
         );

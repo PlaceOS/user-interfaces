@@ -1,4 +1,4 @@
-import { Injectable, OnDestroy } from '@angular/core';
+import { inject, Injectable, OnDestroy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ViewAction, ViewerFeature } from '@placeos/svg-viewer';
 import { getModule, showMetadata } from '@placeos/ts-client';
@@ -45,6 +45,12 @@ export const DEFAULT_COLOURS = {
 
 @Injectable()
 export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
+    private _state = inject(ExploreStateService);
+    private _settings = inject(SettingsService);
+    private _event_form = inject(EventFormService);
+    private _dialog = inject(MatDialog);
+    private _org = inject(OrganisationService);
+
     private _bookings: Record<string, CalendarEvent[]> = {};
     private _statuses: Record<string, string> = {};
     private _presence: Record<string, boolean> = {};
@@ -123,13 +129,7 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
         }),
     );
 
-    constructor(
-        private _state: ExploreStateService,
-        private _settings: SettingsService,
-        private _event_form: EventFormService,
-        private _dialog: MatDialog,
-        private _org: OrganisationService,
-    ) {
+    constructor() {
         super();
         this.subscription('spaces', this._bind.subscribe());
     }

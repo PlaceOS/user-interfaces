@@ -1,6 +1,6 @@
 import { OverlayModule } from '@angular/cdk/overlay';
 import { PortalModule } from '@angular/cdk/portal';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import {
     SpectatorDirective,
     createDirectiveFactory,
@@ -17,8 +17,9 @@ import { SanitizePipe } from '../lib/sanitise.pipe';
 export class FakeComponent {}
 @Component({ selector: 'fake-data', template: '<span>{{ data }}<span>' })
 export class FakeDataComponent {
+    private _data = inject(CustomTooltipData);
+
     public readonly data = this._data.data;
-    constructor(private _data: CustomTooltipData) {}
 }
 
 describe('CustomTooltipComponent', () => {

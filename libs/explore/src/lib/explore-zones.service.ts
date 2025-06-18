@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Point, ViewerFeature } from '@placeos/svg-viewer';
 import { showMetadata } from '@placeos/ts-client';
 import { debounceTime, filter, first, map } from 'rxjs/operators';
@@ -40,6 +40,10 @@ export interface ZoneData {
 
 @Injectable()
 export class ExploreZonesService extends AsyncHandler {
+    private _state = inject(ExploreStateService);
+    private _org = inject(OrganisationService);
+    private _settings = inject(SettingsService);
+
     private _area_list: string[] = [];
     private _statuses: HashMap<string> = {};
     private _count_key: HashMap<string> = {};
@@ -83,11 +87,7 @@ export class ExploreZonesService extends AsyncHandler {
         }),
     );
 
-    constructor(
-        private _state: ExploreStateService,
-        private _org: OrganisationService,
-        private _settings: SettingsService,
-    ) {
+    constructor() {
         super();
         this.init();
     }

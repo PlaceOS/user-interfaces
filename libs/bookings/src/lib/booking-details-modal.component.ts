@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import {
     MAT_DIALOG_DATA,
     MatDialog,
@@ -386,6 +386,16 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
     ],
 })
 export class BookingDetailsModalComponent {
+    private _data = inject<{
+        booking: Booking;
+        edit_fn: (i) => void;
+        remove_fn: (i, s?) => void;
+        end_fn: (i) => void;
+    }>(MAT_DIALOG_DATA);
+    private _settings = inject(SettingsService);
+    private _org = inject(OrganisationService);
+    private _dialog = inject(MatDialog);
+
     public edit = this._data.edit_fn;
     public remove = this._data.remove_fn;
     public end = this._data.end_fn;
@@ -496,19 +506,6 @@ export class BookingDetailsModalComponent {
         if (this.booking?.status === 'tentative') return 'warning';
         return 'warning';
     }
-
-    constructor(
-        @Inject(MAT_DIALOG_DATA)
-        private _data: {
-            booking: Booking;
-            edit_fn: (i) => void;
-            remove_fn: (i, s?) => void;
-            end_fn: (i) => void;
-        },
-        private _settings: SettingsService,
-        private _org: OrganisationService,
-        private _dialog: MatDialog,
-    ) {}
 
     public get period() {
         if (this.booking?.is_all_day) return i18n('COMMON.ALL_DAY');

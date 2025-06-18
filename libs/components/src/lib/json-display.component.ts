@@ -1,4 +1,4 @@
-import { Component, Input, Optional, SimpleChanges } from '@angular/core';
+import { Component, Input, SimpleChanges, inject } from '@angular/core';
 import { CustomTooltipData } from './custom-tooltip.component';
 
 @Component({
@@ -31,7 +31,9 @@ export class JsonDisplayComponent {
 
     public formatted_json: string;
 
-    constructor(@Optional() _data: CustomTooltipData) {
+    constructor() {
+        const _data = inject(CustomTooltipData, { optional: true });
+
         this.json = _data?.data || '';
         this._updateFormatting();
     }

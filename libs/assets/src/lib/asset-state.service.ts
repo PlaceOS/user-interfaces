@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { OrganisationService } from '@placeos/organisation';
 import { PlaceMetadata, showMetadata } from '@placeos/ts-client';
 import {
@@ -40,6 +40,8 @@ export interface AssetOptions {
     providedIn: 'root',
 })
 export class AssetStateService {
+    private _org = inject(OrganisationService);
+
     private _options = new BehaviorSubject<AssetOptions>({ date: Date.now() });
     private _search = new BehaviorSubject<string>('');
     private _category = new BehaviorSubject<string[]>([]);
@@ -165,8 +167,6 @@ export class AssetStateService {
     public readonly disabled_rooms = this.settings.pipe(
         map((_) => _.disabled_rooms || []),
     );
-
-    constructor(private _org: OrganisationService) {}
 
     public setSearch(value: string) {
         this._search.next(`${value}`);

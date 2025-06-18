@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import {
     Point,
     ViewAction,
@@ -47,6 +47,10 @@ export interface MapOptions {
     providedIn: 'root',
 })
 export class ExploreStateService extends AsyncHandler {
+    private _org = inject(OrganisationService);
+    private _spaces = inject(SpacesService);
+    private _settings = inject(SettingsService);
+
     /** Currently active level */
     private _level = new BehaviorSubject<BuildingLevel>(null);
     /** Currently active level */
@@ -190,11 +194,7 @@ export class ExploreStateService extends AsyncHandler {
         return this._level.getValue();
     }
 
-    constructor(
-        private _org: OrganisationService,
-        private _spaces: SpacesService,
-        private _settings: SettingsService,
-    ) {
+    constructor() {
         super();
         this.init();
     }

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { BehaviorSubject, of } from 'rxjs';
 import { shareReplay, switchMap, tap } from 'rxjs/operators';
@@ -33,6 +33,10 @@ const STRIPE_MODULE = 'Payment';
     providedIn: 'root',
 })
 export class PaymentsService {
+    private _org = inject(OrganisationService);
+    private _settings = inject(SettingsService);
+    private _dialog = inject(MatDialog);
+
     private _loading = new BehaviorSubject('');
     private _active_card = new BehaviorSubject('');
 
@@ -51,12 +55,6 @@ export class PaymentsService {
     public get enabled() {
         return !!this._org.module('payments', STRIPE_MODULE);
     }
-
-    constructor(
-        private _org: OrganisationService,
-        private _settings: SettingsService,
-        private _dialog: MatDialog,
-    ) {}
 
     public async makePayment(
         details: PaymentDetails,

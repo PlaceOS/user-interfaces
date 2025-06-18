@@ -1,4 +1,4 @@
-import { Injectable, Optional } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
 import { format, isSameDay } from 'date-fns';
@@ -26,6 +26,9 @@ declare global {
     providedIn: 'root',
 })
 export class SettingsService extends AsyncHandler {
+    private _title = inject(Title);
+    private _analytics = inject(GoogleAnalyticsService, { optional: true });
+
     /** Name of the application */
     private _app_name = 'PlaceOS';
     /** List of override settings in order of priority */
@@ -90,10 +93,7 @@ export class SettingsService extends AsyncHandler {
         this._analytics?.send('pagename', { title: value });
     }
 
-    constructor(
-        private _title: Title,
-        @Optional() private _analytics: GoogleAnalyticsService,
-    ) {
+    constructor() {
         super();
         const now = new Date();
         const time = new Date(VERSION.time);

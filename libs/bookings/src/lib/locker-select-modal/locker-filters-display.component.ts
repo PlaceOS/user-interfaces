@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 
@@ -129,6 +129,10 @@ import { LockerFiltersComponent } from './locker-filters.component';
     imports: [CommonModule, TranslatePipe, IconComponent, MatRippleModule],
 })
 export class LockerFiltersDisplayComponent extends AsyncHandler {
+    private _bsheet = inject(MatBottomSheet);
+    private _state = inject(BookingFormService);
+    private _settings = inject(SettingsService);
+
     @Input() public view: 'map' | 'list' = 'list';
     @Output() public viewChange = new EventEmitter<'map' | 'list'>();
     public readonly options = this._state.options;
@@ -152,11 +156,7 @@ export class LockerFiltersDisplayComponent extends AsyncHandler {
         return this._settings.time_format;
     }
 
-    constructor(
-        private _bsheet: MatBottomSheet,
-        private _state: BookingFormService,
-        private _settings: SettingsService,
-    ) {
+    constructor() {
         super();
     }
 }

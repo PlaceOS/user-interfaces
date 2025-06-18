@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -168,6 +168,12 @@ import { DateFieldComponent } from './date-field.component';
     ],
 })
 export class RecurrenceModalComponent extends AsyncHandler implements OnInit {
+    private _data = inject<{
+        value: Recurrence;
+        iom: number;
+        date: number;
+    }>(MAT_DIALOG_DATA);
+
     public readonly instance_fn = (v) => `${v} instances`;
     public readonly date = this._data.date || Date.now();
     public readonly week = this._data.iom ?? 1;
@@ -200,10 +206,7 @@ export class RecurrenceModalComponent extends AsyncHandler implements OnInit {
         end_instances: new FormControl(13),
     });
 
-    constructor(
-        @Inject(MAT_DIALOG_DATA)
-        private _data: { value: Recurrence; iom: number; date: number },
-    ) {
+    constructor() {
         super();
     }
 

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -19,6 +19,10 @@ import { ExploreStateService } from './explore-state.service';
     providedIn: 'root',
 })
 export class ExploreLockersService extends AsyncHandler {
+    private _explore = inject(ExploreStateService);
+    private _org = inject(OrganisationService);
+    private _settings = inject(SettingsService);
+
     private _status = new BehaviorSubject([]);
     private _change = new BehaviorSubject(0);
 
@@ -152,11 +156,7 @@ export class ExploreLockersService extends AsyncHandler {
         }),
     );
 
-    constructor(
-        private _explore: ExploreStateService,
-        private _org: OrganisationService,
-        private _settings: SettingsService,
-    ) {
+    constructor() {
         super();
         this.subscription('status', this.status.subscribe());
         this.subscription('locker_status', this.locker_status.subscribe());

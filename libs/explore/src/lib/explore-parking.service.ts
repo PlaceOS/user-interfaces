@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
     AsyncHandler,
@@ -67,6 +67,13 @@ export interface ParkingOptions {
 
 @Injectable()
 export class ExploreParkingService extends AsyncHandler {
+    private _org = inject(OrganisationService);
+    private _state = inject(ExploreStateService);
+    private _settings = inject(SettingsService);
+    private _bookings = inject(BookingFormService);
+    private _parking = inject(ParkingService);
+    private _dialog = inject(MatDialog);
+
     private _options = new BehaviorSubject<ParkingOptions>({});
     private _poll = new BehaviorSubject<number>(0);
 
@@ -203,14 +210,7 @@ export class ExploreParkingService extends AsyncHandler {
         }),
     );
 
-    constructor(
-        private _org: OrganisationService,
-        private _state: ExploreStateService,
-        private _settings: SettingsService,
-        private _bookings: BookingFormService,
-        private _parking: ParkingService,
-        private _dialog: MatDialog,
-    ) {
+    constructor() {
         super();
         this.subscription('spaces', this.available_spaces.subscribe());
         this.setOptions({

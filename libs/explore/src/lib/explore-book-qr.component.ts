@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -30,14 +30,15 @@ const DEFAULT_PATH = `workplace/#/explore?space={{id}}`;
     imports: [TranslatePipe, MatRippleModule, IconComponent],
 })
 export class ExploreBookQrComponent {
+    _data = inject<{
+        space: Space;
+    }>(MAT_DIALOG_DATA);
+    private _settings = inject(SettingsService);
+
     public readonly space = this._data.space;
     public readonly qr_code = generateQRCode(
         `${location.origin}${(
             this._settings.get('app.booking_qr_path') || DEFAULT_PATH
         ).replace('{{id}}', this._data.space?.email)}`,
     );
-    constructor(
-        @Inject(MAT_DIALOG_DATA) public _data: { space: Space },
-        private _settings: SettingsService,
-    ) {}
 }

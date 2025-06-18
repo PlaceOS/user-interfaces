@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { addDays, endOfDay } from 'date-fns';
 
@@ -267,6 +267,10 @@ import { BookingFormService } from '../booking-form.service';
     ],
 })
 export class NewLockerFiltersComponent extends AsyncHandler implements OnInit {
+    private _state = inject(BookingFormService);
+    private _org = inject(OrganisationService);
+    private _settings = inject(SettingsService);
+
     @Input() public hide_levels: boolean;
 
     public can_close = false;
@@ -350,11 +354,7 @@ export class NewLockerFiltersComponent extends AsyncHandler implements OnInit {
         return this._settings.get('app.use_region');
     }
 
-    constructor(
-        private _state: BookingFormService,
-        private _org: OrganisationService,
-        private _settings: SettingsService,
-    ) {
+    constructor() {
         super();
     }
 

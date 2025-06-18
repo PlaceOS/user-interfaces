@@ -1,4 +1,4 @@
-import { Injectable, Optional } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import {
     ActivatedRouteSnapshot,
     Route,
@@ -24,12 +24,10 @@ export abstract class PLACEOS_APP_ACCESS {
     providedIn: 'root',
 })
 export class AuthorisedUserGuard {
-    constructor(
-        private _router: Router,
-        private _settings: SettingsService,
-        private _org: OrganisationService,
-        @Optional() private _access: PLACEOS_APP_ACCESS,
-    ) {}
+    private _router = inject(Router);
+    private _settings = inject(SettingsService);
+    private _org = inject(OrganisationService);
+    private _access = inject(PLACEOS_APP_ACCESS, { optional: true });
 
     public async canActivate(
         next?: ActivatedRouteSnapshot,

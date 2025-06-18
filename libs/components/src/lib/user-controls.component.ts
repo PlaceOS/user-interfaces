@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 
 import { logout } from '@placeos/ts-client';
@@ -370,6 +370,11 @@ export interface AppLocale {
     standalone: false,
 })
 export class UserControlsComponent implements OnInit {
+    private _settings = inject(SettingsService);
+    private _org = inject(OrganisationService);
+    private _dialog = inject(MatDialog);
+    private _locale = inject(LocaleService);
+
     public readonly building = this._org.active_building;
     public readonly region = this._org.active_region;
     public readonly regions = this._org.region_list;
@@ -479,13 +484,6 @@ export class UserControlsComponent implements OnInit {
     public get has_new_version() {
         return hasNewVersion();
     }
-
-    constructor(
-        private _settings: SettingsService,
-        private _org: OrganisationService,
-        private _dialog: MatDialog,
-        private _locale: LocaleService,
-    ) {}
 
     public ngOnInit() {
         const user = currentUser();

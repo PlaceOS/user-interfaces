@@ -1,4 +1,10 @@
-import { Component, Input, SimpleChanges, forwardRef } from '@angular/core';
+import {
+    Component,
+    Input,
+    SimpleChanges,
+    forwardRef,
+    inject,
+} from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
@@ -203,6 +209,10 @@ const EMPTY_FAVS: string[] = [];
     ],
 })
 export class AssetListFieldComponent implements ControlValueAccessor {
+    private _settings = inject(SettingsService);
+    private _dialog = inject(MatDialog);
+    private _state = inject(AssetStateService);
+
     @Input() public options: {
         date?: number;
         duration?: number;
@@ -237,12 +247,6 @@ export class AssetListFieldComponent implements ControlValueAccessor {
     public get time_format() {
         return this._settings.time_format || 'shortTime';
     }
-
-    constructor(
-        private _settings: SettingsService,
-        private _dialog: MatDialog,
-        private _state: AssetStateService,
-    ) {}
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.options) {

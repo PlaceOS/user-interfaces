@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import {
     MAT_DIALOG_DATA,
@@ -198,6 +198,15 @@ export const FAV_PARKING_KEY = 'favourite_parking_spaces';
     ],
 })
 export class NewParkingSelectModalComponent {
+    private _dialog_ref =
+        inject<MatDialogRef<NewParkingSelectModalComponent>>(MatDialogRef);
+    private _settings = inject(SettingsService);
+    private _event_form = inject(BookingFormService);
+    private _data = inject<{
+        spaces: BookingAsset[];
+        options: Partial<BookingFlowOptions>;
+    }>(MAT_DIALOG_DATA);
+
     public show_filters = false;
     public displayed?: BookingAsset;
     public selected: BookingAsset[] = [];
@@ -211,16 +220,9 @@ export class NewParkingSelectModalComponent {
         return this._settings.get<string[]>(FAV_PARKING_KEY) || [];
     }
 
-    constructor(
-        private _dialog_ref: MatDialogRef<NewParkingSelectModalComponent>,
-        private _settings: SettingsService,
-        private _event_form: BookingFormService,
-        @Inject(MAT_DIALOG_DATA)
-        private _data: {
-            spaces: BookingAsset[];
-            options: Partial<BookingFlowOptions>;
-        },
-    ) {
+    constructor() {
+        const _data = this._data;
+
         this.selected = [...(_data.spaces || [])];
         this._event_form.setOptions(_data.options);
     }

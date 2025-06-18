@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import {
     MAT_DIALOG_DATA,
@@ -193,6 +193,11 @@ export const FAV_DESK_KEY = 'favourite_desks';
     ],
 })
 export class NewDeskSelectModalComponent {
+    private _data = inject(MAT_DIALOG_DATA);
+    private _settings = inject(SettingsService);
+    private _dialog_ref =
+        inject<MatDialogRef<NewDeskSelectModalComponent>>(MatDialogRef);
+
     public selected: BookingAsset[] = [];
     public displayed: BookingAsset | null = null;
     public view: 'list' | 'map' = 'list';
@@ -205,12 +210,6 @@ export class NewDeskSelectModalComponent {
     public get favorites() {
         return this._settings.get<string[]>(FAV_DESK_KEY) || [];
     }
-
-    constructor(
-        @Inject(MAT_DIALOG_DATA) private _data: any,
-        private _settings: SettingsService,
-        private _dialog_ref: MatDialogRef<NewDeskSelectModalComponent>,
-    ) {}
 
     public isSelected(id: string) {
         return id && this.selected_ids.includes(id);

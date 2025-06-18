@@ -1,4 +1,11 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import {
+    Component,
+    EventEmitter,
+    Input,
+    OnInit,
+    Output,
+    inject,
+} from '@angular/core';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { debounceTime, map } from 'rxjs/operators';
@@ -86,6 +93,10 @@ import { SpaceLocationPinComponent } from './space-location-pin.component';
     ],
 })
 export class SpaceSelectMapComponent extends AsyncHandler implements OnInit {
+    private _event_form = inject(EventFormService);
+    private _org = inject(OrganisationService);
+    private _settings = inject(SettingsService);
+
     @Input() public selected: string[] = [];
     @Input() public active: string;
     @Input() public is_displayed = false;
@@ -180,11 +191,7 @@ export class SpaceSelectMapComponent extends AsyncHandler implements OnInit {
         return !!this._settings.get('app.use_region');
     }
 
-    constructor(
-        private _event_form: EventFormService,
-        private _org: OrganisationService,
-        private _settings: SettingsService,
-    ) {
+    constructor() {
         super();
     }
 

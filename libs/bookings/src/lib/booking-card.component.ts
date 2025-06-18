@@ -4,6 +4,7 @@ import {
     OnChanges,
     OnInit,
     SimpleChanges,
+    inject,
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, RouterModule } from '@angular/router';
@@ -186,6 +187,12 @@ export class BookingCardComponent
     extends AsyncHandler
     implements OnInit, OnChanges
 {
+    private _dialog = inject(MatDialog);
+    private _route = inject(ActivatedRoute);
+    private _org = inject(OrganisationService);
+    private _settings = inject(SettingsService);
+    private _parking = inject(ParkingService);
+
     @Input() public booking: Booking;
     @Input() public show_day = false;
     @Input() public edit_fn = (i) => null;
@@ -231,13 +238,7 @@ export class BookingCardComponent
         );
     }
 
-    constructor(
-        private _dialog: MatDialog,
-        private _route: ActivatedRoute,
-        private _org: OrganisationService,
-        private _settings: SettingsService,
-        private _parking: ParkingService,
-    ) {
+    constructor() {
         super();
     }
 

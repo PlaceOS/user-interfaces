@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Inject, Output } from '@angular/core';
+import { Component, EventEmitter, Output, inject } from '@angular/core';
 import {
     FormControl,
     FormGroup,
@@ -179,6 +179,8 @@ export interface CateringItemOptionModalData {
     ],
 })
 export class CateringItemOptionModalComponent {
+    private _data = inject<CateringItemOptionModalData>(MAT_DIALOG_DATA);
+
     /** Emitter for events on the modal */
     @Output() public event = new EventEmitter<DialogEvent>();
     /** Form fields for item */
@@ -200,10 +202,6 @@ export class CateringItemOptionModalComponent {
     public get types(): string[] {
         return this._data.types || [];
     }
-
-    constructor(
-        @Inject(MAT_DIALOG_DATA) private _data: CateringItemOptionModalData,
-    ) {}
 
     public saveChanges() {
         this.loading = true;

@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { ApplicationIcon } from '@placeos/common';
 import { MAP_FEATURE_DATA } from 'libs/common/src/lib/types';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -28,15 +28,13 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
     imports: [IconComponent],
 })
 export class ExploreIconComponent {
+    private _details = inject<{
+        icon?: ApplicationIcon;
+        color?: string;
+        text_color?: string;
+    }>(MAP_FEATURE_DATA);
+
     public readonly icon = this._details.icon || { content: 'done' };
     public readonly color = this._details.color || 'var(--in)';
     public readonly text_color = this._details.text_color || 'var(--inc)';
-    constructor(
-        @Inject(MAP_FEATURE_DATA)
-        private _details: {
-            icon?: ApplicationIcon;
-            color?: string;
-            text_color?: string;
-        },
-    ) {}
 }

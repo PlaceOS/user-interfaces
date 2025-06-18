@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatSliderModule } from '@angular/material/slider';
@@ -82,13 +82,13 @@ import { TranslatePipe } from './translate.pipe';
     imports: [TranslatePipe, MatRippleModule, MatSliderModule, FormsModule],
 })
 export class DeskHeightPresetsComponent {
+    private _settings = inject(SettingsService);
+
     @Input() public show_close = false;
     @Output() public close = new EventEmitter<void>();
     public not_set = false;
     public desk_sitting_height = 71;
     public desk_standing_height = 101;
-
-    constructor(private _settings: SettingsService) {}
 
     public ngOnInit() {
         this.not_set =
