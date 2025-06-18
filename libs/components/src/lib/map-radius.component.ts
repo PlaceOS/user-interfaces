@@ -1,7 +1,7 @@
 import { Component, ElementRef, Inject, OnInit } from '@angular/core';
 import { formatDistanceToNow } from 'date-fns';
+import { MAP_FEATURE_DATA } from 'libs/common/src/lib/types';
 import { Observable } from 'rxjs';
-import { MAP_FEATURE_DATA } from './interactive-map.component';
 
 export interface MapRadiusData {
     message: string;

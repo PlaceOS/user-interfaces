@@ -1,5 +1,6 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { MAP_FEATURE_DATA } from './interactive-map.component';
+
+import { MAP_FEATURE_DATA } from 'libs/common/src/lib/types';
 
 export interface MapPinData {
     message: string;

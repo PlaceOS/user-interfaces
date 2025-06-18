@@ -1,3 +1,5 @@
+import { InjectionToken } from '@angular/core';
+
 /** Generic Dictionary type */
 export type HashMap<T = any> = Record<string, T>;
 
@@ -72,3 +74,7 @@ export interface DialogEvent<T = any> {
     reason: 'action' | 'close' | 'reset' | 'loading' | 'done' | 'other';
     metadata?: T;
 }
+
+export const MAP_FEATURE_DATA = new InjectionToken<any>(
+    'Data for Map Features',
+);

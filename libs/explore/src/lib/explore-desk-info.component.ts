@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, ElementRef, Inject, OnInit } from '@angular/core';
 import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
 
-import { MAP_FEATURE_DATA } from 'libs/components/src/lib/interactive-map.component';
+import { MAP_FEATURE_DATA } from 'libs/common/src/lib/types';
 
 export interface DeskInfoData {
     id: string;

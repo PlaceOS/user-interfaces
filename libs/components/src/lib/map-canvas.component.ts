@@ -11,7 +11,8 @@ import {
     shiftColorTowards,
 } from '@placeos/common';
 import { Observable, combineLatest } from 'rxjs';
-import { MAP_FEATURE_DATA } from './interactive-map.component';
+
+import { MAP_FEATURE_DATA } from 'libs/common/src/lib/types';
 
 export interface Polygon {
     /** Name of the region */

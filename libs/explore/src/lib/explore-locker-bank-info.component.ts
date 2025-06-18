@@ -2,7 +2,7 @@ import { Component, ElementRef, Inject, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
 
-import { MAP_FEATURE_DATA } from 'libs/components/src/lib/interactive-map.component';
+import { MAP_FEATURE_DATA } from 'libs/common/src/lib/types';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 
 import { Locker, LockerBank } from 'libs/bookings/src/lib/locker.class';

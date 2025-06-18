@@ -1,7 +1,8 @@
 import { ChangeDetectorRef, Component, Inject, OnInit } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
 import { Observable } from 'rxjs';
-import { MAP_FEATURE_DATA } from './interactive-map.component';
+
+import { MAP_FEATURE_DATA } from 'libs/common/src/lib/types';
 
 export interface MapPolygonData {
     /** Name of the region */

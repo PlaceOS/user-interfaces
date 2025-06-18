@@ -1,7 +1,7 @@
 import { Component, ElementRef, Inject } from '@angular/core';
 import { SettingsService } from '@placeos/common';
 import { ParkingSpace } from 'libs/bookings/src/lib/parking.service';
-import { MAP_FEATURE_DATA } from 'libs/components/src/lib/interactive-map.component';
+import { MAP_FEATURE_DATA } from 'libs/common/src/lib/types';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 
 interface ParkingSpaceExtended extends ParkingSpace {

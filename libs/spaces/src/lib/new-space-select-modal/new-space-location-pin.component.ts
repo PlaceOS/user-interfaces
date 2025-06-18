@@ -1,6 +1,6 @@
 import { Component, Inject } from '@angular/core';
+import { MAP_FEATURE_DATA } from 'libs/common/src/lib/types';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { MAP_FEATURE_DATA } from 'libs/components/src/lib/interactive-map.component';
 
 @Component({
     selector: 'new-space-location-pin',

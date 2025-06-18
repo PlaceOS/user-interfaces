@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import {
     AfterViewInit,
     Component,
@@ -17,9 +18,6 @@ import {
     ViewChild,
     ViewChildren,
 } from '@angular/core';
-import { AsyncHandler } from '@placeos/common';
-
-import { CommonModule } from '@angular/common';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
     applyGlobalStyles,
@@ -38,7 +36,9 @@ import {
 import { apiKey, authority, token } from '@placeos/ts-client';
 import { BehaviorSubject } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { MAP_FEATURE_DATA } from './interactive-map.component';
+
+import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
+import { MAP_FEATURE_DATA } from 'libs/common/src/lib/types';
 import { TranslatePipe } from './translate.pipe';
 
 function isSamePoint(p1: Point, p2: Point): boolean {
@@ -70,7 +70,7 @@ function isSamePoint(p1: Point, p2: Point): boolean {
             <div hidden>
                 @for (
                     element of features;
-                    track trackByFn(i, element);
+                    track element.track_id || $index;
                     let i = $index
                 ) {
                     @if (element) {
