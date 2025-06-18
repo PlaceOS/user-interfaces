@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { Booking } from '@placeos/bookings';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
@@ -261,6 +261,10 @@ import { AssetManagerStateService } from './asset-manager-state.service';
     standalone: false,
 })
 export class AssetRequestListComponent extends AsyncHandler implements OnInit {
+    private _state = inject(AssetManagerStateService);
+    private _org = inject(OrganisationService);
+    private _settings = inject(SettingsService);
+
     public readonly requests = this._state.filtered_requests.pipe(
         map((l) => {
             l.forEach((r) => this.level(r));
@@ -296,15 +300,7 @@ export class AssetRequestListComponent extends AsyncHandler implements OnInit {
         return this._settings.time_format;
     }
 
-    constructor(
-        private _state: AssetManagerStateService,
-        private _org: OrganisationService,
-        private _settings: SettingsService,
-    ) {
-        super();
-    }
-
-    public level(item) {
+    public level(item: any) {
         const zones = item.zones;
         const level = this._org.levelWithID(zones);
         item.level = level?.display_name || level?.name || zones[0] || '';

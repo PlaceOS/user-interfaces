@@ -55,7 +55,11 @@ export interface TableColumn {
                         ></mat-checkbox>
                     </div>
                 }
-                @for (column of active_columns; track column; let i = $index) {
+                @for (
+                    column of active_columns;
+                    track column.key;
+                    let i = $index
+                ) {
                     <button
                         header
                         matRipple
