@@ -1,5 +1,6 @@
 import {
     Component,
+    inject,
     Input,
     OnChanges,
     OnInit,
@@ -184,6 +185,12 @@ export class EventCardComponent
     extends AsyncHandler
     implements OnInit, OnChanges
 {
+    private _dialog = inject(MatDialog);
+    private _route = inject(ActivatedRoute);
+    private _org = inject(OrganisationService);
+    private _space_pipe = inject(SpacePipe);
+    private _settings = inject(SettingsService);
+
     @Input() public event: CalendarEvent;
     @Input() public show_day = false;
     @Input() public edit_fn = (d) => null;
@@ -257,13 +264,7 @@ export class EventCardComponent
         return 'warning';
     }
 
-    constructor(
-        private _dialog: MatDialog,
-        private _route: ActivatedRoute,
-        private _org: OrganisationService,
-        private _space_pipe: SpacePipe,
-        private _settings: SettingsService,
-    ) {
+    constructor() {
         super();
     }
 

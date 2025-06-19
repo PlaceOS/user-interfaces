@@ -5,6 +5,7 @@ import {
     Input,
     Output,
     SimpleChanges,
+    inject,
 } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -153,6 +154,8 @@ import { AssetGroup } from '../asset.class';
     ],
 })
 export class AssetListComponent {
+    private _asset_state = inject(AssetStateService);
+
     @Input() public selected = '';
     @Input() public favorites: string[] = [];
     @Input() public selected_items: AssetGroup[] = [];
@@ -191,8 +194,6 @@ export class AssetListComponent {
             );
         }),
     );
-
-    constructor(private _asset_state: AssetStateService) {}
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.selected_items && this.selected_items?.length) {

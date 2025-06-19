@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import {
+    Component,
+    EventEmitter,
+    inject,
+    Input,
+    OnInit,
+    Output,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -201,6 +208,9 @@ export class CateringItemFiltersComponent
     extends AsyncHandler
     implements OnInit
 {
+    private _state = inject(CateringOrderStateService);
+    private _settings = inject(SettingsService);
+
     @Input() public search = false;
 
     @Input() public at_time = false;
@@ -258,10 +268,7 @@ export class CateringItemFiltersComponent
 
     public day_options = [];
 
-    constructor(
-        private _state: CateringOrderStateService,
-        private _settings: SettingsService,
-    ) {
+    constructor() {
         super();
     }
 

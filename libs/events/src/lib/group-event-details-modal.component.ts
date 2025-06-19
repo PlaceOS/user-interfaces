@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import {
     MAT_DIALOG_DATA,
@@ -461,6 +461,18 @@ import {
     ],
 })
 export class GroupEventDetailsModalComponent {
+    private _data = inject<{
+        event: CalendarEvent;
+        edit_fn: (i) => void;
+        remove_fn: (i, s) => void;
+        concierge: boolean;
+    }>(MAT_DIALOG_DATA);
+    private _org = inject(OrganisationService);
+    private _settings = inject(SettingsService);
+    private _dialog = inject(MatDialog);
+    private _dialog_ref =
+        inject<MatDialogRef<GroupEventDetailsModalComponent>>(MatDialogRef);
+
     public edit = this._data.edit_fn;
     public remove = this._data.remove_fn;
     public space: Space;
@@ -544,20 +556,6 @@ export class GroupEventDetailsModalComponent {
     public get group_event_calendar() {
         return this._settings.get('app.group_events_calendar');
     }
-
-    constructor(
-        @Inject(MAT_DIALOG_DATA)
-        private _data: {
-            event: CalendarEvent;
-            edit_fn: (i) => void;
-            remove_fn: (i, s) => void;
-            concierge: boolean;
-        },
-        private _org: OrganisationService,
-        private _settings: SettingsService,
-        private _dialog: MatDialog,
-        private _dialog_ref: MatDialogRef<GroupEventDetailsModalComponent>,
-    ) {}
 
     public async ngOnInit() {
         const space_pipe = new SpacePipe(this._org);

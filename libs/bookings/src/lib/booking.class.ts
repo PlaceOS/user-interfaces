@@ -167,14 +167,16 @@ export class Booking {
     public readonly deleted: boolean;
     /** List of attendees for the booking */
     public readonly attendees: User[];
-    /** Time  */
+    /** Time that the booking was checked out */
     public readonly checked_out_at?: number;
-    /** Time  */
+    /** Time that the booking was checked in */
     public readonly checked_in_at?: number;
-
+    /** Details of the linked calendar event */
     public readonly linked_event?: LinkedCalendarEvent;
-
+    /** Details of the linked bookings */
     public readonly linked_bookings: LinkedBooking[];
+    /** Details of the parent booking */
+    public readonly linked_parent_booking?: LinkedBooking;
 
     public readonly process_state: string;
     /** Unix epoch for the start time of the reccurence instance in seconds */
@@ -313,6 +315,7 @@ export class Booking {
         this.checked_in_at = data.checked_in_at;
         this.linked_event = data.linked_event || null;
         this.linked_bookings = data.linked_bookings || [];
+        this.linked_parent_booking = data.linked_parent_booking || null;
         this.images = data.images || [];
         this.status =
             this.checked_out_at > 0 || isAfter(Date.now(), this.date_end)

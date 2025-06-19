@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import {
     MAT_DIALOG_DATA,
     MatDialogModule,
@@ -112,9 +112,7 @@ export interface ExploreBookingModalData {
                                 <div
                                     class="mb-4 w-full rounded border border-base-200 px-4 py-3"
                                 >
-                                    {{
-                                        form.value.date | date: 'mediumDate'
-                                    }}
+                                    {{ form.value.date | date: 'mediumDate' }}
                                     at
                                     {{ form.value.date | date: time_format }}
                                 </div>
@@ -176,6 +174,13 @@ export interface ExploreBookingModalData {
     ],
 })
 export class ExploreBookingModalComponent implements OnInit {
+    private _data = inject<ExploreBookingModalData>(MAT_DIALOG_DATA);
+    private _settings = inject(SettingsService);
+    private _event_form = inject(EventFormService);
+    private _dialog_ref =
+        inject<MatDialogRef<ExploreBookingModalComponent>>(MatDialogRef);
+    private _router = inject(Router);
+
     public readonly loading = this._event_form.loading$;
     public readonly alert = this._data.alert;
 
@@ -198,14 +203,6 @@ export class ExploreBookingModalComponent implements OnInit {
     public get time_format() {
         return this._settings.time_format;
     }
-
-    constructor(
-        @Inject(MAT_DIALOG_DATA) private _data: ExploreBookingModalData,
-        private _settings: SettingsService,
-        private _event_form: EventFormService,
-        private _dialog_ref: MatDialogRef<ExploreBookingModalComponent>,
-        private _router: Router,
-    ) {}
 
     public ngOnInit() {
         this._event_form.newForm();

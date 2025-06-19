@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { getModule } from '@placeos/ts-client';
 
 import { AsyncHandler } from './async-handler.class';
@@ -8,10 +8,12 @@ import { SettingsService } from './settings.service';
     providedIn: 'root',
 })
 export class VorlonService extends AsyncHandler {
+    private _settings = inject(SettingsService);
+
     /** DOM Element containing the Vorlon Script */
     private _script: HTMLScriptElement;
 
-    constructor(private _settings: SettingsService) {
+    constructor() {
         super();
         this.load();
     }

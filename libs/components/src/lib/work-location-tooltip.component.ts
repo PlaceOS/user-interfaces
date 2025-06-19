@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { currentUser, i18n, reloadUserData } from '@placeos/common';
 import { updateUser } from '@placeos/ts-client';
@@ -140,6 +140,8 @@ import { WFHSettingsModalComponent } from 'libs/users/src/lib/wfh-settings-modal
     standalone: false,
 })
 export class WorkLocationTooltipComponent implements OnInit {
+    private _dialog = inject(MatDialog);
+
     public locations = [];
     public settings: WorktimePreference[];
     public overrides: Record<string, WorktimePreference>;
@@ -155,8 +157,6 @@ export class WorkLocationTooltipComponent implements OnInit {
     public get now() {
         return startOfMinute(Date.now()).getTime();
     }
-
-    constructor(private _dialog: MatDialog) {}
 
     public ngOnInit() {
         const user = currentUser();

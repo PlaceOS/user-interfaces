@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { querySystems, showSystem } from '@placeos/ts-client';
 import { BehaviorSubject, lastValueFrom } from 'rxjs';
 import { first, map, shareReplay } from 'rxjs/operators';
@@ -15,6 +15,9 @@ let SPACE_PIPE: SpacePipe;
     providedIn: 'root',
 })
 export class SpacesService {
+    private _org = inject(OrganisationService);
+    private _settings = inject(SettingsService);
+
     /** Subject to store list of spaces */
     private _all_spaces = new BehaviorSubject<Space[]>([]);
     /** Subject which stores the initialised state of the object */
@@ -41,10 +44,9 @@ export class SpacesService {
         return this._all_spaces.getValue().filter((s) => s.map_id);
     }
 
-    constructor(
-        private _org: OrganisationService,
-        private _settings: SettingsService,
-    ) {
+    constructor() {
+        const _org = this._org;
+
         SPACE_PIPE = new SpacePipe(_org);
         this._init();
     }

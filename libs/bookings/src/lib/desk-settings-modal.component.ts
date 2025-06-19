@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
     MAT_DIALOG_DATA,
@@ -100,17 +100,18 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
     ],
 })
 export class DeskSettingsModalComponent {
+    private _data = inject<{
+        id: string;
+    }>(MAT_DIALOG_DATA);
+    private _org = inject(OrganisationService);
+    private _settings = inject(SettingsService);
+    private _dialog_ref =
+        inject<MatDialogRef<DeskSettingsModalComponent>>(MatDialogRef);
+
     public readonly desk_id = this._data.id;
     public edit_presets = false;
     public preset: string;
     public height = 71;
-
-    constructor(
-        @Inject(MAT_DIALOG_DATA) private _data: { id: string },
-        private _org: OrganisationService,
-        private _settings: SettingsService,
-        private _dialog_ref: MatDialogRef<DeskSettingsModalComponent>,
-    ) {}
 
     public ngOnInit() {
         const sitting_height = this._settings.get('desk_sitting_height');

@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import {
+    Component,
+    EventEmitter,
+    Input,
+    OnInit,
+    Output,
+    inject,
+} from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatRippleModule } from '@angular/material/core';
 import { AsyncHandler, SettingsService } from '@placeos/common';
@@ -130,6 +137,11 @@ export class SpaceFiltersDisplayComponent
     extends AsyncHandler
     implements OnInit
 {
+    private _bsheet = inject(MatBottomSheet);
+    private _event_form = inject(EventFormService);
+    private _org = inject(OrganisationService);
+    private _settings = inject(SettingsService);
+
     @Input() public view: 'map' | 'list' = 'list';
     @Output() public viewChange = new EventEmitter<'map' | 'list'>();
     public readonly options = this._event_form.options$;
@@ -155,12 +167,7 @@ export class SpaceFiltersDisplayComponent
     public readonly editFilters = () =>
         this._bsheet.open(SpaceFiltersComponent);
 
-    constructor(
-        private _bsheet: MatBottomSheet,
-        private _event_form: EventFormService,
-        private _org: OrganisationService,
-        private _settings: SettingsService,
-    ) {
+    constructor() {
         super();
     }
 

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -208,6 +208,9 @@ import { CateringStateService } from './catering-state.service';
     ],
 })
 export class CateringMenuComponent {
+    private _catering = inject(CateringStateService);
+    private _orders = inject(CateringOrdersService);
+
     public show_children: Record<string, boolean> = {};
     /** Observable for the currently active menu */
     public readonly menu = combineLatest([
@@ -251,11 +254,6 @@ export class CateringMenuComponent {
     public get caterers() {
         return this._catering.caterer_list;
     }
-
-    constructor(
-        private _catering: CateringStateService,
-        private _orders: CateringOrdersService,
-    ) {}
 
     public isEnabled(item: CateringItem) {
         return !item.hide_for_zones.includes(this._catering.zone);

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Event, NavigationEnd, Router } from '@angular/router';
 import { startOfDay } from 'date-fns';
@@ -94,6 +94,12 @@ export interface EventFormFilters {
     providedIn: 'root',
 })
 export class EventFormService extends AsyncHandler {
+    private _org = inject(OrganisationService);
+    private _settings = inject(SettingsService);
+    private _router = inject(Router);
+    private _assets = inject(AssetStateService);
+    private _dialog = inject(MatDialog);
+
     private _view = new BehaviorSubject<EventFlowView>('form');
     private _options = new BehaviorSubject<EventFormOptions>({
         date: Date.now(),
@@ -325,13 +331,7 @@ export class EventFormService extends AsyncHandler {
         return this._settings.get('app.events.no_space_resource');
     }
 
-    constructor(
-        private _org: OrganisationService,
-        private _settings: SettingsService,
-        private _router: Router,
-        private _assets: AssetStateService,
-        private _dialog: MatDialog,
-    ) {
+    constructor() {
         super();
         this.init();
     }

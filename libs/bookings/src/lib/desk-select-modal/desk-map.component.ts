@@ -5,6 +5,7 @@ import {
     OnInit,
     Output,
     SimpleChanges,
+    inject,
 } from '@angular/core';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { map } from 'rxjs/operators';
@@ -97,6 +98,10 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
     ],
 })
 export class DeskMapComponent extends AsyncHandler implements OnInit {
+    private _state = inject(BookingFormService);
+    private _settings = inject(SettingsService);
+    private _org = inject(OrganisationService);
+
     @Input() public is_displayed = false;
     @Input() public active = '';
     @Output() public onSelect = new EventEmitter<BookingAsset>();
@@ -205,11 +210,7 @@ export class DeskMapComponent extends AsyncHandler implements OnInit {
         return !!this._settings.get('app.use_region');
     }
 
-    constructor(
-        private _state: BookingFormService,
-        private _settings: SettingsService,
-        private _org: OrganisationService,
-    ) {
+    constructor() {
         super();
     }
 

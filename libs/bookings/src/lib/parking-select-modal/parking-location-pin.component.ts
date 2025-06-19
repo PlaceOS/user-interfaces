@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { MAP_FEATURE_DATA } from 'libs/components/src/lib/interactive-map.component';
 
@@ -83,9 +83,9 @@ import { MAP_FEATURE_DATA } from 'libs/components/src/lib/interactive-map.compon
     imports: [CommonModule, IconComponent],
 })
 export class ParkingSpaceLocationPinComponent {
+    private _data = inject(MAP_FEATURE_DATA);
+
     public get selected() {
         return this._data.selected === true;
     }
-
-    constructor(@Inject(MAP_FEATURE_DATA) private _data: any) {}
 }

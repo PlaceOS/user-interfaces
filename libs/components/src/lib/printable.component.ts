@@ -8,6 +8,7 @@ import {
     OnDestroy,
     OnInit,
     ViewChild,
+    inject,
 } from '@angular/core';
 import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
 import { SanitizePipe } from './sanitise.pipe';
@@ -31,15 +32,15 @@ export class PrintableComponent
     extends AsyncHandler
     implements OnInit, OnDestroy, AfterViewInit
 {
+    private _overlay = inject(Overlay);
+    private _elem = inject<ElementRef<any>>(ElementRef);
+
     public content = '';
     private _overlay_ref: OverlayRef = null;
 
     @ViewChild(CdkPortal) private _portal: CdkPortal;
 
-    constructor(
-        private _overlay: Overlay,
-        private _elem: ElementRef<any>,
-    ) {
+    constructor() {
         super();
     }
 

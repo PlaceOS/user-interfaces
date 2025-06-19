@@ -5,6 +5,7 @@ import {
     OnChanges,
     Output,
     SimpleChanges,
+    inject,
 } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { ViewerFeature } from '@placeos/svg-viewer';
@@ -197,6 +198,8 @@ import { Space } from '../space.class';
     ],
 })
 export class SpaceDetailsComponent implements OnChanges {
+    private _org = inject(OrganisationService);
+
     @Input() public space?: Space;
     @Input() public fav = false;
     @Input() public active = false;
@@ -219,8 +222,6 @@ export class SpaceDetailsComponent implements OnChanges {
             this.space?.zones.includes(_.id),
         );
     }
-
-    constructor(private _org: OrganisationService) {}
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.space && this.space) {

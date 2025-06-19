@@ -1,6 +1,7 @@
 import {
     Component,
     forwardRef,
+    inject,
     Input,
     OnChanges,
     SimpleChanges,
@@ -108,6 +109,9 @@ import { RecurrenceModalComponent } from './recurrence-modal.component';
 export class RecurrenceFieldComponent
     implements ControlValueAccessor, OnChanges
 {
+    private _dialog = inject(MatDialog);
+    private _settings = inject(SettingsService);
+
     @Input() public type: 'event' | 'booking' = 'booking';
     @Input() public date = Date.now();
     public prev_type = 'none';
@@ -120,11 +124,6 @@ export class RecurrenceFieldComponent
     private _onChange: (_: RecurrenceDetails | BookingRecurrence) => void;
     /** Form control on touch handler */
     private _onTouch: (_: RecurrenceDetails | BookingRecurrence) => void;
-
-    constructor(
-        private _dialog: MatDialog,
-        private _settings: SettingsService,
-    ) {}
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.date && this.date) {

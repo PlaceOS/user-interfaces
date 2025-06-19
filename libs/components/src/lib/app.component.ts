@@ -1,5 +1,5 @@
 import { Clipboard } from '@angular/cdk/clipboard';
-import { Component, OnInit, Optional } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SwUpdate } from '@angular/service-worker';
@@ -123,22 +123,18 @@ export class AppComponent extends AsyncHandler implements OnInit {
         return this._settings.get('app.chat.enabled');
     }
 
-    constructor(
-        private _analytics: GoogleAnalyticsService,
-        private _settings: SettingsService,
-        private _org: OrganisationService, // For init
-        private _cache: SwUpdate,
-        private _snackbar: MatSnackBar,
-        private _hotkey: HotkeysService,
-        private _clipboard: Clipboard,
-        private _route: ActivatedRoute,
-        private _router: Router,
-        private _maps: MapsPeopleService,
-        private _tracing: Sentry.TraceService,
-        @Optional() private _locale: LocaleService,
-    ) {
-        super();
-    }
+    private _analytics = inject(GoogleAnalyticsService, { optional: true });
+    private _locale = inject(LocaleService, { optional: true });
+    private _settings = inject(SettingsService);
+    private _org = inject(OrganisationService); // For init
+    private _cache = inject(SwUpdate);
+    private _snackbar = inject(MatSnackBar);
+    private _hotkey = inject(HotkeysService);
+    private _clipboard = inject(Clipboard);
+    private _route = inject(ActivatedRoute);
+    private _router = inject(Router);
+    private _maps = inject(MapsPeopleService);
+    private _tracing = inject(Sentry.TraceService);
 
     public async ngOnInit() {
         log('APP', 'MOCKS:', MOCKS);
@@ -161,6 +157,11 @@ export class AppComponent extends AsyncHandler implements OnInit {
             notifySuccess('Successfully copied token.');
         });
         this._hotkey.listen(['Control', 'Alt', 'Shift', 'KeyV'], () => {
+            navigator.clipboard
+                ?.readText()
+                .then((tkn) => this._pasteToken(tkn));
+        });
+        this._hotkey.listen(['Control', 'Alt', 'Shift', 'KeyF'], () => {
             navigator.clipboard
                 ?.readText()
                 .then((tkn) => this._pasteToken(tkn));
@@ -230,10 +231,16 @@ export class AppComponent extends AsyncHandler implements OnInit {
                 'warn',
             );
         }
-        this.timeout('set_initial_building', () => {
-            const bld = this._org.buildings.find((b) => b.id === this._zone);
-            if (bld) this._org.setBuilding(bld);
-        });
+        this.timeout(
+            'set_initial_building',
+            () => {
+                const bld = this._org.buildings.find(
+                    (b) => b.id === this._zone,
+                );
+                if (bld) this._org.setBuilding(bld, true);
+            },
+            1000,
+        );
     }
 
     private onInitError() {

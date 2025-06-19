@@ -2,6 +2,7 @@ import { CommonModule, DatePipe } from '@angular/common';
 import {
     Component,
     forwardRef,
+    inject,
     Injector,
     Input,
     OnInit,
@@ -107,6 +108,8 @@ export class DateFieldComponent
     extends AsyncHandler
     implements OnInit, ControlValueAccessor
 {
+    private _injector = inject(Injector);
+
     /** Earliest date available the user is allowed to pick */
     @Input('from') public from_date: number = startOfDay(Date.now()).valueOf();
     /** Latest date available the user is allowed to pick */
@@ -169,7 +172,7 @@ export class DateFieldComponent
 
     @ViewChild(CustomTooltipComponent) private _tooltip: CustomTooltipComponent;
 
-    constructor(private _injector: Injector) {
+    constructor() {
         super();
     }
 

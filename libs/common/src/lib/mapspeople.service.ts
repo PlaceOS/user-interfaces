@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { OrganisationService } from '@placeos/organisation';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { debounceTime, filter, map, shareReplay, tap } from 'rxjs/operators';
@@ -21,6 +21,9 @@ export interface MapsPeopleKeys {
     providedIn: 'root',
 })
 export class MapsPeopleService extends AsyncHandler {
+    private _settings = inject(SettingsService);
+    private _org = inject(OrganisationService);
+
     private _map_service = new BehaviorSubject<MapService>(null);
     private _map_token = new BehaviorSubject<string>('');
     private _ready = new BehaviorSubject(false);
@@ -64,10 +67,7 @@ export class MapsPeopleService extends AsyncHandler {
         return this._ready.getValue();
     }
 
-    constructor(
-        private _settings: SettingsService,
-        private _org: OrganisationService,
-    ) {
+    constructor() {
         super();
     }
 

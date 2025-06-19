@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 
 import { CommonModule } from '@angular/common';
@@ -90,6 +90,9 @@ import { BookingFormService } from '../booking-form.service';
     imports: [CommonModule, TranslatePipe, IconComponent, MatRippleModule],
 })
 export class NewLockerFiltersDisplayComponent extends AsyncHandler {
+    private _state = inject(BookingFormService);
+    private _settings = inject(SettingsService);
+
     @Input() public view: 'map' | 'list' = 'list';
     @Output() public viewChange = new EventEmitter<'map' | 'list'>();
     public readonly options = this._state.options;
@@ -110,10 +113,7 @@ export class NewLockerFiltersDisplayComponent extends AsyncHandler {
         return this._settings.time_format;
     }
 
-    constructor(
-        private _state: BookingFormService,
-        private _settings: SettingsService,
-    ) {
+    constructor() {
         super();
     }
 }

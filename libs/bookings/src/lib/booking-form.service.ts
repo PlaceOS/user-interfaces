@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Event, NavigationEnd, Router } from '@angular/router';
 import {
@@ -111,6 +111,13 @@ export interface BookingAsset {
     providedIn: 'root',
 })
 export class BookingFormService extends AsyncHandler {
+    private _router = inject(Router);
+    private _settings = inject(SettingsService);
+    private _org = inject(OrganisationService);
+    private _dialog = inject(MatDialog);
+    private _payments = inject(PaymentsService);
+    private _assets = inject(AssetStateService);
+
     private _view = new BehaviorSubject<BookingFlowView>('form');
     private _options = new BehaviorSubject<BookingFlowOptions>({
         type: 'desk',
@@ -369,14 +376,7 @@ export class BookingFormService extends AsyncHandler {
         });
     }
 
-    constructor(
-        private _router: Router,
-        private _settings: SettingsService,
-        private _org: OrganisationService,
-        private _dialog: MatDialog,
-        private _payments: PaymentsService,
-        private _assets: AssetStateService,
-    ) {
+    constructor() {
         super();
         this.subscription(
             'router.bookings',

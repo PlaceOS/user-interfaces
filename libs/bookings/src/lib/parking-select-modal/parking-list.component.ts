@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -140,6 +140,8 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
     ],
 })
 export class ParkingSpaceListComponent {
+    private _form = inject(BookingFormService);
+
     @Input() public active = '';
     @Input() public selected = '';
     @Input() public favorites: string[] = [];
@@ -161,8 +163,6 @@ export class ParkingSpaceListComponent {
         ),
     );
     public readonly loading = this._form.loading;
-
-    constructor(private _form: BookingFormService) {}
 
     public isFavourite(space_id: string) {
         return this.favorites.includes(space_id);

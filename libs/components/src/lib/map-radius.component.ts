@@ -1,7 +1,7 @@
-import { Component, ElementRef, Inject, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, inject } from '@angular/core';
 import { formatDistanceToNow } from 'date-fns';
+import { MAP_FEATURE_DATA } from 'libs/common/src/lib/types';
 import { Observable } from 'rxjs';
-import { MAP_FEATURE_DATA } from './interactive-map.component';
 
 export interface MapRadiusData {
     message: string;
@@ -71,6 +71,9 @@ export interface MapRadiusData {
     standalone: false,
 })
 export class MapRadiusComponent implements OnInit {
+    private _details = inject<MapRadiusData>(MAP_FEATURE_DATA);
+    private _el = inject<ElementRef<HTMLElement>>(ElementRef);
+
     public zoom = 1;
     /** Size of the area marked by this component */
     public radius = this._details.radius || 10;
@@ -90,10 +93,7 @@ export class MapRadiusComponent implements OnInit {
     public show: boolean;
     public show_message: boolean;
 
-    constructor(
-        @Inject(MAP_FEATURE_DATA) private _details: MapRadiusData,
-        private _el: ElementRef<HTMLElement>,
-    ) {
+    constructor() {
         this._details.zoom$?.subscribe((v) =>
             Math.max(0.5, (this.zoom = v || 1)),
         );

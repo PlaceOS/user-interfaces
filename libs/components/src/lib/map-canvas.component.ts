@@ -1,9 +1,9 @@
 import {
     Component,
     ElementRef,
-    Inject,
     OnInit,
     ViewChild,
+    inject,
 } from '@angular/core';
 import {
     AsyncHandler,
@@ -11,7 +11,8 @@ import {
     shiftColorTowards,
 } from '@placeos/common';
 import { Observable, combineLatest } from 'rxjs';
-import { MAP_FEATURE_DATA } from './interactive-map.component';
+
+import { MAP_FEATURE_DATA } from 'libs/common/src/lib/types';
 
 export interface Polygon {
     /** Name of the region */
@@ -46,6 +47,8 @@ export interface MapPolygonData {
     standalone: false,
 })
 export class MapCanvasComponent extends AsyncHandler implements OnInit {
+    private _data = inject<MapPolygonData>(MAP_FEATURE_DATA);
+
     public zoom = 1;
     public ratio = 1;
     public svg_ratio = 1;
@@ -58,7 +61,7 @@ export class MapCanvasComponent extends AsyncHandler implements OnInit {
         return +(this.width * this.ratio).toFixed(2);
     }
 
-    constructor(@Inject(MAP_FEATURE_DATA) private _data: MapPolygonData) {
+    constructor() {
         super();
     }
 

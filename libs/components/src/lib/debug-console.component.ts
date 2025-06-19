@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { first, map } from 'rxjs/operators';
 
@@ -175,6 +175,11 @@ const URL_STARTS = [
     standalone: false,
 })
 export class DebugConsoleComponent extends AsyncHandler implements OnInit {
+    private _org = inject(OrganisationService);
+    private _logs = inject(RemoteLoggingService);
+    private _hotkey = inject(HotkeysService);
+    private _settings = inject(SettingsService);
+
     @Input() public show = false;
     public readonly colors = COLOR_MAP;
     public readonly json_tooltip = JsonDisplayComponent;
@@ -202,12 +207,7 @@ export class DebugConsoleComponent extends AsyncHandler implements OnInit {
         return !!this._settings.get('app.debug_console');
     }
 
-    constructor(
-        private _org: OrganisationService,
-        private _logs: RemoteLoggingService,
-        private _hotkey: HotkeysService,
-        private _settings: SettingsService,
-    ) {
+    constructor() {
         super();
     }
 

@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { SettingsService } from '@placeos/common';
@@ -148,6 +148,17 @@ const EMPTY_FAVS: string[] = [];
     ],
 })
 export class AssetSelectModalComponent {
+    private _settings = inject(SettingsService);
+    private _state = inject(AssetStateService);
+    private _data = inject<{
+        items: AssetGroup[];
+        details: any;
+        exact_time?: boolean;
+        offset?: number;
+        offset_day?: number;
+        requested: Record<string, number>;
+    }>(MAT_DIALOG_DATA);
+
     public displayed: AssetGroup | null = null;
     public selected: AssetGroup[] = [...(this._data.items || [])];
     public exact_time = this._data.exact_time ?? false;
@@ -171,19 +182,7 @@ export class AssetSelectModalComponent {
         return id && this.selected_ids.includes(id);
     }
 
-    constructor(
-        private _settings: SettingsService,
-        private _state: AssetStateService,
-        @Inject(MAT_DIALOG_DATA)
-        private _data: {
-            items: AssetGroup[];
-            details: any;
-            exact_time?: boolean;
-            offset?: number;
-            offset_day?: number;
-            requested: Record<string, number>;
-        },
-    ) {
+    constructor() {
         const { duration } = this._data.details;
         this._state.setOptions(this._data.details);
         this.offset = Math.min(

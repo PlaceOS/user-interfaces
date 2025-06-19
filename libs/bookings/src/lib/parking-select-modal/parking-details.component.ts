@@ -4,6 +4,7 @@ import {
     Input,
     Output,
     SimpleChanges,
+    inject,
 } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MapPinComponent } from '@placeos/components';
@@ -157,6 +158,8 @@ import { BookingAsset } from '../booking-form.service';
     ],
 })
 export class ParkingSpaceDetailsComponent {
+    private _org = inject(OrganisationService);
+
     @Input() public map_open = false;
     @Input() public space?: BookingAsset;
     @Input() public fav = false;
@@ -180,8 +183,6 @@ export class ParkingSpaceDetailsComponent {
                 this.space?.zone.parent_id === _.id,
         );
     }
-
-    constructor(private _org: OrganisationService) {}
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.space && this.space) {

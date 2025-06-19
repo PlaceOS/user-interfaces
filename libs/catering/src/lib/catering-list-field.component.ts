@@ -1,6 +1,7 @@
 import {
     Component,
     forwardRef,
+    inject,
     Input,
     OnChanges,
     OnInit,
@@ -259,6 +260,10 @@ const EMPTY_FAVS = [];
 export class CateringListFieldComponent
     implements ControlValueAccessor, OnInit, OnChanges
 {
+    private _settings = inject(SettingsService);
+    private _org = inject(OrganisationService);
+    private _dialog = inject(MatDialog);
+
     @Input() public options: {
         date?: number;
         duration?: number;
@@ -294,12 +299,6 @@ export class CateringListFieldComponent
     public get currency_code() {
         return this._org.building?.currency || 'USD';
     }
-
-    constructor(
-        private _settings: SettingsService,
-        private _org: OrganisationService,
-        private _dialog: MatDialog,
-    ) {}
 
     public ngOnInit() {
         this.err_tooltip = i18n('CALENDAR_EVENT.CATERING_ORDER_ERROR');

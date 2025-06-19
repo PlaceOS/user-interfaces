@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { SettingsService } from '@placeos/common';
 
@@ -217,6 +217,10 @@ import { GroupEventDetailsModalComponent } from './group-event-details-modal.com
     ],
 })
 export class GroupEventCardComponent {
+    private _settings = inject(SettingsService);
+    private _dialog = inject(MatDialog);
+    private _org = inject(OrganisationService);
+
     @Input() public event: CalendarEvent;
     @Input() public featured: boolean;
     public space: Space;
@@ -244,12 +248,6 @@ export class GroupEventCardComponent {
     public get group_event_calendar() {
         return this._settings.get('app.group_events_calendar');
     }
-
-    constructor(
-        private _settings: SettingsService,
-        private _dialog: MatDialog,
-        private _org: OrganisationService,
-    ) {}
 
     public async ngOnInit() {
         const space_pipe = new SpacePipe(this._org);

@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { CustomTooltipData } from './custom-tooltip.component';
 
@@ -77,6 +77,9 @@ import { CustomTooltipData } from './custom-tooltip.component';
     standalone: false,
 })
 export class AccessibilityTooltipComponent extends AsyncHandler {
+    private _data = inject(CustomTooltipData);
+    private _settings = inject(SettingsService);
+
     public get dark_mode() {
         return this._settings.theme === 'dark';
     }
@@ -102,10 +105,7 @@ export class AccessibilityTooltipComponent extends AsyncHandler {
 
     public readonly close = () => this._data?.close();
 
-    constructor(
-        @Inject(CustomTooltipData) private _data: any,
-        private _settings: SettingsService,
-    ) {
+    constructor() {
         super();
     }
 

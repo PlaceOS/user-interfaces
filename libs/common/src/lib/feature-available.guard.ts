@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Router, UrlTree } from '@angular/router';
 import { first } from 'rxjs/operators';
 
@@ -13,11 +13,9 @@ export abstract class PLACEOS_APP_ACCESS {
     providedIn: 'root',
 })
 export class FeatureAvailableGuard {
-    constructor(
-        private _router: Router,
-        private _settings: SettingsService,
-        private _org: OrganisationService,
-    ) {}
+    private _router = inject(Router);
+    private _settings = inject(SettingsService);
+    private _org = inject(OrganisationService);
 
     public async canActivate(): Promise<boolean | UrlTree> {
         return this.checkFeature();

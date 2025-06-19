@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { authority, isOnline, token } from '@placeos/ts-client';
 import { first } from 'rxjs/operators';
@@ -41,16 +41,16 @@ import { TranslatePipe } from './translate.pipe';
     imports: [MatProgressSpinnerModule, TranslatePipe],
 })
 export class GlobalLoadingComponent extends AsyncHandler implements OnInit {
+    private _org = inject(OrganisationService);
+    private _settings = inject(SettingsService);
+
     public loading: boolean;
 
     public get online() {
         return isOnline();
     }
 
-    constructor(
-        private _org: OrganisationService,
-        private _settings: SettingsService,
-    ) {
+    constructor() {
         super();
     }
 

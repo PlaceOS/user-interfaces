@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import {
     currentUser,
@@ -21,13 +21,11 @@ import { DeskQuestionsModalComponent } from './desk-questions-modal.component';
     providedIn: 'root',
 })
 export class DesksService {
+    private _org = inject(OrganisationService);
+    private _dialog = inject(MatDialog);
+
     public can_set_date = true;
     public error_on_host = true;
-
-    constructor(
-        private _org: OrganisationService,
-        private _dialog: MatDialog,
-    ) {}
 
     public async bookDesk({
         desks,

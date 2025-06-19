@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -126,13 +126,12 @@ import { CateringStateService } from './catering-state.service';
     ],
 })
 export class ChargeCodeListModalComponent implements OnInit {
+    private _state = inject(CateringStateService);
+    private _dialog_ref =
+        inject<MatDialogRef<ChargeCodeListModalComponent>>(MatDialogRef);
+
     public charge_codes: string[] = [];
     public loading = false;
-
-    constructor(
-        private _state: CateringStateService,
-        private _dialog_ref: MatDialogRef<ChargeCodeListModalComponent>,
-    ) {}
 
     public async ngOnInit() {
         this.charge_codes =

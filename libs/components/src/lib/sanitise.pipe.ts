@@ -1,4 +1,4 @@
-import { Pipe, PipeTransform } from '@angular/core';
+import { Pipe, PipeTransform, inject } from '@angular/core';
 import {
     DomSanitizer,
     SafeHtml,
@@ -20,7 +20,7 @@ enum SecurityContext {
     name: 'sanitize',
 })
 export class SanitizePipe implements PipeTransform {
-    constructor(private sanitizer: DomSanitizer) {}
+    private sanitizer = inject(DomSanitizer);
 
     transform(
         value: any,

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output, inject } from '@angular/core';
 import {
     MAT_DIALOG_DATA,
     MatDialog,
@@ -121,6 +121,10 @@ export async function openConfirmModal(
     ],
 })
 export class ConfirmModalComponent extends AsyncHandler implements OnInit {
+    private _dialog_ref =
+        inject<MatDialogRef<ConfirmModalComponent>>(MatDialogRef);
+    private _data = inject<ConfirmModalData>(MAT_DIALOG_DATA);
+
     /** Loading state */
     public loading: string;
     /** Emitter for user action on the modal */
@@ -145,10 +149,7 @@ export class ConfirmModalComponent extends AsyncHandler implements OnInit {
     /** Allow the user to close the modal */
     public readonly enableClose = () => (this._dialog_ref.disableClose = false);
 
-    constructor(
-        private _dialog_ref: MatDialogRef<ConfirmModalComponent>,
-        @Inject(MAT_DIALOG_DATA) private _data: ConfirmModalData,
-    ) {
+    constructor() {
         super();
     }
 

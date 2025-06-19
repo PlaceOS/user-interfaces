@@ -1,4 +1,4 @@
-import { Component, Input, forwardRef } from '@angular/core';
+import { Component, Input, forwardRef, inject } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 
@@ -137,6 +137,9 @@ const EMPTY_FAVS: string[] = [];
     ],
 })
 export class ParkingSpaceListFieldComponent implements ControlValueAccessor {
+    private _settings = inject(SettingsService);
+    private _dialog = inject(MatDialog);
+
     @Input() public disable_date = false;
     public room_size = 3;
     public spaces: BookingAsset[] = [];
@@ -148,11 +151,6 @@ export class ParkingSpaceListFieldComponent implements ControlValueAccessor {
     public get favorites() {
         return this._settings.get<string[]>('favourite_spaces') || EMPTY_FAVS;
     }
-
-    constructor(
-        private _settings: SettingsService,
-        private _dialog: MatDialog,
-    ) {}
 
     /** Add or edit selected spaces */
     public changeResources() {

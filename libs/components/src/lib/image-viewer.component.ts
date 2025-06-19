@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 @Component({
@@ -23,5 +23,5 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
     standalone: false,
 })
 export class ImageViewerComponent {
-    constructor(@Inject(MAT_DIALOG_DATA) public url: string) {}
+    url = inject(MAT_DIALOG_DATA);
 }

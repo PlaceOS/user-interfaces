@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { SettingsService } from '@placeos/common';
 import { addDays, endOfDay } from 'date-fns';
 
@@ -234,6 +234,10 @@ import { BookingFormService } from '../booking-form.service';
     ],
 })
 export class NewDeskFiltersComponent {
+    private _state = inject(BookingFormService);
+    private _org = inject(OrganisationService);
+    private _settings = inject(SettingsService);
+
     @Input() public hide_levels: boolean;
 
     public can_close = false;
@@ -314,10 +318,4 @@ export class NewDeskFiltersComponent {
             ? this._org.building.timezone
             : '';
     }
-
-    constructor(
-        private _state: BookingFormService,
-        private _org: OrganisationService,
-        private _settings: SettingsService,
-    ) {}
 }

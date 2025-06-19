@@ -37,9 +37,9 @@ import { LocaleService } from '@placeos/common';
             enabled: environment.production,
         }),
         FormsModule,
+        MatSnackBarModule,
         SharedOverlaysModule,
         SharedComponentModule,
-        MatSnackBarModule,
         SharedBookingsModule,
     ],
     providers: [

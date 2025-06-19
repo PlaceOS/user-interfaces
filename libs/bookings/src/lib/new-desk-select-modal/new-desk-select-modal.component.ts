@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import {
     MAT_DIALOG_DATA,
@@ -7,7 +7,7 @@ import {
 } from '@angular/material/dialog';
 
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { SettingsService } from '@placeos/common';
+import { isMobileSafari, SettingsService } from '@placeos/common';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
@@ -25,6 +25,7 @@ export const FAV_DESK_KEY = 'favourite_desks';
     template: `
         <div
             class="flex h-screen w-screen flex-col space-y-2 overflow-hidden bg-base-100 p-2 sm:h-auto sm:w-auto"
+            [style.height]="is_safari ? 'calc(100vh - 80px)' : ''"
         >
             <header
                 class="flex h-14 w-full items-center space-x-2 rounded border-none bg-base-200 p-2"
@@ -193,10 +194,19 @@ export const FAV_DESK_KEY = 'favourite_desks';
     ],
 })
 export class NewDeskSelectModalComponent {
+    private _data = inject(MAT_DIALOG_DATA);
+    private _settings = inject(SettingsService);
+    private _dialog_ref =
+        inject<MatDialogRef<NewDeskSelectModalComponent>>(MatDialogRef);
+
     public selected: BookingAsset[] = [];
     public displayed: BookingAsset | null = null;
     public view: 'list' | 'map' = 'list';
     public show_filters = false;
+
+    public get is_safari() {
+        return isMobileSafari();
+    }
 
     public get selected_ids() {
         return this.selected.map((_) => _.id).join(',');
@@ -205,12 +215,6 @@ export class NewDeskSelectModalComponent {
     public get favorites() {
         return this._settings.get<string[]>(FAV_DESK_KEY) || [];
     }
-
-    constructor(
-        @Inject(MAT_DIALOG_DATA) private _data: any,
-        private _settings: SettingsService,
-        private _dialog_ref: MatDialogRef<NewDeskSelectModalComponent>,
-    ) {}
 
     public isSelected(id: string) {
         return id && this.selected_ids.includes(id);

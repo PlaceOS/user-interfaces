@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Point } from '@placeos/svg-viewer';
 
@@ -136,6 +136,20 @@ const EMPTY = [];
     ],
 })
 export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
+    private _state = inject(ExploreStateService);
+    private _s = inject(ExploreSpacesService);
+    private _desks = inject(ExploreDesksService);
+    private _zones = inject(ExploreZonesService);
+    private _parking = inject(ExploreParkingService);
+    private _lockers = inject(ExploreLockersService);
+    private _route = inject(ActivatedRoute);
+    private _router = inject(Router);
+    private _spaces = inject(SpacesService);
+    private _org = inject(OrganisationService);
+    private _settings = inject(SettingsService);
+    private _space_pipe = inject(SpacePipe);
+    private _maps = inject(MapsPeopleService);
+
     /** Observable for the active map */
     public readonly url = this._state.map_url;
     /** Observable for the active map */
@@ -183,21 +197,7 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
     public readonly use_mapsindoors$: Observable<boolean> =
         this._maps.available$;
 
-    constructor(
-        private _state: ExploreStateService,
-        private _s: ExploreSpacesService,
-        private _desks: ExploreDesksService,
-        private _zones: ExploreZonesService,
-        private _parking: ExploreParkingService,
-        private _lockers: ExploreLockersService,
-        private _route: ActivatedRoute,
-        private _router: Router,
-        private _spaces: SpacesService,
-        private _org: OrganisationService,
-        private _settings: SettingsService,
-        private _space_pipe: SpacePipe,
-        private _maps: MapsPeopleService,
-    ) {
+    constructor() {
         super();
     }
 

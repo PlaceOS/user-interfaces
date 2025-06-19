@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { nextValueFrom, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { BehaviorSubject, combineLatest } from 'rxjs';
@@ -48,6 +48,9 @@ export interface BannerDetails {
     imports: [CommonModule],
 })
 export class GlobalBannerComponent {
+    private _settings = inject(SettingsService);
+    private _org = inject(OrganisationService);
+
     private _change = new BehaviorSubject(0);
     public readonly banner = this._org.active_building.pipe(
         debounceTime(500),
@@ -67,11 +70,6 @@ export class GlobalBannerComponent {
         }),
         shareReplay(1),
     );
-
-    constructor(
-        private _settings: SettingsService,
-        private _org: OrganisationService,
-    ) {}
 
     public async close() {
         const banner = await nextValueFrom(this.banner);

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -65,6 +65,8 @@ import { ExploreStateService } from './explore-state.service';
     imports: [MatRippleModule, TranslatePipe, IconComponent, MatTooltipModule],
 })
 export class ExploreZoomControlComponent {
+    private _state = inject(ExploreStateService);
+
     public readonly zoomIn = () =>
         this._state.setPositions(
             Math.min(10, this._state.positions.zoom * 1.2),
@@ -77,6 +79,4 @@ export class ExploreZoomControlComponent {
         );
     public readonly reset = () =>
         this._state.setPositions(1, { x: 0.5, y: 0.5 });
-
-    constructor(private _state: ExploreStateService) {}
 }

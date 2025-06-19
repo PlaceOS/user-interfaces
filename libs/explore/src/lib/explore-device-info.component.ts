@@ -1,11 +1,11 @@
-import { Component, ElementRef, Inject, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, inject } from '@angular/core';
 import { getModule } from '@placeos/ts-client';
 import { differenceInMinutes, formatDistanceToNow } from 'date-fns';
 import { Observable } from 'rxjs';
 
 import { AsyncHandler, SettingsService } from '@placeos/common';
+import { MAP_FEATURE_DATA } from 'libs/common/src/lib/types';
 import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
-import { MAP_FEATURE_DATA } from 'libs/components/src/lib/interactive-map.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 
 export interface DeviceInfoData {
@@ -156,6 +156,10 @@ const EMPTY = [];
     imports: [TranslatePipe, CustomTooltipComponent],
 })
 export class ExploreDeviceInfoComponent extends AsyncHandler implements OnInit {
+    private _details = inject<DeviceInfoData>(MAP_FEATURE_DATA);
+    private _settings = inject(SettingsService);
+    private _element = inject<ElementRef<HTMLElement>>(ElementRef);
+
     /** Name of the user associated with the mac address */
     public username = '';
     /** User details associated with device */
@@ -211,11 +215,7 @@ export class ExploreDeviceInfoComponent extends AsyncHandler implements OnInit {
               : '#e53935';
     }
 
-    constructor(
-        @Inject(MAP_FEATURE_DATA) private _details: DeviceInfoData,
-        private _settings: SettingsService,
-        private _element: ElementRef<HTMLElement>,
-    ) {
+    constructor() {
         super();
     }
 

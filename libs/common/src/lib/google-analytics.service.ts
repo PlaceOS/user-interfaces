@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { log } from './general';
 
@@ -15,6 +15,8 @@ declare global {
     providedIn: 'root',
 })
 export class GoogleAnalyticsService {
+    private title = inject(Title);
+
     /** Google Analytics API object */
     private service: any;
     /** Application prefix to add to event categories */
@@ -28,8 +30,6 @@ export class GoogleAnalyticsService {
     private last_route: string;
     /** Store for timer ids */
     private timers: { [name: string]: number } = {};
-
-    constructor(private title: Title) {}
 
     public init(tracking_id: string = '') {
         if (!window.gtag) {

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { addMinutes, endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { BehaviorSubject } from 'rxjs';
 import { first, shareReplay, tap } from 'rxjs/operators';
@@ -20,6 +20,9 @@ import { CalendarAvailabilityQueryParams } from './calendar.interfaces';
     providedIn: 'root',
 })
 export class CalendarService extends AsyncHandler {
+    private _org = inject(OrganisationService);
+    private _settings = inject(SettingsService);
+
     private readonly _calendars = new BehaviorSubject<Calendar[]>([]);
 
     /** Observable for the list of calendars */
@@ -37,10 +40,7 @@ export class CalendarService extends AsyncHandler {
     public readonly availability = (q: CalendarAvailabilityQueryParams) =>
         queryCalendarAvailability(q);
 
-    constructor(
-        private _org: OrganisationService,
-        private _settings: SettingsService,
-    ) {
+    constructor() {
         super();
         this._org.initialised
             .pipe(first((_) => _))

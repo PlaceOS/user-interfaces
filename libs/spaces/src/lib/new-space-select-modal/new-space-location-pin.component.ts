@@ -1,6 +1,6 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { MAP_FEATURE_DATA } from 'libs/common/src/lib/types';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { MAP_FEATURE_DATA } from 'libs/components/src/lib/interactive-map.component';
 
 @Component({
     selector: 'new-space-location-pin',
@@ -82,11 +82,12 @@ import { MAP_FEATURE_DATA } from 'libs/components/src/lib/interactive-map.compon
     imports: [IconComponent],
 })
 export class NewSpaceLocationPinComponent {
+    private _data = inject(MAP_FEATURE_DATA);
+
     public readonly selected = this._data.selected === true;
     public readonly active = this._data.active === true;
 
     public get color() {
         return this.active ? '#F4511E' : this.selected ? '#D32F2F' : '#309251';
     }
-    constructor(@Inject(MAP_FEATURE_DATA) private _data: any) {}
 }

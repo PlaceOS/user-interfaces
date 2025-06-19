@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { SettingsService } from '@placeos/common';
@@ -157,6 +157,18 @@ const EMPTY_FAVS: string[] = [];
     ],
 })
 export class NewCateringOrderModalComponent {
+    private _settings = inject(SettingsService);
+    private _order = inject(CateringOrderStateService);
+    private _org = inject(OrganisationService);
+    private _data = inject<{
+        items: CateringItem[];
+        details: any;
+        exact_time?: boolean;
+        offset?: number;
+        offset_day?: number;
+        caterer?: string;
+    }>(MAT_DIALOG_DATA);
+
     public displayed: CateringItem | null = null;
     public selected: CateringItem[] = [...(this._data.items || [])];
     public exact_time = this._data.exact_time ?? false;
@@ -181,20 +193,7 @@ export class NewCateringOrderModalComponent {
         return this._org.currency_code;
     }
 
-    constructor(
-        private _settings: SettingsService,
-        private _order: CateringOrderStateService,
-        private _org: OrganisationService,
-        @Inject(MAT_DIALOG_DATA)
-        private _data: {
-            items: CateringItem[];
-            details: any;
-            exact_time?: boolean;
-            offset?: number;
-            offset_day?: number;
-            caterer?: string;
-        },
-    ) {
+    constructor() {
         const { duration } = this._data.details;
         this._order.setFilters(this._data.details);
         this.offset = Math.min(

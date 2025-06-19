@@ -50,9 +50,11 @@ export async function openBookingModal(
     selector: 'booking-modal',
     template: `
         <div
-            class="absolute left-0 top-0 z-50 m-4 h-screen w-screen -translate-x-1/2 -translate-y-1/2"
+            class="absolute left-0 top-0 z-50 h-screen w-screen -translate-x-1/2 -translate-y-1/2 sm:m-4"
         >
-            <div class="mx-auto w-[32rem] overflow-auto rounded bg-base-100">
+            <div
+                class="mx-auto h-full w-full overflow-auto rounded bg-base-100 sm:h-auto sm:w-[32rem]"
+            >
                 <header
                     class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded border-none bg-base-200 p-2"
                 >
@@ -66,7 +68,11 @@ export async function openBookingModal(
                     }
                 </header>
                 @if (form && !loading) {
-                    <div form [formGroup]="form" class="w-full px-4">
+                    <div
+                        form
+                        [formGroup]="form"
+                        class="max-h-[calc(100vh-12rem)] w-full overflow-auto px-4"
+                    >
                         @if (!hide_host && form.controls.organiser) {
                             <div class="field">
                                 <label for="host"
@@ -143,7 +149,7 @@ export async function openBookingModal(
                 }
                 @if (!loading) {
                     <footer
-                        class="flex w-full items-center justify-end space-x-2 border-t border-base-200 px-4 py-2"
+                        class="sticky bottom-0 z-10 m-2 flex w-[calc(100%-1rem)] justify-end rounded border-none bg-base-200 p-2"
                     >
                         <button
                             btn

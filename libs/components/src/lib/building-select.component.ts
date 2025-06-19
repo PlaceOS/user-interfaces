@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { OrganisationService } from '@placeos/organisation';
 import { CustomTooltipData } from './custom-tooltip.component';
 
@@ -48,6 +48,9 @@ import { CustomTooltipData } from './custom-tooltip.component';
     standalone: false,
 })
 export class BuildingSelectComponent {
+    private _data = inject(CustomTooltipData);
+    private _org = inject(OrganisationService);
+
     public readonly buildings = this._org.active_buildings;
     public readonly building = this._org.active_building;
 
@@ -57,9 +60,4 @@ export class BuildingSelectComponent {
     };
 
     public readonly close = () => this._data?.close();
-
-    constructor(
-        @Inject(CustomTooltipData) private _data: any,
-        private _org: OrganisationService,
-    ) {}
 }

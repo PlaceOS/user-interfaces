@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { SettingsService } from '@placeos/common';
@@ -176,6 +176,10 @@ import { Locker, LockerBank } from '../locker.class';
     ],
 })
 export class NewLockerBankListComponent {
+    private _state = inject(BookingFormService);
+    private _org = inject(OrganisationService);
+    private _settings = inject(SettingsService);
+
     @Input() public active = '';
     @Input() public selected = '';
     @Input() public favorites: string[] = [];
@@ -232,12 +236,6 @@ export class NewLockerBankListComponent {
         }),
     );
     public readonly loading = this._state.loading;
-
-    constructor(
-        private _state: BookingFormService,
-        private _org: OrganisationService,
-        private _settings: SettingsService,
-    ) {}
 
     public isFavourite(locker_bank_id: string) {
         return this.favorites.includes(locker_bank_id);

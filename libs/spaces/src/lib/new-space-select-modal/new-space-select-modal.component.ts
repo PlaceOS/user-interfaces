@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import {
     MAT_DIALOG_DATA,
@@ -7,7 +7,7 @@ import {
 } from '@angular/material/dialog';
 
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { SettingsService } from '@placeos/common';
+import { isMobileSafari, SettingsService } from '@placeos/common';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
@@ -27,6 +27,7 @@ export const FAV_DESK_KEY = 'favourite_spaces';
     template: `
         <div
             class="flex h-screen w-screen flex-col space-y-2 overflow-hidden bg-base-100 p-2 sm:h-auto sm:w-auto"
+            [style.height]="is_safari ? 'calc(100vh - 80px)' : ''"
         >
             <header
                 class="flex h-14 w-full items-center space-x-2 rounded border-none bg-base-200 p-2"
@@ -199,12 +200,26 @@ export const FAV_DESK_KEY = 'favourite_spaces';
     ],
 })
 export class NewSpaceSelectModalComponent {
+    private _dialog_ref =
+        inject<MatDialogRef<NewSpaceSelectModalComponent>>(MatDialogRef);
+    private _settings = inject(SettingsService);
+    private _event_form = inject(EventFormService);
+    private _data = inject<{
+        spaces: Space[];
+        options: Partial<EventFormOptions>;
+        multiday?: boolean;
+    }>(MAT_DIALOG_DATA);
+
     public show_filters = false;
     public displayed?: Space;
     public selected: Space[] = [];
     public view = 'list';
     public readonly multiday = !!this._data.multiday;
     public readonly room_alerts = this._event_form.room_alerts;
+
+    public get is_safari() {
+        return isMobileSafari();
+    }
 
     public get selected_ids() {
         return this.selected.map((_) => _.id).join(',');
@@ -214,17 +229,9 @@ export class NewSpaceSelectModalComponent {
         return this._settings.get<string[]>('favourite_spaces') || [];
     }
 
-    constructor(
-        private _dialog_ref: MatDialogRef<NewSpaceSelectModalComponent>,
-        private _settings: SettingsService,
-        private _event_form: EventFormService,
-        @Inject(MAT_DIALOG_DATA)
-        private _data: {
-            spaces: Space[];
-            options: Partial<EventFormOptions>;
-            multiday?: boolean;
-        },
-    ) {
+    constructor() {
+        const _data = this._data;
+
         this.selected = [...(_data.spaces || [])];
         this._event_form.setOptions(_data.options);
         this._event_form.setFilters(_data.options as any);

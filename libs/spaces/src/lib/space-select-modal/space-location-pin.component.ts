@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { MAP_FEATURE_DATA } from 'libs/components/src/lib/interactive-map.component';
 
@@ -83,11 +83,12 @@ import { MAP_FEATURE_DATA } from 'libs/components/src/lib/interactive-map.compon
     imports: [CommonModule, IconComponent],
 })
 export class SpaceLocationPinComponent {
+    private _data = inject(MAP_FEATURE_DATA);
+
     public readonly selected = this._data.selected === true;
     public readonly active = this._data.active === true;
 
     public get color() {
         return this.active ? '#F4511E' : this.selected ? '#D32F2F' : '#309251';
     }
-    constructor(@Inject(MAP_FEATURE_DATA) private _data: any) {}
 }

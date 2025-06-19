@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, Inject, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, inject } from '@angular/core';
 import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
 
-import { MAP_FEATURE_DATA } from 'libs/components/src/lib/interactive-map.component';
+import { MAP_FEATURE_DATA } from 'libs/common/src/lib/types';
 
 export interface DeskInfoData {
     id: string;
@@ -91,6 +91,9 @@ export interface DeskInfoData {
     imports: [CommonModule, CustomTooltipComponent],
 })
 export class ExploreDeskInfoComponent implements OnInit {
+    private _details = inject<DeskInfoData>(MAP_FEATURE_DATA);
+    private _element = inject<ElementRef<HTMLElement>>(ElementRef);
+
     /** Space to display details for */
     public readonly id = this._details.id;
     public readonly map_id = this._details.map_id;
@@ -104,11 +107,6 @@ export class ExploreDeskInfoComponent implements OnInit {
     public y_pos: 'top' | 'bottom';
 
     public x_pos: 'left' | 'right';
-
-    constructor(
-        @Inject(MAP_FEATURE_DATA) private _details: DeskInfoData,
-        private _element: ElementRef<HTMLElement>,
-    ) {}
 
     public ngOnInit(tries = 0) {
         if (tries > 10) return;

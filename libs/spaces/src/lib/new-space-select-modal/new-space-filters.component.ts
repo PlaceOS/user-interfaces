@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, inject, Input } from '@angular/core';
 import {
     flatten,
     MapsPeopleService,
@@ -327,6 +327,12 @@ import { SpacesService } from '../spaces.service';
     ],
 })
 export class NewSpaceFiltersComponent {
+    private _settings = inject(SettingsService);
+    private _event_form = inject(EventFormService);
+    private _org = inject(OrganisationService);
+    private _spaces = inject(SpacesService);
+    private _mapspeople = inject(MapsPeopleService);
+
     @Input() public multiday: boolean;
     @Input() public hide_levels: boolean;
     @Input() public viewing_map: boolean;
@@ -424,14 +430,6 @@ export class NewSpaceFiltersComponent {
             ),
         );
     }
-
-    constructor(
-        private _settings: SettingsService,
-        private _event_form: EventFormService,
-        private _org: OrganisationService,
-        private _spaces: SpacesService,
-        private _mapspeople: MapsPeopleService,
-    ) {}
 
     public setBuilding(bld: Building) {
         this._org.building = bld;

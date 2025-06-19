@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { LocaleService, SettingsService } from '@placeos/common';
 import { CustomTooltipData } from './custom-tooltip.component';
 
@@ -49,6 +49,10 @@ import { CustomTooltipData } from './custom-tooltip.component';
     standalone: false,
 })
 export class LanguageSelectComponent {
+    private _data = inject(CustomTooltipData);
+    private _settings = inject(SettingsService);
+    private _locale = inject(LocaleService);
+
     public readonly setLocale = (code: string) => {
         this._locale.setLocale(code);
         localStorage.setItem('PLACEOS.locale', code);
@@ -64,10 +68,4 @@ export class LanguageSelectComponent {
     }
 
     public readonly close = () => this._data?.close();
-
-    constructor(
-        @Inject(CustomTooltipData) private _data: any,
-        private _settings: SettingsService,
-        private _locale: LocaleService,
-    ) {}
 }

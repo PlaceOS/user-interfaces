@@ -1,4 +1,10 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import {
+    Component,
+    ElementRef,
+    OnInit,
+    ViewChild,
+    inject,
+} from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
@@ -92,6 +98,9 @@ import { debounceTime, first, map } from 'rxjs/operators';
     standalone: false,
 })
 export class LoginComponent implements OnInit {
+    private _settings = inject(SettingsService);
+    private _org = inject(OrganisationService);
+
     /** Whether the user credentials are being checked */
     public loading: boolean;
 
@@ -113,11 +122,6 @@ export class LoginComponent implements OnInit {
                     : this._settings.get('app.logo_light')) || {},
         ),
     );
-
-    constructor(
-        private _settings: SettingsService,
-        private _org: OrganisationService,
-    ) {}
 
     public async ngOnInit() {
         this.loading = true;

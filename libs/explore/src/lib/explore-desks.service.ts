@@ -1,4 +1,4 @@
-import { Injectable, OnDestroy } from '@angular/core';
+import { inject, Injectable, OnDestroy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { showMetadata } from '@placeos/ts-client';
 import { addDays, endOfDay, getUnixTime, startOfDay } from 'date-fns';
@@ -54,6 +54,12 @@ export interface DesksStats {
 
 @Injectable()
 export class ExploreDesksService extends AsyncHandler implements OnDestroy {
+    private _state = inject(ExploreStateService);
+    private _org = inject(OrganisationService);
+    private _settings = inject(SettingsService);
+    private _bookings = inject(BookingFormService);
+    private _dialog = inject(MatDialog);
+
     private _in_use = new BehaviorSubject<string[]>([]);
     private _options = new BehaviorSubject<DeskOptions>({});
     private _presence = new BehaviorSubject<string[]>([]);
@@ -201,13 +207,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
         ),
     );
 
-    constructor(
-        private _state: ExploreStateService,
-        private _org: OrganisationService,
-        private _settings: SettingsService,
-        private _bookings: BookingFormService,
-        private _dialog: MatDialog,
-    ) {
+    constructor() {
         super();
         this.init();
     }

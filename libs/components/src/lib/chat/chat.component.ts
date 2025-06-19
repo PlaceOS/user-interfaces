@@ -1,5 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import {
+    Component,
+    ElementRef,
+    OnInit,
+    ViewChild,
+    inject,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { AsyncHandler, SettingsService, current_user } from '@placeos/common';
@@ -221,6 +227,9 @@ import { ChatService } from './chat.service';
     ],
 })
 export class ChatComponent extends AsyncHandler implements OnInit {
+    private _settings = inject(SettingsService);
+    private _chat = inject(ChatService);
+
     public show = false;
     public show_info = false;
     public message = '';
@@ -255,10 +264,7 @@ export class ChatComponent extends AsyncHandler implements OnInit {
         if (!this.show) this._chat.close();
     }
 
-    constructor(
-        private _settings: SettingsService,
-        private _chat: ChatService,
-    ) {
+    constructor() {
         super();
     }
 

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { AsyncHandler, nextValueFrom, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
@@ -72,6 +72,10 @@ import { BookingFormService } from '../booking-form.service';
     imports: [CommonModule, IconComponent, TranslatePipe, MatRippleModule],
 })
 export class NewParkingFiltersDisplayComponent extends AsyncHandler {
+    private _event_form = inject(BookingFormService);
+    private _org = inject(OrganisationService);
+    private _settings = inject(SettingsService);
+
     @Input() public view: 'map' | 'list' = 'list';
     @Output() public viewChange = new EventEmitter<'map' | 'list'>();
     public readonly options = this._event_form.options;
@@ -90,11 +94,7 @@ export class NewParkingFiltersDisplayComponent extends AsyncHandler {
         return this._settings.time_format;
     }
 
-    constructor(
-        private _event_form: BookingFormService,
-        private _org: OrganisationService,
-        private _settings: SettingsService,
-    ) {
+    constructor() {
         super();
     }
 

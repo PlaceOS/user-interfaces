@@ -6,6 +6,7 @@ import {
     OnInit,
     Output,
     ViewChild,
+    inject,
 } from '@angular/core';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { BuildingLevel, OrganisationService } from '@placeos/organisation';
@@ -27,6 +28,9 @@ const DEFAULT_ZOOM = 18.5;
     styles: [``],
 })
 export class CiscoMapComponent extends AsyncHandler implements OnInit {
+    private _org = inject(OrganisationService);
+    private _settings = inject(SettingsService);
+
     @Input() public zone: BuildingLevel;
     @Input() public metadata: MapMetadata;
     @Input() public options: any;
@@ -40,10 +44,7 @@ export class CiscoMapComponent extends AsyncHandler implements OnInit {
     private _mapContainer!: ElementRef<HTMLDivElement>;
     private _map: SpacesRichMap;
 
-    constructor(
-        private _org: OrganisationService,
-        private _settings: SettingsService,
-    ) {
+    constructor() {
         super();
     }
 

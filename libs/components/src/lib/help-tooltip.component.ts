@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { ApplicationLink, SettingsService } from '@placeos/common';
 import { CustomTooltipData } from './custom-tooltip.component';
 
@@ -38,6 +38,9 @@ import { CustomTooltipData } from './custom-tooltip.component';
     standalone: false,
 })
 export class HelpTooltipComponent {
+    private _data = inject(CustomTooltipData);
+    private _settings = inject(SettingsService);
+
     /** Tiles to display on the help page */
     public get tiles(): ApplicationLink[] {
         return this._settings.get('app.help') || [];
@@ -46,9 +49,4 @@ export class HelpTooltipComponent {
     public readonly close = () => {
         this._data?.close();
     };
-
-    constructor(
-        @Inject(CustomTooltipData) private _data: any,
-        private _settings: SettingsService,
-    ) {}
 }

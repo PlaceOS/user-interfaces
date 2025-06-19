@@ -6,6 +6,7 @@ import {
     OnInit,
     Output,
     SimpleChanges,
+    inject,
 } from '@angular/core';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { map } from 'rxjs/operators';
@@ -95,6 +96,10 @@ export class LockerMapComponent
     extends AsyncHandler
     implements OnInit, OnChanges
 {
+    private _state = inject(BookingFormService);
+    private _settings = inject(SettingsService);
+    private _org = inject(OrganisationService);
+
     @Input() public is_displayed = false;
     @Input() public active = '';
     @Output() public onSelect = new EventEmitter<BookingAsset>();
@@ -242,11 +247,7 @@ export class LockerMapComponent
         return !!this._settings.get('app.use_region');
     }
 
-    constructor(
-        private _state: BookingFormService,
-        private _settings: SettingsService,
-        private _org: OrganisationService,
-    ) {
+    constructor() {
         super();
     }
 

@@ -9,6 +9,7 @@ import {
     OnDestroy,
     SimpleChanges,
     ViewChild,
+    inject,
 } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { AsyncHandler } from '@placeos/common';
@@ -106,6 +107,10 @@ export class VirtualKeyboardComponent
     extends AsyncHandler
     implements OnDestroy
 {
+    private _element =
+        inject<ElementRef<HTMLInputElement | HTMLTextAreaElement>>(ElementRef);
+    private _overlay = inject(Overlay);
+
     /** Whether virtual keyboard should activate */
     public static enabled: boolean;
     /** List of rows of keys to display on the keyboard */
@@ -125,10 +130,7 @@ export class VirtualKeyboardComponent
     @HostListener('blur') public onBlur = () =>
         this.timeout('blur', () => this.close());
 
-    constructor(
-        private _element: ElementRef<HTMLInputElement | HTMLTextAreaElement>,
-        private _overlay: Overlay,
-    ) {
+    constructor() {
         super();
     }
 

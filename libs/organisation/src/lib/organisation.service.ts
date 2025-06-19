@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import {
     EncryptionLevel,
@@ -38,6 +38,9 @@ import * as yaml from 'js-yaml';
     providedIn: 'root',
 })
 export class OrganisationService {
+    private _service = inject(SettingsService);
+    private _router = inject(Router);
+
     /** Subject which stores the initialised state of the object */
     protected readonly _initialised = new BehaviorSubject<boolean>(false);
     /** Observable of the initialised state of the object */
@@ -222,10 +225,7 @@ export class OrganisationService {
         return this._levels.getValue();
     }
 
-    constructor(
-        private _service: SettingsService,
-        private _router: Router,
-    ) {
+    constructor() {
         onlineState()
             .pipe(first((_) => _))
             .subscribe(() => setTimeout(() => this.init(), 1000));

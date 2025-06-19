@@ -3,9 +3,9 @@ import {
     AfterViewInit,
     Component,
     ElementRef,
-    Inject,
     Renderer2,
     ViewChild,
+    inject,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
@@ -287,6 +287,11 @@ export class FindAvailabilityModalComponent
     extends AsyncHandler
     implements AfterViewInit
 {
+    private _data = inject<FindAvailabilityData>(MAT_DIALOG_DATA);
+    private _renderer = inject(Renderer2);
+    private _dialog_ref =
+        inject<MatDialogRef<FindAvailabilityModalComponent>>(MatDialogRef);
+
     public readonly users = new BehaviorSubject([]);
     public search = '';
     public date = this._data.date || Date.now();
@@ -364,11 +369,7 @@ export class FindAvailabilityModalComponent
         return (this.duration / 60) * 5;
     }
 
-    constructor(
-        @Inject(MAT_DIALOG_DATA) private _data: FindAvailabilityData,
-        private _renderer: Renderer2,
-        private _dialog_ref: MatDialogRef<FindAvailabilityModalComponent>,
-    ) {
+    constructor() {
         super();
         this.users.next([...this._data.users]);
     }

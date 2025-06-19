@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import {
     Component,
     forwardRef,
+    inject,
     Input,
     OnChanges,
     SimpleChanges,
@@ -32,7 +33,7 @@ interface DateItem {
         <div class="p-2">
             <div class="flex items-center justify-between">
                 <div class="pl-1.5 pr-2 font-medium">
-                    {{ date_list[6]?.id || date | date: 'LLLL YYYY' }}
+                    {{ date_list[6]?.id || date | date: 'LLLL yyyy' }}
                 </div>
                 <div class="flex items-center">
                     <button
@@ -109,6 +110,8 @@ export class DateCalendarComponent
     extends AsyncHandler
     implements ControlValueAccessor, OnChanges
 {
+    private _settings = inject(SettingsService);
+
     @Input() public from = 0;
     @Input() public to = Date.now() * 10;
     @Input() public offset_weekday = 0;
@@ -123,7 +126,7 @@ export class DateCalendarComponent
     /** Form control on touch handler */
     private _onTouch: (_: number) => void;
 
-    constructor(private _settings: SettingsService) {
+    constructor() {
         super();
     }
 

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -83,6 +83,9 @@ import { StaffUser } from './user.class';
     ],
 })
 export class SelectUserModalComponent {
+    private _dialog_ref =
+        inject<MatDialogRef<SelectUserModalComponent>>(MatDialogRef);
+
     public readonly search = new BehaviorSubject('');
 
     public readonly users = this.search.pipe(
@@ -95,8 +98,6 @@ export class SelectUserModalComponent {
         ),
         startWith([]),
     );
-
-    constructor(private _dialog_ref: MatDialogRef<SelectUserModalComponent>) {}
 
     public select(user: StaffUser) {
         this._dialog_ref.close(user);

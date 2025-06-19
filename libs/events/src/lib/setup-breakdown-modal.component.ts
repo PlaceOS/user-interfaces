@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import {
@@ -70,16 +70,15 @@ import { saveEvent, updateEventMetadata } from './events.fn';
     imports: [MatRippleModule, TranslatePipe, IconComponent, MatDialogModule],
 })
 export class SetupBreakdownModalComponent {
+    private _event = inject<CalendarEvent>(MAT_DIALOG_DATA);
+    private _dialog_ref =
+        inject<MatDialogRef<SetupBreakdownModalComponent>>(MatDialogRef);
+
     public loading = false;
     public readonly form = new FormGroup({
         setup: new FormControl(this._event.setup_time || 0),
         breakdown: new FormControl(this._event.breakdown_time || 0),
     });
-
-    constructor(
-        @Inject(MAT_DIALOG_DATA) private _event: CalendarEvent,
-        private _dialog_ref: MatDialogRef<SetupBreakdownModalComponent>,
-    ) {}
 
     public async save() {
         this.loading = true;

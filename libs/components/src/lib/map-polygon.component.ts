@@ -1,7 +1,8 @@
-import { ChangeDetectorRef, Component, Inject, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
 import { Observable } from 'rxjs';
-import { MAP_FEATURE_DATA } from './interactive-map.component';
+
+import { MAP_FEATURE_DATA } from 'libs/common/src/lib/types';
 
 export interface MapPolygonData {
     /** Name of the region */
@@ -88,6 +89,9 @@ export interface MapPolygonData {
     standalone: false,
 })
 export class MapPolygonComponent extends AsyncHandler implements OnInit {
+    private _details = inject<MapPolygonData>(MAP_FEATURE_DATA);
+    private _cdr = inject(ChangeDetectorRef);
+
     /** Message to display above the pin */
     public name = this._details.name;
     /** Fill colour for the pin SVG */
@@ -112,10 +116,7 @@ export class MapPolygonComponent extends AsyncHandler implements OnInit {
 
     public point_list: [number, number][] = [];
 
-    constructor(
-        @Inject(MAP_FEATURE_DATA) private _details: MapPolygonData,
-        private _cdr: ChangeDetectorRef,
-    ) {
+    constructor() {
         super();
     }
 

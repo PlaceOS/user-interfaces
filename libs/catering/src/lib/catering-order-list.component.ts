@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
@@ -254,6 +254,9 @@ import { statusList } from './catering.vars';
     ],
 })
 export class CateringOrderListComponent extends AsyncHandler implements OnInit {
+    private _orders = inject(CateringOrdersService);
+    private _settings = inject(SettingsService);
+
     /** List of filtered orders */
     public readonly order_list = this._orders.filtered;
     /** Whether order list is loading */
@@ -281,10 +284,7 @@ export class CateringOrderListComponent extends AsyncHandler implements OnInit {
         return this.statuses.find((i) => i.id === value);
     }
 
-    constructor(
-        private _orders: CateringOrdersService,
-        private _settings: SettingsService,
-    ) {
+    constructor() {
         super();
     }
 

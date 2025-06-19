@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { SettingsService, unique } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { PlaceMetadata, showMetadata } from '@placeos/ts-client';
@@ -38,6 +38,9 @@ export interface CateringOrderFilters {
     providedIn: 'root',
 })
 export class CateringOrderStateService {
+    private _org = inject(OrganisationService);
+    private _settings = inject(SettingsService);
+
     private _options = new BehaviorSubject<CateringOrderOptions>({});
     private _filters = new BehaviorSubject<CateringOrderFilters>({
         search: '',
@@ -170,11 +173,6 @@ export class CateringOrderStateService {
     public get currency_code() {
         return this._org.currency_code;
     }
-
-    constructor(
-        private _org: OrganisationService,
-        private _settings: SettingsService,
-    ) {}
 
     public setOptions(opts: Partial<CateringOrderOptions>) {
         this._options.next({ ...this._options.getValue(), ...opts });

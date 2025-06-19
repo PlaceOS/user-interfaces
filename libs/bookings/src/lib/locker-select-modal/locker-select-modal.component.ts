@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import {
     MAT_DIALOG_DATA,
@@ -208,6 +208,15 @@ export const FAV_LOCKER_KEY = 'favourite_lockers';
     ],
 })
 export class LockerSelectModalComponent extends AsyncHandler implements OnInit {
+    private _dialog_ref =
+        inject<MatDialogRef<LockerSelectModalComponent>>(MatDialogRef);
+    private _settings = inject(SettingsService);
+    private _event_form = inject(BookingFormService);
+    private _data = inject<{
+        items: BookingAsset[];
+        options: Partial<BookingFlowOptions>;
+    }>(MAT_DIALOG_DATA);
+
     public displayed?: BookingAsset;
     public selected: BookingAsset[] = [];
     public view = 'list';
@@ -221,17 +230,10 @@ export class LockerSelectModalComponent extends AsyncHandler implements OnInit {
         return this._settings.get<string[]>(FAV_LOCKER_KEY) || [];
     }
 
-    constructor(
-        private _dialog_ref: MatDialogRef<LockerSelectModalComponent>,
-        private _settings: SettingsService,
-        private _event_form: BookingFormService,
-        @Inject(MAT_DIALOG_DATA)
-        private _data: {
-            items: BookingAsset[];
-            options: Partial<BookingFlowOptions>;
-        },
-    ) {
+    constructor() {
         super();
+        const _data = this._data;
+
         this.selected = [...(_data.items || [])];
         this._event_form.setOptions(_data.options);
     }

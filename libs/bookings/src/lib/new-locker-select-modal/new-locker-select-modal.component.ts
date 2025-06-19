@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import {
     MAT_DIALOG_DATA,
@@ -7,7 +7,7 @@ import {
 } from '@angular/material/dialog';
 
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { AsyncHandler, SettingsService } from '@placeos/common';
+import { AsyncHandler, isMobileSafari, SettingsService } from '@placeos/common';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
@@ -30,6 +30,7 @@ export const FAV_LOCKER_KEY = 'favourite_lockers';
     template: `
         <div
             class="flex h-screen w-screen flex-col space-y-2 overflow-hidden bg-base-100 p-2 sm:h-auto sm:w-auto"
+            [style.height]="is_safari ? 'calc(100vh - 80px)' : ''"
         >
             <header
                 class="flex h-14 w-full items-center space-x-2 rounded border-none bg-base-200 p-2"
@@ -207,11 +208,24 @@ export const FAV_LOCKER_KEY = 'favourite_lockers';
     ],
 })
 export class NewLockerSelectModalComponent extends AsyncHandler {
+    private _dialog_ref =
+        inject<MatDialogRef<NewLockerSelectModalComponent>>(MatDialogRef);
+    private _settings = inject(SettingsService);
+    private _event_form = inject(BookingFormService);
+    private _data = inject<{
+        items: BookingAsset[];
+        options: Partial<BookingFlowOptions>;
+    }>(MAT_DIALOG_DATA);
+
     public show_filters = false;
     public displayed?: BookingAsset;
     public selected: BookingAsset[] = [];
     public view = 'list';
     public bank?: LockerBank = null;
+
+    public get is_safari() {
+        return isMobileSafari();
+    }
 
     public get selected_ids() {
         return this.selected.map((_) => _.id).join(',');
@@ -221,17 +235,10 @@ export class NewLockerSelectModalComponent extends AsyncHandler {
         return this._settings.get<string[]>(FAV_LOCKER_KEY) || [];
     }
 
-    constructor(
-        private _dialog_ref: MatDialogRef<NewLockerSelectModalComponent>,
-        private _settings: SettingsService,
-        private _event_form: BookingFormService,
-        @Inject(MAT_DIALOG_DATA)
-        private _data: {
-            items: BookingAsset[];
-            options: Partial<BookingFlowOptions>;
-        },
-    ) {
+    constructor() {
         super();
+        const _data = this._data;
+
         this.selected = [...(_data.items || [])];
         this._event_form.setOptions(_data.options);
     }

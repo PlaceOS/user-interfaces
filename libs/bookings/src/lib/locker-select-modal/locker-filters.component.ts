@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, Optional } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { addDays, endOfDay } from 'date-fns';
@@ -284,6 +284,14 @@ import { BookingFormService } from '../booking-form.service';
     ],
 })
 export class LockerFiltersComponent extends AsyncHandler implements OnInit {
+    private _bsheet_ref = inject<MatBottomSheetRef<LockerFiltersComponent>>(
+        MatBottomSheetRef,
+        { optional: true },
+    );
+    private _state = inject(BookingFormService);
+    private _org = inject(OrganisationService);
+    private _settings = inject(SettingsService);
+
     @Input() public hide_levels: boolean;
 
     public can_close = false;
@@ -368,13 +376,7 @@ export class LockerFiltersComponent extends AsyncHandler implements OnInit {
         return this._settings.get('app.use_region');
     }
 
-    constructor(
-        @Optional()
-        private _bsheet_ref: MatBottomSheetRef<LockerFiltersComponent>,
-        private _state: BookingFormService,
-        private _org: OrganisationService,
-        private _settings: SettingsService,
-    ) {
+    constructor() {
         super();
         this.can_close = !!this._bsheet_ref;
     }

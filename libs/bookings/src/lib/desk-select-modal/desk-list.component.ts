@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
@@ -138,6 +138,8 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
     ],
 })
 export class DeskListComponent {
+    private _state = inject(BookingFormService);
+
     @Input() public active = '';
     @Input() public selected = '';
     @Input() public favorites: string[] = [];
@@ -159,8 +161,6 @@ export class DeskListComponent {
         ),
     );
     public readonly loading = this._state.loading;
-
-    constructor(private _state: BookingFormService) {}
 
     public isFavourite(desk_id: string) {
         return this.favorites.includes(desk_id);

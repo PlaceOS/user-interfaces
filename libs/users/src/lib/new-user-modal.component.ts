@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { AsyncHandler, DialogEvent } from '@placeos/common';
 
@@ -73,6 +73,8 @@ import { generateUserForm } from './user.utilities';
     ],
 })
 export class NewUserModalComponent extends AsyncHandler implements OnInit {
+    private _data = inject(MAT_DIALOG_DATA);
+
     /** Emitter for user action on the modal */
     @Output() public event = new EventEmitter<DialogEvent>();
     /** Form fields for the new user */
@@ -82,7 +84,7 @@ export class NewUserModalComponent extends AsyncHandler implements OnInit {
     /** Whether user details are being saved */
     public loading = false;
 
-    constructor(@Inject(MAT_DIALOG_DATA) private _data: any) {
+    constructor() {
         super();
         this.user = this._data.user || {};
         this.form = generateUserForm(this.user);

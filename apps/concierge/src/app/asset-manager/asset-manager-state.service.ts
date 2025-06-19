@@ -127,8 +127,9 @@ export class AssetManagerStateService extends AsyncHandler {
                 zones,
                 period_start: getUnixTime(start),
                 period_end: getUnixTime(end),
+                include_parent_bookings: true,
                 type: 'asset-request',
-            }).pipe(
+            } as any).pipe(
                 map((_) =>
                     _.map(
                         (b) =>
@@ -143,7 +144,9 @@ export class AssetManagerStateService extends AsyncHandler {
                             }),
                     ).filter((b) => {
                         const event: any =
-                            b.linked_event || b.linked_bookings[0];
+                            b.linked_event ||
+                            b.linked_bookings[0] ||
+                            b.linked_parent_booking;
                         if (!event) return false;
                         const request = new AssetRequest({
                             ...b.extension_data?.request,

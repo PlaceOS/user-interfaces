@@ -31,6 +31,7 @@ import { UserAvatarComponent } from './user-avatar.component';
 
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { RouterModule } from '@angular/router';
+
 import { AccessibilityTooltipComponent } from './accessibility-tooltip.component';
 import { AttachedResourceConfigModalComponent } from './attached-resource-config-modal.component';
 import { AuthenticatedImageDirective } from './authenticated-image.directive';
@@ -55,10 +56,7 @@ import { IconComponent } from './icon.component';
 import { ImageCarouselComponent } from './image-carousel.component';
 import { ImageViewerComponent } from './image-viewer.component';
 import { IndoorMapsComponent } from './indoor-maps.component';
-import {
-    InteractiveMapComponent,
-    MAP_FEATURE_DATA,
-} from './interactive-map.component';
+import { InteractiveMapComponent } from './interactive-map.component';
 import { JsonDisplayComponent } from './json-display.component';
 import { LanguageSelectComponent } from './language-tooltip.component';
 import { LevelPipe } from './level.pipe';
@@ -89,6 +87,8 @@ import { UserControlsComponent } from './user-controls.component';
 import { VirtualKeyboardComponent } from './virtual-keyboard.component';
 import { WorkLocationTooltipComponent } from './work-location-tooltip.component';
 import { ZonePipe } from './zone.pipe';
+
+import { MAP_FEATURE_DATA } from 'libs/common/src/lib/types';
 
 const MAT_MODULES = [
     MatAutocompleteModule,

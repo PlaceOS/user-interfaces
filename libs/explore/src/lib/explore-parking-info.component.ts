@@ -1,7 +1,7 @@
-import { Component, ElementRef, Inject } from '@angular/core';
+import { Component, ElementRef, inject } from '@angular/core';
 import { SettingsService } from '@placeos/common';
 import { ParkingSpace } from 'libs/bookings/src/lib/parking.service';
-import { MAP_FEATURE_DATA } from 'libs/components/src/lib/interactive-map.component';
+import { MAP_FEATURE_DATA } from 'libs/common/src/lib/types';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 
 interface ParkingSpaceExtended extends ParkingSpace {
@@ -64,6 +64,10 @@ interface ParkingSpaceExtended extends ParkingSpace {
     imports: [TranslatePipe],
 })
 export class ExploreParkingInfoComponent {
+    private _data = inject<ParkingSpaceExtended>(MAP_FEATURE_DATA);
+    private _element = inject<ElementRef<HTMLDivElement>>(ElementRef);
+    private _settings = inject(SettingsService);
+
     public readonly status =
         this._data.assigned_to === this._data.user && this._data.user
             ? 'reserved'
@@ -76,10 +80,4 @@ export class ExploreParkingInfoComponent {
     public get is_concierge() {
         return this._settings.app_name.toLowerCase().includes('concierge');
     }
-
-    constructor(
-        @Inject(MAP_FEATURE_DATA) private _data: ParkingSpaceExtended,
-        private _element: ElementRef<HTMLDivElement>,
-        private _settings: SettingsService,
-    ) {}
 }

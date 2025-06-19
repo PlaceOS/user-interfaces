@@ -1,4 +1,4 @@
-import { Component, Input, Optional } from '@angular/core';
+import { Component, inject, Input } from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import {
     flatten,
@@ -333,6 +333,16 @@ import { SpacesService } from '../spaces.service';
     ],
 })
 export class SpaceFiltersComponent {
+    private _bsheet_ref = inject<MatBottomSheetRef<SpaceFiltersComponent>>(
+        MatBottomSheetRef,
+        { optional: true },
+    );
+    private _settings = inject(SettingsService);
+    private _event_form = inject(EventFormService);
+    private _org = inject(OrganisationService);
+    private _spaces = inject(SpacesService);
+    private _mapspeople = inject(MapsPeopleService);
+
     @Input() public multiday: boolean;
     @Input() public hide_levels: boolean;
     @Input() public viewing_map: boolean;
@@ -432,15 +442,7 @@ export class SpaceFiltersComponent {
         );
     }
 
-    constructor(
-        @Optional()
-        private _bsheet_ref: MatBottomSheetRef<SpaceFiltersComponent>,
-        private _settings: SettingsService,
-        private _event_form: EventFormService,
-        private _org: OrganisationService,
-        private _spaces: SpacesService,
-        private _mapspeople: MapsPeopleService,
-    ) {
+    constructor() {
         this.can_close = !!this._bsheet_ref;
     }
 

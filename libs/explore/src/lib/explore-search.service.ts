@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import {
     MapsPeopleService,
     SettingsService,
@@ -71,6 +71,11 @@ declare let mapsindoors: any;
     providedIn: 'root',
 })
 export class ExploreSearchService {
+    private _org = inject(OrganisationService);
+    private _settings = inject(SettingsService);
+    private _maps_people = inject(MapsPeopleService);
+    private _state = inject(ExploreStateService);
+
     /** Current search results for staff users */
     private _emergency_contacts = new BehaviorSubject<User[]>([]);
     /** Filter string for results */
@@ -303,6 +308,7 @@ export class ExploreSearchService {
                             email: s.assigned_to,
                             description: s.id,
                             name: s.name || s.id,
+                            zone: s.zone?.id || '',
                         })),
                     );
                 }
@@ -403,12 +409,7 @@ export class ExploreSearchService {
         return hide_items.includes(name);
     }
 
-    constructor(
-        private _org: OrganisationService,
-        private _settings: SettingsService,
-        private _maps_people: MapsPeopleService,
-        private _state: ExploreStateService,
-    ) {
+    constructor() {
         this.search_results.subscribe();
         this.init();
     }

@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import {
+    Component,
+    EventEmitter,
+    Input,
+    OnInit,
+    Output,
+    inject,
+} from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
@@ -93,6 +100,10 @@ export class NewSpaceFiltersDisplayComponent
     extends AsyncHandler
     implements OnInit
 {
+    private _event_form = inject(EventFormService);
+    private _org = inject(OrganisationService);
+    private _settings = inject(SettingsService);
+
     @Input() public view: 'map' | 'list' = 'list';
     @Output() public viewChange = new EventEmitter<'map' | 'list'>();
     public readonly options = this._event_form.options$;
@@ -115,11 +126,7 @@ export class NewSpaceFiltersDisplayComponent
         return this._settings.time_format;
     }
 
-    constructor(
-        private _event_form: EventFormService,
-        private _org: OrganisationService,
-        private _settings: SettingsService,
-    ) {
+    constructor() {
         super();
     }
 
