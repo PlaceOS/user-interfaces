@@ -308,6 +308,7 @@ export class ExploreSearchService {
                             email: s.assigned_to,
                             description: s.id,
                             name: s.name || s.id,
+                            zone: s.zone?.id || '',
                         })),
                     );
                 }
