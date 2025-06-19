@@ -53,7 +53,6 @@ export enum ZoomDirection {
                                 (mousedown)="startZoom('in', $event)"
                                 (touchstart)="startZoom('in', $event)"
                                 (contextmenu)="$event.preventDefault()"
-                                (click)="stopZoom()"
                             >
                                 <icon>add</icon>
                             </button>
@@ -70,7 +69,6 @@ export enum ZoomDirection {
                                 (mousedown)="startZoom('out', $event)"
                                 (touchstart)="startZoom('out', $event)"
                                 (contextmenu)="$event.preventDefault()"
-                                (click)="stopZoom()"
                             >
                                 <icon>remove</icon>
                             </button>
@@ -195,13 +193,5 @@ export class CameraControlsComponent extends AsyncHandler implements OnInit {
                 mod.execute('zoom', index ? [this.zoom, index] : [this.zoom]);
             }),
         );
-    }
-
-    public async stopZoom() {
-        const mod = getModule(this.id, this.active_camera.mod);
-        if (!mod) return;
-        const { index } = this.active_camera;
-        this.zoom = ZoomDirection.Stop;
-        mod.execute('zoom', index ? [this.zoom, index] : [this.zoom]);
     }
 }
