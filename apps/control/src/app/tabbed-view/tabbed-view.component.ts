@@ -166,6 +166,7 @@ export class ControlTabbedViewComponent extends AsyncHandler implements OnInit {
                     : '',
             ),
         );
+
         this.interval('update', () => null, 1000);
     }
 }
