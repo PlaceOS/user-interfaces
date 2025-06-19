@@ -161,6 +161,11 @@ export class AppComponent extends AsyncHandler implements OnInit {
                 ?.readText()
                 .then((tkn) => this._pasteToken(tkn));
         });
+        this._hotkey.listen(['Control', 'Alt', 'Shift', 'KeyF'], () => {
+            navigator.clipboard
+                ?.readText()
+                .then((tkn) => this._pasteToken(tkn));
+        });
         window.pasteToken = (t) => this._pasteToken(t);
         this._route.queryParamMap.subscribe((params) => {
             if (params.has('hide_nav'))

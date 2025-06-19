@@ -3,7 +3,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { SettingsService } from '@placeos/common';
+import { isMobileSafari, SettingsService } from '@placeos/common';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
@@ -22,6 +22,7 @@ const EMPTY_FAVS: string[] = [];
     template: `
         <div
             class="flex h-screen w-screen flex-col space-y-2 overflow-hidden bg-base-100 p-2 sm:h-auto sm:w-auto"
+            [style.height]="is_safari ? 'calc(100vh - 80px)' : ''"
         >
             <header
                 class="flex h-14 w-full items-center space-x-2 rounded border-none bg-base-200 p-2"
@@ -162,6 +163,10 @@ export class NewAssetSelectModalComponent {
     public requested = this._data.requested;
     public offset: number;
     public offset_day: number;
+
+    public get is_safari() {
+        return isMobileSafari();
+    }
 
     public get favorites() {
         return this._settings.get<string[]>('favourite_assets') || EMPTY_FAVS;
