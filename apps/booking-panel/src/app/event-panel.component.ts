@@ -39,7 +39,7 @@ import { PanelStateService } from './panel-state.service';
                 <div class="overflow-hidden">
                     @let current_bkn = current | async;
                     @if (current_bkn) {
-                        <h2 class="text-2xl font-medium">
+                        <h2 class="line-clamp-5 text-2xl font-medium">
                             {{ current_bkn?.title }}
                         </h2>
                         <p class="mb-4 text-2xl lowercase">
@@ -72,7 +72,7 @@ import { PanelStateService } from './panel-state.service';
                     <hr class="mb-8" />
                     @let next_bkn = current | async;
                     @if (next_bkn) {
-                        <h2 class="text-2xl font-medium">
+                        <h2 class="line-clamp-4 text-2xl font-medium">
                             {{ next_bkn?.title }}
                         </h2>
                         <p class="text-2xl lowercase">
