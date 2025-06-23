@@ -884,7 +884,9 @@
             "CHAT_WELCOME": "Welcome to the virtual assistant",
             "CHAT_ASSISTANT": "Assistant",
             "CHAT_WAITING": "Waiting for a reply...",
-            "CHAT_MESSAGE_PLACEHOLDER": "New message..."
+            "CHAT_MESSAGE_PLACEHOLDER": "New message...",
+            "RESOURCE_CHECKED_IN_FAILED": "Failed to check in resource",
+            "RESOURCE_CHECKED_IN": "Successfully checked in resource"
         },
         "CONCIERGE": {
             "MENU_BOOKINGS": "Bookings",
