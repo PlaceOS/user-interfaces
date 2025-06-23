@@ -56,7 +56,7 @@ const VALID_TYPES = ['not_started', 'wrong_resource', 'other'];
                         [routerLink]="['/book', 'desk']"
                         [queryParams]="{ asset_id: asset_id }"
                     >
-                        {{ 'APP.WORKPLACE.BOOK' | translate }}
+                        {{ 'COMMON.BOOK' | translate }}
                     </a>
                 }
                 <a
