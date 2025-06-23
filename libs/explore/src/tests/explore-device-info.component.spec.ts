@@ -8,10 +8,9 @@ import { ExploreDeviceInfoComponent } from '../lib/explore-device-info.component
 
 jest.mock('@placeos/ts-client');
 
-import { SettingsService } from '@placeos/common';
+import { MAP_FEATURE_DATA, SettingsService } from '@placeos/common';
 import { FixedPipe } from '@placeos/components';
 import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
-import { MAP_FEATURE_DATA } from 'libs/components/src/lib/interactive-map.component';
 
 describe('ExploreDeviceInfoComponent', () => {
     let spectator: Spectator<ExploreDeviceInfoComponent>;

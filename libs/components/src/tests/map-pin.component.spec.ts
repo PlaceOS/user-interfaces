@@ -1,7 +1,7 @@
 import { fakeAsync } from '@angular/core/testing';
 import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
 
-import { MAP_FEATURE_DATA } from '../lib/interactive-map.component';
+import { MAP_FEATURE_DATA } from '@placeos/common';
 import { MapPinComponent } from '../lib/map-pin.component';
 
 describe('MapPinComponent', () => {

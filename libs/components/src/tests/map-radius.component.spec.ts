@@ -3,7 +3,7 @@ import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
 import { getUnixTime, subMinutes } from 'date-fns';
 import { of } from 'rxjs';
 
-import { MAP_FEATURE_DATA } from '../lib/interactive-map.component';
+import { MAP_FEATURE_DATA } from '@placeos/common';
 import { MapRadiusComponent } from '../lib/map-radius.component';
 
 describe('MapRadiusComponent', () => {
