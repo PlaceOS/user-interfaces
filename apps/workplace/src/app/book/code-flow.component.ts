@@ -2,6 +2,7 @@ import {
     Component,
     ElementRef,
     EventEmitter,
+    inject,
     OnDestroy,
     OnInit,
     Output,
@@ -173,6 +174,11 @@ export class BookCodeFlowComponent
     extends AsyncHandler
     implements OnInit, OnDestroy
 {
+    private readonly _router = inject(Router);
+    private readonly _route = inject(ActivatedRoute);
+    private readonly _event_form = inject(EventFormService);
+    private readonly _booking_form = inject(BookingFormService);
+
     /** Menu event */
     @Output() public menu = new EventEmitter(false);
     /** Boolean to toggle scan/code */
@@ -185,15 +191,6 @@ export class BookCodeFlowComponent
     /** Video element to emit camera feed */
     @ViewChild('video')
     private _video_el: ElementRef<HTMLVideoElement>;
-
-    constructor(
-        private _router: Router,
-        private _route: ActivatedRoute,
-        private _event_form: EventFormService,
-        private _booking_form: BookingFormService,
-    ) {
-        super();
-    }
 
     public ngOnDestroy() {
         if (this._video_el?.nativeElement?.srcObject) {
