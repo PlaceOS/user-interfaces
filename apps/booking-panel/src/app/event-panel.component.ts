@@ -70,7 +70,7 @@ import { PanelStateService } from './panel-state.service';
                         {{ 'APP.BOOKING_PANEL.NEXT' | translate }}
                     </h2>
                     <hr class="mb-8" />
-                    @let next_bkn = current | async;
+                    @let next_bkn = next | async;
                     @if (next_bkn) {
                         <h2 class="line-clamp-4 text-2xl font-medium">
                             {{ next_bkn?.title }}
