@@ -1,18 +1,5 @@
-import { Component } from '@angular/core';
-import { BehaviorSubject, combineLatest, map } from 'rxjs';
-
-type AlertSeverity = 'critical' | 'warning' | 'info';
-type AlertStatus = 'open' | 'in progress' | 'closed' | 'resolved';
-type DeviceType = 'display' | 'audio' | 'video' | 'network' | 'control';
-
-interface Alert {
-    severity: AlertSeverity;
-    type: DeviceType;
-    location: string;
-    subject: string;
-    body: string;
-    status: AlertStatus;
-}
+import { Component, computed, inject, signal } from '@angular/core';
+import { AlertsService } from './alerts.service';
 
 @Component({
     selector: 'stagehand-alerts',
@@ -44,7 +31,9 @@ interface Alert {
                                     >warning</icon
                                 >
                             </div>
-                            <div class="text-4xl font-bold">2</div>
+                            <div class="text-4xl font-bold">
+                                {{ critical_alerts() || '0' }}
+                            </div>
                             <div class="text-sm opacity-40">
                                 Immediate attention required
                             </div>
@@ -60,7 +49,9 @@ interface Alert {
                                     >error</icon
                                 >
                             </div>
-                            <div class="text-4xl font-bold">1</div>
+                            <div class="text-4xl font-bold">
+                                {{ warning_alerts() || '0' }}
+                            </div>
                             <div class="text-sm opacity-40">
                                 Attention may be required
                             </div>
@@ -76,7 +67,9 @@ interface Alert {
                                     >schedule</icon
                                 >
                             </div>
-                            <div class="text-4xl font-bold">1</div>
+                            <div class="text-4xl font-bold">
+                                {{ open_alerts() || '0' }}
+                            </div>
                             <div class="text-sm opacity-40">
                                 Pending resolution
                             </div>
@@ -92,7 +85,9 @@ interface Alert {
                                     >info</icon
                                 >
                             </div>
-                            <div class="text-4xl font-bold">1</div>
+                            <div class="text-4xl font-bold">
+                                {{ info_alerts() || '0' }}
+                            </div>
                             <div class="text-sm opacity-40">
                                 System Notifications
                             </div>
@@ -118,8 +113,8 @@ interface Alert {
                         >
                             <mat-select
                                 placeholder="All Severities"
-                                [ngModel]="severity$.getValue()"
-                                (ngModelChange)="severity$.next($event)"
+                                [ngModel]="severity()"
+                                (ngModelChange)="severity.set($event)"
                             >
                                 <mat-option value="">All Severities</mat-option>
                                 <mat-option value="critical"
@@ -135,8 +130,8 @@ interface Alert {
                         >
                             <mat-select
                                 placeholder="All Statuses"
-                                [ngModel]="status$.getValue()"
-                                (ngModelChange)="status$.next($event)"
+                                [ngModel]="status()"
+                                (ngModelChange)="status.set($event)"
                             >
                                 <mat-option value="">All Statuses</mat-option>
                                 <mat-option value="open">Open</mat-option>
@@ -155,8 +150,8 @@ interface Alert {
                         >
                             <mat-select
                                 placeholder="All Device Types"
-                                [ngModel]="device_type$.getValue()"
-                                (ngModelChange)="device_type$.next($event)"
+                                [ngModel]="device_type()"
+                                (ngModelChange)="device_type.set($event)"
                             >
                                 <mat-option value="">All Devices</mat-option>
                                 <mat-option value="display">Display</mat-option>
@@ -172,7 +167,7 @@ interface Alert {
                     <div class="overflow-auto p-4">
                         <simple-table
                             class="block w-full min-w-[64rem] overflow-hidden bg-base-100 text-sm"
-                            [data]="filtered_alerts"
+                            [data]="filtered_alerts()"
                             [filter]="search"
                             [columns]="[
                                 {
@@ -226,15 +221,15 @@ interface Alert {
                             <div
                                 [class]="
                                     'flex items-center space-x-2 p-4 ' +
-                                    severity[data].class
+                                    severity_types[data].class
                                 "
                             >
                                 <icon
                                     class="text-xl"
                                     className="material-symbols-outlined"
-                                    >{{ severity[data].icon }}</icon
+                                    >{{ severity_types[data].icon }}</icon
                                 >
-                                <div>{{ severity[data].text }}</div>
+                                <div>{{ severity_types[data].text }}</div>
                             </div>
                         </ng-template>
                         <ng-template #device_template let-data="data">
@@ -242,9 +237,9 @@ interface Alert {
                                 <icon
                                     class="text-xl"
                                     className="material-symbols-outlined"
-                                    >{{ device_type[data].icon }}</icon
+                                    >{{ device_types[data].icon }}</icon
                                 >
-                                <div>{{ device_type[data].text }}</div>
+                                <div>{{ device_types[data].text }}</div>
                             </div>
                         </ng-template>
                         <ng-template #status_template let-data="data">
@@ -321,79 +316,48 @@ interface Alert {
     standalone: false,
 })
 export class AlertsComponent {
+    private _service = inject(AlertsService);
     public search = '';
-    public readonly severity = {
+    public readonly severity_types = {
         critical: { icon: 'warning', class: 'text-error', text: 'Critical' },
         warning: { icon: 'error', class: 'text-warning', text: 'Warning' },
         info: { icon: 'info', class: 'text-info', text: 'Info' },
     };
-    public readonly device_type = {
+    public readonly device_types = {
         display: { icon: 'devices', text: 'Display' },
         audio: { icon: 'mic', text: 'Audio' },
         video: { icon: 'videocam', text: 'Video' },
         network: { icon: 'lan', text: 'Network' },
         control: { icon: 'tv_remote', text: 'Control System' },
     };
-    public readonly severity$ = new BehaviorSubject('');
-    public readonly device_type$ = new BehaviorSubject('');
-    public readonly status$ = new BehaviorSubject('');
-    public readonly alert_list = new BehaviorSubject([
-        {
-            severity: 'critical',
-            type: 'display',
-            location: '',
-            subject: 'Display Signal Loss',
-            body: 'Main projector has lost input signal during active class',
-            status: 'open',
-        },
-        {
-            severity: 'critical',
-            type: 'video',
-            location: '',
-            subject: 'Display Signal Loss',
-            body: 'Main projector has lost input signal during active class',
-            status: 'in progress',
-        },
-        {
-            severity: 'info',
-            type: 'audio',
-            location: '',
-            subject: 'Display Signal Loss',
-            body: 'Main projector has lost input signal during active class',
-            status: 'resolved',
-        },
-        {
-            severity: 'critical',
-            type: 'network',
-            location: '',
-            subject: 'Display Signal Loss',
-            body: 'Main projector has lost input signal during active class',
-            status: 'open',
-        },
-        {
-            severity: 'warning',
-            type: 'control',
-            location: '',
-            subject: 'Display Signal Loss',
-            body: 'Main projector has lost input signal during active class',
-            status: 'open',
-        },
-    ]);
+    public readonly severity = signal('');
+    public readonly device_type = signal('');
+    public readonly status = signal('');
+    public readonly alert_list = this._service.alerts;
 
-    public readonly filtered_alerts = combineLatest([
-        this.alert_list,
-        this.severity$,
-        this.device_type$,
-        this.status$,
-    ]).pipe(
-        map(([list, severity, device_type, status]) => {
-            if (severity) list = list.filter((a) => a.severity === severity);
-            if (device_type) list = list.filter((a) => a.type === device_type);
-            if (status) list = list.filter((a) => a.status === status);
-
-            return list;
-        }),
+    public readonly info_alerts = computed(
+        () => this.alert_list().filter((a) => a.severity === 'info').length,
     );
+    public readonly critical_alerts = computed(
+        () => this.alert_list().filter((a) => a.severity === 'critical').length,
+    );
+    public readonly warning_alerts = computed(
+        () => this.alert_list().filter((a) => a.severity === 'warning').length,
+    );
+    public readonly open_alerts = computed(
+        () => this.alert_list().filter((a) => a.status === 'open').length,
+    );
+
+    public readonly filtered_alerts = computed(() => {
+        let list = this.alert_list();
+        if (this.severity())
+            list = list.filter((a) => a.severity === this.severity());
+        if (this.device_type())
+            list = list.filter((a) => a.type === this.device_type());
+        if (this.status())
+            list = list.filter((a) => a.status === this.status());
+        return list;
+    });
 
     public get backoffice_link() {
         return `${location.origin}/backoffice/`;
