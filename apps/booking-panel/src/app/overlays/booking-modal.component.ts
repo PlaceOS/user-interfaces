@@ -1,10 +1,9 @@
-import { Component, EventEmitter, Inject, Output } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
+import { Component, EventEmitter, inject, OnInit, Output } from '@angular/core';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 
 import {
     AsyncHandler,
-    currentUser,
     DialogEvent,
     getInvalidFields,
     HashMap,
@@ -14,7 +13,7 @@ import {
 import { Space } from '@placeos/spaces';
 import { getModule } from '@placeos/ts-client';
 import { User } from '@placeos/users';
-import { of } from 'rxjs';
+import { lastValueFrom, of } from 'rxjs';
 import { first, shareReplay, switchMap } from 'rxjs/operators';
 
 export interface BookingModalData extends HashMap {
@@ -35,10 +34,10 @@ export async function openBookingModal(
         backdropClass: ['pointer-events-none', 'bg-black', 'opacity-60'],
     });
     const result = await Promise.race([
-        ref.componentInstance.event
-            .pipe(first((_) => _.reason === 'done'))
-            .toPromise(),
-        ref.afterClosed().toPromise(),
+        lastValueFrom(
+            ref.componentInstance.event.pipe(first((_) => _.reason === 'done')),
+        ),
+        lastValueFrom(ref.afterClosed()),
     ]).catch((_) => ({}));
     return {
         ...result,
@@ -168,7 +167,8 @@ export async function openBookingModal(
     styles: [``],
     standalone: false,
 })
-export class BookingModalComponent extends AsyncHandler {
+export class BookingModalComponent extends AsyncHandler implements OnInit {
+    private _data: BookingModalData = inject(MAT_DIALOG_DATA);
     /** Emitter for user action on the modal */
     @Output() public event = new EventEmitter<DialogEvent>();
     /** Whether modal is closing */
@@ -189,15 +189,13 @@ export class BookingModalComponent extends AsyncHandler {
         title: new FormControl(`${this._data.title || ''}`),
     });
 
-    constructor(@Inject(MAT_DIALOG_DATA) private _data: BookingModalData) {
-        super();
+    public ngOnInit() {
         if (this._data.disable_book_now_host) {
             this.form.controls.organiser.setValidators([]);
             this.hide_host = true;
         } else {
-            this.form.patchValue({
-                organiser: this._data.user || currentUser(),
-            });
+            this.form.controls.organiser.setValidators([Validators.required]);
+            this.form.patchValue({ organiser: this._data.user });
         }
     }
 
