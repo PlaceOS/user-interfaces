@@ -1,12 +1,12 @@
 import {
-    Component,
-    ElementRef,
-    EventEmitter,
-    Input,
-    OnDestroy,
-    OnInit,
-    Output,
-    ViewChild,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+  viewChild
 } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
 
@@ -106,10 +106,8 @@ export class TakePhotoComponent
     public has_photo = false;
     public loading = false;
 
-    @ViewChild('video', { static: true })
-    private _video_el: ElementRef<HTMLVideoElement>;
-    @ViewChild('canvas', { static: true })
-    private _canvas_el: ElementRef<HTMLCanvasElement>;
+    private readonly _video_el = viewChild<ElementRef<HTMLVideoElement>>('video');
+    private readonly _canvas_el = viewChild<ElementRef<HTMLCanvasElement>>('canvas');
 
     private constraints = {
         audio: false,
@@ -134,12 +132,12 @@ export class TakePhotoComponent
         const stream = await navigator.mediaDevices?.getUserMedia(
             this.constraints,
         );
-        this._video_el.nativeElement.srcObject = stream;
+        this._video_el().nativeElement.srcObject = stream;
         this.loading = false;
     }
 
     private stopCapture() {
-        const el = this._video_el.nativeElement;
+        const el = this._video_el().nativeElement;
         if (!el?.srcObject) return;
         const stream = el.srcObject as MediaStream;
         for (const track of stream.getVideoTracks()) {
@@ -149,9 +147,9 @@ export class TakePhotoComponent
 
     public takePhoto() {
         this.loading = true;
-        const canvas = this._canvas_el.nativeElement;
+        const canvas = this._canvas_el().nativeElement;
         const ctx = canvas.getContext('2d');
-        const vid_el = this._video_el.nativeElement;
+        const vid_el = this._video_el().nativeElement;
         const { videoWidth, videoHeight } = vid_el;
 
         const cw = canvas.width;
@@ -171,7 +169,7 @@ export class TakePhotoComponent
 
     public cancelPhoto() {
         this.loading = true;
-        const canvas = this._canvas_el.nativeElement;
+        const canvas = this._canvas_el().nativeElement;
         const ctx = canvas.getContext('2d');
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         this.has_photo = false;
@@ -179,7 +177,7 @@ export class TakePhotoComponent
     }
 
     public acceptPhoto() {
-        const canvas = this._canvas_el.nativeElement;
+        const canvas = this._canvas_el().nativeElement;
         try {
             this.image_url = canvas.toDataURL('image/jpeg', 0.75);
             this.captured.emit(this.image_url);

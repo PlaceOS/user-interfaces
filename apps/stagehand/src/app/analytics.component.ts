@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
+import { Component, ElementRef, OnInit, inject, viewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AsyncHandler, randomInt } from '@placeos/common';
 import { addDays, addWeeks, endOfDay, format, startOfDay } from 'date-fns';
@@ -221,16 +221,13 @@ export class AnalyticsComponent extends AsyncHandler implements OnInit {
         });
     };
 
-    @ViewChild('line_graph', { static: true })
-    private _line_graph_el: ElementRef<HTMLCanvasElement>;
+    private readonly _line_graph_el = viewChild<ElementRef<HTMLCanvasElement>>('line_graph');
     private _line_graph: Chart;
 
-    @ViewChild('distro_graph', { static: true })
-    private _distro_graph_el: ElementRef<HTMLCanvasElement>;
+    private readonly _distro_graph_el = viewChild<ElementRef<HTMLCanvasElement>>('distro_graph');
     private _distro_graph: Chart;
 
-    @ViewChild('usage_graph', { static: true })
-    private _usage_graph_el: ElementRef<HTMLCanvasElement>;
+    private readonly _usage_graph_el = viewChild<ElementRef<HTMLCanvasElement>>('usage_graph');
     private _usage_graph: Chart;
 
     public ngOnInit() {
@@ -250,7 +247,7 @@ export class AnalyticsComponent extends AsyncHandler implements OnInit {
                 usage: scheduled + randomInt(100, -100) / 10,
             };
         });
-        this._line_graph = new Chart(this._line_graph_el.nativeElement, {
+        this._line_graph = new Chart(this._line_graph_el().nativeElement, {
             type: 'line',
             options: {
                 responsive: true,
@@ -283,7 +280,7 @@ export class AnalyticsComponent extends AsyncHandler implements OnInit {
             'Meeting Room 2',
             'Meeting Room 3',
         ];
-        this._distro_graph = new Chart(this._distro_graph_el.nativeElement, {
+        this._distro_graph = new Chart(this._distro_graph_el().nativeElement, {
             type: 'doughnut',
             options: {
                 responsive: true,
@@ -303,7 +300,7 @@ export class AnalyticsComponent extends AsyncHandler implements OnInit {
                 ],
             },
         });
-        this._usage_graph = new Chart(this._usage_graph_el.nativeElement, {
+        this._usage_graph = new Chart(this._usage_graph_el().nativeElement, {
             type: 'bar',
             options: {
                 responsive: true,

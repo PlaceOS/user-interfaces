@@ -1,13 +1,13 @@
 import {
-    Component,
-    ElementRef,
-    EventEmitter,
-    Input,
-    OnChanges,
-    OnInit,
-    Output,
-    SimpleChanges,
-    ViewChild,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnInit,
+  Output,
+  SimpleChanges,
+  viewChild
 } from '@angular/core';
 import {
     addMinutes,
@@ -57,8 +57,8 @@ export class VerticalTimelineComponent
     @Output() public durationChange = new EventEmitter<number>();
     @Output() public groupsChange = new EventEmitter<ITimelineEventGroup[]>();
 
-    @ViewChild('block') private block: ElementRef;
-    @ViewChild('time') private time: ElementRef;
+    private readonly block = viewChild<ElementRef>('block');
+    private readonly time = viewChild<ElementRef>('time');
 
     public ngOnInit(): void {
         this.generateBlocks();
@@ -119,7 +119,8 @@ export class VerticalTimelineComponent
         this.timeout(
             'move',
             () => {
-                if (this.active_move && this.block) {
+                const block = this.block();
+                if (this.active_move && block) {
                     const center = {
                         x:
                             e.touches && e.touches.length > 0
@@ -135,7 +136,7 @@ export class VerticalTimelineComponent
                             ? { x: 0, y: 0 }
                             : this.offset;
                     const content_box =
-                        this.block.nativeElement.getBoundingClientRect();
+                        block.nativeElement.getBoundingClientRect();
                     const percent_w =
                         (center.x - off.x - content_box.left) /
                         content_box.width;

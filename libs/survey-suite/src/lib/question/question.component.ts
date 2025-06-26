@@ -1,9 +1,9 @@
 import {
-    AfterViewInit,
-    Component,
-    ElementRef,
-    Input,
-    ViewChild,
+  AfterViewInit,
+  Component,
+  ElementRef,
+  Input,
+  viewChild
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -139,12 +139,11 @@ export class QuestionComponent implements AfterViewInit {
     public has_value = false;
     public question: Question;
 
-    @ViewChild('container_el', { static: true })
-    private _container_el: ElementRef<HTMLDivElement>;
+    private readonly _container_el = viewChild<ElementRef<HTMLDivElement>>('container_el');
 
     public ngAfterViewInit() {
         if (this.isCard) {
-            this._container_el.nativeElement.classList.add(
+            this._container_el().nativeElement.classList.add(
                 'border',
                 'border-base-400',
                 'bg-base-100',

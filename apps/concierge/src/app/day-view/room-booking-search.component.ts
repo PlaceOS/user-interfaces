@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, OnInit, Output, ViewChild, inject } from '@angular/core';
+import { Component, ElementRef, EventEmitter, OnInit, Output, inject, viewChild } from '@angular/core';
 import { AsyncHandler, i18n, SettingsService } from '@placeos/common';
 import { CalendarEvent } from '@placeos/events';
 import { BehaviorSubject, combineLatest } from 'rxjs';
@@ -155,8 +155,7 @@ export class RoomBookingSearchComponent extends AsyncHandler implements OnInit {
         }),
     );
 
-    @ViewChild('input_el', { static: true })
-    private _input_element: ElementRef<HTMLInputElement>;
+    private readonly _input_element = viewChild<ElementRef<HTMLInputElement>>('input_el');
 
     public get time_format() {
         return this._settings.time_format;
@@ -189,7 +188,7 @@ export class RoomBookingSearchComponent extends AsyncHandler implements OnInit {
 
     public showSearch() {
         this.show = true;
-        this._input_element.nativeElement.focus();
+        this._input_element().nativeElement.focus();
     }
 
     public hideSearch() {

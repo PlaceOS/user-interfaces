@@ -1,13 +1,13 @@
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import {
-    Component,
-    ElementRef,
-    EventEmitter,
-    forwardRef,
-    inject,
-    Input,
-    Output,
-    ViewChild,
+  Component,
+  ElementRef,
+  EventEmitter,
+  forwardRef,
+  inject,
+  Input,
+  Output,
+  viewChild
 } from '@angular/core';
 import {
     ControlValueAccessor,
@@ -288,7 +288,7 @@ export class UserListFieldComponent
     public loading = false;
     public readonly search$ = new BehaviorSubject('');
 
-    @ViewChild('search_field') private _search_el: ElementRef<HTMLInputElement>;
+    private readonly _search_el = viewChild<ElementRef<HTMLInputElement>>('search_field');
 
     private searchStaff(q: string) {
         return this._settings.get('app.basic_user_search')
@@ -378,7 +378,7 @@ export class UserListFieldComponent
             'clear_search',
             () => {
                 this.search$.next('');
-                this._search_el.nativeElement.value = '';
+                this._search_el().nativeElement.value = '';
             },
             100,
         );
@@ -405,7 +405,7 @@ export class UserListFieldComponent
             'clear_search',
             () => {
                 this.search$.next('');
-                this._search_el.nativeElement.value = '';
+                this._search_el().nativeElement.value = '';
             },
             100,
         );

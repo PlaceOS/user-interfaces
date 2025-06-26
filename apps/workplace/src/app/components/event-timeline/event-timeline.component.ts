@@ -1,13 +1,13 @@
 import {
-    Component,
-    ElementRef,
-    EventEmitter,
-    Input,
-    OnChanges,
-    OnInit,
-    Output,
-    SimpleChanges,
-    ViewChild,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnInit,
+  Output,
+  SimpleChanges,
+  viewChild
 } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
 import {
@@ -79,8 +79,7 @@ export class EventTimelineComponent
     public vertical = false;
     public model: { [name: string]: any } = {};
 
-    @ViewChild('overlay', { static: false })
-    public content: ElementRef<HTMLDivElement>;
+    public readonly content = viewChild<ElementRef<HTMLDivElement>>('overlay');
 
     public ngOnInit(): void {
         this.model.start = set(this.date, { hours: 6, minutes: 30 });
@@ -269,7 +268,8 @@ export class EventTimelineComponent
         this.timeout(
             'move',
             () => {
-                if (this.model.move && this.content) {
+                const content = this.content();
+                if (this.model.move && content) {
                     const center = {
                         x:
                             e.touches && e.touches.length > 0
@@ -281,7 +281,7 @@ export class EventTimelineComponent
                                 : e.clientY,
                     };
                     const content_box =
-                        this.content.nativeElement.getBoundingClientRect();
+                        content.nativeElement.getBoundingClientRect();
                     const percent_w =
                         (center.x - content_box.left) / content_box.width;
                     const percent_h =

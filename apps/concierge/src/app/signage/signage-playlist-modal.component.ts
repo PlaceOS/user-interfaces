@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild, inject } from '@angular/core';
+import { Component, ElementRef, inject, viewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import {
     MAT_DIALOG_DATA,
@@ -237,8 +237,7 @@ export class SignagePlaylistModalComponent {
         valid_until: new FormControl(this.playlist.valid_until * 1000),
     });
 
-    @ViewChild('search_input')
-    public search_input: ElementRef<HTMLInputElement>;
+    public readonly search_input = viewChild<ElementRef<HTMLInputElement>>('search_input');
 
     public async savePlaylist() {
         this.form.markAllAsTouched();

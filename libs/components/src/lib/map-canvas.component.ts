@@ -1,9 +1,9 @@
 import {
-    Component,
-    ElementRef,
-    OnInit,
-    ViewChild,
-    inject,
+  Component,
+  ElementRef,
+  OnInit,
+  inject,
+  viewChild
 } from '@angular/core';
 import {
     AsyncHandler,
@@ -54,8 +54,7 @@ export class MapCanvasComponent extends AsyncHandler implements OnInit {
     public svg_ratio = 1;
     public width = 10000;
 
-    @ViewChild('canvas', { static: true })
-    private canvas_element: ElementRef<HTMLCanvasElement>;
+    private readonly canvas_element = viewChild<ElementRef<HTMLCanvasElement>>('canvas');
 
     public get ratioed_height(): number {
         return +(this.width * this.ratio).toFixed(2);
@@ -98,7 +97,7 @@ export class MapCanvasComponent extends AsyncHandler implements OnInit {
 
         if (old_ratio === ratio) return;
 
-        const canvas = this.canvas_element.nativeElement;
+        const canvas = this.canvas_element().nativeElement;
         canvas.width = width;
         canvas.height = height;
 
@@ -107,7 +106,7 @@ export class MapCanvasComponent extends AsyncHandler implements OnInit {
     }
 
     private _handleStateChange(polygon_list: Polygon[]): void {
-        const canvas = this.canvas_element.nativeElement;
+        const canvas = this.canvas_element().nativeElement;
         const ctx = canvas.getContext('2d');
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         polygon_list.forEach((poly) => this._drawPolygon(poly));
@@ -116,7 +115,7 @@ export class MapCanvasComponent extends AsyncHandler implements OnInit {
     private _drawPolygon(polygon: Polygon) {
         const points = polygon.points;
         if (!points?.length) return;
-        const canvas = this.canvas_element.nativeElement;
+        const canvas = this.canvas_element().nativeElement;
         const ctx = canvas.getContext('2d');
         const width = canvas.width;
         const height = canvas.height;

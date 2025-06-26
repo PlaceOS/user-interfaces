@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild, inject } from '@angular/core';
+import { Component, ElementRef, inject, viewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import {
     AsyncHandler,
@@ -261,8 +261,7 @@ export class LandingColleaguesComponent extends AsyncHandler {
 
     public readonly updateSearch = (s) => this._state.setOptions({ search: s });
 
-    @ViewChild('search_input', { static: true })
-    private _input_el!: ElementRef<HTMLInputElement>;
+    private readonly _input_el = viewChild.required<ElementRef<HTMLInputElement>>('search_input');
 
     public newMeeting(user: User) {
         this._event_form.newForm();
@@ -277,6 +276,6 @@ export class LandingColleaguesComponent extends AsyncHandler {
     public openSearch() {
         this.updateSearch('');
         this.show_search = true;
-        this.timeout('open', () => this._input_el.nativeElement.focus(), 100);
+        this.timeout('open', () => this._input_el().nativeElement.focus(), 100);
     }
 }

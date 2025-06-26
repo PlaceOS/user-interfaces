@@ -1,12 +1,12 @@
 import { CommonModule } from '@angular/common';
 import {
-    Component,
-    forwardRef,
-    Input,
-    OnChanges,
-    OnInit,
-    SimpleChanges,
-    ViewChild,
+  Component,
+  forwardRef,
+  Input,
+  OnChanges,
+  OnInit,
+  SimpleChanges,
+  viewChild
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -165,7 +165,7 @@ export class TimeFieldComponent
     private _onTouch: (_: number) => void;
 
     /** Select field for selecting the time */
-    @ViewChild('select') private select_field: MatSelect;
+    private readonly select_field = viewChild<MatSelect>('select');
 
     public get time_format() {
         return this.use_24hr ? 'HH : mm' : 'h : mm a';
@@ -298,12 +298,13 @@ export class TimeFieldComponent
     public showSelect() {
         this.show_select = true;
         this.timeout('on_shown', () => {
-            if (this.select_field) {
-                this.select_field.focus();
-                this.select_field.open();
+            const select_field = this.select_field();
+            if (select_field) {
+                select_field.focus();
+                select_field.open();
                 this.subscription(
                     'listen_close',
-                    this.select_field.openedChange.subscribe((state) => {
+                    select_field.openedChange.subscribe((state) => {
                         if (!state) {
                             this.show_select = false;
                         }

@@ -2,13 +2,13 @@ import { Overlay, OverlayRef } from '@angular/cdk/overlay';
 import { CdkPortal, PortalModule } from '@angular/cdk/portal';
 
 import {
-    AfterViewInit,
-    Component,
-    ElementRef,
-    OnDestroy,
-    OnInit,
-    ViewChild,
-    inject,
+  AfterViewInit,
+  Component,
+  ElementRef,
+  OnDestroy,
+  OnInit,
+  inject,
+  viewChild
 } from '@angular/core';
 import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
 import { SanitizePipe } from './sanitise.pipe';
@@ -38,7 +38,7 @@ export class PrintableComponent
     public content = '';
     private _overlay_ref: OverlayRef = null;
 
-    @ViewChild(CdkPortal) private _portal: CdkPortal;
+    private readonly _portal = viewChild(CdkPortal);
 
     constructor() {
         super();
@@ -62,7 +62,8 @@ export class PrintableComponent
             'open',
             () => {
                 if (this._overlay_ref) this.close();
-                if (!this._portal) return;
+                const _portal = this._portal();
+                if (!_portal) return;
                 const default_x = 'end';
                 const default_y = 'top';
                 this._overlay_ref = this._overlay.create({
@@ -79,7 +80,7 @@ export class PrintableComponent
                             },
                         ]),
                 });
-                this._overlay_ref.attach(this._portal);
+                this._overlay_ref.attach(_portal);
             },
             50,
         );

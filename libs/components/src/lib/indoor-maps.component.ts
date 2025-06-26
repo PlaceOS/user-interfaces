@@ -1,13 +1,13 @@
 import {
-    AfterViewInit,
-    Component,
-    ElementRef,
-    Input,
-    OnChanges,
-    OnInit,
-    SimpleChanges,
-    ViewChild,
-    inject,
+  AfterViewInit,
+  Component,
+  ElementRef,
+  Input,
+  OnChanges,
+  OnInit,
+  SimpleChanges,
+  inject,
+  viewChild
 } from '@angular/core';
 import {
     AsyncHandler,
@@ -254,8 +254,8 @@ export class IndoorMapsComponent
     );
     public floor_mapping: { [id: string]: string } = {};
 
-    @ViewChild('searchInput', { static: true }) searchElement: ElementRef;
-    @ViewChild('searchResultItems') searchResults: ElementRef;
+    readonly searchElement = viewChild<ElementRef>('searchInput');
+    readonly searchResults = viewChild<ElementRef>('searchResultItems');
 
     constructor() {
         super();
@@ -280,7 +280,7 @@ export class IndoorMapsComponent
             await this.mapActions();
         }
         if (change.locate && this.locate && mapsindoors) {
-            const searchParams = { q: this.searchElement.nativeElement.value };
+            const searchParams = { q: this.searchElement().nativeElement.value };
             const locations =
                 await mapsindoors?.services.LocationsService.getLocations(
                     searchParams,
@@ -407,7 +407,7 @@ export class IndoorMapsComponent
     }
 
     public onSearch() {
-        const searchParams = { q: this.searchElement.nativeElement.value };
+        const searchParams = { q: this.searchElement().nativeElement.value };
         mapsindoors?.services.LocationsService.getLocations(searchParams).then(
             (locations: any[]) => {
                 this.search_result_items = locations;

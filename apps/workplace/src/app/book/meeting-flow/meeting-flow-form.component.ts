@@ -1,4 +1,11 @@
-import { Component, ElementRef, OnInit, TemplateRef, ViewChild, inject } from '@angular/core';
+import {
+    Component,
+    ElementRef,
+    inject,
+    OnInit,
+    TemplateRef,
+    viewChild,
+} from '@angular/core';
 import {
     MatBottomSheet,
     MatBottomSheetRef,
@@ -743,8 +750,9 @@ export class MeetingFlowFormComponent extends AsyncHandler implements OnInit {
         }
     };
 
-    @ViewChild('confirm_ref') private _confirm_ref: TemplateRef<any>;
-    @ViewChild('input') private _input_el: ElementRef<HTMLInputElement>;
+    private readonly _confirm_ref = viewChild<TemplateRef<any>>('confirm_ref');
+    private readonly _input_el =
+        viewChild<ElementRef<HTMLInputElement>>('input');
 
     private _updateValidAssets() {
         this.invalid_assets = [];
@@ -828,8 +836,8 @@ export class MeetingFlowFormComponent extends AsyncHandler implements OnInit {
         this.timeout(
             'input-focus',
             () => {
-                this._input_el.nativeElement.value = '';
-                this._input_el?.nativeElement?.focus();
+                this._input_el().nativeElement.value = '';
+                this._input_el()?.nativeElement?.focus();
             },
             300,
         );

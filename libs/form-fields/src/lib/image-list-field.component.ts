@@ -1,11 +1,11 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import {
-    Component,
-    ElementRef,
-    forwardRef,
-    inject,
-    ViewChild,
+  Component,
+  ElementRef,
+  forwardRef,
+  inject,
+  viewChild
 } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
@@ -251,8 +251,8 @@ export class ImageListFieldComponent extends AsyncHandler {
         return this.list.length + this._upload_list.getValue().length + 1;
     }
 
-    @ViewChild('image_list') private _list_el: ElementRef<HTMLDivElement>;
-    @ViewChild('file_input') private _file_input: ElementRef<HTMLInputElement>;
+    private readonly _list_el = viewChild<ElementRef<HTMLDivElement>>('image_list');
+    private readonly _file_input = viewChild<ElementRef<HTMLInputElement>>('file_input');
 
     constructor() {
         super();
@@ -267,7 +267,7 @@ export class ImageListFieldComponent extends AsyncHandler {
         this.timeout(
             'init_view_space',
             () => {
-                const box = this._list_el.nativeElement.getBoundingClientRect();
+                const box = this._list_el().nativeElement.getBoundingClientRect();
                 this.view_space = Math.floor(box.width / 152);
             },
             100,
@@ -334,7 +334,7 @@ export class ImageListFieldComponent extends AsyncHandler {
                         files[i],
                     );
                     this.upload_ids.next([...this.upload_ids.getValue(), id]);
-                    this._file_input.nativeElement.value = '';
+                    this._file_input().nativeElement.value = '';
                 }
             }
         }

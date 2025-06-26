@@ -2,14 +2,14 @@ import { Overlay, OverlayRef } from '@angular/cdk/overlay';
 import { CdkPortal, PortalModule } from '@angular/cdk/portal';
 
 import {
-    Component,
-    ElementRef,
-    HostListener,
-    Input,
-    OnDestroy,
-    SimpleChanges,
-    ViewChild,
-    inject,
+  Component,
+  ElementRef,
+  HostListener,
+  Input,
+  OnDestroy,
+  SimpleChanges,
+  inject,
+  viewChild
 } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { AsyncHandler } from '@placeos/common';
@@ -120,7 +120,7 @@ export class VirtualKeyboardComponent
     /** References to the overlay containing the keyboard */
     private _overlay_ref: OverlayRef = null;
     /** Portal with the keyboard contents */
-    @ViewChild(CdkPortal) private _portal: CdkPortal;
+    private readonly _portal = viewChild(CdkPortal);
 
     @HostListener('focus') public onFocus = () => {
         if (!VirtualKeyboardComponent.enabled) return;
@@ -152,7 +152,8 @@ export class VirtualKeyboardComponent
 
     public open() {
         if (this._overlay_ref) return;
-        if (!this._portal) return;
+        const _portal = this._portal();
+        if (!_portal) return;
         this._overlay_ref = this._overlay.create({
             positionStrategy: this._overlay
                 .position()
@@ -160,7 +161,7 @@ export class VirtualKeyboardComponent
                 .bottom()
                 .centerHorizontally(),
         });
-        this._overlay_ref.attach(this._portal);
+        this._overlay_ref.attach(_portal);
     }
 
     public close() {

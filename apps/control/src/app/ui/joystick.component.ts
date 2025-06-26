@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, Input, Output, Renderer2, ViewChild, inject } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, Output, Renderer2, inject, viewChild } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
 import { Point } from '@placeos/svg-viewer';
 
@@ -83,8 +83,7 @@ export class JoystickComponent extends AsyncHandler {
     @Output() public panChange = new EventEmitter<JoystickPan>();
     @Output() public tiltChange = new EventEmitter<JoystickTilt>();
 
-    @ViewChild('panning_control', { static: true })
-    private _panning_el: ElementRef<HTMLDivElement>;
+    private readonly _panning_el = viewChild<ElementRef<HTMLDivElement>>('panning_control');
 
     private _box: ClientRect;
 
@@ -108,7 +107,7 @@ export class JoystickComponent extends AsyncHandler {
         const move_event =
             event instanceof MouseEvent ? 'mousemove' : 'touchmove';
         const end_event = event instanceof MouseEvent ? 'mouseup' : 'touchend';
-        this._box = this._panning_el.nativeElement.getBoundingClientRect();
+        this._box = this._panning_el().nativeElement.getBoundingClientRect();
         this.handlePan(event);
         this.subscription(
             'on_move',

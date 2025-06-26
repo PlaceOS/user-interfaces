@@ -1,9 +1,9 @@
 import {
-    Component,
-    ElementRef,
-    OnInit,
-    ViewChild,
-    inject,
+  Component,
+  ElementRef,
+  OnInit,
+  inject,
+  viewChild
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
@@ -143,9 +143,8 @@ export class ExploreSearchComponent extends AsyncHandler implements OnInit {
     public readonly loading = this._search.loading;
     public readonly setFilter = (s) => this._search.setFilter(s);
 
-    @ViewChild('input') private _input_el: ElementRef<HTMLInputElement>;
-    @ViewChild('button', { static: true })
-    private _button_el: ElementRef<HTMLButtonElement>;
+    private readonly _input_el = viewChild<ElementRef<HTMLInputElement>>('input');
+    private readonly _button_el = viewChild<ElementRef<HTMLButtonElement>>('button');
 
     constructor() {
         super();
@@ -168,10 +167,10 @@ export class ExploreSearchComponent extends AsyncHandler implements OnInit {
     }
 
     public focusInput() {
-        if (this._input_el?.nativeElement) {
+        if (this._input_el()?.nativeElement) {
             this.timeout(
                 'focus',
-                () => this._input_el.nativeElement.focus(),
+                () => this._input_el().nativeElement.focus(),
                 300,
             );
         }
@@ -186,9 +185,10 @@ export class ExploreSearchComponent extends AsyncHandler implements OnInit {
         this.show = false;
         this.search_str = '';
         this.setFilter('');
-        if (this._input_el?.nativeElement) {
-            this._input_el.nativeElement.focus();
-            this._input_el.nativeElement.blur();
+        const _input_el = this._input_el();
+        if (_input_el?.nativeElement) {
+            _input_el.nativeElement.focus();
+            _input_el.nativeElement.blur();
         }
     }
 
@@ -216,7 +216,7 @@ export class ExploreSearchComponent extends AsyncHandler implements OnInit {
     public checkButtonPosition() {
         const window_width = window.innerWidth;
         const button_rect =
-            this._button_el.nativeElement.getBoundingClientRect();
+            this._button_el().nativeElement.getBoundingClientRect();
         const x_center = button_rect.left + button_rect.width / 2;
         this.right_size = x_center > window_width / 2;
     }

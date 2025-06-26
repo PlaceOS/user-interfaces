@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, ElementRef, forwardRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, forwardRef, viewChild } from '@angular/core';
 import {
     ControlValueAccessor,
     FormControl,
@@ -165,8 +165,7 @@ export class CardInputFieldComponent
     public readonly digits = Array(16).fill(0);
     private _index = 0;
 
-    @ViewChild('input', { static: true })
-    private _input_el!: ElementRef<HTMLInputElement>;
+    private readonly _input_el = viewChild.required<ElementRef<HTMLInputElement>>('input');
 
     private _onChange?: (_: PaymentCardDetails) => void;
     private _onTouch?: (_: PaymentCardDetails) => void;
@@ -200,10 +199,11 @@ export class CardInputFieldComponent
     }
 
     public get card_focused() {
+        const _input_el = this._input_el();
         return (
-            document.activeElement === this._input_el.nativeElement ||
+            document.activeElement === _input_el.nativeElement ||
             document.activeElement ===
-                this._input_el.nativeElement.parentElement
+                _input_el.nativeElement.parentElement
         );
     }
 
@@ -219,8 +219,8 @@ export class CardInputFieldComponent
     }
 
     public focusInput() {
-        this._input_el.nativeElement.focus();
-        this._index = this._input_el.nativeElement.selectionStart || 0;
+        this._input_el().nativeElement.focus();
+        this._index = this._input_el().nativeElement.selectionStart || 0;
     }
 
     public onInput(event: KeyboardEvent) {

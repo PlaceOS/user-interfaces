@@ -1,11 +1,11 @@
 import {
-    AfterViewInit,
-    Component,
-    ElementRef,
-    EventEmitter,
-    Input,
-    Output,
-    ViewChild,
+  AfterViewInit,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  Output,
+  viewChild
 } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
 import { fromEvent, Observable } from 'rxjs';
@@ -55,7 +55,7 @@ export class SearchInputComponent
     @Input() classNames: string = '';
     @Input() search: string = '';
     @Output() onSearch: EventEmitter<string> = new EventEmitter<string>();
-    @ViewChild('searchInput', { static: true }) input: ElementRef;
+    readonly input = viewChild<ElementRef>('searchInput');
 
     search$: Observable<string>;
 
@@ -64,12 +64,12 @@ export class SearchInputComponent
     }
 
     clearSearch() {
-        this.input.nativeElement.value = '';
+        this.input().nativeElement.value = '';
         this.onSearch.emit('');
     }
 
     ngAfterViewInit() {
-        this.search$ = fromEvent<any>(this.input.nativeElement, 'keyup').pipe(
+        this.search$ = fromEvent<any>(this.input().nativeElement, 'keyup').pipe(
             map((event) => event.target.value),
             debounceTime(500),
             distinctUntilChanged(),

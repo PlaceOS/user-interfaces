@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/member-ordering */
 import {
-    Component,
-    ElementRef,
-    forwardRef,
-    inject,
-    Input,
-    OnInit,
-    ViewChild,
+  Component,
+  ElementRef,
+  forwardRef,
+  inject,
+  Input,
+  OnInit,
+  viewChild
 } from '@angular/core';
 import {
     ControlValueAccessor,
@@ -219,13 +219,12 @@ export class UserSearchFieldComponent
     public readonly registerOnChange = (fn) => (this._onChange = fn);
     public readonly registerOnTouched = (fn) => (this._onTouch = fn);
 
-    @ViewChild('input', { read: ElementRef })
-    private _input_el: ElementRef<HTMLInputElement>;
+    private readonly _input_el = viewChild('input', { read: ElementRef });
 
     public cancelReset = () => this.clearTimeout('reset');
 
     public blurInput = () => {
-        this.timeout('blur', () => this._input_el?.nativeElement?.blur());
+        this.timeout('blur', () => this._input_el()?.nativeElement?.blur());
     };
 
     public ngOnInit(): void {

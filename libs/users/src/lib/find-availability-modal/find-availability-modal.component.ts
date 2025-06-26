@@ -1,11 +1,11 @@
 import { CommonModule } from '@angular/common';
 import {
-    AfterViewInit,
-    Component,
-    ElementRef,
-    Renderer2,
-    ViewChild,
-    inject,
+  AfterViewInit,
+  Component,
+  ElementRef,
+  Renderer2,
+  inject,
+  viewChild
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
@@ -349,8 +349,7 @@ export class FindAvailabilityModalComponent
         shareReplay(1),
     );
 
-    @ViewChild('container', { static: true })
-    private _container_el!: ElementRef<HTMLDivElement>;
+    private readonly _container_el = viewChild.required<ElementRef<HTMLDivElement>>('container');
 
     public get today() {
         return isSameDay(this.date, Date.now());
@@ -399,14 +398,14 @@ export class FindAvailabilityModalComponent
         this.timeout(
             'init',
             () => {
-                const el = this._container_el.nativeElement.querySelector(
+                const el = this._container_el().nativeElement.querySelector(
                     `[hour="${date.getHours()}"]`,
                 );
                 if (el) {
                     const rect =
-                        this._container_el.nativeElement.getBoundingClientRect();
+                        this._container_el().nativeElement.getBoundingClientRect();
                     const el_rect = el.getBoundingClientRect();
-                    this._container_el.nativeElement.scrollTo(
+                    this._container_el().nativeElement.scrollTo(
                         el_rect.left - 128 - rect.left,
                         0,
                     );
@@ -418,8 +417,8 @@ export class FindAvailabilityModalComponent
     }
 
     public onScroll() {
-        this.offset_x = this._container_el.nativeElement.scrollLeft;
-        this.offset_y = this._container_el.nativeElement.scrollTop;
+        this.offset_x = this._container_el().nativeElement.scrollLeft;
+        this.offset_y = this._container_el().nativeElement.scrollTop;
     }
 
     public move_time = false;

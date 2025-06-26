@@ -1,12 +1,12 @@
 import {
-    AfterViewInit,
-    Component,
-    ElementRef,
-    forwardRef,
-    Input,
-    OnChanges,
-    SimpleChanges,
-    ViewChild,
+  AfterViewInit,
+  Component,
+  ElementRef,
+  forwardRef,
+  Input,
+  OnChanges,
+  SimpleChanges,
+  viewChild
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { AsyncHandler, uploadFile } from '@placeos/common';
@@ -46,8 +46,8 @@ export class RichTextInputComponent
     @Input() public readonly = false;
     @Input() public images_allowed = false;
 
-    @ViewChild('container') private _container_el: ElementRef<HTMLDivElement>;
-    @ViewChild('editor') private _editor_el: ElementRef<HTMLDivElement>;
+    private readonly _container_el = viewChild<ElementRef<HTMLDivElement>>('container');
+    private readonly _editor_el = viewChild<ElementRef<HTMLDivElement>>('editor');
 
     private _editor: Quill;
     private _updateFn = () => this.setValue(this._editor.root.innerHTML);
@@ -101,9 +101,11 @@ export class RichTextInputComponent
     }
 
     private _initialiseEditor() {
+        const _editor_el = this._editor_el();
+        const _container_el = this._container_el();
         if (
-            !this._editor_el?.nativeElement ||
-            !this._container_el?.nativeElement
+            !_editor_el?.nativeElement ||
+            !_container_el?.nativeElement
         ) {
             return this.timeout('init', () => this._initialiseEditor());
         }
@@ -120,11 +122,11 @@ export class RichTextInputComponent
         }
         if (this._editor) {
             this.unsub('changes');
-            this._editor_el.nativeElement.innerHTML = '';
+            _editor_el.nativeElement.innerHTML = '';
             delete this._editor;
         }
-        this._editor = new Quill(this._editor_el.nativeElement, {
-            bounds: this._container_el.nativeElement,
+        this._editor = new Quill(_editor_el.nativeElement, {
+            bounds: _container_el.nativeElement,
             placeholder: this.placeholder,
             modules: {
                 toolbar: {

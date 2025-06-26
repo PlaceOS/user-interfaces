@@ -7,7 +7,7 @@ import {
     OnInit,
     Output,
     SimpleChanges,
-    ViewChild,
+    viewChild,
 } from '@angular/core';
 import { AsyncHandler, shuffleArrayWithFirstItem } from '@placeos/common';
 import { MediaAnimation } from '@placeos/ts-client';
@@ -288,19 +288,19 @@ export class MediaPlayerComponent
         return this._item_playlist[this.index];
     }
 
-    @ViewChild('previous_container', { static: true })
-    private _previous_container: ElementRef<HTMLDivElement>;
-    @ViewChild('previous_image_el', { static: true })
-    private _previous_img_element: ElementRef<HTMLImageElement>;
-    @ViewChild('previous_video_el', { static: true })
-    private _previous_video_element: ElementRef<HTMLVideoElement>;
+    private readonly _previous_container =
+        viewChild<ElementRef<HTMLDivElement>>('previous_container');
+    private readonly _previous_img_element =
+        viewChild<ElementRef<HTMLImageElement>>('previous_image_el');
+    private readonly _previous_video_element =
+        viewChild<ElementRef<HTMLVideoElement>>('previous_video_el');
 
-    @ViewChild('media_container', { static: true })
-    private _container: ElementRef<HTMLDivElement>;
-    @ViewChild('img_el', { static: true })
-    private _image_element: ElementRef<HTMLImageElement>;
-    @ViewChild('video_el', { static: true })
-    private _video_element: ElementRef<HTMLVideoElement>;
+    private readonly _container =
+        viewChild<ElementRef<HTMLDivElement>>('media_container');
+    private readonly _image_element =
+        viewChild<ElementRef<HTMLImageElement>>('img_el');
+    private readonly _video_element =
+        viewChild<ElementRef<HTMLVideoElement>>('video_el');
 
     public ngOnInit() {
         this.interval('playlist_check', () => this._updateItem(), 50);
@@ -331,7 +331,7 @@ export class MediaPlayerComponent
             );
         }
         if (changes.muted) {
-            this._video_element.nativeElement.muted = !!this.muted;
+            this._video_element().nativeElement.muted = !!this.muted;
         }
     }
 
@@ -347,7 +347,7 @@ export class MediaPlayerComponent
     public toggleMuted() {
         this.muted = !this.muted;
         this.mutedChange.emit(this.muted);
-        this._video_element.nativeElement.muted = this.muted;
+        this._video_element().nativeElement.muted = this.muted;
     }
 
     public togglePause() {
@@ -357,14 +357,14 @@ export class MediaPlayerComponent
             this._item_progress = Date.now() - this._item_start;
             this._item_start = 0;
             if (this.active_item?.type === 'video') {
-                this._video_element.nativeElement.pause();
+                this._video_element().nativeElement.pause();
             }
         } else {
             this.state = 'PLAYING';
             this._item_start = Date.now() - this._item_progress;
             this._item_progress = 0;
             if (this.active_item?.type === 'video') {
-                this._video_element.nativeElement.play();
+                this._video_element().nativeElement.play();
             }
             if (this.index === -1) this._updateItem();
         }
@@ -455,19 +455,19 @@ export class MediaPlayerComponent
             return;
         }
         if (item.type === 'video') {
-            this._image_element.nativeElement.classList.add('hidden');
-            this._video_element.nativeElement.src = url.toString();
-            this._video_element.nativeElement.classList.remove('hidden');
+            this._image_element().nativeElement.classList.add('hidden');
+            this._video_element().nativeElement.src = url.toString();
+            this._video_element().nativeElement.classList.remove('hidden');
             try {
-                this._video_element.nativeElement.play();
+                this._video_element().nativeElement.play();
             } catch (e) {
                 this.nextItem();
             }
         } else {
-            this._video_element.nativeElement.classList.add('hidden');
-            this._image_element.nativeElement.src = url.toString();
-            this._image_element.nativeElement.classList.remove('hidden');
-            this._video_element.nativeElement.pause();
+            this._video_element().nativeElement.classList.add('hidden');
+            this._image_element().nativeElement.src = url.toString();
+            this._image_element().nativeElement.classList.remove('hidden');
+            this._video_element().nativeElement.pause();
         }
         this._transition();
     }
@@ -518,8 +518,8 @@ export class MediaPlayerComponent
             return;
         }
         if (this.index !== -1) {
-            const img_el = this._previous_img_element.nativeElement;
-            const video_el = this._previous_video_element.nativeElement;
+            const img_el = this._previous_img_element().nativeElement;
+            const video_el = this._previous_video_element().nativeElement;
             let index = this.index - 1;
             if (index < 0) index = this._item_playlist.length - 1;
             const item = this._item_playlist[index];
@@ -537,8 +537,8 @@ export class MediaPlayerComponent
             }
         }
         const item = this.active_item;
-        const prev_container_el = this._previous_container.nativeElement;
-        const container_el = this._container.nativeElement;
+        const prev_container_el = this._previous_container().nativeElement;
+        const container_el = this._container().nativeElement;
         requestAnimationFrame(() => {
             switch (item.animation) {
                 case MediaAnimation.SlideTop:
@@ -577,11 +577,11 @@ export class MediaPlayerComponent
     }
 
     private _onTransitionEnd() {
-        const prev_container_el = this._previous_container.nativeElement;
-        const container_el = this._container.nativeElement;
+        const prev_container_el = this._previous_container().nativeElement;
+        const container_el = this._container().nativeElement;
         prev_container_el.classList.remove('opacity-0');
-        this._previous_video_element.nativeElement.classList.add('hidden');
-        this._previous_img_element.nativeElement.classList.add('hidden');
+        this._previous_video_element().nativeElement.classList.add('hidden');
+        this._previous_img_element().nativeElement.classList.add('hidden');
         prev_container_el.classList.remove('player-animate');
         container_el.classList.remove('player-animate');
         this.in_animation = false;

@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild, inject } from '@angular/core';
+import { Component, ElementRef, inject, viewChild } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
 import { map } from 'rxjs/operators';
 
@@ -132,10 +132,10 @@ export class StaffListingComponent extends AsyncHandler {
         }),
     );
 
-    @ViewChild('container') private _el: ElementRef<HTMLDivElement>;
+    private readonly _el = viewChild<ElementRef<HTMLDivElement>>('container');
 
     public onScroll(_) {
-        const scroll_top = this._el.nativeElement.scrollTop;
+        const scroll_top = this._el().nativeElement.scrollTop;
         for (const group of CHARS) {
             const el: HTMLDivElement = document.querySelector(
                 `#letter-${group === '#' ? '0' : group}`,

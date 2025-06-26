@@ -1,4 +1,4 @@
-import { Component, ViewChild, inject } from '@angular/core';
+import { Component, inject, viewChild } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import {
@@ -221,11 +221,11 @@ export class EmergencyContactModalComponent {
     /** List of levels for the active building */
     public readonly levels = this._org.active_levels;
 
-    @ViewChild(CustomTooltipComponent) private _tooltip: CustomTooltipComponent;
+    private readonly _tooltip = viewChild(CustomTooltipComponent);
 
     public async addRole() {
         if (!this.role_name) return;
-        this._tooltip.close();
+        this._tooltip().close();
         this.loading = true;
         this._dialog_ref.disableClose = true;
         const data: any = await nextValueFrom(this.data);
