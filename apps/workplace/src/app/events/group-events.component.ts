@@ -7,7 +7,7 @@ import { GroupEventsStateService } from './group-events-state.service';
 @Component({
     selector: '[group-events]',
     template: `
-        <topbar></topbar>
+        <topbar />
         <main class="flex h-1/2 flex-1 flex-col bg-base-200 sm:flex-row">
             <group-events-sidebar></group-events-sidebar>
             <div class="h-full w-full flex-1 overflow-auto p-2 sm:w-1/2 sm:p-4">
@@ -48,7 +48,7 @@ import { GroupEventsStateService } from './group-events-state.service';
                 }
             </div>
         </main>
-        <footer-menu></footer-menu>
+        <footer-menu />
     `,
     styles: [
         `

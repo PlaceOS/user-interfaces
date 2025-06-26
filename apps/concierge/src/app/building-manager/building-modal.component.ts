@@ -19,12 +19,11 @@ import { Building } from '@placeos/organisation';
             "
             (confirm)="save()"
         >
-            <building-form
-                [building]="building"
+            <building-form [building]="building"
                 [save]="save_state"
                 [(loading)]="loading"
                 (done)="close($event)"
-            ></building-form>
+             />
         </fullscreen-modal-shell>
     `,
     styles: [``],

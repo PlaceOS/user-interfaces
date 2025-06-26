@@ -5,12 +5,10 @@ import { ParkingStateService } from './parking-state.service';
 @Component({
     selector: 'parking-bookings-list',
     template: `
-        <mat-progress-bar
-            [class.opacity-0]="!(loading | async)?.includes('bookings')"
+        <mat-progress-bar [class.opacity-0]="!(loading | async)?.includes('bookings')"
             class="sticky left-0 w-full"
-        ></mat-progress-bar>
-        <simple-table
-            class="block min-w-[76rem] text-sm"
+         />
+        <simple-table class="block min-w-[76rem] text-sm"
             [data]="events"
             [columns]="[
                 {
@@ -63,7 +61,7 @@ import { ParkingStateService } from './parking-state.service';
             [filter]="(options | async)?.search"
             [sortable]="true"
             [empty_message]="'APP.CONCIERGE.PARKING_BOOKINGS_EMPTY' | translate"
-        ></simple-table>
+         />
         <ng-template #date_template let-row="row">
             <div class="px-4 py-2">
                 {{

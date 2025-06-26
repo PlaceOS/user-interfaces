@@ -9,7 +9,7 @@ import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component'
 @Component({
     selector: '[app-new-lockers]',
     template: `
-        <app-topbar></app-topbar>
+        <app-topbar />
         <div class="flex h-px flex-1">
             <app-sidebar></app-sidebar>
             <main class="relative flex h-full w-1/2 flex-1 flex-col">

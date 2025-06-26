@@ -41,7 +41,7 @@ export function initSentry(dsn: string, sample_rate: number = 0.2) {
 @Component({
     selector: 'app-root',
     template: `
-        <global-banner></global-banner>
+        <global-banner />
         <div class="relative h-1/2 w-full flex-1">
             <router-outlet></router-outlet>
         </div>

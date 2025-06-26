@@ -6,11 +6,10 @@ import { SignageService } from './signage.service';
 @Component({
     selector: 'signage-panel',
     template: `
-        <media-player
-            [playlist]="playlist | async"
+        <media-player [playlist]="playlist | async"
             [controls]="debug"
             [animation_time]="animation_time"
-        ></media-player>
+         />
     `,
     styles: `
         :host {

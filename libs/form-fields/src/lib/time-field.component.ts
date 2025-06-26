@@ -113,7 +113,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
             }
         </mat-menu>
         @if (!no_error) {
-            <mat-error><ng-content></ng-content></mat-error>
+            <mat-error><ng-content /></mat-error>
         }
     `,
     styles: [

@@ -25,7 +25,7 @@ const DEFAULT_KEYS = [
 @Component({
     selector: 'input[keyboard],textarea[keyboard]',
     template: `
-        <ng-content></ng-content>
+        <ng-content />
         <ng-template cdk-portal>
             <div
                 keyboard-view

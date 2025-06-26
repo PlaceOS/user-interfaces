@@ -45,12 +45,11 @@ import {
                 {{ 'APP.CONCIERGE.BOOKING_RULES_NOTE' | translate }}
             </div>
             <ng-container [ngSwitch]="view">
-                <booking-rules-form
-                    [ruleset]="selected"
+                <booking-rules-form [ruleset]="selected"
                     [save]="activate_save"
                     (rulesetChange)="save($event)"
                     *ngSwitchCase="'form'"
-                ></booking-rules-form>
+                 />
                 <div class="-mx-4 w-[calc(100%+2rem)] overflow-auto">
                     <simple-table
                         class="block w-full min-w-[48rem] text-sm"

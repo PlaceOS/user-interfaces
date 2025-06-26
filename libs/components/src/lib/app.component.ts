@@ -89,14 +89,14 @@ export function initSentry(dsn: string, sample_rate = 0.1) {
 @Component({
     selector: 'app-root',
     template: `
-        <global-banner></global-banner>
+        <global-banner />
         <div class="relative h-1/2 w-full flex-1">
             <router-outlet></router-outlet>
         </div>
         @if (has_chat) {
-            <global-chat></global-chat>
+            <global-chat />
         }
-        <global-loading></global-loading>
+        <global-loading />
         <!-- <debug-console *ngIf="debug"></debug-console> -->
     `,
     styles: [

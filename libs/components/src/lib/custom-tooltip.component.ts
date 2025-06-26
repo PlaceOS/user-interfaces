@@ -33,7 +33,7 @@ export class CustomTooltipData<T = any> {
 @Component({
     selector: '[customTooltip]',
     template: `
-        <ng-content></ng-content>
+        <ng-content />
 
         <ng-template cdk-portal>
             <div custom-tooltip class="relative print:hidden">

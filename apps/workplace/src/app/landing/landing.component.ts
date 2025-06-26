@@ -7,7 +7,7 @@ import { startOfMinute } from 'date-fns';
     selector: 'app-landing',
     template: `
         @if (!hide_nav) {
-            <topbar class="z-10"></topbar>
+            <topbar class="z-10" />
         }
         <div class="flex h-1/2 flex-1 bg-base-200">
             @if (!hide_landing_sidebar) {
@@ -100,7 +100,7 @@ import { startOfMinute } from 'date-fns';
             </div>
         </div>
         @if (!hide_nav) {
-            <footer-menu></footer-menu>
+            <footer-menu />
         }
     `,
     styles: [

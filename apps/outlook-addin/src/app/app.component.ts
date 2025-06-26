@@ -27,8 +27,8 @@ declare let OfficeRuntime: any;
 @Component({
     selector: 'app-root',
     template: `
-        <router-outlet></router-outlet>
-        <global-loading></global-loading>
+        <router-outlet />
+        <global-loading />
     `,
     styles: [``],
     standalone: false,

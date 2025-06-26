@@ -66,7 +66,7 @@ const CHARS = '#abcdefghijklmnopqrstuvwxyz'.split('');
             }
         </div>
         @if (loading | async) {
-            <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+            <mat-progress-bar mode="indeterminate" />
         }
     `,
     styles: [

@@ -8,12 +8,10 @@ import { ParkingStateService } from './parking-state.service';
 @Component({
     selector: 'parking-users-list',
     template: `
-        <mat-progress-bar
-            [class.opacity-0]="!(loading | async)?.includes('users')"
+        <mat-progress-bar [class.opacity-0]="!(loading | async)?.includes('users')"
             class="w-full"
-        ></mat-progress-bar>
-        <simple-table
-            class="block min-w-[68rem] text-sm"
+         />
+        <simple-table class="block min-w-[68rem] text-sm"
             [data]="user_list"
             [columns]="[
                 {
@@ -47,7 +45,7 @@ import { ParkingStateService } from './parking-state.service';
             ]"
             [filter]="(options | async)?.search"
             [sortable]="true"
-        ></simple-table>
+         />
         <ng-template #name_template let-row="row" let-data="data">
             <button
                 class="px-4 py-2 text-left leading-tight"

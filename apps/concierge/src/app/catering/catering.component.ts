@@ -5,7 +5,7 @@ import { AsyncHandler } from '@placeos/common';
 @Component({
     selector: '[app-new-catering]',
     template: `
-        <app-topbar></app-topbar>
+        <app-topbar />
         <div class="flex h-px flex-1">
             <app-sidebar></app-sidebar>
             <main class="flex h-full w-1/2 flex-1 flex-col">

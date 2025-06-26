@@ -5,7 +5,7 @@ import { DesksService } from '@placeos/bookings';
     selector: 'app-explore',
     template: `
         @if (!hide_nav) {
-            <topbar></topbar>
+            <topbar />
         }
         <div class="flex h-1/2 flex-1 flex-col-reverse bg-base-200 sm:flex-row">
             <main
@@ -16,7 +16,7 @@ import { DesksService } from '@placeos/bookings';
         </div>
 
         @if (!hide_nav) {
-            <footer-menu></footer-menu>
+            <footer-menu />
         }
     `,
     styles: [

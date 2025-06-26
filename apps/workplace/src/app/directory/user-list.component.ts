@@ -19,7 +19,7 @@ const LETTERS = `ABCDEFGHIJKLMNOPQRSTUVWXYZ`.split('');
 @Component({
     selector: '[a-directory-user-list]',
     template: `
-        <topbar></topbar>
+        <topbar />
         <div class="flex h-1/2 flex-1 flex-col-reverse sm:flex-row">
             <div
                 class="relative z-0 flex h-1/2 flex-1 flex-col overflow-hidden sm:h-auto"
@@ -138,7 +138,7 @@ const LETTERS = `ABCDEFGHIJKLMNOPQRSTUVWXYZ`.split('');
                 </main>
             </div>
         </div>
-        <footer-menu></footer-menu>
+        <footer-menu />
     `,
     styles: [
         `

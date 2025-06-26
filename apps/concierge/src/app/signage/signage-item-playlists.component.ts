@@ -28,7 +28,7 @@ const PLAYLIST_ITEM_COUNTS = {};
                 </div>
             }
         </div>
-        <ng-content></ng-content>
+        <ng-content />
         @if ((active_playlists | async).length > 0 && item) {
             <div
                 cdkDropList

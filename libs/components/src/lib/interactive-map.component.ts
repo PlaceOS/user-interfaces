@@ -56,11 +56,11 @@ export interface MapMetadata {
                 [focus]="focus()"
                 [metadata]="metadata()"
             >
-                <ng-content></ng-content>
+                <ng-content />
             </maps-indoors>
         } @else if (use_cisco_maps) {
             <cisco-map>
-                <ng-content></ng-content>
+                <ng-content />
             </cisco-map>
         } @else {
             <map-renderer
@@ -74,7 +74,7 @@ export interface MapMetadata {
                 [labels]="labels() || metadata()?.labels"
                 (mapInfo)="mapInfo.emit($event)"
             >
-                <ng-content></ng-content>
+                <ng-content />
             </map-renderer>
         }
         @if (options()?.controls) {

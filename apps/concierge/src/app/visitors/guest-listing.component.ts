@@ -17,8 +17,7 @@ import { VisitorsStateService } from './visitors-state.service';
 @Component({
     selector: 'guest-listings',
     template: `
-        <simple-table
-            class="z-0 block text-sm"
+        <simple-table class="z-0 block text-sm"
             [style.min-width]="64 + extra_width + 'rem'"
             [data]="guests"
             [columns]="[
@@ -101,7 +100,7 @@ import { VisitorsStateService } from './visitors-state.service';
             ]"
             [filter]="search | async"
             [sortable]="true"
-        ></simple-table>
+         />
         <ng-template #state_template let-row="row">
             @if (!row?.checked_in && row.checked_out_at) {
                 <div

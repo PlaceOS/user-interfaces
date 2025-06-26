@@ -7,17 +7,15 @@ import { EventsStateService } from '../day-view/events-state.service';
 @Component({
     selector: 'facilities-map',
     template: `
-        <interactive-map
-            [src]="url | async"
+        <interactive-map [src]="url | async"
             [zoom]="(positions | async).zoom"
             [center]="(positions | async).center"
             [styles]="styles | async"
             [features]="features | async"
             [actions]="actions | async"
-        ></interactive-map>
-        <explore-zoom-controls
-            class="absolute bottom-2 right-2"
-        ></explore-zoom-controls>
+         />
+        <explore-zoom-controls class="absolute bottom-2 right-2"
+         />
     `,
     styles: [
         `

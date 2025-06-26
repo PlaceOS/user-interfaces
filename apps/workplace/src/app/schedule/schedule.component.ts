@@ -35,7 +35,7 @@ import {
     selector: 'app-schedule',
     template: `
         @if (!hide_nav) {
-            <topbar></topbar>
+            <topbar />
         }
         <div
             class="relative flex h-1/2 flex-1 flex-col bg-base-200 sm:flex-row"
@@ -159,7 +159,7 @@ import {
             }
         </div>
         @if (!hide_nav) {
-            <footer-menu></footer-menu>
+            <footer-menu />
         }
     `,
     styles: [

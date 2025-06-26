@@ -4,7 +4,7 @@ import { UrlManagementService } from './url-management.service';
 @Component({
     selector: '[app-short-url-manager]',
     template: `
-        <app-topbar class="print:hidden"></app-topbar>
+        <app-topbar class="print:hidden" />
         <div class="flex h-px flex-1 print:hidden">
             <app-sidebar></app-sidebar>
             <main class="flex h-full w-1/2 flex-1 flex-col">

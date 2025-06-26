@@ -5,7 +5,7 @@ import { first } from 'rxjs/operators';
 
 @Component({
     selector: '[desk-booking]',
-    template: ` <footer-menu></footer-menu> `,
+    template: ` <footer-menu /> `,
     styles: [
         `
             :host {

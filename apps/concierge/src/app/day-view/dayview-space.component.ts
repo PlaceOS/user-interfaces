@@ -11,7 +11,7 @@ import { EventsStateService } from './events-state.service';
     template: `
         @if (space) {
             @for (event of events | async; track event) {
-                <dayview-event [event]="event"></dayview-event>
+                <dayview-event [event]="event" />
             }
         }
     `,

@@ -6,7 +6,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
 @Component({
     selector: 'asset-listing',
     template: `
-        <asset-manager-topbar [active]="active"></asset-manager-topbar>
+        <asset-manager-topbar [active]="active" />
         <div class="flex h-1/2 w-full flex-1 flex-col px-8">
             @if (!is_new || active !== 'requests') {
                 <nav mat-tab-nav-bar [tabPanel]="tabPanel">

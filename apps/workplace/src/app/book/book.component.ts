@@ -4,7 +4,7 @@ import { Component } from '@angular/core';
     selector: 'placeos-book',
     template: `
         @if (!hide_nav) {
-            <topbar></topbar>
+            <topbar />
         }
         <div class="flex h-1/2 flex-1 flex-col-reverse sm:flex-row">
             <main class="flex h-1/2 flex-1 flex-col overflow-hidden sm:h-auto">
@@ -12,7 +12,7 @@ import { Component } from '@angular/core';
             </main>
         </div>
         @if (!hide_nav) {
-            <footer-menu class="z-10"></footer-menu>
+            <footer-menu class="z-10" />
         }
     `,
     styles: [
