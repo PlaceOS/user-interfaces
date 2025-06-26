@@ -1940,6 +1940,7 @@
             "HOST": "Host",
             "PHONE": "Phone",
             "ORGANISATION": "Organization",
+            "REASON": "Reason for visit",
             "CHECKED_IN_MSG": "You are checked in!",
             "CHECKED_IN_MSG_SELF_REG": "Your registration is confirmed!",
             "TAKE_PHOTO": "Take a photo to continue",

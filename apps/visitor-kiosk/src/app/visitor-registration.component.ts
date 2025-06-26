@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { startOfMinute } from 'date-fns';
@@ -34,9 +34,9 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                     [formGroup]="form"
                 >
                     <div
-                        class="flex items-center justify-between space-x-4 border-b border-base-300 px-4 py-2"
+                        class="sticky top-0 z-10 m-2 flex w-[calc(100%-1rem)] items-center justify-between rounded border-none bg-base-200 p-2"
                     >
-                        <h3 class="py-2 text-lg font-medium">
+                        <h3 class="px-2 text-lg font-medium">
                             {{ 'APP.VISITOR_KIOSK.REGISTRATION' | translate }}
                         </h3>
                         <a icon matRipple [routerLink]="['/welcome']">
@@ -106,9 +106,25 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                                 "
                             />
                         </mat-form-field>
+                        <label form="org">
+                            {{ 'APP.VISITOR_KIOSK.REASON' | translate }}
+                        </label>
+                        <mat-form-field
+                            appearance="outline"
+                            class="no-subscript w-full"
+                        >
+                            <input
+                                matInput
+                                name="reason"
+                                formControlName="title"
+                                [placeholder]="
+                                    'APP.VISITOR_KIOSK.ORGANISATION' | translate
+                                "
+                            />
+                        </mat-form-field>
                     </div>
                     <div
-                        class="flex justify-end space-x-4 border-t border-base-300 px-4 py-2"
+                        class="sticky bottom-0 z-10 m-2 flex w-[calc(100%-1rem)] items-center justify-end rounded border-none bg-base-200 p-2"
                     >
                         <button btn matRipple class="w-40" (click)="register()">
                             {{ 'APP.VISITOR_KIOSK.REGISTER' | translate }}
@@ -169,6 +185,7 @@ export class VisitorRegistrationComponent implements OnInit {
             .setValidators([Validators.required, Validators.email]);
         this._booking_form.form.patchValue({
             booking_type: 'visitor',
+            title: 'Visit',
         });
         setTimeout(() => {
             if (this._settings.get('app.allow_self_registration')) return;
