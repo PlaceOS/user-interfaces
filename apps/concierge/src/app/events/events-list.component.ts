@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AsyncHandler, nextValueFrom, SettingsService } from '@placeos/common';
 import {
@@ -81,7 +81,7 @@ import { EventStateService } from './event-state.service';
                         [(ngModel)]="selected_range"
                         (ngModelChange)="setPeriod($event)"
                     >
-                        @for (range of period_list; track range) {
+                        @for (range of period_list; track range.id) {
                             <mat-option [value]="range.id">
                                 {{ range.display }}
                             </mat-option>

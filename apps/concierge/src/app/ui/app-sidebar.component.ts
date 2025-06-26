@@ -16,7 +16,7 @@ import { debounceTime, filter, first } from 'rxjs/operators';
         <div
             class="h-full w-64 overflow-auto border-r border-base-200 py-2 pr-3"
         >
-            @for (link of filtered_links; track link) {
+            @for (link of filtered_links; track link.id + '' + $index) {
                 @if (!link.children) {
                     <a
                         matRipple

@@ -75,7 +75,7 @@ import { ExploreSearchService } from '@placeos/explore';
                     @if (!(loading | async) && filter_str) {
                         @for (
                             option of results | async | slice: 0 : 100;
-                            track option
+                            track option.id + $index
                         ) {
                             <a
                                 matRipple

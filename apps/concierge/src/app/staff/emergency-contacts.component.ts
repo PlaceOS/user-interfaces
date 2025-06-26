@@ -85,7 +85,7 @@ export interface EmergencyContactData {
                                 }}</mat-option>
                                 @for (
                                     role of (roles | async) || [];
-                                    track role
+                                    track role + $index
                                 ) {
                                     <mat-option [value]="role">
                                         {{ role }}

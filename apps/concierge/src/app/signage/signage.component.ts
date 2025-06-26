@@ -35,7 +35,7 @@ import { SignageStateService } from './signage-state.service';
                 </div>
                 <div class="px-8">
                     <nav mat-tab-nav-bar [tabPanel]="tabPanel">
-                        @for (link of links; track link) {
+                        @for (link of links; track link.id) {
                             <a
                                 mat-tab-link
                                 [routerLink]="
@@ -77,7 +77,7 @@ export class SignageComponent extends AsyncHandler implements OnInit {
 
     public readonly loading = this._state.loading;
     public links = [];
-    public active_link = this.links[0];
+    public active_link = this.links[0]?.id;
 
     public readonly previewFile = (event) =>
         this._state.previewFileFromInput(event);
@@ -115,14 +115,16 @@ export class SignageComponent extends AsyncHandler implements OnInit {
             'route.query',
             this._router.events.subscribe((event) => {
                 if (event instanceof NavigationEnd) {
-                    this.active_link = this.links.find((_) =>
-                        this._router.url.includes(_.toLowerCase()),
-                    );
+                    this.active_link =
+                        this.links.find((_) =>
+                            this._router.url.includes(_.id.toLowerCase()),
+                        )?.id || this.active_link;
                 }
             }),
         );
-        this.active_link = this.links.find((_) =>
-            this._router.url.includes(_.toLowerCase()),
-        );
+        this.active_link =
+            this.links.find((_) =>
+                this._router.url.includes(_.id.toLowerCase()),
+            )?.id || this.active_link;
     }
 }

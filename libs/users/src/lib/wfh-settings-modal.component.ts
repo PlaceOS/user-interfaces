@@ -23,6 +23,7 @@ import {
 import { WorktimeBlock, WorktimePreference } from './user.class';
 
 import { FormsModule } from '@angular/forms';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.component';
 
@@ -75,7 +76,7 @@ import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.componen
                         @for (day of days; track day) {
                             @if (weekdays_enabled[day.getDay()]) {
                                 <div
-                                    class="relative flex w-full items-center justify-between space-x-2 rounded bg-base-200 p-2"
+                                    class="relative flex w-full items-center justify-between space-x-2 rounded border border-base-200 p-2"
                                 >
                                     <div class="w-1/2 flex-1 space-y-2 pt-2">
                                         @for (
@@ -169,6 +170,7 @@ import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.componen
                                                                 i
                                                             )
                                                         "
+                                                        class="h-12 w-12 rounded border border-base-400"
                                                     >
                                                         <icon>add</icon>
                                                     </button>
@@ -177,7 +179,7 @@ import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.componen
                                                     <button
                                                         icon
                                                         matRipple
-                                                        class="text-error"
+                                                        class="h-12 w-12 rounded border border-error text-error"
                                                         (click)="
                                                             removeBlock(
                                                                 settings[
@@ -248,6 +250,7 @@ import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.componen
         TimeFieldComponent,
         MatCheckboxModule,
         FormsModule,
+        IconComponent,
     ],
 })
 export class WFHSettingsModalComponent implements OnInit {
