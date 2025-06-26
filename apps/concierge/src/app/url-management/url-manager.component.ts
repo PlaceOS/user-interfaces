@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { UrlManagementService } from './url-management.service';
 
 @Component({
@@ -9,7 +9,7 @@ import { UrlManagementService } from './url-management.service';
             <app-sidebar></app-sidebar>
             <main class="flex h-full w-1/2 flex-1 flex-col">
                 <header
-                    class="mb-2 flex items-center justify-between px-8 py-4"
+                    class="mb-2 flex items-center justify-between px-8 pb-2 pt-4"
                 >
                     <h2 class="text-2xl font-medium">
                         {{ 'APP.CONCIERGE.URLS_HEADER' | translate }}
@@ -18,6 +18,16 @@ import { UrlManagementService } from './url-management.service';
                         {{ 'APP.CONCIERGE.URLS_ADD' | translate }}
                     </button>
                 </header>
+                <div class="flex justify-end px-8 pb-4">
+                    <mat-form-field appearance="outline" class="no-subscript">
+                        <input
+                            matInput
+                            placeholder="Search"
+                            [(ngModel)]="search_term"
+                            (ngModelChange)="updateSearch($event)"
+                        />
+                    </mat-form-field>
+                </div>
                 <short-url-list
                     class="relative block h-1/2 w-full flex-1"
                 ></short-url-list>
@@ -50,7 +60,13 @@ import { UrlManagementService } from './url-management.service';
     standalone: false,
 })
 export class UrlManagerComponent {
+    private _state = inject(UrlManagementService);
+
+    public search_term = '';
+
     public readonly new = () => this._state.editURL();
 
-    constructor(private readonly _state: UrlManagementService) {}
+    public updateSearch(value: string) {
+        this._state.setSearchString(value);
+    }
 }
