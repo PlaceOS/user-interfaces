@@ -59,14 +59,14 @@ interface DateItem {
             <div
                 class="mb-2 flex items-center border-b border-base-200 pb-2 text-sm"
             >
-                @for (day of date_list | slice: 0 : 7; track day) {
+                @for (day of date_list | slice: 0 : 7; track day.id) {
                     <div class="flex-1 text-center opacity-60">
                         {{ day?.id | date: 'EE' }}
                     </div>
                 }
             </div>
             <div class="flex flex-wrap items-center justify-between">
-                @for (day of date_list; track day) {
+                @for (day of date_list; track day.id) {
                     <button
                         icon
                         name="schedule-set-date"

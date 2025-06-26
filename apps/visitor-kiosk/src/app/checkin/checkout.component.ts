@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { i18n, notifySuccess } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
@@ -53,13 +53,11 @@ import { CheckinStateService } from './checkin-state.service';
     standalone: false,
 })
 export class CheckoutComponent implements OnInit {
-    public loading = false;
+    private _state = inject(CheckinStateService);
+    private _router = inject(Router);
+    private _org = inject(OrganisationService);
 
-    constructor(
-        private _state: CheckinStateService,
-        private _router: Router,
-        private _org: OrganisationService,
-    ) {}
+    public loading = false;
 
     public async ngOnInit() {
         await this._org.initialised.pipe(first((_) => _)).toPromise();

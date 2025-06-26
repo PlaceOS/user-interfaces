@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { OrganisationService } from '@placeos/organisation';
 import { BookingPanelSettingsModalComponent } from '../ui/app-settings/booking-panel-settings-modal.component';
@@ -10,7 +10,7 @@ import { RegionManagementService } from './region-management.service';
 @Component({
     selector: '[app-region-manager]',
     template: `
-        <app-topbar></app-topbar>
+        <app-topbar />
         <div class="flex h-px flex-1">
             <app-sidebar></app-sidebar>
             <main class="flex h-full w-1/2 flex-1 flex-col">
@@ -124,17 +124,15 @@ import { RegionManagementService } from './region-management.service';
     standalone: false,
 })
 export class RegionManagerComponent {
+    private readonly _state = inject(RegionManagementService);
+    private _dialog = inject(MatDialog);
+    private _org = inject(OrganisationService);
+
     public readonly newRegion = () => this._state.editRegion();
 
     public get org() {
         return this._org.organisation;
     }
-
-    constructor(
-        private readonly _state: RegionManagementService,
-        private _dialog: MatDialog,
-        private _org: OrganisationService,
-    ) {}
 
     public editWorkplaceSettings(zone) {
         console.log('Zone:', zone);

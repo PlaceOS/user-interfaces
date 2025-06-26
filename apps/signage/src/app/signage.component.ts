@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { SignageService } from './signage.service';
@@ -6,11 +6,10 @@ import { SignageService } from './signage.service';
 @Component({
     selector: 'signage-panel',
     template: `
-        <media-player
-            [playlist]="playlist | async"
+        <media-player [playlist]="playlist | async"
             [controls]="debug"
             [animation_time]="animation_time"
-        ></media-player>
+         />
     `,
     styles: `
         :host {
@@ -22,20 +21,16 @@ import { SignageService } from './signage.service';
     standalone: false,
 })
 export class SignagePanelComponent extends AsyncHandler {
+    private _router = inject(Router);
+    private _route = inject(ActivatedRoute);
+    private _signage = inject(SignageService);
+    private _settings = inject(SettingsService);
+
     public readonly playlist = this._signage.playlist;
     public debug = false;
 
     public get animation_time() {
         return this._settings.get('app.default_animation_time');
-    }
-
-    constructor(
-        private _router: Router,
-        private _route: ActivatedRoute,
-        private _signage: SignageService,
-        private _settings: SettingsService,
-    ) {
-        super();
     }
 
     public ngOnInit() {

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
     Asset,
@@ -70,6 +70,11 @@ export interface AssetOptions {
     providedIn: 'root',
 })
 export class AssetManagerStateService extends AsyncHandler {
+    private _spaces = inject(SpacesService);
+    private _org = inject(OrganisationService);
+    private _dialog = inject(MatDialog);
+    private _settings = inject(SettingsService);
+
     private _options = new BehaviorSubject<AssetOptions>({ view: 'grid' });
     private _change = new BehaviorSubject(0);
     private _poll = new BehaviorSubject(0);
@@ -299,15 +304,6 @@ export class AssetManagerStateService extends AsyncHandler {
 
     public get base_route() {
         return '/book/assets';
-    }
-
-    constructor(
-        private _spaces: SpacesService,
-        private _org: OrganisationService,
-        private _dialog: MatDialog,
-        private _settings: SettingsService,
-    ) {
-        super();
     }
 
     public startPolling(delay = 15 * 1000) {

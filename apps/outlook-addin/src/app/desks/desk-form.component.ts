@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { BookingFormService } from '@placeos/bookings';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { Desk } from '@placeos/organisation';
@@ -131,17 +131,13 @@ import { Desk } from '@placeos/organisation';
     standalone: false,
 })
 export class DeskBookingFormComponent extends AsyncHandler {
+    private _service = inject(BookingFormService);
+    private _settings = inject(SettingsService);
+
     public readonly form = this._service.form;
 
     public get allow_assets() {
         return this._settings.get('app.desks.allow_assets');
-    }
-
-    constructor(
-        private _service: BookingFormService,
-        private _settings: SettingsService,
-    ) {
-        super();
     }
 
     public ngOnInit() {

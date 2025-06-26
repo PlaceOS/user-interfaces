@@ -1,4 +1,4 @@
-import { Component, DOCUMENT, Inject, OnInit } from '@angular/core';
+import { Component, DOCUMENT, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { currentUser } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
@@ -124,6 +124,11 @@ import { FeaturesFilterService } from './features-filter.service';
     standalone: false,
 })
 export class RoomBookingComponent implements OnInit {
+    private _document = inject<Document>(DOCUMENT);
+    private router = inject(Router);
+    private _state = inject(EventFormService);
+    private _featuresFilterService = inject(FeaturesFilterService);
+
     public show_spaces = false;
     public show_people = false;
 
@@ -136,13 +141,6 @@ export class RoomBookingComponent implements OnInit {
     public readonly clearForm = () => {
         this._state.clearForm();
     };
-
-    constructor(
-        @Inject(DOCUMENT) private _document: Document,
-        private router: Router,
-        private _state: EventFormService,
-        private _featuresFilterService: FeaturesFilterService,
-    ) {}
 
     ngOnInit(): void {
         this._state.newForm();

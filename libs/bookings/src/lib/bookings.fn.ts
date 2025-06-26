@@ -1,5 +1,5 @@
 import { del, get, patch, post, put, query } from '@placeos/ts-client';
-import { Observable, of } from 'rxjs';
+import { lastValueFrom, Observable, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 
 import { BookableResource, flatten, unique } from '@placeos/common';
@@ -507,30 +507,32 @@ export async function createBookingsForEvent(
                     item.items?.find((i) => i.item_ids.includes(id)),
                 ),
             );
-            return createBooking(
-                new Booking({
-                    type,
-                    booking_type: type,
-                    date: event.date,
-                    duration: event.duration,
-                    description: event.title,
-                    user_email: event.host,
-                    asset_id: item.email || item.id,
-                    asset_name: (item as any).name,
-                    title: (item as any).name,
-                    attendees: item.email ? [item] : [],
-                    approved: booking?.approved && !item._changed,
-                    rejected: booking?.rejected && !item._changed,
-                    extension_data: {
-                        parent_id: event.id,
-                        name: (item as any).name,
-                        location_id: event.location,
-                        details: item,
-                    },
-                    zones,
-                }),
-                { ical_uid: event.ical_uid, event_id: event.id },
-            ).toPromise();
+            return lastValueFrom(
+                createBooking(
+                    new Booking({
+                        type,
+                        booking_type: type,
+                        date: event.date,
+                        duration: event.duration,
+                        description: (item as any).name,
+                        user_email: event.host,
+                        asset_id: item.email || item.id,
+                        asset_name: (item as any).name,
+                        title: event.title,
+                        attendees: item.email ? [item] : [],
+                        approved: booking?.approved && !item._changed,
+                        rejected: booking?.rejected && !item._changed,
+                        extension_data: {
+                            parent_id: event.id,
+                            name: (item as any).name,
+                            location_id: event.location,
+                            details: item,
+                        },
+                        zones,
+                    }),
+                    { ical_uid: event.ical_uid, event_id: event.id },
+                ),
+            );
         }),
     );
 }

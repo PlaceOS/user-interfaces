@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { AsyncHandler, nextValueFrom } from '@placeos/common';
 import { map } from 'rxjs/operators';
 import { ControlStateService } from './control-state.service';
@@ -141,6 +141,8 @@ import { ControlStateService } from './control-state.service';
     standalone: false,
 })
 export class ControlStatusBarComponent extends AsyncHandler {
+    private _state = inject(ControlStateService);
+
     /** Details of the active system */
     public readonly system = this._state.system;
 
@@ -160,9 +162,5 @@ export class ControlStatusBarComponent extends AsyncHandler {
 
     public get id() {
         return this._state.id;
-    }
-
-    constructor(private _state: ControlStateService) {
-        super();
     }
 }

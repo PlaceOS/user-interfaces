@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { first, map } from 'rxjs/operators';
 
@@ -111,6 +111,11 @@ import { combineLatest } from 'rxjs';
     standalone: false,
 })
 export class ReportsOptionsComponent extends AsyncHandler {
+    private _org = inject(OrganisationService);
+    private _settings = inject(SettingsService);
+    private _route = inject(ActivatedRoute);
+    private _router = inject(Router);
+
     @Input() public loading: boolean = false;
     @Input() public has_data: boolean = false;
 
@@ -179,15 +184,6 @@ export class ReportsOptionsComponent extends AsyncHandler {
 
     public get week_start() {
         return this._settings.get('app.week_start');
-    }
-
-    constructor(
-        private _org: OrganisationService,
-        private _settings: SettingsService,
-        private _route: ActivatedRoute,
-        private _router: Router,
-    ) {
-        super();
     }
 
     public async ngOnInit() {

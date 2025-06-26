@@ -5,10 +5,10 @@ import { Component } from '@angular/core';
     template: `
         @switch (view) {
             @case ('basic') {
-                <source-select output="'ALL'"></source-select>
+                <source-select output="'ALL'" />
             }
             @default {
-                <control-advanced-view></control-advanced-view>
+                <control-advanced-view />
             }
         }
     `,

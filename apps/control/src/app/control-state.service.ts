@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { getModule, PlaceSystem, showSystem } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
@@ -111,6 +111,11 @@ export interface SystemState {
     providedIn: 'root',
 })
 export class ControlStateService extends AsyncHandler {
+    private _dialog = inject(MatDialog);
+    private _cal = inject(CalendarService);
+    private _spaces = inject(SpacesService);
+    private _router = inject(Router);
+
     private _id = new BehaviorSubject<string>('');
     private _system = new BehaviorSubject<SystemState>({});
     private _inputs = new BehaviorSubject<string[]>([]);
@@ -310,12 +315,7 @@ export class ControlStateService extends AsyncHandler {
         return this._id.getValue();
     }
 
-    constructor(
-        private _dialog: MatDialog,
-        private _cal: CalendarService,
-        private _spaces: SpacesService,
-        private _router: Router,
-    ) {
+    constructor() {
         super();
         this._id.pipe(distinct()).subscribe((id) => this.bindToState(id));
         this._inputs.subscribe((_) => this.bindSources('input', _ || []));

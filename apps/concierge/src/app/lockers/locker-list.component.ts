@@ -1,5 +1,5 @@
 import { Clipboard } from '@angular/cdk/clipboard';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { Booking, Locker } from '@placeos/bookings';
 import { AsyncHandler, i18n, notifySuccess } from '@placeos/common';
 import { combineLatest } from 'rxjs';
@@ -8,12 +8,10 @@ import { LockerStateService } from './locker-state.service';
 @Component({
     selector: 'locker-list',
     template: `
-        <mat-progress-bar
-            [class.opacity-0]="!(loading | async)?.includes('lockers')"
+        <mat-progress-bar [class.opacity-0]="!(loading | async)?.includes('lockers')"
             class="w-full"
-        ></mat-progress-bar>
-        <simple-table
-            class="block min-w-[52rem] text-sm"
+         />
+        <simple-table class="block min-w-[52rem] text-sm"
             [data]="locker_banks"
             [columns]="[
                 {
@@ -46,7 +44,7 @@ import { LockerStateService } from './locker-state.service';
             [child_template]="locker_list_template"
             [sortable]="true"
             [empty_message]="'APP.CONCIERGE.LOCKERS_BANK_EMPTY' | translate"
-        ></simple-table>
+         />
         <div class="h-20 w-full"></div>
         <ng-template #height_template let-data="data">
             <div class="px-4 font-mono">{{ data || 1 }}u</div>
@@ -132,8 +130,7 @@ import { LockerStateService } from './locker-state.service';
             </div>
         </ng-template>
         <ng-template #locker_list_template let-bank="row">
-            <simple-table
-                [data]="bank.lockers"
+            <simple-table [data]="bank.lockers"
                 [show_header]="false"
                 [columns]="[
                     { key: 'name', name: 'Locker' },
@@ -176,7 +173,7 @@ import { LockerStateService } from './locker-state.service';
                 ]"
                 [filter]="search | async"
                 [empty_message]="'APP.CONCIERGE.LOCKERS_EMPTY' | translate"
-            ></simple-table>
+             />
             <ng-template #assigned_template let-row="row" let-data="data">
                 @if (!data) {
                     <div class="p-4 opacity-30">
@@ -329,6 +326,9 @@ import { LockerStateService } from './locker-state.service';
     standalone: false,
 })
 export class LockerListComponent extends AsyncHandler implements OnInit {
+    private _state = inject(LockerStateService);
+    private _clipboard = inject(Clipboard);
+
     public show_children = {};
     public readonly locker_banks = this._state.filtered_banks;
     public readonly lockers = this._state.filtered_lockers;
@@ -350,13 +350,6 @@ export class LockerListComponent extends AsyncHandler implements OnInit {
 
     public get has_driver() {
         return this._state.has_driver;
-    }
-
-    constructor(
-        private _state: LockerStateService,
-        private _clipboard: Clipboard,
-    ) {
-        super();
     }
 
     public ngOnInit() {

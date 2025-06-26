@@ -1,11 +1,11 @@
 import { DatePipe } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AsyncHandler, nextValueFrom, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { roundToNearestMinutes, startOfMinute } from 'date-fns';
 import { generateQRCode } from 'libs/common/src/lib/qr-code';
-import { combineLatest } from 'rxjs';
+import { combineLatest, firstValueFrom } from 'rxjs';
 import { filter, first, map, startWith } from 'rxjs/operators';
 import { CheckinStateService } from './checkin-state.service';
 
@@ -144,7 +144,17 @@ const DEFAULT_TEMPLATE = `
                             {{ 'APP.VISITOR_KIOSK.PRINT_LABEL' | translate }}
                         </button>
                     }
-                    <button btn matRipple class="w-32" (click)="next()">
+                    @if (allow_beverages) {
+                        <button
+                            btn
+                            matRipple
+                            class="inverse w-32"
+                            (click)="next()"
+                        >
+                            {{ 'APP.VISITOR_KIOSK.BEVERAGES' | translate }}
+                        </button>
+                    }
+                    <button btn matRipple class="w-32" (click)="done()">
                         {{ 'APP.VISITOR_KIOSK.CONFIRM' | translate }}
                     </button>
                 </div>
@@ -162,13 +172,21 @@ const DEFAULT_TEMPLATE = `
     standalone: false,
 })
 export class CheckinResultsComponent extends AsyncHandler implements OnInit {
+    private readonly _org = inject(OrganisationService);
+    private readonly _settings = inject(SettingsService);
+    private readonly _router = inject(Router);
+    private readonly _date = inject(DatePipe);
+    private readonly _checkin = inject(CheckinStateService);
+
     public qr_code = '';
     public date = Date.now();
     public zones = [];
     public e;
+    public allow_beverages = false;
     public readonly event = this._checkin.event;
     public readonly guest = this._checkin.guest;
     public readonly photo = this._checkin.photo;
+
     public readonly level = combineLatest([
         this.event,
         this._org.initialised,
@@ -244,29 +262,27 @@ export class CheckinResultsComponent extends AsyncHandler implements OnInit {
         return this._settings.get('app.allow_printing_label') !== false;
     }
 
-    constructor(
-        private _org: OrganisationService,
-        private _checkin: CheckinStateService,
-        private _settings: SettingsService,
-        private _router: Router,
-        private _date: DatePipe,
-    ) {
-        super();
-    }
-
-    public ngOnInit(): void {
-        this.event.pipe(first()).subscribe((event) => {
-            !event ? this.previous() : '';
-            if (event) {
-                this.date = event.date || event.booking_start * 1000;
-                this.zones = event.zones;
-                this.e = event;
-            }
-        });
+    public async ngOnInit() {
+        const event = await firstValueFrom(this.event.pipe(first()));
+        !event ? this.previous() : '';
+        if (!event) return;
+        this.date = event.date || event.booking_start * 1000;
+        this.zones = event.zones;
+        this.e = event;
+        const standalone_location = this._settings.get(
+            'app.standalone_visitor_location',
+        );
+        this.allow_beverages =
+            this._settings.get('app.allow_beverages') &&
+            (event.linked_event || standalone_location);
     }
 
     public previous(): void {
         this._router.navigate(['/checkin']);
+    }
+
+    public done() {
+        this._router.navigate(['/welcome']);
     }
 
     public async next() {

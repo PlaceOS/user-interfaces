@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { combineLatest, interval } from 'rxjs';
 import { map, shareReplay } from 'rxjs/operators';
 import { PanelStateService } from '../panel-state.service';
@@ -190,6 +190,8 @@ import { currentPeriod, nextPeriod } from './helpers';
     standalone: false,
 })
 export class PanelViewStatusComponent {
+    private _state = inject(PanelStateService);
+
     public readonly state = this._state.status;
     public readonly current = this._state.current;
     public readonly next = this._state.next;
@@ -269,6 +271,4 @@ export class PanelViewStatusComponent {
     </defs>
     </svg>
     `;
-
-    constructor(private _state: PanelStateService) {}
 }

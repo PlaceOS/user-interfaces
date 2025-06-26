@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { AsyncHandler, nextValueFrom } from '@placeos/common';
 import { getModule } from '@placeos/ts-client';
 import {
@@ -18,6 +18,8 @@ import { ControlStateService } from '../control-state.service';
     providedIn: 'root',
 })
 export class VideoCallStateService extends AsyncHandler {
+    private _control = inject(ControlStateService);
+
     public readonly connected: Observable<VideoCallDetails | null> =
         this._control.system_id.pipe(
             distinctUntilChanged(),
@@ -67,10 +69,6 @@ export class VideoCallStateService extends AsyncHandler {
             map((_) => (_ || {})['Status/Cameras/SpeakerTrack/Availability']),
             shareReplay(1),
         );
-
-    constructor(private _control: ControlStateService) {
-        super();
-    }
 
     public async showCameraPIP(state: boolean) {
         const id = this._control.id;

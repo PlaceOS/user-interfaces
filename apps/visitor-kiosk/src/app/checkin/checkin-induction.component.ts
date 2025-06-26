@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import {
     SettingsService,
@@ -52,6 +52,11 @@ import { CheckinStateService } from './checkin-state.service';
     standalone: false,
 })
 export class CheckinInductionComponent {
+    private _checkin = inject(CheckinStateService);
+    private _router = inject(Router);
+    private _settings = inject(SettingsService);
+    private _org = inject(OrganisationService);
+
     public readonly event = this._checkin.event;
     public agree = false;
     public loading = false;
@@ -77,13 +82,6 @@ export class CheckinInductionComponent {
             this._settings.get('app.induction_details')
         );
     }
-
-    constructor(
-        private _checkin: CheckinStateService,
-        private _router: Router,
-        private _settings: SettingsService,
-        private _org: OrganisationService,
-    ) {}
 
     public async ngOnInit() {
         await this._org.initialised.pipe(first((_) => _)).toPromise();

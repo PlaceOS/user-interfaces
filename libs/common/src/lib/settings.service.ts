@@ -2,11 +2,15 @@ import { Injectable, inject } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
 import { format, isSameDay } from 'date-fns';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { first } from 'rxjs/operators';
+import { BehaviorSubject, Observable, lastValueFrom } from 'rxjs';
 
 import { AsyncHandler } from './async-handler.class';
-import { getItemWithKeys, log, setAppName } from './general';
+import {
+    firstTruthyValueFrom,
+    getItemWithKeys,
+    log,
+    setAppName,
+} from './general';
 import { DEFAULT_SETTINGS } from './settings';
 import { HashMap } from './types';
 
@@ -114,7 +118,7 @@ export class SettingsService extends AsyncHandler {
             this._app_name = this.get('app').name;
         }
         this._app_name =
-            location.pathname.replace(/[\\\/]/g, '').trim() || this._app_name;
+            location.pathname.replace(/[\\/]/g, '').trim() || this._app_name;
         setAppName(this._app_name.split('-').join('_').toUpperCase());
         log('Settings', 'Successfully loaded settings');
         this._initialised.next(true);
@@ -123,8 +127,8 @@ export class SettingsService extends AsyncHandler {
             window.application.settings = this;
             window.setting = (key) => this.get(key);
         }
-        const user = await current_user.pipe(first((_) => !!_)).toPromise();
-        const data = await showMetadata(user.id, 'settings').toPromise();
+        const user = await firstTruthyValueFrom(current_user);
+        const data = await lastValueFrom(showMetadata(user.id, 'settings'));
         this._user_settings.next(data.details || {});
         this._initDarkMode();
         this._applyTheme();
@@ -208,14 +212,16 @@ export class SettingsService extends AsyncHandler {
     private async _savePendingChanges() {
         const user = currentUser();
         if (!user?.id || !Object.keys(this._pending_settings).length) return;
-        await updateMetadata(user.id, {
-            name: 'settings',
-            description: '',
-            details: {
-                ...this._user_settings.getValue(),
-                ...this._pending_settings,
-            },
-        }).toPromise();
+        await lastValueFrom(
+            updateMetadata(user.id, {
+                name: 'settings',
+                description: '',
+                details: {
+                    ...this._user_settings.getValue(),
+                    ...this._pending_settings,
+                },
+            }),
+        );
         this._user_settings.next({
             ...this._user_settings.getValue(),
             ...this._pending_settings,
@@ -237,11 +243,7 @@ export class SettingsService extends AsyncHandler {
                 document.body.classList.remove(item);
             }
         }
-        if (theme) {
-            document.body.classList.add(`theme-${theme}`);
-        } else {
-            document.body.classList.remove(`theme-${theme}`);
-        }
+        document.body.classList.add(`theme-${theme}`);
     }
 
     private _initDarkMode() {

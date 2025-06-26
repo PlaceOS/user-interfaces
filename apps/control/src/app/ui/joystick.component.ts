@@ -1,12 +1,4 @@
-import {
-    Component,
-    ElementRef,
-    EventEmitter,
-    Input,
-    Output,
-    Renderer2,
-    ViewChild,
-} from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, Output, Renderer2, ViewChild, inject } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
 import { Point } from '@placeos/svg-viewer';
 
@@ -47,6 +39,7 @@ export enum JoystickPan {
             (mousedown)="startPan($event)"
             (touchstart)="startPan($event)"
             (contextmenu)="$event.preventDefault()"
+            (click)="stopPan()"
             class="relative h-48 w-48 rounded-full bg-base-300 text-white"
         >
             <div class="absolute inset-0 flex items-center text-5xl">
@@ -82,6 +75,8 @@ export enum JoystickPan {
     standalone: false,
 })
 export class JoystickComponent extends AsyncHandler {
+    private _renderer = inject(Renderer2);
+
     @Input() public pan: JoystickPan;
     @Input() public tilt: JoystickTilt;
 
@@ -92,10 +87,6 @@ export class JoystickComponent extends AsyncHandler {
     private _panning_el: ElementRef<HTMLDivElement>;
 
     private _box: ClientRect;
-
-    constructor(private _renderer: Renderer2) {
-        super();
-    }
 
     public get thumb_transform() {
         return `translate(${
@@ -118,6 +109,7 @@ export class JoystickComponent extends AsyncHandler {
             event instanceof MouseEvent ? 'mousemove' : 'touchmove';
         const end_event = event instanceof MouseEvent ? 'mouseup' : 'touchend';
         this._box = this._panning_el.nativeElement.getBoundingClientRect();
+        this.handlePan(event);
         this.subscription(
             'on_move',
             this._renderer.listen('window', move_event, (e) =>
@@ -135,7 +127,6 @@ export class JoystickComponent extends AsyncHandler {
                 this.panChange.emit(this.pan);
             }),
         );
-        this.handlePan(event);
     }
 
     public handlePan(event: MouseEvent | TouchEvent) {
@@ -162,5 +153,12 @@ export class JoystickComponent extends AsyncHandler {
                   : JoystickPan.Right;
         if (tilt !== this.tilt) this.tiltChange.emit(this.tilt);
         if (pan !== this.pan) this.panChange.emit(this.pan);
+    }
+
+    public stopPan() {
+        this.tilt = JoystickTilt.Stop;
+        this.pan = JoystickPan.Stop;
+        this.tiltChange.emit(this.tilt);
+        this.panChange.emit(this.pan);
     }
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -66,6 +66,15 @@ import { combineLatest, map } from 'rxjs';
     standalone: false,
 })
 export class ParkingComponent extends AsyncHandler implements OnInit {
+    private _explore = inject(ExploreStateService);
+    private _parking = inject(ExploreParkingService);
+    private _route = inject(ActivatedRoute);
+    private _org = inject(OrganisationService);
+    private _dialog = inject(MatDialog);
+    private _router = inject(Router);
+    private _spaces = inject(SpacesService);
+    private _settings = inject(SettingsService);
+
     /** Observable for the active map */
     public readonly url = this._explore.map_url;
     /** Observable for the active map */
@@ -96,19 +105,6 @@ export class ParkingComponent extends AsyncHandler implements OnInit {
             };
         }),
     );
-
-    constructor(
-        private _explore: ExploreStateService,
-        private _parking: ExploreParkingService,
-        private _route: ActivatedRoute,
-        private _org: OrganisationService,
-        private _dialog: MatDialog,
-        private _router: Router,
-        private _spaces: SpacesService,
-        private _settings: SettingsService,
-    ) {
-        super();
-    }
 
     public async ngOnInit() {
         if (

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CustomTooltipData } from 'libs/components/src/lib/custom-tooltip.component';
 
 import { ControlStateService } from '../control-state.service';
@@ -25,15 +25,13 @@ import { ControlStateService } from '../control-state.service';
     standalone: false,
 })
 export class PowerTooltipComponent {
+    private _state = inject(ControlStateService);
+    private _tooltip = inject(CustomTooltipData);
+
     /** Shutdown the system */
     public readonly shutdown = (t = false) => this._state.powerOff(t);
     /** Close the tooltip */
     public readonly close = () => this._tooltip.close();
 
     public readonly joined = this._state.joined;
-
-    constructor(
-        private _state: ControlStateService,
-        private _tooltip: CustomTooltipData,
-    ) {}
 }

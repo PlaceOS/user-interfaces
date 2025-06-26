@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Booking, BookingFormService, ParkingSpace } from '@placeos/bookings';
@@ -159,6 +159,21 @@ export class ParkingBookingModalComponent
     extends AsyncHandler
     implements OnInit
 {
+    private _data = inject<{
+    booking: Booking;
+    user?: User;
+    link_id?: string;
+    date?: number;
+    level?: BuildingLevel;
+    space?: ParkingSpace;
+    allow_time_changes?: boolean;
+    external_user?: boolean;
+    parent_id?: string;
+}>(MAT_DIALOG_DATA);
+    private _booking_form = inject(BookingFormService);
+    private _dialog_ref = inject<MatDialogRef<ParkingBookingModalComponent>>(MatDialogRef);
+    private _settings = inject(SettingsService);
+
     public loading = false;
     public readonly user = this._data.user;
     public readonly date = this._data.date;
@@ -195,26 +210,6 @@ export class ParkingBookingModalComponent
 
     public get use_24hr() {
         return this._settings.get('app.use_24_hour_time');
-    }
-
-    constructor(
-        @Inject(MAT_DIALOG_DATA)
-        private _data: {
-            booking: Booking;
-            user?: User;
-            link_id?: string;
-            date?: number;
-            level?: BuildingLevel;
-            space?: ParkingSpace;
-            allow_time_changes?: boolean;
-            external_user?: boolean;
-            parent_id?: string;
-        },
-        private _booking_form: BookingFormService,
-        private _dialog_ref: MatDialogRef<ParkingBookingModalComponent>,
-        private _settings: SettingsService,
-    ) {
-        super();
     }
 
     public ngOnInit() {

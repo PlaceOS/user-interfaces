@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { first } from 'rxjs/operators';
 
@@ -62,6 +62,11 @@ import { EventsStateService } from '../day-view/events-state.service';
     standalone: false,
 })
 export class FacilitiesTopbarComponent extends AsyncHandler {
+    private _state = inject(EventsStateService);
+    private _org = inject(OrganisationService);
+    private _route = inject(ActivatedRoute);
+    private _router = inject(Router);
+
     /** List of selected levels */
     public zones: string[] = [];
 
@@ -93,15 +98,6 @@ export class FacilitiesTopbarComponent extends AsyncHandler {
                 return list;
             }, []),
         });
-
-    constructor(
-        private _state: EventsStateService,
-        private _org: OrganisationService,
-        private _route: ActivatedRoute,
-        private _router: Router,
-    ) {
-        super();
-    }
 
     public async ngOnInit() {
         await this._org.initialised.pipe(first((_) => _)).toPromise();

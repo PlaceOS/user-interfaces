@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import {
     SettingsService,
@@ -66,17 +66,15 @@ import { showMetadata, updateMetadata } from '@placeos/ts-client';
     standalone: false,
 })
 export class InductionSettingsModalComponent implements OnInit {
+    private _zone_id = inject(MAT_DIALOG_DATA);
+    private _settings = inject(SettingsService);
+    private _org = inject(OrganisationService);
+    private _dialog_ref = inject<MatDialogRef<InductionSettingsModalComponent>>(MatDialogRef);
+
     public loading = '';
     public induction_details = '';
     public is_enabled = false;
     public settings: Record<string, any> = {};
-
-    constructor(
-        @Inject(MAT_DIALOG_DATA) private _zone_id: string,
-        private _settings: SettingsService,
-        private _org: OrganisationService,
-        private _dialog_ref: MatDialogRef<InductionSettingsModalComponent>,
-    ) {}
 
     public ngOnInit() {
         if (!this._zone_id) return;

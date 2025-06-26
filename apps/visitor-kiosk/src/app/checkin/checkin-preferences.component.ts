@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import {
@@ -123,6 +123,12 @@ export class CheckinPreferencesComponent
     extends AsyncHandler
     implements OnInit
 {
+    private _route = inject(ActivatedRoute);
+    private _router = inject(Router);
+    private _checkin = inject(CheckinStateService);
+    private _settings = inject(SettingsService);
+    private _org = inject(OrganisationService);
+
     public loading = false;
     public type = 'menu';
     public beverage: CateringItem;
@@ -150,16 +156,6 @@ export class CheckinPreferencesComponent
         startWith([]),
         shareReplay(1),
     );
-
-    constructor(
-        private _route: ActivatedRoute,
-        private _router: Router,
-        private _checkin: CheckinStateService,
-        private _settings: SettingsService,
-        private _org: OrganisationService,
-    ) {
-        super();
-    }
 
     public ngOnInit(): void {
         this.loading = true;

@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
@@ -88,6 +88,17 @@ import { debounceTime, map } from 'rxjs/operators';
     standalone: false,
 })
 export class HelpModalComponent {
+    private _data = inject<{
+    items: {
+        id: string;
+        title: string;
+        content: string;
+    }[];
+    active_id?: string;
+}>(MAT_DIALOG_DATA);
+    private _settings = inject(SettingsService);
+    private _org = inject(OrganisationService);
+
     public active_item = { id: '', content: `` };
     public readonly items = this._data.items;
 
@@ -107,15 +118,7 @@ export class HelpModalComponent {
             : '';
     }
 
-    constructor(
-        @Inject(MAT_DIALOG_DATA)
-        private _data: {
-            items: { id: string; title: string; content: string }[];
-            active_id?: string;
-        },
-        private _settings: SettingsService,
-        private _org: OrganisationService,
-    ) {
+    constructor() {
         this.active_item =
             this.items?.find((_) => _.id === this._data.active_id) ||
             this.items[0] ||

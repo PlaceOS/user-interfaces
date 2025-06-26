@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { AsyncHandler, nextValueFrom } from '@placeos/common';
 import { ExploreParkingService, ExploreStateService } from '@placeos/explore';
 import { OrganisationService } from '@placeos/organisation';
@@ -27,6 +27,11 @@ import { ParkingStateService } from './parking-state.service';
     standalone: false,
 })
 export class ParkingMapComponent extends AsyncHandler implements OnInit {
+    private _explore = inject(ExploreStateService);
+    private _ex_parking = inject(ExploreParkingService);
+    private _parking = inject(ParkingStateService);
+    private _org = inject(OrganisationService);
+
     public url = this._explore.map_url;
     public styles = this._explore.map_styles;
     public features = this._explore.map_features;
@@ -34,15 +39,6 @@ export class ParkingMapComponent extends AsyncHandler implements OnInit {
     public labels = this._explore.map_labels;
 
     public locate = '';
-
-    constructor(
-        private _explore: ExploreStateService,
-        private _ex_parking: ExploreParkingService,
-        private _parking: ParkingStateService,
-        private _org: OrganisationService,
-    ) {
-        super();
-    }
 
     public async ngOnInit() {
         await this._org.initialised.pipe(first((_) => _)).toPromise();

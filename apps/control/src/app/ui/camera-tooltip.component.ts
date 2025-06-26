@@ -1,4 +1,4 @@
-import { Component, OnInit, Renderer2 } from '@angular/core';
+import { Component, OnInit, Renderer2, inject } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
 import { getModule } from '@placeos/ts-client';
 import { CustomTooltipData } from 'libs/components/src/lib/custom-tooltip.component';
@@ -138,6 +138,7 @@ export enum ZoomDirection {
                                     (mousedown)="startZoom('in', $event)"
                                     (touchstart)="startZoom('in', $event)"
                                     (contextmenu)="$event.preventDefault()"
+                                    (click)="stopZoom()"
                                 >
                                     <icon>add</icon>
                                 </button>
@@ -154,6 +155,7 @@ export enum ZoomDirection {
                                     (mousedown)="startZoom('out', $event)"
                                     (touchstart)="startZoom('out', $event)"
                                     (contextmenu)="$event.preventDefault()"
+                                    (click)="stopZoom()"
                                 >
                                     <icon>remove</icon>
                                 </button>
@@ -200,6 +202,10 @@ export enum ZoomDirection {
     standalone: false,
 })
 export class CameraTooltipComponent extends AsyncHandler implements OnInit {
+    private _state = inject(ControlStateService);
+    private _tooltip = inject(CustomTooltipData);
+    private _renderer = inject(Renderer2);
+
     /** Currently active camera */
     public active_camera: RoomInput;
     /** List of available presets for the active camera */
@@ -219,14 +225,6 @@ export class CameraTooltipComponent extends AsyncHandler implements OnInit {
 
     public get id(): string {
         return this._state.id;
-    }
-
-    constructor(
-        private _state: ControlStateService,
-        private _tooltip: CustomTooltipData,
-        private _renderer: Renderer2,
-    ) {
-        super();
     }
 
     public ngOnInit() {
@@ -275,17 +273,24 @@ export class CameraTooltipComponent extends AsyncHandler implements OnInit {
                 const { index } = this.active_camera;
                 const mod = getModule(this.id, this.active_camera.mod);
                 if (!mod) return;
-                await mod.execute('stop', index ? [index] : []);
-                if (this.tilt !== JoystickTilt.Stop)
+                if (this.tilt !== JoystickTilt.Stop) {
                     await mod.execute(
                         'tilt',
                         index ? [this.tilt, index] : [this.tilt],
                     );
-                if (this.pan !== JoystickPan.Stop)
+                }
+                if (this.pan !== JoystickPan.Stop) {
                     await mod.execute(
                         'pan',
                         index ? [this.pan, index] : [this.pan],
                     );
+                }
+                if (
+                    this.tilt === JoystickTilt.Stop &&
+                    this.pan === JoystickPan.Stop
+                ) {
+                    await mod.execute('stop', index ? [index] : []);
+                }
             },
             50,
         );
@@ -307,5 +312,13 @@ export class CameraTooltipComponent extends AsyncHandler implements OnInit {
                 mod.execute('zoom', index ? [this.zoom, index] : [this.zoom]);
             }),
         );
+    }
+
+    public async stopZoom() {
+        const mod = getModule(this.id, this.active_camera.mod);
+        if (!mod) return;
+        const { index } = this.active_camera;
+        this.zoom = ZoomDirection.Stop;
+        mod.execute('zoom', index ? [this.zoom, index] : [this.zoom]);
     }
 }

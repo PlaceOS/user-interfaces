@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import {
     downloadFile,
     formatDuration,
@@ -68,6 +68,8 @@ import { ReportsStateService } from '../reports-state.service';
     standalone: false,
 })
 export class ReportSpacesUserListingComponent {
+    private _reports = inject(ReportsStateService);
+
     @Input() public print = false;
 
     public readonly user_list = combineLatest([this._reports.stats]).pipe(
@@ -137,6 +139,4 @@ export class ReportSpacesUserListingComponent {
         }
         downloadFile('report-space-attendee-usage.csv', jsonToCsv(data));
     };
-
-    constructor(private _reports: ReportsStateService) {}
 }

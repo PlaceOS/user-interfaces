@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { SettingsService, ShortURL, getShortUrlQRCode } from '@placeos/common';
 import { UrlManagementService } from './url-management.service';
 
@@ -126,7 +126,10 @@ import { UrlManagementService } from './url-management.service';
     standalone: false,
 })
 export class UrlListComponent {
-    public readonly features = this._manager.filtered_urls;
+    private _manager = inject(UrlManagementService);
+    private _settings = inject(SettingsService);
+
+    public readonly features = this._manager.url_list;
 
     public readonly edit = (region) => this._manager.editURL(region);
     public readonly remove = (region) => this._manager.removeURL(region);
@@ -135,11 +138,6 @@ export class UrlListComponent {
         const path = this._settings.get('app.kiosk_url_path') || '/map-kiosk';
         return `${window.location.origin}${path}`;
     }
-
-    constructor(
-        private _manager: UrlManagementService,
-        private _settings: SettingsService,
-    ) {}
 
     public async loadQrCode(item: ShortURL) {
         (item as any).qr_code = await getShortUrlQRCode(item.id);

@@ -45,9 +45,8 @@ export class SpacesService {
     }
 
     constructor() {
-        const _org = this._org;
-
-        SPACE_PIPE = new SpacePipe(_org);
+        SPACE_PIPE = new SpacePipe();
+        if (!SPACE_PIPE.org) SPACE_PIPE.org = this._org;
         this._init();
     }
 

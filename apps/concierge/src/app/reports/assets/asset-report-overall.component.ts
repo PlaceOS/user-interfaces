@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { formatDuration } from '@placeos/common';
 import { differenceInBusinessDays, endOfDay, startOfDay } from 'date-fns';
 import { map } from 'rxjs/operators';
@@ -34,6 +34,8 @@ import { AssetsReportService } from './assets-report.service';
     standalone: false,
 })
 export class AssetReportOverallComponent {
+    private _state = inject(AssetsReportService);
+
     public readonly total_count = this._state.stats$.pipe(
         map((i) => i.booking_count),
     );
@@ -55,6 +57,4 @@ export class AssetReportOverallComponent {
             }),
         ),
     );
-
-    constructor(private _state: AssetsReportService) {}
 }

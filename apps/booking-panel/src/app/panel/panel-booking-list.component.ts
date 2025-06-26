@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { differenceInSeconds, isAfter, isSameDay } from 'date-fns';
 import { combineLatest, interval } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -138,6 +138,8 @@ import { PanelStateService } from '../panel-state.service';
     standalone: false,
 })
 export class PanelBookingListComponent {
+    private _state = inject(PanelStateService);
+
     /** List of current and future events for the current day */
     public readonly bookings = this._state.bookings.pipe(
         map((l) =>
@@ -184,6 +186,4 @@ export class PanelBookingListComponent {
     public readonly upcoming = this.bookings.pipe(
         map((list) => list.sort((a, b) => a.date - b.date).slice(1)),
     );
-
-    constructor(private _state: PanelStateService) {}
 }

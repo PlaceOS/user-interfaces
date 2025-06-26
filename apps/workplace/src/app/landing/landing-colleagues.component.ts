@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, ViewChild, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import {
     AsyncHandler,
@@ -220,6 +220,11 @@ import { LandingStateService } from './landing-state.service';
     standalone: false,
 })
 export class LandingColleaguesComponent extends AsyncHandler {
+    private _state = inject(LandingStateService);
+    private _settings = inject(SettingsService);
+    private _event_form = inject(EventFormService);
+    private _router = inject(Router);
+
     public show_search = false;
     public readonly contacts = this._state.contacts;
 
@@ -258,15 +263,6 @@ export class LandingColleaguesComponent extends AsyncHandler {
 
     @ViewChild('search_input', { static: true })
     private _input_el!: ElementRef<HTMLInputElement>;
-
-    constructor(
-        private _state: LandingStateService,
-        private _settings: SettingsService,
-        private _event_form: EventFormService,
-        private _router: Router,
-    ) {
-        super();
-    }
 
     public newMeeting(user: User) {
         this._event_form.newForm();

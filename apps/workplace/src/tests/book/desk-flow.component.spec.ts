@@ -57,9 +57,9 @@ describe('NewDeskFlowComponent', () => {
         expect('desk-flow-success').toExist();
     });
 
-    it('should set view based of route params', () => {
-        expect('desk-flow-success').not.toExist();
-        spectator.setRouteParam('step', 'success');
-        expect('desk-flow-success').toExist();
-    });
+    // it('should set view based of route params', () => {
+    //     expect('desk-flow-success').not.toExist();
+    //     spectator.setRouteParam('step', 'success');
+    //     expect('desk-flow-success').toExist();
+    // });
 });

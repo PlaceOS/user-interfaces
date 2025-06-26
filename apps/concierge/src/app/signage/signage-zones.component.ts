@@ -1,5 +1,5 @@
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import {
     AsyncHandler,
@@ -153,6 +153,9 @@ import { SignageStateService } from './signage-state.service';
     standalone: false,
 })
 export class SignageZonesComponent extends AsyncHandler implements OnInit {
+    private _state = inject(SignageStateService);
+    private _route = inject(ActivatedRoute);
+
     public adding = false;
     public switching = false;
     public readonly search = new BehaviorSubject<string>('');
@@ -198,13 +201,6 @@ export class SignageZonesComponent extends AsyncHandler implements OnInit {
             ),
         ),
     );
-
-    constructor(
-        private _state: SignageStateService,
-        private _route: ActivatedRoute,
-    ) {
-        super();
-    }
 
     public ngOnInit() {
         this.subscription(

@@ -1,11 +1,4 @@
-import {
-    Component,
-    EventEmitter,
-    Input,
-    OnChanges,
-    Output,
-    SimpleChanges,
-} from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, inject } from '@angular/core';
 import { unique } from '@placeos/common';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -87,6 +80,8 @@ import { ControlStateService, RoomInput } from '../control-state.service';
     standalone: false,
 })
 export class SourceSelectComponent implements OnChanges {
+    private _state = inject(ControlStateService);
+
     // Whether to use the simple display
     @Input() public simple = false;
     // ID of the selected output
@@ -127,8 +122,6 @@ export class SourceSelectComponent implements OnChanges {
             }, {}),
         ),
     );
-
-    constructor(private _state: ControlStateService) {}
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.output) {

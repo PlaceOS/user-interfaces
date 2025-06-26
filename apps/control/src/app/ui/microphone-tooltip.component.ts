@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
 import { CustomTooltipData } from 'libs/components/src/lib/custom-tooltip.component';
 
@@ -205,6 +205,9 @@ import { ControlStateService } from '../control-state.service';
     standalone: false,
 })
 export class MicrophoneTooltipComponent extends AsyncHandler {
+    private _state = inject(ControlStateService);
+    private _tooltip = inject(CustomTooltipData);
+
     /** List of microphone inputs */
     public readonly mic_list = this._state.mic_list;
     /** List of microphones */
@@ -220,13 +223,6 @@ export class MicrophoneTooltipComponent extends AsyncHandler {
 
     public get id(): string {
         return this._state.id;
-    }
-
-    constructor(
-        private _state: ControlStateService,
-        private _tooltip: CustomTooltipData,
-    ) {
-        super();
     }
 
     public setRoomMute(mic_name: string, room_name: string, state: string) {

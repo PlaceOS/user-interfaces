@@ -1,5 +1,5 @@
 import { Clipboard } from '@angular/cdk/clipboard';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SwUpdate } from '@angular/service-worker';
 import {
@@ -41,7 +41,7 @@ export function initSentry(dsn: string, sample_rate: number = 0.2) {
 @Component({
     selector: 'app-root',
     template: `
-        <global-banner></global-banner>
+        <global-banner />
         <div class="relative h-1/2 w-full flex-1">
             <router-outlet></router-outlet>
         </div>
@@ -59,17 +59,14 @@ export function initSentry(dsn: string, sample_rate: number = 0.2) {
     standalone: false,
 })
 export class AppComponent extends AsyncHandler implements OnInit {
-    constructor(
-        private _tracing: Sentry.TraceService,
-        private _settings: SettingsService,
-        private _org: OrganisationService, // For init
-        private _spaces: SpacesService, // For init
-        private _cache: SwUpdate,
-        private _snackbar: MatSnackBar,
-        private _clipboard: Clipboard,
-    ) {
-        super();
-    }
+    private _tracing = inject(Sentry.TraceService);
+    private _settings = inject(SettingsService);
+    private _org = inject(OrganisationService);
+    private _spaces = inject(SpacesService);
+    private _cache = inject(SwUpdate);
+    private _snackbar = inject(MatSnackBar);
+    private _clipboard = inject(Clipboard);
+
 
     public async ngOnInit() {
         log('APP', 'MOCKS:', MOCKS);

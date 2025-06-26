@@ -1,4 +1,4 @@
-import { Component, OnInit, Renderer2 } from '@angular/core';
+import { Component, OnInit, Renderer2, inject } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
 import { getModule } from '@placeos/ts-client';
 import { combineLatest } from 'rxjs';
@@ -89,6 +89,9 @@ export enum ZoomDirection {
     standalone: false,
 })
 export class CameraControlsComponent extends AsyncHandler implements OnInit {
+    private _state = inject(ControlStateService);
+    private _renderer = inject(Renderer2);
+
     /** Currently active camera */
     public active_camera: RoomInput;
     /** List of available presets for the active camera */
@@ -106,13 +109,6 @@ export class CameraControlsComponent extends AsyncHandler implements OnInit {
 
     public get id(): string {
         return this._state.id;
-    }
-
-    constructor(
-        private _state: ControlStateService,
-        private _renderer: Renderer2,
-    ) {
-        super();
     }
 
     public ngOnInit() {

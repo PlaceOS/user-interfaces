@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, inject } from '@angular/core';
 import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
     AsyncHandler,
@@ -16,7 +16,7 @@ import { debounceTime, filter, first } from 'rxjs/operators';
         <div
             class="h-full w-64 overflow-auto border-r border-base-200 py-2 pr-3"
         >
-            @for (link of filtered_links; track link) {
+            @for (link of filtered_links; track link.id + '' + $index) {
                 @if (!link.children) {
                     <a
                         matRipple
@@ -95,6 +95,10 @@ export class ApplicationSidebarComponent
     extends AsyncHandler
     implements OnInit
 {
+    private _settings = inject(SettingsService);
+    private _org = inject(OrganisationService);
+    private _element_ref = inject<ElementRef<HTMLElement>>(ElementRef);
+
     public show_block: Record<string, boolean> = {};
     public links = [];
 
@@ -116,14 +120,6 @@ export class ApplicationSidebarComponent
             groups.includes('placeos_admin') ||
             groups.includes('placeos_support')
         );
-    }
-
-    constructor(
-        private _settings: SettingsService,
-        private _org: OrganisationService,
-        private _element_ref: ElementRef<HTMLElement>,
-    ) {
-        super();
     }
 
     public async ngOnInit() {

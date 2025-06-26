@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges, inject } from '@angular/core';
 import { listSignagePlaylistMedia, SignageMedia } from '@placeos/ts-client';
 import { getUnixTime, startOfMinute } from 'date-fns';
 import { BehaviorSubject, combineLatest } from 'rxjs';
@@ -254,6 +254,8 @@ import { SignageStateService } from './signage-state.service';
     standalone: false,
 })
 export class SignageMediaListComponent implements OnChanges {
+    private _state = inject(SignageStateService);
+
     @Input() public playlist_count = 0;
     public readonly search = new BehaviorSubject<string>('');
     public readonly playlist_search = new BehaviorSubject<string>('');
@@ -295,8 +297,6 @@ export class SignageMediaListComponent implements OnChanges {
 
     public readonly removeItem = async (item: SignageMedia) =>
         this._state.removeMedia(item);
-
-    constructor(private _state: SignageStateService) {}
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.playlist_count) {

@@ -1,10 +1,4 @@
-import {
-    Component,
-    Input,
-    OnChanges,
-    OnInit,
-    SimpleChanges,
-} from '@angular/core';
+import { Component, Input, OnChanges, OnInit, SimpleChanges, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { AsyncHandler } from '@placeos/common';
@@ -47,18 +41,14 @@ export class BookingPanelComponent
     extends AsyncHandler
     implements OnInit, OnChanges
 {
+    private _state = inject(PanelStateService);
+    private _route = inject(ActivatedRoute);
+
     @Input() public system_id: string = localStorage.getItem(
         'PLACEOS.BOOKINGS.system',
     );
 
     @Input() public topbar = true;
-
-    constructor(
-        private _state: PanelStateService,
-        private _route: ActivatedRoute,
-    ) {
-        super();
-    }
 
     public ngOnInit() {
         this._state.system = this.system_id || '';

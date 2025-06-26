@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { currentUser, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { startOfMinute } from 'date-fns';
@@ -7,7 +7,7 @@ import { startOfMinute } from 'date-fns';
     selector: 'app-landing',
     template: `
         @if (!hide_nav) {
-            <topbar class="z-10"></topbar>
+            <topbar class="z-10" />
         }
         <div class="flex h-1/2 flex-1 bg-base-200">
             @if (!hide_landing_sidebar) {
@@ -100,7 +100,7 @@ import { startOfMinute } from 'date-fns';
             </div>
         </div>
         @if (!hide_nav) {
-            <footer-menu></footer-menu>
+            <footer-menu />
         }
     `,
     styles: [
@@ -124,6 +124,9 @@ import { startOfMinute } from 'date-fns';
     standalone: false,
 })
 export class LandingComponent {
+    private _org = inject(OrganisationService);
+    private _settings = inject(SettingsService);
+
     public time: number;
     public tab = 'people';
 
@@ -154,9 +157,4 @@ export class LandingComponent {
     public get show_quick_links() {
         return this._settings.get('app.show_quick_links');
     }
-
-    constructor(
-        private _org: OrganisationService,
-        private _settings: SettingsService,
-    ) {}
 }

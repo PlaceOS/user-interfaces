@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import {
     downloadFile,
     jsonToCsv,
@@ -102,6 +102,8 @@ import { ReportsStateService } from '../reports-state.service';
     standalone: false,
 })
 export class ReportSpacesSpaceListingComponent {
+    private _reports = inject(ReportsStateService);
+
     @Input() public print = false;
 
     private _space_pipe = new SpacePipe();
@@ -220,6 +222,4 @@ export class ReportSpacesSpaceListingComponent {
         }
         downloadFile('report-spaces-usage.csv', jsonToCsv(data));
     };
-
-    constructor(private _reports: ReportsStateService) {}
 }

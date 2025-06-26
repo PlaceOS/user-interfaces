@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { downloadFile, jsonToCsv, nextValueFrom } from '@placeos/common';
 import { format } from 'date-fns';
 import { map } from 'rxjs/operators';
@@ -71,6 +71,8 @@ import { AssetsReportService } from './assets-report.service';
     standalone: false,
 })
 export class AssetReportDailyUsageComponent {
+    private _state = inject(AssetsReportService);
+
     @Input() public print = false;
     public readonly daily_products = this._state.daily_stats$.pipe(
         map((days) => {
@@ -111,6 +113,4 @@ export class AssetReportDailyUsageComponent {
         }
         downloadFile('report-assets-daily-usage.csv', jsonToCsv(data));
     };
-
-    constructor(private _state: AssetsReportService) {}
 }

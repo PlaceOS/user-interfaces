@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { filter, map, startWith } from 'rxjs/operators';
 
 import { AsyncHandler } from '@placeos/common';
@@ -69,6 +69,9 @@ import { BehaviorSubject, combineLatest } from 'rxjs';
     standalone: false,
 })
 export class ControlSpaceListComponent extends AsyncHandler {
+    private _spaces = inject(SpacesService);
+    private _org = inject(OrganisationService);
+
     /** Filter string */
     public readonly search = new BehaviorSubject('');
     /** List of controlable spaces for the active building */
@@ -111,13 +114,6 @@ export class ControlSpaceListComponent extends AsyncHandler {
     );
     /** Whether space list is being filtered */
     public loading: boolean;
-
-    constructor(
-        private _spaces: SpacesService,
-        private _org: OrganisationService,
-    ) {
-        super();
-    }
 
     private sortSpaces(first: Space, second: Space) {
         const bld_a = this._org.buildings.find(

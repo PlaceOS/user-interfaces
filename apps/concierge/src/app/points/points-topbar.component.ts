@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { first } from 'rxjs/operators';
@@ -29,9 +29,8 @@ import { first } from 'rxjs/operators';
     standalone: false,
 })
 export class PointsTopbarComponent extends AsyncHandler {
-    constructor(private _org: OrganisationService) {
-        super();
-    }
+    private _org = inject(OrganisationService);
+
 
     public async ngOnInit() {
         await this._org.initialised.pipe(first((_) => _)).toPromise();

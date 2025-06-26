@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { SettingsService } from '@placeos/common';
 import { Building, OrganisationService } from '@placeos/organisation';
 import { POIManagementService } from './poi-management.service';
@@ -6,7 +6,7 @@ import { POIManagementService } from './poi-management.service';
 @Component({
     selector: '[app-poi-manager]',
     template: `
-        <app-topbar></app-topbar>
+        <app-topbar />
         <div class="flex h-px flex-1">
             <app-sidebar></app-sidebar>
             <main class="flex h-full w-1/2 flex-1 flex-col">
@@ -74,6 +74,10 @@ import { POIManagementService } from './poi-management.service';
     standalone: false,
 })
 export class POIManagerComponent {
+    private _org = inject(OrganisationService);
+    private _state = inject(POIManagementService);
+    private _settings = inject(SettingsService);
+
     public readonly new = () => this._state.editPointOfInterest();
 
     public readonly buildings = this._org.active_buildings;
@@ -89,10 +93,4 @@ export class POIManagerComponent {
     public get use_region() {
         return !!this._settings.get('app.use_region');
     }
-
-    constructor(
-        private _org: OrganisationService,
-        private _state: POIManagementService,
-        private _settings: SettingsService,
-    ) {}
 }

@@ -247,7 +247,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 </button>
             </mat-menu>
         </ng-template>
-        <asset-request-details [(request)]="request"></asset-request-details>
+        <asset-request-details [(request)]="request" />
     `,
     styles: [
         `

@@ -1,10 +1,4 @@
-import {
-    AfterViewInit,
-    Component,
-    ElementRef,
-    OnInit,
-    ViewChild,
-} from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import {
     AsyncHandler,
@@ -131,6 +125,11 @@ export class TopMenuComponent
     extends AsyncHandler
     implements OnInit, AfterViewInit
 {
+    private _element = inject(ElementRef);
+    private _settings = inject(SettingsService);
+    private _org = inject(OrganisationService);
+    private _router = inject(Router);
+
     public readonly buildings = this._org.building_list;
     public readonly building = this._org.active_building;
     public previous_size = 9999;
@@ -188,15 +187,6 @@ export class TopMenuComponent
     }
 
     @ViewChild('menuContainer') private menu: ElementRef<HTMLDivElement>;
-
-    constructor(
-        private _element: ElementRef,
-        private _settings: SettingsService,
-        private _org: OrganisationService,
-        private _router: Router,
-    ) {
-        super();
-    }
 
     public ngOnInit() {
         this.checking = true;

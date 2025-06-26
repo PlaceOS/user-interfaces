@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { AsyncHandler, SettingsService } from '@placeos/common';
@@ -21,7 +21,7 @@ import { EventStateService } from './event-state.service';
             <div
                 class="m-2 grid h-[56rem] min-h-full w-[80rem] min-w-full grid-cols-7 border-b border-base-200"
             >
-                @for (weekday of weekdays; track weekday) {
+                @for (weekday of weekdays; track $index) {
                     <div
                         weekday
                         class="relative flex h-12 items-center justify-center p-2 text-sm opacity-60"
@@ -29,7 +29,7 @@ import { EventStateService } from './event-state.service';
                         {{ weekday | date: 'EEEE' }}
                     </div>
                 }
-                @for (day of month_days; track day) {
+                @for (day of month_days; track day.id) {
                     <div
                         monthday
                         class="relative flex flex-col space-y-1 border border-base-200"
@@ -46,7 +46,7 @@ import { EventStateService } from './event-state.service';
                             event of (event_day_map | async)[
                                 dateString(day.id)
                             ] || [] | slice: 0 : 3;
-                            track event
+                            track event.id
                         ) {
                             <button
                                 matRipple
@@ -109,7 +109,7 @@ import { EventStateService } from './event-state.service';
                                 event of (event_day_map | async)[
                                     dateString(day.id)
                                 ] || [] | slice: 3;
-                                track event
+                                track event.id
                             ) {
                                 <button
                                     mat-menu-item
@@ -143,6 +143,11 @@ import { EventStateService } from './event-state.service';
     standalone: false,
 })
 export class EventMonthViewComponent extends AsyncHandler {
+    private _state = inject(EventStateService);
+    private _settings = inject(SettingsService);
+    private _dialog = inject(MatDialog);
+    private _router = inject(Router);
+
     public month = startOfDay(Date.now()).valueOf();
     public weekdays = [];
 
@@ -178,15 +183,6 @@ export class EventMonthViewComponent extends AsyncHandler {
 
     public get offset_weekday() {
         return this._settings.get('app.week_start') || 0;
-    }
-
-    constructor(
-        private _state: EventStateService,
-        private _settings: SettingsService,
-        private _dialog: MatDialog,
-        private _router: Router,
-    ) {
-        super();
     }
 
     public ngOnInit() {

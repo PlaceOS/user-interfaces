@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { getUnixTime } from 'date-fns';
@@ -26,6 +26,9 @@ import { debounceTime, map } from 'rxjs/operators';
     standalone: false,
 })
 export class PanelTopbarComponent {
+    private _settings = inject(SettingsService);
+    private _org = inject(OrganisationService);
+
     public readonly logo = this._org.active_building.pipe(
         debounceTime(500),
         map(
@@ -39,9 +42,4 @@ export class PanelTopbarComponent {
     public get time() {
         return getUnixTime(new Date()) * 1000;
     }
-
-    constructor(
-        private _settings: SettingsService,
-        private _org: OrganisationService,
-    ) {}
 }

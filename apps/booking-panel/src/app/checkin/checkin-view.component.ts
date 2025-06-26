@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
 import { startOfMinute } from 'date-fns';
@@ -247,6 +247,9 @@ import { PanelStateService } from '../panel-state.service';
     standalone: false,
 })
 export class CheckinViewComponent extends AsyncHandler implements OnInit {
+    private _state = inject(PanelStateService);
+    private _route = inject(ActivatedRoute);
+
     public readonly state = this._state.status;
     public readonly system = this._state.space;
     public readonly bookings = this._state.bookings;
@@ -279,13 +282,6 @@ export class CheckinViewComponent extends AsyncHandler implements OnInit {
 
     public get room_image() {
         return this._state.setting('room_image');
-    }
-
-    constructor(
-        private _state: PanelStateService,
-        private _route: ActivatedRoute,
-    ) {
-        super();
     }
 
     public ngOnInit() {

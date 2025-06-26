@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import {
     downloadFile,
     jsonToCsv,
@@ -74,6 +74,8 @@ import { LockersReportService } from './lockers-report.service';
     standalone: false,
 })
 export class LockersReportDailyUsageComponent {
+    private _state = inject(LockersReportService);
+
     @Input() public print = false;
 
     public readonly daily_stats = this._state.daily_stats$.pipe(
@@ -98,6 +100,4 @@ export class LockersReportDailyUsageComponent {
         const data = await nextValueFrom(this.daily_stats);
         downloadFile('report-lockers-daily-usage.csv', jsonToCsv(data));
     };
-
-    constructor(private _state: LockersReportService) {}
 }

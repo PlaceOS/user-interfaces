@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { searchStaff, StaffUser } from '@placeos/users';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 
@@ -23,6 +23,8 @@ export interface StaffFilters {
     providedIn: 'root',
 })
 export class StaffStateService extends AsyncHandler {
+    private _org = inject(OrganisationService);
+
     private _onsite: Record<string, boolean> = {};
     private _events: Record<string, Booking> = {};
 
@@ -87,7 +89,7 @@ export class StaffStateService extends AsyncHandler {
         shareReplay(1),
     );
 
-    constructor(private _org: OrganisationService) {
+    constructor() {
         super();
         this.loadUsers();
         this.user_events.subscribe();

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { debounceTime, map } from 'rxjs/operators';
 
 import { ActivatedRoute } from '@angular/router';
@@ -9,13 +9,12 @@ import { ReportsStateService } from '../reports-state.service';
 @Component({
     selector: '[report-spaces]',
     template: `
-        <reports-options
-            (printing)="printing = $event"
+        <reports-options (printing)="printing = $event"
             [loading]="loading | async"
             [has_data]="total_count | async"
             (download)="downloadReport()"
             (generate)="generateReport()"
-        ></reports-options>
+         />
         <div
             class="relative h-1/2 w-full flex-1 overflow-auto print:h-auto print:overflow-visible"
         >
@@ -78,6 +77,11 @@ import { ReportsStateService } from '../reports-state.service';
     standalone: false,
 })
 export class ReportSpacesComponent extends AsyncHandler {
+    private _state = inject(ReportsStateService);
+    private _settings = inject(SettingsService);
+    private _route = inject(ActivatedRoute);
+    private _org = inject(OrganisationService);
+
     public printing = false;
     public readonly total_count = this._state.stats.pipe(
         map((i) => i.count || 0),
@@ -96,15 +100,6 @@ export class ReportSpacesComponent extends AsyncHandler {
                     : this._settings.get('app.logo_light')) || {},
         ),
     );
-
-    constructor(
-        private _state: ReportsStateService,
-        private _settings: SettingsService,
-        private _route: ActivatedRoute,
-        private _org: OrganisationService,
-    ) {
-        super();
-    }
 
     public ngOnInit() {
         this._state.setOptions({ type: 'events' });

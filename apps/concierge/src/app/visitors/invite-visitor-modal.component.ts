@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 @Component({
@@ -15,12 +15,12 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
     standalone: false,
 })
 export class InviteVisitorModalComponent {
-    public readonly date = this._data.date;
+    private _data = inject<{
+    date: number;
+}>(MAT_DIALOG_DATA);
+    private _dialog_ref = inject<MatDialogRef<InviteVisitorModalComponent>>(MatDialogRef);
 
-    constructor(
-        @Inject(MAT_DIALOG_DATA) private _data: { date: number },
-        private _dialog_ref: MatDialogRef<InviteVisitorModalComponent>,
-    ) {}
+    public readonly date = this._data.date;
 
     public onDone() {
         this._dialog_ref.close();

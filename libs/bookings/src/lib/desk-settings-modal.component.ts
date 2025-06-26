@@ -83,10 +83,9 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
                 </button>
             </div>
         } @else {
-            <desk-height-presets
-                [show_close]="true"
+            <desk-height-presets [show_close]="true"
                 (close)="edit_presets = false"
-            ></desk-height-presets>
+             />
         }
     `,
     styles: [],

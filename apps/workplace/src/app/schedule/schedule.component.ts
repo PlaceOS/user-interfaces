@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import {
@@ -35,7 +35,7 @@ import {
     selector: 'app-schedule',
     template: `
         @if (!hide_nav) {
-            <topbar></topbar>
+            <topbar />
         }
         <div
             class="relative flex h-1/2 flex-1 flex-col bg-base-200 sm:flex-row"
@@ -159,7 +159,7 @@ import {
             }
         </div>
         @if (!hide_nav) {
-            <footer-menu></footer-menu>
+            <footer-menu />
         }
     `,
     styles: [
@@ -175,6 +175,13 @@ import {
     standalone: false,
 })
 export class ScheduleComponent extends AsyncHandler implements OnInit {
+    private _state = inject(ScheduleStateService);
+    private _event_form = inject(EventFormService);
+    private _booking_form = inject(BookingFormService);
+    private _router = inject(Router);
+    private _dialog = inject(MatDialog);
+    private _settings = inject(SettingsService);
+
     public readonly booking_dates = combineLatest([
         this._state.filtered_bookings,
         this._state.loading,
@@ -225,17 +232,6 @@ export class ScheduleComponent extends AsyncHandler implements OnInit {
     public readonly edit_booking_fn = (i) => this.editBooking(i);
     public readonly remove_fn = (i, t?) => this.remove(i, t);
     public readonly end_fn = (i) => this.end(i);
-
-    constructor(
-        private _state: ScheduleStateService,
-        private _event_form: EventFormService,
-        private _booking_form: BookingFormService,
-        private _router: Router,
-        private _dialog: MatDialog,
-        private _settings: SettingsService,
-    ) {
-        super();
-    }
 
     public ngOnInit() {
         this._state.triggerPoll();

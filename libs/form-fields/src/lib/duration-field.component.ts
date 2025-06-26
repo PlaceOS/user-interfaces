@@ -96,7 +96,7 @@ export interface DurationOption {
                 </button>
             }
         </mat-menu>
-        <mat-error><ng-content></ng-content></mat-error>
+        <mat-error><ng-content /></mat-error>
     `,
     styles: [
         `

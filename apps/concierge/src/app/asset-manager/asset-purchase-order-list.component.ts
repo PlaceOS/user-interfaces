@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -84,6 +84,9 @@ import { AssetManagerStateService } from './asset-manager-state.service';
     standalone: false,
 })
 export class AssetPurchaseOrderListComponent {
+    private _state = inject(AssetManagerStateService);
+    private _router = inject(Router);
+
     public readonly now = Date.now();
     public readonly purchase_orders = combineLatest([
         this._state.options,
@@ -103,11 +106,6 @@ export class AssetPurchaseOrderListComponent {
         ),
     );
     public readonly filters = this._state.options;
-
-    constructor(
-        private _state: AssetManagerStateService,
-        private _router: Router,
-    ) {}
 
     public editOrder(order) {
         this._router.navigate(

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { startOfMinute } from 'date-fns';
 import { debounceTime, first, map } from 'rxjs/operators';
@@ -39,7 +39,7 @@ import { PanelStateService } from './panel-state.service';
                 <div class="overflow-hidden">
                     @let current_bkn = current | async;
                     @if (current_bkn) {
-                        <h2 class="text-2xl font-medium">
+                        <h2 class="line-clamp-5 text-2xl font-medium">
                             {{ current_bkn?.title }}
                         </h2>
                         <p class="mb-4 text-2xl lowercase">
@@ -70,9 +70,9 @@ import { PanelStateService } from './panel-state.service';
                         {{ 'APP.BOOKING_PANEL.NEXT' | translate }}
                     </h2>
                     <hr class="mb-8" />
-                    @let next_bkn = current | async;
+                    @let next_bkn = next | async;
                     @if (next_bkn) {
-                        <h2 class="text-2xl font-medium">
+                        <h2 class="line-clamp-4 text-2xl font-medium">
                             {{ next_bkn?.title }}
                         </h2>
                         <p class="text-2xl lowercase">
@@ -142,6 +142,11 @@ import { PanelStateService } from './panel-state.service';
     standalone: false,
 })
 export class EventPanelComponent extends AsyncHandler implements OnInit {
+    private _settings = inject(SettingsService);
+    private _route = inject(ActivatedRoute);
+    private _state = inject(PanelStateService);
+    private _org = inject(OrganisationService);
+
     public system_id = '';
     public show_qr = false;
     public room_name: string | null = '';
@@ -189,15 +194,6 @@ export class EventPanelComponent extends AsyncHandler implements OnInit {
 
     public get custom_qr() {
         return !!this._state.setting('custom_qr_url');
-    }
-
-    constructor(
-        private _settings: SettingsService,
-        private _route: ActivatedRoute,
-        private _state: PanelStateService,
-        private _org: OrganisationService,
-    ) {
-        super();
     }
 
     public async ngOnInit() {

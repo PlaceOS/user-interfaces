@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { Router } from '@angular/router';
 import { BookingFormService, ParkingService } from '@placeos/bookings';
@@ -136,6 +136,12 @@ import { NewParkingFlowConfirmComponent } from './parking-flow-confirm.component
     standalone: false,
 })
 export class ParkingFlowFormComponent extends AsyncHandler {
+    private _state = inject(BookingFormService);
+    private _settings = inject(SettingsService);
+    private _router = inject(Router);
+    private _bottom_sheet = inject(MatBottomSheet);
+    private _parking = inject(ParkingService);
+
     public hide_block: Record<string, boolean> = {};
     public sheet_ref: any;
 
@@ -143,16 +149,6 @@ export class ParkingFlowFormComponent extends AsyncHandler {
 
     public get form() {
         return this._state.form;
-    }
-
-    constructor(
-        private _state: BookingFormService,
-        private _settings: SettingsService,
-        private _router: Router,
-        private _bottom_sheet: MatBottomSheet,
-        private _parking: ParkingService,
-    ) {
-        super();
     }
 
     public async ngOnInit() {

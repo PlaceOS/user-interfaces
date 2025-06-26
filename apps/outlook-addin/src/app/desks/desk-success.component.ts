@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { BookingFormService } from '@placeos/bookings';
 
 @Component({
@@ -41,7 +41,7 @@ import { BookingFormService } from '@placeos/bookings';
     standalone: false,
 })
 export class DeskBookingSuccessComponent {
-    public readonly last_success = this._service.last_success;
+    private _service = inject(BookingFormService);
 
-    constructor(private _service: BookingFormService) {}
+    public readonly last_success = this._service.last_success;
 }

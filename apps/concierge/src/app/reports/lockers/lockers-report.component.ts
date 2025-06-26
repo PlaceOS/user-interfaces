@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
@@ -8,13 +8,12 @@ import { LockersReportService } from './lockers-report.service';
 @Component({
     selector: '[lockers-report]',
     template: `
-        <reports-options
-            (printing)="printing = $event"
+        <reports-options (printing)="printing = $event"
             [loading]="loading | async"
             [has_data]="total_count | async"
             (download)="downloadReport()"
             (generate)="generateReport()"
-        ></reports-options>
+         />
         <div
             class="relative h-1/2 w-full flex-1 overflow-auto print:h-auto print:overflow-visible"
         >
@@ -72,6 +71,11 @@ import { LockersReportService } from './lockers-report.service';
     standalone: false,
 })
 export class LockersReportComponent extends AsyncHandler implements OnInit {
+    private _state = inject(LockersReportService);
+    private _settings = inject(SettingsService);
+    private _route = inject(ActivatedRoute);
+    private _org = inject(OrganisationService);
+
     public printing = false;
     public readonly total_count = this._state.bookings$.pipe(
         map((i) => i.length || 0),
@@ -90,15 +94,6 @@ export class LockersReportComponent extends AsyncHandler implements OnInit {
                     : this._settings.get('app.logo_light')) || {},
         ),
     );
-
-    constructor(
-        private _state: LockersReportService,
-        private _settings: SettingsService,
-        private _route: ActivatedRoute,
-        private _org: OrganisationService,
-    ) {
-        super();
-    }
 
     public ngOnInit() {
         this.subscription(

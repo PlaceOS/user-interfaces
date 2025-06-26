@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { BookingFormService } from '@placeos/bookings';
 import { SettingsService } from '@placeos/common';
 import {
@@ -153,6 +153,9 @@ import {
     standalone: false,
 })
 export class NewDeskFlowSuccessComponent {
+    private _state = inject(BookingFormService);
+    private _settings = inject(SettingsService);
+
     public outlook_link = '';
     public google_link = '';
     public ical_link = '';
@@ -186,11 +189,6 @@ export class NewDeskFlowSuccessComponent {
     public get time_format() {
         return this._settings.time_format;
     }
-
-    constructor(
-        private _state: BookingFormService,
-        private _settings: SettingsService,
-    ) {}
 
     public ngOnInit() {
         const event: any = {

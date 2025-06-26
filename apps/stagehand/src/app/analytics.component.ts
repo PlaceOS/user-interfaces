@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AsyncHandler, randomInt } from '@placeos/common';
 import { addDays, addWeeks, endOfDay, format, startOfDay } from 'date-fns';
@@ -197,6 +197,9 @@ import Chart from 'chart.js/auto';
     standalone: false,
 })
 export class AnalyticsComponent extends AsyncHandler implements OnInit {
+    private _route = inject(ActivatedRoute);
+    private _router = inject(Router);
+
     public start_date = addWeeks(startOfDay(Date.now()), -1).valueOf();
     public end_date = endOfDay(Date.now()).valueOf();
 
@@ -229,13 +232,6 @@ export class AnalyticsComponent extends AsyncHandler implements OnInit {
     @ViewChild('usage_graph', { static: true })
     private _usage_graph_el: ElementRef<HTMLCanvasElement>;
     private _usage_graph: Chart;
-
-    constructor(
-        private _route: ActivatedRoute,
-        private _router: Router,
-    ) {
-        super();
-    }
 
     public ngOnInit() {
         this.subscription(

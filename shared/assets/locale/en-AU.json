@@ -888,7 +888,9 @@
             "CHAT_WELCOME": "Welcome to the virtual assistant",
             "CHAT_ASSISTANT": "Assistant",
             "CHAT_WAITING": "Waiting for a reply...",
-            "CHAT_MESSAGE_PLACEHOLDER": "New message..."
+            "CHAT_MESSAGE_PLACEHOLDER": "New message...",
+            "RESOURCE_CHECKED_IN_FAILED": "Failed to check in resource",
+            "RESOURCE_CHECKED_IN": "Successfully checked in resource"
         },
         "CONCIERGE": {
             "MENU_BOOKINGS": "Bookings",
@@ -1827,7 +1829,7 @@
             "INPUTS_AVAILABLE": "Available Inputs",
             "ROOMS_JOINED": "This room has been combined and is controlled from another panel",
             "VC_ENTER_CODE": "Enter your video conference code",
-            "VC_DIAL": "Dail number...",
+            "VC_DIAL": "Dial number...",
             "VC_JOINING": "Joining video conference...",
             "VC_CONTENT_DEST": "HDMI Content Destination",
             "VC_CONTENT_DEST_HIDE": "Hide Presentation",
@@ -1964,6 +1966,7 @@
             "CHECKIN_LOADING": "Saving details and checking in...",
             "CONTINUE": "Next",
             "SAVE": "Save",
+            "BEVERAGES": "Beverages",
             "BEVERAGE_MSG": "Would you like a drink?",
             "BEVERAGE_SELECT": "Select a drink",
             "BEVERAGE_MENU_LOADING": "Loading beverage list...",

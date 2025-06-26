@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { CalendarEvent, EventFormService } from '@placeos/events';
 import { Observable, of } from 'rxjs';
@@ -52,6 +52,9 @@ import { Observable, of } from 'rxjs';
     standalone: false,
 })
 export class BookingConfirmedComponent implements OnInit {
+    private _state = inject(EventFormService);
+    private _router = inject(Router);
+
     public get form() {
         return this._state.form;
     }
@@ -61,11 +64,6 @@ export class BookingConfirmedComponent implements OnInit {
     start_time$: Observable<string>;
     end_time$: Observable<string>;
     duration: CalendarEvent['duration'];
-
-    constructor(
-        private _state: EventFormService,
-        private _router: Router,
-    ) {}
 
     ngOnInit() {
         this.location = this._state.last_success?.location;

@@ -1,10 +1,4 @@
-import {
-    AfterViewInit,
-    Component,
-    ElementRef,
-    OnDestroy,
-    ViewChild,
-} from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import {
     AsyncHandler,
@@ -106,6 +100,10 @@ export class CheckinQRScanComponent
     extends AsyncHandler
     implements AfterViewInit, OnDestroy
 {
+    private _checkin = inject(CheckinStateService);
+    private _router = inject(Router);
+    private _settings = inject(SettingsService);
+
     public checking_code = false;
     /** Email address of the visitor */
     public email: string;
@@ -124,14 +122,6 @@ export class CheckinQRScanComponent
 
     public get induction_after_details() {
         return this._settings.get('app.induction_after_details');
-    }
-
-    constructor(
-        private _checkin: CheckinStateService,
-        private _router: Router,
-        private _settings: SettingsService,
-    ) {
-        super();
     }
 
     public ngAfterViewInit() {

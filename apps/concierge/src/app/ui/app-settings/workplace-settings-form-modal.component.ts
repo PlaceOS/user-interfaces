@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
@@ -1665,6 +1665,13 @@ import { VERSION } from '@placeos/common';
     standalone: false,
 })
 export class WorkplaceSettingsFormModalComponent implements OnInit {
+    private _data = inject<{
+    zone: PlaceZone;
+}>(MAT_DIALOG_DATA);
+    private _dialog_ref = inject<MatDialogRef<WorkplaceSettingsFormModalComponent>>(MatDialogRef);
+    private _settings = inject(SettingsService);
+    private _org = inject(OrganisationService);
+
     public loading = '';
     public existing_settings: Record<string, any> = {};
     public old_settings: Record<string, any> = {};
@@ -1805,13 +1812,6 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
     public get date_string() {
         return format(Date.now(), 'yyyy-MM-dd+HH');
     }
-
-    constructor(
-        @Inject(MAT_DIALOG_DATA) private _data: { zone: PlaceZone },
-        private _dialog_ref: MatDialogRef<WorkplaceSettingsFormModalComponent>,
-        private _settings: SettingsService,
-        private _org: OrganisationService,
-    ) {}
 
     public async ngOnInit() {
         const zone = this._data.zone;

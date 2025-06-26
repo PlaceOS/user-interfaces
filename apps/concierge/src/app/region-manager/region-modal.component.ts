@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import {
@@ -74,6 +74,10 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
     standalone: false,
 })
 export class RegionModalComponent extends AsyncHandler {
+    private _org = inject(OrganisationService);
+    private _data = inject<Region | undefined>(MAT_DIALOG_DATA);
+    private _dialog_ref = inject<MatDialogRef<RegionModalComponent>>(MatDialogRef);
+
     public loading = false;
     public readonly building_list = this._org.building_list;
 
@@ -90,14 +94,6 @@ export class RegionModalComponent extends AsyncHandler {
         ),
         parent_id: new FormControl(this._org.organisation.id),
     });
-
-    constructor(
-        private _org: OrganisationService,
-        @Inject(MAT_DIALOG_DATA) private _data: Region | undefined,
-        private _dialog_ref: MatDialogRef<RegionModalComponent>,
-    ) {
-        super();
-    }
 
     public ngOnInit() {
         this._updateTimezoneList();

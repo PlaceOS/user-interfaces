@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { addHours, endOfDay, getUnixTime, set, startOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest, Observable, of, Subject } from 'rxjs';
@@ -64,6 +64,10 @@ const removeToken = (l: string, t: string) => l.replace(t, '');
     providedIn: 'root',
 })
 export class LockerStateService extends AsyncHandler {
+    private _org = inject(OrganisationService);
+    private _dialog = inject(MatDialog);
+    private _settings = inject(SettingsService);
+
     private _search = new BehaviorSubject('');
     private _filters = new BehaviorSubject<LockerFilters>({});
     // private _new_lockers = new BehaviorSubject<Locker[]>([]);
@@ -277,11 +281,7 @@ export class LockerStateService extends AsyncHandler {
         this._call_next_page.next(`NEXT_${Date.now()}`);
     }
 
-    constructor(
-        private _org: OrganisationService,
-        private _dialog: MatDialog,
-        private _settings: SettingsService,
-    ) {
+    constructor() {
         super();
         this.setup_paging.subscribe();
     }

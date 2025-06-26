@@ -32,6 +32,11 @@
                         "input": "node_modules/@placeos/ts-client/dist/",
                         "output": "/"
                     },
+                    {
+                        "glob": "**",
+                        "input": "shared/assets",
+                        "output": "/assets/"
+                    },
                     "apps/stagehand/src/manifest.webmanifest"
                 ],
                 "styles": [
@@ -78,7 +83,7 @@
                         {
                             "type": "initial",
                             "maximumWarning": "1mb",
-                            "maximumError": "2mb"
+                            "maximumError": "2.5mb"
                         },
                         {
                             "type": "anyComponentStyle",

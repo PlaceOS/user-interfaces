@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Building } from '@placeos/organisation';
 
@@ -19,27 +19,24 @@ import { Building } from '@placeos/organisation';
             "
             (confirm)="save()"
         >
-            <building-form
-                [building]="building"
+            <building-form [building]="building"
                 [save]="save_state"
                 [(loading)]="loading"
                 (done)="close($event)"
-            ></building-form>
+             />
         </fullscreen-modal-shell>
     `,
     styles: [``],
     standalone: false,
 })
 export class BuildingModalComponent {
+    private _data = inject<Building | undefined>(MAT_DIALOG_DATA);
+    private _dialog_ref = inject<MatDialogRef<BuildingModalComponent>>(MatDialogRef);
+
     public loading = false;
     public save_state = 0;
     public readonly building = this._data;
 
     public readonly close = (d?) => this._dialog_ref.close(d);
     public readonly save = () => (this.save_state = Date.now());
-
-    constructor(
-        @Inject(MAT_DIALOG_DATA) private _data: Building | undefined,
-        private _dialog_ref: MatDialogRef<BuildingModalComponent>,
-    ) {}
 }

@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { downloadFile, i18n, jsonToCsv, nextValueFrom } from '@placeos/common';
 import { format } from 'date-fns';
 import { map } from 'rxjs/operators';
@@ -68,6 +68,8 @@ import { VisitorsReportService } from './visitors-report.service';
     standalone: false,
 })
 export class VisitorReportListComponent {
+    private _state = inject(VisitorsReportService);
+
     @Input() public print = false;
 
     public readonly visitor_bookings = this._state.bookings$.pipe(
@@ -104,6 +106,4 @@ export class VisitorReportListComponent {
         }
         downloadFile('report-visitor-daily-usage.csv', jsonToCsv(data));
     };
-
-    constructor(private _state: VisitorsReportService) {}
 }

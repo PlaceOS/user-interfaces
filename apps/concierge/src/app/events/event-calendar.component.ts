@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { nextValueFrom, SettingsService } from '@placeos/common';
 import { addMonths, addWeeks, format } from 'date-fns';
@@ -73,6 +73,11 @@ import { EventStateService } from './event-state.service';
     standalone: false,
 })
 export class EventCalendarComponent {
+    private _settings = inject(SettingsService);
+    private _state = inject(EventStateService);
+    private _router = inject(Router);
+    private _route = inject(ActivatedRoute);
+
     public readonly period = this._state.options.pipe(map((_) => _.period));
 
     public readonly options = this._state.options;
@@ -96,13 +101,6 @@ export class EventCalendarComponent {
     public get time_format() {
         return this._settings.time_format;
     }
-
-    constructor(
-        private _settings: SettingsService,
-        private _state: EventStateService,
-        private _router: Router,
-        private _route: ActivatedRoute,
-    ) {}
 
     public setPeriod(period: 'week' | 'month') {
         this._state.setOptions({ period });

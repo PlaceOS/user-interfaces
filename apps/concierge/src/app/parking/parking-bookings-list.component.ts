@@ -1,16 +1,14 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { ParkingStateService } from './parking-state.service';
 
 @Component({
     selector: 'parking-bookings-list',
     template: `
-        <mat-progress-bar
-            [class.opacity-0]="!(loading | async)?.includes('bookings')"
+        <mat-progress-bar [class.opacity-0]="!(loading | async)?.includes('bookings')"
             class="sticky left-0 w-full"
-        ></mat-progress-bar>
-        <simple-table
-            class="block min-w-[76rem] text-sm"
+         />
+        <simple-table class="block min-w-[76rem] text-sm"
             [data]="events"
             [columns]="[
                 {
@@ -63,7 +61,7 @@ import { ParkingStateService } from './parking-state.service';
             [filter]="(options | async)?.search"
             [sortable]="true"
             [empty_message]="'APP.CONCIERGE.PARKING_BOOKINGS_EMPTY' | translate"
-        ></simple-table>
+         />
         <ng-template #date_template let-row="row">
             <div class="px-4 py-2">
                 {{
@@ -226,6 +224,9 @@ export class ParkingBookingsListComponent
     extends AsyncHandler
     implements OnInit
 {
+    private _state = inject(ParkingStateService);
+    private _settings = inject(SettingsService);
+
     public readonly events = this._state.bookings;
     public readonly options = this._state.options;
     public readonly loading = this._state.loading;
@@ -236,13 +237,6 @@ export class ParkingBookingsListComponent
 
     public get time_format() {
         return this._settings.time_format;
-    }
-
-    constructor(
-        private _state: ParkingStateService,
-        private _settings: SettingsService,
-    ) {
-        super();
     }
 
     public ngOnInit() {

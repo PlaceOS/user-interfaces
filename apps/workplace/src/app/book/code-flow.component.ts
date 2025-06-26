@@ -2,6 +2,7 @@ import {
     Component,
     ElementRef,
     EventEmitter,
+    inject,
     OnDestroy,
     OnInit,
     Output,
@@ -15,7 +16,12 @@ import {
     checkinBooking,
     queryBookings,
 } from '@placeos/bookings';
-import { AsyncHandler, currentUser, notifyError } from '@placeos/common';
+import {
+    AsyncHandler,
+    currentUser,
+    firstTruthyValueFrom,
+    notifyError,
+} from '@placeos/common';
 import {
     CalendarEvent,
     checkinEventGuest,
@@ -25,6 +31,8 @@ import {
 import { showSystem } from '@placeos/ts-client';
 import { addMinutes, endOfDay, getUnixTime } from 'date-fns';
 import QrScanner from 'qr-scanner';
+
+import { OrganisationService } from '@placeos/organisation';
 
 @Component({
     selector: 'book-code-flow',
@@ -173,6 +181,12 @@ export class BookCodeFlowComponent
     extends AsyncHandler
     implements OnInit, OnDestroy
 {
+    private readonly _router = inject(Router);
+    private readonly _route = inject(ActivatedRoute);
+    private readonly _event_form = inject(EventFormService);
+    private readonly _booking_form = inject(BookingFormService);
+    private readonly _org = inject(OrganisationService);
+
     /** Menu event */
     @Output() public menu = new EventEmitter(false);
     /** Boolean to toggle scan/code */
@@ -186,15 +200,6 @@ export class BookCodeFlowComponent
     @ViewChild('video')
     private _video_el: ElementRef<HTMLVideoElement>;
 
-    constructor(
-        private _router: Router,
-        private _route: ActivatedRoute,
-        private _event_form: EventFormService,
-        private _booking_form: BookingFormService,
-    ) {
-        super();
-    }
-
     public ngOnDestroy() {
         if (this._video_el?.nativeElement?.srcObject) {
             (this._video_el.nativeElement.srcObject as any)
@@ -204,7 +209,8 @@ export class BookCodeFlowComponent
         this._qr_scanner?.stop();
     }
 
-    public ngOnInit(): void {
+    public async ngOnInit() {
+        await firstTruthyValueFrom(this._org.initialised);
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {

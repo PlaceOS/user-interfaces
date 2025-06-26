@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { BookingFormService, findNearbyFeature } from '@placeos/bookings';
 import {
@@ -99,6 +99,12 @@ import { set } from 'date-fns';
     standalone: false,
 })
 export class MeetingFlowSuccessComponent {
+    private _event_form = inject(EventFormService);
+    private _org = inject(OrganisationService);
+    private _settings = inject(SettingsService);
+    private _booking_form = inject(BookingFormService);
+    private _router = inject(Router);
+
     public loading = false;
     private _space_pipe: SpacePipe = new SpacePipe(this._org);
 
@@ -124,14 +130,6 @@ export class MeetingFlowSuccessComponent {
     public get time_format() {
         return this._settings.time_format;
     }
-
-    constructor(
-        private _event_form: EventFormService,
-        private _org: OrganisationService,
-        private _settings: SettingsService,
-        private _booking_form: BookingFormService,
-        private _router: Router,
-    ) {}
 
     public ngOnInit() {
         this.loading = true;

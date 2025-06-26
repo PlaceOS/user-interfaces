@@ -23,7 +23,6 @@ import { SanitizePipe } from './sanitise.pipe';
 export class CustomTooltipData<T = any> {
     data: T;
     close: () => void;
-
     constructor(d) {
         this.data = d.data;
         this.close = d.close || (() => null);
@@ -33,7 +32,7 @@ export class CustomTooltipData<T = any> {
 @Component({
     selector: '[customTooltip]',
     template: `
-        <ng-content></ng-content>
+        <ng-content />
 
         <ng-template cdk-portal>
             <div custom-tooltip class="relative print:hidden">

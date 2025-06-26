@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import {
     BookingRuleset,
@@ -45,12 +45,11 @@ import {
                 {{ 'APP.CONCIERGE.BOOKING_RULES_NOTE' | translate }}
             </div>
             <ng-container [ngSwitch]="view">
-                <booking-rules-form
-                    [ruleset]="selected"
+                <booking-rules-form [ruleset]="selected"
                     [save]="activate_save"
                     (rulesetChange)="save($event)"
                     *ngSwitchCase="'form'"
-                ></booking-rules-form>
+                 />
                 <div class="-mx-4 w-[calc(100%+2rem)] overflow-auto">
                     <simple-table
                         class="block w-full min-w-[48rem] text-sm"
@@ -229,6 +228,12 @@ import {
     standalone: false,
 })
 export class BookingRulesModalComponent {
+    private _data = inject<{
+    type: string;
+}>(MAT_DIALOG_DATA);
+    private _org = inject(OrganisationService);
+    private _dialog = inject(MatDialog);
+
     public loading = false;
     public view = 'list';
     public activate_save = false;
@@ -249,12 +254,6 @@ export class BookingRulesModalComponent {
     );
 
     public readonly type = this._data.type;
-
-    constructor(
-        @Inject(MAT_DIALOG_DATA) private _data: { type: string },
-        private _org: OrganisationService,
-        private _dialog: MatDialog,
-    ) {}
 
     public keyCount(item: Record<string, any>): number {
         return Object.keys(item).length;

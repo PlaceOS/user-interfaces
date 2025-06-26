@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { notifyError } from '@placeos/common';
 import { CheckinStateService } from './checkin-state.service';
@@ -82,13 +82,11 @@ import { CheckinStateService } from './checkin-state.service';
     standalone: false,
 })
 export class CheckinCovidComponent {
+    private _router = inject(Router);
+    private _checkin = inject(CheckinStateService);
+
     public contact: string;
     public symptoms: string;
-
-    constructor(
-        private _router: Router,
-        private _checkin: CheckinStateService,
-    ) {}
 
     public confirm() {
         if (!this.symptoms || !this.contact)

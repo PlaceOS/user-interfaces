@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { BookingFormService } from '@placeos/bookings';
 import { SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
@@ -116,6 +116,10 @@ import {
     standalone: false,
 })
 export class BookLockerFlowSuccessComponent {
+    private _state = inject(BookingFormService);
+    private _settings = inject(SettingsService);
+    private _org = inject(OrganisationService);
+
     public outlook_link = '';
     public google_link = '';
     public ical_link = '';
@@ -145,12 +149,6 @@ export class BookLockerFlowSuccessComponent {
 
     public readonly viewCalendarLinks = () =>
         this._state.openBookingLinkModal();
-
-    constructor(
-        private _state: BookingFormService,
-        private _settings: SettingsService,
-        private _org: OrganisationService,
-    ) {}
 
     public ngOnInit() {
         this.outlook_link = generateMicrosoftCalendarLink(

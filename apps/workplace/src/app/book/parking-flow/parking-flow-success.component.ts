@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { BookingFormService } from '@placeos/bookings';
 import {
     generateCalendarFileLink,
@@ -103,6 +103,10 @@ import { OrganisationService } from '@placeos/organisation';
     standalone: false,
 })
 export class ParkingFlowSuccessComponent {
+    private _state = inject(BookingFormService);
+    private _settings = inject(SettingsService);
+    private _org = inject(OrganisationService);
+
     public outlook_link = '';
     public google_link = '';
     public ical_link = '';
@@ -130,12 +134,6 @@ export class ParkingFlowSuccessComponent {
     public get show_links() {
         return this._settings.get('app.parking.show_calendar_links');
     }
-
-    constructor(
-        private _state: BookingFormService,
-        private _settings: SettingsService,
-        private _org: OrganisationService,
-    ) {}
 
     public ngOnInit() {
         const event: any = {

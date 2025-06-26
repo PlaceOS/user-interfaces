@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SwUpdate } from '@angular/service-worker';
 import {
@@ -27,24 +27,20 @@ declare let OfficeRuntime: any;
 @Component({
     selector: 'app-root',
     template: `
-        <router-outlet></router-outlet>
-        <global-loading></global-loading>
+        <router-outlet />
+        <global-loading />
     `,
     styles: [``],
     standalone: false,
 })
 export class AppComponent extends AsyncHandler implements OnInit {
-    title = 'outlook-addin';
+    private _settings = inject(SettingsService);
+    private _org = inject(OrganisationService);
+    private _cache = inject(SwUpdate);
+    private _snackbar = inject(MatSnackBar);
+    private _locales = inject(LocaleService);
 
-    constructor(
-        private _settings: SettingsService,
-        private _org: OrganisationService, // For init
-        private _cache: SwUpdate,
-        private _snackbar: MatSnackBar,
-        private _locales: LocaleService,
-    ) {
-        super();
-    }
+    title = 'outlook-addin';
 
     public async ngOnInit() {
         console.info(`Initialising application...`);

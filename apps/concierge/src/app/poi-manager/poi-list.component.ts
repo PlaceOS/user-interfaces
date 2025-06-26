@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { SettingsService } from '@placeos/common';
 import { generateQRCode } from 'libs/common/src/lib/qr-code';
 import {
@@ -140,6 +140,9 @@ import {
     standalone: false,
 })
 export class POIListComponent {
+    private _manager = inject(POIManagementService);
+    private _settings = inject(SettingsService);
+
     public readonly features = this._manager.filtered_features;
 
     public readonly edit = (region) =>
@@ -151,11 +154,6 @@ export class POIListComponent {
         const path = this._settings.get('app.kiosk_url_path') || '/map-kiosk';
         return `${window.location.origin}${path}`;
     }
-
-    constructor(
-        private _manager: POIManagementService,
-        private _settings: SettingsService,
-    ) {}
 
     public loadQrCode(item: PointOfInterest) {
         const location =

@@ -1,5 +1,5 @@
 import { Clipboard } from '@angular/cdk/clipboard';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { notifySuccess } from '@placeos/common';
 
@@ -156,6 +156,10 @@ import { WorkplaceSettingsFormModalComponent } from '../ui/app-settings/workplac
     standalone: false,
 })
 export class RegionListComponent {
+    private _manager = inject(RegionManagementService);
+    private _clipboard = inject(Clipboard);
+    private _dialog = inject(MatDialog);
+
     public readonly regions = this._manager.filtered_regions;
 
     public readonly editRegion = (region) => this._manager.editRegion(region);
@@ -190,10 +194,4 @@ export class RegionListComponent {
             data: { zone },
         });
     }
-
-    constructor(
-        private _manager: RegionManagementService,
-        private _clipboard: Clipboard,
-        private _dialog: MatDialog,
-    ) {}
 }

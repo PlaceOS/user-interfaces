@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
@@ -66,6 +66,11 @@ import { EnrolmentStateService } from './enrolment-state.service';
     standalone: false,
 })
 export class EnrolmentComponent extends AsyncHandler {
+    private _state = inject(EnrolmentStateService);
+    private _settings = inject(SettingsService);
+    private _route = inject(ActivatedRoute);
+    private _org = inject(OrganisationService);
+
     public loading = this._state.loading;
     public view = this._state.view;
 
@@ -78,15 +83,6 @@ export class EnrolmentComponent extends AsyncHandler {
                     : this._settings.get('app.logo_dark')) || {},
         ),
     );
-
-    constructor(
-        private _state: EnrolmentStateService,
-        private _settings: SettingsService,
-        private _route: ActivatedRoute,
-        private _org: OrganisationService,
-    ) {
-        super();
-    }
 
     public ngOnInit() {
         this.subscription(

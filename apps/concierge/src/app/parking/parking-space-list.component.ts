@@ -1,5 +1,5 @@
 import { Clipboard } from '@angular/cdk/clipboard';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Booking } from '@placeos/bookings';
 import { AsyncHandler, i18n, notifySuccess } from '@placeos/common';
 import { ParkingSpace } from '@placeos/explore';
@@ -9,12 +9,10 @@ import { ParkingStateService } from './parking-state.service';
 @Component({
     selector: 'parking-space-list',
     template: `
-        <mat-progress-bar
-            [class.opacity-0]="!(loading | async)?.includes('spaces')"
+        <mat-progress-bar [class.opacity-0]="!(loading | async)?.includes('spaces')"
             class="w-full"
-        ></mat-progress-bar>
-        <simple-table
-            class="block min-w-[52rem] text-sm"
+         />
+        <simple-table class="block min-w-[52rem] text-sm"
             [data]="spaces"
             [columns]="[
                 {
@@ -45,7 +43,7 @@ import { ParkingStateService } from './parking-state.service';
             ]"
             [filter]="(options | async)?.search"
             [sortable]="true"
-        ></simple-table>
+         />
         <ng-template #status_template let-row="row">
             <div
                 class="mx-auto flex h-8 w-8 items-center justify-center rounded"
@@ -141,6 +139,9 @@ import { ParkingStateService } from './parking-state.service';
     standalone: false,
 })
 export class ParkingSpaceListComponent extends AsyncHandler {
+    private _state = inject(ParkingStateService);
+    private _clipboard = inject(Clipboard);
+
     public readonly spaces = this._state.spaces;
     public readonly options = this._state.options;
     public readonly loading = this._state.loading;
@@ -150,13 +151,6 @@ export class ParkingSpaceListComponent extends AsyncHandler {
 
     public readonly editSpace = (s?) => this._state.editSpace(s);
     public readonly removeSpace = (s) => this._state.removeSpace(s);
-
-    constructor(
-        private _state: ParkingStateService,
-        private _clipboard: Clipboard,
-    ) {
-        super();
-    }
 
     public ngOnInit() {
         this.subscription(

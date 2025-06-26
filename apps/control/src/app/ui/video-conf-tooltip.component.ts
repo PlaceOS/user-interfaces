@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CustomTooltipData } from 'libs/components/src/lib/custom-tooltip.component';
 
 import { VideoCallStateService } from '../video-call/video-call-state.service';
@@ -45,14 +45,12 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
     standalone: false,
 })
 export class VideoConferenceTooltipComponent {
+    private _vc_state = inject(VideoCallStateService);
+    private _ref = inject(CustomTooltipData);
+
     public dial_number = '';
     public loading = false;
     public readonly call = this._vc_state.call;
-
-    constructor(
-        private _vc_state: VideoCallStateService,
-        @Inject(CustomTooltipData) private _ref: any,
-    ) {}
 
     public addDigit(digit: string) {
         this.dial_number += digit;

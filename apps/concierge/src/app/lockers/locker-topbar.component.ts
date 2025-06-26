@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { first } from 'rxjs/operators';
 
@@ -141,6 +141,13 @@ import { LockerStateService } from './locker-state.service';
     standalone: false,
 })
 export class LockersTopbarComponent extends AsyncHandler implements OnInit {
+    private _state = inject(LockerStateService);
+    private _org = inject(OrganisationService);
+    private _route = inject(ActivatedRoute);
+    private _router = inject(Router);
+    private _settings = inject(SettingsService);
+    private _dialog = inject(MatDialog);
+
     public path = '';
     /** List of selected levels */
     public zones: string[] = [];
@@ -174,17 +181,6 @@ export class LockersTopbarComponent extends AsyncHandler implements OnInit {
         this._dialog.open(BookingRulesModalComponent, {
             data: { type: 'locker' },
         });
-    }
-
-    constructor(
-        private _state: LockerStateService,
-        private _org: OrganisationService,
-        private _route: ActivatedRoute,
-        private _router: Router,
-        private _settings: SettingsService,
-        private _dialog: MatDialog,
-    ) {
-        super();
     }
 
     public async ngOnInit() {

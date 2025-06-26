@@ -69,6 +69,8 @@ export class User {
     public readonly assistance_required: boolean;
     /** Whether user is a resource */
     public readonly resource: boolean;
+    /** Photo upload ID */
+    public readonly photo_upload_id: string;
 
     constructor(data: Partial<UserComplete> = {}) {
         this.id = data.id || data.email || `USER::${randomString(8)}`;
@@ -79,7 +81,16 @@ export class User {
         this.phone = data.phone || '';
         this.organisation = data.organisation || '';
         this.notes = data.notes || '';
-        this.photo = data.photo || data.image || '';
+        this.photo =
+            data.photo ||
+            data.image ||
+            (data.photo_upload_id
+                ? `/api/engine/v2/uploads/${encodeURIComponent(
+                      data.photo_upload_id,
+                  )}/url`
+                : '') ||
+            '';
+        this.photo_upload_id = data.photo_upload_id || '';
         this.username = data.username || '';
         this.organizer = !!data.organizer;
         this.checked_in = !!data.checked_in;

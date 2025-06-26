@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import {
     AsyncHandler,
@@ -233,6 +233,10 @@ export class SelectMapItemModalComponent
     extends AsyncHandler
     implements OnInit
 {
+    private _data = inject<PointOfInterest>(MAT_DIALOG_DATA);
+    private _org = inject(OrganisationService);
+    private _maps_people = inject(MapsPeopleService);
+
     public selected_item: any;
     public level: BuildingLevel = new BuildingLevel();
     public map_info: BoundsMap = {};
@@ -340,14 +344,6 @@ export class SelectMapItemModalComponent
     );
 
     public readonly setMapInfo = (info: BoundsMap) => (this.map_info = info);
-
-    constructor(
-        @Inject(MAT_DIALOG_DATA) private _data: PointOfInterest,
-        private _org: OrganisationService,
-        private _maps_people: MapsPeopleService,
-    ) {
-        super();
-    }
 
     public async ngOnInit() {
         if (this._data?.location && typeof this._data.location === 'string') {

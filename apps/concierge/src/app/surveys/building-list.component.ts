@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { flatten } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { combineLatest } from 'rxjs';
@@ -115,6 +115,9 @@ import { NewSurveyService } from './new-survey.service';
     standalone: false,
 })
 export class BuildingListComponent {
+    private _org = inject(OrganisationService);
+    private _survey = inject(NewSurveyService);
+
     public readonly buildings$ = this._org.building_list;
     public readonly surveys$ = this._survey.survey_list$;
     public readonly answers$ = this._survey.answer_list$;
@@ -149,9 +152,4 @@ export class BuildingListComponent {
         startWith({}),
         shareReplay(1),
     );
-
-    constructor(
-        private _org: OrganisationService,
-        private _survey: NewSurveyService,
-    ) {}
 }

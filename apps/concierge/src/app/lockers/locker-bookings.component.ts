@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 
 import { SettingsService } from '@placeos/common';
 import { map } from 'rxjs/operators';
@@ -253,6 +253,9 @@ import { LockerStateService } from './locker-state.service';
     standalone: false,
 })
 export class LockerBookingsComponent {
+    private _state = inject(LockerStateService);
+    private _settings = inject(SettingsService);
+
     public loading: string;
     public readonly filters = this._state.filters;
     public readonly has_more_pages = this._state.has_more_pages;
@@ -280,11 +283,6 @@ export class LockerBookingsComponent {
     public get time_format() {
         return this._settings.time_format;
     }
-
-    constructor(
-        private _state: LockerStateService,
-        private _settings: SettingsService,
-    ) {}
 
     private async runMethod(name: string, fn: () => Promise<any>) {
         this.loading = name;

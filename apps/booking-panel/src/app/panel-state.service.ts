@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { OrganisationService } from '@placeos/organisation';
@@ -132,6 +132,13 @@ declare global {
     providedIn: 'root',
 })
 export class PanelStateService extends AsyncHandler {
+    private _spaces = inject(SpacesService);
+    private _dialog = inject(MatDialog);
+    private _events = inject(EventFormService);
+    private _app_settings = inject(SettingsService);
+    private _org = inject(OrganisationService);
+    private _router = inject(Router);
+
     private _space_pipe: SpacePipe = new SpacePipe(this._org);
     /** Polling observable */
     private _poll = interval(1000);
@@ -233,14 +240,7 @@ export class PanelStateService extends AsyncHandler {
         }),
     );
 
-    constructor(
-        private _spaces: SpacesService,
-        private _dialog: MatDialog,
-        private _events: EventFormService,
-        private _app_settings: SettingsService,
-        private _org: OrganisationService,
-        private _router: Router,
-    ) {
+    constructor() {
         super();
         this._init();
     }

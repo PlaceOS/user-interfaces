@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { addMinutes, format } from 'date-fns';
 
 import { SettingsService } from '@placeos/common';
@@ -141,6 +141,10 @@ import { EventsStateService } from '../day-view/events-state.service';
     standalone: false,
 })
 export class ViewEventDetailsComponent {
+    private _state = inject(EventsStateService);
+    private _settings = inject(SettingsService);
+    private _org = inject(OrganisationService);
+
     /** Event to display */
     @Input() public event: CalendarEvent;
     /** Close displayed event */
@@ -181,10 +185,4 @@ export class ViewEventDetailsComponent {
     public get time_format() {
         return this._settings.time_format;
     }
-
-    constructor(
-        private _state: EventsStateService,
-        private _settings: SettingsService,
-        private _org: OrganisationService,
-    ) {}
 }

@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { currentUser, notifySuccess, SettingsService } from '@placeos/common';
@@ -1204,6 +1204,13 @@ import { VERSION } from '@placeos/common';
     standalone: false,
 })
 export class ConciergeSettingsFormModalComponent {
+    private _data = inject<{
+    zone: PlaceZone;
+}>(MAT_DIALOG_DATA);
+    private _dialog_ref = inject<MatDialogRef<ConciergeSettingsFormModalComponent>>(MatDialogRef);
+    private _settings = inject(SettingsService);
+    private _org = inject(OrganisationService);
+
     public loading = '';
     public existing_settings: Record<string, any> = {};
     public old_settings: Record<string, any> = {};
@@ -1276,13 +1283,6 @@ export class ConciergeSettingsFormModalComponent {
     public get date_string() {
         return format(Date.now(), 'yyyy-MM-dd+HH');
     }
-
-    constructor(
-        @Inject(MAT_DIALOG_DATA) private _data: { zone: PlaceZone },
-        private _dialog_ref: MatDialogRef<ConciergeSettingsFormModalComponent>,
-        private _settings: SettingsService,
-        private _org: OrganisationService,
-    ) {}
 
     public async ngOnInit() {
         const zone = this._data.zone;

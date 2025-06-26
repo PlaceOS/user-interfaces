@@ -19,8 +19,7 @@ import { CateringStateService } from './catering-state.service';
 @Component({
     selector: 'catering-menu',
     template: `
-        <simple-table
-            class="block w-full min-w-[32rem] text-sm"
+        <simple-table class="block w-full min-w-[32rem] text-sm"
             [data]="menu"
             [columns]="[
                 {
@@ -56,15 +55,14 @@ import { CateringStateService } from './catering-state.service';
             [child_template]="child_template"
             [sortable]="true"
             [empty_message]="'CATERING.ITEM_LIST_EMPTY' | translate"
-        ></simple-table>
+         />
         <ng-template #active_template let-row="row">
-            <mat-checkbox
-                class="mx-auto"
+            <mat-checkbox class="mx-auto"
                 [matTooltip]="'CATERING.ORDER_ALLOW' | translate"
                 matTooltipPosition="right"
                 [ngModel]="isEnabled(row)"
                 (ngModelChange)="setEnabled(row, $event)"
-            ></mat-checkbox>
+             />
         </ng-template>
         <ng-template #price_template let-data="data">
             <div

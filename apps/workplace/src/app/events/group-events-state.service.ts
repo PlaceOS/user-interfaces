@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { SettingsService, unique } from '@placeos/common';
 import { queryEvents } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
@@ -20,6 +20,9 @@ export interface GroupEventFilters {
     providedIn: 'root',
 })
 export class GroupEventsStateService {
+    private _org = inject(OrganisationService);
+    private _settings = inject(SettingsService);
+
     private _options = new BehaviorSubject<GroupEventOptions>({
         date: Date.now(),
     });
@@ -89,11 +92,6 @@ export class GroupEventsStateService {
     );
 
     public readonly options = this._options.asObservable();
-
-    constructor(
-        private _org: OrganisationService,
-        private _settings: SettingsService,
-    ) {}
 
     public setOptions(options: Partial<GroupEventOptions>) {
         this._options.next({ ...this._options.value, ...options });

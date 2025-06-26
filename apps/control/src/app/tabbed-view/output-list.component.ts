@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { map } from 'rxjs/operators';
 import { ControlStateService } from '../control-state.service';
 
@@ -21,11 +21,13 @@ import { ControlStateService } from '../control-state.service';
     standalone: false,
 })
 export class DeviceOutputListComponent {
+    private _state = inject(ControlStateService);
+
     public readonly outputs = this._state.output_list.pipe(map((_) => _ || []));
     public readonly active_output = this._state.active_output;
     public readonly preview_outputs = this._state.preview_outputs;
 
-    constructor(private _state: ControlStateService) {
+    constructor() {
         this.outputs.subscribe();
     }
 }

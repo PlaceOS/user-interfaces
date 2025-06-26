@@ -1,5 +1,5 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component, Input, OnInit, Optional } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatRippleModule } from '@angular/material/core';
@@ -183,6 +183,13 @@ export class MeetingFlowConfirmComponent
     extends AsyncHandler
     implements OnInit
 {
+    private _sheet_ref = inject(MatBottomSheetRef, { optional: true });
+    private _event_form = inject(EventFormService);
+    private _org = inject(OrganisationService);
+    private _space_pipe = inject(SpacePipe);
+    private _dialog = inject(MatDialog);
+    private _settings = inject(SettingsService);
+
     @Input() public show_close = false;
 
     private _date: DatePipe = new DatePipe('en');
@@ -280,17 +287,6 @@ export class MeetingFlowConfirmComponent
             this.space.zones.includes(_.id),
         );
         return building?.address || building?.display_name || building?.name;
-    }
-
-    constructor(
-        @Optional() private _sheet_ref: MatBottomSheetRef,
-        private _event_form: EventFormService,
-        private _org: OrganisationService,
-        private _space_pipe: SpacePipe,
-        private _dialog: MatDialog,
-        private _settings: SettingsService,
-    ) {
-        super();
     }
 
     public async ngOnInit() {

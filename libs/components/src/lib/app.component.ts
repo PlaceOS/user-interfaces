@@ -26,6 +26,7 @@ import {
     isMobileSafari,
     LocaleService,
     log,
+    nextValueFrom,
     notifySuccess,
     requestScreenWakeLock,
     setAppName,
@@ -88,14 +89,14 @@ export function initSentry(dsn: string, sample_rate = 0.1) {
 @Component({
     selector: 'app-root',
     template: `
-        <global-banner></global-banner>
+        <global-banner />
         <div class="relative h-1/2 w-full flex-1">
             <router-outlet></router-outlet>
         </div>
         @if (has_chat) {
-            <global-chat></global-chat>
+            <global-chat />
         }
-        <global-loading></global-loading>
+        <global-loading />
         <!-- <debug-console *ngIf="debug"></debug-console> -->
     `,
     styles: [
@@ -112,6 +113,7 @@ export function initSentry(dsn: string, sample_rate = 0.1) {
 })
 export class AppComponent extends AsyncHandler implements OnInit {
     private _zone = '';
+    private _region = '';
 
     public get debug() {
         return (
@@ -178,9 +180,13 @@ export class AppComponent extends AsyncHandler implements OnInit {
             if (params.has('x-api-key')) {
                 setAPI_Key(params.get('x-api-key'));
             }
+            if (params.has('region_id')) {
+                this._region = params.get('region_id');
+            }
             if (params.has('building_id')) {
                 this._zone = params.get('building_id');
             }
+            if (this._region || this._zone) this._setZones();
         });
         setNotifyOutlet(this._snackbar);
         setTranslationService(this._locale);
@@ -231,16 +237,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
                 'warn',
             );
         }
-        this.timeout(
-            'set_initial_building',
-            () => {
-                const bld = this._org.buildings.find(
-                    (b) => b.id === this._zone,
-                );
-                if (bld) this._org.setBuilding(bld, true);
-            },
-            1000,
-        );
+        this._setZones();
     }
 
     private onInitError() {
@@ -349,5 +346,23 @@ export class AppComponent extends AsyncHandler implements OnInit {
         );
 
         await requestScreenWakeLock();
+    }
+
+    private _setZones() {
+        this.timeout(
+            'set_building+region',
+            async () => {
+                const region = this._org.regions.find(
+                    (b) => b.id === this._region,
+                );
+                if (region) this._org.setRegion(region);
+                const building_list = await nextValueFrom(
+                    this._org.building_list,
+                );
+                const bld = building_list.find((b) => b.id === this._zone);
+                if (bld) this._org.setBuilding(bld, true);
+            },
+            1000,
+        );
     }
 }

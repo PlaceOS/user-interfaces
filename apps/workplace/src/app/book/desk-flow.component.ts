@@ -1,9 +1,14 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
-import { AsyncHandler, nextValueFrom, notifyInfo } from '@placeos/common';
+import {
+    AsyncHandler,
+    firstTruthyValueFrom,
+    nextValueFrom,
+    notifyInfo,
+} from '@placeos/common';
 import { Desk, OrganisationService } from '@placeos/organisation';
-import { first } from 'rxjs/operators';
+import { lastValueFrom, timer } from 'rxjs';
 
 @Component({
     selector: 'placeos-new-book-desk-flow',
@@ -30,6 +35,10 @@ import { first } from 'rxjs/operators';
     standalone: false,
 })
 export class NewDeskFlowComponent extends AsyncHandler implements OnInit {
+    private _state = inject(BookingFormService);
+    private _org = inject(OrganisationService);
+    private _route = inject(ActivatedRoute);
+
     public get view() {
         return this._state.view;
     }
@@ -37,16 +46,9 @@ export class NewDeskFlowComponent extends AsyncHandler implements OnInit {
         return this._state.last_success;
     }
 
-    constructor(
-        private _state: BookingFormService,
-        private _route: ActivatedRoute,
-        private _org: OrganisationService,
-    ) {
-        super();
-    }
-
     public async ngOnInit() {
-        await this._org.initialised.pipe(first((_) => _)).toPromise();
+        await firstTruthyValueFrom(this._org.initialised);
+        await lastValueFrom(timer(300));
         this._state.loadForm();
         this._state.setOptions({ type: 'desk' });
         const { id, booking_type } = this._state.form.value;

@@ -1,10 +1,4 @@
-import {
-    Component,
-    ElementRef,
-    OnInit,
-    TemplateRef,
-    ViewChild,
-} from '@angular/core';
+import { Component, ElementRef, OnInit, TemplateRef, ViewChild, inject } from '@angular/core';
 import {
     MatBottomSheet,
     MatBottomSheetRef,
@@ -470,6 +464,16 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
     standalone: false,
 })
 export class MeetingFlowFormComponent extends AsyncHandler implements OnInit {
+    private _state = inject(EventFormService);
+    private _catering = inject(CateringOrderStateService);
+    private _assets = inject(AssetStateService);
+    private _settings = inject(SettingsService);
+    private _router = inject(Router);
+    private _dialog = inject(MatDialog);
+    private _bottom_sheet = inject(MatBottomSheet);
+    private _org = inject(OrganisationService);
+    private _idle = inject(UserIdleTimeService);
+
     public sheet_ref: MatBottomSheetRef<any>;
     public dialog_ref: MatDialogRef<any>;
     public hide_block: Record<string, boolean> = {};
@@ -741,20 +745,6 @@ export class MeetingFlowFormComponent extends AsyncHandler implements OnInit {
 
     @ViewChild('confirm_ref') private _confirm_ref: TemplateRef<any>;
     @ViewChild('input') private _input_el: ElementRef<HTMLInputElement>;
-
-    constructor(
-        private _state: EventFormService,
-        private _catering: CateringOrderStateService,
-        private _assets: AssetStateService,
-        private _settings: SettingsService,
-        private _router: Router,
-        private _dialog: MatDialog,
-        private _bottom_sheet: MatBottomSheet,
-        private _org: OrganisationService,
-        private _idle: UserIdleTimeService,
-    ) {
-        super();
-    }
 
     private _updateValidAssets() {
         this.invalid_assets = [];

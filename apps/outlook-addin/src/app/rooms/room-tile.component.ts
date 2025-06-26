@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import {
     MAT_BOTTOM_SHEET_DATA,
     MatBottomSheetRef,
@@ -85,12 +85,11 @@ import { RoomConfirmService } from './room-confirm.service';
     standalone: false,
 })
 export class RoomTileComponent implements OnInit {
+    data = inject(MAT_BOTTOM_SHEET_DATA);
+    private _bottomSheetRef = inject<MatBottomSheetRef<RoomTileComponent>>(MatBottomSheetRef);
+    private _roomConfirmService = inject(RoomConfirmService);
+
     space: Space;
-    constructor(
-        @Inject(MAT_BOTTOM_SHEET_DATA) public data: any,
-        private _bottomSheetRef: MatBottomSheetRef<RoomTileComponent>,
-        private _roomConfirmService: RoomConfirmService,
-    ) {}
 
     ngOnInit() {
         this.space = this.data;

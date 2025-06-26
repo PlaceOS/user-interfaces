@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import {
@@ -98,6 +98,9 @@ import {
     standalone: false,
 })
 export class ShortUrlModalComponent extends AsyncHandler {
+    private _data = inject<ShortURL | undefined>(MAT_DIALOG_DATA);
+    private _dialog_ref = inject<MatDialogRef<ShortUrlModalComponent>>(MatDialogRef);
+
     public loading = false;
 
     public readonly form = new FormGroup({
@@ -116,13 +119,6 @@ export class ShortUrlModalComponent extends AsyncHandler {
         //     []
         // ),
     });
-
-    constructor(
-        @Inject(MAT_DIALOG_DATA) private _data: ShortURL | undefined,
-        private _dialog_ref: MatDialogRef<ShortUrlModalComponent>,
-    ) {
-        super();
-    }
 
     public async save() {
         if (!this.form.valid) {

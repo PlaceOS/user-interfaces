@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { AsyncHandler, HashMap } from '@placeos/common';
@@ -149,6 +149,8 @@ export class BookingPanelSelectComponent
     extends AsyncHandler
     implements OnInit
 {
+    private route = inject(ActivatedRoute);
+
     /** List of systems to show panels for */
     public systems: string[];
     /** Names for the list of systems */
@@ -161,10 +163,6 @@ export class BookingPanelSelectComponent
     public active_system: string;
     /** Countdown counter */
     public countdown: number;
-
-    constructor(private route: ActivatedRoute) {
-        super();
-    }
 
     public ngOnInit(): void {
         this.subscription(

@@ -1,5 +1,5 @@
 import { Clipboard } from '@angular/cdk/clipboard';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { i18n, notifySuccess } from '@placeos/common';
 import { BehaviorSubject } from 'rxjs';
@@ -8,12 +8,10 @@ import { ParkingStateService } from './parking-state.service';
 @Component({
     selector: 'parking-users-list',
     template: `
-        <mat-progress-bar
-            [class.opacity-0]="!(loading | async)?.includes('users')"
+        <mat-progress-bar [class.opacity-0]="!(loading | async)?.includes('users')"
             class="w-full"
-        ></mat-progress-bar>
-        <simple-table
-            class="block min-w-[68rem] text-sm"
+         />
+        <simple-table class="block min-w-[68rem] text-sm"
             [data]="user_list"
             [columns]="[
                 {
@@ -47,7 +45,7 @@ import { ParkingStateService } from './parking-state.service';
             ]"
             [filter]="(options | async)?.search"
             [sortable]="true"
-        ></simple-table>
+         />
         <ng-template #name_template let-row="row" let-data="data">
             <button
                 class="px-4 py-2 text-left leading-tight"
@@ -106,6 +104,9 @@ import { ParkingStateService } from './parking-state.service';
     standalone: false,
 })
 export class ParkingUsersListComponent {
+    private _state = inject(ParkingStateService);
+    private _clipboard = inject(Clipboard);
+
     public readonly options = this._state.options;
     public readonly loading = this._state.loading;
 
@@ -119,9 +120,4 @@ export class ParkingUsersListComponent {
         const success = this._clipboard.copy(id);
         if (success) notifySuccess(i18n('APP.CONCIERGE.PARKING_COPIED_USER'));
     }
-
-    constructor(
-        private _state: ParkingStateService,
-        private _clipboard: Clipboard,
-    ) {}
 }

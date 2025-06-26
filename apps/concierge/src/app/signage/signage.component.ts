@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 
 import { NavigationEnd, Router } from '@angular/router';
 import { AsyncHandler, i18n } from '@placeos/common';
@@ -7,7 +7,7 @@ import { SignageStateService } from './signage-state.service';
 @Component({
     selector: '[app-new-staff]',
     template: `
-        <app-topbar></app-topbar>
+        <app-topbar />
         <div class="flex h-px flex-1">
             <app-sidebar></app-sidebar>
             <main class="flex h-full w-1/2 flex-1 flex-col">
@@ -35,7 +35,7 @@ import { SignageStateService } from './signage-state.service';
                 </div>
                 <div class="px-8">
                     <nav mat-tab-nav-bar [tabPanel]="tabPanel">
-                        @for (link of links; track link) {
+                        @for (link of links; track link.id) {
                             <a
                                 mat-tab-link
                                 [routerLink]="
@@ -72,9 +72,12 @@ import { SignageStateService } from './signage-state.service';
     standalone: false,
 })
 export class SignageComponent extends AsyncHandler implements OnInit {
+    private _state = inject(SignageStateService);
+    private _router = inject(Router);
+
     public readonly loading = this._state.loading;
     public links = [];
-    public active_link = this.links[0];
+    public active_link = this.links[0]?.id;
 
     public readonly previewFile = (event) =>
         this._state.previewFileFromInput(event);
@@ -101,13 +104,6 @@ export class SignageComponent extends AsyncHandler implements OnInit {
         }
     }
 
-    constructor(
-        private _state: SignageStateService,
-        private _router: Router,
-    ) {
-        super();
-    }
-
     public ngOnInit() {
         this.links = [
             { id: 'Media', name: i18n('APP.CONCIERGE.SIGNAGE_MEDIA') },
@@ -119,14 +115,16 @@ export class SignageComponent extends AsyncHandler implements OnInit {
             'route.query',
             this._router.events.subscribe((event) => {
                 if (event instanceof NavigationEnd) {
-                    this.active_link = this.links.find((_) =>
-                        this._router.url.includes(_.toLowerCase()),
-                    );
+                    this.active_link =
+                        this.links.find((_) =>
+                            this._router.url.includes(_.id.toLowerCase()),
+                        )?.id || this.active_link;
                 }
             }),
         );
-        this.active_link = this.links.find((_) =>
-            this._router.url.includes(_.toLowerCase()),
-        );
+        this.active_link =
+            this.links.find((_) =>
+                this._router.url.includes(_.id.toLowerCase()),
+            )?.id || this.active_link;
     }
 }

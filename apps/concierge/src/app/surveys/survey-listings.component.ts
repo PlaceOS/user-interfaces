@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
 
@@ -151,18 +151,14 @@ import { NewSurveyService } from './new-survey.service';
     standalone: false,
 })
 export class SurveyListingsComponent extends AsyncHandler implements OnInit {
+    private _route = inject(ActivatedRoute);
+    private _survey = inject(NewSurveyService);
+
     public readonly loading$ = this._survey.loading$;
     public readonly surveys$ = this._survey.building_surveys$;
 
     public get building() {
         return this._survey.building;
-    }
-
-    constructor(
-        private _route: ActivatedRoute,
-        private _survey: NewSurveyService,
-    ) {
-        super();
     }
 
     async ngOnInit() {

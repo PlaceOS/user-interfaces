@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { AsyncHandler } from '@placeos/common';
@@ -65,12 +65,10 @@ import { AsyncHandler } from '@placeos/common';
     standalone: false,
 })
 export class BookingPanelArrayComponent extends AsyncHandler implements OnInit {
+    private route = inject(ActivatedRoute);
+
     /** List of systems to show panels for */
     public systems: string[];
-
-    constructor(private route: ActivatedRoute) {
-        super();
-    }
 
     public async ngOnInit() {
         this.subscription(

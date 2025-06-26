@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { AssetManagerStateService } from './asset-manager-state.service';
 
 @Component({
@@ -154,10 +154,9 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 </div>
             </ng-container>
         </div>
-        <mat-progress-bar
-            *ngIf="loading | async"
+        <mat-progress-bar *ngIf="loading | async"
             mode="indeterminate"
-        ></mat-progress-bar>
+         />
         <ng-template #empty_state>
             <div
                 class="flex h-full w-full flex-col items-center justify-center space-y-4 p-8"
@@ -192,6 +191,8 @@ import { AssetManagerStateService } from './asset-manager-state.service';
     standalone: false,
 })
 export class AssetItemListComponent {
+    private _state = inject(AssetManagerStateService);
+
     public readonly loading = this._state.loading;
     public readonly options = this._state.options;
     public readonly categories = this._state.categories;
@@ -200,6 +201,4 @@ export class AssetItemListComponent {
     public get base_route() {
         return this._state.base_route;
     }
-
-    constructor(private _state: AssetManagerStateService) {}
 }

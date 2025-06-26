@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { BehaviorSubject, combineLatest, map } from 'rxjs';
+import { AlertsService } from './alerts.service';
 import { SupportService } from './support.service';
 
 function contains(str: string, substr: string) {
@@ -31,7 +32,7 @@ function contains(str: string, substr: string) {
                                 <icon class="text-3xl text-info">sensors</icon>
                             </div>
                             <div class="text-4xl font-bold">
-                                {{ (room_list | async).length || '0' }}
+                                {{ (room_list | async)?.length || '0' }}
                             </div>
                             <div class="text-sm opacity-40">+2 this month</div>
                         </div>
@@ -44,8 +45,12 @@ function contains(str: string, substr: string) {
                                 </h3>
                                 <icon class="text-3xl text-error">warning</icon>
                             </div>
-                            <div class="text-4xl font-bold">3</div>
-                            <div class="text-sm opacity-40">2 critical</div>
+                            <div class="text-4xl font-bold">
+                                {{ alerts().length }}
+                            </div>
+                            <div class="text-sm opacity-40">
+                                {{ critical_alerts() }} critical
+                            </div>
                         </div>
                         <div
                             class="rounded-lg border border-base-300 bg-base-100 p-4 shadow"
@@ -336,6 +341,16 @@ function contains(str: string, substr: string) {
     standalone: false,
 })
 export class RemoteSupportComponent {
+    private readonly _alerts = inject(AlertsService);
+    private readonly _support = inject(SupportService);
+
+    public readonly alerts = this._alerts.alerts;
+    public readonly critical_alerts = computed(
+        () =>
+            this.alerts().filter((alert) => alert.severity === 'critical')
+                .length,
+    );
+
     public search = new BehaviorSubject('');
     public status: Record<string, string> = {};
     public next: Record<string, any> = {};
@@ -369,6 +384,4 @@ export class RemoteSupportComponent {
     public get service_link() {
         return `${location.origin}/control/`;
     }
-
-    constructor(private _support: SupportService) {}
 }

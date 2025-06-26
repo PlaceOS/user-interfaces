@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AsyncHandler, RemoteLoggingService, VERSION } from '@placeos/common';
 import { PanelStateService } from '../panel-state.service';
@@ -59,6 +59,10 @@ import { PanelStateService } from '../panel-state.service';
     standalone: false,
 })
 export class PanelViewComponent extends AsyncHandler {
+    private _state = inject(PanelStateService);
+    private _route = inject(ActivatedRoute);
+    private _logger = inject(RemoteLoggingService);
+
     public readonly system = this._state.space;
 
     public get version() {
@@ -114,14 +118,6 @@ export class PanelViewComponent extends AsyncHandler {
                 status === 'pending' ? this.checkin() : this.book();
             }
         });
-    }
-
-    constructor(
-        private _state: PanelStateService,
-        private _route: ActivatedRoute,
-        private _logger: RemoteLoggingService,
-    ) {
-        super();
     }
 
     public ngOnInit() {

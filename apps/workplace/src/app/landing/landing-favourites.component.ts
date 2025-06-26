@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map, shareReplay, tap } from 'rxjs/operators';
@@ -276,6 +276,13 @@ const EMPTY = [];
     standalone: false,
 })
 export class LandingFavouritesComponent extends AsyncHandler implements OnInit {
+    private _org = inject(OrganisationService);
+    private _settings = inject(SettingsService);
+    private _space_pipe = inject(SpacePipe);
+    private _event_form = inject(EventFormService);
+    private _booking_form = inject(BookingFormService);
+    private _router = inject(Router);
+
     private _change = new BehaviorSubject(0);
     private _room_alerts: Record<string, [string, string]>;
     public readonly assets = combineLatest([
@@ -322,17 +329,6 @@ export class LandingFavouritesComponent extends AsyncHandler implements OnInit {
         return this._room_alerts[id]
             ? this._room_alerts[id][0] === 'closed'
             : false;
-    }
-
-    constructor(
-        private _org: OrganisationService,
-        private _settings: SettingsService,
-        private _space_pipe: SpacePipe,
-        private _event_form: EventFormService,
-        private _booking_form: BookingFormService,
-        private _router: Router,
-    ) {
-        super();
     }
 
     public async ngOnInit() {

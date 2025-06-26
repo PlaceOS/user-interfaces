@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { i18n, notifySuccess } from '@placeos/common';
 import { format } from 'date-fns';
@@ -90,6 +90,10 @@ import { ControlStateService } from '../control-state.service';
     standalone: false,
 })
 export class SelectMeetingModalComponent {
+    private _service = inject(ControlStateService);
+    private _dialog = inject(MatDialog);
+    private _dialog_ref = inject<MatDialogRef<SelectMeetingModalComponent>>(MatDialogRef);
+
     public readonly calendars = this._service.calendars;
     public readonly events = this._service.events;
 
@@ -117,10 +121,4 @@ export class SelectMeetingModalComponent {
         notifySuccess(i18n('APP.CONTROL.MEETING_JOIN_SUCCESS'));
         this._dialog_ref.close();
     };
-
-    constructor(
-        private _service: ControlStateService,
-        private _dialog: MatDialog,
-        private _dialog_ref: MatDialogRef<SelectMeetingModalComponent>,
-    ) {}
 }

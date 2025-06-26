@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
     AsyncHandler,
@@ -163,6 +163,12 @@ const EMPTY = [];
     standalone: false,
 })
 export class RoomBookingsComponent extends AsyncHandler implements OnInit {
+    private _org = inject(OrganisationService);
+    private _state = inject(EventsStateService);
+    private _router = inject(Router);
+    private _route = inject(ActivatedRoute);
+    private _settings = inject(SettingsService);
+
     public readonly zones = this._state.zones;
     public readonly period = this._state.period;
     public readonly ui_options = this._state.options;
@@ -219,16 +225,6 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
 
     public get use_region() {
         return this._settings.get('app.use_region');
-    }
-
-    constructor(
-        private _org: OrganisationService,
-        private _state: EventsStateService,
-        private _router: Router,
-        private _route: ActivatedRoute,
-        private _settings: SettingsService,
-    ) {
-        super();
     }
 
     public ngOnInit() {

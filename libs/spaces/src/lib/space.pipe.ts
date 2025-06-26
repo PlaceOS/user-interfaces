@@ -1,8 +1,11 @@
-import { Optional, Pipe } from '@angular/core';
+import { Pipe, PipeTransform } from '@angular/core';
 import { querySystemsWithEmails, showSystem } from '@placeos/ts-client';
+import { first } from 'rxjs/operators';
+
+import { firstTruthyValueFrom } from '@placeos/common';
 
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
-import { first } from 'rxjs/operators';
+import { lastValueFrom } from 'rxjs';
 import { Space } from './space.class';
 
 const SPACE_LIST: Space[] = [];
@@ -27,19 +30,33 @@ setInterval(() => {
     }
 }, 10 * 1000);
 
+let _org_service: OrganisationService = null;
+
 @Pipe({
     name: 'space',
 })
-export class SpacePipe {
-    constructor(@Optional() private _org?: OrganisationService) {}
+export class SpacePipe implements PipeTransform {
+    public get org() {
+        return _org_service;
+    }
+
+    public set org(value: OrganisationService) {
+        _org_service = value;
+    }
+
+    constructor(org: OrganisationService = null) {
+        if (org) this.org = org;
+    }
 
     /**
      * Get details of the space with the given ID
      * @param space_id ID or Email of the space
      */
     public async transform(space_id: string): Promise<Space> {
-        if (this._org) {
-            await this._org.initialised.pipe(first((_) => _)).toPromise();
+        if (this.org) {
+            await firstTruthyValueFrom(
+                this.org.initialised.pipe(first((_) => _)),
+            );
         }
         const is_email = space_id?.includes('@');
         if (!space_id) return EMPTY_SPACE;
@@ -55,22 +72,24 @@ export class SpacePipe {
             if (system) {
                 space = new Space({
                     ...(system as any),
-                    level: this._org?.levelWithID([...system.zones]),
+                    level: this.org?.levelWithID([...system.zones]),
                 });
                 SPACE_LIST.push(space);
                 return space;
             }
         }
         const systems = (
-            await querySystemsWithEmails({
-                in: space_id,
-                zone_id: this._org?.organisation.id,
-            }).toPromise()
+            await lastValueFrom(
+                querySystemsWithEmails({
+                    in: space_id,
+                    zone_id: this.org?.organisation.id,
+                }),
+            )
         ).data;
         if (systems.length === 1) {
             space = new Space({
                 ...(systems[0] as any),
-                level: this._org?.levelWithID([...systems[0].zones]),
+                level: this.org?.levelWithID([...systems[0].zones]),
             });
             SPACE_LIST.push(space);
             return space;

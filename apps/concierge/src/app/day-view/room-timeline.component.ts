@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
     AsyncHandler,
@@ -245,6 +245,11 @@ export class RoomBookingsTimelineComponent
     extends AsyncHandler
     implements OnInit
 {
+    private _state = inject(EventsStateService);
+    private _dialog = inject(MatDialog);
+    private _settings = inject(SettingsService);
+    private _org = inject(OrganisationService);
+
     public block_width = 14;
     public readonly ui_options = this._state.options;
     public readonly spaces = this._state.spaces;
@@ -358,15 +363,6 @@ export class RoomBookingsTimelineComponent
 
     public get time_format() {
         return this._settings.time_format;
-    }
-
-    constructor(
-        private _state: EventsStateService,
-        private _dialog: MatDialog,
-        private _settings: SettingsService,
-        private _org: OrganisationService,
-    ) {
-        super();
     }
 
     public formatHour(hour: number) {

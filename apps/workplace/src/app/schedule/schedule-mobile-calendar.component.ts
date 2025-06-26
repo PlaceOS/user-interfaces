@@ -41,12 +41,12 @@ import {
                 </div>
             </div>
             <div class="mb-2 grid grid-cols-7 gap-2">
-                @for (day of date_list | slice: 0 : 7; track day) {
+                @for (day of date_list | slice: 0 : 7; track day.id) {
                     <div class="mx-2 w-10 text-center opacity-60">
                         {{ day.id | date: 'EE' }}
                     </div>
                 }
-                @for (day of list; track day) {
+                @for (day of list; track day.id) {
                     <button
                         icon
                         matRipple

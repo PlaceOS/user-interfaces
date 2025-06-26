@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
 import { getModule } from '@placeos/ts-client';
 import { ControlStateService } from '../control-state.service';
@@ -48,6 +48,8 @@ import { ControlStateService } from '../control-state.service';
     standalone: false,
 })
 export class TVControlsComponent extends AsyncHandler {
+    private _state = inject(ControlStateService);
+
     @Input() public mod = '';
 
     public channel_list = [];
@@ -55,10 +57,6 @@ export class TVControlsComponent extends AsyncHandler {
 
     public get system_id() {
         return this._state.id;
-    }
-
-    constructor(private _state: ControlStateService) {
-        super();
     }
 
     public setChannel(url: string) {

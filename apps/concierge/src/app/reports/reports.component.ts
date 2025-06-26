@@ -1,10 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 
 @Component({
     selector: '[app-new-reports]',
     template: `
-        <app-topbar class="screen-only"></app-topbar>
+        <app-topbar class="screen-only" />
         <div class="flex h-px flex-1">
             <app-sidebar class="screen-only"></app-sidebar>
             <main class="relative flex h-full w-1/2 flex-1 flex-col">
@@ -39,10 +39,10 @@ import { Router } from '@angular/router';
     standalone: false,
 })
 export class ReportsComponent {
+    private _router = inject(Router);
+
     public get path() {
         const parts = this._router.url.split('/');
         return parts[parts.length - 1];
     }
-
-    constructor(private _router: Router) {}
 }

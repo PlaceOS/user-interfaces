@@ -1,5 +1,5 @@
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
-import { Component, Input, SimpleChanges } from '@angular/core';
+import { Component, Input, SimpleChanges, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { nextValueFrom } from '@placeos/common';
 import {
@@ -260,6 +260,9 @@ import { SignageStateService } from './signage-state.service';
     standalone: false,
 })
 export class SignagePlaylistMediaListComponent {
+    private _state = inject(SignageStateService);
+    private _router = inject(Router);
+
     @Input() public playlist = '';
     @Input() public playlist_count = 0;
 
@@ -327,11 +330,6 @@ export class SignagePlaylistMediaListComponent {
     public get now() {
         return getUnixTime(startOfMinute(Date.now()));
     }
-
-    constructor(
-        private _state: SignageStateService,
-        private _router: Router,
-    ) {}
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.playlist) {

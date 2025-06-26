@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
@@ -326,6 +326,11 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
     standalone: false,
 })
 export class MeetingBookingFormComponent extends AsyncHandler {
+    private _service = inject(EventFormService);
+    private _settings = inject(SettingsService);
+    private _dialog = inject(MatDialog);
+    private _org = inject(OrganisationService);
+
     public readonly form = this._service.form;
 
     public hide_block: Record<string, boolean> = {};
@@ -382,15 +387,6 @@ export class MeetingBookingFormComponent extends AsyncHandler {
                 duration: ref.componentInstance.duration,
             });
         });
-    }
-
-    constructor(
-        private _service: EventFormService,
-        private _settings: SettingsService,
-        private _dialog: MatDialog,
-        private _org: OrganisationService,
-    ) {
-        super();
     }
 
     public setBuilding(bld: Building) {

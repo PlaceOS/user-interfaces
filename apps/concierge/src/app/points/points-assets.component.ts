@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { OrganisationService } from '@placeos/organisation';
 import { PointsStateService } from './points-state.service';
 
@@ -20,8 +20,7 @@ export interface PointAsset {
 @Component({
     selector: 'points-assets',
     template: `
-        <simple-table
-            class="block w-full min-w-[32rem]"
+        <simple-table class="block w-full min-w-[32rem]"
             [data]="asset_list"
             [columns]="[
                 { key: 'name', name: 'FORM.NAME' | translate },
@@ -56,8 +55,7 @@ export interface PointAsset {
             ]"
             [sortable]="true"
             [empty_message]="'APP.CONCIERGE.POINTS_ASSETS_EMPTY' | translate"
-        >
-        </simple-table>
+         />
         <ng-template #type_template let-data="data">
             <div class="p-2">
                 <span class="rounded bg-base-200 px-2 py-1 text-sm capitalize">
@@ -106,6 +104,9 @@ export interface PointAsset {
     standalone: false,
 })
 export class PointsAssetsComponent {
+    private _state = inject(PointsStateService);
+    private _org = inject(OrganisationService);
+
     public asset_list = this._state.assets;
 
     public readonly edit = (d) => this._state.newAsset(d);
@@ -114,9 +115,4 @@ export class PointsAssetsComponent {
     public get code() {
         return this._org.currency_code;
     }
-
-    constructor(
-        private _state: PointsStateService,
-        private _org: OrganisationService,
-    ) {}
 }

@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import {
@@ -479,6 +479,13 @@ import { DEFAULT_SETTINGS } from 'apps/visitor-kiosk/src/environments/settings';
     standalone: false,
 })
 export class VisitorKioskSettingsFormModalComponent {
+    private _data = inject<{
+    zone: PlaceZone;
+}>(MAT_DIALOG_DATA);
+    private _dialog_ref = inject<MatDialogRef<VisitorKioskSettingsFormModalComponent>>(MatDialogRef);
+    private _settings = inject(SettingsService);
+    private _org = inject(OrganisationService);
+
     public loading = '';
     public existing_settings: Record<string, any> = {};
     public old_settings: Record<string, any> = {};
@@ -516,13 +523,6 @@ export class VisitorKioskSettingsFormModalComponent {
             show_zone_sensor_info: new FormControl(false),
         }),
     });
-
-    constructor(
-        @Inject(MAT_DIALOG_DATA) private _data: { zone: PlaceZone },
-        private _dialog_ref: MatDialogRef<VisitorKioskSettingsFormModalComponent>,
-        private _settings: SettingsService,
-        private _org: OrganisationService,
-    ) {}
 
     public async ngOnInit() {
         const zone = this._data.zone;

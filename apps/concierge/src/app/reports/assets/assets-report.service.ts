@@ -1,5 +1,5 @@
 import { formatDate } from '@angular/common';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import {
     AssetGroup,
     queryAssetGroupsExtended,
@@ -51,6 +51,9 @@ export interface AssetsReportOptions {
     providedIn: 'root',
 })
 export class AssetsReportService {
+    private _org = inject(OrganisationService);
+    private _settings = inject(SettingsService);
+
     private _loading = new BehaviorSubject<boolean>(false);
     private _options = new BehaviorSubject<AssetsReportOptions>({});
     private _generate = new BehaviorSubject<number>(0);
@@ -190,11 +193,6 @@ export class AssetsReportService {
                 })),
         };
     }
-
-    constructor(
-        private _org: OrganisationService,
-        private _settings: SettingsService,
-    ) {}
 
     public generateReport() {
         this._generate.next(Date.now());

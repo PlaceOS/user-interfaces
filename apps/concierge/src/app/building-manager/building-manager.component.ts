@@ -1,10 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { BuildingManagementService } from './building-management.service';
 
 @Component({
     selector: '[app-building-manager]',
     template: `
-        <app-topbar></app-topbar>
+        <app-topbar />
         <div class="flex h-px flex-1">
             <app-sidebar></app-sidebar>
             <main class="flex h-full w-1/2 flex-1 flex-col">
@@ -50,7 +50,7 @@ import { BuildingManagementService } from './building-management.service';
     standalone: false,
 })
 export class BuildingManagerComponent {
-    public readonly newBuilding = () => this._state.editBuilding();
+    private _state = inject(BuildingManagementService);
 
-    constructor(private _state: BuildingManagementService) {}
+    public readonly newBuilding = () => this._state.editBuilding();
 }

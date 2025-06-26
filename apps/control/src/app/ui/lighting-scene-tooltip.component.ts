@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { getModule } from '@placeos/ts-client';
 import { CustomTooltipData } from 'libs/components/src/lib/custom-tooltip.component';
 
@@ -42,6 +42,9 @@ import { ControlStateService } from '../control-state.service';
     standalone: false,
 })
 export class LightingSceneTooltipComponent {
+    private _state = inject(ControlStateService);
+    private _tooltip = inject(CustomTooltipData);
+
     public readonly scene = this._state.lighting_scene;
     public readonly scenes = this._state.lighting_scenes;
     /** Close the tooltip */
@@ -50,11 +53,6 @@ export class LightingSceneTooltipComponent {
     public get id(): string {
         return this._state.id;
     }
-
-    constructor(
-        private _state: ControlStateService,
-        private _tooltip: CustomTooltipData,
-    ) {}
 
     public setScene(name: string) {
         const mod = getModule(this.id, 'System');

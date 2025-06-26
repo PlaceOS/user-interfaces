@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { SettingsService } from '@placeos/common';
 import { CalendarEvent } from '@placeos/events';
 import { User } from '@placeos/users';
@@ -7,13 +7,11 @@ import { EventStateService } from './event-state.service';
 @Component({
     selector: 'event-listing',
     template: `
-        <mat-progress-bar
-            class="w-full"
+        <mat-progress-bar class="w-full"
             [class.opacity-0]="!(loading | async)"
             mode="indeterminate"
-        ></mat-progress-bar>
-        <simple-table
-            class="block w-full min-w-[72rem] text-sm"
+         />
+        <simple-table class="block w-full min-w-[72rem] text-sm"
             [data]="event_list"
             empty_message="No group events for selected period"
             [columns]="[
@@ -68,7 +66,7 @@ import { EventStateService } from './event-state.service';
                 },
             ]"
             [sortable]="true"
-        ></simple-table>
+         />
         <div class="h-20 w-full"></div>
         <ng-template #event_template let-item="row">
             <div class="flex items-center space-x-2 px-3 py-2">
@@ -292,6 +290,9 @@ import { EventStateService } from './event-state.service';
     standalone: false,
 })
 export class EventListingComponent {
+    private _settings = inject(SettingsService);
+    private _state = inject(EventStateService);
+
     public readonly loading = this._state.loading;
     public readonly event_list = this._state.event_list;
 
@@ -306,11 +307,6 @@ export class EventListingComponent {
     public get time_format() {
         return this._settings.time_format;
     }
-
-    constructor(
-        private _settings: SettingsService,
-        private _state: EventStateService,
-    ) {}
 
     public checkedInCount(attendees: User[]) {
         if (!attendees?.length) return 0;

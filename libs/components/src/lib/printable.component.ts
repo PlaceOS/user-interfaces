@@ -16,7 +16,7 @@ import { SanitizePipe } from './sanitise.pipe';
 @Component({
     selector: '[printable]',
     template: `
-        <ng-content></ng-content>
+        <ng-content />
 
         <ng-template cdk-portal>
             <div

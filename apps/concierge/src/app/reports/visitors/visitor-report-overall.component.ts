@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { formatDuration } from '@placeos/common';
 import { differenceInBusinessDays, endOfDay, startOfDay } from 'date-fns';
 import { map } from 'rxjs/operators';
@@ -34,6 +34,8 @@ import { VisitorsReportService } from './visitors-report.service';
     standalone: false,
 })
 export class VisitorReportOverallComponent {
+    private _state = inject(VisitorsReportService);
+
     public readonly total_count = this._state.bookings$.pipe(
         map((i) => i.length || 0),
     );
@@ -57,6 +59,4 @@ export class VisitorReportOverallComponent {
             }),
         ),
     );
-
-    constructor(private _state: VisitorsReportService) {}
 }

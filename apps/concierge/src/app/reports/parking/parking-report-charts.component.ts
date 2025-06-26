@@ -1,4 +1,4 @@
-import { Component, Input, SimpleChanges } from '@angular/core';
+import { Component, Input, SimpleChanges, inject } from '@angular/core';
 
 import {
     AsyncHandler,
@@ -59,6 +59,10 @@ import { ParkingReportService } from './parking-report.service';
     standalone: false,
 })
 export class ParkingReportChartsComponent extends AsyncHandler {
+    private _state = inject(ParkingReportService);
+    private _org = inject(OrganisationService);
+    private _settings = inject(SettingsService);
+
     @Input() public print: boolean = false;
     public readonly day_list = combineLatest([
         this._state.daily_stats$,
@@ -95,14 +99,6 @@ export class ParkingReportChartsComponent extends AsyncHandler {
 
     private _day_chart: any;
     private _level_chart: any;
-
-    constructor(
-        private _state: ParkingReportService,
-        private _org: OrganisationService,
-        private _settings: SettingsService,
-    ) {
-        super();
-    }
 
     public ngOnInit() {
         this.subscription(

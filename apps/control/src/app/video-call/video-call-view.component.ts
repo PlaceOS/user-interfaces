@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { AsyncHandler } from '@placeos/common';
@@ -69,18 +69,14 @@ export class ControlVideoCallViewComponent
     extends AsyncHandler
     implements OnInit
 {
+    private _route = inject(ActivatedRoute);
+    private _state = inject(ControlStateService);
+
     public readonly system = this._state.system;
 
     public readonly powerOn = () => this._state.powerOn();
     public get id() {
         return this._state.id;
-    }
-
-    constructor(
-        private _route: ActivatedRoute,
-        private _state: ControlStateService,
-    ) {
-        super();
     }
 
     public ngOnInit(): void {

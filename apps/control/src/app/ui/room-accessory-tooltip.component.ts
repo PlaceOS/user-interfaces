@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { getModule } from '@placeos/ts-client';
 import { CustomTooltipData } from 'libs/components/src/lib/custom-tooltip.component';
 
@@ -43,6 +43,9 @@ import { ControlStateService } from '../control-state.service';
     standalone: false,
 })
 export class RoomAccessoryTooltipComponent {
+    private _state = inject(ControlStateService);
+    private _tooltip = inject(CustomTooltipData);
+
     public readonly list = this._state.room_accessories;
     /** Close the tooltip */
     public readonly close = () => this._tooltip.close();
@@ -50,11 +53,6 @@ export class RoomAccessoryTooltipComponent {
     public get id(): string {
         return this._state.id;
     }
-
-    constructor(
-        private _state: ControlStateService,
-        private _tooltip: CustomTooltipData,
-    ) {}
 
     public performAction(name: string, method: string) {
         const mod = getModule(this.id, 'System');

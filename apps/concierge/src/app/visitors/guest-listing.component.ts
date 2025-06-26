@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Booking, saveBooking } from '@placeos/bookings';
 import {
     AsyncHandler,
@@ -17,8 +17,7 @@ import { VisitorsStateService } from './visitors-state.service';
 @Component({
     selector: 'guest-listings',
     template: `
-        <simple-table
-            class="z-0 block text-sm"
+        <simple-table class="z-0 block text-sm"
             [style.min-width]="64 + extra_width + 'rem'"
             [data]="guests"
             [columns]="[
@@ -101,7 +100,7 @@ import { VisitorsStateService } from './visitors-state.service';
             ]"
             [filter]="search | async"
             [sortable]="true"
-        ></simple-table>
+         />
         <ng-template #state_template let-row="row">
             @if (!row?.checked_in && row.checked_out_at) {
                 <div
@@ -666,6 +665,11 @@ import { VisitorsStateService } from './visitors-state.service';
     standalone: false,
 })
 export class GuestListingComponent extends AsyncHandler {
+    private _state = inject(VisitorsStateService);
+    private _parking = inject(ParkingStateService);
+    private _settings = inject(SettingsService);
+    private _org = inject(OrganisationService);
+
     public readonly guests = this._state.filtered_bookings;
     public readonly search = this._state.search;
     public readonly filters = this._state.filters;
@@ -763,15 +767,6 @@ export class GuestListingComponent extends AsyncHandler {
             : item.induction == 'accepted'
               ? true
               : null;
-    }
-
-    constructor(
-        private _state: VisitorsStateService,
-        private _parking: ParkingStateService,
-        private _settings: SettingsService,
-        private _org: OrganisationService,
-    ) {
-        super();
     }
 
     public ngOnInit() {

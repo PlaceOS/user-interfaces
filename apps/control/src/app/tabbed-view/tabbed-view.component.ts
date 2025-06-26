@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 
@@ -108,6 +108,12 @@ import { ControlStateService } from '../control-state.service';
     standalone: false,
 })
 export class ControlTabbedViewComponent extends AsyncHandler implements OnInit {
+    private _route = inject(ActivatedRoute);
+    private _state = inject(ControlStateService);
+    private _dialog = inject(MatDialog);
+    private _settings = inject(SettingsService);
+    private _org = inject(OrganisationService);
+
     public readonly system = this._state.system;
     public readonly join_status = this._state.join_status;
 
@@ -139,16 +145,6 @@ export class ControlTabbedViewComponent extends AsyncHandler implements OnInit {
         ),
     );
 
-    constructor(
-        private _route: ActivatedRoute,
-        private _state: ControlStateService,
-        private _dialog: MatDialog,
-        private _settings: SettingsService,
-        private _org: OrganisationService,
-    ) {
-        super();
-    }
-
     public ngOnInit(): void {
         this.subscription(
             'route.params',
@@ -166,6 +162,7 @@ export class ControlTabbedViewComponent extends AsyncHandler implements OnInit {
                     : '',
             ),
         );
+
         this.interval('update', () => null, 1000);
     }
 }

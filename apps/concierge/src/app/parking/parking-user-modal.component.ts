@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { AsyncHandler, DialogEvent } from '@placeos/common';
@@ -156,6 +156,9 @@ import { ParkingUser } from './parking-state.service';
     standalone: false,
 })
 export class ParkingUserModalComponent extends AsyncHandler implements OnInit {
+    private _data = inject<ParkingUser>(MAT_DIALOG_DATA);
+    private _dialog_ref = inject<MatDialogRef<ParkingUserModalComponent>>(MatDialogRef);
+
     @Output() public readonly event = new EventEmitter<DialogEvent>();
     public loading = false;
 
@@ -174,11 +177,10 @@ export class ParkingUserModalComponent extends AsyncHandler implements OnInit {
         deny: new FormControl(false),
     });
 
-    constructor(
-        @Inject(MAT_DIALOG_DATA) private _data: ParkingUser,
-        private _dialog_ref: MatDialogRef<ParkingUserModalComponent>,
-    ) {
+    constructor() {
         super();
+        const _data = this._data;
+
         if (_data) this.form.patchValue(_data);
     }
 

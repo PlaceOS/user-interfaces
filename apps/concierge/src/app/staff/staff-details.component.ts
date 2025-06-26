@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { i18n, notifyError } from '@placeos/common';
 import { StaffUser } from '@placeos/users';
 
@@ -65,6 +65,8 @@ import { StaffStateService } from './staff-state.service';
     standalone: false,
 })
 export class StaffDetailsComponent {
+    private _state = inject(StaffStateService);
+
     @Input() public user: StaffUser;
     @Input() public onsite: boolean;
 
@@ -90,6 +92,4 @@ export class StaffDetailsComponent {
             );
         this.loading = false;
     };
-
-    constructor(private _state: StaffStateService) {}
 }

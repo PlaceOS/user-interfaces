@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
     AssetGroup,
@@ -132,6 +132,11 @@ import { AssetManagerStateService } from './asset-manager-state.service';
     standalone: false,
 })
 export class AssetBulkFormComponent extends AsyncHandler implements OnInit {
+    private _state = inject(AssetManagerStateService);
+    private _route = inject(ActivatedRoute);
+    private _router = inject(Router);
+    private _org = inject(OrganisationService);
+
     public readonly form = generateAssetForm();
     public readonly purchase_orders = this._state.purchase_orders;
     public product: AssetGroup;
@@ -140,15 +145,6 @@ export class AssetBulkFormComponent extends AsyncHandler implements OnInit {
 
     public get base_route() {
         return this._state.base_route;
-    }
-
-    constructor(
-        private _state: AssetManagerStateService,
-        private _route: ActivatedRoute,
-        private _router: Router,
-        private _org: OrganisationService,
-    ) {
-        super();
     }
 
     public ngOnInit() {

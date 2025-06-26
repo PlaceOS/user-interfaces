@@ -1,8 +1,8 @@
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { MockComponent } from 'ng-mocks';
 
+import { MAP_FEATURE_DATA } from '@placeos/common';
 import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
-import { MAP_FEATURE_DATA } from 'libs/components/src/lib/interactive-map.component';
 import { ExploreDeskInfoComponent } from '../lib/explore-desk-info.component';
 
 describe('ExploreDeskInfoComponent', () => {

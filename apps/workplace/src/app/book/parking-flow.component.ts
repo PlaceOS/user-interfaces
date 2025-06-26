@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { BookingFormService, ParkingService } from '@placeos/bookings';
 import { AsyncHandler } from '@placeos/common';
@@ -69,6 +69,10 @@ import { AsyncHandler } from '@placeos/common';
     standalone: false,
 })
 export class NewParkingFlowComponent extends AsyncHandler implements OnInit {
+    private _state = inject(BookingFormService);
+    private _route = inject(ActivatedRoute);
+    private _parking = inject(ParkingService);
+
     public readonly deny_parking_access = this._parking.deny_parking_access;
     public readonly assigned_space = this._parking.assigned_space;
     public readonly has_booking = this._parking.has_booking;
@@ -78,14 +82,6 @@ export class NewParkingFlowComponent extends AsyncHandler implements OnInit {
     }
     public get last_success() {
         return this._state.last_success;
-    }
-
-    constructor(
-        private _state: BookingFormService,
-        private _route: ActivatedRoute,
-        private _parking: ParkingService,
-    ) {
-        super();
     }
 
     public ngOnInit() {

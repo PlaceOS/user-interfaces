@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { map } from 'rxjs/operators';
 
 import { ControlStateService } from './control-state.service';
@@ -62,6 +62,8 @@ import { ControlStateService } from './control-state.service';
     standalone: false,
 })
 export class ControlAdvancedViewComponent {
+    private _state = inject(ControlStateService);
+
     public page = 0;
 
     public readonly outputs = this._state.output_list.pipe(map((_) => _ || []));
@@ -69,6 +71,4 @@ export class ControlAdvancedViewComponent {
     public readonly page_count = this.outputs.pipe(
         map((_) => new Array(Math.floor(_.length / 6) + 1).fill(0)),
     );
-
-    constructor(private _state: ControlStateService) {}
 }

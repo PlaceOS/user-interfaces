@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
@@ -119,6 +119,10 @@ const SYS_ID_KEY = 'PLACEOS.ASSISTANT.system';
     standalone: false,
 })
 export class BootstrapComponent extends AsyncHandler implements OnInit {
+    private _org = inject(OrganisationService);
+    private _router = inject(Router);
+    private _route = inject(ActivatedRoute);
+
     public loading = '';
     /** ID of the system to bootstrap */
     public system_id$ = new BehaviorSubject('');
@@ -141,14 +145,6 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
         map((_) => _.data.map((_) => new Space(_ as any))),
         shareReplay(1),
     );
-
-    constructor(
-        private _org: OrganisationService,
-        private _router: Router,
-        private _route: ActivatedRoute,
-    ) {
-        super();
-    }
 
     public async ngOnInit() {
         this.subscription(

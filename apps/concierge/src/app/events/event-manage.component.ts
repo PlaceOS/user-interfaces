@@ -1,5 +1,5 @@
 import { COMMA, ENTER, SPACE } from '@angular/cdk/keycodes';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { MatChipInputEvent } from '@angular/material/chips';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
@@ -495,6 +495,13 @@ const EMPTY = [];
     standalone: false,
 })
 export class EventManageComponent extends AsyncHandler implements OnInit {
+    private _form_state = inject(EventFormService);
+    private _state = inject(EventStateService);
+    private _route = inject(ActivatedRoute);
+    private _router = inject(Router);
+    private _org = inject(OrganisationService);
+    private _settings = inject(SettingsService);
+
     public loading = false;
     public timezones: string[] = [];
     public resource: string;
@@ -542,17 +549,6 @@ export class EventManageComponent extends AsyncHandler implements OnInit {
             minutes: diff % 60,
         })})`;
     };
-
-    constructor(
-        private _form_state: EventFormService,
-        private _state: EventStateService,
-        private _route: ActivatedRoute,
-        private _router: Router,
-        private _org: OrganisationService,
-        private _settings: SettingsService,
-    ) {
-        super();
-    }
 
     public async ngOnInit() {
         await this._org.initialised.pipe(first((_) => _)).toPromise();

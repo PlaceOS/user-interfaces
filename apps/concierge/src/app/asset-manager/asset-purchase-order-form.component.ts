@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
     AssetPurchaseOrder,
@@ -184,6 +184,11 @@ export class AssetPurchaseOrderFormComponent
     extends AsyncHandler
     implements OnInit
 {
+    private _state = inject(AssetManagerStateService);
+    private _route = inject(ActivatedRoute);
+    private _router = inject(Router);
+    private _org = inject(OrganisationService);
+
     public readonly form = generateAssetPurchaseOrderForm();
     public loading = '';
     public product_id: string;
@@ -213,15 +218,6 @@ export class AssetPurchaseOrderFormComponent
 
     public get base_route() {
         return this._state.base_route;
-    }
-
-    constructor(
-        private _state: AssetManagerStateService,
-        private _route: ActivatedRoute,
-        private _router: Router,
-        private _org: OrganisationService,
-    ) {
-        super();
     }
 
     public ngOnInit() {

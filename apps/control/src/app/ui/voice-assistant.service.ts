@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { AsyncHandler, currentUser, log, randomInt } from '@placeos/common';
 import { BehaviorSubject } from 'rxjs';
 import { distinctUntilChanged, filter, map, shareReplay } from 'rxjs/operators';
@@ -24,6 +24,8 @@ let _last_message: string;
     providedIn: 'root',
 })
 export class VoiceAssistantService extends AsyncHandler {
+    private _chat_service = inject(ChatService);
+
     private _system_id = new BehaviorSubject('');
     private _active = new BehaviorSubject(false);
     private _current_text = new BehaviorSubject('');
@@ -47,7 +49,7 @@ export class VoiceAssistantService extends AsyncHandler {
     private _user_speech: any;
     private _has_command = false;
 
-    constructor(private _chat_service: ChatService) {
+    constructor() {
         super();
         this.subscription(
             'system',

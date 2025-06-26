@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { getInvalidFields, i18n, notifyError } from '@placeos/common';
@@ -113,6 +113,10 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
     standalone: false,
 })
 export class LevelModalComponent {
+    private _org = inject(OrganisationService);
+    private _data = inject<BuildingLevel | undefined>(MAT_DIALOG_DATA);
+    private _dialog_ref = inject<MatDialogRef<LevelModalComponent>>(MatDialogRef);
+
     public loading = false;
     public readonly building_list = this._org.building_list;
 
@@ -131,12 +135,6 @@ export class LevelModalComponent {
             this._data?.tags?.includes('parking') || false,
         ),
     });
-
-    constructor(
-        private _org: OrganisationService,
-        @Inject(MAT_DIALOG_DATA) private _data: BuildingLevel | undefined,
-        private _dialog_ref: MatDialogRef<LevelModalComponent>,
-    ) {}
 
     public async save() {
         if (!this.form.valid) {

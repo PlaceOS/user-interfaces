@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import {
     AsyncHandler,
@@ -219,6 +219,10 @@ import { VideoCallStateService } from './video-call-state.service';
     standalone: false,
 })
 export class VideoCallPageComponent extends AsyncHandler implements OnInit {
+    private _state = inject(VideoCallStateService);
+    private _control = inject(ControlStateService);
+    private _router = inject(Router);
+
     @Input() public redirect = true;
     @Input() public present_output = '';
     public loading = '';
@@ -260,14 +264,6 @@ export class VideoCallPageComponent extends AsyncHandler implements OnInit {
         });
         this._onCallEnded();
     };
-
-    constructor(
-        private _state: VideoCallStateService,
-        private _control: ControlStateService,
-        private _router: Router,
-    ) {
-        super();
-    }
 
     public async ngOnInit() {
         this.loading = i18n('APP.CONTROL.VC_LOADING');

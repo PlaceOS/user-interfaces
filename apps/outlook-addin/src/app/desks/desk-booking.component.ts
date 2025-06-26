@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
 
@@ -43,16 +43,14 @@ import { BookingFormService } from '@placeos/bookings';
     standalone: false,
 })
 export class DeskBookingComponent {
+    private _service = inject(BookingFormService);
+    private _router = inject(Router);
+
     public readonly clearForm = () => this._service.clearForm();
 
     public get form() {
         return this._service.form;
     }
-
-    constructor(
-        private _service: BookingFormService,
-        private _router: Router,
-    ) {}
 
     public async makeBooking() {
         await this._service.confirmPost();

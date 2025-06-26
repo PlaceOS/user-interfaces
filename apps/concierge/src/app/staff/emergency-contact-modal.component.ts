@@ -1,4 +1,4 @@
-import { Component, Inject, ViewChild } from '@angular/core';
+import { Component, ViewChild, inject } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import {
@@ -192,6 +192,10 @@ import { EmergencyContact } from './emergency-contacts.component';
     standalone: false,
 })
 export class EmergencyContactModalComponent {
+    private _data = inject<EmergencyContact | undefined>(MAT_DIALOG_DATA);
+    private _dialog_ref = inject<MatDialogRef<EmergencyContactModalComponent>>(MatDialogRef);
+    private _org = inject(OrganisationService);
+
     private _changes = new BehaviorSubject(0);
 
     public loading = false;
@@ -218,12 +222,6 @@ export class EmergencyContactModalComponent {
     public readonly levels = this._org.active_levels;
 
     @ViewChild(CustomTooltipComponent) private _tooltip: CustomTooltipComponent;
-
-    constructor(
-        @Inject(MAT_DIALOG_DATA) private _data: EmergencyContact | undefined,
-        private _dialog_ref: MatDialogRef<EmergencyContactModalComponent>,
-        private _org: OrganisationService,
-    ) {}
 
     public async addRole() {
         if (!this.role_name) return;

@@ -1,5 +1,5 @@
 import { Clipboard } from '@angular/cdk/clipboard';
-import { Component, ElementRef } from '@angular/core';
+import { Component, ElementRef, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
     AsyncHandler,
@@ -232,23 +232,19 @@ const QR_CODES = {};
     standalone: false,
 })
 export class DesksManageComponent extends AsyncHandler {
+    private _state = inject(DesksStateService);
+    private _org = inject(OrganisationService);
+    private _dialog = inject(MatDialog);
+    private _settings = inject(SettingsService);
+    private _element = inject(ElementRef);
+    private _clipboard = inject(Clipboard);
+
     public loading: string;
     public dragging = false;
     public readonly filters = this._state.filters;
     public readonly desks = this._state.desks;
 
     public readonly editDesk = (desk?: Desk) => this._state.editDesk(desk);
-
-    constructor(
-        private _state: DesksStateService,
-        private _org: OrganisationService,
-        private _dialog: MatDialog,
-        private _settings: SettingsService,
-        private _element: ElementRef,
-        private _clipboard: Clipboard,
-    ) {
-        super();
-    }
 
     public readonly copyToClipboard = (id: string) => {
         const success = this._clipboard.copy(id);

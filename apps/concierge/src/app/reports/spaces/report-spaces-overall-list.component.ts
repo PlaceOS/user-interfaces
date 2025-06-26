@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { downloadFile, jsonToCsv, nextValueFrom } from '@placeos/common';
 import { format } from 'date-fns';
 
@@ -73,6 +73,8 @@ import { ReportsStateService } from '../reports-state.service';
     standalone: false,
 })
 export class ReportSpacesOverallListComponent {
+    private _state = inject(ReportsStateService);
+
     @Input() public print = false;
 
     public readonly day_list = this._state.day_list;
@@ -85,6 +87,4 @@ export class ReportSpacesOverallListComponent {
         }));
         downloadFile('spaces-usage.csv', jsonToCsv(data));
     };
-
-    constructor(private _state: ReportsStateService) {}
 }

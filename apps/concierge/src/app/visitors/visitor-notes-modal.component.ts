@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Booking, updateBooking } from '@placeos/bookings';
 import { i18n, notifyError, notifySuccess } from '@placeos/common';
@@ -60,14 +60,18 @@ import { i18n, notifyError, notifySuccess } from '@placeos/common';
     standalone: false,
 })
 export class VisitorNotesModalComponent {
+    private _data = inject<{
+    item: Booking;
+}>(MAT_DIALOG_DATA);
+    private _dialog_ref = inject<MatDialogRef<VisitorNotesModalComponent>>(MatDialogRef);
+
     public item: Booking = this._data.item;
     public notes = this.item.extension_data?.notes || '';
     public loading = '';
 
-    constructor(
-        @Inject(MAT_DIALOG_DATA) private _data: { item: Booking },
-        private _dialog_ref: MatDialogRef<VisitorNotesModalComponent>,
-    ) {
+    constructor() {
+        const _data = this._data;
+
         this.item = _data.item;
     }
 

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { addDays, format, startOfMinute } from 'date-fns';
 import { map, shareReplay, startWith } from 'rxjs/operators';
 
@@ -23,7 +23,7 @@ import { EventStateService } from './event-state.service';
                         </div>
                     </div>
                 </div>
-                @for (hour of hours; track hour; let i = $index) {
+                @for (hour of hours; track i; let i = $index) {
                     <div class="relative min-h-10 w-full flex-1 bg-base-100">
                         <div
                             hour
@@ -39,7 +39,7 @@ import { EventStateService } from './event-state.service';
                     header
                     class="sticky top-0 z-10 flex h-16 min-h-16 border-b border-base-200 bg-base-100"
                 >
-                    @for (date of days; track date) {
+                    @for (date of days; track date + '' + $index) {
                         <div
                             date
                             class="flex min-w-48 flex-1 flex-col items-center justify-center border-r border-base-200 p-4"
@@ -51,12 +51,12 @@ import { EventStateService } from './event-state.service';
                         </div>
                     }
                 </div>
-                @for (hour of hours; track hour; let i = $index) {
+                @for (hour of hours; track i; let i = $index) {
                     <div
                         class="pointer-events-none relative flex min-h-10 min-w-[84rem] flex-1 border-x border-b border-base-200"
                     ></div>
                 }
-                @for (date of days; track date; let i = $index) {
+                @for (date of days; track date + '' + i; let i = $index) {
                     <div
                         date
                         class="pointer-events-none absolute left-0 top-16 h-[60rem] w-[calc(100%/7)] flex-1 border-r border-base-200"
@@ -66,7 +66,7 @@ import { EventStateService } from './event-state.service';
                             event of (event_day_map | async)[
                                 dateString(date)
                             ] || [];
-                            track event
+                            track event.id
                         ) {
                             <button
                                 matRipple
@@ -121,6 +121,8 @@ import { EventStateService } from './event-state.service';
     standalone: false,
 })
 export class EventWeekViewComponent extends AsyncHandler implements OnInit {
+    private _state = inject(EventStateService);
+
     public days = new Array(7).fill(0).map((_, idx) => idx + 1);
     public readonly hours = new Array(24)
         .fill(0)
@@ -166,10 +168,6 @@ export class EventWeekViewComponent extends AsyncHandler implements OnInit {
     public get now_offset() {
         const now = new Date(this.now);
         return (now.getHours() * 60 + now.getMinutes()) / (24 * 60);
-    }
-
-    constructor(private _state: EventStateService) {
-        super();
     }
 
     public ngOnInit() {

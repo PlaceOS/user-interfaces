@@ -1,5 +1,5 @@
 import { Clipboard } from '@angular/cdk/clipboard';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { i18n, notifySuccess } from '@placeos/common';
 import { BuildingManagementService } from './building-management.service';
@@ -242,6 +242,10 @@ import { WorkplaceSettingsFormModalComponent } from '../ui/app-settings/workplac
     standalone: false,
 })
 export class BuildingListComponent {
+    private _manager = inject(BuildingManagementService);
+    private _clipboard = inject(Clipboard);
+    private _dialog = inject(MatDialog);
+
     public readonly buildings = this._manager.filtered_buildings;
     public settings = {};
 
@@ -291,10 +295,4 @@ export class BuildingListComponent {
             data: { zone },
         });
     }
-
-    constructor(
-        private _manager: BuildingManagementService,
-        private _clipboard: Clipboard,
-        private _dialog: MatDialog,
-    ) {}
 }

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { startOfMinute } from 'date-fns';
 
 import { generateQRCode } from 'libs/common/src/lib/qr-code';
@@ -86,6 +86,8 @@ import { PanelStateService } from '../panel-state.service';
     standalone: false,
 })
 export class PanelViewDetailsComponent {
+    private _state = inject(PanelStateService);
+
     public readonly system = this._state.space;
     public readonly current = this._state.current;
     public qr_code: any;
@@ -117,8 +119,6 @@ export class PanelViewDetailsComponent {
     public get hide_qr_text() {
         return this._state.setting('hide_qr_text');
     }
-
-    constructor(private _state: PanelStateService) {}
 
     public async ngOnInit() {
         this._state.current.subscribe();

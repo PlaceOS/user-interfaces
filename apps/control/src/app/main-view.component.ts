@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 
@@ -79,6 +79,10 @@ import { ControlStateService } from './control-state.service';
     standalone: false,
 })
 export class ControlMainViewComponent extends AsyncHandler implements OnInit {
+    private _route = inject(ActivatedRoute);
+    private _state = inject(ControlStateService);
+    private _dialog = inject(MatDialog);
+
     public readonly system = this._state.system;
 
     public readonly powerOn = () => this._state.powerOn();
@@ -97,14 +101,6 @@ export class ControlMainViewComponent extends AsyncHandler implements OnInit {
             )
         ).text();
         this._dialog.open(ChangelogModalComponent, { data: { changelog } });
-    }
-
-    constructor(
-        private _route: ActivatedRoute,
-        private _state: ControlStateService,
-        private _dialog: MatDialog,
-    ) {
-        super();
     }
 
     public ngOnInit(): void {

@@ -1,5 +1,5 @@
 import { animate, style, transition, trigger } from '@angular/animations';
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 import { AsyncHandler } from '@placeos/common';
@@ -76,15 +76,15 @@ export class EmbeddedControlModalComponent
     extends AsyncHandler
     implements OnInit
 {
+    private _dialog_ref = inject<MatDialogRef<EmbeddedControlModalComponent>>(MatDialogRef);
+    private _data = inject<EmbeddedControlModalData>(MAT_DIALOG_DATA);
+
     /** Control URL to embed into the modal */
     public readonly control_url: string = this._data.control_url;
     /** Display value for the time remain until the modal automatically closes */
     public countdown: number;
 
-    constructor(
-        private _dialog_ref: MatDialogRef<EmbeddedControlModalComponent>,
-        @Inject(MAT_DIALOG_DATA) private _data: EmbeddedControlModalData,
-    ) {
+    constructor() {
         super();
         this.countdown = 30;
     }

@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import {
@@ -280,6 +280,11 @@ don't detect presence in room after a period of time"
     standalone: false,
 })
 export class BookingPanelSettingsModalComponent extends AsyncHandler {
+    private _data = inject<{
+    zone: PlaceZone;
+}>(MAT_DIALOG_DATA);
+    private _dialog_ref = inject<MatDialogRef<BookingPanelSettingsModalComponent>>(MatDialogRef);
+
     public loading = '';
     public uploading = 0;
     public readonly zone = this._data.zone;
@@ -304,13 +309,6 @@ export class BookingPanelSettingsModalComponent extends AsyncHandler {
     });
 
     private _defaults: Record<string, any> = {};
-
-    constructor(
-        @Inject(MAT_DIALOG_DATA) private _data: { zone: PlaceZone },
-        private _dialog_ref: MatDialogRef<BookingPanelSettingsModalComponent>,
-    ) {
-        super();
-    }
 
     public async ngOnInit() {
         if (!this.zone?.id) {

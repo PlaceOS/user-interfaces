@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import {
     SettingsService,
     currentUser,
@@ -50,6 +50,10 @@ export interface ContactEvent {
     providedIn: 'root',
 })
 export class ContactTracingStateService {
+    private _org = inject(OrganisationService);
+    private _reports = inject(ReportsStateService);
+    private _settings = inject(SettingsService);
+
     private _loading = new BehaviorSubject<string>('');
     private _generate = new BehaviorSubject<number>(0);
     private _options = new BehaviorSubject<ContactTracingOptions>({
@@ -116,12 +120,6 @@ export class ContactTracingStateService {
     public get time_format() {
         return this._settings.time_format;
     }
-
-    constructor(
-        private _org: OrganisationService,
-        private _reports: ReportsStateService,
-        private _settings: SettingsService,
-    ) {}
 
     public setOptions(options: Partial<ContactTracingOptions>) {
         this._options.next({ ...this._options.getValue(), ...options });

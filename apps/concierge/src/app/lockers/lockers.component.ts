@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { AsyncHandler, SettingsService } from '@placeos/common';
@@ -9,7 +9,7 @@ import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component'
 @Component({
     selector: '[app-new-lockers]',
     template: `
-        <app-topbar></app-topbar>
+        <app-topbar />
         <div class="flex h-px flex-1">
             <app-sidebar></app-sidebar>
             <main class="relative flex h-full w-1/2 flex-1 flex-col">
@@ -42,6 +42,12 @@ import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component'
     standalone: false,
 })
 export class LockersComponent extends AsyncHandler implements OnInit {
+    private _state = inject(LockerStateService);
+    private _router = inject(Router);
+    private _route = inject(ActivatedRoute);
+    private _dialog = inject(MatDialog);
+    private _settings = inject(SettingsService);
+
     public readonly loading = this._state.loading;
     public path: string;
     /** List of levels for the active building */
@@ -64,16 +70,6 @@ export class LockersComponent extends AsyncHandler implements OnInit {
 
     public get use_region() {
         return !!this._settings.get('app.use_region');
-    }
-
-    constructor(
-        private _state: LockerStateService,
-        private _router: Router,
-        private _route: ActivatedRoute,
-        private _dialog: MatDialog,
-        private _settings: SettingsService,
-    ) {
-        super();
     }
 
     public ngOnInit() {

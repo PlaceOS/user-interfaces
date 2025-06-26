@@ -1,10 +1,4 @@
-import {
-    Component,
-    Input,
-    OnChanges,
-    OnInit,
-    SimpleChanges,
-} from '@angular/core';
+import { Component, Input, OnChanges, OnInit, SimpleChanges, inject } from '@angular/core';
 import { ReportsStateService } from '../reports-state.service';
 
 import { AsyncHandler, nextValueFrom, SettingsService } from '@placeos/common';
@@ -62,6 +56,10 @@ export class ReportSpacesChartsComponent
     extends AsyncHandler
     implements OnInit, OnChanges
 {
+    private _state = inject(ReportsStateService);
+    private _org = inject(OrganisationService);
+    private _settings = inject(SettingsService);
+
     @Input() public print = false;
     public readonly day_list = this._state.day_list;
     public readonly stats = combineLatest([
@@ -71,14 +69,6 @@ export class ReportSpacesChartsComponent
 
     private _day_chart: any;
     private _level_chart: any;
-
-    constructor(
-        private _state: ReportsStateService,
-        private _org: OrganisationService,
-        private _settings: SettingsService,
-    ) {
-        super();
-    }
 
     public ngOnInit() {
         this.subscription(

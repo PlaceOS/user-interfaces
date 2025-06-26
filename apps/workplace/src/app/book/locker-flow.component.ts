@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import {
     BookingFormService,
@@ -58,6 +58,11 @@ import { map, shareReplay } from 'rxjs/operators';
     standalone: false,
 })
 export class BookLockerFlowComponent extends AsyncHandler implements OnInit {
+    private _state = inject(BookingFormService);
+    private _route = inject(ActivatedRoute);
+    private _org = inject(OrganisationService);
+    private _settings = inject(SettingsService);
+
     private _lockers_banks = loadLockerBanks(
         this._org,
         combineLatest([this._org.active_building, this._org.active_region]),
@@ -94,15 +99,6 @@ export class BookLockerFlowComponent extends AsyncHandler implements OnInit {
     }
     public get last_success() {
         return this._state.last_success;
-    }
-
-    constructor(
-        private _state: BookingFormService,
-        private _route: ActivatedRoute,
-        private _org: OrganisationService,
-        private _settings: SettingsService,
-    ) {
-        super();
     }
 
     public ngOnInit() {

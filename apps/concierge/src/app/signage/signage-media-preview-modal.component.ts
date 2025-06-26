@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Inject, Output } from '@angular/core';
+import { Component, EventEmitter, Output, inject } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 @Component({
@@ -62,6 +62,14 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
     standalone: false,
 })
 export class SignageMediaPreviewModalComponent {
+    private _data = inject<{
+    url: URL;
+    type: 'image' | 'video';
+    save: boolean;
+    name: string;
+    file?: File;
+}>(MAT_DIALOG_DATA);
+
     @Output() public readonly save = new EventEmitter<any>();
     public loading = '';
     public readonly resource = this._data.url;
@@ -69,15 +77,4 @@ export class SignageMediaPreviewModalComponent {
     public readonly name = this._data.name;
     public readonly file = this._data.file;
     public readonly can_save = this._data.save !== false;
-
-    constructor(
-        @Inject(MAT_DIALOG_DATA)
-        private _data: {
-            url: URL;
-            type: 'image' | 'video';
-            save: boolean;
-            name: string;
-            file?: File;
-        },
-    ) {}
 }

@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { CateringReportStateService } from './catering-report-state.service';
@@ -72,6 +72,10 @@ import { CateringReportStateService } from './catering-report-state.service';
     standalone: false,
 })
 export class CateringReportOrdersComponent {
+    private _report = inject(CateringReportStateService);
+    private _org = inject(OrganisationService);
+    private _settings = inject(SettingsService);
+
     @Input() public print = false;
     public readonly orders = this._report.catering_orders;
 
@@ -82,12 +86,6 @@ export class CateringReportOrdersComponent {
     public get time_format() {
         return this._settings.time_format;
     }
-
-    constructor(
-        private _report: CateringReportStateService,
-        private _org: OrganisationService,
-        private _settings: SettingsService,
-    ) {}
 
     public readonly download = () => this._report.downloadOrders();
 }

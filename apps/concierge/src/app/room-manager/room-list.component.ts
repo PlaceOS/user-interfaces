@@ -1,5 +1,5 @@
 import { Clipboard } from '@angular/cdk/clipboard';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { i18n, notifySuccess, SettingsService } from '@placeos/common';
 import { RoomManagementService } from './room-management.service';
 
@@ -171,6 +171,10 @@ import { RoomManagementService } from './room-management.service';
     standalone: false,
 })
 export class RoomListComponent {
+    private _manager = inject(RoomManagementService);
+    private _clipboard = inject(Clipboard);
+    private _settings = inject(SettingsService);
+
     public readonly rooms = this._manager.filtered_rooms;
 
     public readonly editRoom = (room) => this._manager.editRoom(room);
@@ -184,10 +188,4 @@ export class RoomListComponent {
     public get control_path() {
         return this._settings.get('app.control_path') || '';
     }
-
-    constructor(
-        private _manager: RoomManagementService,
-        private _clipboard: Clipboard,
-        private _settings: SettingsService,
-    ) {}
 }

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Inject, Output } from '@angular/core';
+import { Component, EventEmitter, Output, inject } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { AsyncHandler, DialogEvent } from '@placeos/common';
@@ -247,6 +247,12 @@ import { DesksStateService } from '../desks/desks-state.service';
     standalone: false,
 })
 export class PointsAssetModalComponent extends AsyncHandler {
+    private _spaces = inject(SpacesService);
+    private _desks = inject(DesksStateService);
+    private _data = inject<{
+    asset?: any;
+}>(MAT_DIALOG_DATA);
+
     @Output() public event = new EventEmitter<DialogEvent>();
 
     public form = new FormGroup({
@@ -282,11 +288,7 @@ export class PointsAssetModalComponent extends AsyncHandler {
         shareReplay(1),
     );
 
-    constructor(
-        private _spaces: SpacesService,
-        private _desks: DesksStateService,
-        @Inject(MAT_DIALOG_DATA) private _data: { asset?: any },
-    ) {
+    constructor() {
         super();
         this._desks.setFilters({ zones: ['All'] });
         this.subscription(

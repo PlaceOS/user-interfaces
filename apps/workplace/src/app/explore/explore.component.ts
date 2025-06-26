@@ -1,11 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { DesksService } from '@placeos/bookings';
 
 @Component({
     selector: 'app-explore',
     template: `
         @if (!hide_nav) {
-            <topbar></topbar>
+            <topbar />
         }
         <div class="flex h-1/2 flex-1 flex-col-reverse bg-base-200 sm:flex-row">
             <main
@@ -16,7 +16,7 @@ import { DesksService } from '@placeos/bookings';
         </div>
 
         @if (!hide_nav) {
-            <footer-menu></footer-menu>
+            <footer-menu />
         }
     `,
     styles: [
@@ -36,11 +36,11 @@ import { DesksService } from '@placeos/bookings';
     standalone: false,
 })
 export class ExploreComponent implements OnInit {
+    private _desks = inject(DesksService);
+
     public get hide_nav() {
         return localStorage.getItem('PlaceOS.hide_nav') === 'true';
     }
-
-    constructor(private _desks: DesksService) {}
 
     public ngOnInit() {
         this._desks.error_on_host = false;

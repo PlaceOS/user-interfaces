@@ -1,5 +1,5 @@
 import { Clipboard } from '@angular/cdk/clipboard';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { nextValueFrom, notifySuccess } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
@@ -27,7 +27,7 @@ export interface EmergencyContactData {
 @Component({
     selector: '[app-emergency-contacts]',
     template: `
-        <app-topbar></app-topbar>
+        <app-topbar />
         <div class="flex h-px flex-1">
             <app-sidebar></app-sidebar>
             <main class="flex h-full w-1/2 flex-1 flex-col">
@@ -85,7 +85,7 @@ export interface EmergencyContactData {
                                 }}</mat-option>
                                 @for (
                                     role of (roles | async) || [];
-                                    track role
+                                    track role + $index
                                 ) {
                                     <mat-option [value]="role">
                                         {{ role }}
@@ -223,6 +223,10 @@ export interface EmergencyContactData {
     standalone: false,
 })
 export class EmergencyContactsComponent {
+    private _org = inject(OrganisationService);
+    private _dialog = inject(MatDialog);
+    private _clipboard = inject(Clipboard);
+
     private _change = new BehaviorSubject<number>(0);
 
     public search = '';
@@ -251,12 +255,6 @@ export class EmergencyContactsComponent {
         const success = this._clipboard.copy(id);
         if (success) notifySuccess("User's email copied to clipboard.");
     };
-
-    constructor(
-        private _org: OrganisationService,
-        private _dialog: MatDialog,
-        private _clipboard: Clipboard,
-    ) {}
 
     public ngOnInit() {}
 

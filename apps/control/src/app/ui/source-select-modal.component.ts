@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 export class SourceSelectModalData {
@@ -38,13 +38,11 @@ export class SourceSelectModalData {
     standalone: false,
 })
 export class SourceSelectModalComponent {
+    private _data = inject<SourceSelectModalData>(MAT_DIALOG_DATA);
+    private _dialog_ref = inject<MatDialogRef<SourceSelectModalComponent>>(MatDialogRef);
+
     public simple = false;
     public readonly output = this._data.output;
-
-    constructor(
-        @Inject(MAT_DIALOG_DATA) private _data: SourceSelectModalData,
-        private _dialog_ref: MatDialogRef<SourceSelectModalComponent>,
-    ) {}
 
     public close() {
         this._dialog_ref.close();

@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import {
     downloadFile,
     jsonToCsv,
@@ -61,6 +61,8 @@ import { AssetsReportService } from './assets-report.service';
     standalone: false,
 })
 export class AssetReportUsersComponent {
+    private _state = inject(AssetsReportService);
+
     @Input() public print = false;
     public readonly users = this._state.stats$.pipe(
         map(({ events, bookings, products }) => {
@@ -99,6 +101,4 @@ export class AssetReportUsersComponent {
         const data = await nextValueFrom(this.users);
         downloadFile('report-assets-users.csv', jsonToCsv(data));
     };
-
-    constructor(private _state: AssetsReportService) {}
 }

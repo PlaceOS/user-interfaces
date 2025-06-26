@@ -1,11 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
 
 @Component({
     selector: '[app-new-catering]',
     template: `
-        <app-topbar></app-topbar>
+        <app-topbar />
         <div class="flex h-px flex-1">
             <app-sidebar></app-sidebar>
             <main class="flex h-full w-1/2 flex-1 flex-col">
@@ -121,12 +121,10 @@ import { AsyncHandler } from '@placeos/common';
     standalone: false,
 })
 export class CateringComponent extends AsyncHandler implements OnInit {
+    private _route = inject(ActivatedRoute);
+
     /** Page being displayed */
     public page: string;
-
-    constructor(private _route: ActivatedRoute) {
-        super();
-    }
 
     public ngOnInit() {
         this.subscription(

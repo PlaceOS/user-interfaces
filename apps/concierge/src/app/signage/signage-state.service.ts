@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import {
     AsyncHandler,
     i18n,
@@ -87,6 +87,10 @@ function dataURLtoFile(dataURL, filename) {
     providedIn: 'root',
 })
 export class SignageStateService extends AsyncHandler {
+    private _org = inject(OrganisationService);
+    private _dialog = inject(MatDialog);
+    private _settings = inject(SettingsService);
+
     private _loading = new BehaviorSubject(false);
     private _change = new BehaviorSubject(0);
     private _active_upload = new BehaviorSubject<Attachment>(null);
@@ -164,14 +168,6 @@ export class SignageStateService extends AsyncHandler {
 
     public changed() {
         this._change.next(Date.now());
-    }
-
-    constructor(
-        private _org: OrganisationService,
-        private _dialog: MatDialog,
-        private _settings: SettingsService,
-    ) {
-        super();
     }
 
     public editPlaylist(playlist: SignagePlaylist = new SignagePlaylist({})) {

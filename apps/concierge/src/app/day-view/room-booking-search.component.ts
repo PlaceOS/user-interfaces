@@ -1,11 +1,4 @@
-import {
-    Component,
-    ElementRef,
-    EventEmitter,
-    OnInit,
-    Output,
-    ViewChild,
-} from '@angular/core';
+import { Component, ElementRef, EventEmitter, OnInit, Output, ViewChild, inject } from '@angular/core';
 import { AsyncHandler, i18n, SettingsService } from '@placeos/common';
 import { CalendarEvent } from '@placeos/events';
 import { BehaviorSubject, combineLatest } from 'rxjs';
@@ -127,6 +120,9 @@ import { EventsStateService } from './events-state.service';
     standalone: false,
 })
 export class RoomBookingSearchComponent extends AsyncHandler implements OnInit {
+    private _state = inject(EventsStateService);
+    private _settings = inject(SettingsService);
+
     @Output() public selected = new EventEmitter<CalendarEvent>();
     public show = false;
     public readonly search = new BehaviorSubject('');
@@ -169,13 +165,6 @@ export class RoomBookingSearchComponent extends AsyncHandler implements OnInit {
     public typeColor(event) {
         const type = this.types.find((_) => _.id === event.type);
         return type?.color || '#EEE';
-    }
-
-    constructor(
-        private _state: EventsStateService,
-        private _settings: SettingsService,
-    ) {
-        super();
     }
 
     public ngOnInit() {

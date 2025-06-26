@@ -1,5 +1,5 @@
 import { COMMA, ENTER, SPACE } from '@angular/cdk/keycodes';
-import { Component, EventEmitter, Inject, Output } from '@angular/core';
+import { Component, EventEmitter, Output, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { LockerBank } from '@placeos/bookings';
@@ -174,6 +174,11 @@ import { map } from 'rxjs/operators';
     standalone: false,
 })
 export class LockerBankModalComponent {
+    private _data = inject<LockerBank>(MAT_DIALOG_DATA);
+    private _dialog_ref = inject<MatDialogRef<LockerBankModalComponent>>(MatDialogRef);
+    private _org = inject(OrganisationService);
+    private _settings = inject(SettingsService);
+
     @Output() public readonly event = new EventEmitter<DialogEvent>();
     public loading: boolean;
     public readonly render_fn = (v) => `${v}u`;
@@ -224,12 +229,9 @@ export class LockerBankModalComponent {
         tags: new FormControl([]),
     });
 
-    constructor(
-        @Inject(MAT_DIALOG_DATA) private _data: LockerBank,
-        private _dialog_ref: MatDialogRef<LockerBankModalComponent>,
-        private _org: OrganisationService,
-        private _settings: SettingsService,
-    ) {
+    constructor() {
+        const _data = this._data;
+
         if (_data) this.form.patchValue(_data);
     }
 

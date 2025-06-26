@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
     deleteShortURL,
@@ -11,7 +11,7 @@ import {
 import { OrganisationService } from '@placeos/organisation';
 import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
 import { BehaviorSubject, combineLatest } from 'rxjs';
-import { map, shareReplay, switchMap } from 'rxjs/operators';
+import { debounceTime, shareReplay, switchMap } from 'rxjs/operators';
 import { ShortUrlModalComponent } from './url-modal.component';
 
 export interface UrlListOptions {
@@ -22,36 +22,25 @@ export interface UrlListOptions {
     providedIn: 'root',
 })
 export class UrlManagementService {
+    private _org = inject(OrganisationService);
+    private _dialog = inject(MatDialog);
+
     private _options = new BehaviorSubject<UrlListOptions>({});
     private _change = new BehaviorSubject(0);
 
     public options = this._options.asObservable();
 
-    private _url_list = combineLatest([
+    public url_list = combineLatest([
         this._org.active_building,
+        this._options,
         this._change,
     ]).pipe(
-        switchMap(([bld]) => queryShortURLs({})),
+        debounceTime(300),
+        switchMap(([bld, { search }]) =>
+            queryShortURLs({ q: search, limit: 1000 }),
+        ),
         shareReplay(1),
     );
-
-    public readonly filtered_urls = combineLatest([
-        this._url_list,
-        this._options,
-    ]).pipe(
-        map(([list, options]) =>
-            list.filter(
-                (i) =>
-                    !options.search ||
-                    i.name.toLowerCase().includes(options.search.toLowerCase()),
-            ),
-        ),
-    );
-
-    constructor(
-        private _org: OrganisationService,
-        private _dialog: MatDialog,
-    ) {}
 
     public setFilters(options: Partial<UrlListOptions>) {
         this._options.next({ ...this._options.getValue(), ...options });

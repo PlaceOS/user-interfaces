@@ -113,7 +113,7 @@ export class EventFormService extends AsyncHandler {
     private _changed = new BehaviorSubject(0);
     private _event = new BehaviorSubject(new CalendarEvent());
     private _form = generateEventForm(undefined, this._settings);
-    private _space_pipe = new SpacePipe(this._org);
+    private _space_pipe = new SpacePipe();
 
     private removeLoadingTag = (t) =>
         this._loading.next(
@@ -333,6 +333,7 @@ export class EventFormService extends AsyncHandler {
 
     constructor() {
         super();
+        this._space_pipe.org = this._org;
         this.init();
     }
 

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import {
     catchError,
@@ -19,7 +19,7 @@ const LETTERS = `ABCDEFGHIJKLMNOPQRSTUVWXYZ`.split('');
 @Component({
     selector: '[a-directory-user-list]',
     template: `
-        <topbar></topbar>
+        <topbar />
         <div class="flex h-1/2 flex-1 flex-col-reverse sm:flex-row">
             <div
                 class="relative z-0 flex h-1/2 flex-1 flex-col overflow-hidden sm:h-auto"
@@ -138,7 +138,7 @@ const LETTERS = `ABCDEFGHIJKLMNOPQRSTUVWXYZ`.split('');
                 </main>
             </div>
         </div>
-        <footer-menu></footer-menu>
+        <footer-menu />
     `,
     styles: [
         `
@@ -159,6 +159,8 @@ const LETTERS = `ABCDEFGHIJKLMNOPQRSTUVWXYZ`.split('');
     standalone: false,
 })
 export class DirectoryUserListComponent extends AsyncHandler {
+    private _settings = inject(SettingsService);
+
     /** Whether space list is being filtered */
     public loading: boolean;
     /** Whether to show menu */
@@ -197,10 +199,6 @@ export class DirectoryUserListComponent extends AsyncHandler {
 
     public get show_image() {
         return this._settings.get('app.users.show_avatars');
-    }
-
-    constructor(private _settings: SettingsService) {
-        super();
     }
 
     private buildGroups(users: User[]) {

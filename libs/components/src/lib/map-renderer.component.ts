@@ -58,7 +58,7 @@ function isSamePoint(p1: Point, p2: Point): boolean {
         ></div>
         @if (src) {
             @if (!viewer || loading) {
-                <mat-spinner class="absolute" [diameter]="48"></mat-spinner>
+                <mat-spinner class="absolute" [diameter]="48" />
             }
         } @else {
             <div class="absolute inset-0 flex items-center justify-center">

@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
+import { MAP_FEATURE_DATA } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { MAP_FEATURE_DATA } from 'libs/components/src/lib/interactive-map.component';
 
 @Component({
     selector: 'space-location-pin',

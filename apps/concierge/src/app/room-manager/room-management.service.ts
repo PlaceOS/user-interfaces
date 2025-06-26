@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
@@ -23,6 +23,10 @@ export interface RoomListOptions {
     providedIn: 'root',
 })
 export class RoomManagementService {
+    private _org = inject(OrganisationService);
+    private _dialog = inject(MatDialog);
+    private _settings = inject(SettingsService);
+
     private _options = new BehaviorSubject<RoomListOptions>({});
     private _change = new BehaviorSubject(0);
 
@@ -91,12 +95,6 @@ export class RoomManagementService {
             return list;
         }),
     );
-
-    constructor(
-        private _org: OrganisationService,
-        private _dialog: MatDialog,
-        private _settings: SettingsService,
-    ) {}
 
     public setFilters(options: Partial<RoomListOptions>) {
         this._options.next({ ...this._options.getValue(), ...options });

@@ -56,7 +56,7 @@ import { User } from 'libs/users/src/lib/user.class';
             />
             <icon matPrefix class="relative text-2xl">search</icon>
             @if (loading) {
-                <mat-spinner matSuffix diameter="16"></mat-spinner>
+                <mat-spinner matSuffix diameter="16" />
             }
         </mat-form-field>
         <mat-autocomplete

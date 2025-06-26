@@ -57,7 +57,7 @@ export interface TableColumn {
                 }
                 @for (
                     column of active_columns;
-                    track column.key;
+                    track column.key + i;
                     let i = $index
                 ) {
                     <button
