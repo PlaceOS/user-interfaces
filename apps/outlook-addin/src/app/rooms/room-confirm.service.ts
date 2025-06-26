@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { Router } from '@angular/router';
 import { HashMap } from '@placeos/common';
@@ -13,6 +13,12 @@ import { RoomDetailsComponent } from './room-details.component';
     providedIn: 'root',
 })
 export class RoomConfirmService {
+    private _bottomSheet = inject(MatBottomSheet);
+    private router = inject(Router);
+    private _state = inject(EventFormService);
+    private _spaces = inject(SpacesService);
+    private _space_pipe = inject(SpacePipe);
+
     space: Space;
     public book_space: HashMap<boolean> = {};
     public space_list: Space[] = [];
@@ -32,13 +38,7 @@ export class RoomConfirmService {
         return this._state.form;
     }
 
-    constructor(
-        private _bottomSheet: MatBottomSheet,
-        private router: Router,
-        private _state: EventFormService,
-        private _spaces: SpacesService,
-        private _space_pipe: SpacePipe,
-    ) {
+    constructor() {
         this.book_space = {};
         const resources = this._state.form?.get('resources')?.value || [];
         resources.forEach((_) => (this.book_space[_.id] = true));

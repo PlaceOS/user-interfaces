@@ -1,11 +1,4 @@
-import {
-    Component,
-    EventEmitter,
-    Input,
-    OnChanges,
-    Output,
-    SimpleChanges,
-} from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, inject } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { BookingFormService } from '@placeos/bookings';
 import {
@@ -288,6 +281,10 @@ export class NewDeskFormDetailsComponent
     extends AsyncHandler
     implements OnChanges
 {
+    private _state = inject(BookingFormService);
+    private _org = inject(OrganisationService);
+    private _settings = inject(SettingsService);
+
     @Input() public form: FormGroup;
     @Output() public find = new EventEmitter<void>();
     /** List of available buildings to select */
@@ -390,14 +387,6 @@ export class NewDeskFormDetailsComponent
 
     public get use_24hr() {
         return this._settings.get('app.use_24_hour_time');
-    }
-
-    constructor(
-        private _state: BookingFormService,
-        private _org: OrganisationService,
-        private _settings: SettingsService,
-    ) {
-        super();
     }
 
     public ngOnChanges(changes: SimpleChanges) {

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
 import { ParkingStateService } from './parking-state.service';
@@ -105,17 +105,13 @@ import { ParkingStateService } from './parking-state.service';
     standalone: false,
 })
 export class ParkingComponent extends AsyncHandler implements OnInit {
+    private _state = inject(ParkingStateService);
+    private _router = inject(Router);
+
     /** List of levels for the active building */
     public readonly levels = this._state.levels;
 
     public path = '';
-
-    constructor(
-        private _state: ParkingStateService,
-        private _router: Router,
-    ) {
-        super();
-    }
 
     public ngOnInit() {
         this.subscription('poll_bookings', () => this._state.startPolling());

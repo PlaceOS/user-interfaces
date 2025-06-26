@@ -1,12 +1,4 @@
-import {
-    Component,
-    EventEmitter,
-    Input,
-    OnChanges,
-    OnInit,
-    Output,
-    SimpleChanges,
-} from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, inject } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { BookingFormService, Locker } from '@placeos/bookings';
@@ -148,6 +140,11 @@ export class LockerFormDetailsComponent
     extends AsyncHandler
     implements OnChanges, OnInit
 {
+    private _state = inject(BookingFormService);
+    private _org = inject(OrganisationService);
+    private _settings = inject(SettingsService);
+    private _dialog = inject(MatDialog);
+
     @Input() public form: FormGroup;
     @Output() public find = new EventEmitter<void>();
     /** List of available buildings to select */
@@ -219,15 +216,6 @@ export class LockerFormDetailsComponent
     public readonly setOptions = (o) => this._state.setOptions(o);
 
     public readonly setFeature = (f, e) => this._state.setFeature(f, e);
-
-    constructor(
-        private _state: BookingFormService,
-        private _org: OrganisationService,
-        private _settings: SettingsService,
-        private _dialog: MatDialog,
-    ) {
-        super();
-    }
 
     public async ngOnInit() {
         await this._org.initialised.pipe(first((_) => !!_)).toPromise();

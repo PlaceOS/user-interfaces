@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { flatten, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { queryAnswers, querySurveys } from '@placeos/ts-client';
@@ -115,6 +115,9 @@ import { map, shareReplay, startWith, switchMap } from 'rxjs/operators';
     standalone: false,
 })
 export class BuildingListComponent {
+    private _org = inject(OrganisationService);
+    private _settings = inject(SettingsService);
+
     public readonly buildings$ = this._org.building_list;
 
     public readonly surveys$ = this.buildings$.pipe(
@@ -165,9 +168,4 @@ export class BuildingListComponent {
         startWith({}),
         shareReplay(1),
     );
-
-    constructor(
-        private _org: OrganisationService,
-        private _settings: SettingsService,
-    ) {}
 }

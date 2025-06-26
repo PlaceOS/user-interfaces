@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { startOfDay } from 'date-fns';
@@ -287,6 +287,10 @@ import {
     standalone: false,
 })
 export class ScheduleSidebarComponent extends AsyncHandler implements OnInit {
+    private _org = inject(OrganisationService);
+    private _state = inject(ScheduleStateService);
+    private _settings = inject(SettingsService);
+
     public readonly filters = this._state.filters;
     public readonly date = this._state.date.pipe(map((_) => startOfDay(_)));
     public readonly toggleType = (t) => this._state.toggleType(t);
@@ -309,14 +313,6 @@ export class ScheduleSidebarComponent extends AsyncHandler implements OnInit {
 
     public get offset_weekday() {
         return this._settings.get('app.week_start') || 0;
-    }
-
-    constructor(
-        private _org: OrganisationService,
-        private _state: ScheduleStateService,
-        private _settings: SettingsService,
-    ) {
-        super();
     }
 
     public ngOnInit() {

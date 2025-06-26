@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { AsyncHandler, i18n, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { isTrusted } from '@placeos/ts-client';
@@ -124,6 +124,11 @@ enum TOOLTIP {
     standalone: false,
 })
 export class TopbarHeaderComponent extends AsyncHandler implements OnInit {
+    private _settings = inject(SettingsService);
+    private _state = inject(ControlStateService);
+    private _call = inject(VideoCallStateService);
+    private _org = inject(OrganisationService);
+
     public readonly system = this._state.system;
     public readonly mic_list = this._state.mic_list;
     public readonly camera_list = this._state.camera_list;
@@ -161,15 +166,6 @@ export class TopbarHeaderComponent extends AsyncHandler implements OnInit {
 
     public get is_trusted() {
         return isTrusted();
-    }
-
-    constructor(
-        private _settings: SettingsService,
-        private _state: ControlStateService,
-        private _call: VideoCallStateService,
-        private _org: OrganisationService,
-    ) {
-        super();
     }
 
     public ngOnInit() {

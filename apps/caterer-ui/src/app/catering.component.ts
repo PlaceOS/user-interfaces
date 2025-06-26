@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { AsyncHandler } from '@placeos/common';
@@ -104,12 +104,10 @@ import { AsyncHandler } from '@placeos/common';
     standalone: false,
 })
 export class CateringComponent extends AsyncHandler implements OnInit {
+    private _route = inject(ActivatedRoute);
+
     /** Page being displayed */
     public page: string;
-
-    constructor(private _route: ActivatedRoute) {
-        super();
-    }
 
     public ngOnInit() {
         this.subscription(

@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
@@ -144,6 +144,9 @@ import { addDays, endOfDay } from 'date-fns';
     standalone: false,
 })
 export class ParkingFormDetailsComponent extends AsyncHandler {
+    private _settings = inject(SettingsService);
+    private _org = inject(OrganisationService);
+
     @Input() public form: FormGroup;
 
     public readonly building = this._org.active_building;
@@ -193,11 +196,4 @@ export class ParkingFormDetailsComponent extends AsyncHandler {
     }
 
     public readonly setBuilding = (bld) => (this._org.building = bld);
-
-    constructor(
-        private _settings: SettingsService,
-        private _org: OrganisationService,
-    ) {
-        super();
-    }
 }

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { SettingsService, currentUser } from '@placeos/common';
 import { UserControlsComponent } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
@@ -51,6 +51,9 @@ import { OrganisationService } from '@placeos/organisation';
     standalone: false,
 })
 export class ApplicationTopbarComponent {
+    private _settings = inject(SettingsService);
+    private _org = inject(OrganisationService);
+
     public readonly user_controls = UserControlsComponent;
 
     public get logo() {
@@ -64,9 +67,4 @@ export class ApplicationTopbarComponent {
     public get user() {
         return currentUser();
     }
-
-    constructor(
-        private _settings: SettingsService,
-        private _org: OrganisationService,
-    ) {}
 }

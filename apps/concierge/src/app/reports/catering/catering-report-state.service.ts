@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Booking } from '@placeos/bookings';
 import { CateringItem, CateringOrder } from '@placeos/catering';
 import {
@@ -17,6 +17,8 @@ import { ReportsStateService } from '../reports-state.service';
     providedIn: 'root',
 })
 export class CateringReportStateService {
+    private _reports = inject(ReportsStateService);
+
     /** List of catering orders for the selected period and levels */
     public readonly catering_orders = combineLatest([
         this._reports.options,
@@ -86,8 +88,6 @@ export class CateringReportStateService {
             };
         }),
     );
-
-    constructor(private _reports: ReportsStateService) {}
 
     public async downloadOrders() {
         const orders = await nextValueFrom(this.catering_orders);

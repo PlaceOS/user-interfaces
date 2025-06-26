@@ -1,4 +1,4 @@
-import { Component, ElementRef, Inject, ViewChild } from '@angular/core';
+import { Component, ElementRef, ViewChild, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import {
     MAT_DIALOG_DATA,
@@ -207,6 +207,11 @@ import { SignageStateService } from './signage-state.service';
     standalone: false,
 })
 export class SignagePlaylistModalComponent {
+    private _data = inject<SignagePlaylist>(MAT_DIALOG_DATA) ?? {} as any;
+    private _state = inject(SignageStateService);
+    private _dialog = inject(MatDialog);
+    private _dialog_ref = inject<MatDialogRef<SignagePlaylistModalComponent>>(MatDialogRef);
+
     public loading = false;
     public readonly playlist = this._data;
     public readonly media = this._state.media;
@@ -234,13 +239,6 @@ export class SignagePlaylistModalComponent {
 
     @ViewChild('search_input')
     public search_input: ElementRef<HTMLInputElement>;
-
-    constructor(
-        @Inject(MAT_DIALOG_DATA) private _data: SignagePlaylist = {} as any,
-        private _state: SignageStateService,
-        private _dialog: MatDialog,
-        private _dialog_ref: MatDialogRef<SignagePlaylistModalComponent>,
-    ) {}
 
     public async savePlaylist() {
         this.form.markAllAsTouched();

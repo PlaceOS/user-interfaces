@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { AsyncHandler, i18n, Identity } from '@placeos/common';
@@ -129,6 +129,10 @@ const STORE_BUILDING_KEY = `${STORE_PREFIX}.building`;
     standalone: false,
 })
 export class BootstrapComponent extends AsyncHandler implements OnInit {
+    private _org = inject(OrganisationService);
+    private _route = inject(ActivatedRoute);
+    private _router = inject(Router);
+
     /** Loading state of the bootstrap */
     public loading = '';
     /** Actively selected building */
@@ -166,14 +170,6 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
 
     public building(system: PlaceSystem) {
         return this._org.buildings.find(({ id }) => system.zones.includes(id));
-    }
-
-    constructor(
-        private _org: OrganisationService,
-        private _route: ActivatedRoute,
-        private _router: Router,
-    ) {
-        super();
     }
 
     public async ngOnInit() {

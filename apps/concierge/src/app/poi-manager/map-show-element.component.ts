@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MAP_FEATURE_DATA } from 'libs/common/src/lib/types';
 
 @Component({
@@ -20,7 +20,10 @@ import { MAP_FEATURE_DATA } from 'libs/common/src/lib/types';
     standalone: false,
 })
 export class MapShowElementComponent {
-    constructor(@Inject(MAP_FEATURE_DATA) private _data: { hover: boolean }) {}
+    private _data = inject<{
+    hover: boolean;
+}>(MAP_FEATURE_DATA);
+
 
     public get hover() {
         return !!this._data?.hover;

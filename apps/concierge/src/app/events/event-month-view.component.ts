@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { AsyncHandler, SettingsService } from '@placeos/common';
@@ -143,6 +143,11 @@ import { EventStateService } from './event-state.service';
     standalone: false,
 })
 export class EventMonthViewComponent extends AsyncHandler {
+    private _state = inject(EventStateService);
+    private _settings = inject(SettingsService);
+    private _dialog = inject(MatDialog);
+    private _router = inject(Router);
+
     public month = startOfDay(Date.now()).valueOf();
     public weekdays = [];
 
@@ -178,15 +183,6 @@ export class EventMonthViewComponent extends AsyncHandler {
 
     public get offset_weekday() {
         return this._settings.get('app.week_start') || 0;
-    }
-
-    constructor(
-        private _state: EventStateService,
-        private _settings: SettingsService,
-        private _dialog: MatDialog,
-        private _router: Router,
-    ) {
-        super();
     }
 
     public ngOnInit() {

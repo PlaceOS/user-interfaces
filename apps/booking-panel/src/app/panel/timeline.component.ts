@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { timePeriodsIntersect } from '@placeos/common';
 import {
     addMinutes,
@@ -61,6 +61,8 @@ import { PanelStateService } from '../panel-state.service';
     standalone: false,
 })
 export class PanelTimelineComponent {
+    private _state = inject(PanelStateService);
+
     @Input() public step = 10;
 
     public readonly blocks = combineLatest([
@@ -100,6 +102,4 @@ export class PanelTimelineComponent {
     );
 
     public readonly newBooking = (blk) => this._state.newBooking(blk.time);
-
-    constructor(private _state: PanelStateService) {}
 }

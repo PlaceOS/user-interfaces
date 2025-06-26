@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import {
     downloadFile,
     jsonToCsv,
@@ -82,6 +82,10 @@ import { ReportsStateService } from '../reports-state.service';
     standalone: false,
 })
 export class ReportDesksLevelListComponent {
+    private _state = inject(ReportsStateService);
+    private _org = inject(OrganisationService);
+    private _settings = inject(SettingsService);
+
     @Input() public print = false;
 
     public readonly level_list = combineLatest([
@@ -130,10 +134,4 @@ export class ReportDesksLevelListComponent {
         const data = await nextValueFrom(this.level_list);
         downloadFile('desks-levels-usage.csv', jsonToCsv(data));
     };
-
-    constructor(
-        private _state: ReportsStateService,
-        private _org: OrganisationService,
-        private _settings: SettingsService,
-    ) {}
 }

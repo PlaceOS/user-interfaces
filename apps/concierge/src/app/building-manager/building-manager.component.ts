@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { BuildingManagementService } from './building-management.service';
 
 @Component({
@@ -50,7 +50,7 @@ import { BuildingManagementService } from './building-management.service';
     standalone: false,
 })
 export class BuildingManagerComponent {
-    public readonly newBuilding = () => this._state.editBuilding();
+    private _state = inject(BuildingManagementService);
 
-    constructor(private _state: BuildingManagementService) {}
+    public readonly newBuilding = () => this._state.editBuilding();
 }

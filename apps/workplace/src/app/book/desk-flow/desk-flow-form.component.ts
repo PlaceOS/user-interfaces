@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import {
     MatBottomSheet,
     MatBottomSheetRef,
@@ -54,6 +54,12 @@ import { NewDeskFlowConfirmComponent } from './desk-flow-confirm.component';
     standalone: false,
 })
 export class NewDeskFlowFormComponent implements OnInit {
+    private _state = inject(BookingFormService);
+    private _router = inject(Router);
+    private _org = inject(OrganisationService);
+    private _bottom_sheet = inject(MatBottomSheet);
+    private _settings = inject(SettingsService);
+
     public sheet_ref: MatBottomSheetRef<NewDeskFlowConfirmComponent>;
     public level = '';
     public levels = [];
@@ -87,14 +93,6 @@ export class NewDeskFlowFormComponent implements OnInit {
             }
         });
     };
-
-    constructor(
-        private _state: BookingFormService,
-        private _router: Router,
-        private _org: OrganisationService,
-        private _bottom_sheet: MatBottomSheet,
-        private _settings: SettingsService,
-    ) {}
 
     public async ngOnInit() {
         await this._org.initialised.pipe(first((_) => _));

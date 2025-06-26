@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import {
@@ -38,6 +38,11 @@ export interface GroupEventOptions {
     providedIn: 'root',
 })
 export class EventStateService extends AsyncHandler {
+    private _settings = inject(SettingsService);
+    private _org = inject(OrganisationService);
+    private _dialog = inject(MatDialog);
+    private _router = inject(Router);
+
     private _options = new BehaviorSubject<GroupEventOptions>({
         period: 'week',
     });
@@ -85,15 +90,6 @@ export class EventStateService extends AsyncHandler {
 
     public get calendar() {
         return this._settings.get('app.group_events_calendar');
-    }
-
-    constructor(
-        private _settings: SettingsService,
-        private _org: OrganisationService,
-        private _dialog: MatDialog,
-        private _router: Router,
-    ) {
-        super();
     }
 
     public startPolling(delay = 60 * 1000) {

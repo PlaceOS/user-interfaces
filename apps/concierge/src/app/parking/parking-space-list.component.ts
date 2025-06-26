@@ -1,5 +1,5 @@
 import { Clipboard } from '@angular/cdk/clipboard';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Booking } from '@placeos/bookings';
 import { AsyncHandler, i18n, notifySuccess } from '@placeos/common';
 import { ParkingSpace } from '@placeos/explore';
@@ -139,6 +139,9 @@ import { ParkingStateService } from './parking-state.service';
     standalone: false,
 })
 export class ParkingSpaceListComponent extends AsyncHandler {
+    private _state = inject(ParkingStateService);
+    private _clipboard = inject(Clipboard);
+
     public readonly spaces = this._state.spaces;
     public readonly options = this._state.options;
     public readonly loading = this._state.loading;
@@ -148,13 +151,6 @@ export class ParkingSpaceListComponent extends AsyncHandler {
 
     public readonly editSpace = (s?) => this._state.editSpace(s);
     public readonly removeSpace = (s) => this._state.removeSpace(s);
-
-    constructor(
-        private _state: ParkingStateService,
-        private _clipboard: Clipboard,
-    ) {
-        super();
-    }
 
     public ngOnInit() {
         this.subscription(

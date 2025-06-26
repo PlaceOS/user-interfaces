@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { debounceTime, map } from 'rxjs/operators';
 
 import { AsyncHandler, SettingsService } from '@placeos/common';
@@ -76,6 +76,11 @@ import { AssetsReportService } from './assets-report.service';
     standalone: false,
 })
 export class AssetsReportComponent extends AsyncHandler {
+    private _state = inject(AssetsReportService);
+    private _settings = inject(SettingsService);
+    private _route = inject(ActivatedRoute);
+    private _org = inject(OrganisationService);
+
     public printing = false;
     public readonly total_count = this._state.stats$.pipe(
         map((i) => i.total_booked_items || 0),
@@ -94,15 +99,6 @@ export class AssetsReportComponent extends AsyncHandler {
                     : this._settings.get('app.logo_light')) || {},
         ),
     );
-
-    constructor(
-        private _state: AssetsReportService,
-        private _settings: SettingsService,
-        private _route: ActivatedRoute,
-        private _org: OrganisationService,
-    ) {
-        super();
-    }
 
     public ngOnInit() {
         this.subscription(

@@ -1,5 +1,5 @@
 import { Clipboard } from '@angular/cdk/clipboard';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
@@ -284,6 +284,12 @@ import {
     standalone: false,
 })
 export class EmailTemplateManageComponent extends AsyncHandler {
+    private _org = inject(OrganisationService);
+    private _state = inject(EmailTemplatesStateService);
+    private _route = inject(ActivatedRoute);
+    private _router = inject(Router);
+    private _clipboard = inject(Clipboard);
+
     public loading = '';
     public template: EmailTemplate;
     public readonly definitions = this._state.template_groups;
@@ -299,16 +305,6 @@ export class EmailTemplateManageComponent extends AsyncHandler {
         zone_id: new FormControl(''),
     });
     public active_trigger = null;
-
-    constructor(
-        private _org: OrganisationService,
-        private _state: EmailTemplatesStateService,
-        private _route: ActivatedRoute,
-        private _router: Router,
-        private _clipboard: Clipboard,
-    ) {
-        super();
-    }
 
     public ngOnInit() {
         this.subscription(

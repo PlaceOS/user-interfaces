@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { ParkingStateService } from './parking-state.service';
 
@@ -224,6 +224,9 @@ export class ParkingBookingsListComponent
     extends AsyncHandler
     implements OnInit
 {
+    private _state = inject(ParkingStateService);
+    private _settings = inject(SettingsService);
+
     public readonly events = this._state.bookings;
     public readonly options = this._state.options;
     public readonly loading = this._state.loading;
@@ -234,13 +237,6 @@ export class ParkingBookingsListComponent
 
     public get time_format() {
         return this._settings.time_format;
-    }
-
-    constructor(
-        private _state: ParkingStateService,
-        private _settings: SettingsService,
-    ) {
-        super();
     }
 
     public ngOnInit() {

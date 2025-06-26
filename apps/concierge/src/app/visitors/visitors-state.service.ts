@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { addDays, format, getUnixTime, startOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import {
@@ -47,6 +47,10 @@ export interface VisitorFilters {
     providedIn: 'root',
 })
 export class VisitorsStateService extends AsyncHandler {
+    private _dialog = inject(MatDialog);
+    private _org = inject(OrganisationService);
+    private _settings = inject(SettingsService);
+
     private _poll = new BehaviorSubject<number>(0);
 
     private _filters = new BehaviorSubject<VisitorFilters>({});
@@ -116,14 +120,6 @@ export class VisitorsStateService extends AsyncHandler {
             this._settings.get('app.induction_enabled') &&
             this._settings.get('app.induction_details')
         );
-    }
-
-    constructor(
-        private _dialog: MatDialog,
-        private _org: OrganisationService,
-        private _settings: SettingsService,
-    ) {
-        super();
     }
 
     public setFilters(filters: VisitorFilters) {

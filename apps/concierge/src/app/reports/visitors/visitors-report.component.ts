@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
@@ -70,6 +70,11 @@ import { VisitorsReportService } from './visitors-report.service';
     standalone: false,
 })
 export class VisitorsReportComponent extends AsyncHandler implements OnInit {
+    private _state = inject(VisitorsReportService);
+    private _settings = inject(SettingsService);
+    private _route = inject(ActivatedRoute);
+    private _org = inject(OrganisationService);
+
     public printing = false;
     public readonly total_count = this._state.bookings$.pipe(
         map((i) => i.length || 0),
@@ -88,15 +93,6 @@ export class VisitorsReportComponent extends AsyncHandler implements OnInit {
                     : this._settings.get('app.logo_light')) || {},
         ),
     );
-
-    constructor(
-        private _state: VisitorsReportService,
-        private _settings: SettingsService,
-        private _route: ActivatedRoute,
-        private _org: OrganisationService,
-    ) {
-        super();
-    }
 
     public ngOnInit() {
         this.subscription(

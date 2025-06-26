@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { currentUser, SettingsService } from '@placeos/common';
 import { UserControlsComponent } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
@@ -61,6 +61,9 @@ const EMPTY = [];
     standalone: false,
 })
 export class TopbarComponent {
+    private _settings = inject(SettingsService);
+    private _org = inject(OrganisationService);
+
     public show_menu: boolean;
     public readonly user_controls = UserControlsComponent;
 
@@ -92,9 +95,4 @@ export class TopbarComponent {
     public get features(): string[] {
         return this._settings.get('app.features') || EMPTY;
     }
-
-    constructor(
-        private _settings: SettingsService,
-        private _org: OrganisationService,
-    ) {}
 }

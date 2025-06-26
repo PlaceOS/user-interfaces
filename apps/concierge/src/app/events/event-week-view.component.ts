@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { addDays, format, startOfMinute } from 'date-fns';
 import { map, shareReplay, startWith } from 'rxjs/operators';
 
@@ -121,6 +121,8 @@ import { EventStateService } from './event-state.service';
     standalone: false,
 })
 export class EventWeekViewComponent extends AsyncHandler implements OnInit {
+    private _state = inject(EventStateService);
+
     public days = new Array(7).fill(0).map((_, idx) => idx + 1);
     public readonly hours = new Array(24)
         .fill(0)
@@ -166,10 +168,6 @@ export class EventWeekViewComponent extends AsyncHandler implements OnInit {
     public get now_offset() {
         const now = new Date(this.now);
         return (now.getHours() * 60 + now.getMinutes()) / (24 * 60);
-    }
-
-    constructor(private _state: EventStateService) {
-        super();
     }
 
     public ngOnInit() {

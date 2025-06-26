@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { OrganisationService } from '@placeos/organisation';
 import { querySystems } from '@placeos/ts-client';
 import { catchError, first, map, of, shareReplay, switchMap } from 'rxjs';
@@ -7,6 +7,8 @@ import { catchError, first, map, of, shareReplay, switchMap } from 'rxjs';
     providedIn: 'root',
 })
 export class SupportService {
+    private _org = inject(OrganisationService);
+
     public readonly space_list = this._org.initialised.pipe(
         first((_) => _),
         switchMap(() =>
@@ -22,7 +24,7 @@ export class SupportService {
         shareReplay(1),
     );
 
-    constructor(private _org: OrganisationService) {
+    constructor() {
         this.space_list.subscribe();
     }
 }

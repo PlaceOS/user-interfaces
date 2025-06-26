@@ -1,4 +1,4 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
@@ -270,6 +270,20 @@ import { first, map } from 'rxjs/operators';
     standalone: false,
 })
 export class ExploreComponent extends AsyncHandler implements OnInit {
+    private _state = inject(ExploreStateService);
+    private _s = inject(ExploreSpacesService);
+    private _desks = inject(ExploreDesksService);
+    private _zones = inject(ExploreZonesService);
+    private _parking = inject(ExploreParkingService);
+    private _settings = inject(SettingsService);
+    private _org = inject(OrganisationService);
+    private _spaces = inject(SpacesService);
+    private _dialog = inject(MatDialog);
+    private _route = inject(ActivatedRoute);
+    private _router = inject(Router);
+    private _space_pipe = inject(SpacePipe);
+    private _maps = inject(MapsPeopleService);
+
     /** Number of seconds after a user action to reset the kiosk state */
     public reset_delay = 180;
     public show_levels: boolean = true;
@@ -367,24 +381,6 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
     }
 
     public readonly use_mapsindoors$ = this._maps.available$;
-
-    constructor(
-        private _state: ExploreStateService,
-        private _s: ExploreSpacesService,
-        private _desks: ExploreDesksService,
-        private _zones: ExploreZonesService,
-        private _parking: ExploreParkingService,
-        private _settings: SettingsService,
-        private _org: OrganisationService,
-        private _spaces: SpacesService,
-        private _dialog: MatDialog,
-        private _route: ActivatedRoute,
-        private _router: Router,
-        private _space_pipe: SpacePipe,
-        private _maps: MapsPeopleService,
-    ) {
-        super();
-    }
 
     public async ngOnInit() {
         if (

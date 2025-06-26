@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { DialogEvent } from '@placeos/common';
@@ -120,6 +120,9 @@ import { ParkingSpace } from './parking-state.service';
     standalone: false,
 })
 export class ParkingSpaceModalComponent implements OnInit {
+    private _data = inject<ParkingSpace>(MAT_DIALOG_DATA);
+    private _dialog_ref = inject<MatDialogRef<ParkingSpaceModalComponent>>(MatDialogRef);
+
     @Output() public readonly event = new EventEmitter<DialogEvent>();
     public loading: boolean;
 
@@ -138,10 +141,9 @@ export class ParkingSpaceModalComponent implements OnInit {
         map_rotation: new FormControl(0),
     });
 
-    constructor(
-        @Inject(MAT_DIALOG_DATA) private _data: ParkingSpace,
-        private _dialog_ref: MatDialogRef<ParkingSpaceModalComponent>,
-    ) {
+    constructor() {
+        const _data = this._data;
+
         if (_data) this.form.patchValue(_data);
     }
 

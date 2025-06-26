@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { AsyncHandler, nextValueFrom, SettingsService } from '@placeos/common';
 import { AvailableRoomsStateModalComponent } from '@placeos/components';
@@ -153,6 +153,11 @@ import { AssetManagerStateService } from './asset-manager-state.service';
     standalone: false,
 })
 export class AssetManagerTopbarComponent extends AsyncHandler {
+    private _state = inject(AssetManagerStateService);
+    private _org = inject(OrganisationService);
+    private _settings = inject(SettingsService);
+    private _dialog = inject(MatDialog);
+
     @Input() public active = '';
 
     public readonly options = this._state.options;
@@ -176,15 +181,6 @@ export class AssetManagerTopbarComponent extends AsyncHandler {
         const bld = this._org.buildings.find((_) => _.id === id);
         if (!bld) return;
         this._org.building = bld;
-    }
-
-    constructor(
-        private _state: AssetManagerStateService,
-        private _org: OrganisationService,
-        private _settings: SettingsService,
-        private _dialog: MatDialog,
-    ) {
-        super();
     }
 
     public async setRoomAvailability() {

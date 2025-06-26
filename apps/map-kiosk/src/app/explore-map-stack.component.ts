@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import {
     ExploreDesksService,
     ExploreSpacesService,
@@ -61,6 +61,12 @@ import { OrganisationService } from '@placeos/organisation';
     standalone: false,
 })
 export class ExploreMapStackComponent {
+    private _orgs = inject(OrganisationService);
+    private _state = inject(ExploreStateService);
+    private _s = inject(ExploreSpacesService);
+    private _desks = inject(ExploreDesksService);
+    private _zones = inject(ExploreZonesService);
+
     public readonly levels = this._orgs.active_levels;
     /** Observable for the active map */
     public readonly styles = this._state.map_styles;
@@ -83,12 +89,4 @@ export class ExploreMapStackComponent {
             );
         return Math.max(0, index);
     }
-
-    constructor(
-        private _orgs: OrganisationService,
-        private _state: ExploreStateService,
-        private _s: ExploreSpacesService,
-        private _desks: ExploreDesksService,
-        private _zones: ExploreZonesService,
-    ) {}
 }

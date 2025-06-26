@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ExploreDesksService, ExploreStateService } from '@placeos/explore';
 
 import { AsyncHandler } from '@placeos/common';
@@ -56,6 +56,11 @@ import { DesksStateService } from './desks-state.service';
     standalone: false,
 })
 export class DeskMapViewComponent extends AsyncHandler implements OnInit {
+    private _state = inject(ExploreStateService);
+    private _desk = inject(DesksStateService);
+    private _desks_state = inject(ExploreDesksService);
+    private _org = inject(OrganisationService);
+
     /** Observable for the active map */
     public readonly url = this._state.map_url;
     /** Observable for the active map */
@@ -68,15 +73,6 @@ export class DeskMapViewComponent extends AsyncHandler implements OnInit {
     public readonly features = this._state.map_features;
 
     public readonly setHost = (u) => this._desks_state.setOptions({ host: u });
-
-    constructor(
-        private _state: ExploreStateService,
-        private _desk: DesksStateService,
-        private _desks_state: ExploreDesksService,
-        private _org: OrganisationService,
-    ) {
-        super();
-    }
 
     public ngOnInit(): void {
         this._desks_state.setOptions({ use_api: true });

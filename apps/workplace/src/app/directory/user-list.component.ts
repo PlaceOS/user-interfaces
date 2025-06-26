@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import {
     catchError,
@@ -159,6 +159,8 @@ const LETTERS = `ABCDEFGHIJKLMNOPQRSTUVWXYZ`.split('');
     standalone: false,
 })
 export class DirectoryUserListComponent extends AsyncHandler {
+    private _settings = inject(SettingsService);
+
     /** Whether space list is being filtered */
     public loading: boolean;
     /** Whether to show menu */
@@ -197,10 +199,6 @@ export class DirectoryUserListComponent extends AsyncHandler {
 
     public get show_image() {
         return this._settings.get('app.users.show_avatars');
-    }
-
-    constructor(private _settings: SettingsService) {
-        super();
     }
 
     private buildGroups(users: User[]) {

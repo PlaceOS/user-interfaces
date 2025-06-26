@@ -1,4 +1,4 @@
-import { Component, Inject, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { i18n, notifyError, notifySuccess } from '@placeos/common';
@@ -198,6 +198,19 @@ import { addYears, endOfDay, getUnixTime, startOfDay } from 'date-fns';
     standalone: false,
 })
 export class SignageMediaModalComponent implements OnDestroy {
+    private _data = inject<{
+    media: SignageMedia;
+    file?: File;
+    file_metadata?: [
+        boolean,
+        number
+    ];
+    file_thumbnail?: string;
+    onAdd: (f, m) => Promise<SignageMedia>;
+    preview: (url) => void;
+}>(MAT_DIALOG_DATA);
+    private _dialog_ref = inject<MatDialogRef<SignageMediaModalComponent>>(MatDialogRef);
+
     public loading = false;
     public readonly item = this._data.media;
     public readonly file = this._data.file;
@@ -243,18 +256,7 @@ export class SignageMediaModalComponent implements OnDestroy {
         return this._file_url;
     }
 
-    constructor(
-        @Inject(MAT_DIALOG_DATA)
-        private _data: {
-            media: SignageMedia;
-            file?: File;
-            file_metadata?: [boolean, number];
-            file_thumbnail?: string;
-            onAdd: (f, m) => Promise<SignageMedia>;
-            preview: (url) => void;
-        },
-        private _dialog_ref: MatDialogRef<SignageMediaModalComponent>,
-    ) {
+    constructor() {
         this.form.patchValue({
             ...this._data.media,
             valid_from: this._data.media.valid_from * 1000,

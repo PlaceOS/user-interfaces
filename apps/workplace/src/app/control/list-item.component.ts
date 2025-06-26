@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 
 import { SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
@@ -56,6 +56,9 @@ import { Space } from '@placeos/spaces';
     standalone: false,
 })
 export class ControlSpaceListItemComponent {
+    private _settings = inject(SettingsService);
+    private _org = inject(OrganisationService);
+
     /** Space to display */
     @Input() public space: Space;
 
@@ -80,9 +83,4 @@ export class ControlSpaceListItemComponent {
             level?.display_name || level?.name || '<No Level>'
         }`;
     }
-
-    constructor(
-        private _settings: SettingsService,
-        private _org: OrganisationService,
-    ) {}
 }

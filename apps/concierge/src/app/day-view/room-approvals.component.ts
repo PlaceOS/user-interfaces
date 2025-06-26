@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { getTimezoneOffsetString, SettingsService } from '@placeos/common';
 import { CalendarEvent } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
@@ -201,6 +201,10 @@ import { EventsStateService } from './events-state.service';
     standalone: false,
 })
 export class RoomBookingsApprovalsComponent {
+    private _state = inject(EventsStateService);
+    private _org = inject(OrganisationService);
+    private _settings = inject(SettingsService);
+
     private _show = true;
     public loading = false;
     public status: Record<string, 'accept' | 'decline' | undefined> = {};
@@ -256,12 +260,6 @@ export class RoomBookingsApprovalsComponent {
     public get show() {
         return this._show;
     }
-
-    constructor(
-        private _state: EventsStateService,
-        private _org: OrganisationService,
-        private _settings: SettingsService,
-    ) {}
 
     public ngOnInit() {
         this._show =

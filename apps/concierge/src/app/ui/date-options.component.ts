@@ -1,10 +1,4 @@
-import {
-    Component,
-    EventEmitter,
-    Input,
-    Output,
-    SimpleChanges,
-} from '@angular/core';
+import { Component, EventEmitter, Input, Output, SimpleChanges, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
 import {
@@ -100,6 +94,9 @@ import {
     standalone: false,
 })
 export class DateOptionsComponent extends AsyncHandler {
+    private _router = inject(Router);
+    private _route = inject(ActivatedRoute);
+
     @Input() public is_new = false;
     @Input() public disabled = false;
     /** Index of the day to start the week on when displaying the calendar */
@@ -119,13 +116,6 @@ export class DateOptionsComponent extends AsyncHandler {
 
     public get is_today() {
         return isSameDay(this.date, Date.now()) && !this.hide_today;
-    }
-
-    constructor(
-        private _router: Router,
-        private _route: ActivatedRoute,
-    ) {
-        super();
     }
 
     public ngOnInit() {

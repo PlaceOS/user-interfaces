@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { SettingsService } from '@placeos/common';
 
 const DEFAULT_FEATURES = ['desks', 'spaces', 'catering', 'contact-tracing'];
@@ -107,6 +107,8 @@ const DEFAULT_FEATURES = ['desks', 'spaces', 'catering', 'contact-tracing'];
     standalone: false,
 })
 export class ReportsMenuComponent {
+    private _settings = inject(SettingsService);
+
     public get custom_reports() {
         return this._settings.get('app.custom_reports') || [];
     }
@@ -114,6 +116,4 @@ export class ReportsMenuComponent {
     public get features() {
         return this._settings.get('app.reports.features') || DEFAULT_FEATURES;
     }
-
-    constructor(private _settings: SettingsService) {}
 }

@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, ViewChild, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AsyncHandler, currentUser } from '@placeos/common';
 import { ChatService } from 'libs/components/src/lib/chat/chat.service';
@@ -222,6 +222,10 @@ declare let loadVosklet: any;
     standalone: false,
 })
 export class PanelViewComponent extends AsyncHandler {
+    private _route = inject(ActivatedRoute);
+    private _chat = inject(ChatService);
+    private _org = inject(OrganisationService);
+
     public scale = 1;
     public current_text = '';
     public last_text = '';
@@ -263,14 +267,6 @@ export class PanelViewComponent extends AsyncHandler {
 
     public get user() {
         return currentUser();
-    }
-
-    constructor(
-        private _route: ActivatedRoute,
-        private _chat: ChatService,
-        private _org: OrganisationService,
-    ) {
-        super();
     }
 
     public async ngOnInit() {

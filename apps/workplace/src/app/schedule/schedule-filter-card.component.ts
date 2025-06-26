@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { SettingsService } from '@placeos/common';
 import { ScheduleStateService } from './schedule-state.service';
@@ -217,6 +217,10 @@ import { ScheduleStateService } from './schedule-state.service';
     standalone: false,
 })
 export class ScheduleFilterCardComponent {
+    private _state = inject(ScheduleStateService);
+    private _settings = inject(SettingsService);
+    private _sheet_ref = inject<MatBottomSheetRef<ScheduleFilterCardComponent>>(MatBottomSheetRef);
+
     public readonly filters = this._state.filters;
 
     public readonly toggleType = (t) => this._state.toggleType(t);
@@ -225,10 +229,4 @@ export class ScheduleFilterCardComponent {
     public hasFeature(feature: string) {
         return this._settings.get('app.features')?.includes(feature);
     }
-
-    constructor(
-        private _state: ScheduleStateService,
-        private _settings: SettingsService,
-        private _sheet_ref: MatBottomSheetRef<ScheduleFilterCardComponent>,
-    ) {}
 }

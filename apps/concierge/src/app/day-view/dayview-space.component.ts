@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { map } from 'rxjs/operators';
 
 import { AsyncHandler } from '@placeos/common';
@@ -25,6 +25,8 @@ import { EventsStateService } from './events-state.service';
     standalone: false,
 })
 export class DayviewSpaceComponent extends AsyncHandler implements OnInit {
+    private _state = inject(EventsStateService);
+
     /** Space to display events for */
     @Input() public space: Space;
 
@@ -37,10 +39,6 @@ export class DayviewSpaceComponent extends AsyncHandler implements OnInit {
             );
         }),
     );
-
-    constructor(private _state: EventsStateService) {
-        super();
-    }
 
     public ngOnInit(): void {
         this.subscription('events', this._state.filtered.subscribe());

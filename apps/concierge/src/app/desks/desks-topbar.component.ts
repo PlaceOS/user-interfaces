@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { first } from 'rxjs/operators';
 
@@ -135,6 +135,12 @@ import { DesksStateService } from './desks-state.service';
     standalone: false,
 })
 export class DesksTopbarComponent extends AsyncHandler implements OnInit {
+    private _desks = inject(DesksStateService);
+    private _org = inject(OrganisationService);
+    private _route = inject(ActivatedRoute);
+    private _router = inject(Router);
+    private _dialog = inject(MatDialog);
+
     /** List of levels for the active building */
     public readonly levels = this._org.active_levels;
     /** List of levels for the active building */
@@ -154,16 +160,6 @@ export class DesksTopbarComponent extends AsyncHandler implements OnInit {
         });
         this._desks.setFilters({ zones });
     };
-
-    constructor(
-        private _desks: DesksStateService,
-        private _org: OrganisationService,
-        private _route: ActivatedRoute,
-        private _router: Router,
-        private _dialog: MatDialog,
-    ) {
-        super();
-    }
 
     public async ngOnInit() {
         await this._org.initialised.pipe(first((_) => _)).toPromise();

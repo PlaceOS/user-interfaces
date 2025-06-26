@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { AsyncHandler, currentUser } from '@placeos/common';
 import { CalendarEvent } from '@placeos/events';
 
@@ -61,16 +61,14 @@ import { startOfMinute } from 'date-fns';
     standalone: false,
 })
 export class UpcomingBookingsComponent extends AsyncHandler implements OnInit {
+    private _schedule = inject(ScheduleStateService);
+
     public user = currentUser();
     public readonly loading$ = this._schedule.loading;
     public readonly events$ = this._schedule.filtered_bookings;
 
     public get now() {
         return startOfMinute(Date.now());
-    }
-
-    constructor(private _schedule: ScheduleStateService) {
-        super();
     }
 
     public ngOnInit(): void {

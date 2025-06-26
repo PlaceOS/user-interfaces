@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { OrganisationService } from '@placeos/organisation';
 import { PointsStateService } from './points-state.service';
 
@@ -104,6 +104,9 @@ export interface PointAsset {
     standalone: false,
 })
 export class PointsAssetsComponent {
+    private _state = inject(PointsStateService);
+    private _org = inject(OrganisationService);
+
     public asset_list = this._state.assets;
 
     public readonly edit = (d) => this._state.newAsset(d);
@@ -112,9 +115,4 @@ export class PointsAssetsComponent {
     public get code() {
         return this._org.currency_code;
     }
-
-    constructor(
-        private _state: PointsStateService,
-        private _org: OrganisationService,
-    ) {}
 }

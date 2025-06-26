@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 
@@ -25,6 +25,9 @@ const EMPTY = {};
     standalone: false,
 })
 export class CustomReportComponent extends AsyncHandler {
+    private _settings = inject(SettingsService);
+    private _route = inject(ActivatedRoute);
+
     public id = '';
 
     public get report_url() {
@@ -39,13 +42,6 @@ export class CustomReportComponent extends AsyncHandler {
             url +
             (report.api_key ? `&key=${encodeURIComponent(report.api_key)}` : '')
         );
-    }
-
-    constructor(
-        private _settings: SettingsService,
-        private _route: ActivatedRoute,
-    ) {
-        super();
     }
 
     public ngOnInit() {

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
@@ -99,6 +99,11 @@ import { debounceTime, first, map } from 'rxjs/operators';
     standalone: false,
 })
 export class AppTimetableComponent extends AsyncHandler {
+    private _settings = inject(SettingsService);
+    private _route = inject(ActivatedRoute);
+    private _spaces = inject(SpacesService);
+    private _org = inject(OrganisationService);
+
     public spaces: Space[] = [];
     public date = Date.now();
     public readonly hours = new Array(24)
@@ -122,15 +127,6 @@ export class AppTimetableComponent extends AsyncHandler {
                     : this._settings.get('app.logo_light')) || {},
         ),
     );
-
-    constructor(
-        private _settings: SettingsService,
-        private _route: ActivatedRoute,
-        private _spaces: SpacesService,
-        private _org: OrganisationService,
-    ) {
-        super();
-    }
 
     public async ngOnInit() {
         await this._spaces.initialised.pipe(first((_) => _)).toPromise();

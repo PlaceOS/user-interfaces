@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { Router } from '@angular/router';
 import { AsyncHandler, HashMap, i18n, nextValueFrom } from '@placeos/common';
@@ -324,6 +324,15 @@ import { RoomConfirmService } from './room-confirm.service';
     standalone: false,
 })
 export class FindSpaceComponent extends AsyncHandler implements OnInit {
+    private _bottomSheet = inject(MatBottomSheet);
+    private _org = inject(OrganisationService);
+    private _spaces = inject(SpacesService);
+    private _state = inject(EventFormService);
+    private _featuresFilterService = inject(FeaturesFilterService);
+    private _mapService = inject(MapService);
+    private _roomConfirmService = inject(RoomConfirmService);
+    private _router = inject(Router);
+
     start_time$: Observable<any>;
     duration_minutes: number;
     end_time$: Observable<any>;
@@ -383,19 +392,6 @@ export class FindSpaceComponent extends AsyncHandler implements OnInit {
 
     public readonly setBuilding = (b) => (this._org.building = b);
     public readonly setOptions = (o) => this._state.setOptions(o);
-
-    constructor(
-        private _bottomSheet: MatBottomSheet,
-        private _org: OrganisationService,
-        private _spaces: SpacesService,
-        private _state: EventFormService,
-        private _featuresFilterService: FeaturesFilterService,
-        private _mapService: MapService,
-        private _roomConfirmService: RoomConfirmService,
-        private _router: Router,
-    ) {
-        super();
-    }
 
     public async ngOnInit() {
         this.space_view = 'listView';

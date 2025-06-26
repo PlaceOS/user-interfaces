@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
     addMinutes,
@@ -90,6 +90,10 @@ function periodFor(period, date, tz_offset = 0, week_start: DayOfWeek = 0) {
     providedIn: 'root',
 })
 export class EventsStateService extends AsyncHandler {
+    private _org = inject(OrganisationService);
+    private _dialog = inject(MatDialog);
+    private _settings = inject(SettingsService);
+
     /** Emitter for poll events */
     private _poll = new BehaviorSubject<number>(0);
     /** Period to list bookings for */
@@ -259,14 +263,6 @@ export class EventsStateService extends AsyncHandler {
 
     public getDate() {
         return this._date.getValue();
-    }
-
-    constructor(
-        private _org: OrganisationService,
-        private _dialog: MatDialog,
-        private _settings: SettingsService,
-    ) {
-        super();
     }
 
     public readonly setFilters = (details: BookingFilters) =>

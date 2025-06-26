@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import {
     MAT_BOTTOM_SHEET_DATA,
     MatBottomSheetRef,
@@ -142,6 +142,11 @@ import { RoomConfirmService } from './room-confirm.service';
     standalone: false,
 })
 export class RoomConfirmComponent implements OnInit {
+    data = inject(MAT_BOTTOM_SHEET_DATA);
+    private _bottomSheetRef = inject<MatBottomSheetRef<RoomConfirmComponent>>(MatBottomSheetRef);
+    private _state = inject(EventFormService);
+    private _roomConfirmService = inject(RoomConfirmService);
+
     unix_time: number;
     start_time: string;
     end_time: string;
@@ -154,13 +159,6 @@ export class RoomConfirmComponent implements OnInit {
         return this._state.form;
     }
     public loading = this._state.loading$;
-
-    constructor(
-        @Inject(MAT_BOTTOM_SHEET_DATA) public data: any,
-        private _bottomSheetRef: MatBottomSheetRef<RoomConfirmComponent>,
-        private _state: EventFormService,
-        private _roomConfirmService: RoomConfirmService,
-    ) {}
 
     async ngOnInit() {
         this.unix_time = this.form?.controls?.date.value;

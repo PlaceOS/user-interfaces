@@ -1,5 +1,5 @@
 import { CdkDragDrop } from '@angular/cdk/drag-drop';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { AsyncHandler, notifyError, notifySuccess } from '@placeos/common';
 import {
@@ -26,6 +26,8 @@ export interface QuestionFilter {
 
 @Injectable()
 export class QuestionBankService extends AsyncHandler {
+    private _dialog = inject(MatDialog);
+
     private readonly _questions = new BehaviorSubject<Question[]>([]);
     readonly questions$ = this._questions.asObservable();
     private get questions() {
@@ -79,7 +81,7 @@ export class QuestionBankService extends AsyncHandler {
     );
     private filteredQuestions = [];
 
-    constructor(private _dialog: MatDialog) {
+    constructor() {
         super();
         this.loadQuestions();
     }

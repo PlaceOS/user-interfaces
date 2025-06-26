@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { AsyncHandler, nextValueFrom } from '@placeos/common';
 import { MapPinComponent } from '@placeos/components';
@@ -27,6 +27,9 @@ export interface MapsList {
     providedIn: 'root',
 })
 export class MapService extends AsyncHandler {
+    private _bottomSheet = inject(MatBottomSheet);
+    private _roomConfirmService = inject(RoomConfirmService);
+
     public level: BuildingLevel;
     public style_map: ViewerStyles = {};
     public item: Locatable;
@@ -86,13 +89,6 @@ export class MapService extends AsyncHandler {
 
     get maps_list() {
         return this._maps_list.getValue();
-    }
-
-    constructor(
-        private _bottomSheet: MatBottomSheet,
-        private _roomConfirmService: RoomConfirmService,
-    ) {
-        super();
     }
 
     async locateSpaces(available_spaces: Observable<Space[]>) {

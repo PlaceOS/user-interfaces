@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { startOfMinute } from 'date-fns';
@@ -48,6 +48,9 @@ import { debounceTime, map } from 'rxjs/operators';
     standalone: false,
 })
 export class TopbarHeaderComponent {
+    private _settings = inject(SettingsService);
+    private _org = inject(OrganisationService);
+
     public date: number;
 
     public readonly logo = this._org.active_building.pipe(
@@ -63,9 +66,4 @@ export class TopbarHeaderComponent {
     public get time() {
         return startOfMinute(Date.now());
     }
-
-    constructor(
-        private _settings: SettingsService,
-        private _org: OrganisationService,
-    ) {}
 }

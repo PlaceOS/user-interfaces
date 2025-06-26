@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { map } from 'rxjs/operators';
 import { ControlStateService } from '../control-state.service';
 
@@ -28,6 +28,8 @@ import { ControlStateService } from '../control-state.service';
     standalone: false,
 })
 export class JoinRoomTooltipComponent {
+    private _state = inject(ControlStateService);
+
     public readonly modes = this._state.join_modes.pipe(
         map((mapping) => {
             const list = [];
@@ -42,6 +44,4 @@ export class JoinRoomTooltipComponent {
     );
     public readonly active = this._state.joined_id;
     public readonly join = (id) => this._state.join(id);
-
-    constructor(private _state: ControlStateService) {}
 }

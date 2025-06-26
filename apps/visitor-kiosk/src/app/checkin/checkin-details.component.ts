@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { nextValueFrom, SettingsService } from '@placeos/common';
 import { first } from 'rxjs/operators';
@@ -139,6 +139,10 @@ import { CheckinStateService } from './checkin-state.service';
     standalone: false,
 })
 export class CheckinDetailsComponent implements OnInit {
+    private _checkin = inject(CheckinStateService);
+    private _router = inject(Router);
+    private _settings = inject(SettingsService);
+
     public readonly form = this._checkin.form;
 
     public loading = false;
@@ -153,12 +157,6 @@ export class CheckinDetailsComponent implements OnInit {
             this._settings.get('app.allow_printing_label') !== false
         );
     }
-
-    constructor(
-        private _checkin: CheckinStateService,
-        private _router: Router,
-        private _settings: SettingsService,
-    ) {}
 
     public async ngOnInit() {
         const form = await nextValueFrom(this.form.pipe(first()));

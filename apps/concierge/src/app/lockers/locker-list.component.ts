@@ -1,5 +1,5 @@
 import { Clipboard } from '@angular/cdk/clipboard';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { Booking, Locker } from '@placeos/bookings';
 import { AsyncHandler, i18n, notifySuccess } from '@placeos/common';
 import { combineLatest } from 'rxjs';
@@ -326,6 +326,9 @@ import { LockerStateService } from './locker-state.service';
     standalone: false,
 })
 export class LockerListComponent extends AsyncHandler implements OnInit {
+    private _state = inject(LockerStateService);
+    private _clipboard = inject(Clipboard);
+
     public show_children = {};
     public readonly locker_banks = this._state.filtered_banks;
     public readonly lockers = this._state.filtered_lockers;
@@ -347,13 +350,6 @@ export class LockerListComponent extends AsyncHandler implements OnInit {
 
     public get has_driver() {
         return this._state.has_driver;
-    }
-
-    constructor(
-        private _state: LockerStateService,
-        private _clipboard: Clipboard,
-    ) {
-        super();
     }
 
     public ngOnInit() {

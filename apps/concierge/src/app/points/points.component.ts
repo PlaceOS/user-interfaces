@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
 import { PointsStateService } from './points-state.service';
@@ -60,17 +60,13 @@ import { PointsStateService } from './points-state.service';
     standalone: false,
 })
 export class PointsComponent extends AsyncHandler implements OnInit {
+    private _state = inject(PointsStateService);
+    private _router = inject(Router);
+
     /** Page being displayed */
     public page: string;
 
     public readonly newAsset = () => this._state.newAsset();
-
-    constructor(
-        private _state: PointsStateService,
-        private _router: Router,
-    ) {
-        super();
-    }
 
     public ngOnInit() {
         this.subscription(

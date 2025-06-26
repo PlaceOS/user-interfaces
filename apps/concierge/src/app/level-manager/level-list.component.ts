@@ -1,5 +1,5 @@
 import { Clipboard } from '@angular/cdk/clipboard';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { i18n, notifySuccess } from '@placeos/common';
 import { BookingPanelSettingsModalComponent } from '../ui/app-settings/booking-panel-settings-modal.component';
@@ -120,6 +120,10 @@ import { LevelManagementService } from './level-management.service';
     standalone: false,
 })
 export class LevelListComponent {
+    private _manager = inject(LevelManagementService);
+    private _clipboard = inject(Clipboard);
+    private _dialog = inject(MatDialog);
+
     public readonly levels = this._manager.filtered_levels;
 
     public readonly editLevel = (level) => this._manager.editLevel(level);
@@ -129,12 +133,6 @@ export class LevelListComponent {
         const success = this._clipboard.copy(id);
         if (success) notifySuccess(i18n('APP.CONCIERGE.LEVELS_COPIED_ID'));
     };
-
-    constructor(
-        private _manager: LevelManagementService,
-        private _clipboard: Clipboard,
-        private _dialog: MatDialog,
-    ) {}
 
     public editBookingPanelSettings(level) {
         this._dialog.open(BookingPanelSettingsModalComponent, {

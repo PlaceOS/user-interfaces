@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import {
     MatBottomSheet,
     MatBottomSheetRef,
@@ -48,6 +48,10 @@ import { MeetingFlowConfirmComponent } from 'apps/workplace/src/app/book/meeting
     standalone: false,
 })
 export class MeetingBookingComponent {
+    private _service = inject(EventFormService);
+    private _router = inject(Router);
+    private _bottom_sheet = inject(MatBottomSheet);
+
     public sheet_ref: MatBottomSheetRef;
 
     public readonly clearForm = () => this._service.clearForm();
@@ -55,12 +59,6 @@ export class MeetingBookingComponent {
     public get form() {
         return this._service.form;
     }
-
-    constructor(
-        private _service: EventFormService,
-        private _router: Router,
-        private _bottom_sheet: MatBottomSheet,
-    ) {}
 
     public makeBooking() {
         if (!this.form.value.host)

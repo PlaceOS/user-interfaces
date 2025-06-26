@@ -1,4 +1,4 @@
-import { Component, Input, SimpleChanges } from '@angular/core';
+import { Component, Input, SimpleChanges, inject } from '@angular/core';
 import { CalendarEvent } from '@placeos/events';
 import { Space } from '@placeos/spaces';
 import { Observable } from 'rxjs';
@@ -33,11 +33,11 @@ import { TimetableStateService } from './timetable-state.service';
     standalone: false,
 })
 export class SpaceTimetableComponent {
+    private _state = inject(TimetableStateService);
+
     @Input() public space?: Space;
 
     public bookings: Observable<CalendarEvent[]>;
-
-    constructor(private _state: TimetableStateService) {}
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.space && this.space?.id) {

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { getModule } from '@placeos/ts-client';
 import { ControlStateService } from '../control-state.service';
 
@@ -38,6 +38,8 @@ import { ControlStateService } from '../control-state.service';
     standalone: false,
 })
 export class PhoneDiallingTooltipComponent {
+    private _state = inject(ControlStateService);
+
     public phone = '';
     public system = this._state.system;
 
@@ -58,6 +60,4 @@ export class PhoneDiallingTooltipComponent {
     public readonly dialPhone = () => this.action('qsc_dial_makecall');
     public readonly hangup = () => this.action('qsc_dial_hangup');
     public readonly clear = () => this.action('qsc_dial_pad_clear');
-
-    constructor(private _state: ControlStateService) {}
 }

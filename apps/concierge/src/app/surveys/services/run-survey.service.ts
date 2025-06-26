@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { notifyError, notifySuccess, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { UISurveyObj } from '@placeos/survey-suite';
@@ -10,6 +10,10 @@ import { SurveyService } from './survey.service';
 
 @Injectable()
 export class RunSurveyService {
+    private _survey = inject(SurveyService);
+    private _settings = inject(SettingsService);
+    private _org = inject(OrganisationService);
+
     private readonly _loading = new BehaviorSubject<string>('');
     public readonly loading$ = this._loading.asObservable();
     public get loading() {
@@ -21,11 +25,6 @@ export class RunSurveyService {
 
     surveyModel: Model;
     uiSurvey: UISurveyObj;
-    constructor(
-        private _survey: SurveyService,
-        private _settings: SettingsService,
-        private _org: OrganisationService,
-    ) {}
 
     public async loadSurvey(survey_id: string) {
         this.loading = 'Loading survey...';

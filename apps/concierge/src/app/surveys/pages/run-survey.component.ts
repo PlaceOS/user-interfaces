@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
 import { RunSurveyService } from '../services/run-survey.service';
@@ -35,13 +35,10 @@ import { RunSurveyService } from '../services/run-survey.service';
     standalone: false,
 })
 export class RunSurveyComponent extends AsyncHandler implements OnInit {
+    private route = inject(ActivatedRoute);
+    service = inject(RunSurveyService);
+
     loading$ = this.service.loading$;
-    constructor(
-        private route: ActivatedRoute,
-        public service: RunSurveyService,
-    ) {
-        super();
-    }
 
     ngOnInit(): void {
         this.subscription(

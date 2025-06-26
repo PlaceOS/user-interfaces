@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -75,6 +75,8 @@ import { GroupEventsStateService } from './group-events-state.service';
     standalone: false,
 })
 export class GroupEventsComponent extends AsyncHandler {
+    private _state = inject(GroupEventsStateService);
+
     public readonly event_list = this._state.filtered_events;
     public readonly featured = this.event_list.pipe(
         map((_) =>
@@ -89,8 +91,4 @@ export class GroupEventsComponent extends AsyncHandler {
             list.filter((_: any) => _.id !== featured?.id),
         ),
     );
-
-    constructor(private _state: GroupEventsStateService) {
-        super();
-    }
 }

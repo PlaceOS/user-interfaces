@@ -1,5 +1,5 @@
 import { Clipboard } from '@angular/cdk/clipboard';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { nextValueFrom, notifySuccess } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
@@ -223,6 +223,10 @@ export interface EmergencyContactData {
     standalone: false,
 })
 export class EmergencyContactsComponent {
+    private _org = inject(OrganisationService);
+    private _dialog = inject(MatDialog);
+    private _clipboard = inject(Clipboard);
+
     private _change = new BehaviorSubject<number>(0);
 
     public search = '';
@@ -251,12 +255,6 @@ export class EmergencyContactsComponent {
         const success = this._clipboard.copy(id);
         if (success) notifySuccess("User's email copied to clipboard.");
     };
-
-    constructor(
-        private _org: OrganisationService,
-        private _dialog: MatDialog,
-        private _clipboard: Clipboard,
-    ) {}
 
     public ngOnInit() {}
 

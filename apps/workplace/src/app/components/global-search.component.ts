@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, ViewChild, inject } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
 
 import { ExploreSearchService } from '@placeos/explore';
@@ -126,6 +126,8 @@ import { ExploreSearchService } from '@placeos/explore';
     standalone: false,
 })
 export class GlobalSearchComponent extends AsyncHandler {
+    private _service = inject(ExploreSearchService);
+
     public readonly results = this._service.search_results;
     public readonly loading = this._service.loading;
     public show = false;
@@ -138,10 +140,6 @@ export class GlobalSearchComponent extends AsyncHandler {
             : this._service.setFilter(s);
 
     @ViewChild('input') public _input_el: ElementRef<HTMLInputElement>;
-
-    constructor(private _service: ExploreSearchService) {
-        super();
-    }
 
     public showInput() {
         this.show = true;

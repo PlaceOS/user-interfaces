@@ -1,12 +1,4 @@
-import {
-    Component,
-    ElementRef,
-    EventEmitter,
-    Input,
-    Output,
-    Renderer2,
-    ViewChild,
-} from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, Output, Renderer2, ViewChild, inject } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
 import { Point } from '@placeos/svg-viewer';
 
@@ -83,6 +75,8 @@ export enum JoystickPan {
     standalone: false,
 })
 export class JoystickComponent extends AsyncHandler {
+    private _renderer = inject(Renderer2);
+
     @Input() public pan: JoystickPan;
     @Input() public tilt: JoystickTilt;
 
@@ -93,10 +87,6 @@ export class JoystickComponent extends AsyncHandler {
     private _panning_el: ElementRef<HTMLDivElement>;
 
     private _box: ClientRect;
-
-    constructor(private _renderer: Renderer2) {
-        super();
-    }
 
     public get thumb_transform() {
         return `translate(${

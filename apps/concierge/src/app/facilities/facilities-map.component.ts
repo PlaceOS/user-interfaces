@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 
 import { AsyncHandler } from '@placeos/common';
 import { ExploreStateService } from '@placeos/explore';
@@ -29,6 +29,9 @@ import { EventsStateService } from '../day-view/events-state.service';
     standalone: false,
 })
 export class FacilitiesMapComponent extends AsyncHandler {
+    private _explore = inject(ExploreStateService);
+    private _state = inject(EventsStateService);
+
     /** Observable for the active map */
     public readonly url = this._explore.map_url;
     /** Observable for the active map */
@@ -39,13 +42,6 @@ export class FacilitiesMapComponent extends AsyncHandler {
     public readonly features = this._explore.map_features;
     /** Observable for the active map */
     public readonly actions = this._explore.map_actions;
-
-    constructor(
-        private _explore: ExploreStateService,
-        private _state: EventsStateService,
-    ) {
-        super();
-    }
 
     public ngOnInit() {
         this.subscription(

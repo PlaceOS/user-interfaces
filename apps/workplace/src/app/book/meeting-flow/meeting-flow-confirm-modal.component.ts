@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, Input, OnInit, Optional } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { addMinutes, endOfDay, startOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest } from 'rxjs';
@@ -456,6 +456,13 @@ export class MeetingFlowConfirmModalComponent
     extends AsyncHandler
     implements OnInit
 {
+    private _event_form = inject(EventFormService);
+    private _org = inject(OrganisationService);
+    private _space_pipe = inject(SpacePipe);
+    private _dialog_ref = inject<MatDialogRef<MeetingFlowConfirmModalComponent>>(MatDialogRef, { optional: true });
+    private _dialog = inject(MatDialog);
+    private _settings = inject(SettingsService);
+
     @Input() public show_close = false;
 
     private _loading = new BehaviorSubject(false);
@@ -584,18 +591,6 @@ export class MeetingFlowConfirmModalComponent
                 start: this.event.date || this.event.recurrence.start,
             }),
         );
-    }
-
-    constructor(
-        private _event_form: EventFormService,
-        private _org: OrganisationService,
-        private _space_pipe: SpacePipe,
-        @Optional()
-        private _dialog_ref: MatDialogRef<MeetingFlowConfirmModalComponent>,
-        private _dialog: MatDialog,
-        private _settings: SettingsService,
-    ) {
-        super();
     }
 
     public async ngOnInit() {

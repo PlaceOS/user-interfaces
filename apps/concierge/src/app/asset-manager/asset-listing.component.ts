@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
 import { AssetManagerStateService } from './asset-manager-state.service';
@@ -60,18 +60,14 @@ import { AssetManagerStateService } from './asset-manager-state.service';
     standalone: false,
 })
 export class AssetListingComponent extends AsyncHandler {
+    private _router = inject(Router);
+    private _state = inject(AssetManagerStateService);
+
     public active = 'requests';
     public is_new = true;
 
     public get base_route() {
         return this._state.base_route;
-    }
-
-    constructor(
-        private _router: Router,
-        private _state: AssetManagerStateService,
-    ) {
-        super();
     }
 
     public ngOnInit() {

@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { i18n, notifyError, notifySuccess } from '@placeos/common';
@@ -74,6 +74,12 @@ import { PlaceSystem, showMetadata, updateMetadata } from '@placeos/ts-client';
     standalone: false,
 })
 export class RoomAlertModalComponent {
+    private _data = inject<{
+    room: PlaceSystem;
+}>(MAT_DIALOG_DATA);
+    private _dialog_ref = inject<MatDialogRef<RoomAlertModalComponent>>(MatDialogRef);
+    private _org = inject(OrganisationService);
+
     public loading = false;
     public readonly room: PlaceSystem = this._data.room;
     public readonly form = new FormGroup({
@@ -81,11 +87,7 @@ export class RoomAlertModalComponent {
         message: new FormControl(''),
     });
 
-    constructor(
-        @Inject(MAT_DIALOG_DATA) private _data: { room: PlaceSystem },
-        private _dialog_ref: MatDialogRef<RoomAlertModalComponent>,
-        private _org: OrganisationService,
-    ) {
+    constructor() {
         this.form.patchValue((this.room as any).alert || {});
     }
 

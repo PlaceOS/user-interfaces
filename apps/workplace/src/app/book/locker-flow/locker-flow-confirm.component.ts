@@ -1,4 +1,4 @@
-import { Component, Input, Optional } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { BookingAsset, BookingFormService } from '@placeos/bookings';
 import {
@@ -102,6 +102,11 @@ import { OrganisationService } from '@placeos/organisation';
     standalone: false,
 })
 export class BookLockerFlowConfirmComponent extends AsyncHandler {
+    private _state = inject(BookingFormService);
+    private _org = inject(OrganisationService);
+    private _sheet_ref = inject(MatBottomSheetRef, { optional: true });
+    private _settings = inject(SettingsService);
+
     @Input() public show_close = false;
 
     public readonly loading = this._state.loading;
@@ -150,14 +155,5 @@ export class BookLockerFlowConfirmComponent extends AsyncHandler {
         return `${level?.display_name || level?.name}${building ? ',' : ''} ${
             building?.address || building?.display_name || building?.name || ''
         }`;
-    }
-
-    constructor(
-        private _state: BookingFormService,
-        private _org: OrganisationService,
-        @Optional() private _sheet_ref: MatBottomSheetRef,
-        private _settings: SettingsService,
-    ) {
-        super();
     }
 }

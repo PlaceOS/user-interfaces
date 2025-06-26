@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { PanelStateService } from '../panel-state.service';
 
 @Component({
@@ -17,7 +17,7 @@ import { PanelStateService } from '../panel-state.service';
     standalone: false,
 })
 export class PanelStatusComponent {
-    public readonly settings = this._state.settings;
+    private _state = inject(PanelStateService);
 
-    constructor(private _state: PanelStateService) {}
+    public readonly settings = this._state.settings;
 }

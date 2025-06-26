@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AsyncHandler, SettingsService } from '@placeos/common';
@@ -72,6 +72,13 @@ import { RoomManagementService } from './room-management.service';
     standalone: false,
 })
 export class RoomManagerTopbarComponent extends AsyncHandler implements OnInit {
+    private _manager = inject(RoomManagementService);
+    private _org = inject(OrganisationService);
+    private _route = inject(ActivatedRoute);
+    private _router = inject(Router);
+    private _dialog = inject(MatDialog);
+    private _settings = inject(SettingsService);
+
     /** List of levels for the active building */
     public readonly levels = combineLatest([
         this._org.active_building,
@@ -113,17 +120,6 @@ export class RoomManagerTopbarComponent extends AsyncHandler implements OnInit {
             (this.use_region ? this._org.region.id : '') ||
             this._org.building.id
         );
-    }
-
-    constructor(
-        private _manager: RoomManagementService,
-        private _org: OrganisationService,
-        private _route: ActivatedRoute,
-        private _router: Router,
-        private _dialog: MatDialog,
-        private _settings: SettingsService,
-    ) {
-        super();
     }
 
     public manageRestrictions() {

@@ -1,4 +1,4 @@
-import { Component, OnInit, Renderer2 } from '@angular/core';
+import { Component, OnInit, Renderer2, inject } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
 import { getModule } from '@placeos/ts-client';
 import { CustomTooltipData } from 'libs/components/src/lib/custom-tooltip.component';
@@ -202,6 +202,10 @@ export enum ZoomDirection {
     standalone: false,
 })
 export class CameraTooltipComponent extends AsyncHandler implements OnInit {
+    private _state = inject(ControlStateService);
+    private _tooltip = inject(CustomTooltipData);
+    private _renderer = inject(Renderer2);
+
     /** Currently active camera */
     public active_camera: RoomInput;
     /** List of available presets for the active camera */
@@ -221,14 +225,6 @@ export class CameraTooltipComponent extends AsyncHandler implements OnInit {
 
     public get id(): string {
         return this._state.id;
-    }
-
-    constructor(
-        private _state: ControlStateService,
-        private _tooltip: CustomTooltipData,
-        private _renderer: Renderer2,
-    ) {
-        super();
     }
 
     public ngOnInit() {

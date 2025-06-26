@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { i18n, notifyError, notifySuccess } from '@placeos/common';
 import { BuildingLevel, OrganisationService } from '@placeos/organisation';
@@ -18,6 +18,9 @@ export interface LevelListOptions {
     providedIn: 'root',
 })
 export class LevelManagementService {
+    private _org = inject(OrganisationService);
+    private _dialog = inject(MatDialog);
+
     private _options = new BehaviorSubject<LevelListOptions>({});
     private _change = new BehaviorSubject(0);
 
@@ -58,11 +61,6 @@ export class LevelManagementService {
         }),
         shareReplay(1),
     );
-
-    constructor(
-        private _org: OrganisationService,
-        private _dialog: MatDialog,
-    ) {}
 
     public setFilters(options: Partial<LevelListOptions>) {
         this._options.next({ ...this._options.getValue(), ...options });

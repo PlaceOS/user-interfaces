@@ -250,7 +250,8 @@ export class GroupEventCardComponent {
     }
 
     public async ngOnInit() {
-        const space_pipe = new SpacePipe(this._org);
+        const space_pipe = new SpacePipe();
+        space_pipe.org = this._org;
         const resource = this.event.resources.find(
             (_) => _.email !== this.group_event_calendar,
         );

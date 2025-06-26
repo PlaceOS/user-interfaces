@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { first, map } from 'rxjs/operators';
 
@@ -160,6 +160,14 @@ import { combineLatest } from 'rxjs';
     standalone: false,
 })
 export class CateringTopbarComponent extends AsyncHandler implements OnInit {
+    private _orders = inject(CateringOrdersService);
+    private _catering = inject(CateringStateService);
+    private _org = inject(OrganisationService);
+    private _route = inject(ActivatedRoute);
+    private _router = inject(Router);
+    private _dialog = inject(MatDialog);
+    private _settings = inject(SettingsService);
+
     /** List of selected levels */
     public zones: string[] = [];
     /** Currently active page */
@@ -205,18 +213,6 @@ export class CateringTopbarComponent extends AsyncHandler implements OnInit {
 
     public get use_region() {
         return !!this._settings.get('app.use_region');
-    }
-
-    constructor(
-        private _orders: CateringOrdersService,
-        private _catering: CateringStateService,
-        private _org: OrganisationService,
-        private _route: ActivatedRoute,
-        private _router: Router,
-        private _dialog: MatDialog,
-        private _settings: SettingsService,
-    ) {
-        super();
     }
 
     public async ngOnInit() {

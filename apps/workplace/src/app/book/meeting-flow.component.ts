@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
@@ -31,18 +31,14 @@ import { EventFormService } from '@placeos/events';
     standalone: false,
 })
 export class BookMeetingFlowComponent extends AsyncHandler implements OnInit {
+    private _state = inject(EventFormService);
+    private _route = inject(ActivatedRoute);
+
     public get view() {
         return this._state.view;
     }
     public get last_success() {
         return this._state.last_success;
-    }
-
-    constructor(
-        private _state: EventFormService,
-        private _route: ActivatedRoute,
-    ) {
-        super();
     }
 
     public ngOnInit() {

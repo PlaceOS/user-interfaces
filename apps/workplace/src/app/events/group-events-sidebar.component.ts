@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { AsyncHandler, nextValueFrom, SettingsService } from '@placeos/common';
 import {
     addDays,
@@ -99,19 +99,15 @@ export class GroupEventsSidebarComponent
     extends AsyncHandler
     implements OnInit
 {
+    private _settings = inject(SettingsService);
+    private _state = inject(GroupEventsStateService);
+
     public period = new BehaviorSubject<'week' | 'month'>('week');
     public period_list = [];
     public selected_range: number;
     public readonly options = this._state.options;
     public readonly filters = this._state.filters;
     public readonly tags = this._state.tags;
-
-    constructor(
-        private _settings: SettingsService,
-        private _state: GroupEventsStateService,
-    ) {
-        super();
-    }
 
     public ngOnInit(): void {
         this.subscription(

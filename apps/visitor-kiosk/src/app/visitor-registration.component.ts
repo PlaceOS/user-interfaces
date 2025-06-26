@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { startOfMinute } from 'date-fns';
@@ -132,6 +132,12 @@ import { CheckinStateService } from './checkin/checkin-state.service';
     standalone: false,
 })
 export class VisitorRegistrationComponent implements OnInit {
+    private _settings = inject(SettingsService);
+    private _booking_form = inject(BookingFormService);
+    private _checkin = inject(CheckinStateService);
+    private _router = inject(Router);
+    private _org = inject(OrganisationService);
+
     public loading = false;
     public readonly form = this._booking_form.form;
 
@@ -153,14 +159,6 @@ export class VisitorRegistrationComponent implements OnInit {
     public get induction_after_details() {
         return this._settings.get('app.induction_after_details');
     }
-
-    constructor(
-        private _settings: SettingsService,
-        private _booking_form: BookingFormService,
-        private _checkin: CheckinStateService,
-        private _router: Router,
-        private _org: OrganisationService,
-    ) {}
 
     public ngOnInit() {
         this._booking_form.clearOldState();

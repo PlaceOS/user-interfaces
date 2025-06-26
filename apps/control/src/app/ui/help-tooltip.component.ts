@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CustomTooltipData } from 'libs/components/src/lib/custom-tooltip.component';
 
 import { ControlStateService } from '../control-state.service';
@@ -37,6 +37,9 @@ import { ControlStateService } from '../control-state.service';
     standalone: false,
 })
 export class HelpTooltipComponent {
+    private _state = inject(ControlStateService);
+    private _tooltip = inject(CustomTooltipData);
+
     public support_contact: string;
 
     public support_email: string;
@@ -45,9 +48,4 @@ export class HelpTooltipComponent {
 
     /** Close the tooltip */
     public readonly close = () => this._tooltip.close();
-
-    constructor(
-        private _state: ControlStateService,
-        private _tooltip: CustomTooltipData,
-    ) {}
 }

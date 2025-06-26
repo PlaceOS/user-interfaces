@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { formatDuration, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { debounceTime, map } from 'rxjs/operators';
@@ -131,6 +131,10 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
     standalone: false,
 })
 export class ContactTracingReportComponent {
+    private _state = inject(ContactTracingStateService);
+    private _settings = inject(SettingsService);
+    private _org = inject(OrganisationService);
+
     public printing = false;
 
     public readonly loading = this._state.loading;
@@ -155,10 +159,4 @@ export class ContactTracingReportComponent {
                     : this._settings.get('app.logo_light')) || {},
         ),
     );
-
-    constructor(
-        private _state: ContactTracingStateService,
-        private _settings: SettingsService,
-        private _org: OrganisationService,
-    ) {}
 }

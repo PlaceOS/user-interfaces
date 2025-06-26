@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { first } from 'rxjs/operators';
 
@@ -56,6 +56,11 @@ import { VisitorsStateService } from './visitors-state.service';
     standalone: false,
 })
 export class VisitorsTopbarComponent extends AsyncHandler implements OnInit {
+    private _state = inject(VisitorsStateService);
+    private _org = inject(OrganisationService);
+    private _route = inject(ActivatedRoute);
+    private _router = inject(Router);
+
     /** List of selected levels */
     public zones: string[] = [];
     /** List of levels for the active building */
@@ -77,15 +82,6 @@ export class VisitorsTopbarComponent extends AsyncHandler implements OnInit {
         });
         this._state.setFilters({ zones });
     };
-
-    constructor(
-        private _state: VisitorsStateService,
-        private _org: OrganisationService,
-        private _route: ActivatedRoute,
-        private _router: Router,
-    ) {
-        super();
-    }
 
     public async ngOnInit() {
         await this._org.initialised.pipe(first((_) => _)).toPromise();

@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import {
     BookingRuleset,
@@ -228,6 +228,12 @@ import {
     standalone: false,
 })
 export class BookingRulesModalComponent {
+    private _data = inject<{
+    type: string;
+}>(MAT_DIALOG_DATA);
+    private _org = inject(OrganisationService);
+    private _dialog = inject(MatDialog);
+
     public loading = false;
     public view = 'list';
     public activate_save = false;
@@ -248,12 +254,6 @@ export class BookingRulesModalComponent {
     );
 
     public readonly type = this._data.type;
-
-    constructor(
-        @Inject(MAT_DIALOG_DATA) private _data: { type: string },
-        private _org: OrganisationService,
-        private _dialog: MatDialog,
-    ) {}
 
     public keyCount(item: Record<string, any>): number {
         return Object.keys(item).length;

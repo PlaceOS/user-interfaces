@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { notifyError } from '@placeos/common';
 import { CheckinStateService } from './checkin-state.service';
@@ -32,13 +32,11 @@ import { CheckinStateService } from './checkin-state.service';
     standalone: false,
 })
 export class CheckinPhotoComponent implements OnInit {
+    private _checkin = inject(CheckinStateService);
+    private _router = inject(Router);
+
     /** Whether guest pass is being loaded */
     public loading = false;
-
-    constructor(
-        private _checkin: CheckinStateService,
-        private _router: Router,
-    ) {}
 
     public ngOnInit() {
         this.loading = false;

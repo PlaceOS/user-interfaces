@@ -1,5 +1,5 @@
 import { COMMA, ENTER, SPACE } from '@angular/cdk/keycodes';
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { MatChipInputEvent } from '@angular/material/chips';
 import {
     EncryptionLevel,
@@ -393,6 +393,13 @@ import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.compone
     standalone: false,
 })
 export class RoomModalComponent extends AsyncHandler implements OnInit {
+    private _data = inject<{
+    room: Space;
+}>(MAT_DIALOG_DATA);
+    private _dialog_ref = inject<MatDialogRef<RoomModalComponent>>(MatDialogRef);
+    private _org = inject(OrganisationService);
+    private _dialog = inject(MatDialog);
+
     public loading = false;
     public timezones: string[] = TIMEZONES_IANA;
     public filtered_timezones: string[] = [];
@@ -419,15 +426,6 @@ export class RoomModalComponent extends AsyncHandler implements OnInit {
 
     public get feature_list(): string[] {
         return this.form.controls.features.value;
-    }
-
-    constructor(
-        @Inject(MAT_DIALOG_DATA) private _data: { room: Space },
-        private _dialog_ref: MatDialogRef<RoomModalComponent>,
-        private _org: OrganisationService,
-        private _dialog: MatDialog,
-    ) {
-        super();
     }
 
     public async ngOnInit() {

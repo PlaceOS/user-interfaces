@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 
@@ -12,18 +12,16 @@ import { AsyncHandler } from '@placeos/common';
     standalone: false,
 })
 export class ViewCateringModalComponent extends AsyncHandler implements OnInit {
+    private _data = inject<{
+    catering: CateringItem[];
+    catering_note: string;
+}>(MAT_DIALOG_DATA);
+    private _router = inject(Router);
+    private _dialog = inject(MatDialog);
+
     public catering: CateringItem[];
     public catering_note: string;
     public catering_items_total = 0;
-
-    constructor(
-        @Inject(MAT_DIALOG_DATA)
-        private _data: { catering: CateringItem[]; catering_note: string },
-        private _router: Router,
-        private _dialog: MatDialog,
-    ) {
-        super();
-    }
 
     public ngOnInit() {
         const data = this._data;

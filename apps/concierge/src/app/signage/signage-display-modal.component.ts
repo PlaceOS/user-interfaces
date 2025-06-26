@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { unique } from '@placeos/common';
@@ -96,6 +96,12 @@ import { addSystem, PlaceSystem, updateSystem } from '@placeos/ts-client';
     standalone: false,
 })
 export class SignageDisplayModalComponent {
+    private _data = inject<{
+    display?: PlaceSystem;
+}>(MAT_DIALOG_DATA);
+    private _dialog_ref = inject<MatDialogRef<SignageDisplayModalComponent>>(MatDialogRef);
+    private _org = inject(OrganisationService);
+
     public loading = false;
     public readonly display = this._data.display;
 
@@ -109,12 +115,6 @@ export class SignageDisplayModalComponent {
             this._data.display?.orientation || 'unspecified',
         ),
     });
-
-    constructor(
-        @Inject(MAT_DIALOG_DATA) private _data: { display?: PlaceSystem },
-        private _dialog_ref: MatDialogRef<SignageDisplayModalComponent>,
-        private _org: OrganisationService,
-    ) {}
 
     public async save() {
         this.form.markAllAsTouched();

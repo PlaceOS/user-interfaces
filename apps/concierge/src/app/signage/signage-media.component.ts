@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 
 import { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -164,6 +164,10 @@ import { SignageStateService } from './signage-state.service';
     standalone: false,
 })
 export class SignageMediaComponent extends AsyncHandler implements OnInit {
+    private _state = inject(SignageStateService);
+    private _router = inject(Router);
+    private _route = inject(ActivatedRoute);
+
     public readonly search = new BehaviorSubject<string>('');
     public readonly loading = this._state.loading;
     public readonly playlists = combineLatest([
@@ -203,14 +207,6 @@ export class SignageMediaComponent extends AsyncHandler implements OnInit {
             e.preventDefault();
         }
         this.timeout('hide_overlay', () => (this.show_dropzone = false));
-    }
-
-    constructor(
-        private _state: SignageStateService,
-        private _router: Router,
-        private _route: ActivatedRoute,
-    ) {
-        super();
     }
 
     public ngOnInit() {

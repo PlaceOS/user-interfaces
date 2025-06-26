@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 
 @Component({
@@ -53,9 +53,8 @@ import { AsyncHandler, SettingsService } from '@placeos/common';
     standalone: false,
 })
 export class AccessibilityControlsComponent extends AsyncHandler {
-    constructor(private _settings: SettingsService) {
-        super();
-    }
+    private _settings = inject(SettingsService);
+
 
     public get dark_mode() {
         return this.can_change_dark_mode && this._settings.theme === 'dark';

@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges, inject } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -80,6 +80,8 @@ export const ICON_MAP = {
     standalone: false,
 })
 export class OutputDisplayComponent extends AsyncHandler implements OnChanges {
+    private _state = inject(ControlStateService);
+
     @Input() public item: RoomOutput;
     /** Current volume level for output */
     public volume: number;
@@ -102,10 +104,6 @@ export class OutputDisplayComponent extends AsyncHandler implements OnChanges {
 
     public get id(): string {
         return this._state.id;
-    }
-
-    constructor(private _state: ControlStateService) {
-        super();
     }
 
     public ngOnChanges(changes: SimpleChanges) {

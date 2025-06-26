@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { first } from 'rxjs/operators';
 
@@ -96,6 +96,12 @@ import { BookingUIOptions, EventsStateService } from './events-state.service';
     standalone: false,
 })
 export class DayviewTopbarComponent extends AsyncHandler {
+    private _state = inject(EventsStateService);
+    private _org = inject(OrganisationService);
+    private _route = inject(ActivatedRoute);
+    private _router = inject(Router);
+    private _settings = inject(SettingsService);
+
     /** List of selected levels */
     public zones: string[] = [];
 
@@ -137,16 +143,6 @@ export class DayviewTopbarComponent extends AsyncHandler {
 
     public get allow_setup_breakdown() {
         return this._settings.get('app.events.allow_setup_breakdown');
-    }
-
-    constructor(
-        private _state: EventsStateService,
-        private _org: OrganisationService,
-        private _route: ActivatedRoute,
-        private _router: Router,
-        private _settings: SettingsService,
-    ) {
-        super();
     }
 
     public async ngOnInit() {

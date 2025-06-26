@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
@@ -74,6 +74,11 @@ import { ReportsStateService } from '../reports-state.service';
     standalone: false,
 })
 export class CateringReportComponent extends AsyncHandler implements OnInit {
+    private _state = inject(ReportsStateService);
+    private _settings = inject(SettingsService);
+    private _route = inject(ActivatedRoute);
+    private _org = inject(OrganisationService);
+
     public printing = false;
 
     public readonly total_count = this._state.stats.pipe(
@@ -96,15 +101,6 @@ export class CateringReportComponent extends AsyncHandler implements OnInit {
 
     public get using_bookings() {
         return this._settings.get('app.catering.use_bookings') == true;
-    }
-
-    constructor(
-        private _state: ReportsStateService,
-        private _settings: SettingsService,
-        private _route: ActivatedRoute,
-        private _org: OrganisationService,
-    ) {
-        super();
     }
 
     public ngOnInit() {

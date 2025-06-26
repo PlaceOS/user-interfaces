@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 
 import { NavigationEnd, Router } from '@angular/router';
 import { AsyncHandler, i18n } from '@placeos/common';
@@ -72,6 +72,9 @@ import { SignageStateService } from './signage-state.service';
     standalone: false,
 })
 export class SignageComponent extends AsyncHandler implements OnInit {
+    private _state = inject(SignageStateService);
+    private _router = inject(Router);
+
     public readonly loading = this._state.loading;
     public links = [];
     public active_link = this.links[0];
@@ -99,13 +102,6 @@ export class SignageComponent extends AsyncHandler implements OnInit {
                 });
                 break;
         }
-    }
-
-    constructor(
-        private _state: SignageStateService,
-        private _router: Router,
-    ) {
-        super();
     }
 
     public ngOnInit() {

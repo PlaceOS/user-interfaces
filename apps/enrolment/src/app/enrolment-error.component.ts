@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { EnrolmentStateService } from './enrolment-state.service';
 
 @Component({
@@ -40,7 +40,7 @@ import { EnrolmentStateService } from './enrolment-state.service';
     standalone: false,
 })
 export class EnrolmentErrorComponent {
-    public readonly error = this._state.error;
+    private _state = inject(EnrolmentStateService);
 
-    constructor(private _state: EnrolmentStateService) {}
+    public readonly error = this._state.error;
 }

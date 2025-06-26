@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
 import { AsyncHandler } from '@placeos/common';
@@ -74,16 +74,12 @@ const VALID_TYPES = ['not_started', 'wrong_resource', 'other'];
     standalone: false,
 })
 export class CodeFlowErrorComponent extends AsyncHandler {
+    private _route = inject(ActivatedRoute);
+    private _state = inject(BookingFormService);
+
     public type = 'other';
     public asset = null;
     public asset_id = '';
-
-    constructor(
-        private _route: ActivatedRoute,
-        private _state: BookingFormService,
-    ) {
-        super();
-    }
 
     public ngOnInit() {
         this.subscription(

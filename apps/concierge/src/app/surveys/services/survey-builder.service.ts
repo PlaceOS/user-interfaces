@@ -1,5 +1,5 @@
 import { CdkDragDrop } from '@angular/cdk/drag-drop';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { SettingsService } from '@placeos/common';
 import { Question, UISurveyObj, UISurveyPage } from '@placeos/survey-suite';
@@ -9,15 +9,13 @@ import { QuestionBankService } from './question-bank.service';
 
 @Injectable()
 export class SurveyBuilderService {
+    private bank = inject(QuestionBankService);
+    private _settings = inject(SettingsService);
+    private _dialog = inject(MatDialog);
+
     public selectedPageIndex = 0;
     protected survey: UISurveyObj;
     protected surveyModel: Model;
-
-    constructor(
-        private bank: QuestionBankService,
-        private _settings: SettingsService,
-        private _dialog: MatDialog,
-    ) {}
 
     public get selectedPage() {
         return this.survey?.pages[this.selectedPageIndex];

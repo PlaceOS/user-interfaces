@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { SettingsService } from '@placeos/common';
 import { EnrolmentStateService } from './enrolment-state.service';
 
@@ -87,6 +87,9 @@ import { EnrolmentStateService } from './enrolment-state.service';
     standalone: false,
 })
 export class EnrolmentGuestConfirmComponent {
+    private _state = inject(EnrolmentStateService);
+    private _settings = inject(SettingsService);
+
     public readonly form = this._state.form;
     public readonly updateGuest = () => this._state.updateGuest();
     public readonly checkin = () => this._state.checkin();
@@ -94,9 +97,4 @@ export class EnrolmentGuestConfirmComponent {
     public get check_vaccine() {
         return this._settings.get('app.guests.vaccine_check');
     }
-
-    constructor(
-        private _state: EnrolmentStateService,
-        private _settings: SettingsService,
-    ) {}
 }

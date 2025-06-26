@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import {
     generateNewQuestion,
@@ -48,15 +48,15 @@ import {
     standalone: false,
 })
 export class ModQuestionOverlayComponent implements OnInit {
+    private _data = inject<Question>(MAT_DIALOG_DATA);
+    private _dialog_ref = inject<MatDialogRef<ModQuestionOverlayComponent>>(MatDialogRef);
+
     @ViewChild('questionElement') questionElement: QuestionComponent;
 
     isEdit: boolean = false;
     question: Question;
 
-    constructor(
-        @Inject(MAT_DIALOG_DATA) private _data: Question,
-        private _dialog_ref: MatDialogRef<ModQuestionOverlayComponent>,
-    ) {
+    constructor() {
         this.isEdit = !!(this._data?.id > 0);
         this.question = this._data || generateNewQuestion();
     }

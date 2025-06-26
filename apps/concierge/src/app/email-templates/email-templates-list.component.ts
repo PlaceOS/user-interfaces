@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { currentUser, i18n, notifyError, notifySuccess } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import {
@@ -159,16 +159,14 @@ import {
     standalone: false,
 })
 export class EmailTemplatesListComponent {
+    private _state = inject(EmailTemplatesStateService);
+    private _org = inject(OrganisationService);
+
     public sending_email: string;
     public readonly filters = this._state.filters;
     public readonly templates = this._state.filtered_templates;
 
     public readonly removeTemplate = (t) => this._state.removeTemplate(t);
-
-    constructor(
-        private _state: EmailTemplatesStateService,
-        private _org: OrganisationService,
-    ) {}
 
     public setFilters(filters: Partial<EmailTemplatesFilters>) {
         this._state.setFilters(filters);

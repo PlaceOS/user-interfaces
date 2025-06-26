@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { SettingsService } from '@placeos/common';
 import { startOfMinute } from 'date-fns';
 
@@ -35,6 +35,8 @@ import { startOfMinute } from 'date-fns';
     standalone: false,
 })
 export class CheckinComponent {
+    private _settings = inject(SettingsService);
+
     public get now() {
         return startOfMinute(new Date());
     }
@@ -42,6 +44,4 @@ export class CheckinComponent {
     public get background() {
         return this._settings.get('app.welcome_background');
     }
-
-    constructor(private _settings: SettingsService) {}
 }

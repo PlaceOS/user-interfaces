@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { SettingsService, formatDuration } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
@@ -213,6 +213,10 @@ import {
     standalone: false,
 })
 export class MeetingFormDetailsComponent {
+    private _settings = inject(SettingsService);
+    private _event_form = inject(EventFormService);
+    private _org = inject(OrganisationService);
+
     @Input() public form: FormGroup;
 
     public readonly force_time = set(Date.now(), {
@@ -289,10 +293,4 @@ export class MeetingFormDetailsComponent {
             minutes: diff % 60,
         })})`;
     };
-
-    constructor(
-        private _settings: SettingsService,
-        private _event_form: EventFormService,
-        private _org: OrganisationService,
-    ) {}
 }

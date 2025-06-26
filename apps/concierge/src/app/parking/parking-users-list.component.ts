@@ -1,5 +1,5 @@
 import { Clipboard } from '@angular/cdk/clipboard';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { i18n, notifySuccess } from '@placeos/common';
 import { BehaviorSubject } from 'rxjs';
@@ -104,6 +104,9 @@ import { ParkingStateService } from './parking-state.service';
     standalone: false,
 })
 export class ParkingUsersListComponent {
+    private _state = inject(ParkingStateService);
+    private _clipboard = inject(Clipboard);
+
     public readonly options = this._state.options;
     public readonly loading = this._state.loading;
 
@@ -117,9 +120,4 @@ export class ParkingUsersListComponent {
         const success = this._clipboard.copy(id);
         if (success) notifySuccess(i18n('APP.CONCIERGE.PARKING_COPIED_USER'));
     }
-
-    constructor(
-        private _state: ParkingStateService,
-        private _clipboard: Clipboard,
-    ) {}
 }

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
@@ -135,6 +135,11 @@ import { AssetManagerStateService } from './asset-manager-state.service';
     standalone: false,
 })
 export class AssetGroupFormComponent extends AsyncHandler {
+    private _state = inject(AssetManagerStateService);
+    private _route = inject(ActivatedRoute);
+    private _router = inject(Router);
+    private _dialog = inject(MatDialog);
+
     public readonly form = generateAssetGroupForm();
     public readonly new_category = new BehaviorSubject<AssetCategory>(null);
     public readonly categories = combineLatest([
@@ -148,15 +153,6 @@ export class AssetGroupFormComponent extends AsyncHandler {
 
     public get base_route() {
         return this._state.base_route;
-    }
-
-    constructor(
-        private _state: AssetManagerStateService,
-        private _route: ActivatedRoute,
-        private _router: Router,
-        private _dialog: MatDialog,
-    ) {
-        super();
     }
 
     public ngOnInit() {

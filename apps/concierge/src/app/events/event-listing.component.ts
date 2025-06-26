@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { SettingsService } from '@placeos/common';
 import { CalendarEvent } from '@placeos/events';
 import { User } from '@placeos/users';
@@ -290,6 +290,9 @@ import { EventStateService } from './event-state.service';
     standalone: false,
 })
 export class EventListingComponent {
+    private _settings = inject(SettingsService);
+    private _state = inject(EventStateService);
+
     public readonly loading = this._state.loading;
     public readonly event_list = this._state.event_list;
 
@@ -304,11 +307,6 @@ export class EventListingComponent {
     public get time_format() {
         return this._settings.time_format;
     }
-
-    constructor(
-        private _settings: SettingsService,
-        private _state: EventStateService,
-    ) {}
 
     public checkedInCount(attendees: User[]) {
         if (!attendees?.length) return 0;

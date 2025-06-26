@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { SettingsService } from '@placeos/common';
 import { ExploreSpacesService } from '@placeos/explore';
 import { OrganisationService } from '@placeos/organisation';
@@ -172,6 +172,11 @@ import { LandingStateService } from './landing-state.service';
     standalone: false,
 })
 export class LandingAvailabilityComponent {
+    private _state = inject(LandingStateService);
+    private _org = inject(OrganisationService);
+    private _settings = inject(SettingsService);
+    private _explore = inject(ExploreSpacesService);
+
     public readonly space_list = this._state.free_space_list;
     public readonly loading_spaces = this._state.loading_spaces;
     public readonly levels_free = this._state.level_occupancy;
@@ -197,11 +202,4 @@ export class LandingAvailabilityComponent {
     public get hide_rooms() {
         return this._settings.get('app.hide_landing_rooms');
     }
-
-    constructor(
-        private _state: LandingStateService,
-        private _org: OrganisationService,
-        private _settings: SettingsService,
-        private _explore: ExploreSpacesService,
-    ) {}
 }

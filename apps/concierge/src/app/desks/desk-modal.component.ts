@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import {
     MAT_DIALOG_DATA,
@@ -209,6 +209,13 @@ const CHARS = '0123456789ABCDEF';
     standalone: false,
 })
 export class DeskModalComponent implements OnInit {
+    private _data = inject<{
+    desk?: Desk;
+}>(MAT_DIALOG_DATA);
+    private _dialog_ref = inject<MatDialogRef<DeskModalComponent>>(MatDialogRef);
+    private _org = inject(OrganisationService);
+    private _dialog = inject(MatDialog);
+
     @Output() public readonly event = new EventEmitter<DialogEvent>();
     public loading: boolean;
 
@@ -234,12 +241,9 @@ export class DeskModalComponent implements OnInit {
         security: new FormControl(''),
     });
 
-    constructor(
-        @Inject(MAT_DIALOG_DATA) private _data: { desk?: Desk },
-        private _dialog_ref: MatDialogRef<DeskModalComponent>,
-        private _org: OrganisationService,
-        private _dialog: MatDialog,
-    ) {
+    constructor() {
+        const _data = this._data;
+
         if (_data?.desk) this.form.patchValue(_data.desk);
         if (!this.form.value.id) {
             this.form.patchValue({

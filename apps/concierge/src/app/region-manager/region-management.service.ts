@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { i18n, notifyError, notifySuccess } from '@placeos/common';
 import { OrganisationService, Region } from '@placeos/organisation';
@@ -17,6 +17,9 @@ export interface RegionListOptions {
     providedIn: 'root',
 })
 export class RegionManagementService {
+    private _org = inject(OrganisationService);
+    private _dialog = inject(MatDialog);
+
     private _options = new BehaviorSubject<RegionListOptions>({});
     private _change = new BehaviorSubject(0);
 
@@ -41,11 +44,6 @@ export class RegionManagementService {
             return list;
         }),
     );
-
-    constructor(
-        private _org: OrganisationService,
-        private _dialog: MatDialog,
-    ) {}
 
     public setFilters(options: Partial<RegionListOptions>) {
         this._options.next({ ...this._options.getValue(), ...options });

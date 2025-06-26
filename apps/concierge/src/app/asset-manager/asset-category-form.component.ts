@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import {
     AssetCategory,
@@ -97,6 +97,9 @@ import { AssetManagerStateService } from './asset-manager-state.service';
     standalone: false,
 })
 export class AssetCategoryFormComponent {
+    private _state = inject(AssetManagerStateService);
+    private _dialog_ref = inject<MatDialogRef<AssetCategoryFormComponent>>(MatDialogRef);
+
     public loading = false;
     public readonly form = generateAssetCategoryForm();
     public readonly categories = this._state.categories.pipe(
@@ -105,11 +108,11 @@ export class AssetCategoryFormComponent {
         ),
     );
 
-    constructor(
-        @Inject(MAT_DIALOG_DATA) _data: { category?: AssetCategory },
-        private _state: AssetManagerStateService,
-        private _dialog_ref: MatDialogRef<AssetCategoryFormComponent>,
-    ) {
+    constructor() {
+        const _data = inject<{
+    category?: AssetCategory;
+}>(MAT_DIALOG_DATA);
+
         if (_data?.category) this.form.patchValue(_data.category);
     }
 

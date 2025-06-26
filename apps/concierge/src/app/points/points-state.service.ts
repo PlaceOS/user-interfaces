@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogEvent, randomInt } from '@placeos/common';
 import { BehaviorSubject } from 'rxjs';
@@ -10,11 +10,13 @@ import { PointAsset } from './points-assets.component';
     providedIn: 'root',
 })
 export class PointsStateService {
+    private _dialog = inject(MatDialog);
+
     private _assets = new BehaviorSubject<PointAsset[]>([]);
 
     public readonly assets = this._assets.asObservable();
 
-    constructor(private _dialog: MatDialog) {
+    constructor() {
         this._assets.next(
             JSON.parse(localStorage.getItem('PLACEOS.point_assets') || '[]'),
         );

@@ -391,7 +391,8 @@ export class OldEventFormService extends AsyncHandler {
 
     constructor() {
         super();
-        this._space_pipe = new SpacePipe(this._org);
+        const space_pipe = new SpacePipe();
+        space_pipe.org = this._org;
         this.subscription(
             'router.events',
             this._router.events.subscribe((event: Event) => {

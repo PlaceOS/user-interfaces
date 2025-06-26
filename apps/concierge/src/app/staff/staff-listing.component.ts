@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, ViewChild, inject } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
 import { map } from 'rxjs/operators';
 
@@ -104,6 +104,8 @@ const CHARS = '#abcdefghijklmnopqrstuvwxyz'.split('');
     standalone: false,
 })
 export class StaffListingComponent extends AsyncHandler {
+    private _state = inject(StaffStateService);
+
     public active_group = '#';
 
     public readonly groups = CHARS;
@@ -131,10 +133,6 @@ export class StaffListingComponent extends AsyncHandler {
     );
 
     @ViewChild('container') private _el: ElementRef<HTMLDivElement>;
-
-    constructor(private _state: StaffStateService) {
-        super();
-    }
 
     public onScroll(_) {
         const scroll_top = this._el.nativeElement.scrollTop;

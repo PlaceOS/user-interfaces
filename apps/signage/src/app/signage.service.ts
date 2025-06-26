@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { AsyncHandler, log, shuffleArray } from '@placeos/common';
 import {
     responseHeaders,
@@ -25,6 +25,8 @@ const DISPLAY_KEY = 'PlaceOS.SIGNAGE.display_details';
     providedIn: 'root',
 })
 export class SignageService extends AsyncHandler {
+    private _media_cache = inject(MediaCacheService);
+
     private _display = new BehaviorSubject<string>('');
     private _poll = new BehaviorSubject(0);
     private _retry = new BehaviorSubject(0);
@@ -136,7 +138,7 @@ export class SignageService extends AsyncHandler {
         this._display.next(system_id);
     }
 
-    constructor(private _media_cache: MediaCacheService) {
+    constructor() {
         super();
         combineLatest([
             this.display,

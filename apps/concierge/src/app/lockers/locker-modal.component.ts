@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output, inject } from '@angular/core';
 import {
     AbstractControl,
     FormControl,
@@ -265,6 +265,12 @@ function validateNoOverlap(box: Box, check_boxes: Box[]): boolean {
     standalone: false,
 })
 export class LockerModalComponent extends AsyncHandler implements OnInit {
+    private _data = inject<{
+    locker?: Locker;
+    bank: LockerBank;
+}>(MAT_DIALOG_DATA);
+    private _dialog_ref = inject<MatDialogRef<LockerModalComponent>>(MatDialogRef);
+
     @Output() public readonly event = new EventEmitter<DialogEvent>();
     public loading: boolean;
 
@@ -307,12 +313,10 @@ export class LockerModalComponent extends AsyncHandler implements OnInit {
         features: new FormControl([]),
     });
 
-    constructor(
-        @Inject(MAT_DIALOG_DATA)
-        private _data: { locker?: Locker; bank: LockerBank },
-        private _dialog_ref: MatDialogRef<LockerModalComponent>,
-    ) {
+    constructor() {
         super();
+        const _data = this._data;
+
         this._locker_bounds = this._lockerBounds();
         if (_data.locker) this.form.patchValue(_data.locker);
     }

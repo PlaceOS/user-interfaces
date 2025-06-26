@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { DesksService } from '@placeos/bookings';
 
 @Component({
@@ -36,11 +36,11 @@ import { DesksService } from '@placeos/bookings';
     standalone: false,
 })
 export class ExploreComponent implements OnInit {
+    private _desks = inject(DesksService);
+
     public get hide_nav() {
         return localStorage.getItem('PlaceOS.hide_nav') === 'true';
     }
-
-    constructor(private _desks: DesksService) {}
 
     public ngOnInit() {
         this._desks.error_on_host = false;

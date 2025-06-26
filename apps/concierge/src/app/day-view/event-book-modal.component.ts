@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output, inject } from '@angular/core';
 import {
     MAT_DIALOG_DATA,
     MatDialog,
@@ -372,6 +372,15 @@ import { map, tap } from 'rxjs/operators';
     standalone: false,
 })
 export class EventBookModalComponent implements OnInit {
+    private _data = inject<{
+    event: CalendarEvent;
+}>(MAT_DIALOG_DATA);
+    private _event_form = inject(EventFormService);
+    private _settings = inject(SettingsService);
+    private _catering = inject(CateringOrderStateService);
+    private _dialog_ref = inject<MatDialogRef<EventBookModalComponent>>(MatDialogRef);
+    private _dialog = inject(MatDialog);
+
     @Output() public event = new EventEmitter<DialogEvent>();
     public readonly loading = new BehaviorSubject(false);
     public hide_block: Record<string, boolean> = {};
@@ -449,15 +458,6 @@ export class EventBookModalComponent implements OnInit {
         }
         return count;
     }
-
-    constructor(
-        @Inject(MAT_DIALOG_DATA) private _data: { event: CalendarEvent },
-        private _event_form: EventFormService,
-        private _settings: SettingsService,
-        private _catering: CateringOrderStateService,
-        private _dialog_ref: MatDialogRef<EventBookModalComponent>,
-        private _dialog: MatDialog,
-    ) {}
 
     public async ngOnInit() {
         await this._event_form.newForm(this._data.event);

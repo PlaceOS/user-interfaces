@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import {
     MAT_DIALOG_DATA,
     MatDialog,
@@ -241,6 +241,11 @@ import { map } from 'rxjs/operators';
     standalone: false,
 })
 export class AutoReleaseSettingsModalComponent implements OnInit {
+    private _id = inject(MAT_DIALOG_DATA);
+    private _dialog = inject(MatDialog);
+    private _dialog_ref = inject<MatDialogRef<AutoReleaseSettingsModalComponent>>(MatDialogRef);
+    private _settings = inject(SettingsService);
+
     public readonly types = ['desk', 'parking', 'locker', 'visitor'];
     public loading = '';
     public readonly id = this._id;
@@ -295,13 +300,6 @@ export class AutoReleaseSettingsModalComponent implements OnInit {
             }),
         );
     }
-
-    constructor(
-        @Inject(MAT_DIALOG_DATA) private _id: string,
-        private _dialog: MatDialog,
-        private _dialog_ref: MatDialogRef<AutoReleaseSettingsModalComponent>,
-        private _settings: SettingsService,
-    ) {}
 
     public ngOnInit() {
         ''.toUpperCase;

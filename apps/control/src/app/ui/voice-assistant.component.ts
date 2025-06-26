@@ -1,4 +1,4 @@
-import { Component, Input, SimpleChanges } from '@angular/core';
+import { Component, Input, SimpleChanges, inject } from '@angular/core';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { VoiceAssistantService } from './voice-assistant.service';
@@ -60,6 +60,8 @@ import { VoiceAssistantService } from './voice-assistant.service';
     standalone: false,
 })
 export class VoiceAssistantComponent {
+    private _service = inject(VoiceAssistantService);
+
     @Input() public system_id: string;
     @Input() public enabled: boolean;
     public readonly activate = () => this._service.activate();
@@ -76,8 +78,6 @@ export class VoiceAssistantComponent {
         call_function: 'settings',
         task_complete: 'check_circle',
     };
-
-    constructor(private _service: VoiceAssistantService) {}
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.system_id && this.system_id) {

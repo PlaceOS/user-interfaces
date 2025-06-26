@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import { debounceTime, map, shareReplay, switchMap, tap } from 'rxjs/operators';
@@ -124,6 +124,10 @@ import { Space } from 'libs/spaces/src/lib/space.class';
     standalone: false,
 })
 export class BootstrapComponent extends AsyncHandler implements OnInit {
+    private route = inject(ActivatedRoute);
+    private _router = inject(Router);
+    private _org = inject(OrganisationService);
+
     /** List of available systems */
     public system_list: Space[] = [];
     /** List of available systems */
@@ -159,14 +163,6 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
     );
 
     private _event = false;
-
-    constructor(
-        private route: ActivatedRoute,
-        private _router: Router,
-        private _org: OrganisationService,
-    ) {
-        super();
-    }
 
     public async ngOnInit() {
         this.subscription(

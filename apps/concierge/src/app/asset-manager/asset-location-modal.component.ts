@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Booking } from '@placeos/bookings';
 import { MapPinComponent } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
@@ -127,6 +127,9 @@ import { AssetManagerStateService } from './asset-manager-state.service';
     standalone: false,
 })
 export class AssetLocationModalComponent {
+    private _state = inject(AssetManagerStateService);
+    private _org = inject(OrganisationService);
+
     public readonly asset = this._state.active_product;
     public readonly requests = this._state.active_product_requests;
 
@@ -162,11 +165,6 @@ export class AssetLocationModalComponent {
         await this._state.setTracking(item, state);
         this.loading[item.id] = false;
     }
-
-    constructor(
-        private _state: AssetManagerStateService,
-        private _org: OrganisationService,
-    ) {}
 
     public level(zones) {
         return this._org.levelWithID(zones);

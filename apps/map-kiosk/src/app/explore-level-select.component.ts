@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { nextValueFrom } from '@placeos/common';
 import { ExploreStateService } from '@placeos/explore';
 import { OrganisationService } from '@placeos/organisation';
@@ -40,15 +40,13 @@ import { first } from 'rxjs/operators';
     standalone: false,
 })
 export class ExploreLevelSelectComponent {
+    private _org = inject(OrganisationService);
+    private _state = inject(ExploreStateService);
+
     public readonly levels = this._org.active_levels;
     public readonly level = this._state.level;
 
     public readonly setLevel = (lvl) => this._state.setLevel(lvl.id);
-
-    constructor(
-        private _org: OrganisationService,
-        private _state: ExploreStateService,
-    ) {}
 
     public async ngOnInit() {
         await this._org.initialised.pipe(first((_) => _)).toPromise();

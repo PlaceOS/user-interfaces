@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges, inject } from '@angular/core';
 import { addMinutes, differenceInMinutes, format, startOfDay } from 'date-fns';
 
 import { SettingsService } from '@placeos/common';
@@ -139,6 +139,9 @@ const DAY_IN_MINUTES = 24 * 60;
     standalone: false,
 })
 export class DayviewEventComponent implements OnChanges {
+    private _state = inject(EventsStateService);
+    private _settings = inject(SettingsService);
+
     /** Event to display */
     @Input() public event: CalendarEvent;
     /** Top position for the event */
@@ -174,11 +177,6 @@ export class DayviewEventComponent implements OnChanges {
     public get time_format() {
         return this._settings.time_format;
     }
-
-    constructor(
-        private _state: EventsStateService,
-        private _settings: SettingsService,
-    ) {}
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.event && this.event) {

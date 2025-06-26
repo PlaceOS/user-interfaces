@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { OrganisationService } from '@placeos/organisation';
 import { CateringReportStateService } from './catering-report-state.service';
 
@@ -74,14 +74,12 @@ import { CateringReportStateService } from './catering-report-state.service';
     standalone: false,
 })
 export class CateringReportOverallComponent {
+    private _report = inject(CateringReportStateService);
+    private _org = inject(OrganisationService);
+
     public readonly stats = this._report.stats;
 
     public get code() {
         return this._org.currency_code;
     }
-
-    constructor(
-        private _report: CateringReportStateService,
-        private _org: OrganisationService,
-    ) {}
 }

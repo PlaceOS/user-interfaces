@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { MatTabChangeEvent } from '@angular/material/tabs';
 import { ActivatedRoute } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
@@ -355,6 +355,11 @@ import { SurveyOptions, SurveyService } from '../services/survey.service';
     standalone: false,
 })
 export class ModSurveyComponent extends AsyncHandler implements OnInit {
+    service = inject(SurveyBuilderService);
+    private _survey = inject(SurveyService);
+    private _route = inject(ActivatedRoute);
+    private _org = inject(OrganisationService);
+
     public view: 'design' | 'preview' = 'design';
     public id = '';
     public bld_id = '';
@@ -398,15 +403,6 @@ export class ModSurveyComponent extends AsyncHandler implements OnInit {
     }
     get survey() {
         return this.service.getUISurvey();
-    }
-
-    constructor(
-        public service: SurveyBuilderService,
-        private _survey: SurveyService,
-        private _route: ActivatedRoute,
-        private _org: OrganisationService,
-    ) {
-        super();
     }
 
     public ngOnInit(): void {

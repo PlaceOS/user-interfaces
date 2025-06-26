@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { SettingsService } from '@placeos/common';
 
 @Component({
@@ -92,9 +92,9 @@ import { SettingsService } from '@placeos/common';
     standalone: false,
 })
 export class LandingQuickLinksComponent {
+    private _settings = inject(SettingsService);
+
     public get features() {
         return this._settings.get('app.features') || [];
     }
-
-    constructor(private _settings: SettingsService) {}
 }

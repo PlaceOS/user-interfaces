@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { debounceTime, map } from 'rxjs/operators';
 
 import { ActivatedRoute } from '@angular/router';
@@ -77,6 +77,11 @@ import { ReportsStateService } from '../reports-state.service';
     standalone: false,
 })
 export class ReportSpacesComponent extends AsyncHandler {
+    private _state = inject(ReportsStateService);
+    private _settings = inject(SettingsService);
+    private _route = inject(ActivatedRoute);
+    private _org = inject(OrganisationService);
+
     public printing = false;
     public readonly total_count = this._state.stats.pipe(
         map((i) => i.count || 0),
@@ -95,15 +100,6 @@ export class ReportSpacesComponent extends AsyncHandler {
                     : this._settings.get('app.logo_light')) || {},
         ),
     );
-
-    constructor(
-        private _state: ReportsStateService,
-        private _settings: SettingsService,
-        private _route: ActivatedRoute,
-        private _org: OrganisationService,
-    ) {
-        super();
-    }
 
     public ngOnInit() {
         this._state.setOptions({ type: 'events' });

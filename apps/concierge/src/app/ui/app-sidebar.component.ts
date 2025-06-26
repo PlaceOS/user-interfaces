@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, inject } from '@angular/core';
 import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
     AsyncHandler,
@@ -95,6 +95,10 @@ export class ApplicationSidebarComponent
     extends AsyncHandler
     implements OnInit
 {
+    private _settings = inject(SettingsService);
+    private _org = inject(OrganisationService);
+    private _element_ref = inject<ElementRef<HTMLElement>>(ElementRef);
+
     public show_block: Record<string, boolean> = {};
     public links = [];
 
@@ -116,14 +120,6 @@ export class ApplicationSidebarComponent
             groups.includes('placeos_admin') ||
             groups.includes('placeos_support')
         );
-    }
-
-    constructor(
-        private _settings: SettingsService,
-        private _org: OrganisationService,
-        private _element_ref: ElementRef<HTMLElement>,
-    ) {
-        super();
     }
 
     public async ngOnInit() {

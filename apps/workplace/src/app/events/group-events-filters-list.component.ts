@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { nextValueFrom } from '@placeos/common';
 import { differenceInDays, endOfDay, startOfDay } from 'date-fns';
 import { map } from 'rxjs/operators';
@@ -49,6 +49,8 @@ import { GroupEventsStateService } from './group-events-state.service';
     standalone: false,
 })
 export class GroupEventsFiltersListComponent {
+    private _state = inject(GroupEventsStateService);
+
     public readonly options = this._state.options;
     public readonly filters = this._state.filters;
     public readonly this_period = this._state.options.pipe(
@@ -66,8 +68,6 @@ export class GroupEventsFiltersListComponent {
                 : 'week',
         ),
     );
-
-    constructor(private _state: GroupEventsStateService) {}
 
     public async removeTag(tag: string) {
         const tags = (await nextValueFrom(this.filters))?.tags || [];

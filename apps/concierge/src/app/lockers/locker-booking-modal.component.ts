@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import {
     MAT_DIALOG_DATA,
     MatDialog,
@@ -147,6 +147,23 @@ export class LockerBookingModalComponent
     extends AsyncHandler
     implements OnInit
 {
+    private _data = inject<{
+    booking: Booking;
+    user?: User;
+    link_id?: string;
+    date?: number;
+    level?: BuildingLevel;
+    space?: Locker;
+    allow_time_changes?: boolean;
+    external_user?: boolean;
+    parent_id?: string;
+}>(MAT_DIALOG_DATA);
+    private _booking_form = inject(BookingFormService);
+    private _dialog_ref = inject<MatDialogRef<LockerBookingModalComponent>>(MatDialogRef);
+    private _settings = inject(SettingsService);
+    private _org = inject(OrganisationService);
+    private _dialog = inject(MatDialog);
+
     public loading = false;
     public readonly user = this._data.user;
     public readonly date = this._data.date;
@@ -199,28 +216,6 @@ export class LockerBookingModalComponent
 
     public get use_24hr() {
         return this._settings.get('app.use_24_hour_time');
-    }
-
-    constructor(
-        @Inject(MAT_DIALOG_DATA)
-        private _data: {
-            booking: Booking;
-            user?: User;
-            link_id?: string;
-            date?: number;
-            level?: BuildingLevel;
-            space?: Locker;
-            allow_time_changes?: boolean;
-            external_user?: boolean;
-            parent_id?: string;
-        },
-        private _booking_form: BookingFormService,
-        private _dialog_ref: MatDialogRef<LockerBookingModalComponent>,
-        private _settings: SettingsService,
-        private _org: OrganisationService,
-        private _dialog: MatDialog,
-    ) {
-        super();
     }
 
     public ngOnInit() {

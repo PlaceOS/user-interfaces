@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import {
     MAT_BOTTOM_SHEET_DATA,
     MatBottomSheetRef,
@@ -158,13 +158,11 @@ import { Space } from '@placeos/spaces';
     standalone: false,
 })
 export class RoomDetailsComponent implements OnInit {
+    data = inject(MAT_BOTTOM_SHEET_DATA);
+    private _bottomSheetRef = inject<MatBottomSheetRef<RoomDetailsComponent>>(MatBottomSheetRef);
+
     space: Space | any;
     room_added: Boolean = false;
-
-    constructor(
-        @Inject(MAT_BOTTOM_SHEET_DATA) public data: any,
-        private _bottomSheetRef: MatBottomSheetRef<RoomDetailsComponent>,
-    ) {}
 
     ngOnInit() {
         this.space = this.data;

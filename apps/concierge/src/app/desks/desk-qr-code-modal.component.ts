@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { SettingsService } from '@placeos/common';
 import { DesksStateService } from './desks-state.service';
 
@@ -48,6 +48,9 @@ import { map } from 'rxjs/operators';
     standalone: false,
 })
 export class DeskQrCodeModalComponent {
+    private _settings = inject(SettingsService);
+    private _state = inject(DesksStateService);
+
     public readonly print = () => window.print();
 
     public readonly desks = this._state.desks.pipe(
@@ -64,11 +67,6 @@ export class DeskQrCodeModalComponent {
             this._settings.get('app.workplace_url_path') || '/workplace';
         return `${window.location.origin}${path}`;
     }
-
-    constructor(
-        private _settings: SettingsService,
-        private _state: DesksStateService,
-    ) {}
 
     public loadQrCode(item: any) {
         const link = `${

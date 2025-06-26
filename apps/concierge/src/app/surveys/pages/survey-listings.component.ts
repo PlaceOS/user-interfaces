@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
@@ -155,6 +155,10 @@ import { SurveyService } from '../services/survey.service';
     standalone: false,
 })
 export class SurveyListingsComponent extends AsyncHandler implements OnInit {
+    private _org = inject(OrganisationService);
+    private _route = inject(ActivatedRoute);
+    private _service = inject(SurveyService);
+
     private _building_id = new BehaviorSubject('');
     private _change = new BehaviorSubject(0);
     public readonly loading$ = new BehaviorSubject('');
@@ -175,14 +179,6 @@ export class SurveyListingsComponent extends AsyncHandler implements OnInit {
         return this._org.buildings.find(
             (_) => _.id === this._building_id.getValue(),
         );
-    }
-
-    constructor(
-        private _org: OrganisationService,
-        private _route: ActivatedRoute,
-        private _service: SurveyService,
-    ) {
-        super();
     }
 
     async ngOnInit() {

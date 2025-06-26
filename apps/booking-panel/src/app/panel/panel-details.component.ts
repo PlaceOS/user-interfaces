@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 
 import { PanelStateService } from '../panel-state.service';
 
@@ -81,6 +81,8 @@ import { PanelStateService } from '../panel-state.service';
     standalone: false,
 })
 export class PanelDetailsComponent {
+    private _state = inject(PanelStateService);
+
     public readonly space = this._state.space;
     public readonly options = this._state.settings;
     public readonly newEvent = () => this._state.newBooking();
@@ -88,6 +90,4 @@ export class PanelDetailsComponent {
     public readonly callWaiter = () => this._state.confirmWaiter();
 
     public readonly viewControl = () => this._state.viewControl();
-
-    constructor(private _state: PanelStateService) {}
 }

@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges, inject } from '@angular/core';
 import { AsyncHandler, nextValueFrom } from '@placeos/common';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -62,6 +62,8 @@ export class DeviceOutputListItemComponent
     extends AsyncHandler
     implements OnChanges
 {
+    private _state = inject(ControlStateService);
+
     @Input() public item: RoomOutput;
     @Input() public active: boolean;
     /** Current volume level for output */
@@ -95,10 +97,6 @@ export class DeviceOutputListItemComponent
             ? this._state.unroute(this.item.id)
             : this._state.setOutput(this.item?.id);
     };
-
-    constructor(private _state: ControlStateService) {
-        super();
-    }
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.item) {

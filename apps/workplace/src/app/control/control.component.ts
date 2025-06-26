@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { SettingsService } from '@placeos/common';
 
 @Component({
@@ -28,7 +28,8 @@ import { SettingsService } from '@placeos/common';
     standalone: false,
 })
 export class ControlComponent implements OnInit {
-    constructor(private _settings: SettingsService) {}
+    private _settings = inject(SettingsService);
+
 
     public ngOnInit(): void {
         this._settings.title = 'Control';

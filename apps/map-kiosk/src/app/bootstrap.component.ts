@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { AsyncHandler, Identity } from '@placeos/common';
@@ -301,6 +301,10 @@ import { first } from 'rxjs/operators';
     standalone: false,
 })
 export class BootstrapComponent extends AsyncHandler implements OnInit {
+    private _org = inject(OrganisationService);
+    private _route = inject(ActivatedRoute);
+    private _router = inject(Router);
+
     /** Loading state of the bootstrap */
     public loading: string;
     /** Actively selected building */
@@ -341,14 +345,6 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
             return [];
         }
         return this.active_level.locations || [];
-    }
-
-    constructor(
-        private _org: OrganisationService,
-        private _route: ActivatedRoute,
-        private _router: Router,
-    ) {
-        super();
     }
 
     public async ngOnInit() {

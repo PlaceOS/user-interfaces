@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
     approveBooking,
@@ -76,6 +76,10 @@ const USER_PIPE = new UserPipe();
     providedIn: 'root',
 })
 export class ParkingStateService extends AsyncHandler {
+    private _org = inject(OrganisationService);
+    private _dialog = inject(MatDialog);
+    private _settings = inject(SettingsService);
+
     private _poll = new BehaviorSubject<number>(0);
     private _change = new BehaviorSubject(0);
     private _options = new BehaviorSubject<ParkingOptions>({
@@ -217,14 +221,6 @@ export class ParkingStateService extends AsyncHandler {
 
     public readonly options = this._options.asObservable();
     public readonly loading = this._loading.asObservable();
-
-    constructor(
-        private _org: OrganisationService,
-        private _dialog: MatDialog,
-        private _settings: SettingsService,
-    ) {
-        super();
-    }
 
     public setOptions(options: Partial<ParkingOptions>) {
         this._options.next({ ...this._options.getValue(), ...options });

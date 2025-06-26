@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { AsyncHandler, LocaleService, SettingsService } from '@placeos/common';
@@ -141,6 +141,11 @@ export class WelcomeComponent
     extends AsyncHandler
     implements OnInit, OnDestroy
 {
+    private route = inject(ActivatedRoute);
+    private _settings = inject(SettingsService);
+    private _locale = inject(LocaleService);
+    private _cdr = inject(ChangeDetectorRef);
+
     public now = Date.now();
     /** Level to initially load on explore */
     public level = '';
@@ -174,15 +179,6 @@ export class WelcomeComponent
 
     public get locales(): { id: string; name: string }[] {
         return this._settings.get('app.locales') || [];
-    }
-
-    constructor(
-        private route: ActivatedRoute,
-        private _settings: SettingsService,
-        private _locale: LocaleService,
-        private _cdr: ChangeDetectorRef,
-    ) {
-        super();
     }
 
     public ngOnInit() {

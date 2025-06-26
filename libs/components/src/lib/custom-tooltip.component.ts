@@ -23,7 +23,6 @@ import { SanitizePipe } from './sanitise.pipe';
 export class CustomTooltipData<T = any> {
     data: T;
     close: () => void;
-
     constructor(d) {
         this.data = d.data;
         this.close = d.close || (() => null);

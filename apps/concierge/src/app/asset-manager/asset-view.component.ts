@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
@@ -486,6 +486,12 @@ import { AssetManagerStateService } from './asset-manager-state.service';
     standalone: false,
 })
 export class AssetViewComponent extends AsyncHandler {
+    private _route = inject(ActivatedRoute);
+    private _router = inject(Router);
+    private _state = inject(AssetManagerStateService);
+    private _dialog = inject(MatDialog);
+    private _org = inject(OrganisationService);
+
     public loading = false;
     public deleting = false;
     public readonly item = this._state.active_product;
@@ -535,16 +541,6 @@ export class AssetViewComponent extends AsyncHandler {
 
     public get base_route() {
         return this._state.base_route;
-    }
-
-    constructor(
-        private _route: ActivatedRoute,
-        private _router: Router,
-        private _state: AssetManagerStateService,
-        private _dialog: MatDialog,
-        private _org: OrganisationService,
-    ) {
-        super();
     }
 
     public viewLocations() {

@@ -1,11 +1,4 @@
-import {
-    Component,
-    EventEmitter,
-    Input,
-    OnChanges,
-    Output,
-    SimpleChanges,
-} from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, inject } from '@angular/core';
 import { SignagePlaylist } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map, startWith, tap } from 'rxjs/operators';
@@ -145,6 +138,8 @@ const PLAYLIST_ITEM_COUNTS = {};
     standalone: false,
 })
 export class SignageItemPlaylistsComponent implements OnChanges {
+    private _state = inject(SignageStateService);
+
     @Input() public item: any;
     @Input() public name = 'zone';
     @Input() public extra = '';
@@ -185,8 +180,6 @@ export class SignageItemPlaylistsComponent implements OnChanges {
     public playlistCount(id: string) {
         return PLAYLIST_ITEM_COUNTS[id]?.count || 0;
     }
-
-    constructor(private _state: SignageStateService) {}
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.item) {

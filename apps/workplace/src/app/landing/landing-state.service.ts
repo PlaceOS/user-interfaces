@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import {
     authority,
     getModule,
@@ -45,6 +45,11 @@ export interface LandingOptions {
     providedIn: 'root',
 })
 export class LandingStateService extends AsyncHandler {
+    private _calendar = inject(CalendarService);
+    private _schedule = inject(ScheduleStateService);
+    private _org = inject(OrganisationService);
+    private _settings = inject(SettingsService);
+
     private _options = new BehaviorSubject<LandingOptions>({});
     private _loading = new BehaviorSubject<string>('');
     private _loading_spaces = new BehaviorSubject<boolean>(false);
@@ -160,12 +165,7 @@ export class LandingStateService extends AsyncHandler {
     /**  */
     public level_occupancy = this._level_occupancy.asObservable();
 
-    constructor(
-        private _calendar: CalendarService,
-        private _schedule: ScheduleStateService,
-        private _org: OrganisationService,
-        private _settings: SettingsService,
-    ) {
+    constructor() {
         super();
         this.init();
     }

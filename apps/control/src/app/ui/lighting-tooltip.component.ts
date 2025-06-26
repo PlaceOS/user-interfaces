@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CustomTooltipData } from 'libs/components/src/lib/custom-tooltip.component';
 
 import {
@@ -55,6 +55,9 @@ import {
     standalone: false,
 })
 export class LightingTooltipComponent {
+    private _state = inject(ControlStateService);
+    private _tooltip = inject(CustomTooltipData);
+
     public light: EnvironmentSource;
 
     public readonly lights = this._state.lights;
@@ -64,9 +67,4 @@ export class LightingTooltipComponent {
     public get id(): string {
         return this._state.id;
     }
-
-    constructor(
-        private _state: ControlStateService,
-        private _tooltip: CustomTooltipData,
-    ) {}
 }

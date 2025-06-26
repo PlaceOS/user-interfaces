@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { formatDuration } from '@placeos/common';
 import { differenceInBusinessDays, endOfDay, startOfDay } from 'date-fns';
 import { map } from 'rxjs/operators';
@@ -66,6 +66,8 @@ import { ReportsStateService } from '../reports-state.service';
     standalone: false,
 })
 export class ReportSpacesOverallComponent {
+    private _state = inject(ReportsStateService);
+
     public readonly business_days = this._state.options.pipe(
         map(
             ({ start, end }) =>
@@ -121,6 +123,4 @@ export class ReportSpacesOverallComponent {
                 ),
         ),
     );
-
-    constructor(private _state: ReportsStateService) {}
 }

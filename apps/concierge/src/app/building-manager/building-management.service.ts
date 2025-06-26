@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { i18n, notifyError, notifySuccess } from '@placeos/common';
 import { Building, OrganisationService } from '@placeos/organisation';
@@ -21,6 +21,9 @@ export interface BuildingListOptions {
     providedIn: 'root',
 })
 export class BuildingManagementService {
+    private _org = inject(OrganisationService);
+    private _dialog = inject(MatDialog);
+
     private _options = new BehaviorSubject<BuildingListOptions>({});
     private _change = new BehaviorSubject(0);
 
@@ -52,11 +55,6 @@ export class BuildingManagementService {
             return list;
         }),
     );
-
-    constructor(
-        private _org: OrganisationService,
-        private _dialog: MatDialog,
-    ) {}
 
     public setFilters(options: Partial<BuildingListOptions>) {
         this._options.next({ ...this._options.getValue(), ...options });

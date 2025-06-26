@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Inject } from '@angular/core';
+import { Component, EventEmitter, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { AssetCategory, deleteAssetCategory } from '@placeos/assets';
 import { Observable } from 'rxjs';
@@ -68,6 +68,12 @@ import { Observable } from 'rxjs';
     standalone: false,
 })
 export class AssetCategoryManagementModalComponent {
+    private _data = inject<{
+    list: Observable<AssetCategory[]>;
+    edit: (i?) => any;
+}>(MAT_DIALOG_DATA);
+    private _dialog_ref = inject<MatDialogRef<AssetCategoryManagementModalComponent>>(MatDialogRef);
+
     public readonly changed = new EventEmitter();
     public readonly list = this._data.list;
     public readonly edit = this._data.edit;
@@ -76,13 +82,4 @@ export class AssetCategoryManagementModalComponent {
         await deleteAssetCategory(category.id).toPromise();
         this.changed.emit();
     };
-
-    constructor(
-        @Inject(MAT_DIALOG_DATA)
-        private _data: {
-            list: Observable<AssetCategory[]>;
-            edit: (i?) => any;
-        },
-        private _dialog_ref: MatDialogRef<AssetCategoryManagementModalComponent>,
-    ) {}
 }

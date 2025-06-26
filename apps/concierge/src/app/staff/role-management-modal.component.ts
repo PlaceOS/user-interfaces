@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild, inject } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { nextValueFrom } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
@@ -85,6 +85,9 @@ import { filter, map, shareReplay, switchMap } from 'rxjs/operators';
     standalone: false,
 })
 export class RoleManagementModalComponent {
+    private _org = inject(OrganisationService);
+    private _dialog_ref = inject<MatDialogRef<RoleManagementModalComponent>>(MatDialogRef);
+
     private _changes = new BehaviorSubject(0);
 
     public active: string;
@@ -156,9 +159,4 @@ export class RoleManagementModalComponent {
         this.loading = false;
         this._dialog_ref.disableClose = false;
     }
-
-    constructor(
-        private _org: OrganisationService,
-        private _dialog_ref: MatDialogRef<RoleManagementModalComponent>,
-    ) {}
 }

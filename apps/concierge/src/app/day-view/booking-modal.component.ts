@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 import {
@@ -61,6 +61,11 @@ export interface BookingModalData {
     standalone: false,
 })
 export class BookingModalComponent implements OnInit {
+    private _data = inject<BookingModalData>(MAT_DIALOG_DATA);
+    private _service = inject(EventFormService);
+    private _dialog_ref = inject<MatDialogRef<BookingModalComponent>>(MatDialogRef);
+    private _settings = inject(SettingsService);
+
     @Output() public event = new EventEmitter<DialogEvent>();
     /** Observable for the loading state of the form */
     public readonly loading = this._service.loading$;
@@ -68,13 +73,6 @@ export class BookingModalComponent implements OnInit {
     public get form() {
         return this._service.form;
     }
-
-    constructor(
-        @Inject(MAT_DIALOG_DATA) private _data: BookingModalData,
-        private _service: EventFormService,
-        private _dialog_ref: MatDialogRef<BookingModalComponent>,
-        private _settings: SettingsService,
-    ) {}
 
     public async ngOnInit() {
         let event = this._data.event;

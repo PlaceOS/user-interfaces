@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AsyncHandler, log, nextValueFrom } from '@placeos/common';
 import { BehaviorSubject, combineLatest } from 'rxjs';
@@ -196,6 +196,11 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
     standalone: false,
 })
 export class TabOutletComponent extends AsyncHandler implements OnInit {
+    private _service = inject(ControlStateService);
+    private _vc_state = inject(VideoCallStateService);
+    private _route = inject(ActivatedRoute);
+    private _router = inject(Router);
+
     public hearing_tloop = false;
     public readonly active_tab = new BehaviorSubject('');
     public readonly system$ = this._service.system;
@@ -238,15 +243,6 @@ export class TabOutletComponent extends AsyncHandler implements OnInit {
 
     public get id() {
         return this._service.id;
-    }
-
-    constructor(
-        private _service: ControlStateService,
-        private _vc_state: VideoCallStateService,
-        private _route: ActivatedRoute,
-        private _router: Router,
-    ) {
-        super();
     }
 
     public ngOnInit() {

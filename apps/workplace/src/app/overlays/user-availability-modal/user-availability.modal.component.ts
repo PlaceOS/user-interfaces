@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output, inject } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { endOfDay, getUnixTime, isBefore, set, startOfDay } from 'date-fns';
 import { BehaviorSubject } from 'rxjs';
@@ -20,6 +20,8 @@ export class UserAvailabilityModalComponent
     extends AsyncHandler
     implements OnInit
 {
+    private _data = inject(MAT_DIALOG_DATA);
+
     /** Emitter for user action on the modal */
     @Output() public event = new EventEmitter<DialogEvent>();
     /** List of Users to check availability */
@@ -34,10 +36,6 @@ export class UserAvailabilityModalComponent
     public duration: number;
     /** Date subject */
     public date$ = new BehaviorSubject(this.date);
-
-    constructor(@Inject(MAT_DIALOG_DATA) private _data: any) {
-        super();
-    }
 
     public ngOnInit(): void {
         this.users = this._data.users;

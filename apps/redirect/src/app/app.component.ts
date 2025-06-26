@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { authority, setAPI_Key } from '@placeos/ts-client';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
@@ -79,11 +79,10 @@ import { current_user, currentUser } from 'libs/common/src/lib/user-state';
     providers: [SettingsService],
 })
 export class AppComponent implements OnInit {
+    private _settings = inject(SettingsService);
+    private _route = inject(ActivatedRoute);
+
     private _continue = '';
-    constructor(
-        private _settings: SettingsService,
-        private _route: ActivatedRoute,
-    ) {}
 
     public async ngOnInit() {
         this._route.queryParamMap.subscribe((params) => {

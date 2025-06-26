@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, Input, Optional } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { BookingFormService } from '@placeos/bookings';
 import {
@@ -217,6 +217,11 @@ import { map } from 'rxjs/operators';
     standalone: false,
 })
 export class NewDeskFlowConfirmComponent extends AsyncHandler {
+    private _state = inject(BookingFormService);
+    private _org = inject(OrganisationService);
+    private _sheet_ref = inject(MatBottomSheetRef, { optional: true });
+    private _settings = inject(SettingsService);
+
     @Input() public show_close = false;
 
     private _date: DatePipe = new DatePipe('en');
@@ -328,15 +333,6 @@ export class NewDeskFlowConfirmComponent extends AsyncHandler {
 
     public get formatted_recurrence() {
         return formatRecurrence(fromBookingRecurrence(this.booking));
-    }
-
-    constructor(
-        private _state: BookingFormService,
-        private _org: OrganisationService,
-        @Optional() private _sheet_ref: MatBottomSheetRef,
-        private _settings: SettingsService,
-    ) {
-        super();
     }
 
     public async ngOnInit() {

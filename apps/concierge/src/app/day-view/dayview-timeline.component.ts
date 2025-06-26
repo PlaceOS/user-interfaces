@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { querySystems } from '@placeos/ts-client';
 import { combineLatest, of } from 'rxjs';
 import {
@@ -124,6 +124,9 @@ export class DayviewTimelineComponent
     extends AsyncHandler
     implements OnInit, OnDestroy
 {
+    private _org = inject(OrganisationService);
+    private _state = inject(EventsStateService);
+
     /** Time blocks to display */
     public readonly blocks: string[] = HOUR_BLOCKS;
     /** Current scroll position of the content */
@@ -165,13 +168,6 @@ export class DayviewTimelineComponent
                 ) || [],
         ),
     );
-
-    constructor(
-        private _org: OrganisationService,
-        private _state: EventsStateService,
-    ) {
-        super();
-    }
 
     public ngOnInit() {
         this._state.startPolling();

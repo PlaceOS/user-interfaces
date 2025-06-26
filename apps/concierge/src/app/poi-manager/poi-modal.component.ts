@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import {
     MAT_DIALOG_DATA,
@@ -188,6 +188,12 @@ import { PointOfInterest } from './poi-management.service';
     standalone: false,
 })
 export class POIModalComponent extends AsyncHandler {
+    private _org = inject(OrganisationService);
+    private _data = inject<PointOfInterest | undefined>(MAT_DIALOG_DATA);
+    private _dialog_ref = inject<MatDialogRef<POIModalComponent>>(MatDialogRef);
+    private _settings = inject(SettingsService);
+    private _dialog = inject(MatDialog);
+
     public loading = false;
     public location_type =
         this._data?.location instanceof Array ? 'coordinates' : 'map_id';
@@ -213,16 +219,6 @@ export class POIModalComponent extends AsyncHandler {
         ]),
         can_search: new FormControl(this._data?.can_search ?? false),
     });
-
-    constructor(
-        private _org: OrganisationService,
-        @Inject(MAT_DIALOG_DATA) private _data: PointOfInterest | undefined,
-        private _dialog_ref: MatDialogRef<POIModalComponent>,
-        private _settings: SettingsService,
-        private _dialog: MatDialog,
-    ) {
-        super();
-    }
 
     public async ngOnInit() {
         if (!this.form.value.level_id) {

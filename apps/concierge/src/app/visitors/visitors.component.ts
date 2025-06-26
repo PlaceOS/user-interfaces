@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { nextValueFrom, SettingsService } from '@placeos/common';
@@ -97,6 +97,13 @@ import { VisitorsStateService } from './visitors-state.service';
     standalone: false,
 })
 export class VisitorsComponent implements OnInit, OnDestroy {
+    private _state = inject(VisitorsStateService);
+    private _org = inject(OrganisationService);
+    private _router = inject(Router);
+    private _route = inject(ActivatedRoute);
+    private _dialog = inject(MatDialog);
+    private _settings = inject(SettingsService);
+
     public readonly loading = this._state.loading;
     public readonly filters = this._state.filters;
     /** List of selected levels */
@@ -131,15 +138,6 @@ export class VisitorsComponent implements OnInit, OnDestroy {
     public get use_region() {
         return !!this._settings.get('app.use_region');
     }
-
-    constructor(
-        private _state: VisitorsStateService,
-        private _org: OrganisationService,
-        private _router: Router,
-        private _route: ActivatedRoute,
-        private _dialog: MatDialog,
-        private _settings: SettingsService,
-    ) {}
 
     public async inviteVisitor() {
         this._dialog.open(InviteVisitorModalComponent, {

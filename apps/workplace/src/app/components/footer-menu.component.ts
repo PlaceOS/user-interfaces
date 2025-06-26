@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { SettingsService } from '@placeos/common';
 
 @Component({
@@ -244,6 +244,8 @@ import { SettingsService } from '@placeos/common';
     standalone: false,
 })
 export class FooterMenuComponent {
+    private _settings = inject(SettingsService);
+
     public show_book_items = false;
 
     public get default_page(): string {
@@ -260,6 +262,4 @@ export class FooterMenuComponent {
             this._settings.theme === 'dark'
         );
     }
-
-    constructor(private _settings: SettingsService) {}
 }

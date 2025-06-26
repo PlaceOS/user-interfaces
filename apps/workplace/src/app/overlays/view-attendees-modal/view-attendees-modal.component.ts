@@ -1,4 +1,4 @@
-import { Component, Inject, OnChanges, OnInit } from '@angular/core';
+import { Component, OnChanges, OnInit, inject } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import { AsyncHandler } from '@placeos/common';
@@ -14,11 +14,11 @@ export class ViewAttendeesModalComponent
     extends AsyncHandler
     implements OnChanges, OnInit
 {
-    public attendees: User[];
+    private _data = inject<{
+    attendees: User[];
+}>(MAT_DIALOG_DATA);
 
-    constructor(@Inject(MAT_DIALOG_DATA) private _data: { attendees: User[] }) {
-        super();
-    }
+    public attendees: User[];
 
     public ngOnChanges() {}
 

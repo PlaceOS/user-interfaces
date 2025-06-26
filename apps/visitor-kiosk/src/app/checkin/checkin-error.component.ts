@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CheckinStateService } from './checkin-state.service';
 
 @Component({
@@ -28,7 +28,7 @@ import { CheckinStateService } from './checkin-state.service';
     standalone: false,
 })
 export class CheckinErrorComponent {
-    public readonly error = this._checkin.error;
+    private _checkin = inject(CheckinStateService);
 
-    constructor(private _checkin: CheckinStateService) {}
+    public readonly error = this._checkin.error;
 }

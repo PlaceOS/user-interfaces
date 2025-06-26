@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import {
     MatBottomSheet,
     MatBottomSheetRef,
@@ -48,6 +48,11 @@ import { BookLockerFlowConfirmComponent } from './locker-flow-confirm.component'
     standalone: false,
 })
 export class BookLockerFlowFormComponent implements OnInit {
+    private _state = inject(BookingFormService);
+    private _router = inject(Router);
+    private _org = inject(OrganisationService);
+    private _bottom_sheet = inject(MatBottomSheet);
+
     public sheet_ref: MatBottomSheetRef<BookLockerFlowConfirmComponent>;
     public level = '';
     public levels = [];
@@ -79,13 +84,6 @@ export class BookLockerFlowFormComponent implements OnInit {
             }
         });
     };
-
-    constructor(
-        private _state: BookingFormService,
-        private _router: Router,
-        private _org: OrganisationService,
-        private _bottom_sheet: MatBottomSheet,
-    ) {}
 
     public async ngOnInit() {
         await this._org.initialised.pipe(first((_) => _));

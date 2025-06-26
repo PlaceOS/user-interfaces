@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import {
     addStringKey,
@@ -175,6 +175,9 @@ import {
     standalone: false,
 })
 export class SurveyResponsesComponent extends AsyncHandler implements OnInit {
+    private _settings = inject(SettingsService);
+    private _route = inject(ActivatedRoute);
+
     private _survey_id = new BehaviorSubject('');
 
     public readonly options$ = new BehaviorSubject<any>({});
@@ -276,13 +279,6 @@ export class SurveyResponsesComponent extends AsyncHandler implements OnInit {
 
     public get week_start() {
         return this._settings.get('app.week_start');
-    }
-
-    constructor(
-        private _settings: SettingsService,
-        private _route: ActivatedRoute,
-    ) {
-        super();
     }
 
     public ngOnInit() {

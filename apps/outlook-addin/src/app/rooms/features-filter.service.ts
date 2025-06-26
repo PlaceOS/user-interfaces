@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { nextValueFrom } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
 import { Space } from '@placeos/spaces';
@@ -9,6 +9,8 @@ import { map } from 'rxjs/operators';
     providedIn: 'root',
 })
 export class FeaturesFilterService {
+    private _state = inject(EventFormService);
+
     public spaces$: Observable<Space[]> = this._state.available_spaces;
     public updated_spaces$: Observable<Space[]>;
     public updated_spaces_emitter: BehaviorSubject<boolean> =
@@ -41,7 +43,7 @@ export class FeaturesFilterService {
         { name: 'Views', id: 'Views', value: false },
     ];
 
-    constructor(private _state: EventFormService) {
+    constructor() {
         this._features.next(this.room_features);
     }
 

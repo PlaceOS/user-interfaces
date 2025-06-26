@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { SettingsService } from '@placeos/common';
@@ -213,6 +213,10 @@ import { map, tap } from 'rxjs/operators';
     standalone: false,
 })
 export class EventFormComponent {
+    private _dialog = inject(MatDialog);
+    private _settings = inject(SettingsService);
+    private _catering = inject(CateringOrderStateService);
+
     @Input() public form: FormGroup;
 
     public code_filter = new BehaviorSubject('');
@@ -251,10 +255,4 @@ export class EventFormComponent {
     public get use_24hr_time() {
         return this._settings.get('app.use_24_hour_time');
     }
-
-    constructor(
-        private _dialog: MatDialog,
-        private _settings: SettingsService,
-        private _catering: CateringOrderStateService,
-    ) {}
 }

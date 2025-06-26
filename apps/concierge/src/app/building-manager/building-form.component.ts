@@ -1,12 +1,4 @@
-import {
-    Component,
-    EventEmitter,
-    Input,
-    OnChanges,
-    OnInit,
-    Output,
-    SimpleChanges,
-} from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import {
     AsyncHandler,
@@ -112,6 +104,8 @@ export class BuildingFormComponent
     extends AsyncHandler
     implements OnInit, OnChanges
 {
+    private _org = inject(OrganisationService);
+
     @Input() public building: Building | null = null;
     @Input() public save = 0;
     @Input() public loading = false;
@@ -136,10 +130,6 @@ export class BuildingFormComponent
 
     public get default_parent() {
         return this._org.organisation.id;
-    }
-
-    constructor(private _org: OrganisationService) {
-        super();
     }
 
     public ngOnInit() {

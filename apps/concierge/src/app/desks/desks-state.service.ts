@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
     listChildMetadata,
@@ -80,6 +80,10 @@ export interface DeskFilters {
     providedIn: 'root',
 })
 export class DesksStateService extends AsyncHandler {
+    private _org = inject(OrganisationService);
+    private _dialog = inject(MatDialog);
+    private _settings = inject(SettingsService);
+
     private _filters = new BehaviorSubject<DeskFilters>({});
     private _desk_bookings: Booking[] = [];
     private _loading = new BehaviorSubject<boolean>(false);
@@ -218,11 +222,7 @@ export class DesksStateService extends AsyncHandler {
         this._call_next_page.next(`NEXT_${Date.now()}`);
     }
 
-    constructor(
-        private _org: OrganisationService,
-        private _dialog: MatDialog,
-        private _settings: SettingsService,
-    ) {
+    constructor() {
         super();
         this.setup_paging.subscribe();
     }

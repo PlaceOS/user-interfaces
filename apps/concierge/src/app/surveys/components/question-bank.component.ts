@@ -1,5 +1,5 @@
 import { CdkDragDrop } from '@angular/cdk/drag-drop';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import {
     Question,
     QuestionTypeEnumMap,
@@ -151,6 +151,8 @@ import {
     standalone: false,
 })
 export class QuestionBankComponent {
+    private service = inject(QuestionBankService);
+
     loading$ = this.service.loading$.pipe(shareReplay(1));
     questions$ = this.service.filteredQuestions$.pipe(shareReplay(1));
     filters$ = this.service.filter$.pipe(shareReplay(1));
@@ -164,6 +166,4 @@ export class QuestionBankComponent {
 
     public typeOptions = QuestionTypeOptions;
     public typeMap = QuestionTypeEnumMap;
-
-    constructor(private service: QuestionBankService) {}
 }

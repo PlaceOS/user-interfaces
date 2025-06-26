@@ -1,5 +1,5 @@
 import { formatDate } from '@angular/common';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Booking, queryAllBookings } from '@placeos/bookings';
 import {
     downloadFile,
@@ -93,6 +93,9 @@ export const REMOVE_KEYS = [
     providedIn: 'root',
 })
 export class ReportsStateService {
+    private _org = inject(OrganisationService);
+    private _settings = inject(SettingsService);
+
     private _space_pipe: SpacePipe = new SpacePipe(this._org);
     private _generate = new Subject<number>();
     private _loading = new BehaviorSubject<string>('');
@@ -357,10 +360,7 @@ export class ReportsStateService {
         return Math.max(1, count);
     }
 
-    constructor(
-        private _org: OrganisationService,
-        private _settings: SettingsService,
-    ) {
+    constructor() {
         this._bookings_list.subscribe((_) => _);
     }
 

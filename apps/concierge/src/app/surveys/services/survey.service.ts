@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import {
@@ -37,6 +37,11 @@ export interface SurveyOptions {
 
 @Injectable()
 export class SurveyService {
+    private _settings = inject(SettingsService);
+    private router = inject(Router);
+    private builder = inject(SurveyBuilderService);
+    private dialog = inject(MatDialog);
+
     private readonly _loading = new BehaviorSubject<string>('');
     public readonly loading$ = this._loading.asObservable();
     public get loading() {
@@ -52,13 +57,6 @@ export class SurveyService {
         trigger: TriggerEnum.None,
     });
     public readonly _options$ = this._options.asObservable();
-
-    constructor(
-        private _settings: SettingsService,
-        private router: Router,
-        private builder: SurveyBuilderService,
-        private dialog: MatDialog,
-    ) {}
 
     public async loadSurvey(survey_id: string) {
         if (!survey_id?.length) {

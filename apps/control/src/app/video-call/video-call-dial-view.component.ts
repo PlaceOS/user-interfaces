@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { nextValueFrom } from '@placeos/common';
 import { getModule } from '@placeos/ts-client';
@@ -80,6 +80,11 @@ import { VideoCallStateService } from './video-call-state.service';
     standalone: false,
 })
 export class VideoCallDialViewComponent {
+    private _control = inject(ControlStateService);
+    private _call = inject(VideoCallStateService);
+    private _router = inject(Router);
+    private _route = inject(ActivatedRoute);
+
     @Input() public redirect = true;
     @Output() public close = new EventEmitter<void>();
 
@@ -94,13 +99,6 @@ export class VideoCallDialViewComponent {
     public get id() {
         return this._control.id;
     }
-
-    constructor(
-        private _control: ControlStateService,
-        private _call: VideoCallStateService,
-        private _router: Router,
-        private _route: ActivatedRoute,
-    ) {}
 
     public addDigit(digit: string) {
         digit && digit !== '\b'

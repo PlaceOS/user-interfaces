@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import {
     AsyncHandler,
     i18n,
@@ -63,6 +63,9 @@ export interface EmailTemplatesFilters {
     providedIn: 'root',
 })
 export class EmailTemplatesStateService extends AsyncHandler {
+    private _org = inject(OrganisationService);
+    private _settings = inject(SettingsService);
+
     private _filters = new BehaviorSubject<EmailTemplatesFilters>({});
     private _change = new BehaviorSubject(0);
 
@@ -168,13 +171,6 @@ export class EmailTemplatesStateService extends AsyncHandler {
             );
         }),
     );
-
-    constructor(
-        private _org: OrganisationService,
-        private _settings: SettingsService,
-    ) {
-        super();
-    }
 
     public async loadTemplate(id: string) {
         const template_list = await nextValueFrom(this.templates);

@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { SettingsService, notifyError, notifySuccess } from '@placeos/common';
@@ -215,6 +215,13 @@ import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
     standalone: false,
 })
 export class AppSettingsModalComponent {
+    private _data = inject<{
+    zone: PlaceZone;
+}>(MAT_DIALOG_DATA);
+    private _dialog_ref = inject<MatDialogRef<AppSettingsModalComponent>>(MatDialogRef);
+    private _org = inject(OrganisationService);
+    private _settings = inject(SettingsService);
+
     public readonly zone = this._data.zone;
     public readonly workplace_key =
         this._settings.get('app.workplace_metadata_key') || 'workplace_app';
@@ -308,13 +315,6 @@ export class AppSettingsModalComponent {
             allow_all_day: new FormControl(false),
         }),
     });
-
-    constructor(
-        @Inject(MAT_DIALOG_DATA) private _data: { zone: PlaceZone },
-        private _dialog_ref: MatDialogRef<AppSettingsModalComponent>,
-        private _org: OrganisationService,
-        private _settings: SettingsService,
-    ) {}
 
     public async ngOnInit() {
         this.loading = 'Loading settings...';

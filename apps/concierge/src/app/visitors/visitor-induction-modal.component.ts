@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { SettingsService } from '@placeos/common';
 
 @Component({
@@ -43,6 +43,8 @@ import { SettingsService } from '@placeos/common';
     standalone: false,
 })
 export class VisitorInductionModalComponent {
+    private _settings = inject(SettingsService);
+
     public agree = false;
 
     public get induction_details() {
@@ -55,6 +57,4 @@ export class VisitorInductionModalComponent {
             this._settings.get('app.induction_details')
         );
     }
-
-    constructor(private _settings: SettingsService) {}
 }

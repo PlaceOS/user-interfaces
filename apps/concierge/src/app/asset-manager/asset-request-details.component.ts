@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { AssetManagerStateService } from './asset-manager-state.service';
@@ -253,6 +253,10 @@ import { AssetManagerStateService } from './asset-manager-state.service';
     standalone: false,
 })
 export class AssetRequestDetailsComponent {
+    private _state = inject(AssetManagerStateService);
+    private _org = inject(OrganisationService);
+    private _settings = inject(SettingsService);
+
     @Input() public request: any;
     @Output() public requestChange = new EventEmitter<any>();
 
@@ -265,12 +269,6 @@ export class AssetRequestDetailsComponent {
     public get time_format() {
         return this._settings.time_format;
     }
-
-    constructor(
-        private _state: AssetManagerStateService,
-        private _org: OrganisationService,
-        private _settings: SettingsService,
-    ) {}
 
     public level(zones) {
         return this._org.levelWithID(zones);

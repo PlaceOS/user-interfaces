@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import {
@@ -263,6 +263,13 @@ import { DesksStateService } from './desks-state.service';
     standalone: false,
 })
 export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
+    private _state = inject(DesksStateService);
+    private _router = inject(Router);
+    private _route = inject(ActivatedRoute);
+    private _dialog = inject(MatDialog);
+    private _org = inject(OrganisationService);
+    private _settings = inject(SettingsService);
+
     public readonly loading = this._state.loading;
     public path: string;
     public manage = false;
@@ -295,17 +302,6 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
 
     public get use_region() {
         return !!this._settings.get('app.use_region');
-    }
-
-    constructor(
-        private _state: DesksStateService,
-        private _router: Router,
-        private _route: ActivatedRoute,
-        private _dialog: MatDialog,
-        private _org: OrganisationService,
-        private _settings: SettingsService,
-    ) {
-        super();
     }
 
     public ngOnInit() {

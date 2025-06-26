@@ -83,7 +83,7 @@ export class CateringOrdersService extends AsyncHandler {
 
     private _poll = new BehaviorSubject<number>(0);
     private _loading = new BehaviorSubject<boolean>(false);
-    private _space_pipe = new SpacePipe(this._org);
+    private _space_pipe = new SpacePipe();
     private _filters = new BehaviorSubject<CateringOrderFilters>({
         caterer: '',
     });
@@ -250,6 +250,7 @@ export class CateringOrdersService extends AsyncHandler {
 
     constructor() {
         super();
+        this._space_pipe.org = this._org;
         this.subscription('changes', this.orders.subscribe());
     }
 

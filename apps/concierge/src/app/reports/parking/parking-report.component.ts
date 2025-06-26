@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
@@ -71,6 +71,11 @@ import { ParkingReportService } from './parking-report.service';
     standalone: false,
 })
 export class ParkingReportComponent extends AsyncHandler {
+    private _state = inject(ParkingReportService);
+    private _settings = inject(SettingsService);
+    private _route = inject(ActivatedRoute);
+    private _org = inject(OrganisationService);
+
     public printing = false;
     public readonly total_count = this._state.bookings$.pipe(
         map((i) => i.length || 0),
@@ -89,15 +94,6 @@ export class ParkingReportComponent extends AsyncHandler {
                     : this._settings.get('app.logo_light')) || {},
         ),
     );
-
-    constructor(
-        private _state: ParkingReportService,
-        private _settings: SettingsService,
-        private _route: ActivatedRoute,
-        private _org: OrganisationService,
-    ) {
-        super();
-    }
 
     public ngOnInit() {
         this.subscription(

@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 @Component({
@@ -25,7 +25,7 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
     standalone: false,
 })
 export class ViewLockerBankModalComponent {
-    public readonly bank = this._data.bank;
+    private _data = inject(MAT_DIALOG_DATA);
 
-    constructor(@Inject(MAT_DIALOG_DATA) private _data) {}
+    public readonly bank = this._data.bank;
 }

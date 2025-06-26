@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 
 import {
     MAT_BOTTOM_SHEET_DATA,
@@ -188,20 +188,20 @@ import { FeaturesFilterService } from './features-filter.service';
     standalone: false,
 })
 export class FilterSpaceComponent implements OnInit {
+    data = inject<{
+    data;
+}>(MAT_BOTTOM_SHEET_DATA);
+    private _bottomsheetRef = inject<MatBottomSheetRef<any>>(MatBottomSheetRef);
+    private _featuresFilterService = inject(FeaturesFilterService);
+    private _state = inject(EventFormService);
+    private _org = inject(OrganisationService);
+
     readonly buildings = this._org.building_list;
     readonly building = this._org.active_building;
     minDate: Date = new Date();
     features$: Observable<Array<{}>>;
 
     public readonly setBuilding = (b) => (this._org.building = b);
-
-    constructor(
-        @Inject(MAT_BOTTOM_SHEET_DATA) public data: { data },
-        private _bottomsheetRef: MatBottomSheetRef<any>,
-        private _featuresFilterService: FeaturesFilterService,
-        private _state: EventFormService,
-        private _org: OrganisationService,
-    ) {}
 
     ngOnInit() {
         this.features$ = this._featuresFilterService.features$;

@@ -1,5 +1,5 @@
 import { formatDate } from '@angular/common';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Booking } from '@placeos/bookings';
 import {
     downloadFile,
@@ -33,6 +33,10 @@ export interface ReportOptions {
     providedIn: 'root',
 })
 export class ParkingReportService {
+    private _settings = inject(SettingsService);
+    private _org = inject(OrganisationService);
+    private _report = inject(ReportsStateService);
+
     private _options = new BehaviorSubject<ReportOptions>({});
 
     public readonly loading$ = this._report.loading;
@@ -98,12 +102,6 @@ export class ParkingReportService {
         }),
         shareReplay(1),
     );
-
-    constructor(
-        private _settings: SettingsService,
-        private _org: OrganisationService,
-        private _report: ReportsStateService,
-    ) {}
 
     public setOptions(options: Partial<ReportOptions>) {
         this._options.next({ ...this._options.getValue(), ...options });

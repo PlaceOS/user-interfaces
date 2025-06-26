@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import {
@@ -95,6 +95,13 @@ export class LandingUpcomingComponent
     extends AsyncHandler
     implements OnInit, OnDestroy
 {
+    private _state = inject(LandingStateService);
+    private _event_form = inject(EventFormService);
+    private _booking_form = inject(BookingFormService);
+    private _router = inject(Router);
+    private _dialog = inject(MatDialog);
+    private _settings = inject(SettingsService);
+
     public readonly upcoming_events = this._state.upcoming_events;
 
     public type(event: CalendarEvent | Booking) {
@@ -105,17 +112,6 @@ export class LandingUpcomingComponent
     public readonly edit_booking_fn = (i) => this.editBooking(i);
     public readonly remove_fn = (i, s?) => this.remove(i, s);
     public readonly end_fn = (i) => this.end(i);
-
-    constructor(
-        private _state: LandingStateService,
-        private _event_form: EventFormService,
-        private _booking_form: BookingFormService,
-        private _router: Router,
-        private _dialog: MatDialog,
-        private _settings: SettingsService,
-    ) {
-        super();
-    }
 
     public ngOnInit() {
         // this._state.refreshUpcomingEvents();

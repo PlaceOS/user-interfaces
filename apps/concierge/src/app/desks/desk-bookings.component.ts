@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 
 import { SettingsService } from '@placeos/common';
 import { DesksStateService } from './desks-state.service';
@@ -301,6 +301,9 @@ import { DesksStateService } from './desks-state.service';
     standalone: false,
 })
 export class DeskBookingsComponent {
+    private _state = inject(DesksStateService);
+    private _settings = inject(SettingsService);
+
     public loading: string;
     public readonly filters = this._state.filters;
     public readonly has_more_pages = this._state.has_more_pages;
@@ -336,11 +339,6 @@ export class DeskBookingsComponent {
     public get time_format() {
         return this._settings.time_format;
     }
-
-    constructor(
-        private _state: DesksStateService,
-        private _settings: SettingsService,
-    ) {}
 
     private async runMethod(name: string, fn: () => Promise<void>) {
         this.loading = name;

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
     Booking,
@@ -74,6 +74,11 @@ export interface ScheduleOptions {
     providedIn: 'root',
 })
 export class ScheduleStateService extends AsyncHandler {
+    private _settings = inject(SettingsService);
+    private _org = inject(OrganisationService);
+    private _dialog = inject(MatDialog);
+    private _parking = inject(ParkingService);
+
     private _poll = new BehaviorSubject(0);
     private _poll_type = new BehaviorSubject<'api' | 'ws'>('api');
     private _loading = new BehaviorSubject(false);
@@ -548,12 +553,7 @@ export class ScheduleStateService extends AsyncHandler {
         }),
     );
 
-    constructor(
-        private _settings: SettingsService,
-        private _org: OrganisationService,
-        private _dialog: MatDialog,
-        private _parking: ParkingService,
-    ) {
+    constructor() {
         super();
         this.subscription(
             'poll_type',

@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { SettingsService, notifyError } from '@placeos/common';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
@@ -63,16 +63,14 @@ import { showMetadata, updateMetadata } from '@placeos/ts-client';
     standalone: false,
 })
 export class ItemListModalComponent implements OnInit {
+    private _bld_id = inject(MAT_DIALOG_DATA);
+    private _settings = inject(SettingsService);
+    private _dialog_ref = inject<MatDialogRef<ItemListModalComponent>>(MatDialogRef);
+
     public item_list: { name: string; email: string }[] = [];
     public loading = false;
 
     public identify = (index: number, item: any) => index;
-
-    constructor(
-        @Inject(MAT_DIALOG_DATA) private _bld_id: string,
-        private _settings: SettingsService,
-        private _dialog_ref: MatDialogRef<ItemListModalComponent>,
-    ) {}
 
     public async ngOnInit() {
         const metadata_key =
