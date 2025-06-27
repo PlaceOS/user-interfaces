@@ -208,6 +208,7 @@ export class VisitorRegistrationComponent implements OnInit {
             booking_type: 'visitor',
             self_registered: true,
             name: value.asset_name,
+            description: value.description || value.title || '',
             attendees: [
                 new User({
                     name: value.asset_name,
