@@ -35,9 +35,11 @@ import {
     SurveyQuestion,
     updateSurvey,
 } from '@placeos/ts-client';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { first, lastValueFrom } from 'rxjs';
+
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { SurveyOutletComponent } from 'libs/components/src/lib/survey-outlet.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import {
     NewSurveyService,
     QuestionTypeMap,
@@ -46,7 +48,6 @@ import {
 } from './new-survey.service';
 import { QuestionComponent } from './question.component';
 import { QuestionPipe } from './question.pipe';
-import { SurveyOutletComponent } from './survey-outlet.component';
 
 @Component({
     selector: 'survey-builder',

@@ -1,24 +1,19 @@
 import {
     ApplicationConfig,
-    ErrorHandler,
     LOCALE_ID,
     provideBrowserGlobalErrorListeners,
     provideZoneChangeDetection,
+    provideZonelessChangeDetection,
 } from '@angular/core';
-import {
-    provideRouter,
-    Route,
-    Router,
-    withHashLocation,
-} from '@angular/router';
-import { LocaleService } from '@placeos/common';
+import { provideRouter, Route, withHashLocation } from '@angular/router';
+import { provideServiceWorker } from '@angular/service-worker';
 
+import { LocaleService } from 'libs/common/src/lib/locale.service';
+import { environment } from '../environments/environment';
 import { NotFoundComponent } from './not-found.component';
 import { SurveyComponent } from './survey.component';
 
-import { provideServiceWorker } from '@angular/service-worker';
-import * as Sentry from '@sentry/angular';
-import { environment } from '../environments/environment';
+// import * as Sentry from '@sentry/angular';
 
 export const appRoutes: Route[] = [
     {
@@ -46,17 +41,18 @@ export const appConfig: ApplicationConfig = {
         provideServiceWorker('ngsw-worker.js', {
             enabled: environment.production,
         }),
+        provideZonelessChangeDetection(),
         provideRouter(appRoutes, withHashLocation()),
-        {
-            provide: ErrorHandler,
-            useValue: Sentry.createErrorHandler({
-                showDialog: false,
-            }),
-        },
-        {
-            provide: Sentry.TraceService,
-            deps: [Router],
-        },
+        // {
+        //     provide: ErrorHandler,
+        //     useValue: Sentry.createErrorHandler({
+        //         showDialog: false,
+        //     }),
+        // },
+        // {
+        //     provide: Sentry.TraceService,
+        //     deps: [Router],
+        // },
 
         {
             provide: LOCALE_ID,

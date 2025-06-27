@@ -16,13 +16,13 @@ import { UIModule } from '../ui/ui.module';
 
 import { BuildingListComponent } from './building-list.component';
 
+import { SurveyOutletComponent } from 'libs/components/src/lib/survey-outlet.component';
 import { NewSurveyWidgetComponent } from './new-survey-widget.component';
 import { QuestionModalComponent } from './question-modal.component';
 import { QuestionComponent } from './question.component';
 import { QuestionPipe } from './question.pipe';
 import { SurveyBuilderComponent } from './survey-builder.component';
 import { SurveyListingsComponent } from './survey-listings.component';
-import { SurveyOutletComponent } from './survey-outlet.component';
 import { SurveyResponsesComponent } from './survey-responses.component';
 import { SurveyComponent } from './survey.component';
 

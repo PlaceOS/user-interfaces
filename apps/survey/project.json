@@ -12,7 +12,7 @@
             "options": {
                 "outputPath": "dist/apps/survey",
                 "browser": "apps/survey/src/main.ts",
-                "polyfills": ["zone.js"],
+                "polyfills": [],
                 "baseHref": "./",
                 "tsConfig": "apps/survey/tsconfig.app.json",
                 "assets": [
@@ -57,7 +57,7 @@
                         {
                             "type": "initial",
                             "maximumWarning": "500kb",
-                            "maximumError": "1mb"
+                            "maximumError": "1.5mb"
                         },
                         {
                             "type": "anyComponentStyle",
