@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild, inject } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnDestroy, inject, viewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import {
     AsyncHandler,
@@ -108,8 +108,7 @@ export class CheckinQRScanComponent
     /** Email address of the visitor */
     public email: string;
     /** Video element to emit camera feed */
-    @ViewChild('video', { static: true })
-    private _video_el: ElementRef<HTMLVideoElement>;
+    private readonly _video_el = viewChild<ElementRef<HTMLVideoElement>>('video');
     /** QR Reader */
     private _reader;
 
@@ -130,8 +129,9 @@ export class CheckinQRScanComponent
     }
 
     public ngOnDestroy() {
-        if (this._video_el.nativeElement.srcObject) {
-            (this._video_el.nativeElement.srcObject as any)
+        const _video_el = this._video_el();
+        if (_video_el.nativeElement.srcObject) {
+            (_video_el.nativeElement.srcObject as any)
                 .getTracks()
                 .forEach((track) => track?.stop());
         }
@@ -215,16 +215,17 @@ export class CheckinQRScanComponent
 
     private setupQRReader() {
         this.timeout('setup_qr_reader', () => {
-            if (!this._video_el?.nativeElement) return this.setupQRReader();
+            const _video_el = this._video_el();
+            if (!_video_el?.nativeElement) return this.setupQRReader();
             if (
                 navigator.mediaDevices?.getUserMedia &&
-                !this._video_el.nativeElement.srcObject
+                !_video_el.nativeElement.srcObject
             ) {
                 navigator.mediaDevices
                     .getUserMedia({ video: true })
                     .then(
                         (stream) =>
-                            (this._video_el.nativeElement.srcObject = stream),
+                            (this._video_el().nativeElement.srcObject = stream),
                     )
                     .catch((e) =>
                         console.error('Unable to fetch media devices!', e),
@@ -232,7 +233,7 @@ export class CheckinQRScanComponent
             }
             if (!QrScanner) return;
             this._reader = new QrScanner(
-                this._video_el.nativeElement,
+                _video_el.nativeElement,
                 (r) => this.checkQRCode(r.data),
                 {},
             );

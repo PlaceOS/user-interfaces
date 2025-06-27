@@ -1,4 +1,4 @@
-import { Component, ViewChild, inject } from '@angular/core';
+import { Component, inject, viewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
@@ -520,8 +520,7 @@ export class AssetViewComponent extends AsyncHandler {
         ),
     );
 
-    @ViewChild(CustomTooltipComponent)
-    public _tooltip_el: CustomTooltipComponent;
+    public readonly _tooltip_el = viewChild(CustomTooltipComponent);
 
     public async deleteAsset() {
         this.deleting = true;
@@ -532,7 +531,7 @@ export class AssetViewComponent extends AsyncHandler {
     }
 
     public closeTooltip() {
-        this._tooltip_el?.close();
+        this._tooltip_el()?.close();
     }
 
     public get code() {

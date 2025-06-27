@@ -2,19 +2,19 @@ import { Overlay, OverlayRef } from '@angular/cdk/overlay';
 import { CdkPortal, PortalModule } from '@angular/cdk/portal';
 import { CommonModule } from '@angular/common';
 import {
-    Component,
-    ElementRef,
-    HostListener,
-    Injectable,
-    Injector,
-    Input,
-    OnChanges,
-    OnDestroy,
-    SimpleChanges,
-    TemplateRef,
-    Type,
-    ViewChild,
-    inject,
+  Component,
+  ElementRef,
+  HostListener,
+  Injectable,
+  Injector,
+  Input,
+  OnChanges,
+  OnDestroy,
+  SimpleChanges,
+  TemplateRef,
+  Type,
+  inject,
+  viewChild
 } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
 import { SanitizePipe } from './sanitise.pipe';
@@ -85,7 +85,7 @@ export class CustomTooltipComponent<T = any>
 
     private _overlay_ref: OverlayRef = null;
 
-    @ViewChild(CdkPortal) private _portal: CdkPortal;
+    private readonly _portal = viewChild(CdkPortal);
 
     @HostListener('click') public readonly onClick = () => this.open();
     @HostListener('touchend') public readonly onTouch = () => this.open();
@@ -123,7 +123,8 @@ export class CustomTooltipComponent<T = any>
                 }
                 this._updateType();
                 if (this._overlay_ref) this.close();
-                if (!this._portal) return;
+                const _portal = this._portal();
+                if (!_portal) return;
                 const pos = this._element.nativeElement.getBoundingClientRect();
                 const default_x = 'end';
                 const default_y = 'top';
@@ -146,7 +147,7 @@ export class CustomTooltipComponent<T = any>
                             },
                         ]),
                 });
-                this._overlay_ref.attach(this._portal);
+                this._overlay_ref.attach(_portal);
                 if (this.backdrop) {
                     this.subscription(
                         'backdrop',

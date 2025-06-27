@@ -1,12 +1,12 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import {
-    Component,
-    forwardRef,
-    inject,
-    Injector,
-    Input,
-    OnInit,
-    ViewChild,
+  Component,
+  forwardRef,
+  inject,
+  Injector,
+  Input,
+  OnInit,
+  viewChild
 } from '@angular/core';
 import {
     ControlValueAccessor,
@@ -170,7 +170,7 @@ export class DateFieldComponent
         return tz_offset === this._local_tz ? '' : tz_offset;
     }
 
-    @ViewChild(CustomTooltipComponent) private _tooltip: CustomTooltipComponent;
+    private readonly _tooltip = viewChild(CustomTooltipComponent);
 
     constructor() {
         super();
@@ -209,7 +209,7 @@ export class DateFieldComponent
         if (this._onChange) {
             this._onChange(new_date);
         }
-        this._tooltip?.close();
+        this._tooltip()?.close();
     }
 
     /* istanbul ignore next */
@@ -219,7 +219,7 @@ export class DateFieldComponent
      */
     public writeValue(value: number) {
         this.date = value;
-        this._tooltip?.close();
+        this._tooltip()?.close();
     }
 
     /* istanbul ignore next */

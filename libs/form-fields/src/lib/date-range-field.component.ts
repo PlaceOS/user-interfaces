@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, ContentChild, Input, ViewChild } from '@angular/core';
+import { Component, Input, contentChild, viewChild } from '@angular/core';
 import { NgControl } from '@angular/forms';
 import { AsyncHandler } from '@placeos/common';
 import { startOfDay } from 'date-fns';
@@ -23,11 +23,11 @@ import { DateRangeCalendarComponent } from './date-range-calendar.component';
             [class.opacity-30]="disabled"
         >
             <div class="flex-1 whitespace-nowrap">
-                {{ start_date?.value || now | date: 'MMM d, yyyy' }}
+                {{ start_date()?.value || now | date: 'MMM d, yyyy' }}
             </div>
             <div>&ndash;</div>
             <div class="flex-1 whitespace-nowrap">
-                {{ end_date?.value || now | date: 'MMM d, yyyy' }}
+                {{ end_date()?.value || now | date: 'MMM d, yyyy' }}
             </div>
             <icon class="text-2xl">today</icon>
         </button>
@@ -38,7 +38,7 @@ import { DateRangeCalendarComponent } from './date-range-calendar.component';
         <ng-template #calendar_picker>
             <div class="relative w-[18.25rem] rounded bg-base-100 px-2 py-4">
                 <date-range-calendar
-                    [month]="start_date?.control?.value || now"
+                    [month]="start_date()?.control?.value || now"
                     [from]="from"
                     [to]="until"
                     [offset_weekday]="week_start"
@@ -69,20 +69,21 @@ export class DateRangeFieldComponent extends AsyncHandler {
 
     public readonly now = Date.now();
 
-    @ContentChild('startDate', { read: NgControl })
-    public start_date?: NgControl;
-    @ContentChild('endDate', { read: NgControl }) public end_date?: NgControl;
+    public readonly start_date = contentChild('startDate', { read: NgControl });
+    public readonly end_date = contentChild('endDate', { read: NgControl });
 
-    @ViewChild(CustomTooltipComponent) private _tooltip: CustomTooltipComponent;
+    private readonly _tooltip = viewChild(CustomTooltipComponent);
 
     public setStartDate(date: number) {
-        if (!this.start_date) return;
-        this.start_date.control.setValue(date);
+        const start_date = this.start_date();
+        if (!start_date) return;
+        start_date.control.setValue(date);
     }
 
     public setEndDate(date: number) {
-        this._tooltip?.close();
-        if (!this.end_date) return;
-        this.end_date.control.setValue(date);
+        this._tooltip()?.close();
+        const end_date = this.end_date();
+        if (!end_date) return;
+        end_date.control.setValue(date);
     }
 }

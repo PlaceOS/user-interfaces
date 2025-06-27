@@ -1,23 +1,22 @@
 import { CommonModule } from '@angular/common';
 import {
-    AfterViewInit,
-    Component,
-    ElementRef,
-    EventEmitter,
-    HostListener,
-    inject,
-    Injector,
-    Input,
-    OnChanges,
-    OnDestroy,
-    OnInit,
-    Output,
-    QueryList,
-    SimpleChanges,
-    TemplateRef,
-    Type,
-    ViewChild,
-    ViewChildren,
+  AfterViewInit,
+  Component,
+  ElementRef,
+  EventEmitter,
+  HostListener,
+  inject,
+  Injector,
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  Output,
+  SimpleChanges,
+  TemplateRef,
+  Type,
+  viewChild,
+  viewChildren
 } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
@@ -183,10 +182,8 @@ export class MapRendererComponent
         position: this._on_changes.pipe(map((_) => _.center)),
     };
 
-    @ViewChild('outlet') private _outlet_el: ElementRef<HTMLDivElement>;
-    @ViewChildren('feature') private _feature_list: QueryList<
-        ElementRef<HTMLDivElement>
-    >;
+    private readonly _outlet_el = viewChild<ElementRef<HTMLDivElement>>('outlet');
+    private readonly _feature_list = viewChildren<ElementRef<HTMLDivElement>>('feature');
 
     @HostListener('window:resize') public onResize() {
         this.zoom = 1;
@@ -308,7 +305,8 @@ export class MapRendererComponent
         }
         const simp_url = this.src?.toLowerCase() || '';
         if (!simp_url.includes('svg') && !simp_url.includes('upload')) return;
-        if (this.src && this._outlet_el?.nativeElement && !this.loading) {
+        const _outlet_el = this._outlet_el();
+        if (this.src && _outlet_el?.nativeElement && !this.loading) {
             this.loading = true;
             if (this.viewer) {
                 try {
@@ -335,7 +333,7 @@ export class MapRendererComponent
                 location.protocol === 'https:' ? 'secure;' : ''
             }`;
             this.viewer = await createViewer({
-                element: this._outlet_el?.nativeElement,
+                element: _outlet_el?.nativeElement,
                 url: this.src,
                 styles: this.styles,
                 zoom: this.zoom,
@@ -366,7 +364,7 @@ export class MapRendererComponent
             this.mapInfo.emit(viewer.mappings);
             if (this.focus) this.focusOn(this.focus);
         } else if (
-            (this.src && !this._outlet_el?.nativeElement) ||
+            (this.src && !_outlet_el?.nativeElement) ||
             this.loading
         ) {
             this.timeout('create_view', () =>
@@ -397,7 +395,7 @@ export class MapRendererComponent
         this.feature_list = (this.features || [])
             .map((f, idx) => ({
                 ...f,
-                content: this._feature_list.toArray()[idx]?.nativeElement,
+                content: this._feature_list[idx]?.nativeElement,
             }))
             .filter((f) => f.content);
     }

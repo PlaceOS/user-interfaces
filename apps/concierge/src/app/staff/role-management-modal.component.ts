@@ -1,4 +1,4 @@
-import { Component, ViewChild, inject } from '@angular/core';
+import { Component, inject, viewChild } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { nextValueFrom } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
@@ -110,7 +110,7 @@ export class RoleManagementModalComponent {
     );
     public readonly roles = this.data.pipe(map((_) => _.roles));
 
-    @ViewChild(CustomTooltipComponent) private _tooltip: CustomTooltipComponent;
+    private readonly _tooltip = viewChild(CustomTooltipComponent);
 
     public async removeRole(role: string) {
         if (!role) return;
@@ -138,7 +138,7 @@ export class RoleManagementModalComponent {
     public async updateRoles() {
         if (!this.role_name) return;
         this.loading = true;
-        this._tooltip.close();
+        this._tooltip().close();
         this._dialog_ref.disableClose = true;
         const data: any = await nextValueFrom(this.data);
         await updateMetadata(this._org.building.id, {

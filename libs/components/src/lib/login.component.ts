@@ -1,9 +1,9 @@
 import {
-    Component,
-    ElementRef,
-    OnInit,
-    ViewChild,
-    inject,
+  Component,
+  ElementRef,
+  OnInit,
+  inject,
+  viewChild
 } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { SettingsService } from '@placeos/common';
@@ -110,8 +110,7 @@ export class LoginComponent implements OnInit {
     });
 
     /** Password field element */
-    @ViewChild('pass_field', { static: true })
-    private pwd_field: ElementRef<HTMLInputElement>;
+    private readonly pwd_field = viewChild<ElementRef<HTMLInputElement>>('pass_field');
 
     public readonly logo = this._org.active_building.pipe(
         debounceTime(500),
@@ -131,8 +130,9 @@ export class LoginComponent implements OnInit {
 
     /** Focus on the password field */
     public toPassword() {
-        if (this.pwd_field && this.pwd_field.nativeElement) {
-            this.pwd_field.nativeElement.focus();
+        const pwd_field = this.pwd_field();
+        if (pwd_field && pwd_field.nativeElement) {
+            pwd_field.nativeElement.focus();
         }
     }
 

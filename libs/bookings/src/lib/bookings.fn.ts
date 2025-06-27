@@ -514,7 +514,7 @@ export async function createBookingsForEvent(
                         booking_type: type,
                         date: event.date,
                         duration: event.duration,
-                        description: (item as any).name,
+                        description: event.title || (item as any).name,
                         user_email: event.host,
                         asset_id: item.email || item.id,
                         asset_name: (item as any).name,

@@ -1,10 +1,10 @@
 import { CommonModule } from '@angular/common';
 import {
-    Component,
-    ElementRef,
-    OnInit,
-    ViewChild,
-    inject,
+  Component,
+  ElementRef,
+  OnInit,
+  inject,
+  viewChild
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
@@ -256,8 +256,8 @@ export class ChatComponent extends AsyncHandler implements OnInit {
         return this._settings.get('app.chat.enabled');
     }
 
-    @ViewChild('input') private _input_el: ElementRef<HTMLTextAreaElement>;
-    @ViewChild('container') private _container_el: ElementRef<HTMLDivElement>;
+    private readonly _input_el = viewChild<ElementRef<HTMLTextAreaElement>>('input');
+    private readonly _container_el = viewChild<ElementRef<HTMLDivElement>>('container');
 
     public toggleChat() {
         this.show = !this.show;
@@ -295,7 +295,7 @@ export class ChatComponent extends AsyncHandler implements OnInit {
     }
 
     public resizeInput() {
-        const el = this._input_el.nativeElement;
+        const el = this._input_el().nativeElement;
         this.height = Math.max(el.scrollHeight, 56);
     }
 
@@ -308,16 +308,17 @@ export class ChatComponent extends AsyncHandler implements OnInit {
         this._chat.sendMessage(this.message);
         this.message = '';
         this.height = 56;
-        setTimeout(() => this._input_el.nativeElement.focus(), 100);
+        setTimeout(() => this._input_el().nativeElement.focus(), 100);
     }
 
     public scrollToBottom(delay = 300) {
         this.timeout(
             'scroll',
             () => {
-                if (this._container_el?.nativeElement) {
-                    this._container_el.nativeElement.scrollTop =
-                        this._container_el.nativeElement.scrollHeight;
+                const _container_el = this._container_el();
+                if (_container_el?.nativeElement) {
+                    _container_el.nativeElement.scrollTop =
+                        _container_el.nativeElement.scrollHeight;
                 }
             },
             delay,

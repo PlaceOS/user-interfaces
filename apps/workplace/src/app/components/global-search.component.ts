@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild, inject } from '@angular/core';
+import { Component, ElementRef, inject, viewChild } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
 
 import { ExploreSearchService } from '@placeos/explore';
@@ -139,11 +139,11 @@ export class GlobalSearchComponent extends AsyncHandler {
             ? (this.filter_str = '')
             : this._service.setFilter(s);
 
-    @ViewChild('input') public _input_el: ElementRef<HTMLInputElement>;
+    public readonly _input_el = viewChild<ElementRef<HTMLInputElement>>('input');
 
     public showInput() {
         this.show = true;
-        this._input_el.nativeElement.focus();
+        this._input_el().nativeElement.focus();
         this.clearTimeout('close');
     }
 

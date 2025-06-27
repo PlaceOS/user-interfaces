@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnInit, inject, viewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import {
     AsyncHandler,
@@ -186,7 +186,7 @@ export class TopMenuComponent
         return '';
     }
 
-    @ViewChild('menuContainer') private menu: ElementRef<HTMLDivElement>;
+    private readonly menu = viewChild<ElementRef<HTMLDivElement>>('menuContainer');
 
     public ngOnInit() {
         this.checking = true;
@@ -275,7 +275,7 @@ export class TopMenuComponent
     }
 
     public checkMenu() {
-        const menu_width = this.menu.nativeElement?.offsetWidth || 0;
+        const menu_width = this.menu().nativeElement?.offsetWidth || 0;
         const container_width =
             this._element.nativeElement.parentElement.offsetWidth;
         this.checking = false;

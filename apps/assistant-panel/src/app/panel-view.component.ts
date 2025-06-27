@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild, inject } from '@angular/core';
+import { Component, ElementRef, inject, viewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AsyncHandler, currentUser } from '@placeos/common';
 import { ChatService } from 'libs/components/src/lib/chat/chat.service';
@@ -256,14 +256,10 @@ export class PanelViewComponent extends AsyncHandler {
     );
 
     private _recognition: any;
-    @ViewChild('video', { static: true })
-    private _video_el: ElementRef<HTMLVideoElement>;
-    @ViewChild('canvas', { static: true })
-    private _canvas_el: ElementRef<HTMLCanvasElement>;
-    @ViewChild('message_element', { static: true })
-    private _message_el: ElementRef<HTMLDivElement>;
-    @ViewChild('waveform_canvas', { static: true })
-    private _waveform_canvas_el: ElementRef<HTMLCanvasElement>;
+    private readonly _video_el = viewChild<ElementRef<HTMLVideoElement>>('video');
+    private readonly _canvas_el = viewChild<ElementRef<HTMLCanvasElement>>('canvas');
+    private readonly _message_el = viewChild<ElementRef<HTMLDivElement>>('message_element');
+    private readonly _waveform_canvas_el = viewChild<ElementRef<HTMLCanvasElement>>('waveform_canvas');
 
     public get user() {
         return currentUser();
@@ -276,7 +272,7 @@ export class PanelViewComponent extends AsyncHandler {
             window.removeEventListener('click', start_voice);
         };
         window.addEventListener('click', start_voice);
-        this._context = this._canvas_el.nativeElement.getContext('2d', {
+        this._context = this._canvas_el().nativeElement.getContext('2d', {
             willReadFrequently: true,
         });
         this._setupWebcam();
@@ -376,7 +372,7 @@ export class PanelViewComponent extends AsyncHandler {
     }
 
     private _webcamToTensor() {
-        const videoElement = this._video_el.nativeElement;
+        const videoElement = this._video_el().nativeElement;
 
         this._context.drawImage(videoElement, 0, 0, 640, 640);
         const imageData = this._context.getImageData(0, 0, 640, 640);
@@ -430,7 +426,7 @@ export class PanelViewComponent extends AsyncHandler {
             const stream = await navigator.mediaDevices.getUserMedia({
                 video: true,
             });
-            this._video_el.nativeElement.srcObject = stream;
+            this._video_el().nativeElement.srcObject = stream;
         } else {
             console.error('getUserMedia is not supported');
         }
@@ -550,7 +546,7 @@ export class PanelViewComponent extends AsyncHandler {
         this.timeout(
             'scroll_to_bottom',
             () => {
-                const el = this._message_el.nativeElement;
+                const el = this._message_el().nativeElement;
                 el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
             },
             50,
@@ -593,7 +589,7 @@ export class PanelViewComponent extends AsyncHandler {
 
     private _drawWaveform() {
         if (!this.setup) return;
-        const canvas = this._waveform_canvas_el.nativeElement;
+        const canvas = this._waveform_canvas_el().nativeElement;
         const height = canvas.height;
         const width = canvas.width;
         const context = canvas.getContext('2d');

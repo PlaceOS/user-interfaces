@@ -1,13 +1,13 @@
 import {
-    Component,
-    ElementRef,
-    EventEmitter,
-    Input,
-    OnInit,
-    Output,
-    SimpleChanges,
-    ViewChild,
-    inject,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+  SimpleChanges,
+  inject,
+  viewChild
 } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -89,8 +89,7 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
     private _floor_list: any[] = [];
     private _last_building: string;
 
-    @ViewChild('map_container', { static: true })
-    private _container: ElementRef<HTMLDivElement>;
+    private readonly _container = viewChild<ElementRef<HTMLDivElement>>('map_container');
 
     constructor() {
         super();
@@ -154,7 +153,7 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
             this._org.building?.location || `-33.8567844,151.2152967`
         ).split(',');
         const view_options: Record<string, any> = {
-            element: this._container.nativeElement,
+            element: this._container().nativeElement,
             center: { lat: parseFloat(lat), lng: parseFloat(long) },
             zoom: DEFAULT_ZOOM,
             maxZoom: 24,

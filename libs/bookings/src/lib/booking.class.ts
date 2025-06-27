@@ -239,6 +239,7 @@ export class Booking {
         this.asset_name =
             data.asset_name ||
             data.extension_data?.asset_name ||
+            data.extension_data?.name ||
             data.description ||
             data.asset_id ||
             '';

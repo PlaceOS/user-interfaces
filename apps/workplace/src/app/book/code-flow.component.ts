@@ -1,12 +1,12 @@
 import {
-    Component,
-    ElementRef,
-    EventEmitter,
-    inject,
-    OnDestroy,
-    OnInit,
-    Output,
-    ViewChild,
+  Component,
+  ElementRef,
+  EventEmitter,
+  inject,
+  OnDestroy,
+  OnInit,
+  Output,
+  viewChild
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
@@ -197,12 +197,12 @@ export class BookCodeFlowComponent
 
     private _qr_scanner;
     /** Video element to emit camera feed */
-    @ViewChild('video')
-    private _video_el: ElementRef<HTMLVideoElement>;
+    private readonly _video_el = viewChild<ElementRef<HTMLVideoElement>>('video');
 
     public ngOnDestroy() {
-        if (this._video_el?.nativeElement?.srcObject) {
-            (this._video_el.nativeElement.srcObject as any)
+        const _video_el = this._video_el();
+        if (_video_el?.nativeElement?.srcObject) {
+            (_video_el.nativeElement.srcObject as any)
                 .getTracks()
                 .forEach((track) => track?.stop());
         }
@@ -229,9 +229,9 @@ export class BookCodeFlowComponent
         if (!navigator.mediaDevices?.getUserMedia || this.loading) return;
         navigator.mediaDevices
             .getUserMedia({ video: true })
-            .then((stream) => (this._video_el.nativeElement.srcObject = stream))
+            .then((stream) => (this._video_el().nativeElement.srcObject = stream))
             .catch((e) => console.error('Unable to fetch media devices!', e));
-        this._qr_scanner = new QrScanner(this._video_el.nativeElement, (r) =>
+        this._qr_scanner = new QrScanner(this._video_el().nativeElement, (r) =>
             this.handleQrCode(r),
         );
         this._qr_scanner.start();
