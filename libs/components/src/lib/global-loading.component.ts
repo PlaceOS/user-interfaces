@@ -1,7 +1,10 @@
-import { Component, OnInit, inject } from '@angular/core';
-import { AsyncHandler, SettingsService } from '@placeos/common';
+import { Component, inject, OnInit } from '@angular/core';
+import {
+    AsyncHandler,
+    firstTruthyValueFrom,
+    SettingsService,
+} from '@placeos/common';
 import { authority, isOnline, token } from '@placeos/ts-client';
-import { first } from 'rxjs/operators';
 
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
@@ -12,7 +15,7 @@ import { TranslatePipe } from './translate.pipe';
     template: `
         @if (!online) {
             <div
-                class="fixed bottom-2 left-1/2 -translate-x-1/2 rounded-3xl bg-error px-4 py-2 text-xs text-white shadow"
+                class="fixed bottom-2 left-1/2 z-50 -translate-x-1/2 rounded-3xl bg-error px-4 py-2 text-xs text-white shadow"
             >
                 {{ 'COMMON.SERVER_DOWN' | translate }}
             </div>
@@ -20,7 +23,7 @@ import { TranslatePipe } from './translate.pipe';
         @if (loading) {
             <div
                 loader
-                class="pointer-events-auto fixed inset-0 flex items-center justify-center bg-base-100"
+                class="pointer-events-auto fixed inset-0 z-40 flex items-center justify-center bg-base-100"
             >
                 <mat-spinner [diameter]="64"></mat-spinner>
             </div>
@@ -56,8 +59,8 @@ export class GlobalLoadingComponent extends AsyncHandler implements OnInit {
 
     public async ngOnInit() {
         this.loading = true;
-        await this._org.initialised.pipe(first((_) => _)).toPromise();
-        await this._settings.initialised.pipe(first((_) => _)).toPromise();
+        await firstTruthyValueFrom(this._org.initialised);
+        await firstTruthyValueFrom(this._settings.initialised);
         this.interval(
             'has_token',
             () => {

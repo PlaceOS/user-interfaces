@@ -21,6 +21,7 @@ import {
     AsyncHandler,
     current_user,
     currentUser,
+    firstTruthyValueFrom,
     hasNewVersion,
     HotkeysService,
     isMobileSafari,
@@ -191,7 +192,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
         setNotifyOutlet(this._snackbar);
         setTranslationService(this._locale);
         /** Wait for settings to initialise */
-        await lastValueFrom(this._settings.initialised.pipe(first((_) => _)));
+        await firstTruthyValueFrom(this._settings.initialised);
         setAppName(this._settings.get('app.short_name'));
         const settings = this._settings.get('composer') || {};
         settings.mock =

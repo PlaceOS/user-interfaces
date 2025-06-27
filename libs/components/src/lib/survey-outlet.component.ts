@@ -1,9 +1,11 @@
 import {
     Component,
+    inject,
     input,
     model,
     OnChanges,
     OnInit,
+    output,
     signal,
     SimpleChanges,
 } from '@angular/core';
@@ -340,7 +342,12 @@ export class SurveyOutletComponent
     extends AsyncHandler
     implements OnChanges, OnInit
 {
+    private readonly _route = inject(ActivatedRoute);
+    private readonly _settings = inject(SettingsService);
+
     public readonly preview = input<boolean>(false);
+    public readonly not_found = output<boolean>();
+
     public readonly survey_id = model<string>('');
     public readonly active_page = signal(0);
     public readonly loading = signal('');
@@ -355,13 +362,6 @@ export class SurveyOutletComponent
                 ? this._settings.get('app.logo_dark')
                 : this._settings.get('app.logo_light')) || {}
         );
-    }
-
-    constructor(
-        private _route: ActivatedRoute,
-        private _settings: SettingsService,
-    ) {
-        super();
     }
 
     public ngOnInit() {
@@ -424,12 +424,13 @@ export class SurveyOutletComponent
     }
 
     private async _updateSurvey() {
+        this.timeout('not_found', () => this.not_found.emit(true));
         if (!this.survey_id()) return;
         this.loading.set('Loading survey details...');
         const survey = await lastValueFrom(showSurvey(this.survey_id()));
         this.survey.set(survey);
-        console.log('Survey:', this.survey);
-        this._loadQuestions();
+        await this._loadQuestions();
+        this.clearTimeout('not_found');
     }
 
     private async _loadQuestions() {
