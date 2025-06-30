@@ -30,6 +30,7 @@ import { PrintableComponent } from 'libs/components/src/lib/printable.component'
 import { SanitizePipe } from 'libs/components/src/lib/sanitise.pipe';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { UserAvatarComponent } from 'libs/components/src/lib/user-avatar.component';
+import { UserLabelComponent } from 'libs/users/src/lib/user-label.component';
 
 const ROUTES: Route[] = [
     {
@@ -69,6 +70,7 @@ const STANDALONE_COMPONENTS = [
     UserAvatarComponent,
     PrintableComponent,
     SanitizePipe,
+    UserLabelComponent,
 ];
 
 @NgModule({
