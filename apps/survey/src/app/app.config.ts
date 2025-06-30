@@ -2,7 +2,6 @@ import {
     ApplicationConfig,
     LOCALE_ID,
     provideBrowserGlobalErrorListeners,
-    provideZoneChangeDetection,
     provideZonelessChangeDetection,
 } from '@angular/core';
 import { provideRouter, Route, withHashLocation } from '@angular/router';
@@ -37,7 +36,6 @@ export const appRoutes: Route[] = [
 export const appConfig: ApplicationConfig = {
     providers: [
         provideBrowserGlobalErrorListeners(),
-        provideZoneChangeDetection({ eventCoalescing: true }),
         provideServiceWorker('ngsw-worker.js', {
             enabled: environment.production,
         }),

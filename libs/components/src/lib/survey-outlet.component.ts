@@ -36,7 +36,7 @@ import {
 } from '@placeos/ts-client';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { forkJoin, lastValueFrom, Observable } from 'rxjs';
+import { catchError, forkJoin, lastValueFrom, Observable, of } from 'rxjs';
 
 @Component({
     selector: `survey-outlet`,
@@ -427,7 +427,10 @@ export class SurveyOutletComponent
         this.timeout('not_found', () => this.not_found.emit(true));
         if (!this.survey_id()) return;
         this.loading.set('Loading survey details...');
-        const survey = await lastValueFrom(showSurvey(this.survey_id()));
+        const survey = await lastValueFrom(
+            showSurvey(this.survey_id()).pipe(catchError((_) => of(null))),
+        );
+        if (!survey) return this.not_found.emit(true);
         this.survey.set(survey);
         await this._loadQuestions();
         this.clearTimeout('not_found');
