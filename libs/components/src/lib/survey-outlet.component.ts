@@ -410,7 +410,7 @@ export class SurveyOutletComponent
             const value = this.form.value[q_id];
             if (value !== null && value !== undefined) {
                 answers.push({
-                    survey_id: this.survey().id,
+                    survey_id: +`${this.survey().id}`,
                     question_id: q_id as any,
                     type: this.questions[q_id].type,
                     answer_json: value,
