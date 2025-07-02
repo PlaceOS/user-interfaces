@@ -181,8 +181,19 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
                     }
                 </div>
             </div>
-            <div class="w-full">
+            <div class="relative w-full">
                 <device-output-list></device-output-list>
+                @if ((hide_present_all | async) !== true) {
+                    <button
+                        btn
+                        matRipple
+                        class="absolute -bottom-14 left-4 z-20 space-x-2"
+                        (click)="presentToAll()"
+                    >
+                        <icon class="text-2xl">output</icon>
+                        <div class="pr-4">Present to all</div>
+                    </button>
+                }
             </div>
         </div>
     `,
@@ -203,6 +214,7 @@ export class TabOutletComponent extends AsyncHandler implements OnInit {
 
     public hearing_tloop = false;
     public readonly active_tab = new BehaviorSubject('');
+    public readonly hide_present_all = this._service.hide_present_all;
     public readonly system$ = this._service.system;
     public readonly tabs = this._service.tabs;
     public readonly call = this._vc_state.call;
@@ -291,6 +303,12 @@ export class TabOutletComponent extends AsyncHandler implements OnInit {
                           );
                 }),
         );
+    }
+
+    public async presentToAll() {
+        const tab = await nextValueFrom(this.tab);
+        if (!tab) return;
+        this._service.routeToAll(tab.name);
     }
 
     public onAction() {

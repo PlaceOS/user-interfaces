@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { getModule, PlaceSystem, showSystem } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
@@ -281,6 +281,11 @@ export class ControlStateService extends AsyncHandler {
         map((_) => !!_),
         shareReplay(1),
     );
+    public readonly hide_present_all: Observable<boolean> = this.system_id.pipe(
+        switchMap((id) => this._listenToSystemBinding(id, 'hide_present_all')),
+        map((_) => !!_),
+        shareReplay(1),
+    );
 
     public readonly join_status: Observable<[boolean, boolean]> =
         this.system_id.pipe(
@@ -368,6 +373,10 @@ export class ControlStateService extends AsyncHandler {
     /** Clear the route on the output source */
     public unroute(output: string) {
         return this._execute('unroute', [output]);
+    }
+
+    public routeToAll(input: string) {
+        return this._execute('route_all', [input]);
     }
 
     /** Set the route of the active output */
