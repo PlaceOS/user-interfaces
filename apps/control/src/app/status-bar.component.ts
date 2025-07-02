@@ -107,26 +107,28 @@ import { ControlStateService } from './control-state.service';
             </div>
         }
         <div class="flex-1"></div>
-        <div
-            class="flex w-[32rem] max-w-[50%] items-center space-x-2 px-4 py-2 text-base-content"
-        >
-            <button icon matRipple (click)="toggleMute()">
-                <icon>{{
-                    (system | async).mute
-                        ? 'volume_off'
-                        : (system | async).volume > 0
-                          ? 'volume_up'
-                          : 'volume_mute'
-                }}</icon>
-            </button>
-            <mat-slider class="flex-1">
-                <input
-                    matSliderThumb
-                    [ngModel]="(system | async).volume || 0"
-                    (ngModelChange)="setVolume($event); mute = false"
-                    [disabled]="(system | async).mute"
-            /></mat-slider>
-        </div>
+        @if ((has_master_audio | async) !== false) {
+            <div
+                class="flex w-[32rem] max-w-[50%] items-center space-x-2 px-4 py-2 text-base-content"
+            >
+                <button icon matRipple (click)="toggleMute()">
+                    <icon>{{
+                        (system | async).mute
+                            ? 'volume_off'
+                            : (system | async).volume > 0
+                              ? 'volume_up'
+                              : 'volume_mute'
+                    }}</icon>
+                </button>
+                <mat-slider class="flex-1">
+                    <input
+                        matSliderThumb
+                        [ngModel]="(system | async).volume || 0"
+                        (ngModelChange)="setVolume($event); mute = false"
+                        [disabled]="(system | async).mute"
+                /></mat-slider>
+            </div>
+        }
     `,
     styles: [
         `
@@ -145,6 +147,7 @@ export class ControlStatusBarComponent extends AsyncHandler {
 
     /** Details of the active system */
     public readonly system = this._state.system;
+    public readonly has_master_audio = this._state.has_master_audio;
 
     public readonly capture_mod = this._state.capture_list.pipe(
         map((_) => _[0]),
