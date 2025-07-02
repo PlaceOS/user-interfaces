@@ -4,7 +4,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 @Component({
     selector: 'invite-visitor-modal',
     template: `
-        <main class="relative min-h-[40rem] min-w-[40rem]">
+        <main class="relative max-h-[80vh] min-h-[40rem] min-w-[40rem]">
             <invite-visitor-form
                 [date]="date"
                 (done)="onDone()"
@@ -16,9 +16,10 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 })
 export class InviteVisitorModalComponent {
     private _data = inject<{
-    date: number;
-}>(MAT_DIALOG_DATA);
-    private _dialog_ref = inject<MatDialogRef<InviteVisitorModalComponent>>(MatDialogRef);
+        date: number;
+    }>(MAT_DIALOG_DATA);
+    private _dialog_ref =
+        inject<MatDialogRef<InviteVisitorModalComponent>>(MatDialogRef);
 
     public readonly date = this._data.date;
 

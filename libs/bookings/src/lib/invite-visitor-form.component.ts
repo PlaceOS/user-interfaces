@@ -312,6 +312,24 @@ import { Booking } from './booking.class';
                                     />
                                 </mat-form-field>
                             </div>
+                            @if (allow_pass_number) {
+                                <div class="flex flex-col">
+                                    <label for="pass">{{
+                                        'BOOKINGS.VISITOR_PASS' | translate
+                                    }}</label>
+                                    <mat-form-field appearance="outline">
+                                        <input
+                                            name="pass"
+                                            matInput
+                                            formControlName="pass_number"
+                                            [placeholder]="
+                                                'BOOKINGS.VISITOR_PASS_PLACEHOLDER'
+                                                    | translate
+                                            "
+                                        />
+                                    </mat-form-field>
+                                </div>
+                            }
                         </form>
                     }
                     <div
@@ -505,6 +523,10 @@ export class InviteVisitorFormComponent
             this._settings.get('app.bookings.max_duration') ||
             4 * 60
         );
+    }
+
+    public get allow_pass_number() {
+        return this._settings.get('app.visitors.allow_pass_number') || true;
     }
 
     public get multiple() {

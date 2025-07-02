@@ -754,6 +754,10 @@ import { VERSION } from '@placeos/common';
                                         formControlName="has_parking"
                                     ></settings-toggle>
                                     <settings-toggle
+                                        name="Allow setting pass number for visitors"
+                                        formControlName="allow_pass_number"
+                                    ></settings-toggle>
+                                    <settings-toggle
                                         name="Show calendar links after booking"
                                         formControlName="show_calendar_links"
                                     ></settings-toggle>
@@ -1205,9 +1209,10 @@ import { VERSION } from '@placeos/common';
 })
 export class ConciergeSettingsFormModalComponent {
     private _data = inject<{
-    zone: PlaceZone;
-}>(MAT_DIALOG_DATA);
-    private _dialog_ref = inject<MatDialogRef<ConciergeSettingsFormModalComponent>>(MatDialogRef);
+        zone: PlaceZone;
+    }>(MAT_DIALOG_DATA);
+    private _dialog_ref =
+        inject<MatDialogRef<ConciergeSettingsFormModalComponent>>(MatDialogRef);
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
 
@@ -1256,6 +1261,7 @@ export class ConciergeSettingsFormModalComponent {
         }),
         visitors: new FormGroup({
             has_parking: new FormControl(false),
+            allow_pass_number: new FormControl(false),
             show_calendar_links: new FormControl(false),
             hide_fields: new FormControl([]),
         }),
