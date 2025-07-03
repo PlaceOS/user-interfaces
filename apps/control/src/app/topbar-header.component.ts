@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { AsyncHandler, i18n, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { isTrusted } from '@placeos/ts-client';
@@ -7,6 +7,7 @@ import { debounceTime, map } from 'rxjs/operators';
 import { ControlStateService } from './control-state.service';
 import { CameraTooltipComponent } from './ui/camera-tooltip.component';
 import { JoinRoomTooltipComponent } from './ui/join-room-tooltip.component';
+import { LightingLevelsTooltipComponent } from './ui/lighting-levels-tooltip.component';
 import { LightingSceneTooltipComponent } from './ui/lighting-scene-tooltip.component';
 import { LightingTooltipComponent } from './ui/lighting-tooltip.component';
 import { MicrophoneTooltipComponent } from './ui/microphone-tooltip.component';
@@ -22,6 +23,7 @@ enum TOOLTIP {
     MEET,
     LIGHT_SCENES,
     LIGHTS,
+    LIGHT_LEVELS,
     ACCESSORIES,
     MICS,
     CAMERA,
@@ -140,6 +142,7 @@ export class TopbarHeaderComponent extends AsyncHandler implements OnInit {
         phone: PhoneDiallingTooltipComponent,
         video_conf: VideoConferenceTooltipComponent,
         lighting: LightingTooltipComponent,
+        lighting_levels: LightingLevelsTooltipComponent,
         lighting_scenes: LightingSceneTooltipComponent,
         power: PowerTooltipComponent,
         blinds: RoomAccessoryTooltipComponent,
@@ -202,6 +205,12 @@ export class TopbarHeaderComponent extends AsyncHandler implements OnInit {
                 show: true,
             },
             {
+                id: 'lighting_levels',
+                name: i18n('APP.CONTROL.ACTION_LIGHTING_LEVELS'),
+                icon: 'light',
+                show: true,
+            },
+            {
                 id: 'blinds',
                 name: i18n('APP.CONTROL.ACTION_ACCESSORIES'),
                 icon: 'unfold_more',
@@ -256,6 +265,7 @@ export class TopbarHeaderComponent extends AsyncHandler implements OnInit {
                 this._state.lighting_scenes,
                 this._state.help_items,
                 this._state.hide_join_button,
+                this._state.lighting_levels,
             ]).subscribe(
                 ([
                     mics,
@@ -272,6 +282,7 @@ export class TopbarHeaderComponent extends AsyncHandler implements OnInit {
                     l_scenes,
                     help_items,
                     hide_join_button,
+                    light_levels,
                 ]) => {
                     (this.action_list as any)[TOOLTIP.PHONE].show = !!(
                         system as any
@@ -302,6 +313,8 @@ export class TopbarHeaderComponent extends AsyncHandler implements OnInit {
                     this.action_list[TOOLTIP.HELP].show =
                         (help_items as any)?.length > 0;
                     this.action_list = [...this.action_list];
+                    this.action_list[TOOLTIP.LIGHT_LEVELS].show =
+                        (light_levels as any)?.length > 0;
                     this.action_list[TOOLTIP.LIGHT_SCENES].show =
                         l_scenes != null;
                 },
