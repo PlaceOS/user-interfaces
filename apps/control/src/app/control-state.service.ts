@@ -288,7 +288,6 @@ export class ControlStateService extends AsyncHandler {
     );
     public readonly has_master_audio: Observable<boolean> = this.system_id.pipe(
         switchMap((id) => this._listenToSystemBinding(id, 'has_master_audio')),
-        map((_) => !!_),
         shareReplay(1),
     );
 
