@@ -11,17 +11,6 @@ import { ControlStateService } from '../control-state.service';
         <div
             class="my-2 flex flex-col items-center space-y-2 rounded bg-base-100 p-2 shadow"
         >
-            @if (!!(lights | async)[0]) {
-                <div hidden>
-                    <i
-                        binding
-                        [(model)]="light"
-                        [sys]="id"
-                        mod="System"
-                        [bind]="'lights/' + (lights | async)[0]"
-                    ></i>
-                </div>
-            }
             <h3
                 class="mb-2 w-full rounded bg-base-200 px-4 py-2 text-xl font-medium"
             >
