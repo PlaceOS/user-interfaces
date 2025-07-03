@@ -219,7 +219,7 @@ export class CameraTooltipComponent extends AsyncHandler implements OnInit {
     /** Current tilting value for camera */
     public tilt: JoystickTilt = JoystickTilt.Stop;
     /** List of available cameras to select from */
-    public readonly camera_list = this._state.camera_list;
+    public readonly camera_list = this._state.available_cameras;
     /** Close the tooltip */
     public readonly close = () => this._tooltip.close();
 

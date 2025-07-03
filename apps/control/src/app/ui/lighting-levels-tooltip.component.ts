@@ -9,10 +9,10 @@ import { ControlStateService } from '../control-state.service';
     selector: 'lighting-tooltip',
     template: `
         <div
-            class="my-2 flex flex-col items-center space-y-2 rounded bg-base-100 p-2 shadow"
+            class="my-2 flex flex-col items-center space-y-4 rounded bg-base-100 p-2 shadow"
         >
             <h3
-                class="mb-2 w-full rounded bg-base-200 px-4 py-2 text-xl font-medium"
+                class="w-full rounded bg-base-200 px-4 py-2 text-xl font-medium"
             >
                 {{ 'APP.CONTROL.LIGHTING_LEVELS' | translate }}
             </h3>

@@ -9,6 +9,7 @@ import {
     filter,
     map,
     shareReplay,
+    startWith,
     switchMap,
     tap,
 } from 'rxjs/operators';
@@ -200,6 +201,24 @@ export class ControlStateService extends AsyncHandler {
         map((list) =>
             list?.filter((_) => _.type === 'cam' || _.mod?.includes('Camera')),
         ),
+        startWith([]),
+        shareReplay(1),
+    );
+    public readonly available_camera_list = this.system_id.pipe(
+        switchMap((id) => this._listenToSystemBinding(id, 'available_cameras')),
+        startWith([]),
+        shareReplay(1),
+    );
+    public readonly available_cameras = combineLatest([
+        this.camera_list,
+        this.available_camera_list,
+    ]).pipe(
+        map(([camera_list, available_cameras]) => {
+            if (!available_cameras?.length) return camera_list;
+            return camera_list.filter((camera) =>
+                available_cameras.includes(camera.id),
+            );
+        }),
         shareReplay(1),
     );
     public readonly selected_camera = this.system_id.pipe(
