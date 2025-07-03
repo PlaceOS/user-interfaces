@@ -27,12 +27,12 @@ import { ControlStateService } from '../control-state.service';
                             {{ level.name }}
                         </div>
                         <i
-                            bind
                             class="hidden"
+                            binding
                             [(model)]="level.value"
-                            [sys]="system | async"
+                            [sys]="id"
                             mod="Lighting"
-                            [binding]="level.binding"
+                            [bind]="level.binding"
                         ></i>
                         <mat-slider class="mt-2 w-[calc(100%-1rem)]">
                             <input
