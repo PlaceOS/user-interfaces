@@ -183,7 +183,10 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
             </div>
             <div class="relative w-full">
                 <device-output-list></device-output-list>
-                @if ((hide_present_all | async) !== true) {
+                @if (
+                    (hide_present_all | async) !== true &&
+                    (outputs | async).length > 1
+                ) {
                     <button
                         btn
                         matRipple
@@ -215,6 +218,9 @@ export class TabOutletComponent extends AsyncHandler implements OnInit {
     public hearing_tloop = false;
     public readonly active_tab = new BehaviorSubject('');
     public readonly hide_present_all = this._service.hide_present_all;
+    public readonly outputs = this._service.output_list.pipe(
+        map((_) => _ || []),
+    );
     public readonly system$ = this._service.system;
     public readonly tabs = this._service.tabs;
     public readonly call = this._vc_state.call;
