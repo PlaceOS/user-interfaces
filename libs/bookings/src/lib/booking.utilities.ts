@@ -93,6 +93,7 @@ export function generateBookingForm(booking: Booking = new Booking()) {
         plate_number: new FormControl(
             booking.extension_data.plate_number || '',
         ),
+        pass_number: new FormControl(booking.extension_data.pass_number || ''),
         recurrence_custom: new FormControl(
             booking.extension_data.recurrence_custom ?? false,
         ),

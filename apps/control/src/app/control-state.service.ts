@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { getModule, PlaceSystem, showSystem } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
@@ -231,6 +231,14 @@ export class ControlStateService extends AsyncHandler {
         switchMap((id) => this._listenToSystemBinding(id, 'lighting_scene')),
         shareReplay(1),
     );
+    public readonly lighting_levels: Observable<{
+        name: string;
+        area: any;
+        binding: string;
+    }> = this.system_id.pipe(
+        switchMap((id) => this._listenToSystemBinding(id, 'lighting_levels')),
+        shareReplay(1),
+    );
     public readonly room_accessories: Observable<RoomAccessory[]> =
         this.system_id.pipe(
             switchMap((id) =>
@@ -279,6 +287,15 @@ export class ControlStateService extends AsyncHandler {
     public readonly hide_join_button: Observable<boolean> = this.system_id.pipe(
         switchMap((id) => this._listenToSystemBinding(id, 'join_hide_button')),
         map((_) => !!_),
+        shareReplay(1),
+    );
+    public readonly hide_present_all: Observable<boolean> = this.system_id.pipe(
+        switchMap((id) => this._listenToSystemBinding(id, 'hide_present_all')),
+        map((_) => !!_),
+        shareReplay(1),
+    );
+    public readonly has_master_audio: Observable<boolean> = this.system_id.pipe(
+        switchMap((id) => this._listenToSystemBinding(id, 'has_master_audio')),
         shareReplay(1),
     );
 
@@ -368,6 +385,11 @@ export class ControlStateService extends AsyncHandler {
     /** Clear the route on the output source */
     public unroute(output: string) {
         return this._execute('unroute', [output]);
+    }
+
+    public routeToAll(input = '') {
+        if (!input) input = this._system.getValue().selected_input;
+        return this._execute('route_all', [input]);
     }
 
     /** Set the route of the active output */

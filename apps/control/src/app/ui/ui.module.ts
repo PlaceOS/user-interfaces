@@ -43,9 +43,11 @@ import { SafePipe } from 'libs/components/src/lib/safe.pipe';
 import { SanitizePipe } from 'libs/components/src/lib/sanitise.pipe';
 import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { LightingLevelsTooltipComponent } from './lighting-levels-tooltip.component';
 
 const COMPONENTS: Type<any>[] = [
     LightingTooltipComponent,
+    LightingLevelsTooltipComponent,
     PowerTooltipComponent,
     HelpTooltipComponent,
     RoomAccessoryTooltipComponent,

@@ -1,24 +1,29 @@
 import { Component, inject } from '@angular/core';
+import { showMetadata } from '@placeos/ts-client';
+import { lastValueFrom } from 'rxjs';
+
 import { Booking, saveBooking } from '@placeos/bookings';
 import {
     AsyncHandler,
     SettingsService,
     getTimezoneOffsetString,
+    i18n,
     notifyError,
+    notifySuccess,
 } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
-import { showMetadata } from '@placeos/ts-client';
 import { User } from '@placeos/users';
+
 import { generateQRCode } from 'libs/common/src/lib/qr-code';
-import { lastValueFrom } from 'rxjs';
 import { ParkingStateService } from '../parking/parking-state.service';
 import { VisitorsStateService } from './visitors-state.service';
 
 @Component({
     selector: 'guest-listings',
     template: `
-        <simple-table class="z-0 block text-sm"
-            [style.min-width]="64 + extra_width + 'rem'"
+        <simple-table
+            class="z-0 block text-sm"
+            [style.min-width]="68 + extra_width + 'rem'"
             [data]="guests"
             [columns]="[
                 {
@@ -62,13 +67,6 @@ import { VisitorsStateService } from './visitors-state.service';
                     size: '6rem',
                 },
                 {
-                    key: 'status',
-                    name: 'COMMON.STATE' | translate,
-                    content: status_template,
-                    show: !hide_field('status'),
-                    size: '9.5rem',
-                },
-                {
                     key: 'induction',
                     name: 'BOOKINGS.INDUCTED' | translate,
                     content: induction_template,
@@ -76,11 +74,25 @@ import { VisitorsStateService } from './visitors-state.service';
                     size: '5.5rem',
                 },
                 {
+                    key: 'pass_number',
+                    name: 'BOOKINGS.PASS_NUMBER' | translate,
+                    content: pass_template,
+                    show: pass_number_enabled || true,
+                    size: '6rem',
+                },
+                {
                     key: 'parking_space',
                     name: 'RESOURCE.PARKING' | translate,
                     content: parking_template,
                     show: !!has_parking,
                     size: '5.5rem',
+                },
+                {
+                    key: 'status',
+                    name: 'COMMON.STATE' | translate,
+                    content: status_template,
+                    show: !hide_field('status'),
+                    size: '9.5rem',
                 },
                 {
                     key: 'notes',
@@ -100,7 +112,7 @@ import { VisitorsStateService } from './visitors-state.service';
             ]"
             [filter]="search | async"
             [sortable]="true"
-         />
+        />
         <ng-template #state_template let-row="row">
             @if (!row?.checked_in && row.checked_out_at) {
                 <div
@@ -335,6 +347,14 @@ import { VisitorsStateService } from './visitors-state.service';
                 }
             </div>
         </ng-template>
+        <ng-template #pass_template let-row="row">
+            <div class="px-4">
+                {{ row.extension_data.pass_number }}
+                @if (!row.extension_data.pass_number) {
+                    <span class="opacity-30">No Pass</span>
+                }
+            </div>
+        </ng-template>
         <ng-template #date_template let-row="row">
             <div class="px-4">
                 {{
@@ -559,6 +579,53 @@ import { VisitorsStateService } from './visitors-state.service';
                             </div>
                         </div>
                     </a>
+                    @if (pass_number_enabled) {
+                        <button
+                            mat-menu-item
+                            [matMenuTriggerFor]="pass_menu"
+                            (click)="
+                                pass_number = row.extension_data.pass_number
+                            "
+                        >
+                            <div class="flex items-center space-x-2">
+                                <icon class="text-2xl">badge</icon>
+                                <div>
+                                    {{
+                                        'APP.CONCIERGE.VISITORS_ACTION_SET_PASS'
+                                            | translate
+                                    }}
+                                </div>
+                            </div>
+                        </button>
+                        <mat-menu #pass_menu>
+                            <div
+                                class="w-full space-y-2 px-2"
+                                (click)="$event.stopPropagation()"
+                            >
+                                <mat-form-field
+                                    appearance="outline"
+                                    class="no-subscript"
+                                >
+                                    <input
+                                        [(ngModel)]="pass_number"
+                                        matInput
+                                        [placeholder]="
+                                            'BOOKINGS.PASS_NUMBER' | translate
+                                        "
+                                    />
+                                </mat-form-field>
+                                <button
+                                    btn
+                                    matRipple
+                                    class="w-full"
+                                    [disabled]="!pass_number"
+                                    (click)="setPass(row, pass_number)"
+                                >
+                                    {{ 'COMMON.SAVE' | translate }}
+                                </button>
+                            </div>
+                        </mat-menu>
+                    }
                     @if (!row.checked_out_at) {
                         <button
                             mat-menu-item
@@ -675,6 +742,7 @@ export class GuestListingComponent extends AsyncHandler {
     public readonly filters = this._state.filters;
     public inductions_enabled = false;
     public qr_code = '';
+    public pass_number = '';
 
     public hide_field(id: string) {
         return (this._settings.get('app.visitors.hide_fields') || []).includes(
@@ -706,6 +774,10 @@ export class GuestListingComponent extends AsyncHandler {
         return (
             this._settings.get('app.visitors.allow_printing_label') !== false
         );
+    }
+
+    public get pass_number_enabled() {
+        return this._settings.get('app.visitors.allow_pass_number') !== false;
     }
 
     public readonly downloadVisitorList = () =>
@@ -808,5 +880,15 @@ export class GuestListingComponent extends AsyncHandler {
             ),
         );
         this._state.poll();
+    }
+
+    public async setPass(row: any, pass = '') {
+        if (!pass) return;
+        await lastValueFrom(
+            saveBooking(new Booking({ ...row, pass_number: pass } as any)),
+        );
+        this._state.poll();
+        this.pass_number = '';
+        notifySuccess(i18n('APP.CONCIERGE.VISITORS_SAVED_PASS'));
     }
 }

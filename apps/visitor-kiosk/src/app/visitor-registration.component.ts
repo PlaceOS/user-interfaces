@@ -106,8 +106,8 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                                 "
                             />
                         </mat-form-field>
-                        <label form="org">
-                            {{ 'APP.VISITOR_KIOSK.REASON' | translate }}
+                        <label form="reason">
+                            {{ 'BOOKINGS.VISITOR_REASON' | translate }}
                         </label>
                         <mat-form-field
                             appearance="outline"
@@ -118,10 +118,30 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                                 name="reason"
                                 formControlName="title"
                                 [placeholder]="
-                                    'APP.VISITOR_KIOSK.ORGANISATION' | translate
+                                    'BOOKINGS.VISITOR_REASON_PLACEHOLDER'
+                                        | translate
                                 "
                             />
                         </mat-form-field>
+                        @if (allow_pass_number) {
+                            <label form="pass">
+                                {{ 'BOOKINGS.VISITOR_PASS' | translate }}
+                            </label>
+                            <mat-form-field
+                                appearance="outline"
+                                class="no-subscript w-full"
+                            >
+                                <input
+                                    matInput
+                                    name="pass"
+                                    formControlName="pass_number"
+                                    [placeholder]="
+                                        'BOOKINGS.VISITOR_PASS_PLACEHOLDER'
+                                            | translate
+                                    "
+                                />
+                            </mat-form-field>
+                        }
                     </div>
                     <div
                         class="sticky bottom-0 z-10 m-2 flex w-[calc(100%-1rem)] items-center justify-end rounded border-none bg-base-200 p-2"
@@ -170,6 +190,10 @@ export class VisitorRegistrationComponent implements OnInit {
             this._settings.get('app.induction_enabled') &&
             this._settings.get('app.induction_details')
         );
+    }
+
+    public get allow_pass_number() {
+        return this._settings.get('app.allow_pass_number');
     }
 
     public get induction_after_details() {

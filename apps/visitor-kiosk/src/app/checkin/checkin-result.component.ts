@@ -37,107 +37,26 @@ const DEFAULT_TEMPLATE = `
                     class=""
                     [innerHTML]="result_template | async | sanitize: 'html'"
                 ></div>
-                <div
-                    printable
-                    class="print-only relative m-4 h-[14rem] w-[24rem] rounded-xl border border-neutral bg-base-100 p-4"
-                >
-                    <div class="flex h-full flex-col leading-tight">
-                        <div
-                            class="mb-2 flex h-[4.75rem] w-[4.75rem] items-center justify-center overflow-hidden rounded-full border-base-400 bg-base-200 text-3xl print:border-2"
-                        >
-                            <a-user-avatar
-                                [user]="{
-                                    name:
-                                        (event | async)?.asset_name ||
-                                        (event | async)?.description,
-                                    email: (event | async)?.asset_id,
-                                    photo: photo | async,
-                                }"
-                            ></a-user-avatar>
-                        </div>
-                        <div class="text-2xl">
-                            {{
-                                (event | async)?.asset_name ||
-                                    (event | async)?.description
-                            }}
-                        </div>
-                        <div class="text-sm">
-                            {{
-                                'APP.VISITOR_KIOSK.LABEL_FOR'
-                                    | translate
-                                        : { title: (event | async)?.title }
-                            }}
-                        </div>
-                        <div class="text-sm opacity-60">
-                            {{
-                                'APP.VISITOR_KIOSK.LABEL_HOST'
-                                    | translate
-                                        : {
-                                              host_name: (event | async)
-                                                  ?.user_name,
-                                          }
-                            }}
-                        </div>
-                    </div>
-                    <div
-                        class="absolute bottom-4 left-4 mt-2 w-32 rounded-lg border border-black px-2 py-1 text-center text-sm font-medium uppercase text-black"
-                    >
-                        {{ 'APP.VISITOR_KIOSK.VISITOR' | translate }}
-                    </div>
-                    <div class="absolute right-4 top-4 flex flex-col items-end">
-                        <img
-                            auth
-                            class="h-10"
-                            alt="Logo"
-                            [src]="logo?.src || logo"
+                @let ev = event | async;
+                @if (printing) {
+                    <div printable class="print-only">
+                        <user-label
+                            [user]="{
+                                name: ev?.asset_name || ev?.description,
+                                email: ev?.asset_id,
+                                photo: photo | async,
+                                title: ev?.title,
+                                host: ev?.user_name || ev.user_email,
+                                zones: zones,
+                                date: ev?.date || date,
+                                extra_details:
+                                    ev?.extension_data?.extra_details,
+                                qr_code: qr_code,
+                            }"
+                            class="!text-base"
                         />
-                        @if (zones | level) {
-                            <div class="text-right text-xs">
-                                {{
-                                    'APP.VISITOR_KIOSK.LABEL_LOCATION'
-                                        | translate
-                                            : {
-                                                  location:
-                                                      (zones | level)
-                                                          ?.display_name ||
-                                                      (zones | level)?.name,
-                                              }
-                                }}
-                            </div>
-                        }
-                        <pre class="text-right">
-                {{ (event | async)?.extension_data?.extra_details }}
-                </pre>
                     </div>
-                    <div
-                        class="absolute bottom-4 right-4 flex items-end space-x-2"
-                    >
-                        <div class="text-right font-medium leading-tight">
-                            <div>
-                                {{
-                                    (event | async)?.date || date
-                                        | date: 'shortTime'
-                                }}
-                            </div>
-                            <div>
-                                {{
-                                    (event | async)?.date || date
-                                        | date: 'mediumDate'
-                                }}
-                            </div>
-                        </div>
-                        <div
-                            class="relative h-16 w-16 rounded-lg border border-base-200 p-2"
-                        >
-                            @if (qr_code) {
-                                <img
-                                    class="h-12 w-12 object-contain object-center"
-                                    [src]="qr_code"
-                                />
-                            }
-                        </div>
-                    </div>
-                </div>
+                }
                 <div class="flex items-center space-x-2">
                     @if (allow_printing_label) {
                         <button btn matRipple class="w-32" (click)="print()">
@@ -183,6 +102,7 @@ export class CheckinResultsComponent extends AsyncHandler implements OnInit {
     public zones = [];
     public e;
     public allow_beverages = false;
+    public printing = false;
     public readonly event = this._checkin.event;
     public readonly guest = this._checkin.guest;
     public readonly photo = this._checkin.photo;
@@ -238,6 +158,7 @@ export class CheckinResultsComponent extends AsyncHandler implements OnInit {
     );
 
     public readonly print = () => {
+        this.printing = true;
         this.qr_code = generateQRCode(this.e?.asset_id);
         this.timeout('print', () => window.print());
     };

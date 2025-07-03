@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { nextValueFrom, SettingsService } from '@placeos/common';
 import { first } from 'rxjs/operators';
@@ -92,6 +92,27 @@ import { CheckinStateService } from './checkin-state.service';
                         />
                     </mat-form-field>
                 </div>
+                @if (allow_pass_number) {
+                    <div field class="flex flex-col">
+                        <label form="pass">
+                            {{ 'BOOKINGS.VISITOR_PASS' | translate }}
+                        </label>
+                        <mat-form-field
+                            appearance="outline"
+                            class="no-subscript w-full"
+                        >
+                            <input
+                                matInput
+                                name="pass"
+                                formControlName="pass_number"
+                                [placeholder]="
+                                    'BOOKINGS.VISITOR_PASS_PLACEHOLDER'
+                                        | translate
+                                "
+                            />
+                        </mat-form-field>
+                    </div>
+                }
                 <button next btn matRipple (click)="updateGuest()">
                     {{ 'APP.VISITOR_KIOSK.CONTINUE' | translate }}
                 </button>
@@ -149,6 +170,10 @@ export class CheckinDetailsComponent implements OnInit {
 
     public get induction_after_details() {
         return this._settings.get('app.induction_after_details');
+    }
+
+    public get allow_pass_number() {
+        return this._settings.get('app.allow_pass_number');
     }
 
     public get allow_user_photo() {

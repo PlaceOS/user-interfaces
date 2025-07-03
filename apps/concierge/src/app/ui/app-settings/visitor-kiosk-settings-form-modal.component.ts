@@ -142,6 +142,10 @@ import { DEFAULT_SETTINGS } from 'apps/visitor-kiosk/src/environments/settings';
                                     formControlName="allow_self_registration"
                                 ></settings-toggle>
                                 <settings-toggle
+                                    name="Allow setting visitor pass number"
+                                    formControlName="allow_pass_number"
+                                ></settings-toggle>
+                                <settings-toggle
                                     name="Allow Printing Label"
                                     formControlName="allow_printing_label"
                                 ></settings-toggle>
@@ -480,9 +484,12 @@ import { DEFAULT_SETTINGS } from 'apps/visitor-kiosk/src/environments/settings';
 })
 export class VisitorKioskSettingsFormModalComponent {
     private _data = inject<{
-    zone: PlaceZone;
-}>(MAT_DIALOG_DATA);
-    private _dialog_ref = inject<MatDialogRef<VisitorKioskSettingsFormModalComponent>>(MatDialogRef);
+        zone: PlaceZone;
+    }>(MAT_DIALOG_DATA);
+    private _dialog_ref =
+        inject<MatDialogRef<VisitorKioskSettingsFormModalComponent>>(
+            MatDialogRef,
+        );
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
 
@@ -504,6 +511,7 @@ export class VisitorKioskSettingsFormModalComponent {
         induction_details: new FormControl(''),
         induction_after_details: new FormControl(false),
         allow_self_registration: new FormControl(false),
+        allow_pass_number: new FormControl(false),
         allow_printing_label: new FormControl(false),
         explore: new FormGroup({
             hide_device_fields: new FormControl(false),

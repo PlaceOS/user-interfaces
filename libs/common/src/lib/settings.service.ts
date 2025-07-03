@@ -133,6 +133,7 @@ export class SettingsService extends AsyncHandler {
         this._initDarkMode();
         this._applyTheme();
         this._setFontSize();
+        this._setPrintFontSize();
     }
 
     /** Whether settings service has initialised */
@@ -244,6 +245,16 @@ export class SettingsService extends AsyncHandler {
             }
         }
         document.body.classList.add(`theme-${theme}`);
+    }
+
+    private _setPrintFontSize() {
+        let print_style_el = document.getElementById('placeos-print-block');
+        if (!print_style_el) {
+            print_style_el = document.createElement('style');
+            print_style_el.id = 'placeos-print-block';
+            document.head.appendChild(print_style_el);
+        }
+        print_style_el.innerText = `@media print { html, body { font-size: ${this.get('app.print_font_size') || '4mm'}; } }`;
     }
 
     private _initDarkMode() {

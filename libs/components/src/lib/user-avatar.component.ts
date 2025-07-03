@@ -13,12 +13,16 @@ import { AuthenticatedImageDirective } from './authenticated-image.directive';
                 @if (!user.photo) {
                     <div
                         initials
-                        class="text-[1em] uppercase text-base-content opacity-60"
+                        class="uppercase text-base-content opacity-60"
                     >
                         {{ initials }}
                     </div>
                 } @else {
-                    <img auth class="h-full w-full" [source]="user.photo" />
+                    <img
+                        auth
+                        class="h-full w-full object-cover object-center"
+                        [source]="user.photo"
+                    />
                 }
             </div>
         }

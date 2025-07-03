@@ -343,8 +343,8 @@ export class BookingFormService extends AsyncHandler {
         this.form.patchValue(
             cleanObject(
                 {
-                    ...booking,
                     ...booking.extension_data,
+                    ...booking,
                 },
                 [null, undefined, ''],
             ),
