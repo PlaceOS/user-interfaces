@@ -8,9 +8,11 @@ import { ControlStateService } from '../control-state.service';
     selector: 'lighting-tooltip',
     template: `
         <div
-            class="my-2 flex flex-col items-center space-y-2 rounded bg-base-100 p-4 shadow"
+            class="my-2 flex flex-col items-center space-y-2 rounded bg-base-100 px-2 pb-4 pt-2 shadow"
         >
-            <h3 class="mb-2 text-xl font-medium">
+            <h3
+                class="w-full rounded bg-base-200 px-4 py-2 text-xl font-medium"
+            >
                 {{ 'APP.CONTROL.ACTION_LIGHT_SCENES' | translate }}
             </h3>
             @if ((scenes | async).length) {
@@ -19,7 +21,7 @@ import { ControlStateService } from '../control-state.service';
                         state
                         btn
                         matRipple
-                        class="w-64"
+                        class="mx-2 w-64"
                         [class.inverse]="(scene | async) !== item.id"
                         (click)="setScene(item.name)"
                     >

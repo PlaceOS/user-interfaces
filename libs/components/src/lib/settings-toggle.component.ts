@@ -30,7 +30,7 @@ import { IconComponent } from './icon.component';
                 <div class="absolute inset-0 z-0 !m-0 bg-info opacity-10"></div>
             }
             @if (toggle) {
-                <div class="p-2">
+                <div class="px-2">
                     <div
                         toggle
                         class="relative h-8 w-12 rounded-full border-2 border-base-400"

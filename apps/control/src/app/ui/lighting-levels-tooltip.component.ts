@@ -9,7 +9,7 @@ import { ControlStateService } from '../control-state.service';
     selector: 'lighting-tooltip',
     template: `
         <div
-            class="my-2 flex flex-col items-center space-y-2 rounded bg-base-100 p-4 shadow"
+            class="my-2 flex flex-col items-center space-y-2 rounded bg-base-100 p-2 shadow"
         >
             @if (!!(lights | async)[0]) {
                 <div hidden>
@@ -22,16 +22,18 @@ import { ControlStateService } from '../control-state.service';
                     ></i>
                 </div>
             }
-            <h3 class="mb-2 text-xl font-medium">
+            <h3
+                class="mb-2 w-full rounded bg-base-200 px-4 py-2 text-xl font-medium"
+            >
                 {{ 'APP.CONTROL.LIGHTING_LEVELS' | translate }}
             </h3>
             @if ((lights | async)?.length) {
                 @for (level of lights | async; track state) {
                     <div
-                        class="relative min-w-[20rem] rounded-xl border border-base-300 px-4"
+                        class="relative min-w-[20rem] rounded border border-base-300 px-4"
                     >
                         <div
-                            class="absolute left-4 top-0 -translate-y-1/2 rounded bg-base-100 px-2 py-1"
+                            class="absolute left-2 top-0 -translate-y-1/2 rounded rounded-full bg-base-100 px-2 py-1 text-sm font-medium"
                         >
                             {{ level.name }}
                         </div>
@@ -43,7 +45,7 @@ import { ControlStateService } from '../control-state.service';
                             mod="Lighting"
                             [binding]="level.binding"
                         ></i>
-                        <mat-slider class="w-[calc(100%-1rem)]">
+                        <mat-slider class="mt-2 w-[calc(100%-1rem)]">
                             <input
                                 matSliderThumb
                                 [ngModel]="level.value"

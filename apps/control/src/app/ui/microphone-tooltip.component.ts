@@ -9,15 +9,24 @@ import { ControlStateService } from '../control-state.service';
     selector: 'microphone-tooltip',
     template: `
         <div
-            class="my-2 flex max-h-[65vh] max-w-[32rem] flex-col items-center space-y-2 overflow-y-auto overflow-x-hidden rounded bg-base-100 p-4 shadow"
+            class="my-2 flex max-h-[65vh] max-w-[28rem] flex-col items-center space-y-5 overflow-y-auto overflow-x-hidden rounded bg-base-100 p-2 shadow"
         >
-            <h3 class="mb-2 text-xl font-medium">
+            <h3
+                class="sticky top-0 z-20 w-full rounded bg-base-200 px-4 py-2 text-xl font-medium"
+            >
                 {{ 'APP.CONTROL.ACTION_MICS' | translate }}
             </h3>
             @if ((mic_list | async)?.length || (microphones | async)?.length) {
                 @for (mic of mic_list | async; track mic) {
-                    <div class="w-full">
-                        <label [for]="mic.id">{{ mic.name }}</label>
+                    <div
+                        class="relative min-w-[20rem] rounded border border-base-300 p-2"
+                    >
+                        <div
+                            [for]="mic.id"
+                            class="absolute left-2 top-0 -translate-y-1/2 rounded rounded-full bg-base-100 px-2 py-1 text-sm font-medium"
+                        >
+                            {{ mic.name }}
+                        </div>
                         @if (mic.rooms) {
                             <div class="flex flex-wrap">
                                 @for (room of mic.rooms; track room.name) {
@@ -31,7 +40,7 @@ import { ControlStateService } from '../control-state.service';
                                         ></i>
                                     </div>
                                     <settings-toggle
-                                        class="m-1"
+                                        class="m-1 flex-1"
                                         [toggle]="true"
                                         [ngModel]="
                                             room.state !== mic.falsy_value
@@ -50,7 +59,7 @@ import { ControlStateService } from '../control-state.service';
                             </div>
                         }
                         <div
-                            class="flex w-64 items-center space-x-2"
+                            class="mt-1 flex w-64 items-center space-x-2 p-4"
                             [attr.name]="mic.id"
                         >
                             <button
@@ -103,8 +112,15 @@ import { ControlStateService } from '../control-state.service';
                     </div>
                 }
                 @for (mic of microphones | async; track mic; let i = $index) {
-                    <div class="w-full">
-                        <label [for]="mic.name">{{ mic.name }}</label>
+                    <div
+                        class="relative min-w-[20rem] rounded border border-base-300 p-2"
+                    >
+                        <div
+                            [for]="mic.name"
+                            class="absolute left-2 top-0 -translate-y-1/2 rounded rounded-full bg-base-100 px-2 py-1 text-sm font-medium"
+                        >
+                            {{ mic.name }}
+                        </div>
                         @if (mic.rooms) {
                             <div class="mt-2 flex flex-wrap">
                                 @for (room of mic.rooms; track room.name) {
@@ -118,7 +134,7 @@ import { ControlStateService } from '../control-state.service';
                                         ></i>
                                     </div>
                                     <settings-toggle
-                                        class="m-1"
+                                        class="m-1 min-w-[40%] flex-1"
                                         [toggle]="true"
                                         [ngModel]="
                                             room.state !== mic.falsy_value
@@ -137,7 +153,7 @@ import { ControlStateService } from '../control-state.service';
                             </div>
                         }
                         <div
-                            class="flex min-w-64 items-center space-x-2"
+                            class="mt-1 flex min-w-64 items-center space-x-2 pr-4"
                             [attr.name]="mic.name"
                         >
                             <button

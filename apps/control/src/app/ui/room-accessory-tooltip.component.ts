@@ -8,15 +8,19 @@ import { ControlStateService } from '../control-state.service';
     selector: 'room-accessory-tooltip',
     template: `
         <div
-            class="my-2 flex flex-col items-center space-y-2 rounded bg-base-100 p-4 shadow"
+            class="my-2 flex flex-col items-center space-y-2 rounded bg-base-100 p-2 shadow"
         >
-            <h3 class="mb-2 text-xl font-medium">
+            <h3
+                class="w-full rounded bg-base-200 px-4 py-2 text-xl font-medium"
+            >
                 {{ 'APP.CONTROL.ACCESSORIES' | translate }}
             </h3>
             @if ((list | async)?.length) {
                 @for (item of list | async; track item) {
-                    <div class="flex w-full items-center space-x-2">
-                        <div class="flex-1 pr-8 font-medium">
+                    <div
+                        class="flex w-full min-w-[20rem] items-center space-x-2 rounded border border-base-300 p-2"
+                    >
+                        <div class="flex-1 pl-2 pr-8 font-medium">
                             {{ item.name }}
                         </div>
                         @for (ctrl of item.controls; track ctrl) {
@@ -26,6 +30,7 @@ import { ControlStateService } from '../control-state.service';
                                 matRipple
                                 class="rounded border border-solid border-primary text-primary"
                                 (click)="performAction(item.name, ctrl.name)"
+                                [matTooltip]="ctrl.name"
                             >
                                 <icon>{{ ctrl.icon }}</icon>
                             </button>
