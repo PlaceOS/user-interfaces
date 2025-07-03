@@ -379,7 +379,8 @@ export class ControlStateService extends AsyncHandler {
         return this._execute('unroute', [output]);
     }
 
-    public routeToAll(input: string) {
+    public routeToAll(input = '') {
+        if (!input) input = this._system.getValue().selected_input;
         return this._execute('route_all', [input]);
     }
 

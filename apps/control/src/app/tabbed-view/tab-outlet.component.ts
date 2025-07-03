@@ -308,7 +308,7 @@ export class TabOutletComponent extends AsyncHandler implements OnInit {
     public async presentToAll() {
         const tab = await nextValueFrom(this.tab);
         if (!tab) return;
-        this._service.routeToAll(tab.name);
+        this._service.routeToAll();
     }
 
     public onAction() {
