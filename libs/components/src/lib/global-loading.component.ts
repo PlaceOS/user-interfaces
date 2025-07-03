@@ -1,7 +1,10 @@
-import { Component, OnInit, inject } from '@angular/core';
-import { AsyncHandler, SettingsService } from '@placeos/common';
+import { Component, inject, OnInit, signal } from '@angular/core';
+import {
+    AsyncHandler,
+    firstTruthyValueFrom,
+    SettingsService,
+} from '@placeos/common';
 import { authority, isOnline, token } from '@placeos/ts-client';
-import { first } from 'rxjs/operators';
 
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
@@ -10,17 +13,17 @@ import { TranslatePipe } from './translate.pipe';
 @Component({
     selector: 'global-loading',
     template: `
-        @if (!online) {
+        @if (!online()) {
             <div
-                class="fixed bottom-2 left-1/2 -translate-x-1/2 rounded-3xl bg-error px-4 py-2 text-xs text-white shadow"
+                class="fixed bottom-2 left-1/2 z-50 -translate-x-1/2 rounded-3xl bg-error px-4 py-2 text-xs text-white shadow"
             >
                 {{ 'COMMON.SERVER_DOWN' | translate }}
             </div>
         }
-        @if (loading) {
+        @if (loading()) {
             <div
                 loader
-                class="pointer-events-auto fixed inset-0 flex items-center justify-center bg-base-100"
+                class="pointer-events-auto fixed inset-0 z-40 flex items-center justify-center bg-base-100"
             >
                 <mat-spinner [diameter]="64"></mat-spinner>
             </div>
@@ -44,25 +47,25 @@ export class GlobalLoadingComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
 
-    public loading: boolean;
-
-    public get online() {
-        return isOnline();
-    }
+    public loading = signal(false);
+    public readonly online = signal(false);
 
     constructor() {
         super();
     }
 
     public async ngOnInit() {
-        this.loading = true;
-        await this._org.initialised.pipe(first((_) => _)).toPromise();
-        await this._settings.initialised.pipe(first((_) => _)).toPromise();
+        this.loading.set(true);
+        this.online.set(isOnline());
+        await firstTruthyValueFrom(this._org.initialised);
+        await firstTruthyValueFrom(this._settings.initialised);
         this.interval(
             'has_token',
             () => {
+                this.online.set(isOnline());
                 if (!authority() || !token()) return;
-                this.loading = false;
+                this.loading.set(false);
+                this.online.set(isOnline());
                 this.clearInterval('has_token');
             },
             1000,

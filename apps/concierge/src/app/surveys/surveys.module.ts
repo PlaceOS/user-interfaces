@@ -14,56 +14,52 @@ import { Route, RouterModule } from '@angular/router';
 import { ComponentsModule } from '@placeos/components';
 import { UIModule } from '../ui/ui.module';
 
-import { BuildingListComponent } from './pages/building-list.component';
-import { NotFoundComponent } from './pages/not-found.component';
+import { BuildingListComponent } from './building-list.component';
 
-import { SurveySuiteModule } from '@placeos/survey-suite';
-import { SurveyModule } from 'survey-angular-ui';
-import { QuestionBankComponent } from './components/question-bank.component';
-import { SearchInputComponent } from './components/search-input.component';
-import { ModQuestionOverlayComponent } from './overlays/mod-question-overlay.component';
-import { ModSurveyComponent } from './pages/mod-survey.component';
-import { RunSurveyComponent } from './pages/run-survey.component';
-import { SurveyListingsComponent } from './pages/survey-listings.component';
-import { SurveyResponsesComponent } from './pages/survey-responses.component';
-import { QuestionBankService } from './services/question-bank.service';
-import { SurveyBuilderService } from './services/survey-builder.service';
-import { SurveyService } from './services/survey.service';
+import { SurveyOutletComponent } from 'libs/components/src/lib/survey-outlet.component';
+import { NewSurveyWidgetComponent } from './new-survey-widget.component';
+import { QuestionModalComponent } from './question-modal.component';
+import { QuestionComponent } from './question.component';
+import { QuestionPipe } from './question.pipe';
+import { SurveyBuilderComponent } from './survey-builder.component';
+import { SurveyListingsComponent } from './survey-listings.component';
+import { SurveyResponsesComponent } from './survey-responses.component';
 import { SurveyComponent } from './survey.component';
-
-// import { StylesManager } from 'survey-core';
 
 // //SurveyJS styling
 // StylesManager.applyTheme('modern');
 
 const routes: Route[] = [
-    { path: 'run/:id', component: RunSurveyComponent },
+    { path: 'run/:id', component: SurveyOutletComponent },
     {
         path: '',
         component: SurveyComponent,
         children: [
             { path: '', component: BuildingListComponent },
-            { path: 'survey-list/:id', component: SurveyListingsComponent },
-            { path: 'builder', component: ModSurveyComponent },
+            { path: 'list/:id', component: SurveyListingsComponent },
+            { path: 'builder', component: SurveyBuilderComponent },
+            { path: 'builder/:id', component: SurveyBuilderComponent },
             { path: 'responses/:id', component: SurveyResponsesComponent },
-            { path: '**', pathMatch: 'full', component: NotFoundComponent },
+            { path: '**', pathMatch: 'full', redirectTo: '' },
         ],
     },
-    { path: '404', component: NotFoundComponent },
-    { path: '**', pathMatch: 'full', component: NotFoundComponent },
+    { path: '**', pathMatch: 'full', redirectTo: '' },
 ];
 
 const COMPONENTS = [
     SurveyComponent,
     BuildingListComponent,
-    NotFoundComponent,
-    ModQuestionOverlayComponent,
-    QuestionBankComponent,
-    ModSurveyComponent,
-    SearchInputComponent,
     SurveyListingsComponent,
-    RunSurveyComponent,
     SurveyResponsesComponent,
+];
+
+const STANDALONE_COMPONENTS = [
+    QuestionPipe,
+    SurveyOutletComponent,
+    SurveyBuilderComponent,
+    NewSurveyWidgetComponent,
+    QuestionComponent,
+    QuestionModalComponent,
 ];
 
 @NgModule({
@@ -85,9 +81,7 @@ const COMPONENTS = [
         MatMenuModule,
         MatFormFieldModule,
         UIModule,
-        SurveySuiteModule,
-        SurveyModule,
+        ...STANDALONE_COMPONENTS,
     ],
-    providers: [SurveyBuilderService, QuestionBankService, SurveyService],
 })
 export class SurveysModule {}

@@ -1,0 +1,27 @@
+import { Component } from '@angular/core';
+import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
+
+@Component({
+    selector: 'app-not-found',
+    template: `
+        <div
+            class="absolute inset-0 flex flex-col items-center bg-base-200 p-4"
+        >
+            <div
+                class="flex w-[32rem] max-w-full flex-col items-center justify-center space-y-8 rounded-xl border border-base-300 bg-base-100 p-8 text-center shadow"
+            >
+                <h1 class="text-4xl font-bold">Survey not found</h1>
+                <img
+                    auth
+                    source="assets/icons/not-found.svg"
+                    class="w-56"
+                    alt="404 Not Found"
+                />
+                <p class="text-xl">Unable to find the requested survey</p>
+            </div>
+        </div>
+    `,
+    styles: [''],
+    imports: [AuthenticatedImageDirective],
+})
+export class NotFoundComponent {}
