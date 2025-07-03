@@ -69,9 +69,9 @@ export class CheckinStateService {
 
     /** Load guest and event data */
     public async loadGuestAndEvent(email: string, event_id?: string) {
-        const guest = await showGuest(email).toPromise();
+        const guest = await lastValueFrom(showGuest(email));
         if (event_id) {
-            const event = await showBooking(event_id).toPromise();
+            const event = await lastValueFrom(showBooking(event_id));
             this._guest.next(guest);
             this._booking.next(event);
             this._form.next(generateGuestForm(guest, event.user_email));
@@ -83,11 +83,13 @@ export class CheckinStateService {
             this._form.next(generateGuestForm(guest, guest.booking.user_email));
             return { guest, event: guest.booking };
         }
-        let upcoming = await queryAllBookings({
-            type: 'visitor',
-            period_start: getUnixTime(Date.now()),
-            period_end: getUnixTime(addMinutes(Date.now(), 120)),
-        }).toPromise();
+        let upcoming = await lastValueFrom(
+            queryAllBookings({
+                type: 'visitor',
+                period_start: getUnixTime(Date.now()),
+                period_end: getUnixTime(addMinutes(Date.now(), 120)),
+            }),
+        );
         upcoming = upcoming.filter(
             (_) => _.user_email === email || _.asset_id === email,
         );
@@ -111,22 +113,25 @@ export class CheckinStateService {
         if (!guest || !form) return;
         const booking = this._booking.getValue() || guest.extension_data.event;
         if (!booking || this.metadata || !form.value) return;
-        const updated_booking = await updateBooking(
-            booking.id,
-            new Booking({
-                ...booking,
-                asset_id: form.value.email || booking.asset_id,
-                asset_name: form.value.name || booking.asset_name,
-                description: form.value.name || booking.description,
-                extension_data: {
-                    ...booking.extension_data,
-                    organisation:
-                        form.value.organisation ||
-                        booking.extension_data?.organisation,
-                    phone: form.value.phone || booking.extension_data?.phone,
-                },
-            }).toJSON(),
-        ).toPromise();
+        const updated_booking = await lastValueFrom(
+            updateBooking(
+                booking.id,
+                new Booking({
+                    ...booking,
+                    asset_id: form.value.email || booking.asset_id,
+                    asset_name: form.value.name || booking.asset_name,
+                    description: form.value.name || booking.description,
+                    extension_data: {
+                        ...booking.extension_data,
+                        organisation:
+                            form.value.organisation ||
+                            booking.extension_data?.organisation,
+                        phone:
+                            form.value.phone || booking.extension_data?.phone,
+                    },
+                }).toJSON(),
+            ),
+        );
         this.setBooking(updated_booking);
     }
 
@@ -134,14 +139,14 @@ export class CheckinStateService {
         const guest = this._guest.getValue();
         const event = this._booking.getValue() || guest.extension_data.event;
         if (!guest || !event) return;
-        await updateBookingInductionStatus(event.id, 'accepted').toPromise();
+        await lastValueFrom(updateBookingInductionStatus(event.id, 'accepted'));
     }
 
     public async declineInduction() {
         const guest = this._guest.getValue();
         const event = this._booking.getValue() || guest.extension_data.event;
         if (!guest || !event) return;
-        await updateBookingInductionStatus(event.id, 'declined').toPromise();
+        await lastValueFrom(updateBookingInductionStatus(event.id, 'declined'));
     }
 
     public async checkinGuest(state = true) {

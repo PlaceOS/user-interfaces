@@ -1,12 +1,12 @@
 import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  forwardRef,
-  Input,
-  OnChanges,
-  SimpleChanges,
-  viewChild
+    AfterViewInit,
+    Component,
+    ElementRef,
+    forwardRef,
+    Input,
+    OnChanges,
+    SimpleChanges,
+    viewChild,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { AsyncHandler, uploadFile } from '@placeos/common';
@@ -46,8 +46,10 @@ export class RichTextInputComponent
     @Input() public readonly = false;
     @Input() public images_allowed = false;
 
-    private readonly _container_el = viewChild<ElementRef<HTMLDivElement>>('container');
-    private readonly _editor_el = viewChild<ElementRef<HTMLDivElement>>('editor');
+    private readonly _container_el =
+        viewChild<ElementRef<HTMLDivElement>>('container');
+    private readonly _editor_el =
+        viewChild<ElementRef<HTMLDivElement>>('editor');
 
     private _editor: Quill;
     private _updateFn = () => this.setValue(this._editor.root.innerHTML);
@@ -103,10 +105,7 @@ export class RichTextInputComponent
     private _initialiseEditor() {
         const _editor_el = this._editor_el();
         const _container_el = this._container_el();
-        if (
-            !_editor_el?.nativeElement ||
-            !_container_el?.nativeElement
-        ) {
+        if (!_editor_el?.nativeElement || !_container_el?.nativeElement) {
             return this.timeout('init', () => this._initialiseEditor());
         }
         const toolbarOptions = [
@@ -116,9 +115,10 @@ export class RichTextInputComponent
 
             [{ list: 'ordered' }, { list: 'bullet' }, { list: 'check' }],
             [{ align: [] }],
+            ['link'],
         ];
         if (this.images_allowed) {
-            toolbarOptions.push(['image', 'link']);
+            toolbarOptions.push(['image']);
         }
         if (this._editor) {
             this.unsub('changes');
@@ -132,8 +132,7 @@ export class RichTextInputComponent
                 toolbar: {
                     container: toolbarOptions,
                     handlers: {
-                        image: () => this._embedImage(),
-                        link: () => this._embedAttachment(),
+                        image: () => this._embedAttachment(),
                     },
                 },
             },
@@ -180,8 +179,18 @@ export class RichTextInputComponent
             const file = file_input.files[0];
             uploadFile(file, true).subscribe(({ link, progress }) => {
                 if (!link || progress !== 100) return;
-                this._editor.insertText(range.index, file.name, 'link', link);
-                this._editor.setSelection(range.index + file.name.length);
+                const is_image = file.type.startsWith('image/');
+                if (is_image) {
+                    this._editor.insertEmbed(index, 'image', link);
+                } else {
+                    this._editor.insertText(
+                        range.index,
+                        file.name,
+                        'link',
+                        link,
+                    );
+                    this._editor.setSelection(range.index + file.name.length);
+                }
             });
         };
     }
