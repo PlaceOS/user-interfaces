@@ -1,10 +1,11 @@
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import {
     AsyncHandler,
     i18n,
     nextValueFrom,
+    notifyError,
     notifySuccess,
     SettingsService,
 } from '@placeos/common';
@@ -14,7 +15,7 @@ import {
     updateSystem,
     updateTrigger,
 } from '@placeos/ts-client';
-import { BehaviorSubject, combineLatest } from 'rxjs';
+import { BehaviorSubject, combineLatest, lastValueFrom } from 'rxjs';
 import { map, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { SignageStateService } from './signage-state.service';
 
@@ -196,6 +197,86 @@ import { SignageStateService } from './signage-state.service';
                                     </div>
                                 </div>
                             </a>
+                            <button
+                                mat-menu-item
+                                [matMenuTriggerFor]="orientationMenu"
+                            >
+                                <div class="flex items-center space-x-2">
+                                    <icon class="text-2xl">aspect_ratio</icon>
+                                    <div class="pr-2">
+                                        {{
+                                            'APP.CONCIERGE.SIGNAGE_DISPLAYS_SET_ORIENTATION'
+                                                | translate
+                                        }}
+                                    </div>
+                                </div>
+                            </button>
+                            <mat-menu #orientationMenu="matMenu">
+                                <button
+                                    mat-menu-item
+                                    (click)="setOrientation('landscape')"
+                                >
+                                    <div class="flex items-center space-x-2">
+                                        <icon class="text-2xl"
+                                            >crop_landscape</icon
+                                        >
+                                        <div>
+                                            {{
+                                                'APP.CONCIERGE.SIGNAGE_ORIENTATION_LANDSCAPE'
+                                                    | translate
+                                            }}
+                                        </div>
+                                    </div>
+                                </button>
+                                <button
+                                    mat-menu-item
+                                    (click)="setOrientation('portrait')"
+                                >
+                                    <div class="flex items-center space-x-2">
+                                        <icon class="text-2xl"
+                                            >crop_portrait</icon
+                                        >
+                                        <div>
+                                            {{
+                                                'APP.CONCIERGE.SIGNAGE_ORIENTATION_PORTRAIT'
+                                                    | translate
+                                            }}
+                                        </div>
+                                    </div>
+                                </button>
+                                <button
+                                    mat-menu-item
+                                    (click)="setOrientation('square')"
+                                >
+                                    <div class="flex items-center space-x-2">
+                                        <icon class="text-2xl"
+                                            >check_box_outline_blank</icon
+                                        >
+                                        <div>
+                                            {{
+                                                'APP.CONCIERGE.SIGNAGE_ORIENTATION_SQUARE'
+                                                    | translate
+                                            }}
+                                        </div>
+                                    </div>
+                                </button>
+                                <button
+                                    mat-menu-item
+                                    (click)="setOrientation('unspecified')"
+                                >
+                                    <div class="flex items-center space-x-2">
+                                        <icon class="text-2xl"
+                                            >question_mark</icon
+                                        >
+                                        <div>
+                                            {{
+                                                'APP.CONCIERGE.SIGNAGE_ORIENTATION_NONE'
+                                                    | translate
+                                            }}
+                                        </div>
+                                    </div>
+                                </button>
+                            </mat-menu>
                             <button mat-menu-item (click)="removeDisplay()">
                                 <div class="flex items-center space-x-2">
                                     <icon class="text-2xl text-error"
@@ -383,6 +464,27 @@ export class SignageDisplaysComponent extends AsyncHandler implements OnInit {
                     : 'APP.CONCIERGE.SIGNAGE_DISPLAYS_PLAYLIST_REORDER',
             ),
         );
+        this._state.changed();
+    }
+
+    public async setOrientation(orientation: any) {
+        const display = await nextValueFrom(this.active_display);
+        if (!display) return;
+        await lastValueFrom(
+            updateSystem(
+                display.id,
+                { orientation, version: display.version },
+                'patch',
+            ),
+        ).catch((e) => {
+            notifyError(
+                i18n('APP.CONCIERGE.SIGNAGE_ORIENTATION_ERROR', {
+                    error: e.message,
+                }),
+            );
+            throw e;
+        });
+        notifySuccess(i18n('APP.CONCIERGE.SIGNAGE_ORIENTATION_CHANGED'));
         this._state.changed();
     }
 }
