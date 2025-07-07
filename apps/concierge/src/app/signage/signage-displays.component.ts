@@ -1,5 +1,6 @@
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { Component, inject, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 import {
     AsyncHandler,
@@ -8,6 +9,7 @@ import {
     notifyError,
     notifySuccess,
     SettingsService,
+    unique,
 } from '@placeos/common';
 import {
     listSystemTriggers,
@@ -18,6 +20,7 @@ import {
 import { BehaviorSubject, combineLatest, lastValueFrom } from 'rxjs';
 import { map, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { SignageStateService } from './signage-state.service';
+import { ZoneSelectModalComponent } from './zone-select-modal.component';
 
 @Component({
     selector: 'signage-displays',
@@ -159,6 +162,7 @@ import { SignageStateService } from './signage-state.service';
                                 <button
                                     class="m-1 rounded px-2 py-1 font-mono text-xs underline"
                                     matRipple
+                                    (click)="addZone()"
                                 >
                                     {{
                                         'APP.CONCIERGE.SIGNAGE_DISPLAYS_ZONE_ADD'
@@ -322,6 +326,7 @@ export class SignageDisplaysComponent extends AsyncHandler implements OnInit {
     private _state = inject(SignageStateService);
     private _route = inject(ActivatedRoute);
     private _settings = inject(SettingsService);
+    private _dialog = inject(MatDialog);
 
     public adding = false;
     public switching = false;
@@ -485,6 +490,35 @@ export class SignageDisplaysComponent extends AsyncHandler implements OnInit {
             throw e;
         });
         notifySuccess(i18n('APP.CONCIERGE.SIGNAGE_ORIENTATION_CHANGED'));
+        this._state.changed();
+    }
+
+    public async addZone() {
+        const display = await nextValueFrom(this.active_display);
+        if (!display) return;
+        const ref = this._dialog.open(ZoneSelectModalComponent, {
+            data: { ignore: display.zones },
+        });
+        const result = await lastValueFrom(ref.afterClosed());
+        if (!result) return;
+        await lastValueFrom(
+            updateSystem(
+                display.id,
+                {
+                    zones: unique([...display.zones, result]),
+                    version: display.version,
+                },
+                'patch',
+            ),
+        ).catch((e) => {
+            notifyError(
+                i18n('APP.CONCIERGE.SIGNAGE_ZONE_ERROR', {
+                    error: e.message,
+                }),
+            );
+            throw e;
+        });
+        notifySuccess(i18n('APP.CONCIERGE.SIGNAGE_ZONE_ADDED'));
         this._state.changed();
     }
 }

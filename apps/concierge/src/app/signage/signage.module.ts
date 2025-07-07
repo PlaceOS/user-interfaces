@@ -20,6 +20,7 @@ import { SignagePlaylistModalComponent } from './signage-playlist-modal.componen
 import { SignageTopbarComponent } from './signage-topbar.component';
 import { SignageZonesComponent } from './signage-zones.component';
 import { SignageComponent } from './signage.component';
+import { ZoneSelectModalComponent } from './zone-select-modal.component';
 
 const ROUTES: Route[] = [
     {
@@ -62,6 +63,7 @@ export const COMPONENTS: Type<any>[] = [
         RouterModule.forChild(ROUTES),
         MatTabsModule,
         DragDropModule,
+        ZoneSelectModalComponent,
     ],
 })
 export class SignageModule {}
