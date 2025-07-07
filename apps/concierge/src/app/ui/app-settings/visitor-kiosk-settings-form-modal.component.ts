@@ -363,7 +363,8 @@ import { DEFAULT_SETTINGS } from 'apps/visitor-kiosk/src/environments/settings';
                                         Legend
                                     </h3>
                                     @for (
-                                        item of form.value.explore.legend || [];
+                                        item of form.value.explore?.legend ||
+                                            [];
                                         track item;
                                         let i = $index
                                     ) {
@@ -553,6 +554,20 @@ export class VisitorKioskSettingsFormModalComponent {
         this.form.patchValue(metadata || {});
         this.old_settings = metadata;
         this.loading = '';
+    }
+
+    public addLegend() {
+        const explore = this.form.value.explore;
+        const legend = explore.legend || [];
+        if (legend) legend.push(['', '']);
+        this.form.get('explore')?.get('legend')?.setValue(legend);
+    }
+
+    public removeLegend(index: number) {
+        const explore = this.form.value.explore;
+        const legend = explore.legend || [];
+        if (legend.length > index) legend.splice(index, 1);
+        this.form.get('explore')?.get('legend')?.setValue(legend);
     }
 
     public async save() {

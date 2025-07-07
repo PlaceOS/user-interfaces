@@ -26,36 +26,7 @@ const explore = {
     },
     can_select_building: false,
     show_legend_group_names: true,
-    legend: {
-        Spaces: [
-            { key: 'space-available', name: 'Space Available' },
-            { key: 'space-requestable', name: 'Space available by request' },
-            { key: 'space-unavailable', name: 'Space in use' },
-            { key: 'space-not-bookable', name: 'Space not Bookable' },
-        ],
-        Desks: [
-            { key: 'desk-available', name: 'Desk Available' },
-            { key: 'desk-reserved', name: 'Desk Reserved' },
-            { key: 'desk-unavailable', name: 'Desk in use' },
-            { key: 'desk-not-bookable', name: 'Desk not bookable' },
-        ],
-        Zones: [
-            { key: 'zone-low', name: 'Low Zone Utilisation' },
-            { key: 'zone-medium', name: 'Medium Zone Utilisation' },
-            { key: 'zone-high', name: 'High Zone Utilisation' },
-        ],
-        Icons: [
-            {
-                key: 'icon-bin',
-                name: 'Bin',
-                icon: {
-                    type: 'icon',
-                    class: 'material-symbols-rounded',
-                    content: 'delete',
-                },
-            },
-        ],
-    },
+    legend: {},
 };
 
 /**
