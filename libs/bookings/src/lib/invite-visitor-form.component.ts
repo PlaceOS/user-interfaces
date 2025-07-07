@@ -526,7 +526,7 @@ export class InviteVisitorFormComponent
     }
 
     public get allow_pass_number() {
-        return this._settings.get('app.visitors.allow_pass_number') || true;
+        return this._settings.get('app.visitors.allow_pass_number');
     }
 
     public get multiple() {

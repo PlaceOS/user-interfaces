@@ -77,7 +77,7 @@ import { VisitorsStateService } from './visitors-state.service';
                     key: 'pass_number',
                     name: 'BOOKINGS.PASS_NUMBER' | translate,
                     content: pass_template,
-                    show: pass_number_enabled || true,
+                    show: pass_number_enabled,
                     size: '6rem',
                 },
                 {
