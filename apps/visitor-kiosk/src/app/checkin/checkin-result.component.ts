@@ -51,6 +51,7 @@ const DEFAULT_TEMPLATE = `
                                 date: ev?.date || date,
                                 extra_details:
                                     ev?.extension_data?.extra_details,
+                                pass_number: ev?.extension_data?.pass_number,
                                 qr_code: qr_code,
                             }"
                             class="!text-base"

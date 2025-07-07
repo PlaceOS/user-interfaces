@@ -16,6 +16,7 @@ interface UserDetails {
     extra_details: string;
     qr_code?: string;
     date: number;
+    pass_number?: string;
     zones: string[];
 }
 
@@ -54,7 +55,9 @@ interface UserDetails {
             >
                 {{ 'APP.VISITOR_KIOSK.VISITOR' | translate }}
             </div>
-            <div class="absolute right-4 top-4 flex flex-col items-end">
+            <div
+                class="absolute right-4 top-4 flex flex-col items-end space-y-2"
+            >
                 <img
                     auth
                     class="h-12 object-contain"
@@ -76,6 +79,11 @@ interface UserDetails {
                     </div>
                 }
                 <pre class="text-right">{{ user()?.extra_details }}</pre>
+                @if (user()?.pass_number) {
+                    <pre class="text-right text-xs">{{
+                        user()?.pass_number
+                    }}</pre>
+                }
             </div>
             <div
                 class="absolute bottom-4 right-4 flex items-end"
