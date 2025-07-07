@@ -1,4 +1,12 @@
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, inject } from '@angular/core';
+import {
+    Component,
+    EventEmitter,
+    Input,
+    OnChanges,
+    Output,
+    SimpleChanges,
+    inject,
+} from '@angular/core';
 import { SignagePlaylist } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map, startWith, tap } from 'rxjs/operators';
@@ -19,6 +27,21 @@ const PLAYLIST_ITEM_COUNTS = {};
                 >
                     {{ extra }}
                 </div>
+            }
+            @if (link) {
+                <a
+                    icon
+                    matRipple
+                    [href]="link"
+                    target="_blank"
+                    class="text-xs"
+                    [matTooltip]="
+                        'APP.CONCIERGE.SIGNAGE_DISPLAYS_OPEN_PLAYER' | translate
+                    "
+                    rel="noopener noreferrer"
+                >
+                    <icon>open_in_new</icon>
+                </a>
             }
         </div>
         <ng-content />
@@ -143,6 +166,7 @@ export class SignageItemPlaylistsComponent implements OnChanges {
     @Input() public item: any;
     @Input() public name = 'zone';
     @Input() public extra = '';
+    @Input() public link = '';
     @Output() public readonly add = new EventEmitter();
     @Output() public readonly remove = new EventEmitter<SignagePlaylist>();
     @Output() public readonly ondrop = new EventEmitter<any>();

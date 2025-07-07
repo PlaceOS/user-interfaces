@@ -119,31 +119,30 @@ import { SignageStateService } from './signage-state.service';
                 class="relative flex h-full w-1/2 flex-1 flex-col space-y-4 overflow-auto rounded-lg border border-base-300 p-4 shadow"
             >
                 @if (active_display | async) {
+                    @let display = active_display | async;
+                    @let trigger = active_trigger | async;
                     <signage-item-playlists
                         class="flex flex-1 flex-col"
-                        [item]="
-                            (active_trigger | async) || (active_display | async)
-                        "
-                        [name]="
-                            (active_trigger | async) ? 'trigger' : 'display'
-                        "
-                        [extra]="
-                            (active_trigger | async)
+                        [item]="trigger || display"
+                        [name]="trigger ? 'trigger' : 'display'"
+                        [extra]="trigger ? '' : display?.orientation"
+                        [link]="
+                            trigger
                                 ? ''
-                                : (active_display | async)?.orientation
+                                : signage_path +
+                                  '/#/signage/' +
+                                  display?.id +
+                                  '?debug=true'
                         "
                         (add)="this.adding = true"
                         (remove)="removePlaylist($event)"
                         (ondrop)="drop($event)"
                     >
-                        @if (!(active_trigger | async)) {
+                        @if (!trigger) {
                             <div
                                 class="mt-4 flex flex-wrap items-center overflow-auto"
                             >
-                                @for (
-                                    zone of (active_display | async)?.zones;
-                                    track zone
-                                ) {
+                                @for (zone of display?.zones; track zone) {
                                     <a
                                         class="m-1 whitespace-nowrap rounded bg-base-200 px-2 py-1 font-mono text-xs"
                                         matRipple
