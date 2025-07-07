@@ -1,23 +1,34 @@
-import { Component, Input, SimpleChanges, inject } from '@angular/core';
-import { CalendarEvent } from '@placeos/events';
+import { Component, input, signal } from '@angular/core';
+import { AsyncHandler } from '@placeos/common';
 import { Space } from '@placeos/spaces';
-import { Observable } from 'rxjs';
-import { TimetableStateService } from './timetable-state.service';
 
 @Component({
     selector: 'space-timetable',
     template: `
-        <div
-            class="flex min-h-[3rem] w-full items-center justify-center border-b border-white/50 bg-[#212121] text-xl font-medium text-white"
-        >
-            {{ space?.display_name || space?.name }}
-        </div>
-        @if (space?.id && bookings) {
-            <div space class="relative h-1/2 w-full flex-1">
-                @for (event of bookings | async; track event) {
-                    <space-event-details [event]="event"></space-event-details>
-                }
+        @if (space()) {
+            <i
+                binding
+                class="hidden"
+                [sys]="space().id"
+                mod="Bookings"
+                bind="bookings"
+                (modelChange)="bookings.set($event)"
+            ></i>
+            <div
+                class="flex min-h-[3rem] w-full items-center justify-center border-b border-base-300 bg-base-100 text-xl font-medium"
+            >
+                {{ space().display_name || space().name }}
             </div>
+            @if (bookings()) {
+                <div space class="relative h-1/2 w-full flex-1">
+                    @for (event of bookings(); track event.id) {
+                        {{ event.date }}
+                        <space-event-details
+                            [event]="event"
+                        ></space-event-details>
+                    }
+                </div>
+            }
         }
     `,
     styles: [
@@ -32,16 +43,8 @@ import { TimetableStateService } from './timetable-state.service';
     ],
     standalone: false,
 })
-export class SpaceTimetableComponent {
-    private _state = inject(TimetableStateService);
+export class SpaceTimetableComponent extends AsyncHandler {
+    public readonly space = input<Space>(null);
 
-    @Input() public space?: Space;
-
-    public bookings: Observable<CalendarEvent[]>;
-
-    public ngOnChanges(changes: SimpleChanges) {
-        if (changes.space && this.space?.id) {
-            this.bookings = this._state.bookingsFor(this.space.id);
-        }
-    }
+    public readonly bookings = signal<any[]>([]);
 }
