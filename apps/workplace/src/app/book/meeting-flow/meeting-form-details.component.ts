@@ -176,8 +176,7 @@ import {
                             formControlName="organiser"
                         ></a-user-search-field>
                     </div>
-                }
-                @if (can_book_for_others) {
+                } @else if (can_book_for_others) {
                     <div class="flex w-full flex-col">
                         <label for="host">
                             {{ 'FORM.HOST' | translate }}<span>*</span>

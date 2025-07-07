@@ -124,7 +124,7 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                             />
                         </mat-form-field>
                         @if (allow_pass_number) {
-                            <label form="pass">
+                            <label form="pass" class="!mt-4">
                                 {{ 'BOOKINGS.VISITOR_PASS' | translate }}
                             </label>
                             <mat-form-field
