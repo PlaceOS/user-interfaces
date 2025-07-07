@@ -182,7 +182,8 @@ import { SignageStateService } from './signage-state.service';
                                 [href]="
                                     signage_path +
                                     '/#/signage/' +
-                                    (active_display | async)?.id
+                                    (active_display | async)?.id +
+                                    '?debug=true'
                                 "
                                 target="_blank"
                                 ref="noopener noreferrer"
