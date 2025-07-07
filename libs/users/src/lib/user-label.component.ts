@@ -45,7 +45,7 @@ interface UserDetails {
                         'APP.VISITOR_KIOSK.LABEL_HOST'
                             | translate
                                 : {
-                                      host_name: user()?.user_name,
+                                      host_name: user()?.host,
                                   }
                     }}
                 </div>
