@@ -97,10 +97,7 @@ import { CheckinStateService } from './checkin-state.service';
                         <label form="pass">
                             {{ 'BOOKINGS.VISITOR_PASS' | translate }}
                         </label>
-                        <mat-form-field
-                            appearance="outline"
-                            class="no-subscript w-full"
-                        >
+                        <mat-form-field appearance="outline" class="w-full">
                             <input
                                 matInput
                                 name="pass"

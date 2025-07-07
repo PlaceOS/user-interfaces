@@ -115,6 +115,7 @@ export function generateGuestForm(
             Validators.required,
         ),
         phone: new FormControl(user.phone || ''),
+        pass_number: new FormControl(user.extension_data.pass_number || ''),
         host: new FormControl(host || '', [Validators.required]),
     };
     // Generate form group for the guest

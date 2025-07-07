@@ -123,6 +123,9 @@ export class CheckinStateService {
                     description: form.value.name || booking.description,
                     extension_data: {
                         ...booking.extension_data,
+                        pass_number:
+                            form.value.pass_number ||
+                            booking.extension_data?.pass_number,
                         organisation:
                             form.value.organisation ||
                             booking.extension_data?.organisation,
