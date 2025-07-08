@@ -26,6 +26,11 @@
                         "output": "/assets/"
                     },
                     {
+                        "glob": "*.woff2",
+                        "input": "node_modules/material-symbols",
+                        "output": "/assets/"
+                    },
+                    {
                         "glob": "oauth-resp.html",
                         "input": "node_modules/@placeos/ts-client/dist/",
                         "output": "/"

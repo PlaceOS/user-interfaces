@@ -34,6 +34,11 @@
                         "output": "/"
                     },
                     {
+                        "glob": "*.woff2",
+                        "input": "node_modules/material-symbols",
+                        "output": "/assets/"
+                    },
+                    {
                         "input": "node_modules/ts-md5/dist/",
                         "output": "/assets",
                         "glob": "*worker.js"
