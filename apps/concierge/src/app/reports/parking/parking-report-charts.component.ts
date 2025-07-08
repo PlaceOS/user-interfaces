@@ -1,4 +1,4 @@
-import { Component, Input, SimpleChanges, inject } from '@angular/core';
+import { Component, SimpleChanges, inject, input } from '@angular/core';
 
 import {
     AsyncHandler,
@@ -18,7 +18,7 @@ import { ParkingReportService } from './parking-report.service';
     template: `
         <div
             class="flex w-full items-center space-x-4 px-4"
-            [class.is-print]="print"
+            [class.is-print]="print()"
             (window:resize)="updateCharts()"
         >
             <div
@@ -63,7 +63,7 @@ export class ParkingReportChartsComponent extends AsyncHandler {
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
 
-    @Input() public print: boolean = false;
+    public readonly print = input<boolean>(false);
     public readonly day_list = combineLatest([
         this._state.daily_stats$,
         this._state.counts$,

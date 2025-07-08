@@ -1,4 +1,4 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { CateringOption } from '@placeos/catering';
 import { OrganisationService } from '@placeos/organisation';
 import { CateringReportStateService } from './catering-report-state.service';
@@ -50,7 +50,7 @@ import { CateringReportStateService } from './catering-report-state.service';
                         content: cost_template,
                     },
                 ]"
-                [page_size]="print ? 0 : 10"
+                [page_size]="print() ? 0 : 10"
                 [empty_message]="
                     'APP.CONCIERGE.REPORTS_CATERING_ORDERS_EMPTY' | translate
                 "
@@ -83,7 +83,7 @@ export class CateringReportItemsComponent {
     private _report = inject(CateringReportStateService);
     private _org = inject(OrganisationService);
 
-    @Input() public print = false;
+    public readonly print = input(false);
     public readonly items = this._report.catering_items;
 
     public get code() {

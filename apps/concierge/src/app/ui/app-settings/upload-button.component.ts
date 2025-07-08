@@ -1,4 +1,4 @@
-import { Component, forwardRef, Input } from '@angular/core';
+import { Component, forwardRef, input } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { notifyError, uploadFile } from '@placeos/common';
 
@@ -39,7 +39,7 @@ import { notifyError, uploadFile } from '@placeos/common';
     standalone: false,
 })
 export class UploadButtonComponent {
-    @Input() public type: string = 'image';
+    public readonly type = input<string>('image');
     public uploading = false;
     public progress = 0;
     public value = '';
@@ -82,8 +82,9 @@ export class UploadButtonComponent {
         const files: FileList = element.files;
         const file = files[0];
         console.log(`File: ${file.name}`);
-        if (!file.type.includes(this.type)) {
-            return notifyError(`File is not an ${this.type}`);
+        const type = this.type();
+        if (!file.type.includes(type)) {
+            return notifyError(`File is not an ${type}`);
         }
         console.log(`Uploading file...`);
         this.progress = 0;

@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges, inject } from '@angular/core';
+import { Component, OnChanges, SimpleChanges, inject, input } from '@angular/core';
 import { listSignagePlaylistMedia, SignageMedia } from '@placeos/ts-client';
 import { getUnixTime, startOfMinute } from 'date-fns';
 import { BehaviorSubject, combineLatest } from 'rxjs';
@@ -256,7 +256,7 @@ import { SignageStateService } from './signage-state.service';
 export class SignageMediaListComponent implements OnChanges {
     private _state = inject(SignageStateService);
 
-    @Input() public playlist_count = 0;
+    public readonly playlist_count = input(0);
     public readonly search = new BehaviorSubject<string>('');
     public readonly playlist_search = new BehaviorSubject<string>('');
     public readonly playlists = combineLatest([
@@ -300,7 +300,7 @@ export class SignageMediaListComponent implements OnChanges {
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.playlist_count) {
-            this.playlist_ids = new Array(this.playlist_count)
+            this.playlist_ids = new Array(this.playlist_count())
                 .fill(0)
                 .map((_, idx) => `playlist-${idx}`);
         }

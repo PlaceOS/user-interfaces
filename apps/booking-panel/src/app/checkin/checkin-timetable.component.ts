@@ -1,10 +1,9 @@
 import {
-    Component,
-    EventEmitter,
-    Input,
-    OnChanges,
-    Output,
-    SimpleChanges,
+  Component,
+  OnChanges,
+  SimpleChanges,
+  input,
+  output
 } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
 import { CalendarEvent } from '@placeos/events';
@@ -37,7 +36,7 @@ interface EventBlock {
             @for (blk of blocks; track blk) {
                 <button
                     class="relative h-full"
-                    [style.min-width]="1 * step + 'px'"
+                    [style.min-width]="1 * step() + 'px'"
                     (click)="event.emit(blk.id)"
                 >
                     @if (blk.minutes % 60 === 0) {
@@ -98,9 +97,9 @@ export class CheckinTimetableComponent
     extends AsyncHandler
     implements OnChanges
 {
-    @Input() public events: CalendarEvent[] = [];
-    @Input() public step = 15;
-    @Output() public event = new EventEmitter<number>();
+    public readonly events = input<CalendarEvent[]>([]);
+    public readonly step = input(15);
+    public readonly event = output<number>();
 
     public current_time = 0;
 
@@ -142,9 +141,9 @@ export class CheckinTimetableComponent
     private _generateTimeBlocks() {
         const blocks: TimeBlock[] = [];
         const start = roundToNearestMinutes(
-            subMinutes(subHours(Date.now(), 1), this.step / 2),
+            subMinutes(subHours(Date.now(), 1), this.step() / 2),
             {
-                nearestTo: this.step as any,
+                nearestTo: this.step() as any,
             },
         );
         let date = start;
@@ -156,14 +155,14 @@ export class CheckinTimetableComponent
                 hour: format(date, 'h'),
                 period: format(date, 'a'),
             });
-            date = addMinutes(date, this.step);
+            date = addMinutes(date, this.step());
         }
         this.blocks = blocks;
     }
 
     private _processEvents() {
         if (!this.blocks.length) return;
-        this.event_blocks = (this.events || []).map((_) => ({
+        this.event_blocks = (this.events() || []).map((_) => ({
             start: differenceInMinutes(_.date, this.blocks[0].id),
             length: _.duration,
         }));

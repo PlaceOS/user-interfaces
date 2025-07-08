@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import { Component, inject, input, output } from '@angular/core';
 import { SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { AssetManagerStateService } from './asset-manager-state.service';
@@ -6,10 +6,10 @@ import { AssetManagerStateService } from './asset-manager-state.service';
 @Component({
     selector: 'asset-request-details',
     template: `
-        @if (request) {
+        @if (request()) {
             <div
                 class="fixed inset-0 z-50"
-                (click)="request = null; requestChange.emit(request)"
+                (click)="request = null(); requestChange.emit(request())"
             >
                 <div class="absolute inset-0 bg-black opacity-50"></div>
                 <div
@@ -19,7 +19,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     <button
                         icon
                         matRipple
-                        (click)="request = null; requestChange.emit(request)"
+                        (click)="request = null(); requestChange.emit(request())"
                         class="absolute right-1 top-1"
                     >
                         <icon>close</icon>
@@ -28,21 +28,21 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         class="flex space-x-4 border-b border-base-200 px-2 py-4"
                     >
                         <a-user-avatar
-                            [user]="{ name: request.user_name }"
+                            [user]="{ name: request().user_name }"
                             class="text-xl"
                         ></a-user-avatar>
                         <div details class="space-y-1">
                             <div class="font-medium">
-                                {{ request.user_name }}
+                                {{ request().user_name }}
                             </div>
                             <div class="flex items-center space-x-2 text-sm">
                                 <icon>mail</icon>
                                 <a
                                     class="underline"
-                                    [href]="'mailto:' + request.user_email"
+                                    [href]="'mailto:' + request().user_email"
                                 >
                                     {{
-                                        request.user_email || 'staff@place.tech'
+                                        request().user_email || 'staff@place.tech'
                                     }}
                                 </a>
                             </div>
@@ -50,15 +50,15 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                 <icon>call</icon>
                                 <a
                                     class="underline"
-                                    [href]="'tel:' + request.user_phone"
+                                    [href]="'tel:' + request().user_phone"
                                 >
-                                    {{ request.user_phone || '04 1234 5678' }}
+                                    {{ request().user_phone || '04 1234 5678' }}
                                 </a>
                             </div>
                             <div class="flex items-center space-x-2 text-sm">
                                 <icon>work_outline</icon>
                                 <div>
-                                    {{ request.user_company || 'PlaceOS' }}
+                                    {{ request().user_company || 'PlaceOS' }}
                                 </div>
                             </div>
                         </div>
@@ -103,7 +103,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                             </div>
                         </div>
                         <div class="mt-1 pl-10">
-                            {{ request.date | date: 'EEEE, MMMM d, y' }}
+                            {{ request().date | date: 'EEEE, MMMM d, y' }}
                         </div>
                         <div class="mt-4 flex items-center space-x-4">
                             <div
@@ -116,12 +116,12 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                             </div>
                         </div>
                         <div class="mt-1 pl-10">
-                            {{ request.date | date: time_format }} &ndash;
+                            {{ request().date | date: time_format }} &ndash;
                             {{
-                                request.date + request.duration * 60 * 1000
+                                request().date + request().duration * 60 * 1000
                                     | date: time_format
                             }}
-                            ({{ request.duration | duration }})
+                            ({{ request().duration | duration }})
                         </div>
                         <div class="mt-4 flex items-center space-x-4">
                             <div
@@ -132,7 +132,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                             <div class="font-medium">Floor</div>
                         </div>
                         <div class="mt-1 pl-10">
-                            {{ level(request.zones)?.display_name || 'N/A' }}
+                            {{ level(request().zones)?.display_name || 'N/A' }}
                         </div>
                         <div class="mt-4 flex items-center space-x-4">
                             <div
@@ -145,18 +145,18 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                             </div>
                         </div>
                         <div class="mt-1 pl-10">
-                            {{ request.description }}
+                            {{ request().description }}
                         </div>
                         <div class="absolute right-4 top-4 text-sm">
                             <button
                                 matRipple
                                 class="mb-4 flex w-full items-center space-x-2 rounded-3xl !bg-opacity-20 px-2 py-1 text-left"
                                 [class.bg-success]="
-                                    request.status === 'approved'
+                                    request().status === 'approved'
                                 "
-                                [class.bg-error]="request.status === 'declined'"
+                                [class.bg-error]="request().status === 'declined'"
                                 [class.bg-warning]="
-                                    request.status === 'tentative'
+                                    request().status === 'tentative'
                                 "
                                 [matMenuTriggerFor]="menu"
                                 [disabled]="loading"
@@ -164,25 +164,25 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                 <icon
                                     class="text-xl"
                                     [class.text-green-600]="
-                                        request.status === 'approved'
+                                        request().status === 'approved'
                                     "
                                     [class.text-red-600]="
-                                        request.status === 'declined'
+                                        request().status === 'declined'
                                     "
                                     [class.text-yellow-400]="
-                                        request.status === 'tentative'
+                                        request().status === 'tentative'
                                     "
                                 >
                                     {{
-                                        request.status === 'approved'
+                                        request().status === 'approved'
                                             ? 'done'
-                                            : request.status === 'declined'
+                                            : request().status === 'declined'
                                               ? 'close'
                                               : 'warning'
                                     }}
                                 </icon>
                                 <div class="flex-1 capitalize">
-                                    {{ request.status }}
+                                    {{ request().status }}
                                 </div>
                                 <icon class="text-2xl">expand_more</icon>
                             </button>
@@ -208,7 +208,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                             >
                                 <div class="flex-1 capitalize">
                                     {{
-                                        (request.extension_data?.tracking
+                                        (request().extension_data?.tracking
                                             | splitjoin) || 'In Storage'
                                     }}
                                 </div>
@@ -257,13 +257,13 @@ export class AssetRequestDetailsComponent {
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
 
-    @Input() public request: any;
-    @Output() public requestChange = new EventEmitter<any>();
+    public readonly request = input<any>(undefined);
+    public readonly requestChange = output<any>();
 
     public loading = false;
 
     public get items() {
-        return this.request?.extension_data?.request?.items || [];
+        return this.request()?.extension_data?.request?.items || [];
     }
 
     public get time_format() {
@@ -276,15 +276,15 @@ export class AssetRequestDetailsComponent {
 
     public async setStatus(status: string) {
         this.loading = true;
-        await this._state.setStatus(this.request, status);
-        (this.request as any).status = status;
+        await this._state.setStatus(this.request(), status);
+        (this.request() as any).status = status;
         this.loading = false;
     }
 
     public async setTracking(state: string) {
         this.loading = true;
-        await this._state.setTracking(this.request, state);
-        (this.request as any).extension_data.tracking = state;
+        await this._state.setTracking(this.request(), state);
+        (this.request() as any).extension_data.tracking = state;
         this.loading = false;
     }
 }

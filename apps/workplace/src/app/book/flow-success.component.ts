@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { currentUser } from '@placeos/common';
 
 @Component({
@@ -12,9 +12,9 @@ import { currentUser } from '@placeos/common';
                 <icon>done</icon>
             </div>
             <div class="mb-4 text-center text-lg leading-10 text-white">
-                Thank you, your {{ type }} booking was successful!<br />
-                {{ extra }}
-                @if (extra) {
+                Thank you, your {{ type() }} booking was successful!<br />
+                {{ extra() }}
+                @if (extra()) {
                     <br />
                 }
                 An event has been added to {{ title }} calendar
@@ -24,7 +24,7 @@ import { currentUser } from '@placeos/common';
                     btn
                     matRipple
                     class="w-32 border border-white"
-                    [routerLink]="['/book', route]"
+                    [routerLink]="['/book', route()]"
                     [queryParams]="{}"
                 >
                     New Booking
@@ -34,7 +34,7 @@ import { currentUser } from '@placeos/common';
                     matRipple
                     class="w-32 border border-white"
                     [routerLink]="['/your-bookings']"
-                    [queryParams]="{ email: calendar }"
+                    [queryParams]="{ email: calendar() }"
                 >
                     Your Bookings
                 </a>
@@ -45,13 +45,13 @@ import { currentUser } from '@placeos/common';
     standalone: false,
 })
 export class FlowSuccessComponent {
-    @Input() public calendar: string;
-    @Input() public extra = '';
-    @Input() public route = 'spaces';
-    @Input() public type = 'space';
+    public readonly calendar = input<string>(undefined);
+    public readonly extra = input('');
+    public readonly route = input('spaces');
+    public readonly type = input('space');
 
     public get is_host(): boolean {
-        return this.calendar === currentUser()?.email;
+        return this.calendar() === currentUser()?.email;
     }
 
     public get title() {

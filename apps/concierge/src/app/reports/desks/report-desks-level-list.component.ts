@@ -1,4 +1,4 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import {
     downloadFile,
     jsonToCsv,
@@ -26,7 +26,7 @@ import { ReportsStateService } from '../reports-state.service';
                                 | translate
                         }}
                     </h3>
-                    @if (!print) {
+                    @if (!print()) {
                         <button
                             icon
                             matRipple
@@ -66,7 +66,7 @@ import { ReportsStateService } from '../reports-state.service';
                             content: percent_view,
                         },
                     ]"
-                    [page_size]="print ? 0 : 10"
+                    [page_size]="print() ? 0 : 10"
                     [sortable]="true"
                     [empty_message]="
                         'APP.CONCIERGE.REPORTS_DAILY_EMPTY' | translate
@@ -86,7 +86,7 @@ export class ReportDesksLevelListComponent {
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
 
-    @Input() public print = false;
+    public readonly print = input(false);
 
     public readonly level_list = combineLatest([
         this._state.options,

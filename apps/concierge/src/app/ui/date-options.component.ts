@@ -1,4 +1,13 @@
-import { Component, EventEmitter, Input, Output, SimpleChanges, inject } from '@angular/core';
+import {
+    Component,
+    OnChanges,
+    OnInit,
+    SimpleChanges,
+    inject,
+    input,
+    model,
+    output,
+} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
 import {
@@ -13,7 +22,7 @@ import {
 @Component({
     selector: 'date-options',
     template: `
-        @if (is_new) {
+        @if (is_new()) {
             <button
                 icon
                 matRipple
@@ -21,8 +30,8 @@ import {
                 customTooltip
                 [content]="calendar_picker"
                 yPosition="top"
-                [class.pointer-events-none]="disabled"
-                [class.opacity-30]="disabled"
+                [class.pointer-events-none]="disabled()"
+                [class.opacity-30]="disabled()"
             >
                 <icon>today</icon>
             </button>
@@ -30,7 +39,7 @@ import {
         <button icon matRipple (click)="previousDay()">
             <icon>keyboard_arrow_left</icon>
         </button>
-        @if (!is_new) {
+        @if (!is_new()) {
             <button icon matRipple (click)="nextDay()">
                 <icon>keyboard_arrow_right</icon>
             </button>
@@ -46,15 +55,15 @@ import {
                 </div>
             }
             <div class="relative" [class.top-1]="is_today">
-                {{ date | date: 'mediumDate' }}
+                {{ date() | date: 'mediumDate' }}
             </div>
         </div>
-        @if (is_new) {
+        @if (is_new()) {
             <button icon matRipple (click)="nextDay()">
                 <icon>keyboard_arrow_right</icon>
             </button>
         }
-        @if (!is_new) {
+        @if (!is_new()) {
             <button
                 icon
                 matRipple
@@ -62,8 +71,8 @@ import {
                 customTooltip
                 [content]="calendar_picker"
                 yPosition="top"
-                [class.pointer-events-none]="disabled"
-                [class.opacity-30]="disabled"
+                [class.pointer-events-none]="disabled()"
+                [class.opacity-30]="disabled()"
             >
                 <icon>today</icon>
             </button>
@@ -71,8 +80,8 @@ import {
         <ng-template #calendar_picker>
             <div class="relative w-[19rem] rounded bg-base-100 px-2 py-4">
                 <date-calendar
-                    [ngModel]="date"
-                    [offset_weekday]="week_start"
+                    [ngModel]="date()"
+                    [offset_weekday]="week_start()"
                     (ngModelChange)="setDate($event)"
                 ></date-calendar>
             </div>
@@ -93,29 +102,32 @@ import {
     ],
     standalone: false,
 })
-export class DateOptionsComponent extends AsyncHandler {
+export class DateOptionsComponent
+    extends AsyncHandler
+    implements OnInit, OnChanges
+{
     private _router = inject(Router);
     private _route = inject(ActivatedRoute);
 
-    @Input() public is_new = false;
-    @Input() public disabled = false;
+    public readonly is_new = input(false);
+    public readonly disabled = input(false);
     /** Index of the day to start the week on when displaying the calendar */
-    @Input() public week_start: number = 0;
+    public readonly week_start = input<number>(0);
     /** Currently selected date */
-    @Input() public date: number = Date.now();
-    @Input() public step = 1;
-    @Input() public hide_today = false;
+    public readonly date = model<number>(Date.now());
+    public readonly step = input(1);
+    public readonly hide_today = input(false);
     /** Emitter for changes to the date */
-    @Output() public dateChange = new EventEmitter<number | string>();
+    public readonly dateChange = output<number | string>();
     /** Change date to the previous date */
     public readonly previousDay = () =>
-        this.setDate(subDays(this.date, this.step).valueOf());
+        this.setDate(subDays(this.date(), this.step()).valueOf());
     /** Change date to the next date */
     public readonly nextDay = () =>
-        this.setDate(addDays(this.date, this.step).valueOf());
+        this.setDate(addDays(this.date(), this.step()).valueOf());
 
     public get is_today() {
-        return isSameDay(this.date, Date.now()) && !this.hide_today;
+        return isSameDay(this.date(), Date.now()) && !this.hide_today();
     }
 
     public ngOnInit() {
@@ -124,12 +136,14 @@ export class DateOptionsComponent extends AsyncHandler {
             this._route.queryParamMap.subscribe((params) => {
                 if (params.has('date')) {
                     this.timeout('set-date', () => {
-                        this.date = parse(
-                            params.get('date'),
-                            'yyyy-MM-dd',
-                            0,
-                        ).valueOf();
-                        this.dateChange.emit(this.date);
+                        this.date.set(
+                            parse(
+                                params.get('date'),
+                                'yyyy-MM-dd',
+                                0,
+                            ).valueOf(),
+                        );
+                        this.dateChange.emit(this.date());
                     });
                 }
             }),
@@ -138,19 +152,19 @@ export class DateOptionsComponent extends AsyncHandler {
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.date) {
-            this.setDate(this.date || Date.now(), false);
+            this.setDate(this.date() || Date.now(), false);
         }
     }
 
-    public setDate(date: number, emit: boolean = true) {
+    public setDate(date: number, emit = true) {
         date = startOfMinute(date).valueOf();
-        this.date = date;
+        this.date.set(date);
         this._router.navigate([], {
             relativeTo: this._route,
             queryParams: { date: format(date, 'yyyy-MM-dd') },
             queryParamsHandling: 'merge',
         });
-        if (emit) this.dateChange.emit(this.date);
+        if (emit) this.dateChange.emit(this.date());
         this.timeout(
             'clear-set-date',
             () => this.clearTimeout('set-date'),

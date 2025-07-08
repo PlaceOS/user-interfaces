@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import {
     MatBottomSheet,
     MatBottomSheetRef,
@@ -85,7 +85,7 @@ export class NewDeskFlowFormComponent implements OnInit {
                 }),
             );
         this.sheet_ref = this._bottom_sheet.open(NewDeskFlowConfirmComponent);
-        this.sheet_ref.instance.show_close = true;
+        this.sheet_ref.instance.show_close.set(true);
         this.sheet_ref.afterDismissed().subscribe((value) => {
             if (value) {
                 this._state.setView('success');

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit, Output, inject } from '@angular/core';
+import { Component, OnInit, inject, output } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 import {
@@ -66,7 +66,7 @@ export class BookingModalComponent implements OnInit {
     private _dialog_ref = inject<MatDialogRef<BookingModalComponent>>(MatDialogRef);
     private _settings = inject(SettingsService);
 
-    @Output() public event = new EventEmitter<DialogEvent>();
+    public readonly event = output<DialogEvent>();
     /** Observable for the loading state of the form */
     public readonly loading = this._service.loading$;
 

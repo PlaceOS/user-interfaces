@@ -1,4 +1,4 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { addMinutes, format } from 'date-fns';
 
 import { SettingsService } from '@placeos/common';
@@ -20,14 +20,14 @@ import { EventsStateService } from '../day-view/events-state.service';
         >
             <div class="flex-1 overflow-auto p-4">
                 <h3 class="mb-1 pl-6">
-                    {{ event.organiser?.name || event.host }}
+                    {{ event().organiser?.name || event().host }}
                 </h3>
                 <div class="text-bold mb-4 pl-6 opacity-60">
-                    {{ event.date | date: 'fullDate' }}
+                    {{ event().date | date: 'fullDate' }}
                 </div>
                 <div class="mb-2 flex items-center">
                     <icon class="mr-1">title</icon>
-                    <span class="opacity-60">{{ event.title }}</span>
+                    <span class="opacity-60">{{ event().title }}</span>
                 </div>
                 <div class="mb-2 flex items-center">
                     <icon class="mr-1">schedule</icon>
@@ -36,13 +36,13 @@ import { EventsStateService } from '../day-view/events-state.service';
                 <div class="mb-2 flex items-center">
                     <icon class="mr-1">people</icon>
                     <span class="opacity-60"
-                        >{{ event.attendees.length }} Attendee{{
-                            event.attendees.length === 1 ? '' : 's'
+                        >{{ event().attendees.length }} Attendee{{
+                            event().attendees.length === 1 ? '' : 's'
                         }}</span
                     >
                 </div>
                 <div class="mb-2 flex flex-col">
-                    @for (user of event.attendees; track user) {
+                    @for (user of event().attendees; track user) {
                         <div
                             class="mb-1 flex items-center rounded pl-6 hover:bg-base-200"
                         >
@@ -84,7 +84,7 @@ import { EventsStateService } from '../day-view/events-state.service';
                     <span
                         class="opacity-60"
                         [innerHTML]="
-                            event.body || '&lt; No notes &gt;' | sanitize
+                            event().body || '&lt; No notes &gt;' | sanitize
                         "
                     ></span>
                 </div>
@@ -146,14 +146,14 @@ export class ViewEventDetailsComponent {
     private _org = inject(OrganisationService);
 
     /** Event to display */
-    @Input() public event: CalendarEvent;
+    public readonly event = input<CalendarEvent>(undefined);
     /** Close displayed event */
     public readonly close = () => this._state.setEvent(null);
 
-    public readonly edit = () => this._state.newBooking(this.event);
+    public readonly edit = () => this._state.newBooking(this.event());
 
     public readonly remove = async () => {
-        const close = await this._state.removeBooking(this.event);
+        const close = await this._state.removeBooking(this.event());
         if (close) this.close();
     };
 
@@ -162,19 +162,20 @@ export class ViewEventDetailsComponent {
     }
 
     public get space_id() {
+        const event = this.event();
         return (
-            this.event?.resources[0]?.id ||
-            this.event?.space?.id ||
-            this.event?.system?.id
+            event?.resources[0]?.id ||
+            event?.space?.id ||
+            event?.system?.id
         );
     }
 
     public get time() {
-        const date = new Date(this.event.date);
+        const date = new Date(this.event().date);
         return (
             format(date, this.time_format) +
             ' - ' +
-            format(addMinutes(date, this.event.duration), this.time_format)
+            format(addMinutes(date, this.event().duration), this.time_format)
         );
     }
 

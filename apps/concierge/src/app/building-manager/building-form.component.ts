@@ -1,4 +1,13 @@
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, inject } from '@angular/core';
+import {
+    Component,
+    OnChanges,
+    OnInit,
+    SimpleChanges,
+    inject,
+    input,
+    model,
+    output,
+} from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import {
     AsyncHandler,
@@ -106,11 +115,11 @@ export class BuildingFormComponent
 {
     private _org = inject(OrganisationService);
 
-    @Input() public building: Building | null = null;
-    @Input() public save = 0;
-    @Input() public loading = false;
-    @Output() public loadingChange = new EventEmitter<boolean>();
-    @Output() public done = new EventEmitter();
+    public readonly building = input<Building | null>(null);
+    public readonly save = input(0);
+    public readonly loading = model(false);
+    public readonly loadingChange = output<boolean>();
+    public readonly done = output<any>();
 
     public timezones: string[] = [];
     public filtered_timezones: string[] = [];
@@ -138,14 +147,16 @@ export class BuildingFormComponent
             'tz-change',
             this.form.valueChanges.subscribe(() => this._updateTimezoneList()),
         );
-        if (this.building) this.form.patchValue(this.building);
+        const building = this.building();
+        if (building) this.form.patchValue(building);
     }
 
     public ngOnChanges(changes: SimpleChanges) {
-        if (changes.building && this.building) {
-            this.form.patchValue(this.building);
+        const building = this.building();
+        if (changes.building && building) {
+            this.form.patchValue(building);
         }
-        if (changes.save && this.save) this.saveChanges();
+        if (changes.save && this.save()) this.saveChanges();
     }
 
     public async saveChanges() {
@@ -160,7 +171,7 @@ export class BuildingFormComponent
             );
         }
         const data = this.form.getRawValue();
-        this.loading = true;
+        this.loading.set(true);
         this.loadingChange.emit(true);
         const body = {
             ...data,
@@ -177,12 +188,12 @@ export class BuildingFormComponent
                         error: e.message || e.error || e,
                     }),
                 );
-                this.loading = false;
+                this.loading.set(false);
                 this.loadingChange.emit(false);
                 throw e;
             });
         notifySuccess(i18n('APP.CONCIERGE.BUILDINGS_SAVE_SUCCESS'));
-        this.loading = false;
+        this.loading.set(false);
         this.loadingChange.emit(false);
         this.done.emit(building);
     }

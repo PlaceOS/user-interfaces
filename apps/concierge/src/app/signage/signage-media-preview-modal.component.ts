@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, inject } from '@angular/core';
+import { Component, inject, output } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 @Component({
@@ -70,7 +70,7 @@ export class SignageMediaPreviewModalComponent {
     file?: File;
 }>(MAT_DIALOG_DATA);
 
-    @Output() public readonly save = new EventEmitter<any>();
+    public readonly save = output<any>();
     public loading = '';
     public readonly resource = this._data.url;
     public readonly type = this._data.type;

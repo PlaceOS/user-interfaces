@@ -1,4 +1,4 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import {
     downloadFile,
     jsonToCsv,
@@ -18,7 +18,7 @@ import { AssetsReportService } from './assets-report.service';
                 <h3 class="flex-1 text-xl font-bold">
                     {{ 'APP.CONCIERGE.REPORTS_ASSETS_REQUESTEES' | translate }}
                 </h3>
-                @if (!print) {
+                @if (!print()) {
                     <button
                         icon
                         matRipple
@@ -50,7 +50,7 @@ import { AssetsReportService } from './assets-report.service';
                     },
                 ]"
                 [sortable]="true"
-                [page_size]="print ? 0 : 10"
+                [page_size]="print() ? 0 : 10"
                 [empty_message]="
                     'APP.CONCIERGE.REPORTS_DAILY_EMPTY' | translate
                 "
@@ -63,7 +63,7 @@ import { AssetsReportService } from './assets-report.service';
 export class AssetReportUsersComponent {
     private _state = inject(AssetsReportService);
 
-    @Input() public print = false;
+    public readonly print = input(false);
     public readonly users = this._state.stats$.pipe(
         map(({ events, bookings, products }) => {
             const data = unique(events, 'host').map((user_event) => {

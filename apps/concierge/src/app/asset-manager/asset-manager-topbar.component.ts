@@ -1,4 +1,4 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { AsyncHandler, nextValueFrom, SettingsService } from '@placeos/common';
 import { AvailableRoomsStateModalComponent } from '@placeos/components';
@@ -13,7 +13,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
         >
             <h2 class="text-2xl font-medium">
                 {{
-                    (active !== 'items' && active !== 'purchase-orders'
+                    (active() !== 'items' && active() !== 'purchase-orders'
                         ? 'APP.CONCIERGE.ASSETS_HEADER'
                         : 'APP.CONCIERGE.ASSETS_MANAGE_HEADER'
                     ) | translate
@@ -29,16 +29,16 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     [ngModel]="(options | async)?.search"
                     (ngModelChange)="setOptions({ search: $event })"
                     [placeholder]="
-                        (active === 'items'
+                        (active() === 'items'
                             ? 'APP.CONCIERGE.ASSETS_ITEM_SEARCH'
-                            : active === 'purchase-orders'
+                            : active() === 'purchase-orders'
                               ? 'APP.CONCIERGE.ASSETS_ITEM_SEARCH'
                               : 'APP.CONCIERGE.ASSETS_REQUESTS_SEARCH'
                         ) | translate
                     "
                 />
             </mat-form-field>
-            @if (active === 'items') {
+            @if (active() === 'items') {
                 <a
                     btn
                     matRipple
@@ -48,7 +48,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     {{ 'APP.CONCIERGE.ASSETS_ITEM_ADD' | translate }}
                 </a>
             }
-            @if (active === 'purchase-orders') {
+            @if (active() === 'purchase-orders') {
                 <a
                     btn
                     matRipple
@@ -59,7 +59,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 </a>
             }
         </div>
-        @if (active === 'items') {
+        @if (active() === 'items') {
             <div class="mb-2 flex items-center space-x-2 px-8">
                 <div class="flex items-center rounded border border-secondary">
                     <button
@@ -116,7 +116,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 >
                     <icon>event_available</icon>
                 </button>
-                @if (active === 'items') {
+                @if (active() === 'items') {
                     <button
                         icon
                         matRipple
@@ -158,7 +158,7 @@ export class AssetManagerTopbarComponent extends AsyncHandler {
     private _settings = inject(SettingsService);
     private _dialog = inject(MatDialog);
 
-    @Input() public active = '';
+    public readonly active = input('');
 
     public readonly options = this._state.options;
     public readonly region = this._org.active_region;

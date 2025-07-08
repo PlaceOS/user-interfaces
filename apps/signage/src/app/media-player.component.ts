@@ -1,11 +1,11 @@
 import {
     Component,
     ElementRef,
-    EventEmitter,
-    Input,
+    input,
+    model,
     OnChanges,
     OnInit,
-    Output,
+    output,
     SimpleChanges,
     viewChild,
 } from '@angular/core';
@@ -28,7 +28,7 @@ export type MediaPlayerState = 'PAUSED' | 'PLAYING';
 @Component({
     selector: 'media-player',
     template: `
-        {{ controls }}
+        {{ controls() }}
         <div #previous_container class="absolute left-0 top-0 h-full w-full">
             <img
                 #previous_image_el
@@ -49,7 +49,7 @@ export type MediaPlayerState = 'PAUSED' | 'PLAYING';
                 class="absolute left-0 top-0 h-full w-full object-contain object-center"
             ></video>
         </div>
-        @if (controls) {
+        @if (controls()) {
             <div
                 class="absolute bottom-[4.5rem] left-1/2 w-56 -translate-x-1/2 overflow-hidden rounded-full border border-base-300 bg-base-100 p-1"
                 [matTooltip]="duration | mediaDuration"
@@ -82,14 +82,14 @@ export type MediaPlayerState = 'PAUSED' | 'PLAYING';
                     class="hover:bg-base-200"
                     (click)="togglePause()"
                     [matTooltip]="
-                        (state === 'PLAYING'
+                        (state() === 'PLAYING'
                             ? 'APP.SIGNAGE.PLAY'
                             : 'APP.SIGNAGE.PAUSE'
                         ) | translate
                     "
                 >
                     <icon>{{
-                        state === 'PLAYING' ? 'pause' : 'play_arrow'
+                        state() === 'PLAYING' ? 'pause' : 'play_arrow'
                     }}</icon>
                 </button>
                 <button
@@ -111,12 +111,12 @@ export type MediaPlayerState = 'PAUSED' | 'PLAYING';
                             | translate
                                 : {
                                       state:
-                                          (muted ? 'COMMON.OFF' : 'COMMON.ON')
+                                          (muted() ? 'COMMON.OFF' : 'COMMON.ON')
                                           | translate,
                                   }
                     "
                 >
-                    <icon>{{ muted ? 'volume_off' : 'volume_up' }}</icon>
+                    <icon>{{ muted() ? 'volume_off' : 'volume_up' }}</icon>
                 </button>
                 <button
                     icon
@@ -124,19 +124,19 @@ export type MediaPlayerState = 'PAUSED' | 'PLAYING';
                     class="hover:bg-base-200"
                     (click)="toggleLoop()"
                     [matTooltip]="
-                        (loop === 'ALL'
+                        (loop() === 'ALL'
                             ? 'APP.SIGNAGE.LOOP_ALL'
-                            : loop === 'ONE'
+                            : loop() === 'ONE'
                               ? 'APP.SIGNAGE.LOOP_ONE'
                               : 'APP.SIGNAGE.LOOP_OFF'
                         ) | translate
                     "
                 >
-                    <icon [class.opacity-30]="loop === 'NONE'">
+                    <icon [class.opacity-30]="loop() === 'NONE'">
                         {{
-                            loop === 'ALL'
+                            loop() === 'ALL'
                                 ? 'repeat'
-                                : loop === 'ONE'
+                                : loop() === 'ONE'
                                   ? 'repeat_one'
                                   : 'repeat'
                         }}
@@ -152,12 +152,14 @@ export type MediaPlayerState = 'PAUSED' | 'PLAYING';
                             | translate
                                 : {
                                       state:
-                                          (shuffle ? 'COMMON.ON' : 'COMMON.OFF')
-                                          | translate,
+                                          (shuffle()
+                                              ? 'COMMON.ON'
+                                              : 'COMMON.OFF'
+                                          ) | translate,
                                   }
                     "
                 >
-                    <icon [class.opacity-30]="!shuffle"> shuffle </icon>
+                    <icon [class.opacity-30]="!shuffle()"> shuffle </icon>
                 </button>
             </div>
             @if (show_playlist) {
@@ -175,20 +177,22 @@ export type MediaPlayerState = 'PAUSED' | 'PLAYING';
                             <button
                                 matRipple
                                 class="flex w-[20rem] items-center space-x-2 rounded-lg p-2 text-left hover:bg-base-200"
-                                [class.overflow-visible]="$index === index"
-                                [class.pointer-events-none]="$index === index"
+                                [class.overflow-visible]="$index === index()"
+                                [class.pointer-events-none]="$index === index()"
                                 (click)="setPlaylistItem($index)"
                             >
                                 <div
                                     class="flex h-10 w-10 items-center justify-center rounded-full"
-                                    [class.bg-info]="$index === index"
-                                    [class.text-info-content]="$index === index"
-                                    [class.bg-base-300]="$index !== index"
+                                    [class.bg-info]="$index === index()"
+                                    [class.text-info-content]="
+                                        $index === index()
+                                    "
+                                    [class.bg-base-300]="$index !== index()"
                                 >
                                     <div
                                         class="relative flex h-7 w-7 items-center justify-center"
                                     >
-                                        @if ($index === index) {
+                                        @if ($index === index()) {
                                             <span
                                                 class="absolute z-0 inline-flex h-full w-full animate-ping rounded-full bg-info opacity-75"
                                             ></span>
@@ -196,10 +200,10 @@ export type MediaPlayerState = 'PAUSED' | 'PLAYING';
                                         <icon
                                             class="relative z-10 text-2xl"
                                             [class.opacity-30]="
-                                                $index !== index
+                                                $index !== index()
                                             "
                                             >{{
-                                                $index === index
+                                                $index === index()
                                                     ? 'play_arrow'
                                                     : 'not_started'
                                             }}</icon
@@ -256,17 +260,17 @@ export class MediaPlayerComponent
     extends AsyncHandler
     implements OnInit, OnChanges
 {
-    @Input() public playlist: MediaPlayerItem[] = [];
-    @Input() public controls = false;
-    @Input() public loop: 'NONE' | 'ONE' | 'ALL' = 'ALL';
-    @Input() public shuffle = false;
-    @Input() public index = -1;
-    @Input() public animation_time = 1000;
-    @Input() public muted = false;
-    @Input() public state: MediaPlayerState = 'PLAYING';
-    @Output() public stateChange = new EventEmitter<MediaPlayerState>();
-    @Output() public indexChange = new EventEmitter<number>();
-    @Output() public mutedChange = new EventEmitter<boolean>();
+    public readonly playlist = input<MediaPlayerItem[]>([]);
+    public readonly controls = input(false);
+    public readonly loop = model<'NONE' | 'ONE' | 'ALL'>('ALL');
+    public readonly shuffle = model(false);
+    public readonly index = model(-1);
+    public readonly animation_time = input(1000);
+    public readonly muted = model(false);
+    public readonly state = model<MediaPlayerState>('PLAYING');
+    public readonly stateChange = output<MediaPlayerState>();
+    public readonly indexChange = output<number>();
+    public readonly mutedChange = output<boolean>();
 
     public duration = 0;
     public progress = 0;
@@ -285,7 +289,7 @@ export class MediaPlayerComponent
     }
 
     public get active_item() {
-        return this._item_playlist[this.index];
+        return this._item_playlist[this.index()];
     }
 
     private readonly _previous_container =
@@ -308,16 +312,16 @@ export class MediaPlayerComponent
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.playlist) {
-            if (this.state === 'PLAYING') this.togglePause();
+            if (this.state() === 'PLAYING') this.togglePause();
             const current_item = this.active_item;
-            this._item_playlist = [...(this.playlist || [])];
+            this._item_playlist = [...(this.playlist() || [])];
             const current_exists = this._item_playlist.find(
                 (_) => _.id === current_item?.id,
             );
-            if (this.index >= 0 && current_exists) {
+            if (this.index() >= 0 && current_exists) {
                 this._item_playlist = [current_item, ...this._item_playlist];
                 this.hold_over_item = true;
-                this.index = 0;
+                this.index.set(0);
             } else {
                 this.hold_over_item = false;
             }
@@ -327,11 +331,11 @@ export class MediaPlayerComponent
         if (changes.animation_time) {
             document.documentElement.style.setProperty(
                 '--transition-duration',
-                `${this.animation_time || 3000}ms`,
+                `${this.animation_time() || 3000}ms`,
             );
         }
         if (changes.muted) {
-            this._video_element().nativeElement.muted = !!this.muted;
+            this._video_element().nativeElement.muted = !!this.muted();
         }
     }
 
@@ -340,33 +344,34 @@ export class MediaPlayerComponent
     }
 
     public previousItem() {
-        const new_index = (this.index - 1) % this._item_playlist.length;
+        const new_index = (this.index() - 1) % this._item_playlist.length;
         this.setPlaylistItem(new_index);
     }
 
     public toggleMuted() {
-        this.muted = !this.muted;
-        this.mutedChange.emit(this.muted);
-        this._video_element().nativeElement.muted = this.muted;
+        this.muted.set(!this.muted());
+        const muted = this.muted();
+        this.mutedChange.emit(muted);
+        this._video_element().nativeElement.muted = muted;
     }
 
     public togglePause() {
         this.clearTimeout('re-start');
-        if (this.state === 'PLAYING') {
-            this.state = 'PAUSED';
+        if (this.state() === 'PLAYING') {
+            this.state.set('PAUSED');
             this._item_progress = Date.now() - this._item_start;
             this._item_start = 0;
             if (this.active_item?.type === 'video') {
                 this._video_element().nativeElement.pause();
             }
         } else {
-            this.state = 'PLAYING';
+            this.state.set('PLAYING');
             this._item_start = Date.now() - this._item_progress;
             this._item_progress = 0;
             if (this.active_item?.type === 'video') {
                 this._video_element().nativeElement.play();
             }
-            if (this.index === -1) this._updateItem();
+            if (this.index() === -1) this._updateItem();
         }
     }
 
@@ -377,14 +382,12 @@ export class MediaPlayerComponent
             this.hold_over_item = false;
             return;
         }
-        let next_index = this.index + 1;
-        if (this.loop === 'ONE') next_index = this.index;
-        else if (
-            this.loop === 'NONE' &&
-            next_index === this._item_playlist.length
-        ) {
-            this.index = -1;
-            this.state = 'PAUSED';
+        let next_index = this.index() + 1;
+        const loop = this.loop();
+        if (loop === 'ONE') next_index = this.index();
+        else if (loop === 'NONE' && next_index === this._item_playlist.length) {
+            this.index.set(-1);
+            this.state.set('PAUSED');
             this._item_start = 0;
             this._item_progress = 0;
             return;
@@ -394,23 +397,24 @@ export class MediaPlayerComponent
     }
 
     public toggleLoop() {
-        if (this.loop === 'ALL') this.loop = 'ONE';
-        else if (this.loop === 'NONE') this.loop = 'ALL';
-        else if (this.loop === 'ONE') this.loop = 'NONE';
+        const loop = this.loop();
+        if (loop === 'ALL') this.loop.set('ONE');
+        else if (loop === 'NONE') this.loop.set('ALL');
+        else if (loop === 'ONE') this.loop.set('NONE');
     }
 
     public toggleShuffle() {
-        this.shuffle = !this.shuffle;
+        this.shuffle.set(!this.shuffle());
         const current_item = this.active_item;
         if (this.hold_over_item) {
             this._item_playlist.shift();
             this.hold_over_item = false;
         }
-        if (this.shuffle) {
-            shuffleArrayWithFirstItem(this._item_playlist, this.index);
+        if (this.shuffle()) {
+            shuffleArrayWithFirstItem(this._item_playlist, this.index());
             this.setPlaylistItem(0);
         } else {
-            this._item_playlist = [...this.playlist];
+            this._item_playlist = [...this.playlist()];
             this.setPlaylistItem(
                 current_item
                     ? this._item_playlist.findIndex(
@@ -422,7 +426,7 @@ export class MediaPlayerComponent
     }
 
     private _updateItem() {
-        if (this.state === 'PAUSED') return;
+        if (this.state() === 'PAUSED') return;
         const duration = Date.now() - this._item_start;
         this.progress = Math.floor(
             (duration / (this.active_item?.duration || 15 * 1000)) * 100,
@@ -431,7 +435,7 @@ export class MediaPlayerComponent
 
         if (!this._item_playlist?.length) return;
         this._processURLs();
-        if (this.index === -1) {
+        if (this.index() === -1) {
             this.setPlaylistItem(0);
         }
         const item = this.active_item;
@@ -441,7 +445,7 @@ export class MediaPlayerComponent
     }
 
     private setPlaylistItem(index: number) {
-        this.index = index;
+        this.index.set(index);
         this.indexChange.emit(index);
         const item = this.active_item;
         if (!item) return;
@@ -473,7 +477,7 @@ export class MediaPlayerComponent
     }
 
     private async _processURLs() {
-        const current_index = Math.max(this.index, 0);
+        const current_index = Math.max(this.index(), 0);
         const item_count = this._item_playlist.length;
         // Get current
         const current_item = this._item_playlist[current_index];
@@ -511,16 +515,17 @@ export class MediaPlayerComponent
 
     private _transition() {
         if (!this.active_item) return;
-        if (this.state === 'PLAYING') this.togglePause();
+        if (this.state() === 'PLAYING') this.togglePause();
         this.in_animation = true;
         if (this.active_item.animation === MediaAnimation.Cut) {
             this.timeout('re-start', () => this._onTransitionEnd(), 500);
             return;
         }
-        if (this.index !== -1) {
+        const indexValue = this.index();
+        if (indexValue !== -1) {
             const img_el = this._previous_img_element().nativeElement;
             const video_el = this._previous_video_element().nativeElement;
-            let index = this.index - 1;
+            let index = indexValue - 1;
             if (index < 0) index = this._item_playlist.length - 1;
             const item = this._item_playlist[index];
             const url = this.url(item.id);
@@ -571,7 +576,7 @@ export class MediaPlayerComponent
             this.timeout(
                 're-start',
                 () => this._onTransitionEnd(),
-                this.animation_time || 3000,
+                this.animation_time() || 3000,
             );
         });
     }

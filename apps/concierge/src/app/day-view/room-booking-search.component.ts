@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, OnInit, Output, inject, viewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, inject, viewChild, output } from '@angular/core';
 import { AsyncHandler, i18n, SettingsService } from '@placeos/common';
 import { CalendarEvent } from '@placeos/events';
 import { BehaviorSubject, combineLatest } from 'rxjs';
@@ -62,7 +62,7 @@ import { EventsStateService } from './events-state.service';
                             <button
                                 matRipple
                                 class="relative z-0 flex w-full items-center space-x-2 rounded p-2 text-left hover:bg-base-200"
-                                (click)="selected.next(event)"
+                                (click)="selected.emit(event)"
                             >
                                 <div
                                     class="h-10 w-1 rounded-full"
@@ -123,7 +123,7 @@ export class RoomBookingSearchComponent extends AsyncHandler implements OnInit {
     private _state = inject(EventsStateService);
     private _settings = inject(SettingsService);
 
-    @Output() public selected = new EventEmitter<CalendarEvent>();
+    public readonly selected = output<CalendarEvent>();
     public show = false;
     public readonly search = new BehaviorSubject('');
     public readonly events = this._state.filtered;

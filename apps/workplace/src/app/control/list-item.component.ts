@@ -1,4 +1,4 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 
 import { SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
@@ -7,20 +7,20 @@ import { Space } from '@placeos/spaces';
 @Component({
     selector: 'a-control-space-list-item',
     template: `
-        @if (space) {
+        @if (space()) {
             <div
                 class="mx-auto mb-2 flex max-w-[40rem] flex-wrap items-center overflow-hidden rounded border border-base-200 bg-base-100 p-2 pl-4 hover:border-info sm:space-x-4"
                 [class.with-image]="show_image"
             >
                 <div class="flex flex-1 flex-col">
                     <div class="text-xl">
-                        {{ space.display_name || space.name }}
+                        {{ space().display_name || space().name }}
                     </div>
                     <div class="flex w-full items-center text-sm">
                         <div class="flex-1">{{ location }}</div>
                         <div class="flex items-center space-x-2 text-lg">
                             <icon class="text-2xl">account_circle</icon>
-                            <div>{{ space.capacity || '0' }}</div>
+                            <div>{{ space().capacity || '0' }}</div>
                         </div>
                     </div>
                 </div>
@@ -32,7 +32,7 @@ import { Space } from '@placeos/spaces';
                         matRipple
                         control
                         class="w-32 flex-1 sm:flex-none"
-                        [href]="space.support_url | safe: 'url'"
+                        [href]="space().support_url | safe: 'url'"
                     >
                         Control
                     </a>
@@ -43,7 +43,7 @@ import { Space } from '@placeos/spaces';
                             locate
                             class="inverse w-32 flex-1 sm:flex-none"
                             [routerLink]="['/explore']"
-                            [queryParams]="{ space: space.id }"
+                            [queryParams]="{ space: space().id }"
                         >
                             Find
                         </a>
@@ -60,7 +60,7 @@ export class ControlSpaceListItemComponent {
     private _org = inject(OrganisationService);
 
     /** Space to display */
-    @Input() public space: Space;
+    public readonly space = input<Space>(undefined);
 
     public get show_image() {
         return this._settings.get('app.spaces.show_images');
@@ -72,10 +72,11 @@ export class ControlSpaceListItemComponent {
 
     /** Display location of the space */
     public get location(): string {
-        if (!this.space) {
+        const space = this.space();
+        if (!space) {
             return 'Unable to determine location';
         }
-        const level = this.space.level;
+        const level = space.level;
         const bld = this._org.buildings.find(
             (building) => building.id === level.parent_id,
         );

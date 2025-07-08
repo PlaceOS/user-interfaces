@@ -1,4 +1,4 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { SettingsService } from '@placeos/common';
@@ -9,8 +9,8 @@ import { map, tap } from 'rxjs/operators';
 @Component({
     selector: 'event-form',
     template: `
-        @if (form) {
-            <form [formGroup]="form">
+        @if (form()) {
+            <form [formGroup]="form()">
                 <div class="flex flex-col">
                     <label for="title"
                         >{{ 'FORM.TITLE' | translate }}<span>*</span>:</label
@@ -44,7 +44,7 @@ import { map, tap } from 'rxjs/operators';
                         </mat-checkbox>
                     }
                 </div>
-                @if (!form.value.all_day) {
+                @if (!form().value.all_day) {
                     <div class="flex space-x-2">
                         <div class="flex flex-1 flex-col">
                             <label for="start-time"
@@ -53,9 +53,9 @@ import { map, tap } from 'rxjs/operators';
                             >
                             <a-time-field
                                 name="start-time"
-                                [ngModel]="form.get('date').value"
+                                [ngModel]="form().get('date').value"
                                 (ngModelChange)="
-                                    form.patchValue({ date: $event })
+                                    form().patchValue({ date: $event })
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                                 [use_24hr]="use_24hr_time"
@@ -68,7 +68,7 @@ import { map, tap } from 'rxjs/operators';
                             >
                             <a-duration-field
                                 name="duration"
-                                [time]="form.controls?.date?.value"
+                                [time]="form().controls?.date?.value"
                                 formControlName="duration"
                                 [use_24hr]="use_24hr_time"
                             ></a-duration-field>
@@ -104,21 +104,21 @@ import { map, tap } from 'rxjs/operators';
                         formControlName="resources"
                     ></space-list-field>
                 </div>
-                @if ((has_catering | async) && form.contains('catering')) {
+                @if ((has_catering | async) && form().contains('catering')) {
                     <div class="py-2">
                         <label for="catering">Catering:</label>
                         <catering-list-field
                             name="catering"
                             formControlName="catering"
                             [options]="{
-                                date: form.value.date,
-                                duration: form.value.duration,
-                                all_day: form.value.all_day,
+                                date: form().value.date,
+                                duration: form().value.duration,
+                                all_day: form().value.all_day,
                                 zone_id:
-                                    form.value.resources[0]?.level?.parent_id,
+                                    form().value.resources[0]?.level?.parent_id,
                             }"
                         ></catering-list-field>
-                        @if (form.value.catering?.length && has_codes | async) {
+                        @if (form().value.catering?.length && has_codes | async) {
                             <mat-form-field
                                 appearance="outline"
                                 class="mt-2 w-full"
@@ -153,13 +153,13 @@ import { map, tap } from 'rxjs/operators';
                                 </mat-error>
                             </mat-form-field>
                         }
-                        @if (form.value.catering?.length) {
+                        @if (form().value.catering?.length) {
                             <mat-form-field
                                 appearance="outline"
                                 class="w-full"
                                 [class.mt-2]="
                                     !(
-                                        form.value.catering?.length && has_codes
+                                        form().value.catering?.length && has_codes
                                         | async
                                     )
                                 "
@@ -180,8 +180,8 @@ import { map, tap } from 'rxjs/operators';
                     <div class="mb-4 flex flex-1 flex-col">
                         <label for="space">Assets:</label>
                         <asset-list-field
-                            [date]="form.value.date"
-                            [duration]="form.value.duration"
+                            [date]="form().value.date"
+                            [duration]="form().value.duration"
                             formControlName="assets"
                         ></asset-list-field>
                     </div>
@@ -217,7 +217,7 @@ export class EventFormComponent {
     private _settings = inject(SettingsService);
     private _catering = inject(CateringOrderStateService);
 
-    @Input() public form: FormGroup;
+    public readonly form = input<FormGroup>(undefined);
 
     public code_filter = new BehaviorSubject('');
 
@@ -229,8 +229,8 @@ export class EventFormComponent {
         map((l) => l.length > 0),
         tap((has_codes) => {
             if (!has_codes) {
-                this.form.get('catering_charge_code').setValidators([]);
-                this.form.updateValueAndValidity();
+                this.form().get('catering_charge_code').setValidators([]);
+                this.form().updateValueAndValidity();
             }
         }),
     );

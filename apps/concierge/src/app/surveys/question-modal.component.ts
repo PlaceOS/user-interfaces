@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Inject, ViewChild } from '@angular/core';
+import { Component, Inject, viewChild } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import {
     MAT_DIALOG_DATA,
@@ -64,7 +64,7 @@ import { QuestionComponent } from './question.component';
     ],
 })
 export class QuestionModalComponent {
-    @ViewChild('question_el') question_el: QuestionComponent;
+    readonly question_el = viewChild<QuestionComponent>('question_el');
 
     public is_edit = false;
     public loading = false;
@@ -80,11 +80,12 @@ export class QuestionModalComponent {
     }
 
     public async save() {
-        if (!this.question_el.valid) return;
+        const question_el = this.question_el();
+        if (!question_el.valid) return;
         this.loading = true;
         const call = this.is_edit
-            ? updateQuestion(`${this.question.id}`, this.question_el.question())
-            : addQuestion(this.question_el.question());
+            ? updateQuestion(`${this.question.id}`, question_el.question())
+            : addQuestion(question_el.question());
         await lastValueFrom(call);
         this._dialog_ref.close(true);
         notifySuccess('Successfully updated question bank.');

@@ -1,12 +1,11 @@
 import {
   Component,
   ElementRef,
-  EventEmitter,
-  Input,
   OnDestroy,
   OnInit,
-  Output,
-  viewChild
+  viewChild,
+  input,
+  output
 } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
 
@@ -51,7 +50,7 @@ import { AsyncHandler } from '@placeos/common';
                     matRipple
                     (click)="back.emit()"
                 >
-                    {{ back_text || ('COMMON.BACK' | translate) }}
+                    {{ back_text() || ('COMMON.BACK' | translate) }}
                 </button>
                 <button
                     class="take-photo flex-1"
@@ -100,9 +99,9 @@ export class TakePhotoComponent
     extends AsyncHandler
     implements OnInit, OnDestroy
 {
-    @Input() public back_text = '';
-    @Output() public captured = new EventEmitter();
-    @Output() public back = new EventEmitter();
+    public readonly back_text = input('');
+    public readonly captured = output();
+    public readonly back = output();
     public has_photo = false;
     public loading = false;
 

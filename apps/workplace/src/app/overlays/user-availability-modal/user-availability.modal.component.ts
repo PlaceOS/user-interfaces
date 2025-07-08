@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit, Output, inject } from '@angular/core';
+import { Component, OnInit, inject, output } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { endOfDay, getUnixTime, isBefore, set, startOfDay } from 'date-fns';
 import { BehaviorSubject } from 'rxjs';
@@ -23,7 +23,7 @@ export class UserAvailabilityModalComponent
     private _data = inject(MAT_DIALOG_DATA);
 
     /** Emitter for user action on the modal */
-    @Output() public event = new EventEmitter<DialogEvent>();
+    public readonly event = output<DialogEvent>();
     /** List of Users to check availability */
     public users: StaffUser[];
     /** Whether the users events are being loaded */

@@ -12,15 +12,16 @@ import {
     MatDialogRef,
 } from '@angular/material/dialog';
 import { MatRadioModule } from '@angular/material/radio';
+import { BehaviorSubject } from 'rxjs';
+import { debounceTime } from 'rxjs/operators';
 
 import { OrganisationService } from '@placeos/organisation';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
+import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { NewSpaceSelectModalComponent } from 'libs/spaces/src/lib/new-space-select-modal/new-space-select-modal.component';
 import { Space } from 'libs/spaces/src/lib/space.class';
-import { BehaviorSubject } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
 
 const EMPTY_FAVS: string[] = [];
 
@@ -199,6 +200,7 @@ const EMPTY_FAVS: string[] = [];
         MatRippleModule,
         TranslatePipe,
         MatDialogModule,
+        AuthenticatedImageDirective,
     ],
 })
 export class SpaceListFieldComponent

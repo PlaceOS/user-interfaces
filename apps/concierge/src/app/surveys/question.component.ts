@@ -1,12 +1,12 @@
 import { CommonModule } from '@angular/common';
 import {
-    AfterViewInit,
-    Component,
-    ElementRef,
-    input,
-    model,
-    OnInit,
-    ViewChild,
+  AfterViewInit,
+  Component,
+  ElementRef,
+  input,
+  model,
+  OnInit,
+  viewChild
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -298,8 +298,7 @@ export class QuestionComponent implements AfterViewInit, OnInit {
     public type_options = QuestionTypeOptions;
     public rating_options: number[] = [1, 2, 3];
 
-    @ViewChild('container_el', { static: true })
-    private _container_el: ElementRef<HTMLDivElement>;
+    private readonly _container_el = viewChild<ElementRef<HTMLDivElement>>('container_el');
 
     public get valid() {
         const q = this.question();
@@ -339,7 +338,7 @@ export class QuestionComponent implements AfterViewInit, OnInit {
 
     public ngAfterViewInit() {
         if (this.is_card()) {
-            this._container_el.nativeElement.classList.add(
+            this._container_el().nativeElement.classList.add(
                 'border',
                 'border-base-400',
                 'bg-base-100',

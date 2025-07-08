@@ -1,4 +1,4 @@
-<div [class]="'event-timeline' + (klass ? ' ' + klass : '')">
+<div [class]="'event-timeline' + (klass() ? ' ' + klass() : '')">
   <div
     class="times"
     (window:mouseup)="resetMove()"
@@ -48,7 +48,7 @@
             [style.top]="vertical ? model.today * 100 + '%' : ''"
           ></div>
         }
-        @if (can_select) {
+        @if (can_select()) {
           <div
             class="selected-time"
             [style.left]="vertical ? '' : model.start_time * 100 + '%'"

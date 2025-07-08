@@ -1,4 +1,4 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { SettingsService, formatDuration } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
@@ -16,8 +16,8 @@ import {
 @Component({
     selector: 'meeting-form-details',
     template: `
-        @if (form) {
-            <div [formGroup]="form">
+        @if (form()) {
+            <div [formGroup]="form()">
                 <div class="flex flex-wrap items-center sm:space-x-2">
                     <div class="min-w-[256px] flex-1">
                         <label for="title">{{
@@ -106,7 +106,7 @@ import {
                         </div>
                     </div>
                 }
-                @if (!form.value.all_day) {
+                @if (!form().value.all_day) {
                     <div class="flex items-center space-x-2">
                         <div class="w-1/3 flex-1">
                             <label for="start-time">
@@ -115,12 +115,12 @@ import {
                             </label>
                             <a-time-field
                                 name="start-time"
-                                [ngModel]="form.getRawValue().date"
+                                [ngModel]="form().getRawValue().date"
                                 (ngModelChange)="
-                                    form.patchValue({ date: $event })
+                                    form().patchValue({ date: $event })
                                 "
                                 [ngModelOptions]="{ standalone: true }"
-                                [disabled]="form.controls.date.disabled"
+                                [disabled]="form().controls.date.disabled"
                                 [use_24hr]="use_24hr"
                                 [timezone]="timezone"
                             ></a-time-field>
@@ -133,13 +133,13 @@ import {
                                 </label>
                                 <a-time-field
                                     name="end-time"
-                                    [ngModel]="form.value.date_end"
+                                    [ngModel]="form().value.date_end"
                                     (ngModelChange)="
-                                        form.patchValue({ date_end: $event })
+                                        form().patchValue({ date_end: $event })
                                     "
                                     [ngModelOptions]="{ standalone: true }"
                                     [from]="
-                                        form?.getRawValue()?.date +
+                                        form()?.getRawValue()?.date +
                                         30 * 60 * 1000
                                     "
                                     [use_24hr]="use_24hr"
@@ -157,7 +157,7 @@ import {
                                 <a-duration-field
                                     name="end-time"
                                     formControlName="duration"
-                                    [time]="form?.getRawValue()?.date"
+                                    [time]="form()?.getRawValue()?.date"
                                     [max]="max_duration"
                                     [use_24hr]="use_24hr"
                                     [timezone]="timezone"
@@ -195,10 +195,10 @@ import {
                         <recurrence-field
                             name="recurrence"
                             type="event"
-                            [date]="form.getRawValue().date"
+                            [date]="form().getRawValue().date"
                             formControlName="recurrence"
                         ></recurrence-field>
-                        @if (form.value.id) {
+                        @if (form().value.id) {
                             <mat-checkbox formControlName="update_master">
                                 {{ 'FORM.UPDATE_FUTURE' | translate }}
                             </mat-checkbox>
@@ -216,7 +216,7 @@ export class MeetingFormDetailsComponent {
     private _event_form = inject(EventFormService);
     private _org = inject(OrganisationService);
 
-    @Input() public form: FormGroup;
+    public readonly form = input<FormGroup>(undefined);
 
     public readonly force_time = set(Date.now(), {
         hours: 6,
@@ -242,7 +242,7 @@ export class MeetingFormDetailsComponent {
     public get allow_recurrence() {
         return (
             this._settings.get('app.events.allow_recurrence') &&
-            this.form.value.duration <= 24 * 60
+            this.form().value.duration <= 24 * 60
         );
     }
 
@@ -260,8 +260,8 @@ export class MeetingFormDetailsComponent {
     }
 
     public get start_date() {
-        const date = this.form.getRawValue().date;
-        const date_end = this.form.getRawValue().date_end;
+        const date = this.form().getRawValue().date;
+        const date_end = this.form().getRawValue().date_end;
         const is_next_day =
             format(date, 'yyyy-MM-dd') !== format(date_end, 'yyyy-MM-dd');
         return is_next_day
@@ -283,7 +283,7 @@ export class MeetingFormDetailsComponent {
     }
 
     public readonly duration_info = (time: number) => {
-        const date = this.form.getRawValue().date;
+        const date = this.form().getRawValue().date;
         if (format(date, 'yyyy-MM-dd') !== format(time, 'yyyy-MM-dd'))
             return '';
         const diff = differenceInMinutes(time, date);

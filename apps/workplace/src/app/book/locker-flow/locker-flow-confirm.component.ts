@@ -1,4 +1,4 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, inject, model } from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { BookingAsset, BookingFormService } from '@placeos/bookings';
 import {
@@ -22,7 +22,7 @@ import { OrganisationService } from '@placeos/organisation';
                 @if (loading | async) {
                     <mat-spinner diameter="32"></mat-spinner>
                 }
-                @if (show_close) {
+                @if (show_close()) {
                     <button
                         icon
                         name="close-locker-confirm"
@@ -107,7 +107,7 @@ export class BookLockerFlowConfirmComponent extends AsyncHandler {
     private _sheet_ref = inject(MatBottomSheetRef, { optional: true });
     private _settings = inject(SettingsService);
 
-    @Input() public show_close = false;
+    public readonly show_close = model(false);
 
     public readonly loading = this._state.loading;
 

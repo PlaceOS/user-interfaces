@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges, inject } from '@angular/core';
+import { Component, OnChanges, SimpleChanges, inject, input } from '@angular/core';
 import { addMinutes, differenceInMinutes, format, startOfDay } from 'date-fns';
 
 import { SettingsService } from '@placeos/common';
@@ -20,7 +20,7 @@ const DAY_IN_MINUTES = 24 * 60;
                 [style.height]="overflow_height * 100 + '%'"
             ></div>
         }
-        @if (event) {
+        @if (event()) {
             <div
                 event
                 matRipple
@@ -30,34 +30,34 @@ const DAY_IN_MINUTES = 24 * 60;
                 "
                 [style.top]="top * 100 + '%'"
                 [style.height]="height * 100 + '%'"
-                (click)="view(event)"
+                (click)="view(event())"
             >
                 <div class="px-2 py-1 font-medium">
-                    {{ event.organiser?.name }}
+                    {{ event().organiser?.name }}
                 </div>
-                @if (event.duration > 30) {
+                @if (event().duration > 30) {
                     <div class="flex items-center py-1">
                         <icon class="mx-2">title</icon>
-                        {{ event.title }}
+                        {{ event().title }}
                     </div>
                 }
-                @if (event.duration > 60) {
+                @if (event().duration > 60) {
                     <div class="flex items-center py-1">
                         <icon class="mx-2">schedule</icon>
                         {{ time }}
                     </div>
                 }
-                @if (event.duration > 90) {
+                @if (event().duration > 90) {
                     <div class="flex items-center py-1">
                         <icon class="mx-2">people</icon>
-                        {{ event.attendees.length }} Attendee{{
-                            event.attendees.length === 1 ? '' : 's'
+                        {{ event().attendees.length }} Attendee{{
+                            event().attendees.length === 1 ? '' : 's'
                         }}
                     </div>
                 }
             </div>
         }
-        @if (event && (ui_options | async)?.show_cleaning) {
+        @if (event() && (ui_options | async)?.show_cleaning) {
             <div
                 cleaning
                 class="absolute z-20 flex w-full overflow-hidden rounded bg-base-100 p-2 shadow hover:!h-48"
@@ -67,24 +67,24 @@ const DAY_IN_MINUTES = 24 * 60;
                 <div
                     [class]="
                         'icon text-pending mr-2 flex h-12 w-12 items-center justify-center rounded text-3xl ' +
-                        event.ext('cleaning_status')
+                        event().ext('cleaning_status')
                     "
                 >
                     <icon>{{
-                        event.ext('cleaning_status') === 'done'
+                        event().ext('cleaning_status') === 'done'
                             ? 'done'
                             : 'warning'
                     }}</icon>
                 </div>
                 <div class="w-1/2 flex-1">
                     {{
-                        event.ext('cleaning_status') === 'done'
+                        event().ext('cleaning_status') === 'done'
                             ? 'Finished'
                             : 'Scheduled to'
                     }}
                     clean at
                     {{
-                        event.ext('cleaning_time') || event.event_end * 1000
+                        event().ext('cleaning_time') || event().event_end * 1000
                             | date: time_format
                     }}
                 </div>
@@ -143,7 +143,7 @@ export class DayviewEventComponent implements OnChanges {
     private _settings = inject(SettingsService);
 
     /** Event to display */
-    @Input() public event: CalendarEvent;
+    public readonly event = input<CalendarEvent>(undefined);
     /** Top position for the event */
     public top = -999;
     /** Height of the event on the calendar */
@@ -158,18 +158,19 @@ export class DayviewEventComponent implements OnChanges {
     public readonly view = (e) => this._state.setEvent(e);
 
     public get time() {
-        const date = new Date(this.event.date);
+        const date = new Date(this.event().date);
         return (
             format(date, this.time_format) +
             ' - ' +
-            format(addMinutes(date, this.event.duration), this.time_format)
+            format(addMinutes(date, this.event().duration), this.time_format)
         );
     }
 
     public get type() {
-        return this.event.guests.length
+        const event = this.event();
+        return event.guests.length
             ? 'external'
-            : this.event.status === 'declined'
+            : event.status === 'declined'
               ? 'cancelled'
               : 'internal';
     }
@@ -179,17 +180,18 @@ export class DayviewEventComponent implements OnChanges {
     }
 
     public ngOnChanges(changes: SimpleChanges) {
-        if (changes.event && this.event) {
-            const start = startOfDay(new Date(this.event.date));
-            const diff = differenceInMinutes(new Date(this.event.date), start);
+        const event = this.event();
+        if (changes.event && event) {
+            const start = startOfDay(new Date(event.date));
+            const diff = differenceInMinutes(new Date(event.date), start);
             this.top = diff / DAY_IN_MINUTES;
-            this.height = this.event.duration / DAY_IN_MINUTES;
+            this.height = event.duration / DAY_IN_MINUTES;
             this.overflow_top =
-                (diff - (this.event.setup_time || 0)) / DAY_IN_MINUTES;
+                (diff - (event.setup_time || 0)) / DAY_IN_MINUTES;
             this.overflow_height =
-                (this.event.duration +
-                    (this.event.setup_time || 0) +
-                    (this.event.breakdown_time || 0)) /
+                (event.duration +
+                    (event.setup_time || 0) +
+                    (event.breakdown_time || 0)) /
                 DAY_IN_MINUTES;
         }
     }

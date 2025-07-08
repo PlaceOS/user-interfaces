@@ -1,4 +1,4 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { downloadFile, i18n, jsonToCsv, nextValueFrom } from '@placeos/common';
 import { format } from 'date-fns';
 import { map } from 'rxjs/operators';
@@ -16,7 +16,7 @@ import { ParkingReportService } from './parking-report.service';
                         'APP.CONCIERGE.REPORTS_PARKING_UTIL_HEADER' | translate
                     }}
                 </h3>
-                @if (!print) {
+                @if (!print()) {
                     <button
                         icon
                         matRipple
@@ -57,7 +57,7 @@ import { ParkingReportService } from './parking-report.service';
                     },
                 ]"
                 [sortable]="true"
-                [page_size]="print ? 0 : 10"
+                [page_size]="print() ? 0 : 10"
                 [empty_message]="
                     'APP.CONCIERGE.REPORTS_DAILY_EMPTY' | translate
                 "
@@ -84,7 +84,7 @@ import { ParkingReportService } from './parking-report.service';
 export class ParkingReportListComponent {
     private _state = inject(ParkingReportService);
 
-    @Input() public print = false;
+    public readonly print = input(false);
 
     public readonly parking_bookings = this._state.bookings$.pipe(
         map((bookings) => {

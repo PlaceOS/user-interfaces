@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, model, output } from '@angular/core';
 
 @Component({
     selector: 'searchbar',
@@ -7,8 +7,8 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
             <input
                 matInput
                 [placeholder]="'COMMON.SEARCH' | translate"
-                [(ngModel)]="model"
-                (ngModelChange)="modelChange.emit($event)"
+                [ngModel]="model()"
+                (ngModelChange)="modelChange.emit($event); model.set($event)"
             />
             <icon class="text-xl" matSuffix>search</icon>
         </mat-form-field>
@@ -18,7 +18,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 })
 export class SearchbarComponent {
     /** Currently selected date */
-    @Input() public model = '';
+    public readonly model = model('');
     /** Emitter for changes to the date */
-    @Output() public modelChange = new EventEmitter<string>();
+    public readonly modelChange = output<string>();
 }

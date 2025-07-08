@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, input } from '@angular/core';
 import { map } from 'rxjs/operators';
 
 import { AsyncHandler } from '@placeos/common';
@@ -9,7 +9,7 @@ import { EventsStateService } from './events-state.service';
 @Component({
     selector: 'dayview-space',
     template: `
-        @if (space) {
+        @if (space()) {
             @for (event of events | async; track event) {
                 <dayview-event [event]="event" />
             }
@@ -28,14 +28,14 @@ export class DayviewSpaceComponent extends AsyncHandler implements OnInit {
     private _state = inject(EventsStateService);
 
     /** Space to display events for */
-    @Input() public space: Space;
+    public readonly space = input<Space>(undefined);
 
     public shown_event: CalendarEvent;
     /** List of events for the selected space */
     public readonly events = this._state.filtered.pipe(
         map((bookings) => {
             return bookings.filter((bkn) =>
-                bkn.resources.find((space) => this.space.email === space.email),
+                bkn.resources.find((space) => this.space().email === space.email),
             );
         }),
     );

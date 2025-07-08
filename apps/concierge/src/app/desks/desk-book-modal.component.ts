@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, inject } from '@angular/core';
+import { Component, inject, output } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { BookingFormService } from '@placeos/bookings';
 import {
@@ -38,7 +38,7 @@ export class DeskBookModalComponent {
     private _dialog_ref = inject<MatDialogRef<DeskBookModalComponent>>(MatDialogRef);
     private _settings = inject(SettingsService);
 
-    @Output() public event = new EventEmitter<DialogEvent>();
+    public readonly event = output<DialogEvent>();
     public readonly loading = new BehaviorSubject(false);
 
     public get form() {

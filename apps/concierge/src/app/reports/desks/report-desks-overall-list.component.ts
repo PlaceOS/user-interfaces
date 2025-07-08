@@ -1,4 +1,4 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { downloadFile, jsonToCsv, nextValueFrom } from '@placeos/common';
 import { format } from 'date-fns';
 
@@ -15,7 +15,7 @@ import { ReportsStateService } from '../reports-state.service';
                     <h3 class="flex-1 text-xl font-bold">
                         {{ 'APP.CONCIERGE.REPORTS_DAILY_HEADER' | translate }}
                     </h3>
-                    @if (!print) {
+                    @if (!print()) {
                         <button
                             icon
                             matRipple
@@ -55,7 +55,7 @@ import { ReportsStateService } from '../reports-state.service';
                             content: percent_template,
                         },
                     ]"
-                    [page_size]="print ? 0 : 10"
+                    [page_size]="print() ? 0 : 10"
                     [sortable]="true"
                     [empty_message]="
                         'APP.CONCIERGE.REPORTS_DAILY_EMPTY' | translate
@@ -76,7 +76,7 @@ import { ReportsStateService } from '../reports-state.service';
 export class ReportDesksOverallListComponent {
     private _state = inject(ReportsStateService);
 
-    @Input() public print = false;
+    public readonly print = input(false);
 
     public readonly day_list = this._state.day_list;
 

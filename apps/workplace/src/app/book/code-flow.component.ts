@@ -1,12 +1,11 @@
 import {
   Component,
   ElementRef,
-  EventEmitter,
   inject,
   OnDestroy,
   OnInit,
-  Output,
-  viewChild
+  viewChild,
+  output
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
@@ -188,7 +187,7 @@ export class BookCodeFlowComponent
     private readonly _org = inject(OrganisationService);
 
     /** Menu event */
-    @Output() public menu = new EventEmitter(false);
+    public readonly menu = output();
     /** Boolean to toggle scan/code */
     public is_scanning = true;
     /** Room Code input value */

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, inject } from '@angular/core';
+import { Component, OnChanges, SimpleChanges, inject, input, output } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { BookingFormService } from '@placeos/bookings';
 import {
@@ -18,8 +18,8 @@ import { addDays, endOfDay, set } from 'date-fns';
         The selected desk hasn't been booked. Please book the desk to be
         able to check-in.
         </div> -->
-        @if (form) {
-            <div class="space-y-2 divide-y divide-base-200" [formGroup]="form">
+        @if (form()) {
+            <div class="space-y-2 divide-y divide-base-200" [formGroup]="form()">
                 @if (allow_groups) {
                     <section class="flex items-center">
                         <button
@@ -121,7 +121,7 @@ import { addDays, endOfDay, set } from 'date-fns';
                             }
                         </div>
                     </div>
-                    @if (!form.value.all_day && allow_time_changes) {
+                    @if (!form().value.all_day && allow_time_changes) {
                         <div class="flex items-center space-x-2">
                             <div class="w-1/3 flex-1">
                                 <label for="start-time">
@@ -130,9 +130,9 @@ import { addDays, endOfDay, set } from 'date-fns';
                                 </label>
                                 <a-time-field
                                     name="start-time"
-                                    [ngModel]="form.value.date"
+                                    [ngModel]="form().value.date"
                                     (ngModelChange)="
-                                        form.patchValue({ date: $event })
+                                        form().patchValue({ date: $event })
                                     "
                                     [ngModelOptions]="{ standalone: true }"
                                     [use_24hr]="use_24hr"
@@ -147,7 +147,7 @@ import { addDays, endOfDay, set } from 'date-fns';
                                 <a-duration-field
                                     name="end-time"
                                     formControlName="duration"
-                                    [time]="form.get('date')?.value"
+                                    [time]="form().get('date')?.value"
                                     [max]="max_duration"
                                     [min]="60"
                                     [step]="60"
@@ -166,12 +166,12 @@ import { addDays, endOfDay, set } from 'date-fns';
                             </label>
                             <recurrence-field
                                 name="recurrence"
-                                [date]="form.getRawValue().date"
-                                [ngModel]="form.value"
+                                [date]="form().getRawValue().date"
+                                [ngModel]="form().value"
                                 (ngModelChange)="onRecurrenceChange($event)"
                                 [ngModelOptions]="{ standalone: true }"
                             ></recurrence-field>
-                            @if (form.value.id) {
+                            @if (form().value.id) {
                                 <mat-checkbox formControlName="update_master">
                                     {{ 'FORM.UPDATE_FUTURE' | translate }}
                                 </mat-checkbox>
@@ -182,9 +182,9 @@ import { addDays, endOfDay, set } from 'date-fns';
                         <div class="flex items-center space-x-2">
                             <div class="w-1/3 flex-1">
                                 <mat-checkbox
-                                    [ngModel]="!!form.value.secondary_resource"
+                                    [ngModel]="!!form().value.secondary_resource"
                                     (ngModelChange)="
-                                        form.patchValue({
+                                        form().patchValue({
                                             secondary_resource: $event
                                                 ? 'locker'
                                                 : '',
@@ -226,7 +226,7 @@ import { addDays, endOfDay, set } from 'date-fns';
                         </div>
                     </section>
                 }
-                @if (form.contains('resources')) {
+                @if (form().contains('resources')) {
                     <section class="p-2">
                         <h3 class="mb-4 flex items-center space-x-2">
                             <div
@@ -264,9 +264,9 @@ import { addDays, endOfDay, set } from 'date-fns';
                         </h3>
                         <asset-list-field
                             [options]="{
-                                date: form.getRawValue().date,
-                                duration: form.value.duration,
-                                all_day: form.value.all_day,
+                                date: form().getRawValue().date,
+                                duration: form().value.duration,
+                                all_day: form().value.all_day,
                             }"
                             formControlName="assets"
                         ></asset-list-field>
@@ -285,8 +285,8 @@ export class NewDeskFormDetailsComponent
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
 
-    @Input() public form: FormGroup;
-    @Output() public find = new EventEmitter<void>();
+    public readonly form = input<FormGroup>(undefined);
+    public readonly find = output<void>();
     /** List of available buildings to select */
     public readonly buildings = this._org.building_list;
     /** List of available levels for the selected building */
@@ -390,14 +390,15 @@ export class NewDeskFormDetailsComponent
     }
 
     public ngOnChanges(changes: SimpleChanges) {
-        if (changes.form && this.form) {
+        const form = this.form();
+        if (changes.form && form) {
             if (this.selected_desk?.id) {
-                this.form.patchValue({ resources: [this.selected_desk] });
+                form.patchValue({ resources: [this.selected_desk] });
             }
         }
     }
 
     public onRecurrenceChange(recurrence: BookingRecurrence) {
-        this.form.patchValue(recurrence);
+        this.form().patchValue(recurrence);
     }
 }

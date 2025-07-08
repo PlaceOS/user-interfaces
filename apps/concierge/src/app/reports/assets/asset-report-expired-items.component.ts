@@ -1,4 +1,4 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { downloadFile, jsonToCsv, nextValueFrom } from '@placeos/common';
 import { AssetsReportService } from './assets-report.service';
 
@@ -15,7 +15,7 @@ import { AssetsReportService } from './assets-report.service';
                             | translate
                     }}
                 </h3>
-                @if (!print) {
+                @if (!print()) {
                     <button
                         icon
                         matRipple
@@ -59,7 +59,7 @@ import { AssetsReportService } from './assets-report.service';
                     },
                 ]"
                 [sortable]="true"
-                [page_size]="print ? 0 : 10"
+                [page_size]="print() ? 0 : 10"
                 [empty_message]="
                     'APP.CONCIERGE.REPORTS_ASSETS_EXPIRED_PO_EMPTY' | translate
                 "
@@ -82,7 +82,7 @@ import { AssetsReportService } from './assets-report.service';
 export class AssetReportExpiredItemsComponent {
     private _state = inject(AssetsReportService);
 
-    @Input() public print = false;
+    public readonly print = input(false);
     public readonly expired_items = this._state.expired_items$;
 
     public readonly download = async () => {

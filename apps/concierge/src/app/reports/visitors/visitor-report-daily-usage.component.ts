@@ -1,4 +1,4 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import {
     downloadFile,
     jsonToCsv,
@@ -18,7 +18,7 @@ import { VisitorsReportService } from './visitors-report.service';
                 <h3 class="flex-1 text-xl font-bold">
                     {{ 'APP.CONCIERGE.REPORTS_VISITORS_DAILY' | translate }}
                 </h3>
-                @if (!print) {
+                @if (!print()) {
                     <button
                         icon
                         matRipple
@@ -58,7 +58,7 @@ import { VisitorsReportService } from './visitors-report.service';
                     },
                 ]"
                 [sortable]="true"
-                [page_size]="print ? 0 : 10"
+                [page_size]="print() ? 0 : 10"
                 [empty_message]="
                     'APP.CONCIERGE.REPORTS_DAILY_EMPTY' | translate
                 "
@@ -76,7 +76,7 @@ import { VisitorsReportService } from './visitors-report.service';
 export class VisitorReportDailyUsageComponent {
     private _state = inject(VisitorsReportService);
 
-    @Input() public print: boolean = false;
+    public readonly print = input<boolean>(false);
 
     public readonly daily_stats = this._state.daily_stats$.pipe(
         map((days) => {

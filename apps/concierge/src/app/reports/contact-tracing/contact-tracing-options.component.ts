@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, inject } from '@angular/core';
+import { Component, inject, output } from '@angular/core';
 import { SettingsService } from '@placeos/common';
 import { ContactTracingStateService } from './contact-tracing-state.service';
 
@@ -68,8 +68,8 @@ export class ContactTracingOptionsComponent {
     private _state = inject(ContactTracingStateService);
     private _settings = inject(SettingsService);
 
-    @Output() public printing = new EventEmitter<boolean>();
-    @Output() public download = new EventEmitter<void>();
+    public readonly printing = output<boolean>();
+    public readonly download = output<void>();
 
     public readonly options = this._state.options;
     public readonly setOptions = (_) => this._state.setOptions(_);

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import { Component, inject, input, output } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { first, map } from 'rxjs/operators';
 
@@ -55,13 +55,13 @@ import { combineLatest } from 'rxjs';
             <button
                 btn
                 matRipple
-                [disabled]="!!loading"
+                [disabled]="!!loading()"
                 (click)="generate.emit()"
             >
-                @if (loading) {
+                @if (loading()) {
                     <mat-spinner [diameter]="32"></mat-spinner>
                 }
-                @if (!loading) {
+                @if (!loading()) {
                     <p>
                         {{ 'APP.CONCIERGE.REPORTS_GENERATE' | translate }}
                     </p>
@@ -72,7 +72,7 @@ import { combineLatest } from 'rxjs';
                 icon
                 matRipple
                 class="h-12 w-12 rounded bg-secondary text-secondary-content"
-                [disabled]="!has_data"
+                [disabled]="!has_data()"
                 [matTooltip]="'APP.CONCIERGE.REPORTS_DOWNLOAD' | translate"
                 (click)="download.emit()"
             >
@@ -82,7 +82,7 @@ import { combineLatest } from 'rxjs';
                 icon
                 matRipple
                 class="h-12 w-12 rounded bg-secondary text-secondary-content"
-                [disabled]="!has_data"
+                [disabled]="!has_data()"
                 [matTooltip]="'APP.CONCIERGE.REPORTS_PRINT' | translate"
                 (click)="print()"
             >
@@ -116,12 +116,12 @@ export class ReportsOptionsComponent extends AsyncHandler {
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
 
-    @Input() public loading: boolean = false;
-    @Input() public has_data: boolean = false;
+    public readonly loading = input<boolean>(false);
+    public readonly has_data = input<boolean>(false);
 
-    @Output() public printing = new EventEmitter<boolean>();
-    @Output() public generate = new EventEmitter<void>();
-    @Output() public download = new EventEmitter<void>();
+    public readonly printing = output<boolean>();
+    public readonly generate = output<void>();
+    public readonly download = output<void>();
     /** List of selected levels */
     public zones: string[] = [];
     public start: number = startOfDay(Date.now()).getTime();

@@ -1,4 +1,4 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { downloadFile, i18n, jsonToCsv, nextValueFrom } from '@placeos/common';
 import { format } from 'date-fns';
 import { map } from 'rxjs/operators';
@@ -16,7 +16,7 @@ import { VisitorsReportService } from './visitors-report.service';
                         'APP.CONCIERGE.REPORTS_VISITORS_LIST_HEADER' | translate
                     }}
                 </h3>
-                @if (!print) {
+                @if (!print()) {
                     <button
                         icon
                         matRipple
@@ -52,7 +52,7 @@ import { VisitorsReportService } from './visitors-report.service';
                     },
                 ]"
                 [sortable]="true"
-                [page_size]="print ? 0 : 10"
+                [page_size]="print() ? 0 : 10"
                 [empty_message]="
                     'APP.CONCIERGE.REPORTS_DAILY_EMPTY' | translate
                 "
@@ -70,7 +70,7 @@ import { VisitorsReportService } from './visitors-report.service';
 export class VisitorReportListComponent {
     private _state = inject(VisitorsReportService);
 
-    @Input() public print = false;
+    public readonly print = input(false);
 
     public readonly visitor_bookings = this._state.bookings$.pipe(
         map((bookings) => {

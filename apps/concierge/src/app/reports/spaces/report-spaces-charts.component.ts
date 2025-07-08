@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, OnInit, SimpleChanges, inject } from '@angular/core';
+import { Component, OnChanges, OnInit, SimpleChanges, inject, input } from '@angular/core';
 import { ReportsStateService } from '../reports-state.service';
 
 import { AsyncHandler, nextValueFrom, SettingsService } from '@placeos/common';
@@ -12,7 +12,7 @@ import { combineLatest } from 'rxjs';
     template: `
         <div
             class="flex w-full items-center space-x-4 px-4"
-            [class.is-print]="print"
+            [class.is-print]="print()"
             (window:resize)="updateCharts()"
         >
             <div
@@ -60,7 +60,7 @@ export class ReportSpacesChartsComponent
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
 
-    @Input() public print = false;
+    public readonly print = input(false);
     public readonly day_list = this._state.day_list;
     public readonly stats = combineLatest([
         this._state.options,

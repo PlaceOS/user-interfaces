@@ -1,5 +1,5 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component, Input, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, input } from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatRippleModule } from '@angular/material/core';
@@ -35,7 +35,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
             @if (loading | async) {
                 <mat-spinner diameter="32"></mat-spinner>
             }
-            @if (show_close && !(loading | async)) {
+            @if (show_close() && !(loading | async)) {
                 <button icon matRipple (click)="dismiss()">
                     <icon class="text-2xl">close</icon>
                 </button>
@@ -190,7 +190,7 @@ export class MeetingFlowConfirmComponent
     private _dialog = inject(MatDialog);
     private _settings = inject(SettingsService);
 
-    @Input() public show_close = false;
+    public readonly show_close = input(false);
 
     private _date: DatePipe = new DatePipe('en');
 

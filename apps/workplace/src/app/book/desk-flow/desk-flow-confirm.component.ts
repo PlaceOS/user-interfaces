@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, Input, inject } from '@angular/core';
+import { Component, inject, model } from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { BookingFormService } from '@placeos/bookings';
 import {
@@ -30,7 +30,7 @@ import { map } from 'rxjs/operators';
                 @if (loading | async) {
                     <mat-spinner diameter="32"></mat-spinner>
                 }
-                @if (show_close) {
+                @if (show_close()) {
                     <button
                         icon
                         name="close-desk-confirm"
@@ -222,7 +222,7 @@ export class NewDeskFlowConfirmComponent extends AsyncHandler {
     private _sheet_ref = inject(MatBottomSheetRef, { optional: true });
     private _settings = inject(SettingsService);
 
-    @Input() public show_close = false;
+    public readonly show_close = model(false);
 
     private _date: DatePipe = new DatePipe('en');
 

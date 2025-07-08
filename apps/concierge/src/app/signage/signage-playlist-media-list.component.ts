@@ -1,5 +1,5 @@
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
-import { Component, Input, SimpleChanges, inject } from '@angular/core';
+import { Component, SimpleChanges, inject, input } from '@angular/core';
 import { Router } from '@angular/router';
 import { nextValueFrom } from '@placeos/common';
 import {
@@ -263,8 +263,8 @@ export class SignagePlaylistMediaListComponent {
     private _state = inject(SignageStateService);
     private _router = inject(Router);
 
-    @Input() public playlist = '';
-    @Input() public playlist_count = 0;
+    public readonly playlist = input('');
+    public readonly playlist_count = input(0);
 
     public playlist_ids: string[] = [];
 
@@ -278,8 +278,8 @@ export class SignagePlaylistMediaListComponent {
     public readonly removeItem = async (item: SignageMedia) => {
         const playlist = await nextValueFrom(this._playlist_media);
         const list = playlist.items.filter((_) => _ !== item.id);
-        await this._state.updatePlaylistMedia(this.playlist, list);
-        this._playlist.next(this.playlist);
+        await this._state.updatePlaylistMedia(this.playlist(), list);
+        this._playlist.next(this.playlist());
     };
 
     public readonly previewItem = (item: SignageMedia) =>
@@ -333,10 +333,10 @@ export class SignagePlaylistMediaListComponent {
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.playlist) {
-            this._playlist.next(this.playlist);
+            this._playlist.next(this.playlist());
         }
         if (changes.playlist_count) {
-            this.playlist_ids = new Array(this.playlist_count)
+            this.playlist_ids = new Array(this.playlist_count())
                 .fill(0)
                 .map((_, idx) => `playlist-${idx}`);
         }
@@ -368,6 +368,6 @@ export class SignagePlaylistMediaListComponent {
         const list = [...playlist.items];
         moveItemInArray(list, event.previousIndex, event.currentIndex);
         await this._state.updatePlaylistMedia(id, list);
-        this._playlist.next(this.playlist);
+        this._playlist.next(this.playlist());
     }
 }

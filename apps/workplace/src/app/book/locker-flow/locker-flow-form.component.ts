@@ -5,7 +5,13 @@ import {
 } from '@angular/material/bottom-sheet';
 import { Router } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
-import { getInvalidFields, i18n, notifyError } from '@placeos/common';
+import {
+    firstTruthyValueFrom,
+    getInvalidFields,
+    i18n,
+    nextValueFrom,
+    notifyError,
+} from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { isBefore, startOfMinute } from 'date-fns';
 import { first } from 'rxjs/operators';
@@ -76,7 +82,7 @@ export class BookLockerFlowFormComponent implements OnInit {
         this.sheet_ref = this._bottom_sheet.open(
             BookLockerFlowConfirmComponent,
         );
-        this.sheet_ref.instance.show_close = true;
+        this.sheet_ref.instance.show_close.set(true);
         this.sheet_ref.afterDismissed().subscribe((value) => {
             if (value) {
                 this._router.navigate(['/book', 'locker', 'success']);
@@ -86,8 +92,10 @@ export class BookLockerFlowFormComponent implements OnInit {
     };
 
     public async ngOnInit() {
-        await this._org.initialised.pipe(first((_) => _));
-        await this._org.active_levels.pipe(first((_) => _?.length > 0));
+        await firstTruthyValueFrom(this._org.initialised);
+        await nextValueFrom(
+            this._org.active_levels.pipe(first((_) => _?.length > 0)),
+        );
         this._state.setOptions({ type: 'locker' });
         this.level = this._org.building?.id;
         this.levels = [

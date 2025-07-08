@@ -1,4 +1,4 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { downloadFile, jsonToCsv, nextValueFrom } from '@placeos/common';
 import { map } from 'rxjs/operators';
 import { AssetsReportService } from './assets-report.service';
@@ -16,7 +16,7 @@ import { AssetsReportService } from './assets-report.service';
                             | translate
                     }}
                 </h3>
-                @if (!print) {
+                @if (!print()) {
                     <button
                         icon
                         matRipple
@@ -50,7 +50,7 @@ import { AssetsReportService } from './assets-report.service';
                     },
                 ]"
                 [sortable]="true"
-                [page_size]="print ? 0 : 10"
+                [page_size]="print() ? 0 : 10"
                 [empty_message]="
                     'APP.CONCIERGE.REPORTS_DAILY_EMPTY' | translate
                 "
@@ -63,7 +63,7 @@ import { AssetsReportService } from './assets-report.service';
 export class AssetReportProductUsageComponent {
     private _state = inject(AssetsReportService);
 
-    @Input() public print = false;
+    public readonly print = input(false);
     public readonly products = this._state.stats$.pipe(
         map(({ events, bookings, products }) =>
             products

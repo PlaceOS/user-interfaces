@@ -1,10 +1,9 @@
 import {
-    Component,
-    EventEmitter,
-    Input,
-    Output,
-    SimpleChanges,
-    TemplateRef,
+  Component,
+  SimpleChanges,
+  TemplateRef,
+  input,
+  output
 } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
@@ -13,8 +12,8 @@ import { BehaviorSubject } from 'rxjs';
     template: `
         <div
             class="absolute inset-0 flex flex-col items-center p-8"
-            (click)="close.next()"
-            (window:keydown.esc)="close.next()"
+            (click)="close.emit()"
+            (window:keydown.esc)="close.emit()"
         >
             <div class="absolute inset-0 z-0 bg-base-content opacity-70"></div>
             <div
@@ -37,16 +36,16 @@ import { BehaviorSubject } from 'rxjs';
                 class="z-10 mx-auto max-h-[65%] w-[32rem] max-w-[calc(100%-2rem)] overflow-auto rounded"
                 (click)="$event.stopPropagation()"
             >
-                @for (item of item_list; track item) {
+                @for (item of item_list(); track item) {
                     <button
                         matRipple
                         class="w-full text-left"
-                        (click)="selected.next(item)"
+                        (click)="selected.emit(item)"
                     >
-                        @if (result_template) {
+                        @if (result_template()) {
                             <ng-container
                                 *ngTemplateOutlet="
-                                    result_template;
+                                    result_template();
                                     context: { item: item }
                                 "
                             ></ng-container>
@@ -59,11 +58,11 @@ import { BehaviorSubject } from 'rxjs';
                         }
                     </button>
                 }
-                @if (!item_list?.length) {
+                @if (!item_list()?.length) {
                     <button
                         matRipple
                         class="w-full p-4 text-base-100"
-                        (click)="close.next()"
+                        (click)="close.emit()"
                     >
                         <div class="opacity-30">
                             {{
@@ -86,18 +85,18 @@ import { BehaviorSubject } from 'rxjs';
     standalone: false,
 })
 export class SearchOverlayComponent<T extends {} = any> {
-    @Input() public item_list: T[] = [];
-    @Input() public result_template: TemplateRef<any>;
+    public readonly item_list = input<T[]>([]);
+    public readonly result_template = input<TemplateRef<any>>(undefined);
 
-    @Output() public selected = new EventEmitter<T>();
-    @Output() public close = new EventEmitter<void>();
+    public readonly selected = output<T>();
+    public readonly close = output<void>();
 
     public readonly search = new BehaviorSubject('');
     private _items = new BehaviorSubject<T[]>([]);
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.item_list) {
-            this._items.next(this.item_list || []);
+            this._items.next(this.item_list() || []);
         }
     }
 }

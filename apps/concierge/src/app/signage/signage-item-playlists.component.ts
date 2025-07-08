@@ -1,11 +1,10 @@
 import {
-    Component,
-    EventEmitter,
-    Input,
-    OnChanges,
-    Output,
-    SimpleChanges,
-    inject,
+  Component,
+  OnChanges,
+  SimpleChanges,
+  inject,
+  input,
+  output
 } from '@angular/core';
 import { SignagePlaylist } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest } from 'rxjs';
@@ -19,20 +18,20 @@ const PLAYLIST_ITEM_COUNTS = {};
     template: `
         <div class="flex items-center justify-center space-x-2">
             <h3 class="text-xl font-medium">
-                {{ item?.display_name || item?.name }}
+                {{ item()?.display_name || item()?.name }}
             </h3>
-            @if (extra) {
+            @if (extra()) {
                 <div
                     class="rounded-lg bg-base-200 px-2 py-1 font-mono text-xs uppercase"
                 >
-                    {{ extra }}
+                    {{ extra() }}
                 </div>
             }
-            @if (link) {
+            @if (link()) {
                 <a
                     icon
                     matRipple
-                    [href]="link"
+                    [href]="link()"
                     target="_blank"
                     class="text-xs"
                     [matTooltip]="
@@ -45,11 +44,11 @@ const PLAYLIST_ITEM_COUNTS = {};
             }
         </div>
         <ng-content />
-        @if ((active_playlists | async).length > 0 && item) {
+        @if ((active_playlists | async).length > 0 && item()) {
             <div
                 cdkDropList
                 class="mt-4 flex h-1/2 flex-1 flex-col space-y-2 overflow-auto"
-                (cdkDropListDropped)="ondrop.next($event)"
+                (cdkDropListDropped)="ondrop.emit($event)"
             >
                 @for (item of active_playlists | async; track item.id) {
                     <div
@@ -109,7 +108,7 @@ const PLAYLIST_ITEM_COUNTS = {};
                                     </div>
                                 </div>
                             </a>
-                            <button mat-menu-item (click)="remove.next(item)">
+                            <button mat-menu-item (click)="remove.emit(item)">
                                 <div class="flex items-center space-x-2">
                                     <icon class="text-2xl text-error">
                                         delete
@@ -140,7 +139,7 @@ const PLAYLIST_ITEM_COUNTS = {};
                     <p>
                         {{
                             'APP.CONCIERGE.SIGNAGE_DISPLAYS_PLAYLISTS_EMPTY'
-                                | translate: { name: name }
+                                | translate: { name: name() }
                         }}
                     </p>
                 </div>
@@ -163,13 +162,13 @@ const PLAYLIST_ITEM_COUNTS = {};
 export class SignageItemPlaylistsComponent implements OnChanges {
     private _state = inject(SignageStateService);
 
-    @Input() public item: any;
-    @Input() public name = 'zone';
-    @Input() public extra = '';
-    @Input() public link = '';
-    @Output() public readonly add = new EventEmitter();
-    @Output() public readonly remove = new EventEmitter<SignagePlaylist>();
-    @Output() public readonly ondrop = new EventEmitter<any>();
+    public readonly item = input<any>(undefined);
+    public readonly name = input('zone');
+    public readonly extra = input('');
+    public readonly link = input('');
+    public readonly add = output();
+    public readonly remove = output<SignagePlaylist>();
+    public readonly ondrop = output<any>();
 
     private _playlist_ids = new BehaviorSubject<string[]>([]);
 
@@ -207,7 +206,7 @@ export class SignageItemPlaylistsComponent implements OnChanges {
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.item) {
-            this._playlist_ids.next(this.item?.playlists || []);
+            this._playlist_ids.next(this.item()?.playlists || []);
         }
     }
 }

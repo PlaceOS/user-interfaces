@@ -1,4 +1,4 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
@@ -7,8 +7,8 @@ import { addDays, endOfDay } from 'date-fns';
 @Component({
     selector: 'parking-form-details',
     template: `
-        @if (form) {
-            <div [formGroup]="form">
+        @if (form()) {
+            <div [formGroup]="form()">
                 <div class="flex flex-wrap items-center sm:space-x-2">
                     <div class="min-w-[256px] flex-1">
                         <label for="title">
@@ -69,7 +69,7 @@ import { addDays, endOfDay } from 'date-fns';
                         }
                     </div>
                 </div>
-                @if (!form.value.all_day) {
+                @if (!form().value.all_day) {
                     <div class="flex items-center space-x-2">
                         <div class="w-1/3 flex-1">
                             <label for="start-time"
@@ -78,13 +78,13 @@ import { addDays, endOfDay } from 'date-fns';
                             >
                             <a-time-field
                                 name="start-time"
-                                [ngModel]="form.getRawValue().date"
+                                [ngModel]="form().getRawValue().date"
                                 (ngModelChange)="
-                                    form.patchValue({ date: $event })
+                                    form().patchValue({ date: $event })
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                                 [use_24hr]="use_24hr"
-                                [disabled]="form.controls.date.disabled"
+                                [disabled]="form().controls.date.disabled"
                                 [timezone]="timezone"
                             ></a-time-field>
                         </div>
@@ -95,7 +95,7 @@ import { addDays, endOfDay } from 'date-fns';
                             <a-duration-field
                                 name="end-time"
                                 formControlName="duration"
-                                [time]="form?.getRawValue()?.date"
+                                [time]="form()?.getRawValue()?.date"
                                 [max]="max_duration"
                                 [use_24hr]="use_24hr"
                                 [timezone]="timezone"
@@ -147,7 +147,7 @@ export class ParkingFormDetailsComponent extends AsyncHandler {
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
 
-    @Input() public form: FormGroup;
+    public readonly form = input<FormGroup>(undefined);
 
     public readonly building = this._org.active_building;
     public readonly building_list = this._org.building_list;

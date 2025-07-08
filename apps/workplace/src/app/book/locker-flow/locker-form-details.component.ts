@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, inject } from '@angular/core';
+import { Component, OnChanges, OnInit, SimpleChanges, inject, input, output } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { BookingFormService, Locker } from '@placeos/bookings';
@@ -11,10 +11,10 @@ import { first } from 'rxjs/operators';
     selector: 'new-locker-form-details',
     styles: [],
     template: `
-        @if (form) {
+        @if (form()) {
             <div
                 class="space-y-2 divide-y divide-base-200 p-0 sm:px-16 sm:py-4"
-                [formGroup]="form"
+                [formGroup]="form()"
             >
                 <section class="p-2" [class.!border-none]="allow_groups">
                     <h3 class="mb-4 flex items-center space-x-2">
@@ -68,7 +68,7 @@ import { first } from 'rxjs/operators';
                             }
                         </div>
                     </div>
-                    @if (!form.value.all_day) {
+                    @if (!form().value.all_day) {
                         <div class="flex items-center space-x-2">
                             <div class="w-1/3 flex-1">
                                 <label for="start-time">
@@ -77,15 +77,15 @@ import { first } from 'rxjs/operators';
                                 </label>
                                 <a-time-field
                                     name="start-time"
-                                    [ngModel]="form.getRawValue().date"
+                                    [ngModel]="form().getRawValue().date"
                                     (ngModelChange)="
-                                        form.patchValue({ date: $event })
+                                        form().patchValue({ date: $event })
                                     "
                                     [ngModelOptions]="{ standalone: true }"
                                     [use_24hr]="use_24hr"
                                     [disabled]="
-                                        form.controls.date.disabled ||
-                                        form.value.duration > 24 * 60 - 1 ||
+                                        form().controls.date.disabled ||
+                                        form().value.duration > 24 * 60 - 1 ||
                                         disable_start
                                     "
                                     [timezone]="timezone"
@@ -100,7 +100,7 @@ import { first } from 'rxjs/operators';
                                     <a-duration-field
                                         name="end-time"
                                         formControlName="duration"
-                                        [time]="form.getRawValue().value"
+                                        [time]="form().getRawValue().value"
                                         [max]="max_duration"
                                         [min]="60"
                                         [step]="60"
@@ -114,7 +114,7 @@ import { first } from 'rxjs/operators';
                         </div>
                     }
                 </section>
-                @if (form.contains('resources')) {
+                @if (form().contains('resources')) {
                     <section class="p-2">
                         <h3 class="mb-4 flex items-center space-x-2">
                             <div
@@ -145,8 +145,8 @@ export class LockerFormDetailsComponent
     private _settings = inject(SettingsService);
     private _dialog = inject(MatDialog);
 
-    @Input() public form: FormGroup;
-    @Output() public find = new EventEmitter<void>();
+    public readonly form = input<FormGroup>(undefined);
+    public readonly find = output<void>();
     /** List of available buildings to select */
     public readonly buildings = this._org.building_list;
     /** List of available levels for the selected building */
@@ -227,13 +227,13 @@ export class LockerFormDetailsComponent
             combineLatest([
                 this._org.active_building,
                 this._dialog.afterAllClosed,
-                this.form.controls.duration.valueChanges,
+                this.form().controls.duration.valueChanges,
             ]).subscribe(() => {
                 this.timeout(
                     'disable',
                     () => {
                         if (this.disable_date) {
-                            this.form.controls.date.disable();
+                            this.form().controls.date.disable();
                         }
                     },
                     50,
@@ -243,10 +243,11 @@ export class LockerFormDetailsComponent
     }
 
     public ngOnChanges(changes: SimpleChanges) {
-        if (changes.form && this.form) {
+        const form = this.form();
+        if (changes.form && form) {
             this.subscription(
                 'change',
-                this.form
+                form
                     .get('resources')
                     ?.valueChanges?.subscribe((list) =>
                         list?.length ? this.setBookingAsset(list[0]) : '',
@@ -254,7 +255,7 @@ export class LockerFormDetailsComponent
             );
             this.subscription(
                 'date',
-                this.form
+                form
                     .get('date')
                     ?.valueChanges?.subscribe(() =>
                         this._setCustomDateOptions(),

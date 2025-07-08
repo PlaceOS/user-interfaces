@@ -1,13 +1,13 @@
 import {
-  Component,
-  ElementRef,
-  EventEmitter,
-  Input,
-  OnChanges,
-  OnInit,
-  Output,
-  SimpleChanges,
-  viewChild
+    Component,
+    ElementRef,
+    input,
+    model,
+    OnChanges,
+    OnInit,
+    output,
+    SimpleChanges,
+    viewChild,
 } from '@angular/core';
 import {
     addMinutes,
@@ -36,11 +36,11 @@ export class VerticalTimelineComponent
     implements OnInit, OnChanges
 {
     /** Active date */
-    @Input() public date: number;
+    public readonly date = model<number>(undefined);
     /** Active duration */
-    @Input() public duration: number;
+    public readonly duration = model<number>(undefined);
     /** Groups and events */
-    @Input() public groups: ITimelineEventGroup[];
+    public readonly groups = input<ITimelineEventGroup[]>(undefined);
     /** Blocks */
     public blocks: any[];
     /** Element to move */
@@ -53,9 +53,9 @@ export class VerticalTimelineComponent
     public offset = { x: 0, y: 0 };
 
     /** Output emitter */
-    @Output() public dateChange = new EventEmitter<number>();
-    @Output() public durationChange = new EventEmitter<number>();
-    @Output() public groupsChange = new EventEmitter<ITimelineEventGroup[]>();
+    public readonly dateChange = output<number>();
+    public readonly durationChange = output<number>();
+    public readonly groupsChange = output<ITimelineEventGroup[]>();
 
     private readonly block = viewChild<ElementRef>('block');
     private readonly time = viewChild<ElementRef>('time');
@@ -75,12 +75,12 @@ export class VerticalTimelineComponent
 
     /** Timeline start */
     public get timeline_start() {
-        return startOfDay(this.date).valueOf();
+        return startOfDay(this.date()).valueOf();
     }
 
     /** Timeline end */
     public get timeline_end() {
-        return endOfDay(this.date).valueOf();
+        return endOfDay(this.date()).valueOf();
     }
 
     public generateBlocks() {
@@ -106,9 +106,9 @@ export class VerticalTimelineComponent
     }
 
     public get display(): string {
-        const date = this.date;
-        const end = addMinutes(this.date, this.duration);
-        const duration = formatDuration({ minutes: this.duration });
+        const date = this.date();
+        const end = addMinutes(this.date(), this.duration());
+        const duration = formatDuration({ minutes: this.duration() });
         return `${format(date, 'hh:mm A')} - ${format(
             end,
             'hh:mm A',
@@ -159,32 +159,31 @@ export class VerticalTimelineComponent
                         ) /
                         (60 / block_size);
                     if (this.active_move === 'bottom') {
-                        let date = this.date;
-                        const end = set(this.date, {
+                        let date = this.date();
+                        const end = set(this.date(), {
                             hours: Math.floor(hour),
                             minutes: Math.floor((hour * 60) % 60),
                         });
                         if (isSameMinute(end, date) || isBefore(end, date)) {
-                            date = addMinutes(end, -this.duration).valueOf();
-                            this.date = date.valueOf();
+                            date = addMinutes(end, -this.duration()).valueOf();
+                            this.date.set(date.valueOf());
                         } else {
                             const duration = Math.floor(
                                 differenceInMinutes(end, date),
                             );
-                            this.duration = Math.max(
-                                60,
-                                duration || block_size,
+                            this.duration.set(
+                                Math.max(60, duration || block_size),
                             );
-                            this.durationChange.emit(this.duration);
+                            this.durationChange.emit(this.duration());
                         }
                     } else if (this.active_move === 'top') {
-                        const date = set(this.date, {
+                        const date = set(this.date(), {
                             hours: Math.floor(hour),
                             minutes: Math.floor((hour * 60) % 60),
                         });
-                        this.date = date.valueOf();
+                        this.date.set(date.valueOf());
                     }
-                    this.dateChange.emit(this.date);
+                    this.dateChange.emit(this.date());
                     this.updateStartEnd();
                 }
             },
@@ -204,14 +203,15 @@ export class VerticalTimelineComponent
     }
 
     public checkInUseBlocks() {
-        if (!this.blocks || !this.groups) {
+        const groups = this.groups();
+        if (!this.blocks || !groups) {
             return;
         }
         const blocks = this.blocks.map((i) => ({
             ...i,
             unavailable: false,
         }));
-        for (const grp of this.groups) {
+        for (const grp of groups) {
             for (const event of grp.events || []) {
                 const start = this.hoursToDate(event.start);
                 const end = addMinutes(start, event.duration);
@@ -249,11 +249,11 @@ export class VerticalTimelineComponent
     }
 
     public updatePeriod() {
-        const start = startOfMinute(this.date);
+        const start = startOfMinute(this.date());
         const period =
             differenceInMinutes(this.timeline_end, this.timeline_start) / 60;
         this.active_start =
             differenceInMinutes(start, this.timeline_start) / 60 / period;
-        this.active_length = this.duration / 60 / period;
+        this.active_length = this.duration() / 60 / period;
     }
 }

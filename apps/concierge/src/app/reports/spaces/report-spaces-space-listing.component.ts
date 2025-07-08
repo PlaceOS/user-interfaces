@@ -1,4 +1,4 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import {
     downloadFile,
     jsonToCsv,
@@ -21,7 +21,7 @@ import { ReportsStateService } from '../reports-state.service';
                 <h3 class="flex-1 text-xl font-bold">
                     {{ 'APP.CONCIERGE.REPORTS_ROOMS_UTIL_HEADER' | translate }}
                 </h3>
-                @if (!print) {
+                @if (!print()) {
                     <button
                         icon
                         matRipple
@@ -81,7 +81,7 @@ import { ReportsStateService } from '../reports-state.service';
                     },
                 ]"
                 [sortable]="true"
-                [page_size]="print ? 0 : 10"
+                [page_size]="print() ? 0 : 10"
                 [empty_message]="
                     'APP.CONCIERGE.REPORTS_DAILY_EMPTY' | translate
                 "
@@ -104,7 +104,7 @@ import { ReportsStateService } from '../reports-state.service';
 export class ReportSpacesSpaceListingComponent {
     private _reports = inject(ReportsStateService);
 
-    @Input() public print = false;
+    public readonly print = input(false);
 
     private _space_pipe = new SpacePipe();
 

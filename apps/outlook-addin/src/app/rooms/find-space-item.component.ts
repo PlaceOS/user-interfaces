@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { Space } from '@placeos/spaces';
 
 @Component({
@@ -7,20 +7,20 @@ import { Space } from '@placeos/spaces';
         <button
             mat-ripple
             class="mx-auto my-2 flex w-[375px] max-w-[calc(100%-2rem)] flex-col space-y-4 rounded bg-base-100 p-4 shadow"
-            [class.bg-primary]="selected"
-            [class.text-white]="selected"
+            [class.bg-primary]="selected()"
+            [class.text-white]="selected()"
             (click)="toggleSelected()"
         >
             <div class="flex w-full flex-row items-center space-x-2">
                 <icon class="text-lg">meeting_room</icon>
                 <div>
-                    {{ space?.level?.display_name || space?.level?.name }},
-                    {{ space?.display_name || space?.name }}
+                    {{ space()?.level?.display_name || space()?.level?.name }},
+                    {{ space()?.display_name || space()?.name }}
                 </div>
             </div>
             <div class="flex w-full flex-row items-center space-x-2">
                 <icon class="text-lg">group</icon>
-                <div>{{ space?.capacity || 0 }} People</div>
+                <div>{{ space()?.capacity || 0 }} People</div>
             </div>
         </button>
     `,
@@ -28,9 +28,9 @@ import { Space } from '@placeos/spaces';
     standalone: false,
 })
 export class FindSpaceItemComponent {
-    @Input() public space: Space;
-    @Input() public selected = false;
-    @Output() public selectedChange = new EventEmitter<boolean>();
+    public readonly space = input<Space>(undefined);
+    public readonly selected = input(false);
+    public readonly selectedChange = output<boolean>();
 
-    readonly toggleSelected = () => this.selectedChange.emit(!this.selected);
+    readonly toggleSelected = () => this.selectedChange.emit(!this.selected());
 }

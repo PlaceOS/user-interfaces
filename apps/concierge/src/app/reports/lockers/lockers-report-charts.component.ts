@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, OnInit, SimpleChanges, inject } from '@angular/core';
+import { Component, OnChanges, OnInit, SimpleChanges, inject, input } from '@angular/core';
 
 import {
     AsyncHandler,
@@ -19,7 +19,7 @@ import { LockersReportService } from './lockers-report.service';
     template: `
         <div
             class="flex w-full items-center space-x-4 px-4"
-            [class.is-print]="print"
+            [class.is-print]="print()"
             (window:resize)="updateCharts()"
         >
             <div
@@ -67,7 +67,7 @@ export class LockersReportChartsComponent
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
 
-    @Input() public print = false;
+    public readonly print = input(false);
     public readonly day_list = combineLatest([
         this._state.daily_stats$,
         this._state.counts$,
