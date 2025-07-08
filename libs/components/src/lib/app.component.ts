@@ -17,28 +17,30 @@ import {
 import { addHours } from 'date-fns';
 import { first } from 'rxjs/operators';
 
+import { hasNewVersion, setupCache } from 'libs/common/src/lib/application';
+import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
+import { requestScreenWakeLock } from 'libs/common/src/lib/fixed-device-helpers';
 import {
-    AsyncHandler,
-    current_user,
-    currentUser,
     firstTruthyValueFrom,
-    hasNewVersion,
-    HotkeysService,
     isMobileSafari,
-    LocaleService,
     log,
     nextValueFrom,
-    notifySuccess,
-    requestScreenWakeLock,
     setAppName,
-    setNotifyOutlet,
-    SettingsService,
-    setTranslationService,
-    setupCache,
-    setupPlace,
-} from '@placeos/common';
+} from 'libs/common/src/lib/general';
 import { GoogleAnalyticsService } from 'libs/common/src/lib/google-analytics.service';
+import { HotkeysService } from 'libs/common/src/lib/hotkeys.service';
+import {
+    LocaleService,
+    setTranslationService,
+} from 'libs/common/src/lib/locale.service';
 import { MapsPeopleService } from 'libs/common/src/lib/mapspeople.service';
+import {
+    notifySuccess,
+    setNotifyOutlet,
+} from 'libs/common/src/lib/notifications';
+import { setupPlace } from 'libs/common/src/lib/placeos';
+import { SettingsService } from 'libs/common/src/lib/settings.service';
+import { current_user, currentUser } from 'libs/common/src/lib/user-state';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { setInternalUserDomain } from 'libs/users/src/lib/user.utilities';
 

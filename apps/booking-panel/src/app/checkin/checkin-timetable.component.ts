@@ -2,6 +2,7 @@ import {
     Component,
     EventEmitter,
     Input,
+    OnChanges,
     Output,
     SimpleChanges,
 } from '@angular/core';
@@ -21,6 +22,7 @@ interface TimeBlock {
     id: number;
     minutes: number;
     hour: string;
+    period: string;
 }
 
 interface EventBlock {
@@ -31,7 +33,7 @@ interface EventBlock {
 @Component({
     selector: 'checkin-timetable',
     template: `
-        <div class="relative flex h-20 items-center px-2">
+        <div class="relative flex h-16 items-center px-2">
             @for (blk of blocks; track blk) {
                 <button
                     class="relative h-full"
@@ -43,6 +45,7 @@ interface EventBlock {
                             class="absolute left-0 top-1 whitespace-nowrap text-xs"
                         >
                             {{ blk.hour }}
+                            <span class="text-[0.75em]">{{ blk.period }}</span>
                         </div>
                     }
                     @if (blk.minutes % 15 === 0) {
@@ -57,7 +60,7 @@ interface EventBlock {
                 @if (blk.start + blk.length >= 0 && blk.start < 24 * 60) {
                     <div
                         event
-                        class="absolute bottom-0 h-[3.5rem] bg-base-200 opacity-40"
+                        class="absolute bottom-0 h-12 bg-base-200 opacity-40"
                         [style.left]="8 + blk.start + 'px'"
                         [style.width]="blk.length + 'px'"
                     ></div>
@@ -65,11 +68,11 @@ interface EventBlock {
             }
             <div
                 current
-                class="pointer-events-none absolute bottom-0 h-[3.5rem] w-0.5 bg-primary"
+                class="pointer-events-none absolute bottom-0 h-12 w-0.5 bg-primary"
                 [style.left]="8 + current_time + 'px'"
             >
                 <div
-                    class="absolute left-1/2 top-1/2 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary"
+                    class="absolute left-1/2 top-0 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary"
                 ></div>
             </div>
         </div>
@@ -91,7 +94,10 @@ interface EventBlock {
     ],
     standalone: false,
 })
-export class CheckinTimetableComponent extends AsyncHandler {
+export class CheckinTimetableComponent
+    extends AsyncHandler
+    implements OnChanges
+{
     @Input() public events: CalendarEvent[] = [];
     @Input() public step = 15;
     @Output() public event = new EventEmitter<number>();
@@ -117,20 +123,18 @@ export class CheckinTimetableComponent extends AsyncHandler {
     }
 
     public ngOnChanges(changes: SimpleChanges) {
-        if (changes.events) {
-            this._processEvents();
-        }
+        if (changes.events) this._processEvents();
     }
 
     public height(minutes: number) {
         switch (minutes) {
             case 0:
-                return '3.5rem';
+                return '2.5rem';
             case 15:
             case 45:
-                return '1rem';
+                return '0.75rem';
             case 30:
-                return '2rem';
+                return '1.5rem';
         }
         return '';
     }
@@ -149,7 +153,8 @@ export class CheckinTimetableComponent extends AsyncHandler {
             blocks.push({
                 id: date.valueOf(),
                 minutes: date.getMinutes(),
-                hour: format(date, 'h a'),
+                hour: format(date, 'h'),
+                period: format(date, 'a'),
             });
             date = addMinutes(date, this.step);
         }

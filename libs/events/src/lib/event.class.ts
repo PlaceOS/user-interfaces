@@ -183,7 +183,10 @@ export class CalendarEvent {
                 'email',
             ) || [];
         this.title = data.title;
-        this.body = data.body || '';
+        this.body = (data.body || '').replace(
+            /&lt;&lt;&lt;.*&gt;&gt;&gt;/g,
+            '',
+        );
         this.private = !!data.private;
         this.all_day = !!data.all_day;
         this.date = this.event_start * 1000 || this.date;

@@ -1,18 +1,20 @@
 /* eslint-disable @typescript-eslint/member-ordering */
 import {
-  Component,
-  ElementRef,
-  forwardRef,
-  inject,
-  Input,
-  OnInit,
-  viewChild
+    Component,
+    ElementRef,
+    forwardRef,
+    inject,
+    Input,
+    OnInit,
+    signal,
+    viewChild,
 } from '@angular/core';
 import {
     ControlValueAccessor,
     FormsModule,
     NG_VALUE_ACCESSOR,
 } from '@angular/forms';
+import { authority, queryUsers } from '@placeos/ts-client';
 import { forkJoin, Observable, of, Subject } from 'rxjs';
 import {
     catchError,
@@ -22,12 +24,13 @@ import {
     switchMap,
 } from 'rxjs/operators';
 
+import { AsyncHandler, flatten, SettingsService } from '@placeos/common';
+
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { AsyncHandler, flatten, SettingsService } from '@placeos/common';
-import { authority, queryUsers } from '@placeos/ts-client';
+
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { searchGuests } from 'libs/users/src/lib/guests.fn';
@@ -43,19 +46,21 @@ import { User } from 'libs/users/src/lib/user.class';
                 matInput
                 keyboard
                 name="user-search"
-                [(ngModel)]="search_str"
-                (ngModelChange)="search$.next($event || '')"
+                [ngModel]="search_str()"
+                (ngModelChange)="search$.next($event); search_str.set($event)"
                 [disabled]="disabled"
                 [placeholder]="placeholder || ('FORM.USER_SEARCH' | translate)"
                 [matAutocomplete]="auto"
                 (keyup.enter)="
-                    validate && validate(search_str) ? setValue(search_str) : ''
+                    validate && validate(search_str())
+                        ? setValue(search_str())
+                        : ''
                 "
                 (blur)="resetSearchString()"
                 (focus)="cancelReset()"
             />
             <icon matPrefix class="relative text-2xl">search</icon>
-            @if (loading) {
+            @if (loading()) {
                 <mat-spinner matSuffix diameter="16" />
             }
         </mat-form-field>
@@ -81,7 +86,7 @@ import { User } from 'libs/users/src/lib/user.class';
                     </div>
                 </mat-option>
             }
-            @if (search_str && validate && validate(search_str)) {
+            @if (search_str && validate && validate(search_str())) {
                 <mat-option class="pointer-events-none relative">
                     <div
                         class="pointer-events-auto absolute inset-0 px-4"
@@ -177,9 +182,9 @@ export class UserSearchFieldComponent
     /** User list to display */
     public user_list: User[];
     /** Whether user list is loading */
-    public loading: boolean;
+    public loading = signal(false);
     /** Current display value of the search input field  */
-    public search_str: string;
+    public search_str = signal('');
     /** Subject holding the value of the search */
     public search$ = new Subject<string>();
     /** List of users from an API search */
@@ -187,7 +192,7 @@ export class UserSearchFieldComponent
         debounceTime(400),
         distinctUntilChanged(),
         switchMap((query) => {
-            this.loading = true;
+            this.loading.set(true);
             return this.options && this.options.length > 0
                 ? of(this.options)
                 : query.length >= 3
@@ -201,9 +206,9 @@ export class UserSearchFieldComponent
         }),
         catchError(() => of([])),
         map((list: User[]) => {
-            this.loading = false;
+            this.loading.set(false);
             list = flatten(list);
-            const search = (this.search_str || '').toLowerCase();
+            const search = this.search_str().toLowerCase();
             return list.filter(
                 (item) => !this.filter || this.filter(item, search),
             );
@@ -242,7 +247,7 @@ export class UserSearchFieldComponent
     public resetSearchString() {
         this.timeout(
             'reset',
-            () => (this.search_str = this.active_user?.name || ''),
+            () => this.search_str.set(this.active_user?.name || ''),
             100,
         );
     }
@@ -253,10 +258,10 @@ export class UserSearchFieldComponent
      */
     public setValue(new_value: User | string, email?: string): void {
         if (!new_value) return;
-        if (typeof new_value === 'string' && new_value === this.search_str) {
+        if (typeof new_value === 'string' && new_value === this.search_str()) {
             new_value = new User({
-                name: (this.search_str || email || '').split('@')[0],
-                email: this.search_str || email || '',
+                name: (this.search_str() || email || '').split('@')[0],
+                email: this.search_str() || email || '',
             });
         }
         const user = new_value as User;

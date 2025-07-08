@@ -1,4 +1,9 @@
-import { ErrorHandler, LOCALE_ID, NgModule } from '@angular/core';
+import {
+    ErrorHandler,
+    LOCALE_ID,
+    NgModule,
+    provideZonelessChangeDetection,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -16,23 +21,14 @@ import { AppComponent } from 'libs/components/src/lib/app.component';
 import { environment } from '../environments/environment';
 import { SharedOverlaysModule } from './overlays/overlays.module';
 
-import { BootstrapComponent } from './bootstrap.component';
-import { BookingPanelArrayComponent } from './panel-array.component';
-import { BookingPanelSelectComponent } from './panel-select.component';
-import { PanelBookingListComponent } from './panel/panel-booking-list.component';
-import { PanelDetailsComponent } from './panel/panel-details.component';
-import { BookingPanelComponent } from './panel/panel.component';
-import { PanelTopbarComponent } from './panel/topbar.component';
-
 import { MatRippleModule } from '@angular/material/core';
-import { LocaleService } from '@placeos/common';
 import * as Sentry from '@sentry/angular';
+import { BootstrapComponent } from './bootstrap.component';
 import { AppCheckinModule } from './checkin/checkin.module';
 import { EventPanelComponent } from './event-panel.component';
 import { AppPanelViewModule } from './new-panel/panel-view.module';
-import { PanelStatusComponent } from './panel/panel-status.component';
-import { PanelTimelineComponent } from './panel/timeline.component';
 
+import { LocaleService } from 'libs/common/src/lib/locale.service';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { GlobalBannerComponent } from 'libs/components/src/lib/global-banner.component';
 import { GlobalLoadingComponent } from 'libs/components/src/lib/global-loading.component';
@@ -70,19 +66,7 @@ const STANDALONE_COMPONENTS = [
 ];
 
 @NgModule({
-    declarations: [
-        AppComponent,
-        BootstrapComponent,
-        BookingPanelComponent,
-        PanelTopbarComponent,
-        PanelDetailsComponent,
-        PanelStatusComponent,
-        PanelBookingListComponent,
-        PanelTimelineComponent,
-        BookingPanelArrayComponent,
-        BookingPanelSelectComponent,
-        EventPanelComponent,
-    ],
+    declarations: [AppComponent, BootstrapComponent, EventPanelComponent],
     bootstrap: [AppComponent],
     imports: [
         BrowserModule,
@@ -99,6 +83,7 @@ const STANDALONE_COMPONENTS = [
         }),
     ],
     providers: [
+        provideZonelessChangeDetection(),
         {
             provide: ErrorHandler,
             useValue: Sentry.createErrorHandler({

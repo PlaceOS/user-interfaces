@@ -1,9 +1,13 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { startOfMinute } from 'date-fns';
-import { debounceTime, first, map } from 'rxjs/operators';
+import { debounceTime, map } from 'rxjs/operators';
 
-import { AsyncHandler, SettingsService } from '@placeos/common';
+import {
+    AsyncHandler,
+    firstTruthyValueFrom,
+    SettingsService,
+} from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 
 import { generateQRCode } from 'libs/common/src/lib/qr-code';
@@ -36,7 +40,7 @@ import { PanelStateService } from './panel-state.service';
                     'url(' + background_image + ')' | safe
                 "
             >
-                <div class="overflow-hidden">
+                <div class="flex-1 overflow-hidden">
                     @let current_bkn = current | async;
                     @if (current_bkn) {
                         <h2 class="line-clamp-5 text-2xl font-medium">
@@ -65,7 +69,7 @@ import { PanelStateService } from './panel-state.service';
                         </p>
                     }
                 </div>
-                <div class="min-w-[40%]">
+                <div class="min-w-[40%] flex-1">
                     <h2 class="text-2xl font-medium uppercase">
                         {{ 'APP.BOOKING_PANEL.NEXT' | translate }}
                     </h2>
@@ -197,7 +201,7 @@ export class EventPanelComponent extends AsyncHandler implements OnInit {
     }
 
     public async ngOnInit() {
-        await this._org.initialised.pipe(first((_) => _)).toPromise();
+        await firstTruthyValueFrom(this._org.initialised);
         this.subscription(
             'route.params',
             this._route.paramMap.subscribe((params) => {

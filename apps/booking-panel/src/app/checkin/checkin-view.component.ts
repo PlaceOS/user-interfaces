@@ -31,11 +31,13 @@ import { PanelStateService } from '../panel-state.service';
                 }}
             </div>
         </div>
-        <h3 class="p-4 text-xl font-medium">
+        <h3 class="px-4 pt-4 text-xl font-medium">
             {{ 'APP.BOOKING_PANEL.UPCOMING' | translate }}
         </h3>
-        <div class="divide-y divide-base-200 bg-base-100">
-            <div class="flex items-center p-2">
+        <div class="space-y-2 bg-base-100 p-2">
+            <div
+                class="flex items-center rounded border border-base-300 p-2 shadow"
+            >
                 <div
                     class="h-full min-h-[3rem] w-2 rounded"
                     [class.bg-error]="(state | async) === 'busy'"
@@ -43,7 +45,7 @@ import { PanelStateService } from '../panel-state.service';
                     [class.bg-warning]="(state | async) === 'pending'"
                 ></div>
                 <div class="flex-1 px-2 text-sm">
-                    <div class="font-medium uppercase">
+                    <div class="text-lg font-medium uppercase">
                         {{ 'APP.BOOKING_PANEL.NOW' | translate }}
                     </div>
                     <div class="">
@@ -140,14 +142,16 @@ import { PanelStateService } from '../panel-state.service';
                     </button>
                 }
             </div>
-            <div class="flex items-center p-2">
+            <div
+                class="flex items-center rounded border border-base-300 p-2 shadow"
+            >
                 <div
                     class="h-full min-h-[3rem] w-2 rounded bg-error"
                     [class.bg-error]="(event_state | async)?.next"
                     [class.bg-success]="!(event_state | async)?.next"
                 ></div>
                 <div class="flex-1 px-2 text-sm">
-                    <div class="font-medium uppercase">
+                    <div class="text-lg font-medium uppercase">
                         {{ 'APP.BOOKING_PANEL.NEXT' | translate }}
                     </div>
                     <div class="">
@@ -166,10 +170,12 @@ import { PanelStateService } from '../panel-state.service';
                 }
             </div>
         </div>
-        <h3 class="p-4 text-xl font-medium">
+        <h3 class="px-4 pb-2 pt-4 text-xl font-medium">
             {{ 'APP.BOOKING_PANEL.SCHEDULE' | translate }}
         </h3>
-        <div class="overflow-auto bg-base-100">
+        <div
+            class="mx-2 flex items-center overflow-auto rounded border border-base-300 shadow"
+        >
             <checkin-timetable
                 [events]="bookings | async"
                 (event)="newBooking($event)"

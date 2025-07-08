@@ -1,11 +1,11 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { querySystems } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import { debounceTime, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 
-import { AsyncHandler } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
-import { querySystems } from '@placeos/ts-client';
+import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 
 import { Space } from 'libs/spaces/src/lib/space.class';
 
@@ -18,7 +18,7 @@ import { Space } from 'libs/spaces/src/lib/space.class';
             <h2 class="m-0 w-full bg-error px-4 py-2 text-2xl text-white">
                 {{ 'APP.BOOKING_PANEL.BOOTSTRAP_TITLE' | translate }}
             </h2>
-            @if (!loading || loading === 'search') {
+            @if (!loading() || loading() === 'search') {
                 <p class="description py-4">
                     {{ 'COMMON.BOOTSTRAP_DESCRIPTION' | translate }}
                 </p>
@@ -38,7 +38,7 @@ import { Space } from 'libs/spaces/src/lib/space.class';
                     }
                 </mat-form-field>
                 <mat-autocomplete #auto="matAutocomplete">
-                    @for (option of space_list | async; track option) {
+                    @for (option of space_list | async; track option.id) {
                         <mat-option [value]="option.id">
                             <div
                                 class="flex w-full items-center space-x-4 leading-tight"
@@ -128,12 +128,8 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
     private _router = inject(Router);
     private _org = inject(OrganisationService);
 
-    /** List of available systems */
-    public system_list: Space[] = [];
-    /** List of available systems */
-    public filtered_list: Space[] = [];
     /** Whether application data is loading */
-    public loading: string;
+    public loading = signal('');
     /** ID of the system to bootstrap */
     public system_id$ = new BehaviorSubject('');
     /** Selected system to bootstrap */
@@ -147,7 +143,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
     ]).pipe(
         debounceTime(300),
         switchMap(([search]) => {
-            this.loading = 'search';
+            this.loading.set('search');
             return search.length < 2
                 ? of({ data: [] })
                 : querySystems({
@@ -158,7 +154,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
                   });
         }),
         map((_) => _.data.map((_) => new Space(_ as any))),
-        tap(() => (this.loading = '')),
+        tap(() => this.loading.set('')),
         shareReplay(1),
     );
 
@@ -193,7 +189,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
      * Check if the application has previously been bootstrapped
      */
     private checkBootstrapped(): void {
-        this.loading = 'Checks';
+        this.loading.set('Checking');
         if (localStorage) {
             const system_id = localStorage.getItem('PLACEOS.BOOKINGS.system');
             this._event =
@@ -209,7 +205,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
                 return;
             }
         }
-        this.loading = '';
+        this.loading.set('');
     }
 
     /**
@@ -217,7 +213,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
      * @param system_id System to bootstrap
      */
     private configure(system_id: string): void {
-        this.loading = 'Setup';
+        this.loading.set('Setup');
         if (localStorage) {
             localStorage.setItem('PLACEOS.BOOKINGS.system', system_id);
             localStorage.setItem('trust', 'true');
@@ -229,7 +225,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
         this._router.navigate([this._event ? 'events' : 'panel', system_id], {
             queryParamsHandling: 'preserve',
         });
-        this.loading = '';
+        this.loading.set('');
     }
 
     /**
