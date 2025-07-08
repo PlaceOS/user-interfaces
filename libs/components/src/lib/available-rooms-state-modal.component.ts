@@ -176,7 +176,7 @@ export class AvailableRoomsStateModalComponent {
         const disabled_list = this.disabled_rooms;
         const list = disabled_list.filter((_) => !this.selected.includes(_));
         this.disabled_rooms = list;
-        this.change.next(list);
+        this.change.emit(list);
     }
 
     public async disableSelected() {
@@ -184,6 +184,6 @@ export class AvailableRoomsStateModalComponent {
         const disabled_list = this.disabled_rooms;
         const list = unique(disabled_list.concat(this.selected));
         this.disabled_rooms = list;
-        this.change.next(list);
+        this.change.emit(list);
     }
 }

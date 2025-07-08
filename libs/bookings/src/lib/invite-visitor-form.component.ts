@@ -619,6 +619,7 @@ export class InviteVisitorFormComponent
     }
 
     public onDone() {
+        // TODO: The 'emit' function requires a mandatory void argument
         this.done.emit();
         this.sent = false;
     }
@@ -736,7 +737,6 @@ export class InviteVisitorFormComponent
                 this._org.building.display_name || this._org.building.name,
         };
         event.attendees.push(this.last_success.asset_id);
-        console.log('Event:', event);
         this.outlook_link = generateMicrosoftCalendarLink(event);
         this.google_link = generateGoogleCalendarLink(event);
         this.ical_link = generateCalendarFileLink(event);

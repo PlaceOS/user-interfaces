@@ -103,6 +103,7 @@ export class DeskHeightPresetsComponent {
     public onClose() {
         this.saveSetting('desk_sitting_height', this.desk_sitting_height);
         this.saveSetting('desk_standing_height', this.desk_standing_height);
+        // TODO: The 'emit' function requires a mandatory void argument
         this.close.emit();
     }
 
