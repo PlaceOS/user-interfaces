@@ -1,4 +1,12 @@
-import { Component, ElementRef, EventEmitter, Input, Output, Renderer2, inject, viewChild } from '@angular/core';
+import {
+    Component,
+    ElementRef,
+    Renderer2,
+    inject,
+    model,
+    output,
+    viewChild,
+} from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
 import { Point } from '@placeos/svg-viewer';
 
@@ -77,27 +85,30 @@ export enum JoystickPan {
 export class JoystickComponent extends AsyncHandler {
     private _renderer = inject(Renderer2);
 
-    @Input() public pan: JoystickPan;
-    @Input() public tilt: JoystickTilt;
+    public readonly pan = model<JoystickPan>(JoystickPan.Stop);
+    public readonly tilt = model<JoystickTilt>(JoystickTilt.Stop);
 
-    @Output() public panChange = new EventEmitter<JoystickPan>();
-    @Output() public tiltChange = new EventEmitter<JoystickTilt>();
+    public readonly panChange = output<JoystickPan>();
+    public readonly tiltChange = output<JoystickTilt>();
 
-    private readonly _panning_el = viewChild<ElementRef<HTMLDivElement>>('panning_control');
+    private readonly _panning_el =
+        viewChild<ElementRef<HTMLDivElement>>('panning_control');
 
     private _box: ClientRect;
 
     public get thumb_transform() {
+        const pan = this.pan();
+        const tilt = this.tilt();
         return `translate(${
-            this.pan === JoystickPan.Stop
+            pan === JoystickPan.Stop
                 ? '0'
-                : this.pan === JoystickPan.Left
+                : pan === JoystickPan.Left
                   ? '-50'
                   : '50'
         }%, ${
-            this.tilt === JoystickTilt.Stop
+            tilt === JoystickTilt.Stop
                 ? '0'
-                : this.tilt === JoystickTilt.Up
+                : tilt === JoystickTilt.Up
                   ? '-50'
                   : '50'
         }%)`;
@@ -120,10 +131,10 @@ export class JoystickComponent extends AsyncHandler {
             this._renderer.listen('window', end_event, (_) => {
                 this.unsub('on_move');
                 this.unsub('on_end');
-                this.tilt = JoystickTilt.Stop;
-                this.pan = JoystickPan.Stop;
-                this.tiltChange.emit(this.tilt);
-                this.panChange.emit(this.pan);
+                this.tilt.set(JoystickTilt.Stop);
+                this.pan.set(JoystickPan.Stop);
+                this.tiltChange.emit(this.tilt());
+                this.panChange.emit(this.pan());
             }),
         );
     }
@@ -137,27 +148,33 @@ export class JoystickComponent extends AsyncHandler {
         const angle =
             (Math.atan2(point.y - box_point.y, point.x - box_point.x) * 180) /
             Math.PI;
-        const { tilt, pan } = this;
-        this.tilt =
+        const { tilt: tiltInput, pan: panInput } = this;
+        const tilt = tiltInput();
+        const pan = panInput();
+        this.tilt.set(
             angle >= 150 || angle <= -150 || (angle > -30 && angle < 30)
                 ? JoystickTilt.Stop
                 : angle > 0
                   ? JoystickTilt.Down
-                  : JoystickTilt.Up;
-        this.pan =
+                  : JoystickTilt.Up,
+        );
+        this.pan.set(
             (angle >= 60 && angle <= 120) || (angle <= -60 && angle >= -120)
                 ? JoystickPan.Stop
                 : angle > 90 || angle < -90
                   ? JoystickPan.Left
-                  : JoystickPan.Right;
-        if (tilt !== this.tilt) this.tiltChange.emit(this.tilt);
-        if (pan !== this.pan) this.panChange.emit(this.pan);
+                  : JoystickPan.Right,
+        );
+        const tiltValue = this.tilt();
+        if (tilt !== tiltValue) this.tiltChange.emit(tiltValue);
+        const panValue = this.pan();
+        if (pan !== panValue) this.panChange.emit(panValue);
     }
 
     public stopPan() {
-        this.tilt = JoystickTilt.Stop;
-        this.pan = JoystickPan.Stop;
-        this.tiltChange.emit(this.tilt);
-        this.panChange.emit(this.pan);
+        this.tilt.set(JoystickTilt.Stop);
+        this.pan.set(JoystickPan.Stop);
+        this.tiltChange.emit(this.tilt());
+        this.panChange.emit(this.pan());
     }
 }

@@ -1,4 +1,11 @@
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, inject } from '@angular/core';
+import {
+    Component,
+    OnChanges,
+    SimpleChanges,
+    inject,
+    input,
+    output,
+} from '@angular/core';
 import { unique } from '@placeos/common';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -9,8 +16,8 @@ import { ControlStateService, RoomInput } from '../control-state.service';
     template: `
         <div
             class="flex flex-col items-center text-black"
-            [class.p-2]="simple"
-            [class.p-4]="!simple"
+            [class.p-2]="simple()"
+            [class.p-4]="!simple()"
         >
             @let source = details | async;
             <h3 class="mb-2 text-xl font-medium">
@@ -23,8 +30,8 @@ import { ControlStateService, RoomInput } from '../control-state.service';
                 @if ((input_types | async)?.length) {
                     <div
                         class="divide flex"
-                        [class.flex-col]="simple"
-                        [class.flex-wrap]="!simple"
+                        [class.flex-col]="simple()"
+                        [class.flex-wrap]="!simple()"
                     >
                         @for (type of input_types | async; track type) {
                             <div group class="flex flex-col space-y-2 p-2">
@@ -83,11 +90,11 @@ export class SourceSelectComponent implements OnChanges {
     private _state = inject(ControlStateService);
 
     // Whether to use the simple display
-    @Input() public simple = false;
+    public readonly simple = input(false);
     // ID of the selected output
-    @Input() public output: string;
+    public readonly output = input<string>(undefined);
     /** Emitter for changes to the selected input source */
-    @Output() public source = new EventEmitter();
+    public readonly source = output<RoomInput>();
     /** Whether routing is loading */
     public loading: boolean;
     // Store for the ID of the selected output
@@ -125,13 +132,13 @@ export class SourceSelectComponent implements OnChanges {
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.output) {
-            this.output_id.next(this.output || '');
+            this.output_id.next(this.output() || '');
         }
     }
 
     public async selectSource(input: RoomInput) {
         this.loading = true;
-        await this._state.setRoute(input.id, this.output);
+        await this._state.setRoute(input.id, this.output());
         this.loading = false;
         this.source.emit(input);
     }

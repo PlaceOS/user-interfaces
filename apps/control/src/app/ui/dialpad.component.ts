@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 
 @Component({
     selector: 'dialpad',
@@ -17,15 +17,15 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
                     {{ digit }}
                 </button>
             }
-            @if (backspace) {
+            @if (backspace()) {
                 <button
                     digit
                     matRipple
                     class="m-2 flex h-16 w-60 flex-1 items-center justify-center rounded-lg bg-base-100 active:-bottom-1"
-                    [class.absolute]="!inline"
-                    [class.bottom-0]="!inline"
-                    [class.-right-4]="!inline"
-                    [class.translate-x-full]="!inline"
+                    [class.absolute]="!inline()"
+                    [class.bottom-0]="!inline()"
+                    [class.-right-4]="!inline()"
+                    [class.translate-x-full]="!inline()"
                     (click)="pressed.emit('')"
                 >
                     {{ 'APP.CONTROL.BACKSPACE' | translate }}
@@ -52,9 +52,9 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
     standalone: false,
 })
 export class DialpadComponent {
-    @Input() public backspace = true;
-    @Input() public inline = false;
-    @Output() public pressed = new EventEmitter<string>();
+    public readonly backspace = input(true);
+    public readonly inline = input(false);
+    public readonly pressed = output<string>();
 
     // prettier-ignore
     public readonly digits = [

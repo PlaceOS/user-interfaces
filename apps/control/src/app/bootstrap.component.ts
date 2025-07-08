@@ -1,12 +1,12 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { querySystems } from '@placeos/ts-client';
+import { BehaviorSubject, of } from 'rxjs';
 import { debounceTime, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 
 import { AsyncHandler } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
-import { querySystems } from '@placeos/ts-client';
 import { Space } from 'libs/spaces/src/lib/space.class';
-import { BehaviorSubject, of } from 'rxjs';
 
 const STORE_KEY = 'PLACEOS.CONTROL.system';
 
@@ -19,7 +19,7 @@ const STORE_KEY = 'PLACEOS.CONTROL.system';
             <h2 class="m-0 w-full bg-error px-4 py-2 text-2xl text-white">
                 {{ 'APP.CONTROL.BOOTSTRAP_TITLE' | translate }}
             </h2>
-            @if (!loading || loading === 'search') {
+            @if (!loading() || loading() === 'search') {
                 <p class="description py-4">
                     {{ 'COMMON.BOOTSTRAP_DESCRIPTION' | translate }}
                 </p>
@@ -34,12 +34,12 @@ const STORE_KEY = 'PLACEOS.CONTROL.system';
                         [placeholder]="'COMMON.BOOTSTRAP_LABEL' | translate"
                         (ngModelChange)="system_id$.next($event)"
                     />
-                    @if (loading === 'search') {
+                    @if (loading() === 'search') {
                         <mat-spinner [diameter]="32" matSuffix></mat-spinner>
                     }
                 </mat-form-field>
                 <mat-autocomplete #auto="matAutocomplete">
-                    @for (option of space_list | async; track option) {
+                    @for (option of space_list | async; track option.id) {
                         <mat-option [value]="option?.id">
                             <div
                                 class="flex w-full items-center space-x-4 leading-tight"
@@ -129,23 +129,19 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
     private _router = inject(Router);
     private _org = inject(OrganisationService);
 
-    /** List of available systems */
-    public system_list: Space[] = [];
-    /** List of available systems */
-    public filtered_list: Space[] = [];
     /** Whether application data is loading */
-    public loading: string;
+    public loading = signal('');
     /** ID of the system to bootstrap */
     public system_id$ = new BehaviorSubject('');
     /** Selected system to bootstrap */
     public selected_system: Space = null;
     /** Whether input field is focused */
-    public input_focus: boolean;
+    public input_focus = signal(false);
 
     public readonly space_list = this.system_id$.pipe(
         debounceTime(300),
         switchMap((search) => {
-            this.loading = 'search';
+            this.loading.set('search');
             return search.length < 2
                 ? of({ data: [] })
                 : querySystems({
@@ -156,7 +152,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
                   });
         }),
         map((_) => _.data.map((_) => new Space(_ as any))),
-        tap((_) => (this.loading = '')),
+        tap((_) => this.loading.set('')),
         shareReplay(1),
     );
 
@@ -188,7 +184,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
      * Check if the application has previously been bootstrapped
      */
     private checkBootstrapped(): void {
-        this.loading = 'Checks';
+        this.loading.set('Checks');
         if (localStorage) {
             const system_id = localStorage.getItem(STORE_KEY);
             if (system_id) {
@@ -198,7 +194,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
                 return;
             }
         }
-        this.loading = '';
+        this.loading.set('');
     }
 
     /**
@@ -206,7 +202,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
      * @param system_id System to bootstrap
      */
     private configure(system_id: string): void {
-        this.loading = 'Setup';
+        this.loading.set('Setup');
         if (localStorage) {
             localStorage.setItem(STORE_KEY, system_id);
             localStorage.setItem('trust', 'true');
@@ -215,7 +211,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
         this._router.navigate(['/tabbed', system_id], {
             queryParamsHandling: 'preserve',
         });
-        this.loading = '';
+        this.loading.set('');
     }
 
     /**

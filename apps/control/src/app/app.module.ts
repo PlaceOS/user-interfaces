@@ -1,4 +1,8 @@
-import { ErrorHandler, NgModule } from '@angular/core';
+import {
+    ErrorHandler,
+    NgModule,
+    provideZonelessChangeDetection,
+} from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { Router } from '@angular/router';
@@ -92,6 +96,7 @@ const MAT_MODULES = [
         }),
     ],
     providers: [
+        provideZonelessChangeDetection(),
         {
             provide: ErrorHandler,
             useValue: Sentry.createErrorHandler({

@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, input } from '@angular/core';
 import { Router } from '@angular/router';
 import {
     AsyncHandler,
@@ -41,7 +41,7 @@ import { VideoCallStateService } from './video-call-state.service';
                                 </mat-select>
                             </mat-form-field>
                         }
-                        @if (present_output && (presentables$ | async)) {
+                        @if (present_output() && (presentables$ | async)) {
                             <mat-form-field
                                 appearance="outline"
                                 class="h-[3.5rem] w-full"
@@ -223,8 +223,8 @@ export class VideoCallPageComponent extends AsyncHandler implements OnInit {
     private _control = inject(ControlStateService);
     private _router = inject(Router);
 
-    @Input() public redirect = true;
-    @Input() public present_output = '';
+    public readonly redirect = input(true);
+    public readonly present_output = input('');
     public loading = '';
     public readonly call = this._state.call;
     public readonly show_camera_pip = this._state.show_camera_pip;
@@ -246,7 +246,7 @@ export class VideoCallPageComponent extends AsyncHandler implements OnInit {
 
     public readonly sentDTMF = (d) => this._state.sendDTMF(d);
     public readonly setPresentationSource = (i) =>
-        this._control.setRoute(i.id, this.present_output, false);
+        this._control.setRoute(i.id, this.present_output(), false);
     public readonly setPresentationMode = (d) =>
         this._state.setPresentationMode(d);
     public readonly setVideoLayout = (d) => this._state.setVideoLayout(d);
@@ -287,6 +287,6 @@ export class VideoCallPageComponent extends AsyncHandler implements OnInit {
     }
 
     private _onCallEnded() {
-        if (this.redirect) this._router.navigate(['/panel', this._control.id]);
+        if (this.redirect()) this._router.navigate(['/panel', this._control.id]);
     }
 }

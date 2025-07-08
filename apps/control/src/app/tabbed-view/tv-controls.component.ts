@@ -1,4 +1,4 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
 import { getModule } from '@placeos/ts-client';
 import { ControlStateService } from '../control-state.service';
@@ -6,7 +6,7 @@ import { ControlStateService } from '../control-state.service';
 @Component({
     selector: 'tv-controls',
     template: `
-        <div hidden [attr.mod]="mod">
+        <div hidden [attr.mod]="mod()">
             <i
                 binding
                 [(model)]="channel_list"
@@ -18,7 +18,7 @@ import { ControlStateService } from '../control-state.service';
                 binding
                 [(model)]="channel_url"
                 [sys]="system_id"
-                [mod]="mod"
+                [mod]="mod()"
                 bind="current_channel"
             ></i>
         </div>
@@ -50,7 +50,7 @@ import { ControlStateService } from '../control-state.service';
 export class TVControlsComponent extends AsyncHandler {
     private _state = inject(ControlStateService);
 
-    @Input() public mod = '';
+    public readonly mod = input('');
 
     public channel_list = [];
     public channel_url = '';
@@ -60,7 +60,7 @@ export class TVControlsComponent extends AsyncHandler {
     }
 
     public setChannel(url: string) {
-        const mod = getModule(this._state.id, this.mod);
+        const mod = getModule(this._state.id, this.mod());
         mod.execute('channel', [url]);
     }
 }

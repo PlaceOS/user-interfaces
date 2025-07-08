@@ -1,4 +1,4 @@
-import { Component, Input, SimpleChanges, inject } from '@angular/core';
+import { Component, SimpleChanges, inject, input } from '@angular/core';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { VoiceAssistantService } from './voice-assistant.service';
@@ -62,8 +62,8 @@ import { VoiceAssistantService } from './voice-assistant.service';
 export class VoiceAssistantComponent {
     private _service = inject(VoiceAssistantService);
 
-    @Input() public system_id: string;
-    @Input() public enabled: boolean;
+    public readonly system_id = input<string>(undefined);
+    public readonly enabled = input<boolean>(undefined);
     public readonly activate = () => this._service.activate();
     public readonly active = this._service.active;
     public readonly progress = this._service.progress;
@@ -80,11 +80,13 @@ export class VoiceAssistantComponent {
     };
 
     public ngOnChanges(changes: SimpleChanges) {
-        if (changes.system_id && this.system_id) {
-            this._service.setBinding(this.system_id);
+        const system_id = this.system_id();
+        if (changes.system_id && system_id) {
+            this._service.setBinding(system_id);
         }
-        if (changes.enabled && typeof this.enabled === 'boolean') {
-            this._service.setEnabled(this.enabled);
+        const enabled = this.enabled();
+        if (changes.enabled && typeof enabled === 'boolean') {
+            this._service.setEnabled(enabled);
         }
     }
 }

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import { Component, inject, input, output } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { nextValueFrom } from '@placeos/common';
 import { getModule } from '@placeos/ts-client';
@@ -12,7 +12,7 @@ import { VideoCallStateService } from './video-call-state.service';
             @if (!loading) {
                 <ng-container class="">
                     <dialpad (pressed)="addDigit($event)"></dialpad>
-                    <div class="flex flex-col" [class.pt-8]="!redirect">
+                    <div class="flex flex-col" [class.pt-8]="!redirect()">
                         <p class="px-2 pt-4">
                             {{ 'APP.CONTROL.VC_ENTER_CODE' | translate }}
                         </p>
@@ -85,8 +85,8 @@ export class VideoCallDialViewComponent {
     private _router = inject(Router);
     private _route = inject(ActivatedRoute);
 
-    @Input() public redirect = true;
-    @Output() public close = new EventEmitter<void>();
+    public readonly redirect = input(true);
+    public readonly close = output<void>();
 
     public dial_number = '';
     public loading = false;
@@ -116,9 +116,10 @@ export class VideoCallDialViewComponent {
         this.loading = true;
         await mod.execute('dial', [this.dial_number]);
         this.loading = false;
-        if (this.redirect) {
+        if (this.redirect()) {
             this._router.navigate(['call'], { relativeTo: this._route });
         }
+        // TODO: The 'emit' function requires a mandatory void argument
         this.close.emit();
         this.dial_number = '';
     }

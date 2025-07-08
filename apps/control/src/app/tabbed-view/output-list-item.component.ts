@@ -1,4 +1,10 @@
-import { Component, Input, OnChanges, SimpleChanges, inject } from '@angular/core';
+import {
+    Component,
+    OnChanges,
+    SimpleChanges,
+    inject,
+    input,
+} from '@angular/core';
 import { AsyncHandler, nextValueFrom } from '@placeos/common';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -10,11 +16,11 @@ const STATUS = {};
 @Component({
     selector: 'device-output-list-item',
     template: `
-        @if (item || true) {
+        @if (item() || true) {
             <div
                 class="relative m-2 h-40 w-full flex-1 rounded border bg-base-100 p-2 shadow"
-                [class.border-base-200]="!active"
-                [class.border-primary]="active"
+                [class.border-base-200]="!active()"
+                [class.border-primary]="active()"
             >
                 @let source = input | async;
                 <button
@@ -24,10 +30,10 @@ const STATUS = {};
                     (click)="setActiveOutput()"
                 >
                     <div
-                        class="absolute left-1 top-1 rounded bg-base-300 p-1 text-sm text-white"
-                        [class.!bg-primary]="active"
+                        class="absolute left-1 top-1 rounded-full border border-base-300 bg-base-100 px-2 py-1 text-xs text-base-content"
+                        [class.!bg-primary]="active()"
                     >
-                        {{ item?.name || 'Display' }}
+                        {{ item()?.name || 'Display' }}
                     </div>
                     <icon class="text-5xl">
                         {{
@@ -64,13 +70,12 @@ export class DeviceOutputListItemComponent
 {
     private _state = inject(ControlStateService);
 
-    @Input() public item: RoomOutput;
-    @Input() public active: boolean;
+    public readonly item = input<RoomOutput>(undefined);
+    public readonly active = input<boolean>(undefined);
     /** Current volume level for output */
     public volume: number;
     /** Current mute state of the output */
     public mute: boolean;
-
     public last_input: string;
 
     public readonly icons = ICON_MAP;
@@ -83,24 +88,25 @@ export class DeviceOutputListItemComponent
     ]).pipe(map(([id, list]) => list.find((_) => _.id === id || _.ref === id)));
 
     public readonly setVolume = (v) =>
-        this.timeout('volume', () => this._state.setVolume(v, this.item?.id));
+        this.timeout('volume', () => this._state.setVolume(v, this.item()?.id));
     public readonly setMute = (i, s) => {
-        this._state.setRoute(s ? 'mute' : this.last_input, this.item?.id);
+        this._state.setRoute(s ? 'mute' : this.last_input, this.item()?.id);
         this.last_input = i;
     };
     public readonly setActiveOutput = async () => {
         const { selected_input } =
             (await nextValueFrom(this._state.system)) || {};
         const input = await nextValueFrom(this.input);
-        console.log('Input:', selected_input, this.item, input);
+        const item = this.item();
+        console.log('Input:', selected_input, item, input);
         input?.id === selected_input
-            ? this._state.unroute(this.item.id)
-            : this._state.setOutput(this.item?.id);
+            ? this._state.unroute(item.id)
+            : this._state.setOutput(item?.id);
     };
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.item) {
-            this._input.next(this.item?.source || '');
+            this._input.next(this.item()?.source || '');
         }
     }
 }

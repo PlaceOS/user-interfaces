@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges, inject } from '@angular/core';
+import { Component, OnChanges, SimpleChanges, inject, input } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -16,7 +16,7 @@ export const ICON_MAP = {
 @Component({
     selector: 'output-display',
     template: `
-        @if (item) {
+        @if (item()) {
             <div class="m-2 rounded bg-base-100 p-4 text-black shadow">
                 <div
                     view
@@ -29,7 +29,7 @@ export const ICON_MAP = {
                     <div
                         class="absolute left-1 top-1 rounded bg-secondary px-2 py-1 text-white shadow"
                     >
-                        {{ item?.name }}
+                        {{ item()?.name }}
                     </div>
                     <icon class="text-7xl">{{
                         (input | async)?.icon ||
@@ -51,11 +51,11 @@ export const ICON_MAP = {
                     </p>
                 </div>
                 <div class="flex w-full items-center space-x-2">
-                    <button icon matRipple (click)="setMute(!item.mute)">
+                    <button icon matRipple (click)="setMute(!item().mute)">
                         <icon>{{
-                            item.mute
+                            item().mute
                                 ? 'volume_off'
-                                : item.volume > 0
+                                : item().volume > 0
                                   ? 'volume_up'
                                   : 'volume_mute'
                         }}</icon>
@@ -63,7 +63,7 @@ export const ICON_MAP = {
                     <mat-slider class="flex-1"
                         ><input
                             matSliderThumb
-                            [ngModel]="!mute ? item.volume : 0"
+                            [ngModel]="!mute ? item().volume : 0"
                             (ngModelChange)="setVolume($event)"
                     /></mat-slider>
                 </div>
@@ -82,7 +82,7 @@ export const ICON_MAP = {
 export class OutputDisplayComponent extends AsyncHandler implements OnChanges {
     private _state = inject(ControlStateService);
 
-    @Input() public item: RoomOutput;
+    public readonly item = input<RoomOutput>(undefined);
     /** Current volume level for output */
     public volume: number;
     /** Current mute state of the output */
@@ -97,10 +97,10 @@ export class OutputDisplayComponent extends AsyncHandler implements OnChanges {
 
     public readonly icons = ICON_MAP;
 
-    public readonly switchSource = () => this._state.switchSource(this.item.id);
+    public readonly switchSource = () => this._state.switchSource(this.item().id);
     public readonly setVolume = (v) =>
-        this.timeout('volume', () => this._state.setVolume(v, this.item.id));
-    public readonly setMute = (s) => this._state.setMute(s, this.item.id);
+        this.timeout('volume', () => this._state.setVolume(v, this.item().id));
+    public readonly setMute = (s) => this._state.setMute(s, this.item().id);
 
     public get id(): string {
         return this._state.id;
@@ -108,7 +108,7 @@ export class OutputDisplayComponent extends AsyncHandler implements OnChanges {
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.item) {
-            this._input.next(this.item?.source || '');
+            this._input.next(this.item()?.source || '');
         }
     }
 }
