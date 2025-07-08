@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, contentChild, viewChild } from '@angular/core';
+import { Component, contentChild, viewChild, input } from '@angular/core';
 import { NgControl } from '@angular/forms';
 import { AsyncHandler } from '@placeos/common';
 import { startOfDay } from 'date-fns';
@@ -19,8 +19,8 @@ import { DateRangeCalendarComponent } from './date-range-calendar.component';
             customTooltip
             [content]="calendar_picker"
             yPosition="top"
-            [disabled]="disabled"
-            [class.opacity-30]="disabled"
+            [disabled]="disabled()"
+            [class.opacity-30]="disabled()"
         >
             <div class="flex-1 whitespace-nowrap">
                 {{ start_date()?.value || now | date: 'MMM d, yyyy' }}
@@ -41,7 +41,7 @@ import { DateRangeCalendarComponent } from './date-range-calendar.component';
                     [month]="start_date()?.control?.value || now"
                     [from]="from"
                     [to]="until"
-                    [offset_weekday]="week_start"
+                    [offset_weekday]="week_start()"
                     (startChange)="setStartDate($event)"
                     (endChange)="setEndDate($event)"
                 ></date-range-calendar>
@@ -58,14 +58,14 @@ import { DateRangeCalendarComponent } from './date-range-calendar.component';
 })
 export class DateRangeFieldComponent extends AsyncHandler {
     /** Earliest date available the user is allowed to pick */
-    @Input('from') public from_date: number = startOfDay(Date.now()).valueOf();
+    public readonly from_date = input<number>(startOfDay(Date.now()).valueOf(), { alias: "from" });
     /** Latest date available the user is allowed to pick */
-    @Input('to') public to_date: number;
+    public readonly to_date = input<number>(undefined, { alias: "to" });
     /** Index of the day to start the week on when displaying the calendar */
-    @Input() public week_start = 0;
+    public readonly week_start = input(0);
     /** Whether form control is disabled */
-    @Input() public disabled = false;
-    @Input() public short = false;
+    public readonly disabled = input(false);
+    public readonly short = input(false);
 
     public readonly now = Date.now();
 

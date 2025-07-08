@@ -1,12 +1,11 @@
 import {
-    Component,
-    EventEmitter,
-    Input,
-    OnChanges,
-    OnInit,
-    Output,
-    SimpleChanges,
-    inject,
+  Component,
+  OnChanges,
+  OnInit,
+  SimpleChanges,
+  inject,
+  input,
+  output
 } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { first } from 'rxjs/operators';
@@ -500,8 +499,8 @@ export class InviteVisitorFormComponent
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
 
-    @Input() public date: number;
-    @Output() public done = new EventEmitter<void>();
+    public readonly date = input<number>(undefined);
+    public readonly done = output<void>();
 
     public outlook_link = '';
     public google_link = '';
@@ -594,8 +593,9 @@ export class InviteVisitorFormComponent
     }
 
     public ngOnChanges(changes: SimpleChanges) {
-        if (changes.date && this.date) {
-            this.form.patchValue({ date: this.date });
+        const date = this.date();
+        if (changes.date && date) {
+            this.form.patchValue({ date: date });
         }
     }
 
@@ -619,6 +619,7 @@ export class InviteVisitorFormComponent
     }
 
     public onDone() {
+        // TODO: The 'emit' function requires a mandatory void argument
         // TODO: The 'emit' function requires a mandatory void argument
         this.done.emit();
         this.sent = false;

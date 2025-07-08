@@ -1,6 +1,6 @@
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 
-import { Component, forwardRef, Input } from '@angular/core';
+import { Component, forwardRef, input } from '@angular/core';
 import {
     ControlValueAccessor,
     FormControl,
@@ -81,9 +81,9 @@ export function removeChipItem<T = string>(
                 }
             </mat-chip-grid>
             <input
-                [placeholder]="placeholder || 'User groups...'"
+                [placeholder]="placeholder() || 'User groups...'"
                 [matChipInputFor]="chipList"
-                [matChipInputSeparatorKeyCodes]="separators"
+                [matChipInputSeparatorKeyCodes]="separators()"
                 [matChipInputAddOnBlur]="true"
                 (matChipInputTokenEnd)="add($event)"
             />
@@ -101,9 +101,9 @@ export function removeChipItem<T = string>(
     imports: [MatFormFieldModule, MatChipsModule, IconComponent],
 })
 export class ItemListFieldComponent<T = any> implements ControlValueAccessor {
-    @Input() public separators: number[] = [ENTER, COMMA];
+    public readonly separators = input<number[]>([ENTER, COMMA]);
 
-    @Input() public placeholder = '';
+    public readonly placeholder = input('');
     /** List of items stored */
     public value: T[] = [];
 

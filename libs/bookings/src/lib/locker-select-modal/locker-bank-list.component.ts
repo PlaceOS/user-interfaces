@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
+import { Component, inject, input, output } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { SettingsService } from '@placeos/common';
@@ -45,7 +45,7 @@ import { Locker, LockerBank } from '../locker.class';
                         <li
                             locker_bank
                             class="relative w-full overflow-hidden rounded-lg border border-base-200 bg-base-100 shadow"
-                            [class.!border-blue-400]="active === locker_bank.id"
+                            [class.!border-blue-400]="active() === locker_bank.id"
                         >
                             <button
                                 name="select-locker_bank"
@@ -56,7 +56,7 @@ import { Locker, LockerBank } from '../locker.class';
                                 <div
                                     class="relative mr-4 flex h-20 w-20 items-center justify-center rounded-xl bg-base-200"
                                 >
-                                    @if (selected.includes(locker_bank.id)) {
+                                    @if (selected().includes(locker_bank.id)) {
                                         <div
                                             class="absolute left-1 top-1 flex h-6 w-6 items-center justify-center rounded-full border border-neutral bg-base-200 text-white"
                                         >
@@ -190,11 +190,11 @@ export class LockerBankListComponent {
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
 
-    @Input() public active = '';
-    @Input() public selected = '';
-    @Input() public favorites: string[] = [];
-    @Output() public onSelect = new EventEmitter<BookingAsset>();
-    @Output() public toggleFav = new EventEmitter<BookingAsset>();
+    public readonly active = input('');
+    public readonly selected = input('');
+    public readonly favorites = input<string[]>([]);
+    public readonly onSelect = output<BookingAsset>();
+    public readonly toggleFav = output<BookingAsset>();
 
     public readonly lockers_banks$: Observable<LockerBank[]> = loadLockerBanks(
         this._org,
@@ -248,7 +248,7 @@ export class LockerBankListComponent {
     public readonly loading = this._state.loading;
 
     public isFavourite(locker_bank_id: string) {
-        return this.favorites.includes(locker_bank_id);
+        return this.favorites().includes(locker_bank_id);
     }
 
     public selectLockerBank(locker_bank: BookingAsset) {

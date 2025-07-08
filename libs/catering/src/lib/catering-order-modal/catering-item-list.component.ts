@@ -1,12 +1,11 @@
 import { CommonModule } from '@angular/common';
 import {
-    Component,
-    EventEmitter,
-    Input,
-    OnChanges,
-    Output,
-    SimpleChanges,
-    inject,
+  Component,
+  OnChanges,
+  SimpleChanges,
+  inject,
+  input,
+  output
 } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
@@ -34,7 +33,7 @@ import { CateringOrderStateService } from './catering-order-state.service';
                         <catering-item-list-item
                             class="block"
                             [item]="item"
-                            [active]="active === item.custom_id"
+                            [active]="active() === item.custom_id"
                             [selected]="true"
                             [favourite]="isFavourite(item.id)"
                             (toggleFav)="toggleFav.emit(item.id)"
@@ -57,8 +56,8 @@ import { CateringOrderStateService } from './catering-order-state.service';
                             <catering-item-list-item
                                 class="block"
                                 [item]="item"
-                                [active]="active === item.custom_id"
-                                [selected]="selected.includes(item.custom_id)"
+                                [active]="active() === item.custom_id"
+                                [selected]="selected().includes(item.custom_id)"
                                 [favourite]="isFavourite(item.id)"
                                 [code]="code"
                                 (toggleFav)="toggleFav(item.id)"
@@ -100,12 +99,12 @@ import { CateringOrderStateService } from './catering-order-state.service';
 export class CateringItemListComponent implements OnChanges {
     private _state = inject(CateringOrderStateService);
 
-    @Input() public active = '';
-    @Input() public selected = '';
-    @Input() public selected_items: CateringItem[] = [];
-    @Input() public favorites: string[] = [];
-    @Output() public toggleFav = new EventEmitter<CateringItem>();
-    @Output() public onSelect = new EventEmitter<CateringItem>();
+    public readonly active = input('');
+    public readonly selected = input('');
+    public readonly selected_items = input<CateringItem[]>([]);
+    public readonly favorites = input<string[]>([]);
+    public readonly toggleFav = output<CateringItem>();
+    public readonly onSelect = output<CateringItem>();
 
     public readonly list = new BehaviorSubject<CateringItem[]>([]);
     public readonly loading = this._state.loading;
@@ -117,12 +116,12 @@ export class CateringItemListComponent implements OnChanges {
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.selected_items) {
-            this.list.next(this.selected_items || []);
+            this.list.next(this.selected_items() || []);
         }
     }
 
     public isFavourite(item_id: string) {
-        return this.favorites?.includes(item_id);
+        return this.favorites()?.includes(item_id);
     }
 
     public selectItem(item: CateringItem, clear_state = false) {

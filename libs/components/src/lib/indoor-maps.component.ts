@@ -2,12 +2,12 @@ import {
   AfterViewInit,
   Component,
   ElementRef,
-  Input,
   OnChanges,
   OnInit,
   SimpleChanges,
   inject,
-  viewChild
+  viewChild,
+  input
 } from '@angular/core';
 import {
     AsyncHandler,
@@ -203,15 +203,15 @@ export class IndoorMapsComponent
     private _org = inject(OrganisationService);
 
     /** Custom CSS styles to apply to the map */
-    @Input() public styles: ViewerStyles;
+    public readonly styles = input<ViewerStyles>(undefined);
     /** List of available user actions for the map */
-    @Input() public actions: ViewAction[];
+    public readonly actions = input<ViewAction[]>(undefined);
     /** Custom coordinates to fixate on the map */
-    @Input() public custom_coordinates: CustomCoordinates;
+    public readonly custom_coordinates = input<CustomCoordinates>(undefined);
     /** Mark location of a specific item */
-    @Input() public locate: string;
+    public readonly locate = input<string>(undefined);
     /** Default zoom level for the map */
-    @Input() public default_zoom = 19;
+    public readonly default_zoom = input(19);
 
     public view_instance: any;
     public maps_service: any;
@@ -265,7 +265,8 @@ export class IndoorMapsComponent
         this.loading = true;
         await this._org.initialised.pipe(first((_) => !!_)).toPromise();
         this.setBuilding(this._org.building);
-        if (this.custom_coordinates) this.coordinates = this.custom_coordinates;
+        const custom_coordinates = this.custom_coordinates();
+        if (custom_coordinates) this.coordinates = custom_coordinates;
         const get_location = () => {
             this._getUserLocation();
             document.removeEventListener('click', get_location);
@@ -279,7 +280,7 @@ export class IndoorMapsComponent
             await this.renderSpaceStatus();
             await this.mapActions();
         }
-        if (change.locate && this.locate && mapsindoors) {
+        if (change.locate && this.locate() && mapsindoors) {
             const searchParams = { q: this.searchElement().nativeElement.value };
             const locations =
                 await mapsindoors?.services.LocationsService.getLocations(
@@ -306,7 +307,7 @@ export class IndoorMapsComponent
         const view_options: any = {
             element: document.getElementById('maps-indoors'),
             center: { lat: this.user_latitude, lng: this.user_longitude },
-            zoom: this.default_zoom || 19,
+            zoom: this.default_zoom() || 19,
             maxZoom: 24,
         };
 
@@ -574,10 +575,11 @@ export class IndoorMapsComponent
     }
 
     async renderSpaceStatus(): Promise<void[]> {
-        if (!this.styles) return;
+        const styles = this.styles();
+        if (!styles) return;
         const promises: Promise<void>[] = [];
-        for (const key in this.styles) {
-            const colour = this.styles[key]['fill'] as string;
+        for (const key in styles) {
+            const colour = styles[key]['fill'] as string;
             if (key) {
                 const updated_key = key.substring(1);
                 promises.push(this._setPolygonFill(updated_key, colour));
@@ -587,7 +589,7 @@ export class IndoorMapsComponent
     }
 
     public async mapActions() {
-        return this.actions?.reduce((accumulator, currentValue) => {
+        return this.actions()?.reduce((accumulator, currentValue) => {
             accumulator[currentValue.id] = currentValue;
             return accumulator;
         }, {});

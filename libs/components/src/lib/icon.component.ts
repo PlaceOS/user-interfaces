@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { ApplicationIcon } from 'libs/common/src/lib/types';
 import { SafePipe } from './safe.pipe';
 
@@ -8,16 +8,16 @@ import { SafePipe } from './safe.pipe';
         <div
             class="flex h-[1.25em] w-[1.25em] items-center justify-center overflow-hidden"
         >
-            @if (!icon || icon.type !== 'img') {
-                <i [class]="icon?.class || className">
-                    {{ icon?.content }}
+            @if (!icon() || icon().type !== 'img') {
+                <i [class]="icon()?.class || className()">
+                    {{ icon()?.content }}
                     <ng-content></ng-content>
                 </i>
             }
-            @if (icon && icon.type === 'img') {
+            @if (icon() && icon().type === 'img') {
                 <img
                     class="h-[1em] w-[1em]"
-                    [src]="icon.src | safe: 'resource'"
+                    [src]="icon().src | safe: 'resource'"
                 />
             }
         </div>
@@ -32,7 +32,7 @@ import { SafePipe } from './safe.pipe';
     imports: [SafePipe],
 })
 export class IconComponent {
-    @Input() public className = 'material-symbols-rounded';
+    public readonly className = input('material-symbols-rounded');
     /** Icon details */
-    @Input() public icon: ApplicationIcon;
+    public readonly icon = input<ApplicationIcon>(undefined);
 }

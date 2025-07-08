@@ -1,10 +1,10 @@
 import {
-    Component,
-    inject,
-    Input,
-    OnChanges,
-    OnInit,
-    SimpleChanges,
+  Component,
+  inject,
+  OnChanges,
+  OnInit,
+  SimpleChanges,
+  input
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, RouterModule } from '@angular/router';
@@ -34,29 +34,29 @@ import { GroupEventDetailsModalComponent } from './group-event-details-modal.com
 @Component({
     selector: 'event-card',
     template: `
-        @if (event) {
+        @if (event()) {
             <h4 class="mb-2 flex items-center" date>
-                @if (show_day) {
+                @if (show_day()) {
                     <span day>{{ day }},&nbsp;</span>
                 }
-                {{ event?.date | date: time_format }}
+                {{ event()?.date | date: time_format }}
                 <span class="px-2 text-xs"
-                    >({{ event?.date | date: 'zzzz' }})</span
+                    >({{ event()?.date | date: 'zzzz' }})</span
                 >
             </h4>
         }
-        @if (event) {
+        @if (event()) {
             <a
                 name="view-event-details"
                 class="relative w-full cursor-pointer"
                 [routerLink]="['./']"
-                [queryParams]="{ event: event?.id }"
+                [queryParams]="{ event: event()?.id }"
                 (click)="viewDetails()"
             >
                 <div
                     class="relative w-full rounded-xl border border-base-300 bg-base-100 py-4 shadow"
                 >
-                    <h4 class="px-4 text-lg">{{ event?.title }}</h4>
+                    <h4 class="px-4 text-lg">{{ event()?.title }}</h4>
                     <div class="mx-4 my-2 flex items-center space-x-2">
                         <status-pill [status]="status">
                             <div
@@ -71,7 +71,7 @@ import { GroupEventDetailsModalComponent } from './group-event-details-modal.com
                                 }
                             </div>
                         </status-pill>
-                        @if (event.recurring_event_id) {
+                        @if (event().recurring_event_id) {
                             <icon class="text-2xl" [matTooltip]="recurr_tooltip"
                                 >event_repeat</icon
                             >
@@ -94,12 +94,12 @@ import { GroupEventDetailsModalComponent } from './group-event-details-modal.com
                             <icon>person_outline</icon>
                             <div class="mx-2">
                                 {{
-                                    event?.organiser?.name ||
-                                        event?.organiser?.email
+                                    event()?.organiser?.name ||
+                                        event()?.organiser?.email
                                 }}
                             </div>
                         </div>
-                        @if (event?.ext('catering')?.length) {
+                        @if (event()?.ext('catering')?.length) {
                             <div class="flex items-center px-4">
                                 <icon>restaurant</icon>
                                 <div class="mx-2">
@@ -115,7 +115,7 @@ import { GroupEventDetailsModalComponent } from './group-event-details-modal.com
                                         | translate
                                             : {
                                                   count:
-                                                      event?.attendees
+                                                      event()?.attendees
                                                           ?.length || 0,
                                               }
                                 }}
@@ -127,15 +127,15 @@ import { GroupEventDetailsModalComponent } from './group-event-details-modal.com
                     >
                         chevron_right
                     </icon>
-                    @if (event?.attendees?.length) {
+                    @if (event()?.attendees?.length) {
                         <div
                             class="absolute bottom-2 right-2 flex items-center pr-4 text-sm sm:bottom-auto sm:top-2 sm:text-base"
                         >
                             @for (
-                                user of event?.attendees
+                                user of event()?.attendees
                                     | slice
                                         : 0
-                                        : (event?.attendees?.length === 6
+                                        : (event()?.attendees?.length === 6
                                               ? 6
                                               : 5);
                                 track user.id || user.email
@@ -146,12 +146,12 @@ import { GroupEventDetailsModalComponent } from './group-event-details-modal.com
                                     ></a-user-avatar>
                                 </div>
                             }
-                            @if (event?.attendees?.length > 6) {
+                            @if (event()?.attendees?.length > 6) {
                                 <div class="h-10 w-6">
                                     <div
                                         class="flex h-10 w-10 items-center justify-center rounded-full border-2 border-base-100 bg-secondary text-secondary-content"
                                     >
-                                        +{{ event?.attendees?.length - 5 }}
+                                        +{{ event()?.attendees?.length - 5 }}
                                     </div>
                                 </div>
                             }
@@ -191,10 +191,10 @@ export class EventCardComponent
     private _space_pipe = inject(SpacePipe);
     private _settings = inject(SettingsService);
 
-    @Input() public event: CalendarEvent;
-    @Input() public show_day = false;
-    @Input() public edit_fn = (d) => null;
-    @Input() public remove_fn = (d, t) => null;
+    public readonly event = input<CalendarEvent>(undefined);
+    public readonly show_day = input(false);
+    public readonly edit_fn = input((d) => null);
+    public readonly remove_fn = input((d, t) => null);
 
     public location = '';
 
@@ -220,7 +220,7 @@ export class EventCardComponent
     }
 
     public get period() {
-        if (this.event?.all_day) return i18n('COMMON.ALL_DAY');
+        if (this.event()?.all_day) return i18n('COMMON.ALL_DAY');
         return this.formattedTime();
     }
 
@@ -230,7 +230,7 @@ export class EventCardComponent
 
     public get recurr_tooltip() {
         return (
-            formatRecurrence(fromEventRecurrence(this.event.recurrence)) ||
+            formatRecurrence(fromEventRecurrence(this.event().recurrence)) ||
             i18n('CALENDAR_EVENT.RECURRING_TOOLTIP')
         );
     }
@@ -238,15 +238,15 @@ export class EventCardComponent
     private _date: DatePipe = new DatePipe('en');
 
     public formattedTime(tz?: string) {
-        const date = this.event.date;
-        const date_end = this.event.date_end;
-        const all_day = this.event.all_day;
+        const date = this.event().date;
+        const date_end = this.event().date_end;
+        const all_day = this.event().all_day;
         const tz_format = this._date.transform(date, 'zzzz', tz);
         const start_date = this._date.transform(date, 'MMM d', tz);
         const start_time = this._date.transform(date, this.time_format, tz);
         const end_date = this._date.transform(date_end, 'MMM d', tz);
         const end_time = this._date.transform(date_end, this.time_format, tz);
-        const is_multiday = this.event?.duration > 24 * 60;
+        const is_multiday = this.event()?.duration > 24 * 60;
 
         if (is_multiday) {
             return `${start_date}${all_day ? '' : ', ' + start_time} - ${end_date}${all_day ? '' : ', ' + end_time}`;
@@ -257,10 +257,11 @@ export class EventCardComponent
     }
 
     public get status() {
-        if (this.event?.state === 'done') return 'neutral';
-        if (this.event?.status === 'approved') return 'success';
-        if (this.event?.status === 'tentative') return 'warning';
-        if (this.event?.status === 'declined') return 'error';
+        const event = this.event();
+        if (event?.state === 'done') return 'neutral';
+        if (event?.status === 'approved') return 'success';
+        if (event?.status === 'tentative') return 'warning';
+        if (event?.status === 'declined') return 'error';
         return 'warning';
     }
 
@@ -273,7 +274,7 @@ export class EventCardComponent
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
                 if (params.has('event')) {
-                    this.event?.id === params.get('event')
+                    this.event()?.id === params.get('event')
                         ? this.viewDetails()
                         : '';
                 }
@@ -283,22 +284,23 @@ export class EventCardComponent
     }
 
     public async ngOnChanges(changes: SimpleChanges) {
-        if (changes.event && this.event) {
+        if (changes.event && this.event()) {
             this.location = await this.getLocationString();
         }
     }
 
     public get day() {
-        const date = this.event?.date || Date.now();
+        const date = this.event()?.date || Date.now();
         const is_today = isSameDay(Date.now(), date);
         return `${is_today ? i18n('COMMON.TODAY') : format(date, 'EEEE')}`;
     }
 
     public async getLocationString() {
+        const event = this.event();
         const system =
-            this.event?.resources[0] ||
-            this.event?.system ||
-            this.event?.space ||
+            event?.resources[0] ||
+            event?.system ||
+            event?.space ||
             ({} as any);
         const space = await this._space_pipe.transform(
             system.id || system.email,
@@ -313,15 +315,16 @@ export class EventCardComponent
     }
 
     public viewDetails() {
-        if (!this.event) return;
+        if (!this.event()) return;
         this.timeout('open', () => {
             this._dialog.closeAll();
-            if (this.event.extension_data?.shared_event) {
+            const event = this.event();
+            if (event.extension_data?.shared_event) {
                 this._dialog.open(GroupEventDetailsModalComponent, {
                     data: {
-                        event: this.event,
-                        edit_fn: this.edit_fn,
-                        remove_fn: this.remove_fn,
+                        event: event,
+                        edit_fn: this.edit_fn(),
+                        remove_fn: this.remove_fn(),
                         concierge: false,
                     },
                 });
@@ -329,9 +332,9 @@ export class EventCardComponent
             }
             this._dialog.open(EventDetailsModalComponent, {
                 data: {
-                    event: this.event,
-                    edit_fn: this.edit_fn,
-                    remove_fn: this.remove_fn,
+                    event: event,
+                    edit_fn: this.edit_fn(),
+                    remove_fn: this.remove_fn(),
                 },
             });
         });

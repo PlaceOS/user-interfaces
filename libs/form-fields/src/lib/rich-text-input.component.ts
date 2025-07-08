@@ -1,12 +1,12 @@
 import {
-    AfterViewInit,
-    Component,
-    ElementRef,
-    forwardRef,
-    Input,
-    OnChanges,
-    SimpleChanges,
-    viewChild,
+  AfterViewInit,
+  Component,
+  ElementRef,
+  forwardRef,
+  OnChanges,
+  SimpleChanges,
+  viewChild,
+  input
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { AsyncHandler, uploadFile } from '@placeos/common';
@@ -42,9 +42,9 @@ export class RichTextInputComponent
     extends AsyncHandler
     implements ControlValueAccessor, OnChanges, AfterViewInit
 {
-    @Input() public placeholder = '';
-    @Input() public readonly = false;
-    @Input() public images_allowed = false;
+    public readonly placeholder = input('');
+    public readonly readonly = input(false);
+    public readonly images_allowed = input(false);
 
     private readonly _container_el =
         viewChild<ElementRef<HTMLDivElement>>('container');
@@ -117,7 +117,7 @@ export class RichTextInputComponent
             [{ align: [] }],
             ['link'],
         ];
-        if (this.images_allowed) {
+        if (this.images_allowed()) {
             toolbarOptions.push(['image']);
         }
         if (this._editor) {
@@ -127,7 +127,7 @@ export class RichTextInputComponent
         }
         this._editor = new Quill(_editor_el.nativeElement, {
             bounds: _container_el.nativeElement,
-            placeholder: this.placeholder,
+            placeholder: this.placeholder(),
             modules: {
                 toolbar: {
                     container: toolbarOptions,
@@ -136,7 +136,7 @@ export class RichTextInputComponent
                     },
                 },
             },
-            readOnly: this.readonly,
+            readOnly: this.readonly(),
             theme: 'snow',
         });
         this._editor.on('text-change', this._updateFn);

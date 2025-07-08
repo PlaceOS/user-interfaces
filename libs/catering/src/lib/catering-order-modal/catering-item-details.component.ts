@@ -1,11 +1,10 @@
 import { CommonModule } from '@angular/common';
 import {
-    Component,
-    EventEmitter,
-    Input,
-    OnChanges,
-    Output,
-    SimpleChanges,
+  Component,
+  OnChanges,
+  SimpleChanges,
+  input,
+  output
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -28,10 +27,10 @@ interface CateringOptionGroup {
 @Component({
     selector: 'catering-item-details',
     template: `
-        @if (item) {
+        @if (item()) {
             <section image class="relative h-64 w-full bg-base-200 sm:h-40">
                 <image-carousel
-                    [images]="item.images"
+                    [images]="item().images"
                     class="absolute inset-0"
                 ></image-carousel>
                 <button
@@ -47,14 +46,14 @@ interface CateringOptionGroup {
                     icon
                     matRipple
                     name="toggle-catering-item-favourite-details"
-                    [class.text-white]="!fav"
-                    [class.text-info]="fav"
+                    [class.text-white]="!fav()"
+                    [class.text-info]="fav()"
                     (click)="toggleFav.emit()"
                     class="absolute right-2 top-2"
                 >
                     <icon
                         [className]="
-                            fav
+                            fav()
                                 ? 'material-symbols-rounded'
                                 : 'material-symbols-outlined'
                         "
@@ -66,25 +65,25 @@ interface CateringOptionGroup {
                 <section actions class="z-0 flex items-center justify-between">
                     <div>
                         <h2 class="mb-2 mt-4 text-xl font-medium">
-                            {{ item.name }}
+                            {{ item().name }}
                         </h2>
-                        @if (item.unit_price) {
+                        @if (item().unit_price) {
                             <p>
-                                {{ item.unit_price / 100 | currency: code }}
+                                {{ item().unit_price / 100 | currency: code() }}
                             </p>
                         }
                     </div>
                     <a-counter
-                        [(ngModel)]="item.quantity"
+                        [(ngModel)]="item().quantity"
                         (ngModelChange)="
-                            active ? activeChange.emit(active) : ''
+                            active() ? activeChange.emit(active()) : ''
                         "
                         [min]="1"
-                        [max]="item.count || 10"
+                        [max]="item().count || 10"
                     ></a-counter>
                 </section>
                 <section class="flex flex-wrap items-center">
-                    @for (tag of item.tags; track tag) {
+                    @for (tag of item().tags; track tag) {
                         <div
                             class="m-1 rounded-2xl bg-base-200 px-2 py-1 text-sm capitalize"
                         >
@@ -114,7 +113,7 @@ interface CateringOptionGroup {
                                             (ngModelChange)="
                                                 updateGroupOption(group, $event)
                                             "
-                                            [disabled]="item?.in_order"
+                                            [disabled]="item()?.in_order"
                                         >
                                             <mat-radio-button
                                                 class="m-0"
@@ -153,7 +152,7 @@ interface CateringOptionGroup {
                                                                     opt.unit_price /
                                                                         100
                                                                         | currency
-                                                                            : code
+                                                                            : code()
                                                                 }}
                                                             </div>
                                                         }
@@ -176,7 +175,7 @@ interface CateringOptionGroup {
                                                         $event
                                                     )
                                                 "
-                                                [disabled]="item?.in_order"
+                                                [disabled]="item()?.in_order"
                                             >
                                                 <div
                                                     class="flex items-center justify-center"
@@ -194,7 +193,7 @@ interface CateringOptionGroup {
                                                                 opt.unit_price /
                                                                     100
                                                                     | currency
-                                                                        : code
+                                                                        : code()
                                                             }}
                                                         </div>
                                                     }
@@ -215,17 +214,17 @@ interface CateringOptionGroup {
                     btn
                     matRipple
                     name="select-catering-item-details"
-                    [class.inverse]="active"
+                    [class.inverse]="active()"
                     class="w-full"
-                    (click)="active = !active; activeChange.emit(active)"
+                    (click)="active = !active(); activeChange.emit(active())"
                 >
                     <div class="flex items-center justify-center">
                         <icon class="text-2xl">{{
-                            active ? 'remove' : 'add'
+                            active() ? 'remove' : 'add'
                         }}</icon>
                         <p>
                             {{
-                                (active
+                                (active()
                                     ? 'CATERING.ORDER_ITEM_REMOVE'
                                     : 'CATERING.ORDER_ITEM_ADD'
                                 ) | translate
@@ -270,21 +269,21 @@ interface CateringOptionGroup {
     ],
 })
 export class CateringItemDetailsComponent implements OnChanges {
-    @Input() public item?: CateringItem;
-    @Input() public active = false;
-    @Input() public fav = false;
-    @Input() public code = 'USD';
+    public readonly item = input<CateringItem>(undefined);
+    public readonly active = input(false);
+    public readonly fav = input(false);
+    public readonly code = input('USD');
 
-    @Output() public toggleFav = new EventEmitter<void>();
-    @Output() public activeChange = new EventEmitter<boolean>();
-    @Output() public close = new EventEmitter<void>();
+    public readonly toggleFav = output<void>();
+    public readonly activeChange = output<boolean>();
+    public readonly close = output<void>();
 
     public option_state: Record<string, boolean> = {};
     public group_state: Record<string, string> = {};
     public groups: CateringOptionGroup[];
 
     public ngOnChanges(changes: SimpleChanges) {
-        if (changes.item && this.item) {
+        if (changes.item && this.item()) {
             this._update();
         }
     }
@@ -298,21 +297,22 @@ export class CateringItemDetailsComponent implements OnChanges {
     }
 
     public updateCheckedState(id: string, state: boolean) {
-        const option = this.item?.options.find((_) => _.id === id);
+        const option = this.item()?.options.find((_) => _.id === id);
         if (option) option.active = state;
     }
 
     private _update() {
-        if (!this.item) return;
-        if (!this.item.quantity) {
-            (this.item as any).quantity = 1;
+        const item = this.item();
+        if (!item) return;
+        if (!item.quantity) {
+            (item as any).quantity = 1;
         }
         this.option_state = {};
         this.group_state = {};
-        const groups = unique(this.item.options.map((i) => i.group || 'Other'));
+        const groups = unique(item.options.map((i) => i.group || 'Other'));
         const group_list = [];
         for (const group of groups) {
-            const options = this.item.options.filter((i) => i.group === group);
+            const options = item.options.filter((i) => i.group === group);
             group_list.push({
                 name: group,
                 multiple: !!options.find((i) => i.multiple),
@@ -320,9 +320,9 @@ export class CateringItemDetailsComponent implements OnChanges {
             });
         }
         this.groups = group_list;
-        if (this.item.option_list) {
-            for (const opt of this.item.option_list) {
-                const option = this.item.options.find((_) => _.id === opt.id);
+        if (item.option_list) {
+            for (const opt of item.option_list) {
+                const option = item.options.find((_) => _.id === opt.id);
                 if (option) {
                     option.active = true;
                     this.option_state[opt.id] = true;

@@ -1,11 +1,11 @@
 import { CommonModule } from '@angular/common';
 import {
     Component,
-    EventEmitter,
-    Input,
-    Output,
     SimpleChanges,
     TemplateRef,
+    input,
+    model,
+    output,
 } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { AsyncHandler, nextValueFrom } from '@placeos/common';
@@ -36,8 +36,8 @@ export interface TableColumn {
             (touchend)="active_row = -1"
             (mouseleave)="active_row = -1"
         >
-            @if (show_header) {
-                @if (selectable) {
+            @if (show_header()) {
+                @if (selectable()) {
                     <div
                         id="column-selector"
                         class="sticky top-0 z-20 flex min-h-full items-center justify-between border-b border-r border-base-200 bg-base-300 px-2"
@@ -45,11 +45,12 @@ export interface TableColumn {
                     >
                         <mat-checkbox
                             [checked]="
-                                selected.length === (data_view$ | async)?.length
+                                selected().length ===
+                                (data_view$ | async)?.length
                             "
                             [indeterminate]="
-                                selected.length > 0 &&
-                                selected.length < (data_view$ | async)?.length
+                                selected().length > 0 &&
+                                selected().length < (data_view$ | async)?.length
                             "
                             (change)="selectAll($event.checked)"
                         ></mat-checkbox>
@@ -68,12 +69,12 @@ export interface TableColumn {
                         [style.gridColumn]="
                             1 +
                             i +
-                            (selectable ? 1 : 0) +
+                            (selectable() ? 1 : 0) +
                             ' / ' +
-                            (2 + i + (selectable ? 1 : 0))
+                            (2 + i + (selectable() ? 1 : 0))
                         "
                         [class.pointer-events-none]="
-                            !sortable || column.sortable === false
+                            !sortable() || column.sortable === false
                         "
                         (click)="setSort(column.key)"
                         [class.active]="sort?.key === column.key"
@@ -83,7 +84,7 @@ export interface TableColumn {
                         <div class="font-medium">
                             {{ column.name || column.key }}
                         </div>
-                        @if (sortable && column.sortable !== false) {
+                        @if (sortable() && column.sortable !== false) {
                             <icon class="text-[1.25em]">
                                 {{
                                     sort?.key === column.key && sort?.reverse
@@ -99,12 +100,12 @@ export interface TableColumn {
                 row of data_view$
                     | async
                     | slice
-                        : page * (page_size || 9999)
-                        : (page + 1) * (page_size || 9999);
+                        : page * (page_size() || 9999)
+                        : (page + 1) * (page_size() || 9999);
                 track row.id || row;
                 let i = $index
             ) {
-                @if (selectable) {
+                @if (selectable()) {
                     <div
                         id="column-selector"
                         class="z-10 flex min-h-full items-center justify-between border-r border-base-200 px-2"
@@ -116,7 +117,7 @@ export interface TableColumn {
                         (touchstart)="active_row = i"
                     >
                         <mat-checkbox
-                            [checked]="selected.includes(i)"
+                            [checked]="selected().includes(i)"
                             (change)="select(i, $event.checked)"
                         ></mat-checkbox>
                     </div>
@@ -127,9 +128,9 @@ export interface TableColumn {
                         [style.gridColumn]="
                             1 +
                             j +
-                            (selectable ? 1 : 0) +
+                            (selectable() ? 1 : 0) +
                             ' / ' +
-                            (2 + j + (selectable ? 1 : 0))
+                            (2 + j + (selectable() ? 1 : 0))
                         "
                         [class.border-b]="
                             i !== (data_view$ | async)?.length - 1
@@ -189,7 +190,7 @@ export interface TableColumn {
                         }
                     </div>
                 }
-                @if (show_children[row.id] && child_template) {
+                @if (show_children()[row.id] && child_template()) {
                     <div
                         child-node
                         [style.gridColumn]="'span ' + active_columns.length"
@@ -197,7 +198,7 @@ export interface TableColumn {
                     >
                         <ng-container
                             *ngTemplateOutlet="
-                                child_template;
+                                child_template();
                                 context: {
                                     first: i === 0,
                                     last:
@@ -217,21 +218,21 @@ export interface TableColumn {
                     [style.gridColumnStart]="'span ' + active_columns.length"
                     class="flex items-center justify-center p-8 opacity-30"
                 >
-                    {{ empty_message }}
+                    {{ empty_message() }}
                 </div>
             }
             <!-- TODO: Add pagination -->
         </div>
-        @if (page_size) {
+        @if (page_size()) {
             <div
                 class="sticky bottom-0 z-30 flex w-full items-center justify-end space-x-2 bg-base-200 p-2"
             >
                 <div class="px-4 py-2">
-                    {{ page * (page_size || 9999) + 1 }} &ndash;
+                    {{ page * (page_size() || 9999) + 1 }} &ndash;
                     {{
-                        (page + 1) * (page_size || 9999) > total_count
+                        (page + 1) * (page_size() || 9999) > total_count
                             ? total_count
-                            : (page + 1) * (page_size || 9999)
+                            : (page + 1) * (page_size() || 9999)
                     }}
                     of {{ total_count }}
                 </div>
@@ -294,20 +295,20 @@ export interface TableColumn {
     imports: [CommonModule, MatRippleModule, TranslatePipe, IconComponent],
 })
 export class SimpleTableComponent<T extends object = any> extends AsyncHandler {
-    @Input() public data: T[] | Observable<T[]>;
-    @Input() public columns: TableColumn[] = [];
-    @Input() public selectable = false;
-    @Input() public filter = '';
-    @Input() public sortable = false;
-    @Input() public show_header = true;
-    @Input() public selected: number[] = [];
-    @Input() public page_size = 0;
-    @Input() public empty_message = 'No data to list';
-    @Input() public child_template: TemplateRef<any> = null;
-    @Input() public show_children: Record<string, boolean> = {};
-    @Input() public filter_on: string[] = [];
-    @Output() public selectedChange = new EventEmitter<number[]>();
-    @Output() public rowClicked = new EventEmitter<number>();
+    public readonly data = input<T[] | Observable<T[]>>(undefined);
+    public readonly columns = input<TableColumn[]>([]);
+    public readonly selectable = input(false);
+    public readonly filter = input('');
+    public readonly sortable = input(false);
+    public readonly show_header = input(true);
+    public readonly selected = model<number[]>([]);
+    public readonly page_size = input(0);
+    public readonly empty_message = input('No data to list');
+    public readonly child_template = input<TemplateRef<any>>(null);
+    public readonly show_children = input<Record<string, boolean>>({});
+    public readonly filter_on = input<string[]>([]);
+    public readonly selectedChange = output<number[]>();
+    public readonly rowClicked = output<number>();
 
     public page = 0;
     public total_count = 0;
@@ -328,29 +329,33 @@ export class SimpleTableComponent<T extends object = any> extends AsyncHandler {
     }
 
     public get data$(): Observable<T[]> {
-        return this.data instanceof Array ? this._data$ : this.data;
+        const data = this.data();
+        return data instanceof Array ? this._data$ : data;
     }
 
     public get column_count() {
-        return this.active_columns.length + (this.selectable ? 1 : 0);
+        return this.active_columns.length + (this.selectable() ? 1 : 0);
     }
 
     public get column_template() {
         const template = this.active_columns
             .map((_) => _.size || 'auto')
             .join(' ');
-        return this.selectable ? `3.5rem ${template}` : template;
+        return this.selectable() ? `3.5rem ${template}` : template;
     }
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.filter) {
-            this._filter$.next(this.filter);
+            this._filter$.next(this.filter());
         }
         if (changes.columns) {
-            this.active_columns = this.columns.filter((_) => _.show !== false);
+            this.active_columns = this.columns().filter(
+                (_) => _.show !== false,
+            );
         }
         if (changes.data) {
-            if (this.data instanceof Array) this._data$.next(this.data);
+            const data = this.data();
+            if (data instanceof Array) this._data$.next(data);
             this.data_view$ = combineLatest([
                 this.data$,
                 this._filter$,
@@ -362,8 +367,9 @@ export class SimpleTableComponent<T extends object = any> extends AsyncHandler {
                     if (filter) {
                         const filter_str = (filter || '').toLowerCase();
                         data = data.filter((v) => {
-                            const keys = this.filter_on.length
-                                ? this.filter_on
+                            const filter_on = this.filter_on();
+                            const keys = filter_on.length
+                                ? filter_on
                                 : Object.keys(v);
                             return keys.some((key) => {
                                 const value = v[key];
@@ -393,12 +399,13 @@ export class SimpleTableComponent<T extends object = any> extends AsyncHandler {
                             });
                         }
                     }
-                    this.selected = [];
+                    this.selected.set([]);
                     this.page = 0;
-                    if (this.page_size) {
+                    const page_size = this.page_size();
+                    if (page_size) {
                         this.total_count = data.length;
                         this.total_pages = Math.ceil(
-                            this.total_count / this.page_size,
+                            this.total_count / page_size,
                         );
                     }
                     return data;
@@ -417,14 +424,14 @@ export class SimpleTableComponent<T extends object = any> extends AsyncHandler {
     }
 
     public select(index: number, state: boolean) {
-        if (state) this.selected.push(index);
-        else this.selected = this.selected.filter((i) => i !== index);
+        if (state) this.selected().push(index);
+        else this.selected.set(this.selected().filter((i) => i !== index));
     }
 
     public async selectAll(state: boolean) {
         const list = await nextValueFrom(this.data_view$);
-        if (state) this.selected = list.map((_, i) => i);
-        else this.selected = [];
+        if (state) this.selected.set(list.map((_, i) => i));
+        else this.selected.set([]);
     }
 
     public setSort(key: string) {

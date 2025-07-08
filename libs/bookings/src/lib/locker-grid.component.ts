@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import { Component, inject, input, output } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { SettingsService } from '@placeos/common';
 import { DEFAULT_COLOURS } from 'libs/explore/src/lib/explore-spaces.service';
@@ -11,13 +11,13 @@ import { Locker, LockerBank } from './locker.class';
             class="grid flex-1 gap-2 p-2"
             [style.width]="columns * 2.5 + 'rem'"
             [style.grid-template-columns]="'repeat(' + columns + ', 5rem)'"
-            [style.grid-template-rows]="'repeat(' + bank?.height + ', 5rem)'"
+            [style.grid-template-rows]="'repeat(' + bank()?.height + ', 5rem)'"
         >
-            @for (locker of bank?.lockers || []; track locker) {
+            @for (locker of bank()?.lockers || []; track locker) {
                 <button
                     matRipple
                     class="relative overflow-hidden rounded border border-base-200"
-                    [class.opacity-60]="selected && selected !== locker.id"
+                    [class.opacity-60]="selected() && selected() !== locker.id"
                     [style.grid-column-start]="locker.position[0] + 1"
                     [style.grid-row-start]="locker.position[1] + 1"
                     [style.grid-column-end]="
@@ -78,16 +78,16 @@ import { Locker, LockerBank } from './locker.class';
 export class LockerGridComponent {
     private _settings = inject(SettingsService);
 
-    @Input() public show_name = true;
-    @Input() public default_status = 'busy';
-    @Input() public bank: LockerBank;
-    @Input() public bank_status: Record<string, string> = {};
-    @Input() public selected = '';
-    @Output() public clicked = new EventEmitter<Locker>();
+    public readonly show_name = input(true);
+    public readonly default_status = input('busy');
+    public readonly bank = input<LockerBank>(undefined);
+    public readonly bank_status = input<Record<string, string>>({});
+    public readonly selected = input('');
+    public readonly clicked = output<Locker>();
 
     public get columns() {
         let columns = 1;
-        for (const locker of this.bank?.lockers || []) {
+        for (const locker of this.bank()?.lockers || []) {
             const x = locker.position[0] + locker.size[0];
             if (x > columns) columns = x;
         }
@@ -105,12 +105,13 @@ export class LockerGridComponent {
 
     public status(locker: Locker) {
         if (!locker) return this.color('not-bookable');
-        if (this.selected && locker.id === this.selected) {
+        const selected = this.selected();
+        if (selected && locker.id === selected) {
             return this.color('pending');
         }
-        let value = this.bank_status[locker.id] || 'free';
-        if (!this.bank_status[locker.id] && !locker?.available) {
-            value = this.default_status;
+        let value = this.bank_status()[locker.id] || 'free';
+        if (!this.bank_status()[locker.id] && !locker?.available) {
+            value = this.default_status();
         }
         return this.color(value);
     }

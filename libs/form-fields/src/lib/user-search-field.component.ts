@@ -4,7 +4,8 @@ import {
     ElementRef,
     forwardRef,
     inject,
-    Input,
+    input,
+    model,
     OnInit,
     signal,
     viewChild,
@@ -48,11 +49,13 @@ import { User } from 'libs/users/src/lib/user.class';
                 name="user-search"
                 [ngModel]="search_str()"
                 (ngModelChange)="search$.next($event); search_str.set($event)"
-                [disabled]="disabled"
-                [placeholder]="placeholder || ('FORM.USER_SEARCH' | translate)"
+                [disabled]="disabled()"
+                [placeholder]="
+                    placeholder() || ('FORM.USER_SEARCH' | translate)
+                "
                 [matAutocomplete]="auto"
                 (keyup.enter)="
-                    validate && validate(search_str())
+                    validate() && validate()(search_str())
                         ? setValue(search_str())
                         : ''
                 "
@@ -86,7 +89,7 @@ import { User } from 'libs/users/src/lib/user.class';
                     </div>
                 </mat-option>
             }
-            @if (search_str && validate && validate(search_str())) {
+            @if (search_str && validate() && validate()(search_str())) {
                 <mat-option class="pointer-events-none relative">
                     <div
                         class="pointer-events-auto absolute inset-0 px-4"
@@ -111,10 +114,10 @@ import { User } from 'libs/users/src/lib/user.class';
                     </div>
                 </mat-option>
             }
-            @if (!user_list?.length && (search_str || error)) {
-                <mat-option [disabled]="!empty_fn" (click)="empty_fn()">
+            @if (!user_list?.length && (search_str || error())) {
+                <mat-option [disabled]="!empty_fn()" (click)="empty_fn()()">
                     {{ (search_str ? 'FORM.USER_EMPTY' : '') | translate }}
-                    {{ error }}
+                    {{ error() }}
                 </mat-option>
             }
         </mat-autocomplete>
@@ -154,29 +157,30 @@ export class UserSearchFieldComponent
     private _settings = inject(SettingsService);
 
     /** Whether form field is disabled */
-    @Input() public disabled: boolean;
+    public readonly disabled = model<boolean>(undefined);
     /** Placeholder text to display */
-    @Input() public placeholder: string;
+    public readonly placeholder = input<string>(undefined);
     /** Limit available options to these */
-    @Input() public options: User[];
+    public readonly options = input<User[]>(undefined);
     /** Whether guests should also show when searching for users */
-    @Input() public guests: boolean;
+    public readonly guests = input<boolean>(undefined);
     /** Message to display when no user matches have been found */
-    @Input() public error = '';
+    public readonly error = input('');
     /** Function to validate the search string */
-    @Input() public validate: (s: string) => boolean;
+    public readonly validate = input<(s: string) => boolean>(undefined);
     /** Function to call when empty list option is clicked */
-    @Input() public empty_fn: () => void;
+    public readonly empty_fn = input<() => void>(undefined);
     /** Function for filtering the results of the user list */
-    @Input() public filter: (_: any, s?: string) => boolean;
+    public readonly filter = input<(_: any, s?: string) => boolean>(undefined);
 
-    @Input() public query_fn: (_: string) => Observable<User[]> = (q) =>
+    public readonly query_fn = input<(_: string) => Observable<User[]>>((q) =>
         this._settings.get('app.basic_user_search')
             ? queryUsers({ q, authority_id: authority()?.id }).pipe(
                   map((_) => _.data.map((_) => new User(_))),
                   catchError(() => of([])),
               )
-            : searchStaff(q).pipe(catchError(() => of([])));
+            : searchStaff(q).pipe(catchError(() => of([]))),
+    );
     /** Currently selected user */
     public active_user: User;
     /** User list to display */
@@ -193,11 +197,12 @@ export class UserSearchFieldComponent
         distinctUntilChanged(),
         switchMap((query) => {
             this.loading.set(true);
-            return this.options && this.options.length > 0
-                ? of(this.options)
+            const options = this.options();
+            return options && options.length > 0
+                ? of(options)
                 : query.length >= 3
-                  ? !this.guests
-                      ? this.query_fn(query)
+                  ? !this.guests()
+                      ? this.query_fn()(query)
                       : forkJoin([
                             searchStaff(query).pipe(catchError(() => of([]))),
                             searchGuests(query).pipe(catchError(() => of([]))),
@@ -209,9 +214,10 @@ export class UserSearchFieldComponent
             this.loading.set(false);
             list = flatten(list);
             const search = this.search_str().toLowerCase();
-            return list.filter(
-                (item) => !this.filter || this.filter(item, search),
-            );
+            return list.filter((item) => {
+                const filter = this.filter();
+                return !filter || filter(item, search);
+            });
         }),
     );
 
@@ -281,6 +287,6 @@ export class UserSearchFieldComponent
     }
 
     public setDisabledState(disabled: boolean) {
-        this.disabled = disabled;
+        this.disabled.set(disabled);
     }
 }

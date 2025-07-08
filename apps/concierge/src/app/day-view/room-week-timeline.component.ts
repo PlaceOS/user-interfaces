@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
     AsyncHandler,
@@ -22,7 +22,7 @@ import {
     startOfMinute,
     startOfWeek,
 } from 'date-fns';
-import { combineLatest } from 'rxjs';
+import { combineLatest, lastValueFrom } from 'rxjs';
 import { map, shareReplay, startWith } from 'rxjs/operators';
 import { EventsStateService } from './events-state.service';
 
@@ -367,13 +367,14 @@ export class RoomWeekBookingsTimelineComponent
         );
         this.subscription(
             'actions',
-            ref.componentInstance.action.subscribe(async (action) => {
+            ref.componentInstance.action.subscribe((action) => {
                 if (!action.includes('breakdown')) return;
                 const ref = this._dialog.open(SetupBreakdownModalComponent, {
                     data: event,
                 });
-                const data = await ref.afterClosed().toPromise();
-                if (data) this._state.replace(data);
+                lastValueFrom(ref.afterClosed()).then((data) => {
+                    if (data) this._state.replace(data);
+                });
             }),
         );
     }

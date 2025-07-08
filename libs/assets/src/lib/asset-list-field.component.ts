@@ -1,9 +1,9 @@
 import {
-    Component,
-    Input,
-    SimpleChanges,
-    forwardRef,
-    inject,
+  Component,
+  SimpleChanges,
+  forwardRef,
+  inject,
+  input
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -58,7 +58,7 @@ const EMPTY_FAVS: string[] = [];
                                 </div>
                                 @if (
                                     end_time <= request.deliver_at ||
-                                    rejected_ids.includes(request.id) ||
+                                    rejected_ids().includes(request.id) ||
                                     request.conflict
                                 ) {
                                     <div
@@ -213,18 +213,18 @@ export class AssetListFieldComponent implements ControlValueAccessor {
     private _dialog = inject(MatDialog);
     private _state = inject(AssetStateService);
 
-    @Input() public options: {
-        date?: number;
-        duration?: number;
-        all_day?: boolean;
-        zone_id?: string;
-    } = {};
-    @Input() public rejected_ids: string[] = [];
+    public readonly options = input<{
+    date?: number;
+    duration?: number;
+    all_day?: boolean;
+    zone_id?: string;
+}>({});
+    public readonly rejected_ids = input<string[]>([]);
     public asset_requests: AssetRequest[] = [];
     public disabled = false;
     public show_request: Record<string, boolean> = {};
     public err_tooltip(request: AssetRequest) {
-        return this.rejected_ids.includes(request.id) || request.conflict
+        return this.rejected_ids().includes(request.id) || request.conflict
             ? i18n('FORM.ASSETS_CLASH_ERROR')
             : i18n('FORM.ASSETS_TIME_ERROR');
     }
@@ -239,9 +239,9 @@ export class AssetListFieldComponent implements ControlValueAccessor {
 
     public get end_time() {
         const time =
-            (this.options.date || Date.now()) +
-            (this.options.duration || 30) * 60 * 1000;
-        return this.options.all_day ? endOfDay(time).valueOf() : time;
+            (this.options().date || Date.now()) +
+            (this.options().duration || 30) * 60 * 1000;
+        return this.options().all_day ? endOfDay(time).valueOf() : time;
     }
 
     public get time_format() {
@@ -251,11 +251,11 @@ export class AssetListFieldComponent implements ControlValueAccessor {
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.options) {
             this.asset_requests = (this.asset_requests || []).map(
-                (_) => new AssetRequest({ ..._, event: this.options as any }),
+                (_) => new AssetRequest({ ..._, event: this.options() as any }),
             );
             this._state.setOptions({
-                date: this.options.date,
-                duration: this.options.duration,
+                date: this.options().date,
+                duration: this.options().duration,
             });
         }
     }
@@ -278,7 +278,7 @@ export class AssetListFieldComponent implements ControlValueAccessor {
             (_) =>
                 new AssetRequest({
                     ..._,
-                    event: this.options as any,
+                    event: this.options() as any,
                     state: _.state,
                 }),
         );
@@ -299,17 +299,19 @@ export class AssetListFieldComponent implements ControlValueAccessor {
                     (requested[item.id] || 0) + item?.quantity || 0;
             }
         }
+        const options = this.options();
+        const optionsValue = this.options();
         const ref = this._dialog.open(NewAssetSelectModalComponent, {
             data: {
                 items: order.items,
                 details: {
-                    ...this.options,
-                    date: this.options.all_day
-                        ? startOfDay(this.options.date).valueOf()
-                        : this.options.date,
-                    duration: this.options.all_day
-                        ? Math.max(24 * 60, this.options.duration)
-                        : this.options.duration,
+                    ...this.options(),
+                    date: options.all_day
+                        ? startOfDay(options.date).valueOf()
+                        : options.date,
+                    duration: optionsValue.all_day
+                        ? Math.max(24 * 60, optionsValue.duration)
+                        : optionsValue.duration,
                 },
                 exact_time: !!order.deliver_time,
                 offset: order.deliver_offset,
@@ -341,7 +343,7 @@ export class AssetListFieldComponent implements ControlValueAccessor {
                         });
                 }
             }
-            const time = new Date(this.options.date);
+            const time = new Date(this.options().date);
             const new_order = new AssetRequest({
                 ...order,
                 conflict: false,
@@ -353,7 +355,7 @@ export class AssetListFieldComponent implements ControlValueAccessor {
                             _.quantity,
                     ),
                 items: items.map((_) => ({ ..._ })),
-                event: this.options as any,
+                event: this.options() as any,
                 deliver_offset: ref.componentInstance.offset,
                 deliver_time: ref.componentInstance.exact_time
                     ? time.getHours() + time.getMinutes() / 60

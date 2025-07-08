@@ -1,4 +1,4 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { SettingsService } from '@placeos/common';
 import { addDays, endOfDay } from 'date-fns';
 
@@ -39,7 +39,7 @@ import { BookingFormService } from '../booking-form.service';
                 </h2>
                 <div class="flex min-w-[8rem] flex-1 flex-col">
                     @if (
-                        !hide_levels &&
+                        !hide_levels() &&
                         !(use_region && (regions | async)?.length) &&
                         !(!use_region && (buildings | async)?.length > 1)
                     ) {
@@ -84,7 +84,7 @@ import { BookingFormService } from '../booking-form.service';
                             </mat-select>
                         </mat-form-field>
                     }
-                    @if (!hide_levels) {
+                    @if (!hide_levels()) {
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
                                 name="location"
@@ -178,7 +178,7 @@ import { BookingFormService } from '../booking-form.service';
                     </div>
                 }
             </section>
-            @if (!hide_levels) {
+            @if (!hide_levels()) {
                 <section favs class="space-y-2 pb-4">
                     <h2 class="mt-2 text-lg font-medium">
                         {{ 'COMMON.FAVOURITES' | translate }}
@@ -194,7 +194,7 @@ import { BookingFormService } from '../booking-form.service';
                     </div>
                 </section>
             }
-            @if ((features | async)?.length && !hide_levels) {
+            @if ((features | async)?.length && !hide_levels()) {
                 <section class="space-y-2" features>
                     <h2 class="mt-2 text-lg font-medium">
                         {{ 'COMMON.TYPE' | translate }}
@@ -238,7 +238,7 @@ export class NewDeskFiltersComponent {
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
 
-    @Input() public hide_levels: boolean;
+    public readonly hide_levels = input<boolean>(undefined);
 
     public can_close = false;
     public readonly options = this._state.options;

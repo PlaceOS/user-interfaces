@@ -1,9 +1,9 @@
 import {
-    Directive,
-    ElementRef,
-    HostListener,
-    Input,
-    inject,
+  Directive,
+  ElementRef,
+  HostListener,
+  inject,
+  input
 } from '@angular/core';
 
 const ALLOWED_NUMBERS = '0123456789'.split('');
@@ -18,13 +18,8 @@ const ALLOWED_ALPHANUMERIC = 'abcdefghijklmnopqrstuvwxyz0123456789'.split('');
 export class LimitInputDirective {
     private _el = inject(ElementRef);
 
-    @Input() restriction:
-        | 'number'
-        | 'decimals'
-        | 'letters'
-        | 'alphanumeric'
-        | 'custom' = 'decimals';
-    @Input() custom_list: string[] = [];
+    readonly restriction = input<'number' | 'decimals' | 'letters' | 'alphanumeric' | 'custom'>('decimals');
+    readonly custom_list = input<string[]>([]);
 
     @HostListener('keydown', ['$event']) onKeyDown(event) {
         const e: KeyboardEvent = event;
@@ -45,7 +40,7 @@ export class LimitInputDirective {
             // let it happen, don't do anything
             return;
         }
-        switch (this.restriction) {
+        switch (this.restriction()) {
             case 'letters':
                 if (ALLOWED_LETTERS.indexOf(key) === -1) {
                     e.preventDefault();
@@ -57,7 +52,7 @@ export class LimitInputDirective {
                 }
                 break;
             case 'custom':
-                if (this.custom_list.indexOf(key) === -1) {
+                if (this.custom_list().indexOf(key) === -1) {
                     e.preventDefault();
                 }
                 break;

@@ -1,11 +1,10 @@
 import { CommonModule } from '@angular/common';
 import {
-    Component,
-    EventEmitter,
-    Input,
-    Output,
-    SimpleChanges,
-    inject,
+  Component,
+  SimpleChanges,
+  inject,
+  input,
+  output
 } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -41,7 +40,7 @@ import { AssetGroup } from '../asset.class';
                                     <div
                                         class="relative mr-4 flex h-16 w-16 items-center justify-center overflow-hidden rounded-xl border border-base-200 bg-base-200"
                                     >
-                                        @if (selected.includes(asset.id)) {
+                                        @if (selected().includes(asset.id)) {
                                             <div
                                                 class="absolute left-1 top-1 flex h-6 w-6 items-center justify-center rounded-full border border-base-300 bg-base-200"
                                             >
@@ -156,12 +155,12 @@ import { AssetGroup } from '../asset.class';
 export class AssetListComponent {
     private _asset_state = inject(AssetStateService);
 
-    @Input() public selected = '';
-    @Input() public favorites: string[] = [];
-    @Input() public selected_items: AssetGroup[] = [];
-    @Input() public requested: Record<string, number> = {};
-    @Output() public toggleFav = new EventEmitter<AssetGroup>();
-    @Output() public onSelect = new EventEmitter<AssetGroup>();
+    public readonly selected = input('');
+    public readonly favorites = input<string[]>([]);
+    public readonly selected_items = input<AssetGroup[]>([]);
+    public readonly requested = input<Record<string, number>>({});
+    public readonly toggleFav = output<AssetGroup>();
+    public readonly onSelect = output<AssetGroup>();
 
     private _requested_items = new BehaviorSubject<Record<string, number>>({});
 
@@ -176,7 +175,7 @@ export class AssetListComponent {
         map(([counts, assets, requested]) => {
             for (const item of assets) {
                 item.quantity = counts[item.id] || 0;
-                const selected = this.selected_items.find(
+                const selected = this.selected_items().find(
                     (i) => i.id === item.id,
                 );
                 if (selected) selected.assets = item.assets;
@@ -196,20 +195,21 @@ export class AssetListComponent {
     );
 
     public ngOnChanges(changes: SimpleChanges) {
-        if (changes.selected_items && this.selected_items?.length) {
+        const selected_items = this.selected_items();
+        if (changes.selected_items && selected_items?.length) {
             const counts = {};
-            for (const item of this.selected_items) {
+            for (const item of selected_items) {
                 counts[item.id] = item.quantity;
             }
             this.counts.next(counts);
         }
         if (changes.requested) {
-            this._requested_items.next(this.requested);
+            this._requested_items.next(this.requested());
         }
     }
 
     public isFavourite(asset_id: string) {
-        return this.favorites.includes(asset_id);
+        return this.favorites().includes(asset_id);
     }
 
     public selectAsset(asset: AssetGroup) {

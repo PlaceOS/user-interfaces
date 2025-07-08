@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, inject } from '@angular/core';
+import { Component, inject, output } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { MatRippleModule } from '@angular/material/core';
@@ -126,7 +126,7 @@ export class PaymentModalComponent {
     private _data = inject<PaymentData>(MAT_DIALOG_DATA);
     private _org = inject(OrganisationService);
 
-    @Output() public readonly event = new EventEmitter();
+    public readonly event = output<PaymentCardDetails>();
     public readonly details = this._data;
     public readonly loading = this._data.loading;
     public card_details?: PaymentCardDetails;

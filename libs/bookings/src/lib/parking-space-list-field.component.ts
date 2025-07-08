@@ -1,4 +1,4 @@
-import { Component, Input, forwardRef, inject } from '@angular/core';
+import { Component, forwardRef, inject, input } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 
@@ -140,7 +140,7 @@ export class ParkingSpaceListFieldComponent implements ControlValueAccessor {
     private _settings = inject(SettingsService);
     private _dialog = inject(MatDialog);
 
-    @Input() public disable_date = false;
+    public readonly disable_date = input(false);
     public room_size = 3;
     public spaces: BookingAsset[] = [];
     public disabled = false;
@@ -159,7 +159,7 @@ export class ParkingSpaceListFieldComponent implements ControlValueAccessor {
                 spaces: this.spaces,
                 options: {
                     capacity: this.room_size,
-                    disable_date: this.disable_date,
+                    disable_date: this.disable_date(),
                 },
             },
         });

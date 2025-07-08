@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, OnInit, input } from '@angular/core';
 
 import { MatRippleModule } from '@angular/material/core';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -9,7 +9,7 @@ const ACTIVE_ITEMS = new Set<string>();
 @Component({
     selector: '[catering-order-item]',
     template: `
-        @if (item) {
+        @if (item()) {
             <div class="relative h-14 w-16 text-right">
                 <div
                     arm
@@ -37,12 +37,12 @@ const ACTIVE_ITEMS = new Set<string>();
                     <div
                         class="flex h-10 w-10 items-center justify-center rounded-full bg-base-300 p-1 font-mono text-sm"
                     >
-                        {{ item?.amount || item?.quantity || 1 }}×
+                        {{ item()?.amount || item()?.quantity || 1 }}×
                     </div>
                 </div>
-                <div class="flex-1">{{ item?.name }}</div>
+                <div class="flex-1">{{ item()?.name }}</div>
                 <div class="mr-2 flex space-x-2 px-4">
-                    @for (opt of item.option_list; track opt) {
+                    @for (opt of item().option_list; track opt) {
                         @if (opt) {
                             <div
                                 class="rounded-2xl bg-warning px-2 py-1 text-xs text-warning-content shadow"
@@ -65,13 +65,13 @@ const ACTIVE_ITEMS = new Set<string>();
     imports: [MatRippleModule, IconComponent],
 })
 export class CateringOrderItemComponent implements OnInit {
-    @Input() public order_id: string;
-    @Input() public item: CateringItem;
+    public readonly order_id = input<string>(undefined);
+    public readonly item = input<CateringItem>(undefined);
 
     public active = false;
 
     public get item_key() {
-        return `${this.order_id}|${this.item?.id}`;
+        return `${this.order_id()}|${this.item()?.id}`;
     }
 
     public ngOnInit() {

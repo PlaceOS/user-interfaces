@@ -1,12 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-    Component,
-    EventEmitter,
-    Input,
-    OnInit,
-    Output,
-    inject,
-} from '@angular/core';
+import { Component, OnInit, inject, model, output } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatRippleModule } from '@angular/material/core';
 import { AsyncHandler, SettingsService } from '@placeos/common';
@@ -35,8 +28,8 @@ import { SpaceFiltersComponent } from './space-filters.component';
                     matRipple
                     name="view-space-map"
                     class="rounded-l rounded-r-none"
-                    [class.inverse]="view !== 'map'"
-                    (click)="view = 'map'; viewChange.emit(view)"
+                    [class.inverse]="view() !== 'map'"
+                    (click)="view.set('map'); viewChange.emit(view())"
                 >
                     {{ 'COMMON.MAP' | translate }}
                 </button>
@@ -45,8 +38,8 @@ import { SpaceFiltersComponent } from './space-filters.component';
                     matRipple
                     name="view-space-list"
                     class="rounded-l-none rounded-r"
-                    [class.inverse]="view !== 'list'"
-                    (click)="view = 'list'; viewChange.emit(view)"
+                    [class.inverse]="view() !== 'list'"
+                    (click)="view.set('list'); viewChange.emit(view())"
                 >
                     {{ 'COMMON.LIST' | translate }}
                 </button>
@@ -142,8 +135,8 @@ export class SpaceFiltersDisplayComponent
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
 
-    @Input() public view: 'map' | 'list' = 'list';
-    @Output() public viewChange = new EventEmitter<'map' | 'list'>();
+    public readonly view = model<'map' | 'list'>('list');
+    public readonly viewChange = output<'map' | 'list'>();
     public readonly options = this._event_form.options$;
     public location = '';
 

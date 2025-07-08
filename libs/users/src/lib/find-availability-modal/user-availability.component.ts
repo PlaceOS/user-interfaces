@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, input } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
 import { User } from '../user.class';
@@ -16,7 +16,7 @@ export interface AvailabilityBlock {
         <div
             class="relative inset-y-0 h-32 w-[120rem] border-b border-base-200"
         >
-            @for (event of availability; track event) {
+            @for (event of availability(); track event) {
                 <div
                     event
                     class="border-red-700 absolute inset-y-0 overflow-hidden rounded border bg-error p-2 text-white"
@@ -44,7 +44,7 @@ export interface AvailabilityBlock {
     imports: [CommonModule],
 })
 export class UserAvailabilityComponent {
-    @Input() public user: User;
-    @Input() public availability: AvailabilityBlock[] = [];
-    @Input() public date: number = Date.now();
+    public readonly user = input<User>(undefined);
+    public readonly availability = input<AvailabilityBlock[]>([]);
+    public readonly date = input<number>(Date.now());
 }

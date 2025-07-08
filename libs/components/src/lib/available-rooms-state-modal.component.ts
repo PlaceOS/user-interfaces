@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Output, inject } from '@angular/core';
+import { Component, inject, output } from '@angular/core';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
@@ -151,7 +151,7 @@ export class AvailableRoomsStateModalComponent {
     private _data = inject(MAT_DIALOG_DATA);
     private _org = inject(OrganisationService);
 
-    @Output() public change = new EventEmitter<string[]>();
+    public readonly change = output<string[]>();
     public loading = false;
     public selected: string[] = [];
     public readonly rooms = requestSpacesForZone(this._org.building.id);

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 
 @Component({
@@ -8,8 +8,8 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
             class="flex w-full items-center rounded border border-base-200 p-2 hover:border-base-200"
             type="button"
             role="button"
-            [attr.disabled]="disabled"
-            [attr.name]="name"
+            [attr.disabled]="disabled()"
+            [attr.name]="name()"
             form-field
             tabindex="0"
             (keydown.enter)="performAction()"
@@ -37,11 +37,11 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
 })
 export class ActionFieldComponent {
     /** Name of the field */
-    @Input() public name: string;
+    public readonly name = input<string>(undefined);
     /** Whether form field is disabled */
-    @Input() public disabled: boolean;
+    public readonly disabled = input<boolean>(undefined);
     /** Emitter for user interaction events */
-    @Output('onAction') public on_action = new EventEmitter();
+    public readonly on_action = output({ alias: 'onAction' });
     /** Whether to show tooltip */
     public show_tooltip = false;
 

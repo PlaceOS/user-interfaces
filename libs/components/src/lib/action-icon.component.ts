@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { ApplicationIcon } from 'libs/common/src/lib/types';
 
 @Component({
@@ -8,22 +8,22 @@ import { ApplicationIcon } from 'libs/common/src/lib/types';
             icon
             matRipple
             class="relative"
-            [class.success]="state === 'success'"
-            [disabled]="loading || disabled"
+            [class.success]="state() === 'success'"
+            [disabled]="loading() || disabled()"
             title=""
         >
-            <icon root [className]="className" [icon]="icon">
-                {{ content }}
+            <icon root [className]="className()" [icon]="icon()">
+                {{ content() }}
                 <ng-content></ng-content>
             </icon>
-            @if (!loading && state) {
-                <div [class]="'state center ' + state">
+            @if (!loading() && state()) {
+                <div [class]="'state center ' + state()">
                     <icon>
-                        {{ state === 'success' ? 'done' : 'close' }}
+                        {{ state() === 'success' ? 'done' : 'close' }}
                     </icon>
                 </div>
             }
-            @if (loading) {
+            @if (loading()) {
                 <div class="loader center">
                     <mat-spinner [diameter]="16"></mat-spinner>
                 </div>
@@ -57,15 +57,15 @@ import { ApplicationIcon } from 'libs/common/src/lib/types';
 })
 export class ActionIconComponent {
     /** Icon to display */
-    @Input() public icon: ApplicationIcon;
+    public readonly icon = input<ApplicationIcon>(undefined);
     /** Icon to display */
-    @Input() public className: string = 'material-symbols-rounded';
+    public readonly className = input<string>('material-symbols-rounded');
     /** Icon to display */
-    @Input() public content: string;
+    public readonly content = input<string>(undefined);
     /** Whether action is being processed */
-    @Input() public loading: boolean;
+    public readonly loading = input<boolean>(undefined);
     /** Whether action is being processed */
-    @Input() public disabled: boolean;
+    public readonly disabled = input<boolean>(undefined);
     /** State of the action */
-    @Input() public state: 'success' | 'error' | '' = '';
+    public readonly state = input<'success' | 'error' | ''>('');
 }

@@ -2,7 +2,8 @@ import { CommonModule } from '@angular/common';
 import {
     Component,
     forwardRef,
-    Input,
+    input,
+    model,
     OnChanges,
     OnInit,
     SimpleChanges,
@@ -26,8 +27,8 @@ export interface DurationOption {
         <button
             duration-field
             class="flex h-12 w-full items-center justify-between rounded border border-neutral px-2"
-            [disabled]="disabled"
-            [class.opacity-30]="disabled"
+            [disabled]="disabled()"
+            [class.opacity-30]="disabled()"
             matRipple
             [matMenuTriggerFor]="menu"
         >
@@ -45,7 +46,7 @@ export interface DurationOption {
                             : ''
                     }}{{ selected?.name }}{{ selected?.date ? ')' : '' }}
                 </div>
-                @if (timezone && tz) {
+                @if (timezone() && tz) {
                     <div class="truncate text-xs opacity-30">
                         {{ selected?.date | date: time_format + ' (z)' : tz }}
                     </div>
@@ -61,7 +62,7 @@ export interface DurationOption {
                     (click)="setValue(option.id)"
                 >
                     <div class="flex items-center justify-between">
-                        @if (!force) {
+                        @if (!force()) {
                             <div class="flex flex-col leading-tight">
                                 <div class="truncate">
                                     {{
@@ -76,7 +77,7 @@ export interface DurationOption {
                                     }}{{ option.name
                                     }}{{ option.date ? ')' : '' }}
                                 </div>
-                                @if (timezone && tz) {
+                                @if (timezone() && tz) {
                                     <div class="truncate text-xs opacity-30">
                                         {{
                                             option.date
@@ -88,7 +89,7 @@ export interface DurationOption {
                                 }
                             </div>
                         }
-                        <div>{{ force }}</div>
+                        <div>{{ force() }}</div>
                         @if (selected?.id === option.id) {
                             <icon class="ml-2 text-2xl"> done </icon>
                         }
@@ -122,23 +123,23 @@ export class DurationFieldComponent
     implements OnInit, OnChanges, ControlValueAccessor
 {
     /** Maximum duration option available */
-    @Input() public max = 240;
+    public readonly max = input(240);
     /** Minimum duration option available */
-    @Input() public min = 30;
+    public readonly min = input(30);
     /** Step value between options */
-    @Input() public step = 15;
+    public readonly step = input(15);
     /** Reference time for displaying next to durations */
-    @Input() public time: number;
+    public readonly time = input<number>(undefined);
     /** Whether form field is disabled */
-    @Input() public disabled: boolean;
+    public readonly disabled = model<boolean>(undefined);
     /** Special case prepopulation i.e. out of step options */
-    @Input() public custom_options: number[] = [];
+    public readonly custom_options = input<number[]>([]);
     /** Force the display duration value */
-    @Input() public force: string;
+    public readonly force = input<string>(undefined);
     /** Whether to use 24 hour time when formatting displayed time */
-    @Input() public use_24hr = false;
+    public readonly use_24hr = input(false);
     /** Display extra information for displayed times for timezone */
-    @Input() public timezone = '';
+    public readonly timezone = input('');
 
     public duration = 60;
     /** List of available duration options */
@@ -150,7 +151,7 @@ export class DurationFieldComponent
     private _onTouch: (_: number) => void;
 
     public get time_format() {
-        return this.use_24hr ? 'HH : mm' : 'h : mm a';
+        return this.use_24hr() ? 'HH : mm' : 'h : mm a';
     }
 
     public get selected() {
@@ -162,7 +163,7 @@ export class DurationFieldComponent
     );
 
     public get tz() {
-        const tz = this.timezone;
+        const tz = this.timezone();
         if (!tz) return '';
         const tz_offset = getTimezoneOffsetString(tz);
         return tz_offset === this._local_tz ? '' : tz_offset;
@@ -170,9 +171,9 @@ export class DurationFieldComponent
 
     public ngOnInit(): void {
         this.duration_options = this.generateDurationOptions(
-            this.max,
-            this.min,
-            this.step,
+            this.max(),
+            this.min(),
+            this.step(),
         );
         this._updateOption();
     }
@@ -187,9 +188,9 @@ export class DurationFieldComponent
             changes.custom_options
         ) {
             this.duration_options = this.generateDurationOptions(
-                this.max,
-                this.min,
-                this.step,
+                this.max(),
+                this.min(),
+                this.step(),
             );
             this._updateOption();
         }
@@ -218,7 +219,7 @@ export class DurationFieldComponent
     }
 
     public setDisabledState(disabled: boolean) {
-        this.disabled = disabled;
+        this.disabled.set(disabled);
     }
 
     /* istanbul ignore next */
@@ -242,10 +243,11 @@ export class DurationFieldComponent
     private generateDurationOptions(max: number, min: number, step: number) {
         const blocks: DurationOption[] = [];
         let time = min;
-        const date = this.time ? this.time : null;
+        const timeValue = this.time();
+        const date = timeValue ? timeValue : null;
 
         // Add special cases
-        for (const option of this.custom_options) {
+        for (const option of this.custom_options()) {
             blocks.push({
                 id: option,
                 date: date ? addMinutes(date, option).valueOf() : undefined,
@@ -288,6 +290,6 @@ export class DurationFieldComponent
         const idx = this.duration_options.findIndex(
             (_) => _.id === this.duration,
         );
-        if (idx < 0) this.setValue(this.min);
+        if (idx < 0) this.setValue(this.min());
     }
 }

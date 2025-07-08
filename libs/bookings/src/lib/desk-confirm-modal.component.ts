@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Output, inject } from '@angular/core';
+import { Component, inject, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
@@ -114,7 +114,7 @@ export class DeskConfirmModalComponent {
     private _data = inject<DeskConfirmModalData>(MAT_DIALOG_DATA);
     private _settings = inject(SettingsService);
 
-    @Output() public event = new EventEmitter<DialogEvent>();
+    public readonly event = output<DialogEvent>();
 
     public readonly desks = this._data.desks || [];
 

@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { AuthenticatedImageDirective } from './authenticated-image.directive';
 import { IconComponent } from './icon.component';
@@ -8,7 +8,7 @@ import { TranslatePipe } from './translate.pipe';
     selector: 'image-carousel',
     template: `
         <div class="relative flex h-full w-full overflow-hidden">
-            @for (image of images; track image) {
+            @for (image of images(); track image) {
                 <div
                     image
                     class="relative flex h-full min-w-full items-center justify-center overflow-hidden"
@@ -23,7 +23,7 @@ import { TranslatePipe } from './translate.pipe';
                     }
                 </div>
             }
-            @if (!images?.length) {
+            @if (!images()?.length) {
                 <div
                     class="relative flex h-full w-full flex-col items-center justify-center space-y-2 opacity-30"
                 >
@@ -31,7 +31,7 @@ import { TranslatePipe } from './translate.pipe';
                     <p>{{ 'COMMON.IMAGES_EMPTY' | translate }}</p>
                 </div>
             }
-            @if (images?.length) {
+            @if (images()?.length) {
                 <button
                     class="absolute inset-y-0 left-0 flex w-1/3 items-center justify-center opacity-0 hover:opacity-100"
                     [disabled]="offset === 0"
@@ -45,10 +45,10 @@ import { TranslatePipe } from './translate.pipe';
                     </div>
                 </button>
             }
-            @if (images?.length) {
+            @if (images()?.length) {
                 <button
                     class="absolute inset-y-0 right-0 flex w-1/3 items-center justify-center text-white opacity-0 hover:opacity-100"
-                    [disabled]="offset >= images?.length - 1"
+                    [disabled]="offset >= images()?.length - 1"
                     (click)="offset = offset + 1"
                 >
                     <div
@@ -59,11 +59,11 @@ import { TranslatePipe } from './translate.pipe';
                     </div>
                 </button>
             }
-            @if (images?.length) {
+            @if (images()?.length) {
                 <div
                     class="absolute bottom-2 left-1/2 flex -translate-x-1/2 items-center space-x-2 text-sm"
                 >
-                    @for (img of images; track img; let i = $index) {
+                    @for (img of images(); track img; let i = $index) {
                         <button
                             matRipple
                             (click)="offset = i"
@@ -109,7 +109,7 @@ import { TranslatePipe } from './translate.pipe';
     ],
 })
 export class ImageCarouselComponent {
-    @Input() public images: string[] = [];
+    public readonly images = input<string[]>([]);
 
     public offset = 0;
 }

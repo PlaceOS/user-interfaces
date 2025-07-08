@@ -1,13 +1,13 @@
 import {
-  Component,
-  ElementRef,
-  EventEmitter,
-  Input,
-  OnInit,
-  Output,
-  SimpleChanges,
-  inject,
-  viewChild
+    Component,
+    ElementRef,
+    OnInit,
+    SimpleChanges,
+    inject,
+    input,
+    model,
+    output,
+    viewChild,
 } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -46,7 +46,7 @@ const RESOURCE_MAP: Record<string, any> = {};
     selector: 'maps-indoors',
     template: `
         <div #map_container class="absolute inset-0 z-0"></div>
-        @if (focus && !show_directions && options?.controls) {
+        @if (focus() && !show_directions && options()?.controls) {
             <button
                 btn
                 matRipple
@@ -70,14 +70,14 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
     private _maps_people = inject(MapsPeopleService);
     private _org = inject(OrganisationService);
 
-    @Input() public zone: BuildingLevel;
-    @Input() public metadata: MapMetadata;
-    @Input() public options: any;
-    @Input() public focus: string;
-    @Input() public zoom = DEFAULT_ZOOM;
-    @Input() public reset: number;
-    @Output() public zoomChange = new EventEmitter<number>();
-    @Output() public zoneChange = new EventEmitter<BuildingLevel>();
+    public readonly zone = model<BuildingLevel>(undefined);
+    public readonly metadata = input<MapMetadata>(undefined);
+    public readonly options = input<any>(undefined);
+    public readonly focus = input<string>(undefined);
+    public readonly zoom = model(DEFAULT_ZOOM);
+    public readonly reset = input<number>(undefined);
+    public readonly zoomChange = output<number>();
+    public readonly zoneChange = output<BuildingLevel>();
 
     public id: string;
     public show_directions = false;
@@ -89,7 +89,8 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
     private _floor_list: any[] = [];
     private _last_building: string;
 
-    private readonly _container = viewChild<ElementRef<HTMLDivElement>>('map_container');
+    private readonly _container =
+        viewChild<ElementRef<HTMLDivElement>>('map_container');
 
     constructor() {
         super();
@@ -113,17 +114,18 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
         if (!this.is_initialised) {
             return this.timeout('on_changes', () => this.ngOnChanges(changes));
         }
-        if (changes.zone && this.zone) {
+        if (changes.zone && this.zone()) {
             this._centerOnZone();
         }
-        if (changes.focus && this.focus) {
+        if (changes.focus && this.focus()) {
             this._focusOnLocation();
         }
         if (changes.metadata) {
             this._updateMapStyling();
         }
-        if (changes.zoom && this.zoom && !this.ignore_zoom) {
-            this._services?.map?.setZoom(this.zoom);
+        const zoom = this.zoom();
+        if (changes.zoom && zoom && !this.ignore_zoom) {
+            this._services?.map?.setZoom(zoom);
         }
         if (changes.reset) {
             this._services?.map?.setZoom(DEFAULT_ZOOM);
@@ -197,7 +199,7 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
             }),
         };
         this._initialised.next(true);
-        if (this.zone) {
+        if (this.zone()) {
             this._services.map.setZoom(DEFAULT_ZOOM);
             this._centerOnZone();
         }
@@ -238,16 +240,17 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
             this._focusOnLocation();
             return;
         }
-        if (!this.focus) return;
-        const items = await this._search(this.focus);
+        const focus = this.focus();
+        if (!focus) return;
+        const items = await this._search(focus);
         if (!items?.length) {
-            notifyError(i18n('EXPLORE.LOCATE_FAILED', { name: this.focus }));
+            notifyError(i18n('EXPLORE.LOCATE_FAILED', { name: focus }));
             return;
         }
         this.loading_directions = true;
         const item = items[0];
         const bld = this._org.buildings.find(
-            (bld) => bld.id === this.zone.parent_id,
+            (bld) => bld.id === this.zone().parent_id,
         );
         const [d_lng, d_lat] = item.properties?.anchor?.coordinates ||
             bld?.location.split(',') || [37.8136, 144.9631];
@@ -321,7 +324,7 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
             'zoom_change',
             () => {
                 this.ignore_zoom = true;
-                this.zoom = level;
+                this.zoom.set(level);
                 this.zoomChange.emit(level);
                 this.timeout(
                     'reset_ignore_zoom',
@@ -366,7 +369,7 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
         if (!levels) return;
         const new_level = levels.find((_) => _.map_id === id || _.id === id);
         if (!new_level) return;
-        this.zone = new_level;
+        this.zone.set(new_level);
         this.zoneChange.emit(new_level);
     }
 
@@ -376,7 +379,7 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
             event.properties?.externalId ||
             event.properties?.roomId ||
             event.id;
-        const actions = this.metadata?.actions || [];
+        const actions = this.metadata()?.actions || [];
         log('MapsIndoors', `Registered Actions`, actions);
         const ignore_actions = ['mousedown', 'touchstart', 'enter', 'leave'];
         for (const action of actions) {
@@ -399,7 +402,7 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
 
     private async _updateMapStyling() {
         if (!this._services) return;
-        const styles = this.metadata?.styles || {};
+        const styles = this.metadata()?.styles || {};
         for (const id in styles) {
             if (!styles[id].fill) continue;
             let resource = RESOURCE_MAP[id];
@@ -427,18 +430,19 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
     }
 
     private async _focusOnLocation() {
-        if (!this.focus) return;
-        const items = await this._search(this.focus);
+        const focus = this.focus();
+        if (!focus) return;
+        const items = await this._search(focus);
         this.clearDirections();
         if (!items?.length) {
-            notifyError(i18n('EXPLORE.LOCATE_FAILED', { name: this.focus }));
+            notifyError(i18n('EXPLORE.LOCATE_FAILED', { name: focus }));
             return;
         }
         const item =
-            items.find((_) => _.properties?.externalId === this.focus) ||
+            items.find((_) => _.properties?.externalId === this.focus()) ||
             items[0];
         const bld = this._org.buildings.find(
-            (bld) => bld.id === this.zone.parent_id,
+            (bld) => bld.id === this.zone().parent_id,
         );
         const [lng, lat] = item.properties?.anchor?.coordinates ||
             bld?.location.split(',') || [37.8136, 144.9631];
@@ -449,33 +453,35 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
     }
 
     private _centerOnZone() {
+        const zone = this.zone();
         if (
             !this._services ||
-            !this.zone ||
-            this.zone.parent_id === this._last_building ||
-            this.zone.id === this._last_building
+            !zone ||
+            zone.parent_id === this._last_building ||
+            zone.id === this._last_building
         )
             return;
         this.timeout('set_center', () => {
             const bld = this._org.buildings.find(
-                (bld) => bld.id === this.zone.parent_id,
+                (bld) => bld.id === this.zone().parent_id,
             );
             if (!bld) return;
             const [lat, long] = bld?.location.split(',') || ['0', '0'];
-            if (!this.focus) {
+            if (!this.focus()) {
                 this._services.map.setCenter({
                     lat: parseFloat(lat),
                     lng: parseFloat(long),
                 });
             }
             this._setFloorFromZone();
-            this._last_building = this.zone.id;
+            this._last_building = this.zone().id;
         });
     }
 
     private _setFloorFromZone() {
-        if (!this.zone.map_id || !this._services) return false;
-        const map_id = this.zone.map_id;
+        const zone = this.zone();
+        if (!zone.map_id || !this._services) return false;
+        const map_id = zone.map_id;
         const floor = this._floor_list.find(
             (_) =>
                 _.index === map_id ||
@@ -490,7 +496,7 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
     private _added_floor_selector = false;
 
     private _addFloorSelector() {
-        if (!this.options?.controls || this._added_floor_selector) return;
+        if (!this.options()?.controls || this._added_floor_selector) return;
         const element = document.createElement('div');
         new mapsindoors.FloorSelector(element, this._services.mapsindoors);
         if (this._maps_people.map_service === MapService.GoogleMaps) {

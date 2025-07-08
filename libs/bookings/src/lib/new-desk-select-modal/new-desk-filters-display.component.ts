@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import { Component, inject, input, output } from '@angular/core';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 
 import { CommonModule } from '@angular/common';
@@ -85,8 +85,8 @@ export class NewDeskFiltersDisplayComponent extends AsyncHandler {
     private _state = inject(BookingFormService);
     private _settings = inject(SettingsService);
 
-    @Input() public view: 'map' | 'list' = 'list';
-    @Output() public viewChange = new EventEmitter<'map' | 'list'>();
+    public readonly view = input<'map' | 'list'>('list');
+    public readonly viewChange = output<'map' | 'list'>();
     public readonly options = this._state.options;
     public readonly setOptions = (o) => this._state.setOptions(o);
     public readonly setFeature = (f, e) => this._state.setFeature(f, e);

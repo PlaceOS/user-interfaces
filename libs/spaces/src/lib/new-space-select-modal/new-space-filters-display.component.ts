@@ -1,11 +1,10 @@
 import { CommonModule } from '@angular/common';
 import {
-    Component,
-    EventEmitter,
-    Input,
-    OnInit,
-    Output,
-    inject,
+  Component,
+  OnInit,
+  inject,
+  input,
+  output
 } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { AsyncHandler, SettingsService } from '@placeos/common';
@@ -104,8 +103,8 @@ export class NewSpaceFiltersDisplayComponent
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
 
-    @Input() public view: 'map' | 'list' = 'list';
-    @Output() public viewChange = new EventEmitter<'map' | 'list'>();
+    public readonly view = input<'map' | 'list'>('list');
+    public readonly viewChange = output<'map' | 'list'>();
     public readonly options = this._event_form.options$;
     public location = '';
 

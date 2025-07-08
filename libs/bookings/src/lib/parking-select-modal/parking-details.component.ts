@@ -1,11 +1,4 @@
-import {
-    Component,
-    EventEmitter,
-    Input,
-    Output,
-    SimpleChanges,
-    inject,
-} from '@angular/core';
+import { Component, SimpleChanges, inject, input, output } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MapPinComponent } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
@@ -19,19 +12,19 @@ import { BookingAsset } from '../booking-form.service';
 @Component({
     selector: `parking-space-details`,
     template: `
-        @if (space) {
+        @if (space()) {
             <section
                 image
                 class="relative w-full bg-base-200"
-                [class.sm:h-40]="space.images?.length"
-                [class.h-64]="space.images?.length"
-                [class.sm:h-0]="!space.images?.length"
-                [class.h-12]="!space.images?.length"
-                [class.!bg-transparent]="!space.images?.length"
+                [class.sm:h-40]="space().images?.length"
+                [class.h-64]="space().images?.length"
+                [class.sm:h-0]="!space().images?.length"
+                [class.h-12]="!space().images?.length"
+                [class.!bg-transparent]="!space().images?.length"
             >
-                @if (space.images?.length) {
+                @if (space().images?.length) {
                     <image-carousel
-                        [images]="space.images"
+                        [images]="space().images"
                         class="absolute inset-0"
                     ></image-carousel>
                 }
@@ -48,18 +41,18 @@ import { BookingAsset } from '../booking-form.service';
                     icon
                     matRipple
                     fav
-                    [class.text-info-content]="fav"
-                    [class.!bg-info]="fav"
+                    [class.text-info-content]="fav()"
+                    [class.!bg-info]="fav()"
                     (click)="toggleFav.emit()"
                     class="absolute right-2 top-2 bg-base-200"
                 >
-                    <icon>{{ fav ? 'favorite' : 'favorite_border' }}</icon>
+                    <icon>{{ fav() ? 'favorite' : 'favorite_border' }}</icon>
                 </button>
             </section>
             <div class="h-1/2 flex-1 space-y-2 overflow-auto p-2">
                 <section actions class="z-0">
                     <h2 class="mb-2 mt-4 text-xl font-medium">
-                        {{ space.display_name || space.name }}
+                        {{ space().display_name || space().name }}
                     </h2>
                 </section>
                 <hr />
@@ -85,7 +78,7 @@ import { BookingAsset } from '../booking-form.service';
                     </div>
                 </section>
                 <hr />
-                @if (!map_open) {
+                @if (!map_open()) {
                     <section
                         map
                         class="relative mx-auto h-64 w-full overflow-hidden rounded border border-base-200 sm:h-48"
@@ -93,7 +86,7 @@ import { BookingAsset } from '../booking-form.service';
                         <interactive-map
                             class="pointer-events-none"
                             [src]="map_url"
-                            [focus]="space.map_id"
+                            [focus]="space().map_id"
                             [features]="features"
                             [options]="{
                                 disable_pan: true,
@@ -107,17 +100,17 @@ import { BookingAsset } from '../booking-form.service';
                 <button
                     btn
                     matRipple
-                    [class.inverse]="active"
+                    [class.inverse]="active()"
                     class="w-full"
-                    (click)="active = !active; activeChange.emit(active)"
+                    (click)="active = !active(); activeChange.emit(active())"
                 >
                     <div class="flex items-center justify-center">
                         <icon class="text-2xl">{{
-                            active ? 'remove' : 'add'
+                            active() ? 'remove' : 'add'
                         }}</icon>
                         <p>
                             {{
-                                (active
+                                (active()
                                     ? 'BOOKINGS.SPACE_REMOVE'
                                     : 'BOOKINGS.SPACE_ADD_TO'
                                 ) | translate
@@ -160,32 +153,32 @@ import { BookingAsset } from '../booking-form.service';
 export class ParkingSpaceDetailsComponent {
     private _org = inject(OrganisationService);
 
-    @Input() public map_open = false;
-    @Input() public space?: BookingAsset;
-    @Input() public fav = false;
-    @Input() public active = false;
+    public readonly map_open = input(false);
+    public readonly space = input<BookingAsset>(undefined);
+    public readonly fav = input(false);
+    public readonly active = input(false);
 
-    @Output() public activeChange = new EventEmitter<boolean>();
-    @Output() public close = new EventEmitter<void>();
-    @Output() public toggleFav = new EventEmitter<void>();
+    public readonly activeChange = output<boolean>();
+    public readonly close = output<void>();
+    public readonly toggleFav = output<void>();
 
     public map_url = '';
     public features: ViewerFeature[] = [];
 
     public get level() {
-        return this._org.levelWithID([this.space?.zone.id]) || this.space?.zone;
+        const space = this.space();
+        return this._org.levelWithID([space?.zone.id]) || space?.zone;
     }
 
     public get building() {
+        const space = this.space();
         return this._org.buildings.find(
-            (_) =>
-                this.space?.zone.id === _.id ||
-                this.space?.zone.parent_id === _.id,
+            (_) => space?.zone.id === _.id || space?.zone.parent_id === _.id,
         );
     }
 
     public ngOnChanges(changes: SimpleChanges) {
-        if (changes.space && this.space) {
+        if (changes.space && this.space()) {
             this._updateFeature();
         }
     }
@@ -194,7 +187,7 @@ export class ParkingSpaceDetailsComponent {
         this.map_url = this.level?.map_id;
         this.features = [
             {
-                location: this.space?.map_id,
+                location: this.space()?.map_id,
                 content: MapPinComponent,
             },
         ];

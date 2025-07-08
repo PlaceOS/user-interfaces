@@ -1,10 +1,10 @@
 import {
-    Component,
-    forwardRef,
-    inject,
-    Input,
-    OnChanges,
-    SimpleChanges,
+  Component,
+  forwardRef,
+  inject,
+  OnChanges,
+  SimpleChanges,
+  input
 } from '@angular/core';
 import {
     ControlValueAccessor,
@@ -51,7 +51,7 @@ import { RecurrenceModalComponent } from './recurrence-modal.component';
                 <mat-option value="weekly">
                     {{
                         'FORM.RECURRENCE_WEEKLY_ON'
-                            | translate: { day: date | date: 'EEEE' }
+                            | translate: { day: date() | date: 'EEEE' }
                     }}
                 </mat-option>
                 <mat-option value="monthly">
@@ -60,13 +60,13 @@ import { RecurrenceModalComponent } from './recurrence-modal.component';
                             | translate
                                 : {
                                       index: instance_of_month,
-                                      day: date | date: 'EEEE',
+                                      day: date() | date: 'EEEE',
                                   }
                     }}
                 </mat-option>
                 @if (false) {
                     <mat-option value="yearly">
-                        Anually on {{ date | date: 'LLLL dd' }}
+                        Anually on {{ date() | date: 'LLLL dd' }}
                     </mat-option>
                 }
                 @if (value?._custom) {
@@ -112,8 +112,8 @@ export class RecurrenceFieldComponent
     private _dialog = inject(MatDialog);
     private _settings = inject(SettingsService);
 
-    @Input() public type: 'event' | 'booking' = 'booking';
-    @Input() public date = Date.now();
+    public readonly type = input<'event' | 'booking'>('booking');
+    public readonly date = input(Date.now());
     public prev_type = 'none';
     public recurr_type = 'none';
     public iom = 0;
@@ -126,8 +126,9 @@ export class RecurrenceFieldComponent
     private _onTouch: (_: RecurrenceDetails | BookingRecurrence) => void;
 
     public ngOnChanges(changes: SimpleChanges) {
-        if (changes.date && this.date) {
-            const date = new Date(this.date).getDate();
+        const dateValue = this.date();
+        if (changes.date && dateValue) {
+            const date = new Date(dateValue).getDate();
             let instance = Math.floor(date / 7) + (date % 7 ? 1 : 0);
             this.instance_of_month = `${instance}${
                 instance === 2 ? 'nd' : instance === 3 ? 'rd' : 'th'
@@ -146,13 +147,13 @@ export class RecurrenceFieldComponent
     }
 
     public toRaw(data: Recurrence) {
-        return this.type === 'event'
-            ? toEventRecurrence(data, this.date)
+        return this.type() === 'event'
+            ? toEventRecurrence(data, this.date())
             : toBookingRecurrence(data);
     }
 
     public fromRaw(data: RecurrenceDetails | BookingRecurrence) {
-        return this.type === 'event'
+        return this.type() === 'event'
             ? fromEventRecurrence(data as RecurrenceDetails)
             : fromBookingRecurrence(data as BookingRecurrence);
     }
@@ -184,7 +185,7 @@ export class RecurrenceFieldComponent
 
     public openCustomRecurrenceModal() {
         const ref = this._dialog.open(RecurrenceModalComponent, {
-            data: { value: this.value, iom: this.iom, date: this.date },
+            data: { value: this.value, iom: this.iom, date: this.date() },
         });
         ref.afterClosed().subscribe((d?) =>
             setTimeout(() => {
@@ -196,11 +197,11 @@ export class RecurrenceFieldComponent
     }
 
     public setSimple(pattern: string) {
-        const day_of_week = new Date(this.date).getDay();
+        const day_of_week = new Date(this.date()).getDay();
         const default_recurrence =
             this._settings.get('app.default_recurrence_period') || 180;
         const end_date = endOfDay(
-            addDays(this.date, default_recurrence),
+            addDays(this.date(), default_recurrence),
         ).valueOf();
         if (pattern === 'none') {
             this.setValue(NO_RECURR);
@@ -242,7 +243,7 @@ export class RecurrenceFieldComponent
                 type: 'yearly',
                 interval: 1,
                 end_type: 'date',
-                end_date: addYears(this.date, 7).valueOf(),
+                end_date: addYears(this.date(), 7).valueOf(),
             });
             this.prev_type = this.recurr_type;
         }

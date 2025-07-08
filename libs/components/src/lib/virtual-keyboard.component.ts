@@ -2,14 +2,14 @@ import { Overlay, OverlayRef } from '@angular/cdk/overlay';
 import { CdkPortal, PortalModule } from '@angular/cdk/portal';
 
 import {
-  Component,
-  ElementRef,
-  HostListener,
-  Input,
-  OnDestroy,
-  SimpleChanges,
-  inject,
-  viewChild
+    Component,
+    ElementRef,
+    HostListener,
+    OnDestroy,
+    SimpleChanges,
+    inject,
+    model,
+    viewChild,
 } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { AsyncHandler } from '@placeos/common';
@@ -31,7 +31,7 @@ const DEFAULT_KEYS = [
                 keyboard-view
                 class="flex w-screen flex-col space-y-4 border-t border-base-200 bg-base-200 p-2"
             >
-                @for (row of keyset; track row[0]) {
+                @for (row of keyset(); track row[0]) {
                     <div row class="flex items-center justify-center space-x-2">
                         @for (key of row; track key) {
                             <button
@@ -114,7 +114,7 @@ export class VirtualKeyboardComponent
     /** Whether virtual keyboard should activate */
     public static enabled: boolean;
     /** List of rows of keys to display on the keyboard */
-    @Input() public keyset = DEFAULT_KEYS;
+    public readonly keyset = model(DEFAULT_KEYS);
     /** Current state of the displayed keyset */
     public state: 'normal' | 'caps' | 'shift' = 'normal';
     /** References to the overlay containing the keyboard */
@@ -136,7 +136,7 @@ export class VirtualKeyboardComponent
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.keyset) {
-            if (!this.keyset) this.keyset = DEFAULT_KEYS;
+            if (!this.keyset()) this.keyset.set(DEFAULT_KEYS);
         }
     }
 
@@ -215,15 +215,17 @@ export class VirtualKeyboardComponent
     }
 
     public updateKeyState() {
-        this.keyset = this.keyset.map((_) =>
-            _.map((k) =>
-                k.length > 1
-                    ? k
-                    : k[
-                          this.state !== 'normal'
-                              ? 'toUpperCase'
-                              : 'toLowerCase'
-                      ](),
+        this.keyset.set(
+            this.keyset().map((_) =>
+                _.map((k) =>
+                    k.length > 1
+                        ? k
+                        : k[
+                              this.state !== 'normal'
+                                  ? 'toUpperCase'
+                                  : 'toLowerCase'
+                          ](),
+                ),
             ),
         );
     }

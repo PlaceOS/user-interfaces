@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import { Component, inject, input, output } from '@angular/core';
 import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 
@@ -29,7 +29,7 @@ import { Space } from '../space.class';
                     @for (space of available_spaces | async; track space) {
                         <li
                             space
-                            [class.!border-info]="active === space.id"
+                            [class.!border-info]="active() === space.id"
                             class="relative w-full rounded-lg border border-base-200 bg-base-100 p-2 shadow"
                             [class.!bg-error-light]="
                                 (room_alerts | async)[space.id]
@@ -53,7 +53,7 @@ import { Space } from '../space.class';
                                 <div
                                     class="relative mr-4 flex h-20 w-20 min-w-[5rem] items-center justify-center overflow-hidden rounded-xl bg-base-200"
                                 >
-                                    @if (selected.includes(space.id)) {
+                                    @if (selected().includes(space.id)) {
                                         <div
                                             class="absolute left-1 top-1 flex h-6 w-6 items-center justify-center rounded-full border border-neutral bg-base-200 text-white"
                                         >
@@ -235,11 +235,11 @@ export class NewSpaceListComponent {
     private _event_form = inject(EventFormService);
     private _org = inject(OrganisationService);
 
-    @Input() public active = '';
-    @Input() public selected = '';
-    @Input() public favorites: string[] = [];
-    @Output() public onSelect = new EventEmitter<Space>();
-    @Output() public toggleFav = new EventEmitter<Space>();
+    public readonly active = input('');
+    public readonly selected = input('');
+    public readonly favorites = input<string[]>([]);
+    public readonly onSelect = output<Space>();
+    public readonly toggleFav = output<Space>();
     public readonly loading = this._event_form.loading$;
 
     public readonly available_spaces = this._event_form.available_spaces;
@@ -254,7 +254,7 @@ export class NewSpaceListComponent {
     }
 
     public isFavourite(space_id: string) {
-        return this.favorites.includes(space_id);
+        return this.favorites().includes(space_id);
     }
 
     public selectSpace(space: Space) {

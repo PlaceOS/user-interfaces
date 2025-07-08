@@ -1,9 +1,8 @@
 import {
-    Component,
-    EventEmitter,
-    Input,
-    Output,
-    SimpleChanges,
+  Component,
+  SimpleChanges,
+  input,
+  output
 } from '@angular/core';
 import { ViewerFeature } from '@placeos/svg-viewer';
 
@@ -31,19 +30,19 @@ import { BookingAsset } from '../booking-form.service';
         `,
     ],
     template: `
-        @if (desk) {
+        @if (desk()) {
             <section
                 image
                 class="relative w-full bg-base-300"
-                [class.sm:h-64]="desk.images?.length"
-                [class.h-40]="desk.images?.length"
-                [class.sm:h-0]="!desk.images?.length"
-                [class.h-12]="!desk.images?.length"
-                [class.!bg-transparent]="!desk.images?.length"
+                [class.sm:h-64]="desk().images?.length"
+                [class.h-40]="desk().images?.length"
+                [class.sm:h-0]="!desk().images?.length"
+                [class.h-12]="!desk().images?.length"
+                [class.!bg-transparent]="!desk().images?.length"
             >
-                @if (desk.images?.length) {
+                @if (desk().images?.length) {
                     <image-carousel
-                        [images]="desk.images"
+                        [images]="desk().images"
                         class="absolute inset-0"
                     ></image-carousel>
                 }
@@ -60,14 +59,14 @@ import { BookingAsset } from '../booking-form.service';
                     icon
                     matRipple
                     name="toggle-desk-favourite-details"
-                    [class.text-info-content]="fav"
-                    [class.!bg-info]="fav"
+                    [class.text-info-content]="fav()"
+                    [class.!bg-info]="fav()"
                     (click)="toggleFav.emit()"
                     class="absolute right-2 top-2 bg-base-200"
                 >
                     <icon
                         [className]="
-                            fav
+                            fav()
                                 ? 'material-symbols-rounded'
                                 : 'material-symbols-outlined'
                         "
@@ -80,7 +79,7 @@ import { BookingAsset } from '../booking-form.service';
             >
                 <section actions class="z-0 border-b pb-2">
                     <h2 class="mb-2 mt-4 text-xl font-medium">
-                        {{ desk.display_name || desk.name || desk.id }}
+                        {{ desk().display_name || desk().name || desk().id }}
                     </h2>
                 </section>
                 <section details class="space-y-2 border-b pb-2">
@@ -94,20 +93,20 @@ import { BookingAsset } from '../booking-form.service';
                     <div class="flex items-center space-x-2">
                         <icon>desk</icon>
                         <p>
-                            {{ desk.display_name || desk.name || desk.id }}
+                            {{ desk().display_name || desk().name || desk().id }}
                         </p>
                     </div>
                     <div class="flex items-center space-x-2">
                         <icon>place</icon>
-                        <p>{{ desk.zone?.display_name || desk.zone?.name }}</p>
+                        <p>{{ desk().zone?.display_name || desk().zone?.name }}</p>
                     </div>
                 </section>
-                @if (desk.features?.length) {
+                @if (desk().features?.length) {
                     <section facilities class="space-y-2 border-b pb-2">
                         <h2 class="text-xl font-medium">
                             {{ 'COMMON.FEATURES' | translate }}
                         </h2>
-                        @for (feat of desk.features || []; track feat) {
+                        @for (feat of desk().features || []; track feat) {
                             <div class="flex flex-wrap items-center space-x-2">
                                 <div for="feat" class="w-1/2 flex-1">
                                     {{ feat }}
@@ -116,7 +115,7 @@ import { BookingAsset } from '../booking-form.service';
                         }
                     </section>
                 }
-                @if (!hide_map) {
+                @if (!hide_map()) {
                     <section
                         map
                         class="relative mx-auto h-64 w-full overflow-hidden rounded border border-base-200 sm:h-48"
@@ -124,7 +123,7 @@ import { BookingAsset } from '../booking-form.service';
                         <interactive-map
                             class="pointer-events-none"
                             [src]="map_url"
-                            [focus]="desk.map_id || desk.id"
+                            [focus]="desk().map_id || desk().id"
                             [features]="features"
                             [options]="{
                                 disable_pan: true,
@@ -141,17 +140,17 @@ import { BookingAsset } from '../booking-form.service';
                     btn
                     matRipple
                     name="toggle-desk-details"
-                    [class.inverse]="active"
+                    [class.inverse]="active()"
                     class="w-full"
-                    (click)="active = !active; activeChange.emit(active)"
+                    (click)="active = !active(); activeChange.emit(active())"
                 >
                     <div class="flex items-center justify-center">
                         <icon class="text-2xl">{{
-                            active ? 'remove' : 'add'
+                            active() ? 'remove' : 'add'
                         }}</icon>
                         <p>
                             {{
-                                (active
+                                (active()
                                     ? 'COMMON.REMOVE_FROM'
                                     : 'COMMON.ADD_TO'
                                 ) | translate
@@ -180,29 +179,30 @@ import { BookingAsset } from '../booking-form.service';
     ],
 })
 export class DeskDetailsComponent {
-    @Input() public desk?: BookingAsset;
-    @Input() public fav = false;
-    @Input() public active = false;
-    @Input() public hide_map = false;
+    public readonly desk = input<BookingAsset>(undefined);
+    public readonly fav = input(false);
+    public readonly active = input(false);
+    public readonly hide_map = input(false);
 
-    @Output() public close = new EventEmitter<void>();
-    @Output() public toggleFav = new EventEmitter<void>();
-    @Output() public activeChange = new EventEmitter<void>();
+    public readonly close = output<void>();
+    public readonly toggleFav = output<void>();
+    public readonly activeChange = output<void>();
 
     public map_url = '';
     public features: ViewerFeature[] = [];
 
     public ngOnChanges(changes: SimpleChanges) {
-        if (changes.desk && this.desk) {
+        if (changes.desk && this.desk()) {
             this.updateFeature();
         }
     }
 
     private updateFeature() {
-        this.map_url = this.desk.zone.map_id;
+        this.map_url = this.desk().zone.map_id;
+        const desk = this.desk();
         this.features = [
             {
-                location: this.desk.map_id || this.desk.id,
+                location: desk.map_id || desk.id,
                 content: MapPinComponent,
             },
         ];

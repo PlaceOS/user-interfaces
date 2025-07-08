@@ -7,14 +7,14 @@ import {
   HostListener,
   Injectable,
   Injector,
-  Input,
   OnChanges,
   OnDestroy,
   SimpleChanges,
   TemplateRef,
   Type,
   inject,
-  viewChild
+  viewChild,
+  input
 } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
 import { SanitizePipe } from './sanitise.pipe';
@@ -39,15 +39,15 @@ export class CustomTooltipData<T = any> {
                 @switch (type) {
                     @case ('component') {
                         <ng-container
-                            *ngComponentOutlet="content; injector: injector"
+                            *ngComponentOutlet="content(); injector: injector"
                         ></ng-container>
                     }
                     @case ('html') {
-                        <div [innerHTML]="content | sanitize"></div>
+                        <div [innerHTML]="content() | sanitize"></div>
                     }
                     @default {
                         <ng-container
-                            *ngTemplateOutlet="content; context: data"
+                            *ngTemplateOutlet="content(); context: data()"
                         ></ng-container>
                     }
                 }
@@ -65,19 +65,19 @@ export class CustomTooltipComponent<T = any>
     private _injector = inject(Injector);
 
     /** Horizontal position of the rendered overlay */
-    @Input('xPosition') public x_pos: 'start' | 'center' | 'end' = 'end';
+    public readonly x_pos = input<'start' | 'center' | 'end'>('end', { alias: "xPosition" });
     /** Vertical position of the rendered overlay */
-    @Input('yPosition') public y_pos: 'top' | 'center' | 'bottom' = 'top';
+    public readonly y_pos = input<'top' | 'center' | 'bottom'>('top', { alias: "yPosition" });
     /** Content to render in the tooltip */
-    @Input() public content: TemplateRef<any> | Type<any> | string;
+    public readonly content = input<TemplateRef<any> | Type<any> | string>(undefined);
     /** Data associated with the tooltip content */
-    @Input() public data: T;
+    public readonly data = input<T>(undefined);
     /** Whether tooltip has a backdrop */
-    @Input() public backdrop = true;
+    public readonly backdrop = input(true);
     /** Whether tooltip has a backdrop */
-    @Input() public hover = false;
+    public readonly hover = input(false);
     /** Delay time in milliseconds to close after hover */
-    @Input() public delay = 0;
+    public readonly delay = input(0);
     /** Type of content to render */
     public type: 'template' | 'component' | 'html' = 'template';
 
@@ -90,9 +90,9 @@ export class CustomTooltipComponent<T = any>
     @HostListener('click') public readonly onClick = () => this.open();
     @HostListener('touchend') public readonly onTouch = () => this.open();
     @HostListener('mouseenter') public readonly onEnter = () =>
-        this.hover ? this.open() : '';
+        this.hover() ? this.open() : '';
     @HostListener('mouseleave') public readonly onLeave = () =>
-        this.hover ? this.close() : '';
+        this.hover() ? this.close() : '';
 
     constructor() {
         super();
@@ -114,12 +114,14 @@ export class CustomTooltipComponent<T = any>
     }
 
     public open() {
-        if (!this.content) return;
+        if (!this.content()) return;
         this.timeout(
             'open',
             () => {
-                if (this.hover && this.delay) {
-                    this.timeout('onclose', () => this.close(), this.delay);
+                const hover = this.hover();
+                const delay = this.delay();
+                if (hover && delay) {
+                    this.timeout('onclose', () => this.close(), delay);
                 }
                 this._updateType();
                 if (this._overlay_ref) this.close();
@@ -128,27 +130,28 @@ export class CustomTooltipComponent<T = any>
                 const pos = this._element.nativeElement.getBoundingClientRect();
                 const default_x = 'end';
                 const default_y = 'top';
+                const y_pos = this.y_pos();
                 this._overlay_ref = this._overlay.create({
-                    hasBackdrop: !!this.backdrop && !this.hover,
+                    hasBackdrop: !!this.backdrop() && !hover,
                     positionStrategy: this._overlay
                         .position()
                         .flexibleConnectedTo(this._element)
                         .withPositions([
                             {
-                                originX: this.x_pos || default_x,
+                                originX: this.x_pos() || default_x,
                                 originY:
-                                    (this.y_pos === 'top'
+                                    (y_pos === 'top'
                                         ? 'bottom'
-                                        : this.y_pos == 'bottom'
+                                        : y_pos == 'bottom'
                                           ? 'top'
-                                          : this.y_pos) || default_y,
-                                overlayX: this.x_pos || default_x,
-                                overlayY: this.y_pos || default_y,
+                                          : y_pos) || default_y,
+                                overlayX: this.x_pos() || default_x,
+                                overlayY: this.y_pos() || default_y,
                             },
                         ]),
                 });
                 this._overlay_ref.attach(_portal);
-                if (this.backdrop) {
+                if (this.backdrop()) {
                     this.subscription(
                         'backdrop',
                         this._overlay_ref
@@ -170,10 +173,11 @@ export class CustomTooltipComponent<T = any>
     }
 
     private _updateType() {
+        const content = this.content();
         this.type =
-            typeof this.content === 'string'
+            typeof content === 'string'
                 ? 'html'
-                : this.content instanceof TemplateRef
+                : content instanceof TemplateRef
                   ? 'template'
                   : 'component';
     }
@@ -183,7 +187,7 @@ export class CustomTooltipComponent<T = any>
             providers: [
                 {
                     provide: CustomTooltipData,
-                    useValue: { data: this.data, close: () => this.close() },
+                    useValue: { data: this.data(), close: () => this.close() },
                 },
             ],
             parent: this._injector,

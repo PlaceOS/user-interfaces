@@ -1,4 +1,4 @@
-import { Component, forwardRef, inject, Input } from '@angular/core';
+import { Component, forwardRef, inject, input } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 
@@ -22,14 +22,14 @@ const EMPTY_FAVS: string[] = [];
                     desk
                     class="relative flex w-full items-center rounded-lg border border-base-200 p-2 shadow"
                 >
-                    @if (features?.length) {
+                    @if (features()?.length) {
                         <div class="flex flex-col">
                             <label for="title">Type</label>
                             <div
                                 features
                                 class="flex flex-wrap items-center space-x-2"
                             >
-                                @for (opt of features; track opt) {
+                                @for (opt of features(); track opt) {
                                     <mat-checkbox
                                         [ngModel]="
                                             (selected_features || []).includes(
@@ -152,7 +152,7 @@ export class DeskListFieldComponent implements ControlValueAccessor {
     private _settings = inject(SettingsService);
     private _dialog = inject(MatDialog);
 
-    @Input() public features: string[] = [];
+    public readonly features = input<string[]>([]);
     public room_size = 3;
     public items: BookingAsset[] = [];
     public disabled = false;

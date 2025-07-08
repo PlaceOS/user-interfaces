@@ -46,7 +46,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
             }
         </header>
         <main
-            class="max-w-screen grid max-h-[65vh] w-full flex-1 grid-cols-2 gap-4 overflow-auto px-4 py-2"
+            class="max-w-screen grid max-h-[65vh] w-full flex-1 grid-cols-2 gap-4 overflow-auto px-4 pb-4 pt-2"
         >
             <div>
                 <div class="mb-2 flex items-center space-x-4">
@@ -308,7 +308,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                         </div>
                     }
                     @if (assets?.length) {
-                        <div class="w-ull col-span-2">
+                        <div class="col-span-2 w-full">
                             <div class="mb-2 flex items-center space-x-4">
                                 <div
                                     class="flex items-center justify-center rounded-full border border-success text-success"
@@ -459,7 +459,9 @@ export class MeetingFlowConfirmModalComponent
     private _event_form = inject(EventFormService);
     private _org = inject(OrganisationService);
     private _space_pipe = inject(SpacePipe);
-    private _dialog_ref = inject<MatDialogRef<MeetingFlowConfirmModalComponent>>(MatDialogRef, { optional: true });
+    private _dialog_ref = inject<
+        MatDialogRef<MeetingFlowConfirmModalComponent>
+    >(MatDialogRef, { optional: true });
     private _dialog = inject(MatDialog);
     private _settings = inject(SettingsService);
 

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { ApplicationIcon, AsyncHandler } from '@placeos/common';
 
 export interface PopoutAction extends ApplicationIcon {
@@ -9,7 +9,7 @@ export interface PopoutAction extends ApplicationIcon {
 @Component({
     selector: 'a-popout-menu',
     template: `
-        @for (item of actions; track item; let i = $index) {
+        @for (item of actions(); track item; let i = $index) {
             <button
                 icon
                 matRipple
@@ -64,9 +64,9 @@ export interface PopoutAction extends ApplicationIcon {
 })
 export class PopoutMenuComponent extends AsyncHandler {
     /** List of available actions */
-    @Input() public actions: PopoutAction[] = [];
+    public readonly actions = input<PopoutAction[]>([]);
     /** Emitter for user actions */
-    @Output() public action = new EventEmitter<string>();
+    public readonly action = output<string>();
     /** Whether actions should show */
     public show: boolean;
 

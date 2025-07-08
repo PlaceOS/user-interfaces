@@ -1,11 +1,11 @@
 import { CommonModule } from '@angular/common';
 import {
-    Component,
-    forwardRef,
-    inject,
-    Input,
-    OnChanges,
-    SimpleChanges,
+  Component,
+  forwardRef,
+  inject,
+  OnChanges,
+  SimpleChanges,
+  input
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { AsyncHandler, SettingsService } from '@placeos/common';
@@ -40,7 +40,7 @@ interface DateItem {
                         icon
                         matRipple
                         name="schedule-next-month"
-                        [disabled]="date_list[0]?.id < from"
+                        [disabled]="date_list[0]?.id < from()"
                         (click)="changeMonth(-1)"
                     >
                         <icon>chevron_left</icon>
@@ -49,7 +49,7 @@ interface DateItem {
                         icon
                         matRipple
                         name="schedule-previous-month"
-                        [disabled]="date_list[34]?.id > to"
+                        [disabled]="date_list[34]?.id > to()"
                         (click)="changeMonth(1)"
                     >
                         <icon>chevron_right</icon>
@@ -78,7 +78,7 @@ interface DateItem {
                         [class.bg-secondary]="day.id === active_date"
                         [class.font-normal]="day.id !== active_date"
                         (click)="setValue(day.id)"
-                        [disabled]="day.id < from || day.id > to"
+                        [disabled]="day.id < from() || day.id > to()"
                     >
                         {{ day.id | date: 'd' }}
                         @if (today === day.id) {
@@ -112,9 +112,9 @@ export class DateCalendarComponent
 {
     private _settings = inject(SettingsService);
 
-    @Input() public from = 0;
-    @Input() public to = Date.now() * 10;
-    @Input() public offset_weekday = 0;
+    public readonly from = input(0);
+    public readonly to = input(Date.now() * 10);
+    public readonly offset_weekday = input(0);
     public readonly today = startOfDay(Date.now()).valueOf();
     public date: number = Date.now();
     public active_date: number = startOfDay(Date.now()).valueOf();
@@ -141,7 +141,7 @@ export class DateCalendarComponent
     }
 
     public setValue(new_value: number) {
-        if (new_value < this.from || new_value >= this.to) return;
+        if (new_value < this.from() || new_value >= this.to()) return;
         const date = new Date(new_value);
         this.date = set(this.date, {
             date: date.getDate(),
@@ -169,7 +169,7 @@ export class DateCalendarComponent
 
     public generateDates() {
         const offset =
-            this._settings.get('app.week_start') || this.offset_weekday;
+            this._settings.get('app.week_start') || this.offset_weekday();
         const date = addMonths(this.date, this.offset);
         let start = startOfWeek(startOfMonth(date), {
             weekStartsOn: offset as any,

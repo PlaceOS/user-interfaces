@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, model } from '@angular/core';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { first, map } from 'rxjs/operators';
 
@@ -37,7 +37,7 @@ const URL_STARTS = [
 @Component({
     selector: `debug-console`,
     template: `
-        @if (show) {
+        @if (show()) {
             <div
                 class="absolute bottom-2 left-2 z-[998] flex h-[24rem] max-h-[65vh] w-[40rem] max-w-[80vw] flex-col overflow-hidden rounded border border-base-300 bg-base-200 text-base-content shadow"
             >
@@ -45,7 +45,7 @@ const URL_STARTS = [
                     class="flex items-center justify-between border-b border-base-300 bg-base-100"
                 >
                     <div class="p-2">{{ 'COMMON.CONSOLE' | translate }}</div>
-                    <button icon matRipple (click)="show = false">
+                    <button icon matRipple (click)="show = false()">
                         <icon>close</icon>
                     </button>
                 </div>
@@ -180,7 +180,7 @@ export class DebugConsoleComponent extends AsyncHandler implements OnInit {
     private _hotkey = inject(HotkeysService);
     private _settings = inject(SettingsService);
 
-    @Input() public show = false;
+    public readonly show = model(false);
     public readonly colors = COLOR_MAP;
     public readonly json_tooltip = JsonDisplayComponent;
     public readonly filter = new BehaviorSubject<string>('');
@@ -200,7 +200,7 @@ export class DebugConsoleComponent extends AsyncHandler implements OnInit {
     );
 
     public readonly onStart = () =>
-        this.timeout('show', () => (this.show = true), 5000);
+        this.timeout('show', () => this.show.set(true), 5000);
     public readonly onEnd = () => this.clearTimeout('show');
 
     public get can_activate() {
@@ -236,9 +236,8 @@ export class DebugConsoleComponent extends AsyncHandler implements OnInit {
         );
         this.subscription(
             'toggle',
-            this._hotkey.listen(
-                ['Control', 'Backquote'],
-                () => (this.show = !this.show),
+            this._hotkey.listen(['Control', 'Backquote'], () =>
+                this.show.set(!this.show()),
             ),
         );
         const binding = this._org.binding('remote_logger');

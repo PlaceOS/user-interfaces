@@ -1,12 +1,11 @@
 import {
-    Component,
-    EventEmitter,
-    Input,
-    OnChanges,
-    OnInit,
-    Output,
-    SimpleChanges,
-    inject,
+  Component,
+  OnChanges,
+  OnInit,
+  SimpleChanges,
+  inject,
+  input,
+  output
 } from '@angular/core';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { map } from 'rxjs/operators';
@@ -103,9 +102,9 @@ export class NewLockerMapComponent
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
 
-    @Input() public is_displayed = false;
-    @Input() public active = '';
-    @Output() public onSelect = new EventEmitter<BookingAsset>();
+    public readonly is_displayed = input(false);
+    public readonly active = input('');
+    public readonly onSelect = output<BookingAsset>();
 
     public readonly lockers_banks$ = loadLockerBanks(
         this._org,
@@ -224,7 +223,7 @@ export class NewLockerMapComponent
             banks.reduce((styles, bank) => {
                 const colours = this._settings.get('app.explore.colors') || {};
                 const status =
-                    this.active === bank.id
+                    this.active() === bank.id
                         ? 'active'
                         : free_lockers.find((_) =>
                                 bank.lockers.find((lkr) => lkr.id === _.id),

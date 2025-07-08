@@ -1,12 +1,12 @@
 import { CommonModule } from '@angular/common';
 import {
     Component,
-    EventEmitter,
-    Input,
     OnChanges,
     OnInit,
-    Output,
     SimpleChanges,
+    input,
+    model,
+    output,
 } from '@angular/core';
 import {
     addDays,
@@ -27,7 +27,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
     template: `
         <div class="flex items-center justify-between">
             <div month class="px-2 font-medium">
-                {{ month | date: 'MMMM yyyy' }}
+                {{ month() | date: 'MMMM yyyy' }}
             </div>
             <div class="flex items-center space-x-2">
                 <button icon matRipple (click)="previousMonth()">
@@ -102,21 +102,24 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
 })
 export class DateRangeCalendarComponent implements OnInit, OnChanges {
     /** Earliest date available the user is allowed to pick */
-    @Input('from') public from_date: number = startOfDay(Date.now()).valueOf();
+    public readonly from_date = input<number>(
+        startOfDay(Date.now()).valueOf(),
+        { alias: 'from' },
+    );
     /** Latest date available the user is allowed to pick */
-    @Input('to') public to_date: number;
+    public readonly to_date = input<number>(undefined, { alias: 'to' });
     /** Index of the day to start the week on when displaying the calendar */
-    @Input() public offset_weekday = 0;
+    public readonly offset_weekday = input(0);
     /** Start date of the selected range */
-    @Input() public start: number;
+    public readonly start = model<number>(undefined);
     /** End date of the selected range */
-    @Input() public end: number;
+    public readonly end = model<number>(undefined);
     /** Month to display the calendar for */
-    @Input() public month = startOfDay(Date.now()).valueOf();
+    public readonly month = model(startOfDay(Date.now()).valueOf());
     /** Emitter for when the start date changes */
-    @Output() public startChange = new EventEmitter<number>();
+    public readonly startChange = output<number>();
     /** Emitter for when the end date changes */
-    @Output() public endChange = new EventEmitter<number>();
+    public readonly endChange = output<number>();
 
     public hovered_date = null;
 
@@ -124,11 +127,8 @@ export class DateRangeCalendarComponent implements OnInit, OnChanges {
     public month_days = [];
 
     public get end_after_start() {
-        return (
-            this.end &&
-            this.end > this.start &&
-            !isSameDay(this.end, this.start)
-        );
+        const end = this.end();
+        return end && end > this.start() && !isSameDay(end, this.start());
     }
 
     public ngOnInit() {
@@ -143,7 +143,7 @@ export class DateRangeCalendarComponent implements OnInit, OnChanges {
         }
         if (changes.start) {
             this._setMonthDays();
-            this.month = this.start || Date.now();
+            this.month.set(this.start() || Date.now());
         }
         if (changes.month) {
             this._setMonthDays();
@@ -152,19 +152,20 @@ export class DateRangeCalendarComponent implements OnInit, OnChanges {
     }
 
     public selectDate(date: number) {
-        if (!this.start || date < this.start) {
-            this.start = date;
+        const start = this.start();
+        if (!start || date < start) {
+            this.start.set(date);
             this.startChange.emit(date);
         } else {
-            this.end = date;
+            this.end.set(date);
             this.endChange.emit(date);
         }
         this._setMonthDays();
     }
 
     public setHoveredDate(date: number) {
-        if (!this.start) return;
-        this.end = date;
+        if (!this.start()) return;
+        this.end.set(date);
         this._setMonthDays();
     }
 
@@ -173,41 +174,44 @@ export class DateRangeCalendarComponent implements OnInit, OnChanges {
     }
 
     public nextMonth() {
-        this.month = addMonths(this.month, 1).valueOf();
+        this.month.set(addMonths(this.month(), 1).valueOf());
         this._setMonthDays();
     }
 
     public previousMonth() {
-        this.month = addMonths(this.month, -1).valueOf();
+        this.month.set(addMonths(this.month(), -1).valueOf());
         this._setMonthDays();
     }
 
     private _setMonthDays() {
-        const start = startOfWeek(startOfMonth(this.month), {
-            weekStartsOn: this.offset_weekday as any,
+        const start = startOfWeek(startOfMonth(this.month()), {
+            weekStartsOn: this.offset_weekday() as any,
         });
         this.month_days = Array.from(Array(7 * 6).keys()).map((i) => {
             const date = addDays(start, i).valueOf();
+            const end = this.end();
+            const from_date = this.from_date();
+            const to_date = this.to_date();
             return {
                 id: date,
                 disabled:
-                    (this.from_date && isBefore(date, this.from_date)) ||
-                    (this.to_date && isAfter(date, this.to_date)),
+                    (from_date && isBefore(date, from_date)) ||
+                    (to_date && isAfter(date, to_date)),
                 is_today: isSameDay(date, Date.now()),
-                is_start: isSameDay(date, this.start),
-                is_end: isSameDay(date, this.end),
-                is_month: isSameMonth(date, this.month),
+                is_start: isSameDay(date, this.start()),
+                is_end: isSameDay(date, this.end()),
+                is_month: isSameMonth(date, this.month()),
                 is_selected:
-                    this.end &&
-                    date >= startOfDay(this.start).valueOf() &&
-                    date <= endOfDay(this.end).valueOf(),
+                    end &&
+                    date >= startOfDay(this.start()).valueOf() &&
+                    date <= endOfDay(end).valueOf(),
             };
         });
     }
 
     private _setWeekdays() {
         const start = startOfWeek(Date.now(), {
-            weekStartsOn: this.offset_weekday as any,
+            weekStartsOn: this.offset_weekday() as any,
         });
         this.weekdays = Array.from(Array(7).keys()).map((i) =>
             addDays(start, i),

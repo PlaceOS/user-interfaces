@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -9,9 +9,9 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 @Component({
     selector: 'user-form',
     template: `
-        @if (form) {
-            <form user-form [formGroup]="form" class="w-full">
-                @if (form.controls.name) {
+        @if (form()) {
+            <form user-form [formGroup]="form()" class="w-full">
+                @if (form().controls.name) {
                     <div class="flex w-full flex-col">
                         <label for="name" [class.error]="hasError('name')">
                             Name<span>*</span>:
@@ -27,7 +27,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                         </mat-form-field>
                     </div>
                 }
-                @if (form.controls.email) {
+                @if (form().controls.email) {
                     <div class="flex w-full flex-col">
                         <label for="email" [class.error]="hasError('email')">
                             Email<span>*</span>:
@@ -43,7 +43,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                         </mat-form-field>
                     </div>
                 }
-                @if (form.controls.organisation) {
+                @if (form().controls.organisation) {
                     <div class="flex w-full flex-col">
                         <label
                             for="org"
@@ -66,7 +66,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                         </mat-form-field>
                     </div>
                 }
-                @if (form.controls.phone) {
+                @if (form().controls.phone) {
                     <div class="flex w-full flex-col">
                         <label for="phone" [class.error]="hasError('phone')">
                             Phone:
@@ -83,7 +83,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                         </mat-form-field>
                     </div>
                 }
-                @if (form.controls.assistance_required) {
+                @if (form().controls.assistance_required) {
                     <div class="flex w-full flex-col">
                         <mat-checkbox
                             name="assistance-required"
@@ -94,7 +94,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                         </mat-checkbox>
                     </div>
                 }
-                @if (form.controls.visit_expected) {
+                @if (form().controls.visit_expected) {
                     <div class="flex w-full flex-col">
                         <mat-checkbox
                             name="visit-expected"
@@ -126,10 +126,10 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 })
 export class UserFormComponent {
     /** Group of form fields used for creating the system */
-    @Input() public form?: FormGroup;
+    public readonly form = input<FormGroup>(undefined);
 
     public hasError(name: string) {
-        const { invalid, touched } = this.form?.controls[name] || {};
+        const { invalid, touched } = this.form()?.controls[name] || {};
         return invalid && touched;
     }
 }

@@ -1,9 +1,8 @@
 import {
-    Component,
-    EventEmitter,
-    Input,
-    Output,
-    SimpleChanges,
+  Component,
+  SimpleChanges,
+  input,
+  output
 } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -14,10 +13,10 @@ import { AssetGroup } from '../asset.class';
 @Component({
     selector: 'asset-details',
     template: `
-        @if (item) {
+        @if (item()) {
             <section image class="relative h-64 w-full bg-base-200 sm:h-40">
                 <image-carousel
-                    [images]="item.images"
+                    [images]="item().images"
                     class="absolute inset-0"
                 ></image-carousel>
                 <button
@@ -33,14 +32,14 @@ import { AssetGroup } from '../asset.class';
                     icon
                     matRipple
                     fav
-                    [class.text-info-content]="fav"
-                    [class.!bg-info]="fav"
+                    [class.text-info-content]="fav()"
+                    [class.!bg-info]="fav()"
                     (click)="toggleFav.emit()"
                     class="absolute right-2 top-2 bg-base-200"
                 >
                     <icon
                         [className]="
-                            fav
+                            fav()
                                 ? 'material-symbols-rounded'
                                 : 'material-symbols-outlined'
                         "
@@ -52,25 +51,25 @@ import { AssetGroup } from '../asset.class';
                 <section actions class="z-0 flex items-center justify-between">
                     <div>
                         <h2 class="mb-2 mt-4 text-xl font-medium">
-                            {{ item.name }}
+                            {{ item().name }}
                         </h2>
                         <p>
                             {{
-                                (item.available != null
-                                    ? item.available
-                                    : item.assets?.length) || 0
+                                (item().available != null
+                                    ? item().available
+                                    : item().assets?.length) || 0
                             }}
                             Available
                         </p>
                     </div>
                     <a-counter
-                        [(ngModel)]="item.quantity"
+                        [(ngModel)]="item().quantity"
                         (ngModelChange)="countChange.emit($event)"
                         [min]="1"
                         [max]="
-                            (item.available != null
-                                ? item.available
-                                : item.assets?.length) || 1
+                            (item().available != null
+                                ? item().available
+                                : item().assets?.length) || 1
                         "
                     ></a-counter>
                 </section>
@@ -78,7 +77,7 @@ import { AssetGroup } from '../asset.class';
                 <section details class="space-y-2">
                     <h2 class="text-xl font-medium">Details</h2>
                     <div class="flex items-center space-x-2">
-                        <p>{{ item.description || 'No description' }}</p>
+                        <p>{{ item().description || 'No description' }}</p>
                     </div>
                 </section>
             </div>
@@ -87,17 +86,17 @@ import { AssetGroup } from '../asset.class';
                     btn
                     matRipple
                     select
-                    [class.inverse]="active"
+                    [class.inverse]="active()"
                     class="w-full"
-                    (click)="active = !active; activeChange.emit(active)"
+                    (click)="active = !active(); activeChange.emit(active())"
                 >
                     <div class="flex items-center justify-center">
                         <icon class="text-2xl">
-                            {{ active ? 'remove' : 'add' }}
+                            {{ active() ? 'remove' : 'add' }}
                         </icon>
                         <p>
                             {{
-                                (active
+                                (active()
                                     ? 'BOOKINGS.ASSETS_REMOVE'
                                     : 'BOOKINGS.ASSETS_ADD'
                                 ) | translate
@@ -137,22 +136,24 @@ import { AssetGroup } from '../asset.class';
     ],
 })
 export class AssetDetailsComponent {
-    @Input() public item?: AssetGroup;
-    @Input() public active = false;
-    @Input() public fav = false;
+    public readonly item = input<AssetGroup>(undefined);
+    public readonly active = input(false);
+    public readonly fav = input(false);
 
-    @Output() public toggleFav = new EventEmitter<void>();
-    @Output() public activeChange = new EventEmitter<boolean>();
-    @Output() public countChange = new EventEmitter<number>();
-    @Output() public close = new EventEmitter<void>();
+    public readonly toggleFav = output<void>();
+    public readonly activeChange = output<boolean>();
+    public readonly countChange = output<number>();
+    public readonly close = output<void>();
 
     public ngOnInit() {
-        if (this.item && !this.item.quantity) this.item.quantity = 1;
+        const item = this.item();
+        if (item && !item.quantity) item.quantity = 1;
     }
 
     public ngOnChanges(changes: SimpleChanges) {
-        if (changes.item && this.item) {
-            if (!this.item.quantity) this.item.quantity = 1;
+        const item = this.item();
+        if (changes.item && item) {
+            if (!item.quantity) item.quantity = 1;
         }
     }
 }

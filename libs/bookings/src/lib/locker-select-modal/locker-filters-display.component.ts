@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import { Component, inject, model, output } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 
@@ -55,8 +55,8 @@ import { LockerFiltersComponent } from './locker-filters.component';
                     matRipple
                     name="view-locker-map"
                     class="rounded-l rounded-r-none"
-                    [class.inverse]="view !== 'map'"
-                    (click)="view = 'map'; viewChange.emit(view)"
+                    [class.inverse]="view() !== 'map'"
+                    (click)="view.set('map'); viewChange.emit(view())"
                 >
                     {{ 'COMMON.MAP' | translate }}
                 </button>
@@ -65,8 +65,8 @@ import { LockerFiltersComponent } from './locker-filters.component';
                     matRipple
                     name="view-locker-list"
                     class="rounded-l-none rounded-r"
-                    [class.inverse]="view !== 'list'"
-                    (click)="view = 'list'; viewChange.emit(view)"
+                    [class.inverse]="view() !== 'list'"
+                    (click)="view.set('list'); viewChange.emit(view())"
                 >
                     {{ 'COMMON.LIST' | translate }}
                 </button>
@@ -133,8 +133,8 @@ export class LockerFiltersDisplayComponent extends AsyncHandler {
     private _state = inject(BookingFormService);
     private _settings = inject(SettingsService);
 
-    @Input() public view: 'map' | 'list' = 'list';
-    @Output() public viewChange = new EventEmitter<'map' | 'list'>();
+    public readonly view = model<'map' | 'list'>('list');
+    public readonly viewChange = output<'map' | 'list'>();
     public readonly options = this._state.options;
     public readonly setOptions = (o) => this._state.setOptions(o);
     public readonly setFeature = (f, e) => this._state.setFeature(f, e);

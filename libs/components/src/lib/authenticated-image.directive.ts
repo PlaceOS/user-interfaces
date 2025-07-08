@@ -1,10 +1,10 @@
 import {
-    Directive,
-    ElementRef,
-    Input,
-    OnChanges,
-    SimpleChanges,
-    inject,
+  Directive,
+  ElementRef,
+  OnChanges,
+  SimpleChanges,
+  inject,
+  input
 } from '@angular/core';
 import { apiKey, authority, token } from '@placeos/ts-client';
 
@@ -22,29 +22,30 @@ export class AuthenticatedImageDirective
     private _element =
         inject<ElementRef<HTMLImageElement | HTMLVideoElement>>(ElementRef);
 
-    @Input() public source: string;
+    public readonly source = input<string>(undefined);
 
     constructor() {
         super();
     }
 
     public ngOnChanges(changes: SimpleChanges) {
-        if (changes.source && this.source) this._loadImage();
+        if (changes.source && this.source()) this._loadImage();
     }
 
     private async _loadImage() {
-        if (typeof this.source !== 'string') return;
+        const source = this.source();
+        if (typeof source !== 'string') return;
         if (!this._element || !authority()) {
             return this.timeout('load', () => this._loadImage(), 300);
         }
         // If not an API call, just load the image
-        if (!this.source.includes('/api/engine/v2/uploads')) {
-            this._element.nativeElement.src = this.source;
+        if (!source.includes('/api/engine/v2/uploads')) {
+            this._element.nativeElement.src = source;
             return;
         }
         // If image has already been loaded, just use the cached version
-        if (IMAGE_STORE.has(this.source)) {
-            this._element.nativeElement.src = IMAGE_STORE.get(this.source);
+        if (IMAGE_STORE.has(source)) {
+            this._element.nativeElement.src = IMAGE_STORE.get(source);
             return;
         }
         const tkn = token();
@@ -57,15 +58,15 @@ export class AuthenticatedImageDirective
         }`;
         let response = null;
         try {
-            response = await fetch(this.source).catch((_) => null);
+            response = await fetch(source).catch((_) => null);
         } catch {}
         if (!response || !response.ok) {
-            console.info('Failed to load image:', this.source);
+            console.info('Failed to load image:', source);
             return;
         }
         const blob = await response.blob();
         const url = URL.createObjectURL(blob);
-        IMAGE_STORE.set(this.source, url);
+        IMAGE_STORE.set(source, url);
         this._element.nativeElement.src = url;
     }
 }

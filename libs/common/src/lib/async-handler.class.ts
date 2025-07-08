@@ -1,7 +1,8 @@
-import { Injectable, OnDestroy } from '@angular/core';
+import { Injectable, OnDestroy, OutputRefSubscription } from '@angular/core';
 import { BehaviorSubject, Subscription } from 'rxjs';
 
 type VoidFn = () => void;
+type AnySubscription = OutputRefSubscription | Subscription | VoidFn;
 
 /**
  * Class for handling cleanup of async methods when components are destroyed.
@@ -17,7 +18,7 @@ export class AsyncHandler implements OnDestroy {
     protected _intervals: { [name: string]: number } = {};
     /** Store for named subscription unsub callbacks */
     protected _subscriptions: {
-        [name: string]: Subscription | VoidFn;
+        [name: string]: AnySubscription;
     } = {};
     /** Subject which stores the initialised state of the object */
     protected readonly _initialised = new BehaviorSubject<boolean>(false);
@@ -113,7 +114,7 @@ export class AsyncHandler implements OnDestroy {
      * @param name Name of the subscription
      * @param unsub Unsubscribe callback or Subscription object
      */
-    protected subscription(name: string, unsub: Subscription | VoidFn) {
+    protected subscription(name: string, unsub: AnySubscription) {
         this.unsub(name);
         this._subscriptions[name] = unsub;
     }

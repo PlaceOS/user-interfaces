@@ -1,5 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
 import {
     MAT_DIALOG_DATA,
     MatDialogModule,
@@ -7,6 +8,7 @@ import {
 } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
+import { MatSliderModule } from '@angular/material/slider';
 import { SettingsService, notifyError, notifySuccess } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { DeskHeightPresetsComponent } from 'libs/components/src/lib/desk-height-presets.component';
@@ -77,15 +79,16 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
                     icon
                     matRipple
                     mat-dialog-close
-                    class="absolute right-0 top-0"
+                    class="absolute right-2 top-2"
                 >
                     <icon>close</icon>
                 </button>
             </div>
         } @else {
-            <desk-height-presets [show_close]="true"
+            <desk-height-presets
+                [show_close]="true"
                 (close)="edit_presets = false"
-             />
+            />
         }
     `,
     styles: [],
@@ -94,6 +97,8 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
         MatDialogModule,
         MatFormFieldModule,
         MatSelectModule,
+        MatSliderModule,
+        MatRippleModule,
         FormsModule,
         DeskHeightPresetsComponent,
     ],

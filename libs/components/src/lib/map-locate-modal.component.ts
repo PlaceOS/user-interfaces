@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit, Output, inject } from '@angular/core';
+import { Component, OnInit, inject, output } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ViewerFeature, ViewerStyles } from '@placeos/svg-viewer';
 
@@ -75,7 +75,7 @@ export class MapLocateModalComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);
 
     /** Emitter for user action on the modal */
-    @Output() public event = new EventEmitter();
+    public readonly event = output();
     /** Space to show the location of on the map */
     public item: Locatable = this._data.item;
     /** Features of the map */

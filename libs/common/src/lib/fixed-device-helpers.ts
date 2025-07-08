@@ -1,9 +1,10 @@
+import { isFixedDevice } from '@placeos/ts-client';
+
 let _wake_lock: WakeLockSentinel | null = null;
 
 export async function requestScreenWakeLock() {
-    if (_wake_lock) {
-        await _wake_lock.release();
-    }
+    if (!isFixedDevice()) return;
+    if (_wake_lock) await _wake_lock.release();
     // create an async function to request a wake lock
     try {
         _wake_lock = await navigator.wakeLock.request('screen');

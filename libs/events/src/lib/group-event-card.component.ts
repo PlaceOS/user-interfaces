@@ -1,4 +1,4 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { SettingsService } from '@placeos/common';
 
@@ -18,7 +18,7 @@ import { GroupEventDetailsModalComponent } from './group-event-details-modal.com
 @Component({
     selector: 'group-event-card',
     template: `
-        @if (!featured) {
+        @if (!featured()) {
             <button
                 matRipple
                 (click)="viewDetails()"
@@ -27,24 +27,24 @@ import { GroupEventDetailsModalComponent } from './group-event-details-modal.com
                 <div
                     class="relative flex h-28 min-h-28 w-full items-center justify-between overflow-hidden border-b border-base-200 bg-base-200"
                 >
-                    @if (event.images?.length) {
+                    @if (event().images?.length) {
                         <img
                             auth
-                            [source]="event.images[0]"
+                            [source]="event().images[0]"
                             class="absolute left-0 top-0 h-full w-full object-cover object-center"
                         />
                     }
                 </div>
                 <div class="h-1/2 w-full flex-1 p-4">
                     <div class="text-left text-sm opacity-60">
-                        {{ event.date | date: 'EEE d MMM' }},
-                        {{ event.date | date: time_format }}
+                        {{ event().date | date: 'EEE d MMM' }},
+                        {{ event().date | date: time_format }}
                     </div>
                     <h2
                         class="mb-2 w-full truncate text-left text-xl"
-                        [title]="event.title"
+                        [title]="event().title"
                     >
-                        {{ event.title }}
+                        {{ event().title }}
                     </h2>
                     <div
                         class="mb-2 h-[4.5rem] flex-1 overflow-hidden text-left text-xs opacity-60"
@@ -88,7 +88,7 @@ import { GroupEventDetailsModalComponent } from './group-event-details-modal.com
                                     | translate
                                         : {
                                               count:
-                                                  event.attendees?.length ||
+                                                  event().attendees?.length ||
                                                   '0',
                                           }
                             }}
@@ -105,10 +105,10 @@ import { GroupEventDetailsModalComponent } from './group-event-details-modal.com
                 <div
                     class="relative flex h-full w-1/2 min-w-56 max-w-[20rem] items-center justify-between overflow-hidden border-r border-base-200 bg-base-200"
                 >
-                    @if (event.images?.length) {
+                    @if (event().images?.length) {
                         <img
                             auth
-                            [source]="event.images[0]"
+                            [source]="event().images[0]"
                             class="absolute left-0 top-0 h-full w-full object-cover object-center"
                         />
                     }
@@ -124,17 +124,17 @@ import { GroupEventDetailsModalComponent } from './group-event-details-modal.com
                 <div details class="flex space-x-4 px-8 py-4">
                     <div class="flex flex-col items-center">
                         <div class="text-sm opacity-30">
-                            {{ event.date | date: 'MMM' }}
+                            {{ event().date | date: 'MMM' }}
                         </div>
-                        <div class="text-lg">{{ event.date | date: 'd' }}</div>
+                        <div class="text-lg">{{ event().date | date: 'd' }}</div>
                     </div>
                     <div class="flex flex-col space-y-2">
-                        <h3 class="text-left">{{ event.title }}</h3>
+                        <h3 class="text-left">{{ event().title }}</h3>
                         <div time class="text-left text-sm opacity-30">
-                            {{ event.date | date: 'EEEE' }}
-                            {{ event.date | date: time_format }} -
+                            {{ event().date | date: 'EEEE' }}
+                            {{ event().date | date: time_format }} -
                             {{
-                                event.date + event.duration * 60 * 1000
+                                event().date + event().duration * 60 * 1000
                                     | date: time_format
                             }}
                         </div>
@@ -181,7 +181,7 @@ import { GroupEventDetailsModalComponent } from './group-event-details-modal.com
                                         | translate
                                             : {
                                                   count:
-                                                      event.attendees?.length ||
+                                                      event().attendees?.length ||
                                                       '0',
                                               }
                                 }}
@@ -221,8 +221,8 @@ export class GroupEventCardComponent {
     private _dialog = inject(MatDialog);
     private _org = inject(OrganisationService);
 
-    @Input() public event: CalendarEvent;
-    @Input() public featured: boolean;
+    public readonly event = input<CalendarEvent>(undefined);
+    public readonly featured = input<boolean>(undefined);
     public space: Space;
     public raw_description = '';
 
@@ -231,7 +231,7 @@ export class GroupEventCardComponent {
     }
 
     public get is_onsite() {
-        return this.event?.extension_data.attendance_type !== 'ONLINE';
+        return this.event()?.extension_data.attendance_type !== 'ONLINE';
     }
 
     public get has_space() {
@@ -241,7 +241,7 @@ export class GroupEventCardComponent {
     public get is_online() {
         return (
             !this.is_onsite ||
-            this.event?.extension_data.attendance_type === 'ANY'
+            this.event()?.extension_data.attendance_type === 'ANY'
         );
     }
 
@@ -252,13 +252,13 @@ export class GroupEventCardComponent {
     public async ngOnInit() {
         const space_pipe = new SpacePipe();
         space_pipe.org = this._org;
-        const resource = this.event.resources.find(
+        const resource = this.event().resources.find(
             (_) => _.email !== this.group_event_calendar,
         );
         this.space = await space_pipe.transform(
             resource?.id || resource?.email,
         );
-        this.raw_description = this.removeHtmlTags(this.event.body);
+        this.raw_description = this.removeHtmlTags(this.event().body);
     }
 
     public removeHtmlTags(html: string) {
@@ -268,7 +268,7 @@ export class GroupEventCardComponent {
 
     public viewDetails(): void {
         this._dialog.open(GroupEventDetailsModalComponent, {
-            data: { event: this.event, concierge: false },
+            data: { event: this.event(), concierge: false },
         });
     }
 }

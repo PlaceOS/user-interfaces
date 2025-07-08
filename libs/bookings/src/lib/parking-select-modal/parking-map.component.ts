@@ -1,11 +1,11 @@
 import {
     Component,
-    EventEmitter,
     inject,
-    Input,
+    input,
+    model,
     OnChanges,
     OnInit,
-    Output,
+    output,
     SimpleChanges,
 } from '@angular/core';
 import { AsyncHandler, nextValueFrom, SettingsService } from '@placeos/common';
@@ -100,9 +100,9 @@ export class ParkingSpaceMapComponent
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
 
-    @Input() public is_displayed = false;
-    @Input() public active = '';
-    @Output() public onSelect = new EventEmitter<BookingAsset>();
+    public readonly is_displayed = input(false);
+    public readonly active = model('');
+    public readonly onSelect = output<BookingAsset>();
 
     public readonly parkings = this._state.available_resources;
     public readonly loading = this._state.loading;
@@ -185,7 +185,7 @@ export class ParkingSpaceMapComponent
             parkings.reduce((styles, parking) => {
                 const colours = this._settings.get('app.explore.colors') || {};
                 const status =
-                    this.active === parking.id
+                    this.active() === parking.id
                         ? 'pending'
                         : free_parkings.find((_) => _.id === parking.id)
                           ? 'free'
@@ -233,7 +233,7 @@ export class ParkingSpaceMapComponent
 
     public selectParking(parking: BookingAsset) {
         this.onSelect.emit(parking);
-        this.active = parking.id;
+        this.active.set(parking.id);
         this._change.next(Date.now());
     }
 

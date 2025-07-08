@@ -1,10 +1,10 @@
 import {
     Component,
-    Input,
     OnChanges,
     OnInit,
     SimpleChanges,
     inject,
+    input,
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, RouterModule } from '@angular/router';
@@ -34,34 +34,34 @@ import { ParkingService } from './parking.service';
 @Component({
     selector: 'booking-card',
     template: `
-        @if (booking) {
+        @if (booking()) {
             <h4 class="mb-2 flex items-center">
-                @if (show_day) {
+                @if (show_day()) {
                     <span day>{{ day }},&nbsp;</span>
                 }
-                {{ booking?.date | date: time_format }}
+                {{ booking()?.date | date: time_format }}
                 <span class="px-2 text-xs"
-                    >({{ booking?.date | date: 'zzzz' }})</span
+                    >({{ booking()?.date | date: 'zzzz' }})</span
                 >
             </h4>
         }
-        @if (booking) {
+        @if (booking()) {
             <a
                 name="view-booking-details"
                 class="relative w-full cursor-pointer overflow-hidden"
                 [routerLink]="['./']"
-                [queryParams]="{ booking: booking?.id }"
+                [queryParams]="{ booking: booking()?.id }"
                 (click)="viewDetails()"
             >
                 <div
                     class="relative w-full rounded-xl border border-base-300 bg-base-100 py-4 shadow"
                 >
-                    <h4 class="px-4 text-lg">{{ booking?.title }}</h4>
+                    <h4 class="px-4 text-lg">{{ booking()?.title }}</h4>
                     <div class="mx-4 my-2 flex items-center space-x-2">
                         <status-pill [status]="status">{{
                             period
                         }}</status-pill>
-                        @if (booking.instance) {
+                        @if (booking().instance) {
                             <icon class="text-2xl" [matTooltip]="recurr_tooltip"
                                 >event_repeat</icon
                             >
@@ -115,8 +115,8 @@ import { ParkingService } from './parking.service';
                             <div class="mx-2 w-1/2 flex-1 truncate">
                                 {{
                                     raw_description ||
-                                        booking?.asset_name ||
-                                        booking?.asset_id
+                                        booking()?.asset_name ||
+                                        booking()?.asset_id
                                 }}
                             </div>
                         </div>
@@ -134,7 +134,7 @@ import { ParkingService } from './parking.service';
                     </icon>
                     @if (
                         !for_current_user &&
-                        booking?.booking_type !== 'group-event'
+                        booking()?.booking_type !== 'group-event'
                     ) {
                         <div
                             class="bg-warning/50 absolute right-2 top-2 rounded-xl px-2 py-1 text-xs"
@@ -142,7 +142,7 @@ import { ParkingService } from './parking.service';
                             {{ 'BOOKINGS.ASSOCIATE' | translate }}
                         </div>
                     }
-                    @if (booking?.booking_type === 'group-event') {
+                    @if (booking()?.booking_type === 'group-event') {
                         <div
                             class="bg-warning/50 absolute right-2 top-2 rounded-xl px-2 py-1 text-xs"
                         >
@@ -154,7 +154,7 @@ import { ParkingService } from './parking.service';
                             class="bg-warning/50 absolute right-2 top-2 rounded-xl px-2 py-1 text-xs"
                         >
                             {{
-                                (booking.status !== 'declined'
+                                (booking().status !== 'declined'
                                     ? 'BOOKINGS.RESERVED'
                                     : 'BOOKINGS.RELEASED'
                                 ) | translate
@@ -193,11 +193,11 @@ export class BookingCardComponent
     private _settings = inject(SettingsService);
     private _parking = inject(ParkingService);
 
-    @Input() public booking: Booking;
-    @Input() public show_day = false;
-    @Input() public edit_fn = (i) => null;
-    @Input() public remove_fn = (i, s?) => null;
-    @Input() public end_fn = (i) => null;
+    public readonly booking = input<Booking>(undefined);
+    public readonly show_day = input(false);
+    public readonly edit_fn = input((i) => null);
+    public readonly remove_fn = input((i, s?) => null);
+    public readonly end_fn = input((i) => null);
 
     public raw_description = '';
 
@@ -205,15 +205,15 @@ export class BookingCardComponent
         this._parking.assigned_space.pipe(
             map(
                 (space) =>
-                    this.booking.booking_type === 'parking' &&
+                    this.booking().booking_type === 'parking' &&
                     space &&
-                    this.booking.asset_id === space.id,
+                    this.booking().asset_id === space.id,
             ),
         );
 
     public get for_current_user() {
         return (
-            this.booking?.user_email.toLowerCase() ===
+            this.booking()?.user_email.toLowerCase() ===
             currentUser()?.email.toLowerCase()
         );
     }
@@ -223,17 +223,18 @@ export class BookingCardComponent
     }
 
     public get status() {
-        if (this.booking?.is_done) return 'neutral';
-        if (this.booking?.status === 'approved') return 'success';
-        if (this.booking?.status === 'declined') return 'error';
-        if (this.booking?.status === 'cancelled') return 'error';
-        if (this.booking?.status === 'tentative') return 'warning';
+        const booking = this.booking();
+        if (booking?.is_done) return 'neutral';
+        if (booking?.status === 'approved') return 'success';
+        if (booking?.status === 'declined') return 'error';
+        if (booking?.status === 'cancelled') return 'error';
+        if (booking?.status === 'tentative') return 'warning';
         return 'warning';
     }
 
     public get recurr_tooltip() {
         return (
-            formatRecurrence(fromBookingRecurrence(this.booking)) ||
+            formatRecurrence(fromBookingRecurrence(this.booking())) ||
             i18n('CALENDAR_EVENT.RECURRING_TOOLTIP')
         );
     }
@@ -247,7 +248,7 @@ export class BookingCardComponent
             'route.query',
             this._route.queryParamMap.subscribe((params) =>
                 params.has('booking') &&
-                this.booking?.id === params.get('event')
+                this.booking()?.id === params.get('event')
                     ? this.viewDetails()
                     : '',
             ),
@@ -257,30 +258,31 @@ export class BookingCardComponent
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.booking) {
             this.raw_description = this.removeHtmlTags(
-                this.booking?.description,
+                this.booking()?.description,
             );
         }
     }
 
     public get type() {
-        return this.booking.type;
+        return this.booking().type;
     }
 
     public get day() {
-        const date = this.booking?.date || Date.now();
+        const date = this.booking()?.date || Date.now();
         const is_today = isSameDay(Date.now(), date);
         return `${is_today ? i18n('COMMON.TODAY') : format(date, 'EEEE')}`;
     }
 
     public get location() {
-        const level = this._org.levelWithID(this.booking?.zones || []);
+        const level = this._org.levelWithID(this.booking()?.zones || []);
         return `${level?.display_name || level?.name || ''}`;
     }
 
     public get period() {
-        if (this.booking?.is_all_day) return i18n('COMMON.ALL_DAY');
-        const start = this.booking?.date || Date.now();
-        const duration = this.booking?.duration || 60;
+        const booking = this.booking();
+        if (booking?.is_all_day) return i18n('COMMON.ALL_DAY');
+        const start = booking?.date || Date.now();
+        const duration = booking?.duration || 60;
         const end = addMinutes(start, duration);
         const dur = formatDuration({
             hours: Math.floor(duration / 60),
@@ -300,21 +302,22 @@ export class BookingCardComponent
     }
 
     public viewDetails() {
-        if (!this.booking) return;
+        if (!this.booking()) return;
         this.timeout('open', () => {
             this._dialog.closeAll();
             const view_component: any =
-                this.booking.booking_type === 'group-event'
+                this.booking().booking_type === 'group-event'
                     ? GroupEventDetailsModalComponent
                     : BookingDetailsModalComponent;
+            const booking = this.booking();
             const data = {
                 booking:
-                    this.booking.booking_type === 'group-event'
-                        ? { booking: this.booking, concierge: false }
-                        : this.booking,
-                edit_fn: this.edit_fn,
-                remove_fn: this.remove_fn,
-                end_fn: this.end_fn,
+                    booking.booking_type === 'group-event'
+                        ? { booking: booking, concierge: false }
+                        : booking,
+                edit_fn: this.edit_fn(),
+                remove_fn: this.remove_fn(),
+                end_fn: this.end_fn(),
             };
             this._dialog.open(view_component, { data });
         });

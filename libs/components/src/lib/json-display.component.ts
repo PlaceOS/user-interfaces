@@ -1,4 +1,4 @@
-import { Component, Input, SimpleChanges, inject } from '@angular/core';
+import { Component, SimpleChanges, inject, input } from '@angular/core';
 import { CustomTooltipData } from './custom-tooltip.component';
 
 @Component({
@@ -27,7 +27,7 @@ import { CustomTooltipData } from './custom-tooltip.component';
     standalone: false,
 })
 export class JsonDisplayComponent {
-    @Input() public json: Object;
+    public readonly json = input<Object>(undefined);
 
     public formatted_json: string;
 
@@ -45,6 +45,6 @@ export class JsonDisplayComponent {
     }
 
     private _updateFormatting() {
-        this.formatted_json = JSON.stringify(this.json, undefined, 4);
+        this.formatted_json = JSON.stringify(this.json(), undefined, 4);
     }
 }

@@ -1,4 +1,4 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { SettingsService } from '@placeos/common';
 import { addDays, endOfDay } from 'date-fns';
@@ -103,7 +103,7 @@ import { BookingFormService } from '../booking-form.service';
                             </mat-select>
                         </mat-form-field>
                     }
-                    @if (!hide_levels) {
+                    @if (!hide_levels()) {
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
                                 name="location"
@@ -197,7 +197,7 @@ import { BookingFormService } from '../booking-form.service';
                     </div>
                 }
             </section>
-            @if (!hide_levels) {
+            @if (!hide_levels()) {
                 <section favs class="space-y-2 pb-4">
                     <h2 class="mt-2 text-lg font-medium">
                         {{ 'COMMON.FAVOURITES' | translate }}
@@ -213,7 +213,7 @@ import { BookingFormService } from '../booking-form.service';
                     </div>
                 </section>
             }
-            @if ((features | async)?.length && !hide_levels) {
+            @if ((features | async)?.length && !hide_levels()) {
                 <section class="space-y-2" features>
                     <h2 class="mt-2 text-lg font-medium">
                         {{ 'COMMON.TYPE' | translate }}
@@ -275,7 +275,7 @@ export class DeskFiltersComponent {
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
 
-    @Input() public hide_levels: boolean;
+    public readonly hide_levels = input<boolean>(undefined);
 
     public can_close = false;
     public readonly options = this._state.options;

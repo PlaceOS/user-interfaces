@@ -1,12 +1,11 @@
 import { CommonModule } from '@angular/common';
 import {
-    Component,
-    EventEmitter,
-    Input,
-    OnChanges,
-    Output,
-    SimpleChanges,
-    inject,
+  Component,
+  OnChanges,
+  SimpleChanges,
+  inject,
+  input,
+  output
 } from '@angular/core';
 import {
     FormControl,
@@ -444,9 +443,9 @@ export class BookingRulesFormComponent implements OnChanges {
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
 
-    @Input() public ruleset?: BookingRuleset;
-    @Input() public save = false;
-    @Output() public rulesetChange = new EventEmitter<BookingRuleset>();
+    public readonly ruleset = input<BookingRuleset>(undefined);
+    public readonly save = input(false);
+    public readonly rulesetChange = output<BookingRuleset>();
 
     public available_conditions: string[] = [];
 
@@ -520,15 +519,16 @@ export class BookingRulesFormComponent implements OnChanges {
     }
 
     public ngOnChanges(changes: SimpleChanges): void {
-        if (changes.ruleset && this.ruleset) {
+        const ruleset = this.ruleset();
+        if (changes.ruleset && ruleset) {
             this.available_conditions = Object.keys(
-                this.ruleset.conditions || {},
+                ruleset.conditions || {},
             );
-            this.form.patchValue(this.ruleset);
+            this.form.patchValue(ruleset);
         }
         if (
             changes.save &&
-            this.save !== changes.save.previousValue &&
+            this.save() !== changes.save.previousValue &&
             !changes.save.firstChange
         ) {
             this.post();

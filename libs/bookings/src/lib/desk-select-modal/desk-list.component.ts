@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import { Component, inject, input, output } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
@@ -37,7 +37,7 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
                         <li
                             desk
                             class="relative w-full overflow-hidden rounded-lg border border-base-200 bg-base-100 shadow"
-                            [class.!border-info]="active === desk.id"
+                            [class.!border-info]="active() === desk.id"
                         >
                             <button
                                 name="select-desk"
@@ -48,7 +48,7 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
                                 <div
                                     class="relative mr-4 flex h-20 w-20 items-center justify-center rounded-xl bg-base-200"
                                 >
-                                    @if (selected.includes(desk.id)) {
+                                    @if (selected().includes(desk.id)) {
                                         <div
                                             class="absolute left-1 top-1 flex h-6 w-6 items-center justify-center rounded-full border border-neutral bg-base-200 text-white"
                                         >
@@ -140,11 +140,11 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
 export class DeskListComponent {
     private _state = inject(BookingFormService);
 
-    @Input() public active = '';
-    @Input() public selected = '';
-    @Input() public favorites: string[] = [];
-    @Output() public onSelect = new EventEmitter<BookingAsset>();
-    @Output() public toggleFav = new EventEmitter<BookingAsset>();
+    public readonly active = input('');
+    public readonly selected = input('');
+    public readonly favorites = input<string[]>([]);
+    public readonly onSelect = output<BookingAsset>();
+    public readonly toggleFav = output<BookingAsset>();
 
     public readonly desks = combineLatest([
         this._state.options,
@@ -163,7 +163,7 @@ export class DeskListComponent {
     public readonly loading = this._state.loading;
 
     public isFavourite(desk_id: string) {
-        return this.favorites.includes(desk_id);
+        return this.favorites().includes(desk_id);
     }
 
     public selectDesk(desk: BookingAsset) {

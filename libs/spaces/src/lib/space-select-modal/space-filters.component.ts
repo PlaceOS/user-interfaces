@@ -1,4 +1,4 @@
-import { Component, inject, Input } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import {
     flatten,
@@ -101,7 +101,7 @@ import { SpacesService } from '../spaces.service';
                             </mat-select>
                         </mat-form-field>
                     }
-                    @if (!hide_levels) {
+                    @if (!hide_levels()) {
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
                                 name="location"
@@ -154,12 +154,12 @@ import { SpacesService } from '../spaces.service';
                             [to]="end_date"
                             [short]="true"
                             [timezone]="timezone"
-                            [range]="multiday ? 1 : 0"
+                            [range]="multiday() ? 1 : 0"
                         >
                             {{ 'FORM.DATE_ERROR' | translate }}
                         </a-date-field>
                     </div>
-                    @if (multiday) {
+                    @if (multiday()) {
                         <div class="relative min-w-[8rem] flex-1">
                             <label for="date">
                                 {{ 'FORM.DATE_END' | translate }}<span>*</span>
@@ -208,7 +208,7 @@ import { SpacesService } from '../spaces.service';
                                 [timezone]="timezone"
                             ></a-time-field>
                         </div>
-                        @if (multiday) {
+                        @if (multiday()) {
                             <div class="w-1/3 flex-1">
                                 <label for="end-time">
                                     {{ 'FORM.TIME_END' | translate
@@ -227,7 +227,7 @@ import { SpacesService } from '../spaces.service';
                                 ></a-time-field>
                             </div>
                         }
-                        @if (!multiday) {
+                        @if (!multiday()) {
                             <div class="w-1/3 flex-1">
                                 <label for="end-time">
                                     {{ 'FORM.TIME_END' | translate
@@ -247,7 +247,7 @@ import { SpacesService } from '../spaces.service';
                 }
             </section>
             @let has_mapspeople = using_mapspeople | async;
-            @if (!hide_levels && (!viewing_map || !has_mapspeople)) {
+            @if (!hide_levels() && (!viewing_map() || !has_mapspeople)) {
                 <section favs class="space-y-2 pb-4">
                     <h2 class="mt-2 text-lg font-medium">
                         {{ 'COMMON.FAVOURITES' | translate }}
@@ -265,8 +265,8 @@ import { SpacesService } from '../spaces.service';
             }
             @if (
                 (features | async)?.length &&
-                (!viewing_map || !has_mapspeople) &&
-                !hide_levels
+                (!viewing_map() || !has_mapspeople) &&
+                !hide_levels()
             ) {
                 <section features class="space-y-2">
                     <h2 class="mt-2 text-lg font-medium">Facilities</h2>
@@ -343,9 +343,9 @@ export class SpaceFiltersComponent {
     private _spaces = inject(SpacesService);
     private _mapspeople = inject(MapsPeopleService);
 
-    @Input() public multiday: boolean;
-    @Input() public hide_levels: boolean;
-    @Input() public viewing_map: boolean;
+    public readonly multiday = input<boolean>(undefined);
+    public readonly hide_levels = input<boolean>(undefined);
+    public readonly viewing_map = input<boolean>(undefined);
     public can_close = false;
     public readonly options = this._event_form.options$;
 

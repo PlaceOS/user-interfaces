@@ -1,10 +1,9 @@
 import {
-    Component,
-    EventEmitter,
-    Input,
-    OnInit,
-    Output,
-    inject,
+  Component,
+  OnInit,
+  inject,
+  input,
+  output
 } from '@angular/core';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { BehaviorSubject, combineLatest } from 'rxjs';
@@ -101,10 +100,10 @@ export class NewSpaceMapComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
 
-    @Input() public selected: string[] = [];
-    @Input() public active: string;
-    @Input() public is_displayed = false;
-    @Output() public onSelect = new EventEmitter<Space>();
+    public readonly selected = input<string[]>([]);
+    public readonly active = input<string>(undefined);
+    public readonly is_displayed = input(false);
+    public readonly onSelect = output<Space>();
 
     public zoom = 1;
     public center = { x: 0.5, y: 0.5 };
@@ -157,8 +156,8 @@ export class NewSpaceMapComponent extends AsyncHandler implements OnInit {
                 content: NewSpaceLocationPinComponent,
                 data: {
                     ...space,
-                    active: this.active === space.id,
-                    selected: this.selected.includes(space.id),
+                    active: this.active() === space.id,
+                    selected: this.selected().includes(space.id),
                 },
             })),
         ),

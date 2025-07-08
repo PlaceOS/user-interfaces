@@ -1,12 +1,13 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import {
-  Component,
-  forwardRef,
-  inject,
-  Injector,
-  Input,
-  OnInit,
-  viewChild
+    Component,
+    forwardRef,
+    inject,
+    Injector,
+    input,
+    model,
+    OnInit,
+    viewChild,
 } from '@angular/core';
 import {
     ControlValueAccessor,
@@ -36,8 +37,8 @@ export enum TimezoneDiffRange {
             customTooltip
             [content]="calendar_picker"
             yPosition="top"
-            [disabled]="disabled"
-            [class.opacity-30]="disabled"
+            [disabled]="disabled()"
+            [class.opacity-30]="disabled()"
             matRipple
         >
             <div
@@ -52,15 +53,15 @@ export enum TimezoneDiffRange {
                         }}</span>
                     }
                 </div>
-                @if (timezone && tz) {
+                @if (timezone() && tz) {
                     <div class="truncate text-xs opacity-30">
-                        @if (range !== 2) {
+                        @if (range() !== 2) {
                             <span>{{ start_of_day }}</span>
                         }
-                        @if (range === 0) {
+                        @if (range() === 0) {
                             <span> - </span>
                         }
-                        @if (range !== 1) {
+                        @if (range() !== 1) {
                             <span>{{ end_of_day }}</span>
                         }
                     </div>
@@ -81,7 +82,7 @@ export enum TimezoneDiffRange {
                     [ngModel]="date || now"
                     [from]="from"
                     [to]="until"
-                    [offset_weekday]="week_start"
+                    [offset_weekday]="week_start()"
                     (ngModelChange)="setValue($event)"
                 ></date-calendar>
             </div>
@@ -111,17 +112,20 @@ export class DateFieldComponent
     private _injector = inject(Injector);
 
     /** Earliest date available the user is allowed to pick */
-    @Input('from') public from_date: number = startOfDay(Date.now()).valueOf();
+    public readonly from_date = input<number>(
+        startOfDay(Date.now()).valueOf(),
+        { alias: 'from' },
+    );
     /** Latest date available the user is allowed to pick */
-    @Input('to') public to_date: number;
+    public readonly to_date = input<number>(undefined, { alias: 'to' });
     /** Index of the day to start the week on when displaying the calendar */
-    @Input() public week_start: number = 0;
-    @Input() public use_24hr = false;
+    public readonly week_start = input<number>(0);
+    public readonly use_24hr = input(false);
     /** Whether form control is disabled */
-    @Input() public disabled: boolean;
-    @Input() public short = false;
-    @Input() public timezone: string = '';
-    @Input() public range: TimezoneDiffRange = TimezoneDiffRange.Both;
+    public readonly disabled = model<boolean>(undefined);
+    public readonly short = input(false);
+    public readonly timezone = input<string>('');
+    public readonly range = input<TimezoneDiffRange>(TimezoneDiffRange.Both);
     /** Currently selected date */
     public date: number;
 
@@ -134,24 +138,24 @@ export class DateFieldComponent
     private _control?: NgControl;
 
     public get date_format() {
-        return this.short ? 'MMM d, yyyy' : 'MMMM d, yyyy';
+        return this.short() ? 'MMM d, yyyy' : 'MMMM d, yyyy';
     }
 
     public get time_format() {
-        return this.use_24hr ? 'HH : mm' : 'h : mm a';
+        return this.use_24hr() ? 'HH : mm' : 'h : mm a';
     }
 
     private _date_pipe = new DatePipe('en');
 
     public get start_of_day() {
         const start = startOfDay(this.date).valueOf();
-        const format = `MMM d, ${this.time_format}${this.range === 1 ? ' (z)' : ''}`;
+        const format = `MMM d, ${this.time_format}${this.range() === 1 ? ' (z)' : ''}`;
         return this._date_pipe.transform(start, format, this.tz);
     }
 
     public get end_of_day() {
         const end = endOfDay(this.date).valueOf();
-        const format = `MMM d, ${this.time_format}${this.range === 1 ? ' (z)' : ''}`;
+        const format = `MMM d, ${this.time_format}${this.range() === 1 ? ' (z)' : ''}`;
         return this._date_pipe.transform(end, format, this.tz);
     }
 
@@ -164,7 +168,7 @@ export class DateFieldComponent
     );
 
     public get tz() {
-        const tz = this.timezone;
+        const tz = this.timezone();
         if (!tz) return '';
         const tz_offset = getTimezoneOffsetString(tz);
         return tz_offset === this._local_tz ? '' : tz_offset;
@@ -178,11 +182,11 @@ export class DateFieldComponent
 
     /** First allowed date on the calendar */
     public get from(): Date {
-        return new Date(this.from_date) || startOfDay(new Date());
+        return new Date(this.from_date()) || startOfDay(new Date());
     }
     /** Current date value */
     public get until(): Date {
-        return new Date(this.to_date) || addYears(endOfDay(new Date()), 1);
+        return new Date(this.to_date()) || addYears(endOfDay(new Date()), 1);
     }
 
     public ngOnInit() {
@@ -241,6 +245,6 @@ export class DateFieldComponent
     }
 
     public setDisabledState(disabled: boolean) {
-        this.disabled = disabled;
+        this.disabled.set(disabled);
     }
 }

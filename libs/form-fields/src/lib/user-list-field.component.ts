@@ -1,13 +1,13 @@
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import {
-  Component,
-  ElementRef,
-  EventEmitter,
-  forwardRef,
-  inject,
-  Input,
-  Output,
-  viewChild
+    Component,
+    ElementRef,
+    forwardRef,
+    inject,
+    input,
+    model,
+    output,
+    viewChild,
 } from '@angular/core';
 import {
     ControlValueAccessor,
@@ -65,7 +65,7 @@ const DENIED_FILE_TYPES = [
 @Component({
     selector: 'a-user-list-field',
     template: `
-        <div class="mb-4" form-field [attr.disabled]="disabled">
+        <div class="mb-4" form-field [attr.disabled]="disabled()">
             <div search>
                 <mat-form-field
                     class="w-full"
@@ -89,7 +89,7 @@ const DENIED_FILE_TYPES = [
                                                     item?.email
                                                     | placeuser
                                                     | async
-                                                )?.location_name_time(time)
+                                                )?.location_name_time(time())
                                             "
                                         >
                                             {{
@@ -97,7 +97,7 @@ const DENIED_FILE_TYPES = [
                                                     item?.email
                                                     | placeuser
                                                     | async
-                                                )?.location_icon(time)
+                                                )?.location_icon(time())
                                             }}
                                         </icon>
                                     }
@@ -168,7 +168,7 @@ const DENIED_FILE_TYPES = [
                     }
                 </mat-autocomplete>
             </div>
-            @if (!hide_actions) {
+            @if (!hide_actions()) {
                 <div class="-mt-4 flex items-center space-x-2" actions>
                     <button
                         btn
@@ -262,25 +262,25 @@ export class UserListFieldComponent
     private _dialog = inject(MatDialog);
     private _settings = inject(SettingsService);
 
-    @Input() public time = Date.now();
+    public readonly time = input(Date.now());
     /** Whether form field is disabled */
-    @Input() public disabled: boolean;
+    public readonly disabled = model<boolean>(undefined);
     /** Number of characters needed before a search will start */
-    @Input() public limit = 3;
+    public readonly limit = input(3);
     /** Whether guests should also show when searching for users */
-    @Input() public guests = false;
+    public readonly guests = input(false);
     /** Whether guests should also show when searching for users */
-    @Input() public guests_only = false;
+    public readonly guests_only = input(false);
     /** Whether optional actions should be shown */
-    @Input() public hide_actions = false;
+    public readonly hide_actions = input(false);
     /** Whether as custom template will be provided outside the component */
-    @Input() public custom_template = false;
+    public readonly custom_template = input(false);
     /** Function for filtering the results of the user list */
-    @Input() public filter: (_: any) => boolean;
+    public readonly filter = input<(_: any) => boolean>(undefined);
     /** Emitter for action to make a new user */
-    @Output() public new_user = new EventEmitter<void>();
+    public readonly new_user = output<void>();
     /** Whether user should download the CSV template */
-    @Output() public download = new EventEmitter<void>();
+    public readonly download = output<void>();
 
     readonly separatorKeysCodes = [ENTER, COMMA] as const;
 
@@ -288,7 +288,8 @@ export class UserListFieldComponent
     public loading = false;
     public readonly search$ = new BehaviorSubject('');
 
-    private readonly _search_el = viewChild<ElementRef<HTMLInputElement>>('search_field');
+    private readonly _search_el =
+        viewChild<ElementRef<HTMLInputElement>>('search_field');
 
     private searchStaff(q: string) {
         return this._settings.get('app.basic_user_search')
@@ -305,13 +306,13 @@ export class UserListFieldComponent
             this.loading = true;
             return (
                 _
-                    ? this.guests
+                    ? this.guests()
                         ? combineLatest([
                               this.searchStaff(_),
                               searchGuests(_),
                           ]).pipe(
                               map(([staff, guests]) => {
-                                  if (this.guests_only) staff = [];
+                                  if (this.guests_only()) staff = [];
                                   const visitors_list = [];
                                   const visitors =
                                       this._settings.get('visitor-invitees') ||
@@ -486,7 +487,7 @@ export class UserListFieldComponent
     /* istanbul ignore next */
     /** Download template CSV file */
     public downloadCSVTemplate() {
-        if (this.custom_template) return;
+        if (this.custom_template()) return;
         const template = `Organisation,First Name,Last Name,Email,Phone,Assistance Required,Visit Expected\nFake Org,John,Smith,john.smith@example.com,01234567898,false,true`;
         downloadFile('template.csv', template);
     }
@@ -512,7 +513,7 @@ export class UserListFieldComponent
     }
 
     public setDisabledState(disabled: boolean) {
-        this.disabled = disabled;
+        this.disabled.set(disabled);
     }
 
     /* istanbul ignore next */

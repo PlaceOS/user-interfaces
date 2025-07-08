@@ -1,12 +1,13 @@
 import { CommonModule } from '@angular/common';
 import {
-  Component,
-  forwardRef,
-  Input,
-  OnChanges,
-  OnInit,
-  SimpleChanges,
-  viewChild
+    Component,
+    forwardRef,
+    input,
+    model,
+    OnChanges,
+    OnInit,
+    SimpleChanges,
+    viewChild,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -37,8 +38,8 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
             time-field
             matRipple
             class="flex h-12 w-full items-center justify-between rounded border border-neutral px-2"
-            [disabled]="disabled"
-            [class.opacity-30]="disabled"
+            [disabled]="disabled()"
+            [class.opacity-30]="disabled()"
             [matMenuTriggerFor]="menu"
         >
             <div
@@ -47,7 +48,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
                 <div class="truncate">
                     {{ active_time | date: time_format }}
                 </div>
-                @if (timezone && tz) {
+                @if (timezone() && tz) {
                     <div class="truncate text-xs opacity-30">
                         {{ active_time | date: time_format + ' (z)' : tz }}
                     </div>
@@ -56,28 +57,28 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
             <icon class="text-2xl">arrow_drop_down</icon>
         </button>
         <mat-menu #menu="matMenu" class="max-h-[15rem] min-w-[18rem]">
-            @if (force_time) {
+            @if (force_time()) {
                 <button
                     mat-menu-item
-                    [value]="force_time"
+                    [value]="force_time()"
                     class="text-left"
-                    (click)="setValue(force_time)"
+                    (click)="setValue(force_time())"
                 >
                     <div class="flex items-center justify-between">
                         <div class="flex flex-col leading-tight">
                             <div class="">
-                                {{ force_time | date: time_format }}
+                                {{ force_time() | date: time_format }}
                             </div>
-                            @if (timezone && tz) {
+                            @if (timezone() && tz) {
                                 <div class="text-xs opacity-30">
                                     {{
-                                        force_time
+                                        force_time()
                                             | date: time_format + ' (z)' : tz
                                     }}
                                 </div>
                             }
                         </div>
-                        @if (active_time === force_time) {
+                        @if (active_time === force_time()) {
                             <icon class="ml-2 text-2xl"> done </icon>
                         }
                     </div>
@@ -94,9 +95,9 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
                         <div class="flex flex-col leading-tight">
                             <div class="">
                                 {{ option.date | date: time_format }}
-                                {{ extra_info_fn(option.date) }}
+                                {{ extra_info_fn()(option.date) }}
                             </div>
-                            @if (timezone && tz) {
+                            @if (timezone() && tz) {
                                 <div class="text-xs opacity-30">
                                     {{
                                         option.date
@@ -112,7 +113,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
                 </button>
             }
         </mat-menu>
-        @if (!no_error) {
+        @if (!no_error()) {
             <mat-error><ng-content /></mat-error>
         }
     `,
@@ -137,18 +138,18 @@ export class TimeFieldComponent
     implements OnInit, OnChanges, ControlValueAccessor
 {
     /** Time step between each allowed time option */
-    @Input() public step = 15;
+    public readonly step = input(15);
     /** Whether form field is disabled */
-    @Input() public disabled: boolean;
+    public readonly disabled = model<boolean>(undefined);
     /** Whether past times are allowed */
-    @Input() public no_past_times = true;
-    @Input() public use_24hr = false;
-    @Input() public force_time: number;
-    @Input() public no_error: boolean;
-    @Input() public extra_info_fn = (t?: number) => '';
+    public readonly no_past_times = input(true);
+    public readonly use_24hr = input(false);
+    public readonly force_time = input<number>(undefined);
+    public readonly no_error = input<boolean>(undefined);
+    public readonly extra_info_fn = input((t?: number) => '');
     /** Prevent times before */
-    @Input() public from: number = startOfDay(Date.now()).valueOf();
-    @Input() public timezone: string = '';
+    public readonly from = input<number>(startOfDay(Date.now()).valueOf());
+    public readonly timezone = input<string>('');
     /** String representing the currently set time */
     public date: number = new Date().valueOf();
     /** String representing the currently set time */
@@ -168,7 +169,7 @@ export class TimeFieldComponent
     private readonly select_field = viewChild<MatSelect>('select');
 
     public get time_format() {
-        return this.use_24hr ? 'HH : mm' : 'h : mm a';
+        return this.use_24hr() ? 'HH : mm' : 'h : mm a';
     }
 
     private _local_tz = getTimezoneOffsetString(
@@ -176,7 +177,7 @@ export class TimeFieldComponent
     );
 
     public get tz() {
-        const tz = this.timezone;
+        const tz = this.timezone();
         if (!tz) return '';
         const tz_offset = getTimezoneOffsetString(tz);
         return tz_offset === this._local_tz ? '' : tz_offset;
@@ -186,8 +187,8 @@ export class TimeFieldComponent
         this.show_select = true;
         this._time_options = this.generateAvailableTimes(
             this.date,
-            !this.no_past_times,
-            this.step,
+            !this.no_past_times(),
+            this.step(),
         );
         this.timeout('hide', () => (this.show_select = false));
         this.active_time =
@@ -199,8 +200,8 @@ export class TimeFieldComponent
         if (changes.no_past_times || changes.step || changes.from) {
             this._time_options = this.generateAvailableTimes(
                 this.date,
-                !this.no_past_times,
-                this.step,
+                !this.no_past_times(),
+                this.step(),
             );
         }
     }
@@ -240,7 +241,7 @@ export class TimeFieldComponent
             this._onChange(date.valueOf());
         }
 
-        const time = this.force_time || this.time;
+        const time = this.force_time() || this.time;
         const date = startOfMinute(
             set(this.date, { hours: +time[0], minutes: +time[1] }),
         );
@@ -259,20 +260,20 @@ export class TimeFieldComponent
         this.time = format(date, 'HH:mm');
         this._time_options = this.generateAvailableTimes(
             this.date,
-            !this.no_past_times,
-            this.step,
+            !this.no_past_times(),
+            this.step(),
         );
-        const time = this.force_time || this.time;
+        const time = this.force_time() || this.time;
         this.active_time =
             this._time_options.find((_) => _.id === time)?.date || date;
     }
 
     public setDisabledState(disabled: boolean) {
-        this.disabled = disabled;
+        this.disabled.set(disabled);
         this._time_options = this.generateAvailableTimes(
             this.date,
-            !this.no_past_times || disabled,
-            this.step,
+            !this.no_past_times() || disabled,
+            this.step(),
         );
     }
 
@@ -324,7 +325,7 @@ export class TimeFieldComponent
         show_past: boolean,
         step: number = 15,
     ): Identity[] {
-        const now = new Date(Math.max(this.from, Date.now()));
+        const now = new Date(Math.max(this.from(), Date.now()));
         let date = new Date(datestamp);
         const blocks = [];
         if (show_past || (!isSameDay(date, now) && isAfter(date, now))) {

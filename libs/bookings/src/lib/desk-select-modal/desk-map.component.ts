@@ -1,11 +1,10 @@
 import {
-    Component,
-    EventEmitter,
-    Input,
-    OnInit,
-    Output,
-    SimpleChanges,
-    inject,
+  Component,
+  OnInit,
+  SimpleChanges,
+  inject,
+  input,
+  output
 } from '@angular/core';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { map } from 'rxjs/operators';
@@ -102,9 +101,9 @@ export class DeskMapComponent extends AsyncHandler implements OnInit {
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
 
-    @Input() public is_displayed = false;
-    @Input() public active = '';
-    @Output() public onSelect = new EventEmitter<BookingAsset>();
+    public readonly is_displayed = input(false);
+    public readonly active = input('');
+    public readonly onSelect = output<BookingAsset>();
 
     public readonly desks = this._state.available_resources;
     public readonly loading = this._state.loading;
@@ -186,7 +185,7 @@ export class DeskMapComponent extends AsyncHandler implements OnInit {
             desks.reduce((styles, desk) => {
                 const colours = this._settings.get('app.explore.colors') || {};
                 const status =
-                    this.active === desk.id
+                    this.active() === desk.id
                         ? 'active'
                         : free_desks.find((_) => _.id === desk.id)
                           ? 'free'

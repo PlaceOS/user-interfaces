@@ -1,11 +1,10 @@
 import {
-    Component,
-    EventEmitter,
-    Input,
-    OnChanges,
-    OnInit,
-    Output,
-    SimpleChanges,
+  Component,
+  OnChanges,
+  OnInit,
+  SimpleChanges,
+  input,
+  output
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
@@ -18,10 +17,10 @@ import { AssetGroup } from '../asset.class';
 @Component({
     selector: 'new-asset-details',
     template: `
-        @if (item) {
+        @if (item()) {
             <section image class="relative h-64 w-full bg-base-200 sm:h-40">
                 <image-carousel
-                    [images]="item.images"
+                    [images]="item().images"
                     class="absolute inset-0"
                 ></image-carousel>
                 <button
@@ -37,13 +36,13 @@ import { AssetGroup } from '../asset.class';
                     icon
                     matRipple
                     fav
-                    [class.text-info-content]="fav"
+                    [class.text-info-content]="fav()"
                     (click)="toggleFav.emit()"
                     class="absolute right-2 top-2 bg-base-100"
                 >
                     <icon
                         [className]="
-                            fav
+                            fav()
                                 ? 'material-symbols-rounded'
                                 : 'material-symbols-outlined'
                         "
@@ -53,25 +52,25 @@ import { AssetGroup } from '../asset.class';
             </section>
             <div class="h-1/2 flex-1 space-y-4 p-2">
                 <h2 class="my-2 px-2 text-xl font-medium">
-                    {{ item.name }}
+                    {{ item().name }}
                 </h2>
                 <section actions class="z-0 flex items-center justify-between">
                     <p class="px-2">
                         {{
-                            (item.available != null
-                                ? item.available
-                                : item.assets?.length) || 0
+                            (item().available != null
+                                ? item().available
+                                : item().assets?.length) || 0
                         }}
                         Available
                     </p>
                     <a-counter
-                        [(ngModel)]="item.quantity"
+                        [(ngModel)]="item().quantity"
                         (ngModelChange)="countChange.emit($event)"
                         [min]="1"
                         [max]="
-                            (item.available != null
-                                ? item.available
-                                : item.assets?.length) || 1
+                            (item().available != null
+                                ? item().available
+                                : item().assets?.length) || 1
                         "
                     ></a-counter>
                 </section>
@@ -85,8 +84,8 @@ import { AssetGroup } from '../asset.class';
                         Details
                     </h2>
                     <div class="flex items-center space-x-2 px-2 pb-1">
-                        <p>{{ item.description }}</p>
-                        @if (!item.description) {
+                        <p>{{ item().description }}</p>
+                        @if (!item().description) {
                             <div class="w-full text-center opacity-30">
                                 {{ 'COMMON.NO_DESCRIPTION' | translate }}
                             </div>
@@ -116,22 +115,24 @@ import { AssetGroup } from '../asset.class';
     ],
 })
 export class NewAssetDetailsComponent implements OnInit, OnChanges {
-    @Input() public item?: AssetGroup;
-    @Input() public active = false;
-    @Input() public fav = false;
+    public readonly item = input<AssetGroup>(undefined);
+    public readonly active = input(false);
+    public readonly fav = input(false);
 
-    @Output() public toggleFav = new EventEmitter<void>();
-    @Output() public activeChange = new EventEmitter<boolean>();
-    @Output() public countChange = new EventEmitter<number>();
-    @Output() public close = new EventEmitter<void>();
+    public readonly toggleFav = output<void>();
+    public readonly activeChange = output<boolean>();
+    public readonly countChange = output<number>();
+    public readonly close = output<void>();
 
     public ngOnInit() {
-        if (this.item && !this.item.quantity) this.item.quantity = 1;
+        const item = this.item();
+        if (item && !item.quantity) item.quantity = 1;
     }
 
     public ngOnChanges(changes: SimpleChanges) {
-        if (changes.item && this.item) {
-            if (!this.item.quantity) this.item.quantity = 1;
+        const item = this.item();
+        if (changes.item && item) {
+            if (!item.quantity) item.quantity = 1;
         }
     }
 }

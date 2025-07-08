@@ -1,11 +1,11 @@
 import {
-    Component,
-    forwardRef,
-    inject,
-    Input,
-    OnChanges,
-    OnInit,
-    SimpleChanges,
+  Component,
+  forwardRef,
+  inject,
+  OnChanges,
+  OnInit,
+  SimpleChanges,
+  input
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -264,12 +264,12 @@ export class CateringListFieldComponent
     private _org = inject(OrganisationService);
     private _dialog = inject(MatDialog);
 
-    @Input() public options: {
-        date?: number;
-        duration?: number;
-        all_day?: boolean;
-        zone_id?: string;
-    } = {};
+    public readonly options = input<{
+    date?: number;
+    duration?: number;
+    all_day?: boolean;
+    zone_id?: string;
+}>({});
     public orders: CateringOrder[] = [];
     public show_order: Record<string, boolean> = {};
     public disabled = false;
@@ -287,9 +287,9 @@ export class CateringListFieldComponent
 
     public get end_time() {
         const time =
-            (this.options.date || Date.now()) +
-            (this.options.duration || 30) * 60 * 1000;
-        return this.options.all_day ? endOfDay(time).valueOf() : time;
+            (this.options().date || Date.now()) +
+            (this.options().duration || 30) * 60 * 1000;
+        return this.options().all_day ? endOfDay(time).valueOf() : time;
     }
 
     public get time_format() {
@@ -316,7 +316,7 @@ export class CateringListFieldComponent
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.options) {
             this.orders = (this.orders || []).map(
-                (_) => new CateringOrder({ ..._, event: this.options as any }),
+                (_) => new CateringOrder({ ..._, event: this.options() as any }),
             );
         }
     }
@@ -327,7 +327,7 @@ export class CateringListFieldComponent
      */
     public writeValue(value: CateringOrder[]) {
         this.orders = (value || []).map(
-            (_) => new CateringOrder({ ..._, event: this.options as any }),
+            (_) => new CateringOrder({ ..._, event: this.options() as any }),
         );
     }
 
@@ -362,18 +362,20 @@ export class CateringListFieldComponent
     }
 
     public editOrder(order: CateringOrder = new CateringOrder()) {
+        const options = this.options();
+        const optionsValue = this.options();
         const ref = this._dialog.open(NewCateringSelectModalComponent, {
             data: {
                 caterer: order.items[0]?.caterer,
                 items: order.items,
                 details: {
-                    ...this.options,
-                    date: this.options.all_day
-                        ? startOfDay(this.options.date).valueOf()
-                        : this.options.date,
-                    duration: this.options.all_day
-                        ? Math.max(24 * 60, this.options.duration)
-                        : this.options.duration,
+                    ...this.options(),
+                    date: options.all_day
+                        ? startOfDay(options.date).valueOf()
+                        : options.date,
+                    duration: optionsValue.all_day
+                        ? Math.max(24 * 60, optionsValue.duration)
+                        : optionsValue.duration,
                 },
                 exact_time: !!order.deliver_time,
                 offset: order.deliver_offset,
@@ -383,7 +385,7 @@ export class CateringListFieldComponent
         ref.afterClosed().subscribe((items?: CateringItem[]) => {
             const orders = this.orders.filter((_) => _.id !== order.id);
             if (!items?.length) return;
-            const time = new Date(this.options.date);
+            const time = new Date(this.options().date);
             for (const item of items) {
                 (item as any).options = [
                     ...item.options.map((_) => ({ ..._ })),
@@ -399,7 +401,7 @@ export class CateringListFieldComponent
                 ...order,
                 items,
                 caterer: items[0].caterer,
-                event: this.options as any,
+                event: this.options() as any,
                 deliver_offset: ref.componentInstance.offset,
                 deliver_time: ref.componentInstance.exact_time
                     ? time.getHours() + time.getMinutes() / 60

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnDestroy, forwardRef, inject } from '@angular/core';
+import { Component, OnDestroy, forwardRef, inject, input } from '@angular/core';
 import {
     ControlValueAccessor,
     FormsModule,
@@ -208,7 +208,7 @@ export class SpaceListFieldComponent
     private _org = inject(OrganisationService);
     private _dialog = inject(MatDialog);
 
-    @Input() multiday = false;
+    readonly multiday = input(false);
     public room_size = 4;
     public spaces = new BehaviorSubject<Space[]>([]);
     public space_list = this.spaces.pipe(debounceTime(300));
@@ -237,7 +237,7 @@ export class SpaceListFieldComponent
             data: {
                 spaces: this.spaces.getValue(),
                 options: { capacity: this.room_size },
-                multiday: this.multiday,
+                multiday: this.multiday(),
             },
         });
         this._dialog_ref.afterClosed().subscribe(() => {

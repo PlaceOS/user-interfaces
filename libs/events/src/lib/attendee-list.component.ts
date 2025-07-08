@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -14,27 +14,27 @@ import { User } from 'libs/users/src/lib/user.class';
             <div
                 class="flex min-h-12 items-center border-b border-base-200 p-2"
             >
-                @if (!hide_close) {
+                @if (!hide_close()) {
                     <button close icon matRipple (click)="close.emit()">
                         <icon>arrow_back</icon>
                     </button>
                 }
                 <div class="flex-1 text-center font-medium">
-                    {{ list.length }}
+                    {{ list().length }}
                     {{
-                        custom_title
-                            ? custom_title
+                        custom_title()
+                            ? custom_title()
                             : ('ATTENDEES_COUNT'
-                              | translate: { count: list.length } : list.length)
+                              | translate: { count: list().length } : list().length)
                     }}
                 </div>
-                @if (!hide_close) {
+                @if (!hide_close()) {
                     <div class="w-12"></div>
                 }
             </div>
             <div class="w-full flex-1 overflow-auto">
-                @for (user of list; track user) {
-                    @if (!user.resource && (host !== user.email || show_host)) {
+                @for (user of list(); track user) {
+                    @if (!user.resource && (host() !== user.email || show_host())) {
                         <div
                             attendee
                             class="flex items-center space-x-2 p-2 hover:bg-base-200"
@@ -42,7 +42,7 @@ import { User } from 'libs/users/src/lib/user.class';
                             <a-user-avatar [user]="user"></a-user-avatar>
                             <div class="w-1/2 flex-1">
                                 <div class="truncate">{{ user.name }}</div>
-                                @if (host === user.email) {
+                                @if (host() === user.email) {
                                     <div class="text-sm opacity-60">
                                         {{ 'FORM.HOST' | translate }}
                                     </div>
@@ -78,10 +78,10 @@ import { User } from 'libs/users/src/lib/user.class';
     ],
 })
 export class AttendeeListComponent {
-    @Input() public host = '';
-    @Input() public show_host = true;
-    @Input() public list: User[] = [];
-    @Input() public hide_close = false;
-    @Input() public custom_title = '';
-    @Output() public close = new EventEmitter();
+    public readonly host = input('');
+    public readonly show_host = input(true);
+    public readonly list = input<User[]>([]);
+    public readonly hide_close = input(false);
+    public readonly custom_title = input('');
+    public readonly close = output();
 }

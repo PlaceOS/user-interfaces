@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, OnInit, Output } from '@angular/core';
+import { Component, inject, OnInit, output } from '@angular/core';
 import {
     MAT_DIALOG_DATA,
     MatDialog,
@@ -724,7 +724,7 @@ export class EventDetailsModalComponent implements OnInit {
     private _settings = inject(SettingsService);
     private _dialog = inject(MatDialog);
 
-    @Output() public action = new EventEmitter();
+    public readonly action = output<any>();
     public edit = this._data.edit_fn;
     public remove = this._data.remove_fn;
 

@@ -1,22 +1,22 @@
 import { CommonModule } from '@angular/common';
 import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  EventEmitter,
-  HostListener,
-  inject,
-  Injector,
-  Input,
-  OnChanges,
-  OnDestroy,
-  OnInit,
-  Output,
-  SimpleChanges,
-  TemplateRef,
-  Type,
-  viewChild,
-  viewChildren
+    AfterViewInit,
+    Component,
+    ElementRef,
+    HostListener,
+    inject,
+    Injector,
+    input,
+    model,
+    OnChanges,
+    OnDestroy,
+    OnInit,
+    output,
+    SimpleChanges,
+    TemplateRef,
+    Type,
+    viewChild,
+    viewChildren,
 } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
@@ -53,9 +53,9 @@ function isSamePoint(p1: Point, p2: Point): boolean {
             tabindex="0"
             role="map"
             class="absolute inset-0"
-            [class.hidden]="!src"
+            [class.hidden]="!src()"
         ></div>
-        @if (src) {
+        @if (src()) {
             @if (!viewer || loading) {
                 <mat-spinner class="absolute" [diameter]="48" />
             }
@@ -69,7 +69,7 @@ function isSamePoint(p1: Point, p2: Point): boolean {
         @if (injectors?.length) {
             <div hidden>
                 @for (
-                    element of features;
+                    element of features();
                     track element.track_id || $index;
                     let i = $index
                 ) {
@@ -138,31 +138,31 @@ export class MapRendererComponent
     private _injector = inject(Injector);
 
     /** URL to the SVG file */
-    @Input() public src: string;
+    public readonly src = input<string>(undefined);
     /** Custom CSS styles to apply to the SVG file */
-    @Input() public styles: ViewerStyles;
+    public readonly styles = input<ViewerStyles>(undefined);
     /** Zoom level to apply to the SVG */
-    @Input() public zoom = 1;
+    public readonly zoom = model(1);
     /** Zoom level to apply to the SVG */
-    @Input() public center: Point = { x: 0.5, y: 0.5 };
+    public readonly center = model<Point>({ x: 0.5, y: 0.5 });
     /** List of features to renderer over the SVG */
-    @Input() public features: ViewerFeature[];
+    public readonly features = input<ViewerFeature[]>(undefined);
     /** List of labels to renderer over the SVG */
-    @Input() public labels: ViewerLabel[];
+    public readonly labels = input<ViewerLabel[]>(undefined);
     /** List of available user actions for the SVG */
-    @Input() public actions: ViewAction[];
+    public readonly actions = input<ViewAction[]>(undefined);
     /** Number of times to reset the map */
-    @Input() public reset = 0;
+    public readonly reset = input(0);
 
-    @Input() public options: any;
+    public readonly options = input<any>(undefined);
 
-    @Input() public focus: string;
+    public readonly focus = input<string>(undefined);
 
-    @Output() public zoomChange = new EventEmitter<number>();
+    public readonly zoomChange = output<number>();
 
-    @Output() public centerChange = new EventEmitter<Point>();
+    public readonly centerChange = output<Point>();
 
-    @Output() public mapInfo = new EventEmitter<any>();
+    public readonly mapInfo = output<any>();
 
     public loading: boolean;
 
@@ -182,12 +182,14 @@ export class MapRendererComponent
         position: this._on_changes.pipe(map((_) => _.center)),
     };
 
-    private readonly _outlet_el = viewChild<ElementRef<HTMLDivElement>>('outlet');
-    private readonly _feature_list = viewChildren<ElementRef<HTMLDivElement>>('feature');
+    private readonly _outlet_el =
+        viewChild<ElementRef<HTMLDivElement>>('outlet');
+    private readonly _feature_list =
+        viewChildren<ElementRef<HTMLDivElement>>('feature');
 
     @HostListener('window:resize') public onResize() {
-        this.zoom = 1;
-        this.center = { x: 0.5, y: 0.5 };
+        this.zoom.set(1);
+        this.center.set({ x: 0.5, y: 0.5 });
         this.updateDisplay();
     }
 
@@ -216,15 +218,16 @@ export class MapRendererComponent
     }
 
     public ngOnChanges(changes: SimpleChanges): void {
-        if (changes.src && this.src) {
+        if (changes.src && this.src()) {
             this.createView().catch((e) => console.warn(e));
         }
         if (changes.features) {
             this.updateInjectors();
         }
         if (this.viewer) {
-            if (changes.focus && this.focus) {
-                this.focusOn(this.focus);
+            const focus = this.focus();
+            if (changes.focus && focus) {
+                this.focusOn(focus);
             } else if (
                 (changes.zoom &&
                     changes.zoom.previousValue != changes.zoom.currentValue) ||
@@ -249,8 +252,8 @@ export class MapRendererComponent
             changes.reset &&
             changes.reset.currentValue !== changes.reset.previousValue
         ) {
-            this.zoom = 1;
-            this.center = { x: 0.5, y: 0.5 };
+            this.zoom.set(1);
+            this.center.set({ x: 0.5, y: 0.5 });
             this.updateDisplay();
         }
     }
@@ -267,11 +270,11 @@ export class MapRendererComponent
             }
             this.updateFeatureList();
             updateViewer(this.viewer, {
-                styles: this.styles,
+                styles: this.styles(),
                 features: this.feature_list,
-                labels: this.labels,
-                actions: this.actions,
-                options: this.options,
+                labels: this.labels(),
+                actions: this.actions(),
+                options: this.options(),
             });
         } catch (e) {
             console.warn('[MAP] Update viewer error.', e);
@@ -283,11 +286,11 @@ export class MapRendererComponent
     private updateDisplay() {
         try {
             updateViewer(this.viewer, {
-                zoom: this.zoom,
-                desired_zoom: this.zoom,
-                center: this.center,
-                desired_center: this.center,
-                options: this.options,
+                zoom: this.zoom(),
+                desired_zoom: this.zoom(),
+                center: this.center(),
+                desired_center: this.center(),
+                options: this.options(),
             });
         } catch (e) {
             console.warn('[MAP] Update view display error.', e);
@@ -303,19 +306,24 @@ export class MapRendererComponent
                 300,
             );
         }
-        const simp_url = this.src?.toLowerCase() || '';
+        const simp_url = this.src()?.toLowerCase() || '';
         if (!simp_url.includes('svg') && !simp_url.includes('upload')) return;
         const _outlet_el = this._outlet_el();
-        if (this.src && _outlet_el?.nativeElement && !this.loading) {
+        const src = this.src();
+        if (src && _outlet_el?.nativeElement && !this.loading) {
             this.loading = true;
+            const styles = this.styles();
+            const labels = this.labels();
+            const actions = this.actions();
+            const options = this.options();
             if (this.viewer) {
                 try {
                     updateViewer(this.viewer, {
-                        styles: this.styles,
+                        styles: styles,
                         features: [],
-                        labels: this.labels,
-                        actions: this.actions,
-                        options: this.options,
+                        labels: labels,
+                        actions: actions,
+                        options: options,
                     });
                     removeViewer(this.viewer);
                 } catch (e) {
@@ -334,15 +342,15 @@ export class MapRendererComponent
             }`;
             this.viewer = await createViewer({
                 element: _outlet_el?.nativeElement,
-                url: this.src,
-                styles: this.styles,
-                zoom: this.zoom,
-                desired_zoom: this.zoom,
-                center: this.center,
+                url: src,
+                styles: styles,
+                zoom: this.zoom(),
+                desired_zoom: this.zoom(),
+                center: this.center(),
                 features: this.feature_list,
-                labels: this.labels,
-                actions: this.actions,
-                options: this.options,
+                labels: labels,
+                actions: actions,
+                options: options,
             }).catch((e) => {
                 console.warn(e);
                 return '';
@@ -355,18 +363,16 @@ export class MapRendererComponent
                 listenToViewerChanges(this.viewer)?.subscribe((v) => {
                     this._on_changes.next({ ...v } as any);
                     this.zoomChange.emit(v.zoom);
-                    this.zoom = v.zoom;
+                    this.zoom.set(v.zoom);
                     this.centerChange.emit(v.center);
-                    this.center = v.center;
+                    this.center.set(v.center);
                 }),
             );
             const viewer = getViewer(this.viewer);
             this.mapInfo.emit(viewer.mappings);
-            if (this.focus) this.focusOn(this.focus);
-        } else if (
-            (this.src && !_outlet_el?.nativeElement) ||
-            this.loading
-        ) {
+            const focus = this.focus();
+            if (focus) this.focusOn(focus);
+        } else if ((src && !_outlet_el?.nativeElement) || this.loading) {
             this.timeout('create_view', () =>
                 this.createView().catch((e) => console.warn(e)),
             );
@@ -379,10 +385,10 @@ export class MapRendererComponent
         if (!viewer) return;
         const rect = viewer.mappings[id];
         if (!rect) return;
-        this.center = {
+        this.center.set({
             x: 1 - (rect.x + rect.w / 2),
             y: 1 - (rect.y + rect.h / 4),
-        };
+        });
         this.updateDisplay();
     }
 
@@ -392,7 +398,7 @@ export class MapRendererComponent
     }
 
     private updateFeatureList() {
-        this.feature_list = (this.features || [])
+        this.feature_list = (this.features() || [])
             .map((f, idx) => ({
                 ...f,
                 content: this._feature_list[idx]?.nativeElement,
@@ -402,7 +408,7 @@ export class MapRendererComponent
 
     private updateInjectors() {
         const old_injectors = this.injectors || [];
-        this.injectors = (this.features || []).map(
+        this.injectors = (this.features() || []).map(
             (f: any) =>
                 old_injectors.find(
                     (_) =>
