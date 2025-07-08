@@ -775,7 +775,7 @@
             "TAKE_PHOTO": "Take a photo to continue",
             "CONFIRM": "Done",
             "PRINT_LABEL": "Print Label",
-            "PRINT_LOADING": "Printing guest pass...",
+            "PRINT_LOADING": "Printing visitor label...",
             "ARRIVED_MSG": "Your visitor \"{{ name }}\" has arrived and is waiting at reception",
             "INDUCTION_MSG": "Please read the induction information below before proceeding",
             "ACCEPT_TERMS": "I agree",
@@ -785,7 +785,7 @@
             "CONTINUE": "Next",
             "SAVE": "Save",
             "BEVERAGE_MSG": "Would you like a drink?",
-            "ERROR_PRINT": "Error printing visitor pass",
+            "ERROR_PRINT": "Error printing visitor label",
             "ERROR_CHECKIN": "Error checking in {{ guest }} for {{ host }}'s meeting.",
             "SUCCESS_CHECKIN": "Successfully checked in {{ guest }} for {{ host }}'s meeting",
             "NOT_FOUND": "No meetings for guest \"{{ email }}\" today"
