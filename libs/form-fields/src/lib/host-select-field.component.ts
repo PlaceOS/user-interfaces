@@ -8,13 +8,11 @@ import {
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { currentUser, nextValueFrom, unique } from '@placeos/common';
-import { showUser } from '@placeos/ts-client';
-import { showStaff } from '@placeos/users';
 import { Calendar } from 'libs/calendar/src/lib/calendar.class';
 import { queryCalendars } from 'libs/calendar/src/lib/calendar.fn';
 import { StaffUser, User } from 'libs/users/src/lib/user.class';
-import { combineLatest, of, zip } from 'rxjs';
-import { catchError, map, shareReplay, switchMap } from 'rxjs/operators';
+import { combineLatest, of } from 'rxjs';
+import { catchError, map, shareReplay } from 'rxjs/operators';
 
 @Component({
     selector: 'host-select-field',
@@ -59,22 +57,20 @@ export class HostSelectFieldComponent implements ControlValueAccessor {
     public readonly users = combineLatest([
         queryCalendars().pipe(catchError(() => of([] as Calendar[]))),
     ]).pipe(
-        switchMap(([list]) =>
-            zip(
-                ...list
-                    .filter((_) => _.can_edit)
-                    .map((_) =>
-                        showUser(_.id).pipe(
-                            catchError(() =>
-                                showStaff(_.id).pipe(
-                                    catchError(() => of(null)),
-                                ),
-                            ),
-                        ),
-                    ),
-            ),
+        map(([list]) =>
+            list
+                .filter((_) => _.can_edit)
+                .map((_) =>
+                    _.primary
+                        ? currentUser()
+                        : {
+                              id: _.id,
+                              email: _.id,
+                              name: _.summary || _.id,
+                          },
+                ),
         ),
-        map((l) => l.filter((_) => _).map((_) => new StaffUser(_))),
+        map((l) => l.map((_) => new StaffUser(_))),
         map((_) => unique([currentUser(), ..._], 'email')),
         shareReplay(1),
     );
