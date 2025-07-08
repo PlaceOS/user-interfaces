@@ -138,10 +138,10 @@ import { EventsStateService } from './events-state.service';
                     ></div>
                 }
 
-                @for (space of spaces | async; track space; let i = $index) {
+                @for (space of spaces | async; track space.id; let i = $index) {
                     @for (
                         event of (events | async)[space.id] || [];
-                        track event
+                        track event.id
                     ) {
                         @if (
                             !event.is_system_event ||

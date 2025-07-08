@@ -7,6 +7,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { nextValueFrom, unique } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { requestSpacesForZone } from 'libs/spaces/src/lib/space.utilities';
+import { IconComponent } from './icon.component';
 import { TranslatePipe } from './translate.pipe';
 
 @Component({
@@ -145,6 +146,7 @@ import { TranslatePipe } from './translate.pipe';
         MatCheckboxModule,
         MatDialogModule,
         TranslatePipe,
+        IconComponent,
     ],
 })
 export class AvailableRoomsStateModalComponent {

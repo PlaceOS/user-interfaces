@@ -1,11 +1,13 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import {
-  Component,
-  ElementRef,
-  forwardRef,
-  inject,
-  viewChild
+    AfterViewInit,
+    Component,
+    ElementRef,
+    forwardRef,
+    inject,
+    signal,
+    viewChild,
 } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
@@ -134,7 +136,7 @@ export interface UploadDetails {
                     }
                 </div>
             }
-            @if (length > view_space) {
+            @if (length > view_space()) {
                 <button
                     icon
                     matRipple
@@ -145,11 +147,11 @@ export interface UploadDetails {
                     <icon>chevron_left</icon>
                 </button>
             }
-            @if (length > view_space) {
+            @if (length > view_space()) {
                 <button
                     icon
                     matRipple
-                    [disabled]="offset >= length - view_space"
+                    [disabled]="offset >= length - view_space()"
                     class="absolute right-0 top-1/2 -translate-y-1/2 transform bg-base-100"
                     (click)="offset = offset + 1"
                 >
@@ -225,7 +227,10 @@ export interface UploadDetails {
         TranslatePipe,
     ],
 })
-export class ImageListFieldComponent extends AsyncHandler {
+export class ImageListFieldComponent
+    extends AsyncHandler
+    implements AfterViewInit
+{
     private _clipboard = inject(Clipboard);
     private _uploads = inject(UploadsService);
     private _dialog = inject(MatDialog);
@@ -238,8 +243,7 @@ export class ImageListFieldComponent extends AsyncHandler {
     public readonly upload_list = this._upload_list.asObservable();
     public offset: number = 0;
 
-    public view_space: number = 0;
-
+    public readonly view_space = signal(0);
     public readonly separators = [COMMA, ENTER];
 
     public readonly uploads = combineLatest([
@@ -251,8 +255,10 @@ export class ImageListFieldComponent extends AsyncHandler {
         return this.list.length + this._upload_list.getValue().length + 1;
     }
 
-    private readonly _list_el = viewChild<ElementRef<HTMLDivElement>>('image_list');
-    private readonly _file_input = viewChild<ElementRef<HTMLInputElement>>('file_input');
+    private readonly _list_el =
+        viewChild<ElementRef<HTMLDivElement>>('image_list');
+    private readonly _file_input =
+        viewChild<ElementRef<HTMLInputElement>>('file_input');
 
     constructor() {
         super();
@@ -267,8 +273,9 @@ export class ImageListFieldComponent extends AsyncHandler {
         this.timeout(
             'init_view_space',
             () => {
-                const box = this._list_el().nativeElement.getBoundingClientRect();
-                this.view_space = Math.floor(box.width / 152);
+                const box =
+                    this._list_el().nativeElement.getBoundingClientRect();
+                this.view_space.set(Math.floor(box.width / 152));
             },
             100,
         );

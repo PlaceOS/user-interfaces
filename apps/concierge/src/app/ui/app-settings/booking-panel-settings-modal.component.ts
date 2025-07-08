@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import {
@@ -33,7 +33,7 @@ import * as yaml from 'js-yaml';
                     Booking Panel Settings -
                     {{ zone.display_name || zone.name }}
                 </h2>
-                @if (!loading) {
+                @if (!loading()) {
                     <button icon matRipple mat-dialog-close>
                         <icon>close</icon>
                     </button>
@@ -42,7 +42,7 @@ import * as yaml from 'js-yaml';
             <main
                 class="z-0 mx-auto h-1/2 w-full max-w-[640px] flex-1 space-y-8 p-4"
             >
-                @if (!loading) {
+                @if (!loading()) {
                     <form [formGroup]="form" class="flex flex-col space-y-4">
                         <div
                             class="relative mb-4 flex flex-col rounded border border-base-300 p-2"
@@ -190,7 +190,7 @@ don't detect presence in room after a period of time"
                                     <button
                                         icon
                                         matRipple
-                                        [disabled]="uploading"
+                                        [disabled]="uploading()"
                                         class="h-12 w-12 rounded bg-secondary text-secondary-content"
                                     >
                                         <icon>cloud_upload</icon>
@@ -229,7 +229,7 @@ don't detect presence in room after a period of time"
                                     <button
                                         icon
                                         matRipple
-                                        [disabled]="uploading"
+                                        [disabled]="uploading()"
                                         class="relative h-12 w-12 rounded bg-secondary text-secondary-content"
                                     >
                                         <icon>cloud_upload</icon>
@@ -253,12 +253,12 @@ don't detect presence in room after a period of time"
                         class="flex h-1/2 w-full flex-1 flex-col items-center justify-center p-12"
                     >
                         <mat-spinner [diameter]="32"></mat-spinner>
-                        <p class="text-center">{{ loading }}</p>
+                        <p class="text-center">{{ loading() }}</p>
                     </div>
                 }
                 <div class="h-16 w-full"></div>
             </main>
-            @if (!loading) {
+            @if (!loading()) {
                 <footer
                     class="fixed bottom-0 left-1/2 z-10 mx-auto my-2 flex w-full max-w-[640px] -translate-x-1/2 items-center justify-end rounded border-none bg-base-200 px-4 py-2"
                 >
@@ -279,14 +279,18 @@ don't detect presence in room after a period of time"
     ],
     standalone: false,
 })
-export class BookingPanelSettingsModalComponent extends AsyncHandler {
+export class BookingPanelSettingsModalComponent
+    extends AsyncHandler
+    implements OnInit
+{
     private _data = inject<{
-    zone: PlaceZone;
-}>(MAT_DIALOG_DATA);
-    private _dialog_ref = inject<MatDialogRef<BookingPanelSettingsModalComponent>>(MatDialogRef);
+        zone: PlaceZone;
+    }>(MAT_DIALOG_DATA);
+    private _dialog_ref =
+        inject<MatDialogRef<BookingPanelSettingsModalComponent>>(MatDialogRef);
 
-    public loading = '';
-    public uploading = 0;
+    public loading = signal('');
+    public uploading = signal(0);
     public readonly zone = this._data.zone;
     public readonly form = new FormGroup({
         control_ui: new FormControl('', validateURL),
@@ -332,25 +336,25 @@ export class BookingPanelSettingsModalComponent extends AsyncHandler {
             ),
         );
         this._defaults = { ...this.form.getRawValue() };
-        this.loading = 'Loading existing panel settings...';
-        const settings = await querySettings({ parent_id: this.zone.id })
-            .pipe(
+        this.loading.set('Loading existing panel settings...');
+        const settings = await lastValueFrom(
+            querySettings({ parent_id: this.zone.id }).pipe(
                 catchError(() => of({ data: [] as PlaceSettings[] })),
                 map((_) => _.data),
-            )
-            .toPromise();
+            ),
+        );
         const unencrypted_settings = settings.find(
             (block) => block.encryption_level === EncryptionLevel.None,
         );
         if (!unencrypted_settings) {
-            this.loading = '';
+            this.loading.set('');
             return;
         }
-        this.loading = 'Processing found panel settings...';
+        this.loading.set('Processing found panel settings...');
         const setting_value =
             yaml.load(unencrypted_settings.settings_string) || {};
         this.form.patchValue(setting_value);
-        this.loading = '';
+        this.loading.set('');
     }
 
     public uploadImage(event: Event, link_field: string) {
@@ -366,15 +370,15 @@ export class BookingPanelSettingsModalComponent extends AsyncHandler {
         }
         uploadFile(file).subscribe(
             (s) => {
-                this.uploading = s.progress;
+                this.uploading.set(s.progress);
                 if (s.link) {
-                    this.uploading = 0;
+                    this.uploading.set(0);
                     field.setValue(s.link);
                 }
             },
             () => {
                 notifyError('Failed to upload image. Try again later');
-                this.uploading = 0;
+                this.uploading.set(0);
             },
         );
     }
@@ -388,13 +392,13 @@ export class BookingPanelSettingsModalComponent extends AsyncHandler {
         }
         const form_value = this.form.getRawValue();
         this._dialog_ref.disableClose = true;
-        this.loading = 'Loading existing booking panel settings...';
-        const settings = await querySettings({ parent_id: this.zone.id })
-            .pipe(
+        this.loading.set('Loading existing booking panel settings...');
+        const settings = await lastValueFrom(
+            querySettings({ parent_id: this.zone.id }).pipe(
                 catchError(() => of({ data: [] as PlaceSettings[] })),
                 map((_) => _.data),
-            )
-            .toPromise();
+            ),
+        );
         let unencrypted_settings = settings.find(
             (block) => block.encryption_level === EncryptionLevel.None,
         );
@@ -419,13 +423,13 @@ export class BookingPanelSettingsModalComponent extends AsyncHandler {
             parent_id: this._data.zone.id,
             settings_string: yaml.dump(new_settings_blob),
         };
-        this.loading = 'Saving changes to booking panel settings...';
+        this.loading.set('Saving changes to booking panel settings...');
         const update = unencrypted_settings.id
             ? updateSettings(unencrypted_settings.id, new_setting)
             : addSettings(new_setting);
         await lastValueFrom(update).catch((e) => {
             this._dialog_ref.disableClose = false;
-            this.loading = '';
+            this.loading.set('');
             notifyError('Error saving changes to booking panel settings');
             throw e;
         });

@@ -2,7 +2,12 @@ import {
     provideHttpClient,
     withInterceptorsFromDi,
 } from '@angular/common/http';
-import { ErrorHandler, LOCALE_ID, NgModule } from '@angular/core';
+import {
+    ErrorHandler,
+    LOCALE_ID,
+    NgModule,
+    provideZonelessChangeDetection,
+} from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { Router } from '@angular/router';
@@ -42,6 +47,7 @@ import { LocaleService } from '@placeos/common';
         }),
     ],
     providers: [
+        provideZonelessChangeDetection(),
         {
             provide: MAT_CHIPS_DEFAULT_OPTIONS,
             useValue: {

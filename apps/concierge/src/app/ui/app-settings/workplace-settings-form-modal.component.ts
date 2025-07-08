@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
@@ -12,6 +12,7 @@ import { DEFAULT_SETTINGS } from 'apps/workplace/src/environments/settings';
 import { format } from 'date-fns';
 
 import { VERSION } from '@placeos/common';
+import { lastValueFrom } from 'rxjs';
 
 @Component({
     selector: 'workplace-settings-form-modal',
@@ -23,7 +24,7 @@ import { VERSION } from '@placeos/common';
                 <h2 class="text-xl font-medium">
                     Workplace Settings - {{ zone.display_name || zone.name }}
                 </h2>
-                @if (!loading) {
+                @if (!loading()) {
                     <button icon matRipple mat-dialog-close>
                         <icon>close</icon>
                     </button>
@@ -32,7 +33,7 @@ import { VERSION } from '@placeos/common';
             <main
                 class="z-0 mx-auto h-1/2 w-full max-w-[640px] flex-1 space-y-8 p-4"
             >
-                @if (!loading) {
+                @if (!loading()) {
                     <form [formGroup]="form" class="flex flex-col space-y-8">
                         <section general class="space-y-2 rounded bg-base-100">
                             <div>
@@ -1638,12 +1639,12 @@ import { VERSION } from '@placeos/common';
                         class="flex h-1/2 w-full flex-1 flex-col items-center justify-center p-12"
                     >
                         <mat-spinner [diameter]="32"></mat-spinner>
-                        <p class="text-center">{{ loading }}</p>
+                        <p class="text-center">{{ loading() }}</p>
                     </div>
                 }
                 <div class="h-16 w-full"></div>
             </main>
-            @if (!loading) {
+            @if (!loading()) {
                 <footer
                     class="fixed bottom-0 left-1/2 z-10 mx-auto my-2 flex w-full max-w-[640px] -translate-x-1/2 items-center justify-end rounded border-none bg-base-200 px-4 py-2"
                 >
@@ -1666,13 +1667,14 @@ import { VERSION } from '@placeos/common';
 })
 export class WorkplaceSettingsFormModalComponent implements OnInit {
     private _data = inject<{
-    zone: PlaceZone;
-}>(MAT_DIALOG_DATA);
-    private _dialog_ref = inject<MatDialogRef<WorkplaceSettingsFormModalComponent>>(MatDialogRef);
+        zone: PlaceZone;
+    }>(MAT_DIALOG_DATA);
+    private _dialog_ref =
+        inject<MatDialogRef<WorkplaceSettingsFormModalComponent>>(MatDialogRef);
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
 
-    public loading = '';
+    public readonly loading = signal('');
     public existing_settings: Record<string, any> = {};
     public old_settings: Record<string, any> = {};
     public readonly zone = this._data.zone;
@@ -1815,7 +1817,7 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
 
     public async ngOnInit() {
         const zone = this._data.zone;
-        this.loading = 'Loading existing settings...';
+        this.loading.set('Loading existing settings...');
         this.form.patchValue(DEFAULT_SETTINGS.app);
         const org_id = this._org.organisation.id;
         const org_metadata = await this._getMetadata(org_id);
@@ -1833,11 +1835,11 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
         this.form.patchValue(parent_metadata || {});
         this.form.patchValue(metadata || {});
         this.old_settings = metadata;
-        this.loading = '';
+        this.loading.set('');
     }
 
     public async save() {
-        this.loading = 'Saving settings...';
+        this.loading.set('Saving settings...');
         const zone = this._data.zone;
         const form_value = this.form.getRawValue();
         const new_settings = { ...this.old_settings };
@@ -1888,18 +1890,18 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
                   ? 'Support'
                   : 'User',
         };
-        await updateMetadata(zone.id, {
-            name: `${this.settings_key}`,
-            details: new_settings,
-            description: `[${VERSION.hash}|C] Workplace Application Settings`,
-        })
-            .toPromise()
-            .catch((e) => {
-                console.error(e);
-                this.loading = '';
-                throw e;
-            });
-        this.loading = '';
+        await lastValueFrom(
+            updateMetadata(zone.id, {
+                name: `${this.settings_key}`,
+                details: new_settings,
+                description: `[${VERSION.hash}|C] Workplace Application Settings`,
+            }),
+        ).catch((e) => {
+            console.error(e);
+            this.loading.set('');
+            throw e;
+        });
+        this.loading.set('');
         notifySuccess('Sucessfully saved workplace app settings');
         this._dialog_ref.close();
     }

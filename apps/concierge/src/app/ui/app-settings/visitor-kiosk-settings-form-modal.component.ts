@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import {
@@ -12,6 +12,7 @@ import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
 import { map } from 'rxjs/operators';
 
 import { DEFAULT_SETTINGS } from 'apps/visitor-kiosk/src/environments/settings';
+import { lastValueFrom } from 'rxjs';
 
 @Component({
     selector: 'visitor-kiosk-settings-form-modal',
@@ -24,7 +25,7 @@ import { DEFAULT_SETTINGS } from 'apps/visitor-kiosk/src/environments/settings';
                     Visitor Kiosk Settings -
                     {{ zone.display_name || zone.name }}
                 </h2>
-                @if (!loading) {
+                @if (!loading()) {
                     <button icon matRipple mat-dialog-close>
                         <icon>close</icon>
                     </button>
@@ -33,7 +34,7 @@ import { DEFAULT_SETTINGS } from 'apps/visitor-kiosk/src/environments/settings';
             <main
                 class="z-0 mx-auto h-1/2 w-full max-w-[640px] flex-1 space-y-8 p-4"
             >
-                @if (!loading) {
+                @if (!loading()) {
                     <form [formGroup]="form" class="flex flex-col space-y-8">
                         <section general class="space-y-2 rounded bg-base-100">
                             <div>
@@ -457,12 +458,12 @@ import { DEFAULT_SETTINGS } from 'apps/visitor-kiosk/src/environments/settings';
                         class="flex h-1/2 w-full flex-1 flex-col items-center justify-center p-12"
                     >
                         <mat-spinner [diameter]="32"></mat-spinner>
-                        <p class="text-center">{{ loading }}</p>
+                        <p class="text-center">{{ loading() }}</p>
                     </div>
                 }
                 <div class="h-16 w-full"></div>
             </main>
-            @if (!loading) {
+            @if (!loading()) {
                 <footer
                     class="fixed bottom-0 left-1/2 z-10 mx-auto my-2 flex w-full max-w-[640px] -translate-x-1/2 items-center justify-end rounded border-none bg-base-200 px-4 py-2"
                 >
@@ -494,9 +495,9 @@ export class VisitorKioskSettingsFormModalComponent {
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
 
-    public loading = '';
     public existing_settings: Record<string, any> = {};
     public old_settings: Record<string, any> = {};
+    public readonly loading = signal('');
     public readonly zone = this._data.zone;
     public readonly settings_key =
         this._settings.get('app.visitor_kiosk_metadata_key') ||
@@ -535,7 +536,7 @@ export class VisitorKioskSettingsFormModalComponent {
 
     public async ngOnInit() {
         const zone = this._data.zone;
-        this.loading = 'Loading existing settings...';
+        this.loading.set('Loading existing settings...');
         this.form.patchValue(DEFAULT_SETTINGS.app);
         const org_id = this._org.organisation.id;
         const org_metadata = await this._getMetadata(org_id);
@@ -553,7 +554,7 @@ export class VisitorKioskSettingsFormModalComponent {
         this.form.patchValue(parent_metadata || {});
         this.form.patchValue(metadata || {});
         this.old_settings = metadata;
-        this.loading = '';
+        this.loading.set('');
     }
 
     public addLegend() {
@@ -571,7 +572,7 @@ export class VisitorKioskSettingsFormModalComponent {
     }
 
     public async save() {
-        this.loading = 'Saving settings...';
+        this.loading.set('Saving settings...');
         const zone = this._data.zone;
         const form_value = this.form.getRawValue();
         const new_settings = { ...this.old_settings };
@@ -622,19 +623,19 @@ export class VisitorKioskSettingsFormModalComponent {
                   ? 'Support'
                   : 'User',
         };
-        await updateMetadata(zone.id, {
-            name: `${this.settings_key}`,
-            details: new_settings,
-            description: `[${VERSION.hash}|C] Visitor-kiosk Application Settings`,
-        })
-            .toPromise()
-            .catch((e) => {
-                console.error(e);
-                this.loading = '';
-                throw e;
-            });
-        this.loading = '';
-        notifySuccess('Sucessfully saved visitor kiosk app settings');
+        await lastValueFrom(
+            updateMetadata(zone.id, {
+                name: `${this.settings_key}`,
+                details: new_settings,
+                description: `[${VERSION.hash}|C] Visitor-kiosk Application Settings`,
+            }),
+        ).catch((e) => {
+            console.error(e);
+            this.loading.set('');
+            throw e;
+        });
+        this.loading.set('');
+        notifySuccess('Successfully saved visitor kiosk app settings');
         this._dialog_ref.close();
     }
 
@@ -648,8 +649,10 @@ export class VisitorKioskSettingsFormModalComponent {
     }
 
     private _getMetadata(id) {
-        return showMetadata(id, this.settings_key)
-            .pipe(map((m) => m.details as Record<string, any>))
-            .toPromise();
+        return lastValueFrom(
+            showMetadata(id, this.settings_key).pipe(
+                map((m) => m.details as Record<string, any>),
+            ),
+        );
     }
 }

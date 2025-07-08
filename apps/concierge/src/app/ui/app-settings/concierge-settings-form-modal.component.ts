@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { currentUser, notifySuccess, SettingsService } from '@placeos/common';
@@ -10,6 +10,7 @@ import { DEFAULT_SETTINGS } from 'apps/concierge/src/environments/settings';
 import { format } from 'date-fns';
 
 import { VERSION } from '@placeos/common';
+import { lastValueFrom } from 'rxjs';
 
 @Component({
     selector: 'concierge-settings-form-modal',
@@ -21,7 +22,7 @@ import { VERSION } from '@placeos/common';
                 <h2 class="text-xl font-medium">
                     Concierge Settings - {{ zone.display_name || zone.name }}
                 </h2>
-                @if (!loading) {
+                @if (!loading()) {
                     <button icon matRipple mat-dialog-close>
                         <icon>close</icon>
                     </button>
@@ -30,7 +31,7 @@ import { VERSION } from '@placeos/common';
             <main
                 class="z-0 mx-auto h-1/2 w-full max-w-[640px] flex-1 space-y-8 p-4"
             >
-                @if (!loading) {
+                @if (!loading()) {
                     <form [formGroup]="form" class="flex flex-col space-y-8">
                         <section general class="space-y-2 rounded bg-base-100">
                             <div>
@@ -1181,12 +1182,12 @@ import { VERSION } from '@placeos/common';
                         class="flex h-1/2 w-full flex-1 flex-col items-center justify-center p-12"
                     >
                         <mat-spinner [diameter]="32"></mat-spinner>
-                        <p class="text-center">{{ loading }}</p>
+                        <p class="text-center">{{ loading() }}</p>
                     </div>
                 }
                 <div class="h-16 w-full"></div>
             </main>
-            @if (!loading) {
+            @if (!loading()) {
                 <footer
                     class="fixed bottom-0 left-1/2 z-10 mx-auto my-2 flex w-full max-w-[640px] -translate-x-1/2 items-center justify-end rounded border-none bg-base-200 px-4 py-2"
                 >
@@ -1216,7 +1217,7 @@ export class ConciergeSettingsFormModalComponent {
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
 
-    public loading = '';
+    public loading = signal('');
     public existing_settings: Record<string, any> = {};
     public old_settings: Record<string, any> = {};
     public readonly zone = this._data.zone;
@@ -1292,7 +1293,7 @@ export class ConciergeSettingsFormModalComponent {
 
     public async ngOnInit() {
         const zone = this._data.zone;
-        this.loading = 'Loading existing settings...';
+        this.loading.set('Loading existing settings...');
         this.form.patchValue(DEFAULT_SETTINGS.app);
         const org_id = this._org.organisation.id;
         const org_metadata = await this._getMetadata(org_id);
@@ -1310,11 +1311,11 @@ export class ConciergeSettingsFormModalComponent {
         this.form.patchValue(parent_metadata || {});
         this.form.patchValue(metadata || {});
         this.old_settings = metadata;
-        this.loading = '';
+        this.loading.set('');
     }
 
     public async save() {
-        this.loading = 'Saving settings...';
+        this.loading.set('Saving settings...');
         const zone = this._data.zone;
         const form_value = this.form.getRawValue();
         const new_settings = { ...this.old_settings };
@@ -1374,10 +1375,10 @@ export class ConciergeSettingsFormModalComponent {
             .toPromise()
             .catch((e) => {
                 console.error(e);
-                this.loading = '';
+                this.loading.set('');
                 throw e;
             });
-        this.loading = '';
+        this.loading.set('');
         notifySuccess('Sucessfully saved concierge app settings');
         this._dialog_ref.close();
     }
@@ -1392,8 +1393,10 @@ export class ConciergeSettingsFormModalComponent {
     }
 
     private _getMetadata(id) {
-        return showMetadata(id, this.settings_key)
-            .pipe(map((m) => m.details as Record<string, any>))
-            .toPromise();
+        return lastValueFrom(
+            showMetadata(id, this.settings_key).pipe(
+                map((m) => m.details as Record<string, any>),
+            ),
+        );
     }
 }

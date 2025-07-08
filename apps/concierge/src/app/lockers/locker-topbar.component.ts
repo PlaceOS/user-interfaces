@@ -1,12 +1,16 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import { first } from 'rxjs/operators';
 
-import { AsyncHandler, nextValueFrom, SettingsService } from '@placeos/common';
+import {
+    AsyncHandler,
+    firstTruthyValueFrom,
+    nextValueFrom,
+    SettingsService,
+} from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 
 import { MatDialog } from '@angular/material/dialog';
-import { timer } from 'rxjs';
+import { lastValueFrom, timer } from 'rxjs';
 import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
 import { LockerStateService } from './locker-state.service';
 
@@ -16,7 +20,7 @@ import { LockerStateService } from './locker-state.service';
         <div class="flex w-full items-center space-x-2 px-8 py-4">
             <h2 class="text-2xl font-medium">
                 {{
-                    (path !== 'events'
+                    (path() !== 'events'
                         ? 'APP.CONCIERGE.LOCKERS_HEADER'
                         : 'APP.CONCIERGE.LOCKERS_BOOK_HEADER'
                     ) | translate
@@ -36,7 +40,7 @@ import { LockerStateService } from './locker-state.service';
                     ) | translate
                 "
             >
-                @if (path === 'manage') {
+                @if (path() === 'manage') {
                     <button
                         btn
                         matRipple
@@ -51,7 +55,7 @@ import { LockerStateService } from './locker-state.service';
                     </button>
                 }
             </div>
-            @if (path === 'events') {
+            @if (path() === 'events') {
                 <button
                     btn
                     matRipple
@@ -94,7 +98,7 @@ import { LockerStateService } from './locker-state.service';
                 </mat-select>
             </mat-form-field>
             <div class="w-0 flex-1"></div>
-            @if (path !== 'events' && path !== 'map') {
+            @if (path() !== 'events' && path() !== 'map') {
                 <button
                     icon
                     matRipple
@@ -107,7 +111,7 @@ import { LockerStateService } from './locker-state.service';
                     <icon>open_in_new</icon>
                 </button>
             }
-            @if (path !== 'events' && path !== 'map') {
+            @if (path() !== 'events' && path() !== 'map') {
                 <button
                     icon
                     matRipple
@@ -120,7 +124,7 @@ import { LockerStateService } from './locker-state.service';
                     <icon>lock_open</icon>
                 </button>
             }
-            @if (path === 'events' || path === 'map') {
+            @if (path() === 'events' || path() === 'map') {
                 <date-options (dateChange)="setDate($event)"></date-options>
             }
         </div>
@@ -148,9 +152,9 @@ export class LockersTopbarComponent extends AsyncHandler implements OnInit {
     private _settings = inject(SettingsService);
     private _dialog = inject(MatDialog);
 
-    public path = '';
+    public readonly path = signal('');
     /** List of selected levels */
-    public zones: string[] = [];
+    public readonly zones = signal<string[]>([]);
     /** List of levels for the active building */
     public readonly levels = this._state.levels;
     /** Options set for week view */
@@ -184,8 +188,9 @@ export class LockersTopbarComponent extends AsyncHandler implements OnInit {
     }
 
     public async ngOnInit() {
-        await this._org.initialised.pipe(first((_) => _)).toPromise();
-        await timer(1000).toPromise();
+        this._updatePath();
+        await firstTruthyValueFrom(this._org.initialised);
+        await lastValueFrom(timer(1000));
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
@@ -196,7 +201,7 @@ export class LockersTopbarComponent extends AsyncHandler implements OnInit {
                     const zones = params.get('zone_ids').split(',');
                     if (zones.length) {
                         const level = this._org.levelWithID(zones);
-                        this.zones = zones;
+                        this.zones.set(zones);
                         if (!level) return;
                         this._org.building = this._org.buildings.find(
                             (bld) => bld.id === level.parent_id,
@@ -210,13 +215,16 @@ export class LockersTopbarComponent extends AsyncHandler implements OnInit {
             'levels',
             this._state.levels.subscribe((levels) => {
                 if (this.use_region) return;
-                this.zones = this.zones.filter((zone) =>
-                    levels.find((lvl) => lvl.id === zone),
+                this.zones.update((zones) =>
+                    zones.filter((z) => levels.find((lvl) => lvl.id === z)),
                 );
-                if (!this.zones.length && levels.length) {
-                    this.zones.push(levels[0].id);
+                if (!this.zones().length && levels.length) {
+                    this.zones.update((zones) => {
+                        zones.push(levels[0].id);
+                        return zones;
+                    });
                 }
-                this.updateZones(this.zones);
+                this.updateZones(this.zones());
             }),
         );
         this.subscription(
@@ -238,12 +246,12 @@ export class LockersTopbarComponent extends AsyncHandler implements OnInit {
 
     private _updatePath() {
         this.timeout(
-            'update_path',
+            'path',
             () => {
                 const parts = this._router.url?.split('/') || [''];
-                this.path = parts[parts.length - 1].split('?')[0];
+                this.path.set(parts[parts.length - 1].split('?')[0]);
             },
-            50,
+            20,
         );
     }
 }

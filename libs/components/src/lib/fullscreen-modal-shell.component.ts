@@ -2,6 +2,7 @@ import { Component, input, output } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { RouterModule } from '@angular/router';
 import { IconComponent } from './icon.component';
 import { TranslatePipe } from './translate.pipe';
 
@@ -63,6 +64,7 @@ import { TranslatePipe } from './translate.pipe';
         IconComponent,
         MatDialogModule,
         MatRippleModule,
+        RouterModule,
     ],
 })
 export class FullscreenModalShellComponent {
@@ -72,4 +74,5 @@ export class FullscreenModalShellComponent {
     public readonly close = input<string[]>([]);
     public readonly hide_confirm = input(false);
     public readonly confirm = output();
+    public readonly closed = output();
 }

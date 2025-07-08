@@ -1,5 +1,5 @@
 import { COMMA, ENTER, SPACE } from '@angular/cdk/keycodes';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { MatChipInputEvent } from '@angular/material/chips';
 import {
     EncryptionLevel,
@@ -29,6 +29,7 @@ import {
 } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { Space, generateSystemsFormFields } from '@placeos/spaces';
+import { lastValueFrom } from 'rxjs';
 import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.component';
 
 @Component({
@@ -350,12 +351,12 @@ import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.compone
                         />
                     </mat-form-field>
                     <mat-autocomplete #auto="matAutocomplete">
-                        @for (tz of filtered_timezones; track tz) {
+                        @for (tz of filtered_timezones(); track tz) {
                             <mat-option [value]="tz">
                                 {{ tz }}
                             </mat-option>
                         }
-                        @if (!timezones.length) {
+                        @if (!timezones().length) {
                             <mat-option [disabled]="true">
                                 {{ 'COMMON.TIMEZONE_EMPTY' | translate }}
                             </mat-option>
@@ -394,15 +395,16 @@ import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.compone
 })
 export class RoomModalComponent extends AsyncHandler implements OnInit {
     private _data = inject<{
-    room: Space;
-}>(MAT_DIALOG_DATA);
-    private _dialog_ref = inject<MatDialogRef<RoomModalComponent>>(MatDialogRef);
+        room: Space;
+    }>(MAT_DIALOG_DATA);
+    private _dialog_ref =
+        inject<MatDialogRef<RoomModalComponent>>(MatDialogRef);
     private _org = inject(OrganisationService);
     private _dialog = inject(MatDialog);
 
     public loading = false;
-    public timezones: string[] = TIMEZONES_IANA;
-    public filtered_timezones: string[] = [];
+    public timezones = signal(TIMEZONES_IANA);
+    public filtered_timezones = signal<string[]>([]);
     /** List of levels for the active building */
     public readonly levels = this._org.active_levels;
     /** Group of form fields used for creating the system */
@@ -507,21 +509,21 @@ export class RoomModalComponent extends AsyncHandler implements OnInit {
         ).toPromise()) as any;
         const overflow = getItemWithKeys(['events', 'overflow'], details) || {};
         overflow[data.id] = this.settings_form.value;
-        await updateMetadata(this._org.organisation.id, {
-            name: 'settings',
-            details: {
-                ...details,
-                events: { ...(details.events || {}), overflow },
-            },
-            description: '',
-        })
-            .toPromise()
-            .catch((e) =>
-                notifyWarn('Unable to save room setup and breakdown times'),
-            );
-        await (
-            data.id ? updateSystem(data.id, data) : addSystem(data)
-        ).toPromise();
+        await lastValueFrom(
+            updateMetadata(this._org.organisation.id, {
+                name: 'settings',
+                details: {
+                    ...details,
+                    events: { ...(details.events || {}), overflow },
+                },
+                description: '',
+            }),
+        ).catch((e) =>
+            notifyWarn('Unable to save room setup and breakdown times'),
+        );
+        await lastValueFrom(
+            data.id ? updateSystem(data.id, data) : addSystem(data),
+        );
         this._dialog_ref.disableClose = false;
         this._dialog_ref.close(true);
         this.loading = false;
@@ -529,9 +531,11 @@ export class RoomModalComponent extends AsyncHandler implements OnInit {
 
     private _updateTimezoneList() {
         const timezone = this.form?.value?.timezone || '';
-        this.timezones = TIMEZONES_IANA;
-        this.filtered_timezones = this.timezones.filter((_) =>
-            _.toLowerCase().includes(timezone.toLowerCase()),
+        this.timezones.set(TIMEZONES_IANA);
+        this.filtered_timezones.set(
+            this.timezones().filter((_) =>
+                _.toLowerCase().includes(timezone.toLowerCase()),
+            ),
         );
     }
 

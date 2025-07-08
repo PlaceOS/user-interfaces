@@ -1,11 +1,11 @@
 import {
-  Component,
-  forwardRef,
-  inject,
-  OnChanges,
-  OnInit,
-  SimpleChanges,
-  input
+    Component,
+    forwardRef,
+    inject,
+    input,
+    OnChanges,
+    OnInit,
+    SimpleChanges,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -33,7 +33,7 @@ const EMPTY_FAVS = [];
     selector: `catering-list-field`,
     template: `
         <div list class="space-y-2">
-            @for (order of orders; track order) {
+            @for (order of orders; track order.id) {
                 <div
                     order
                     class="overflow-hidden rounded-xl border bg-base-100 shadow"
@@ -142,7 +142,7 @@ const EMPTY_FAVS = [];
                         class="flex flex-col divide-y divide-base-100 bg-base-200"
                         [@show]="show_order[order.id] ? 'show' : 'hide'"
                     >
-                        @for (item of order.items; track item) {
+                        @for (item of order.items; track item.custom_id) {
                             <div
                                 class="flex items-center space-x-2 px-4 py-1 hover:opacity-90"
                             >
@@ -265,11 +265,11 @@ export class CateringListFieldComponent
     private _dialog = inject(MatDialog);
 
     public readonly options = input<{
-    date?: number;
-    duration?: number;
-    all_day?: boolean;
-    zone_id?: string;
-}>({});
+        date?: number;
+        duration?: number;
+        all_day?: boolean;
+        zone_id?: string;
+    }>({});
     public orders: CateringOrder[] = [];
     public show_order: Record<string, boolean> = {};
     public disabled = false;
@@ -316,7 +316,8 @@ export class CateringListFieldComponent
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.options) {
             this.orders = (this.orders || []).map(
-                (_) => new CateringOrder({ ..._, event: this.options() as any }),
+                (_) =>
+                    new CateringOrder({ ..._, event: this.options() as any }),
             );
         }
     }

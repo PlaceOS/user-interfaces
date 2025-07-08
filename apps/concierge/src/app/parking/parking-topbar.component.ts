@@ -1,12 +1,17 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import { debounceTime, first } from 'rxjs/operators';
+import { debounceTime } from 'rxjs/operators';
 
-import { AsyncHandler, nextValueFrom, SettingsService } from '@placeos/common';
+import {
+    AsyncHandler,
+    firstTruthyValueFrom,
+    nextValueFrom,
+    SettingsService,
+} from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 
 import { MatDialog } from '@angular/material/dialog';
-import { timer } from 'rxjs';
+import { lastValueFrom, timer } from 'rxjs';
 import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
 import { ParkingStateService } from './parking-state.service';
 
@@ -181,8 +186,9 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
     }
 
     public async ngOnInit() {
-        await this._org.initialised.pipe(first((_) => _)).toPromise();
-        await timer(1000).toPromise();
+        this._updatePath();
+        await firstTruthyValueFrom(this._org.initialised);
+        await lastValueFrom(timer(1000));
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
@@ -248,7 +254,7 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
                 const parts = this._router.url?.split('/') || [''];
                 this.path = parts[parts.length - 1].split('?')[0];
             },
-            50,
+            20,
         );
     }
 }

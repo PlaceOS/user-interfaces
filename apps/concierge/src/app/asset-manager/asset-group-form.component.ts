@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
@@ -8,7 +8,7 @@ import {
     showAssetGroup,
 } from '@placeos/assets';
 import { AsyncHandler, notifyError, unique } from '@placeos/common';
-import { BehaviorSubject, combineLatest } from 'rxjs';
+import { BehaviorSubject, combineLatest, lastValueFrom } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { AssetManagerStateService } from './asset-manager-state.service';
 
@@ -134,7 +134,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
     styles: [``],
     standalone: false,
 })
-export class AssetGroupFormComponent extends AsyncHandler {
+export class AssetGroupFormComponent extends AsyncHandler implements OnInit {
     private _state = inject(AssetManagerStateService);
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
@@ -161,9 +161,9 @@ export class AssetGroupFormComponent extends AsyncHandler {
             this._route.queryParamMap.subscribe(async (params) => {
                 if (params.get('id')) {
                     this.loading = 'Loading Product Details...';
-                    const product = await showAssetGroup(params.get('id'))
-                        .toPromise()
-                        .catch(() => null);
+                    const product = await lastValueFrom(
+                        showAssetGroup(params.get('id')),
+                    ).catch(() => null);
                     if (!product) {
                         notifyError('Unable to load product details.');
                         this._router.navigate([this.base_route]);
@@ -187,13 +187,13 @@ export class AssetGroupFormComponent extends AsyncHandler {
         if (!this.form.valid) return;
         this.loading = 'Saving Product...';
         const data = this.form.value;
-        const item = await saveAssetGroup(data as any)
-            .toPromise()
-            .catch((e) => {
+        const item = await lastValueFrom(saveAssetGroup(data as any)).catch(
+            (e) => {
                 this.loading = '';
                 notifyError(`Error saving Product: ${e.message}`);
                 throw e;
-            });
+            },
+        );
         this.form.reset();
         this.loading = '';
         this._state.postChange();

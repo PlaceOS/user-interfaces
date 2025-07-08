@@ -308,105 +308,106 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                         </div>
                     }
                     @if (assets?.length) {
-                        <div class="col-span-2 w-full">
+                        <div class="col-span-2 mt-4 w-full">
                             <div class="mb-2 flex items-center space-x-4">
                                 <div
                                     class="flex items-center justify-center rounded-full border border-success text-success"
-                                    [class.!border-error]="has_conflict"
-                                    [class.!text-error]="has_conflict"
                                 >
-                                    <icon>{{
-                                        has_conflict ? 'close' : 'done'
-                                    }}</icon>
+                                    <icon class="text-2xl">done</icon>
                                 </div>
                                 <h3 class="text-xl">
                                     {{ 'RESOURCE.ASSETS' | translate }}
                                 </h3>
                             </div>
-                            @for (request of assets; track request) {
-                                <div
-                                    request
-                                    class="w-full overflow-hidden rounded-xl border bg-base-100"
-                                    [class.border-error]="
-                                        end_time < request.deliver_at
-                                    "
-                                    [class.border-base-300]="
-                                        end_time >= request.deliver_at
-                                    "
-                                >
+                            <div class="flex w-full flex-col space-y-2 pl-12">
+                                @for (request of assets; track request) {
                                     <div
-                                        class="flex items-center space-x-2 p-3"
+                                        request
+                                        class="w-full overflow-hidden rounded-xl border bg-base-100"
+                                        [class.border-error]="
+                                            end_time < request.deliver_at
+                                        "
+                                        [class.border-base-300]="
+                                            end_time >= request.deliver_at
+                                        "
                                     >
                                         <div
-                                            class="flex flex-1 items-center space-x-2"
+                                            class="flex items-center space-x-2 p-3"
                                         >
-                                            <div class="text-sm">
-                                                {{
-                                                    'CALENDAR_EVENT.ASSETS_REQUESTED_FOR'
-                                                        | translate
-                                                            : {
-                                                                  time:
-                                                                      request.deliver_at_time
-                                                                      | date
-                                                                          : 'MMM d, ' +
-                                                                                time_format,
-                                                              }
-                                                }}
-                                            </div>
-                                            @if (
-                                                end_time < request.deliver_at ||
-                                                request.conflict
-                                            ) {
-                                                <div
-                                                    class="flex h-6 w-6 items-center justify-center rounded-full bg-error text-error-content"
-                                                    [matTooltip]="
-                                                        err_tooltip(request)
-                                                    "
-                                                >
-                                                    <icon>priority_high</icon>
-                                                </div>
-                                            }
-                                            <div class="flex-1"></div>
                                             <div
-                                                class="rounded bg-success px-2 py-1 text-xs text-success-content"
+                                                class="flex flex-1 items-center space-x-2"
                                             >
-                                                {{
-                                                    'COMMON.ITEM_COUNT'
-                                                        | translate
-                                                            : {
-                                                                  count: request.item_count,
-                                                              }
-                                                }}
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div
-                                        class="flex flex-col divide-y divide-base-100 bg-base-200"
-                                    >
-                                        @for (
-                                            item of request.items;
-                                            track item
-                                        ) {
-                                            <div
-                                                class="flex items-center space-x-2 px-3 py-1 hover:opacity-90"
-                                            >
-                                                <div
-                                                    class="flex flex-1 items-center"
-                                                >
-                                                    <span class="text-sm">{{
-                                                        item.name || 'Item'
-                                                    }}</span>
+                                                <div class="text-sm">
+                                                    {{
+                                                        'CALENDAR_EVENT.ASSETS_REQUESTED_FOR'
+                                                            | translate
+                                                                : {
+                                                                      time:
+                                                                          request.deliver_at_time
+                                                                          | date
+                                                                              : 'MMM d, ' +
+                                                                                    time_format,
+                                                                  }
+                                                    }}
                                                 </div>
+                                                @if (
+                                                    end_time <
+                                                        request.deliver_at ||
+                                                    request.conflict
+                                                ) {
+                                                    <div
+                                                        class="flex h-6 w-6 items-center justify-center rounded-full bg-error text-error-content"
+                                                        [matTooltip]="
+                                                            err_tooltip(request)
+                                                        "
+                                                    >
+                                                        <icon
+                                                            >priority_high</icon
+                                                        >
+                                                    </div>
+                                                }
+                                                <div class="flex-1"></div>
                                                 <div
                                                     class="rounded bg-success px-2 py-1 text-xs text-success-content"
                                                 >
-                                                    x{{ item.quantity }}
+                                                    {{
+                                                        'COMMON.ITEM_COUNT'
+                                                            | translate
+                                                                : {
+                                                                      count: request.item_count,
+                                                                  }
+                                                    }}
                                                 </div>
                                             </div>
-                                        }
+                                        </div>
+                                        <div
+                                            class="flex flex-col divide-y divide-base-100 bg-base-200"
+                                        >
+                                            @for (
+                                                item of request.items;
+                                                track item
+                                            ) {
+                                                <div
+                                                    class="flex items-center space-x-2 px-3 py-1 hover:opacity-90"
+                                                >
+                                                    <div
+                                                        class="flex flex-1 items-center"
+                                                    >
+                                                        <span class="text-sm">{{
+                                                            item.name || 'Item'
+                                                        }}</span>
+                                                    </div>
+                                                    <div
+                                                        class="rounded bg-success px-2 py-1 text-xs text-success-content"
+                                                    >
+                                                        x{{ item.quantity }}
+                                                    </div>
+                                                </div>
+                                            }
+                                        </div>
                                     </div>
-                                </div>
-                            }
+                                }
+                            </div>
                         </div>
                     }
                 </div>

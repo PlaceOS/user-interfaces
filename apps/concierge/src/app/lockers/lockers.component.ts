@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { AsyncHandler, SettingsService } from '@placeos/common';
@@ -19,7 +19,7 @@ import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component'
                         <router-outlet></router-outlet>
                     </div>
                 </div>
-                @if ((loading | async) && path === 'events') {
+                @if ((loading | async) && path() === 'events') {
                     <mat-progress-bar
                         class="w-full"
                         mode="indeterminate"
@@ -49,7 +49,7 @@ export class LockersComponent extends AsyncHandler implements OnInit {
     private _settings = inject(SettingsService);
 
     public readonly loading = this._state.loading;
-    public path: string;
+    public path = signal('');
     /** List of levels for the active building */
     public readonly filters = this._state.filters;
     /** List of levels for the active building */
@@ -77,19 +77,20 @@ export class LockersComponent extends AsyncHandler implements OnInit {
         this.subscription(
             'router.events',
             this._router.events.subscribe((e) => {
-                if (e instanceof NavigationEnd) {
-                    const url_parts = this._router.url?.split('/') || [''];
-                    this.path = url_parts[parts.length - 1].split('?')[0];
-                }
+                if (e instanceof NavigationEnd) this._updatePath();
             }),
         );
-        const parts = this._router.url?.split('/') || [''];
-        this.path = parts[parts.length - 1].split('?')[0];
+        this._updatePath();
     }
 
     public manageRestrictions() {
         this._dialog.open(BookingRulesModalComponent, {
             data: { type: 'locker' },
         });
+    }
+
+    private _updatePath() {
+        const parts = this._router.url?.split('/') || [''];
+        this.path.set(parts[parts.length - 1].split('?')[0]);
     }
 }

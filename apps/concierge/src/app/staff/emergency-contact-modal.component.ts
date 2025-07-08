@@ -124,7 +124,7 @@ import { EmergencyContact } from './emergency-contacts.component';
                                 >
                                     @for (
                                         role of (data | async)?.roles || [];
-                                        track role
+                                        track $index
                                     ) {
                                         @if (role) {
                                             <mat-option [value]="role">
@@ -193,7 +193,8 @@ import { EmergencyContact } from './emergency-contacts.component';
 })
 export class EmergencyContactModalComponent {
     private _data = inject<EmergencyContact | undefined>(MAT_DIALOG_DATA);
-    private _dialog_ref = inject<MatDialogRef<EmergencyContactModalComponent>>(MatDialogRef);
+    private _dialog_ref =
+        inject<MatDialogRef<EmergencyContactModalComponent>>(MatDialogRef);
     private _org = inject(OrganisationService);
 
     private _changes = new BehaviorSubject(0);

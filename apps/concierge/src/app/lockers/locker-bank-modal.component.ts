@@ -40,7 +40,7 @@ import { map } from 'rxjs/operators';
                     <label for="name">{{ 'RESOURCE.LEVEL' | translate }}</label>
                     <mat-form-field appearance="outline" class="w-full">
                         <mat-select
-                            [ngModel]="form.value.zones[0]"
+                            [ngModel]="form.value.zones[0] || ''"
                             (ngModelChange)="
                                 form.patchValue({ zones: [$event] })
                             "
@@ -175,7 +175,8 @@ import { map } from 'rxjs/operators';
 })
 export class LockerBankModalComponent {
     private _data = inject<LockerBank>(MAT_DIALOG_DATA);
-    private _dialog_ref = inject<MatDialogRef<LockerBankModalComponent>>(MatDialogRef);
+    private _dialog_ref =
+        inject<MatDialogRef<LockerBankModalComponent>>(MatDialogRef);
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
 

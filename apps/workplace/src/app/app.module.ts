@@ -1,4 +1,9 @@
-import { ErrorHandler, LOCALE_ID, NgModule } from '@angular/core';
+import {
+    ErrorHandler,
+    LOCALE_ID,
+    NgModule,
+    provideZonelessChangeDetection,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { BrowserModule } from '@angular/platform-browser';
@@ -43,6 +48,7 @@ import { LocaleService } from '@placeos/common';
         SharedBookingsModule,
     ],
     providers: [
+        provideZonelessChangeDetection(),
         {
             provide: ErrorHandler,
             useValue: Sentry.createErrorHandler({

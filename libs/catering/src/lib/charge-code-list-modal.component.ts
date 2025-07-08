@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -25,18 +25,18 @@ import { CateringStateService } from './catering-state.service';
             <h2 class="px-2 text-xl font-medium">
                 {{ 'CATERING.CHARGE_CODES_EDIT' | translate }}
             </h2>
-            @if (!loading) {
+            @if (!loading()) {
                 <button icon matRipple mat-dialog-close>
                     <icon>close</icon>
                 </button>
             }
         </header>
-        @if (!loading) {
+        @if (!loading()) {
             <main
                 class="flex max-h-[65vh] min-h-[20rem] flex-col overflow-auto"
             >
-                @if (charge_codes.length) {
-                    @for (code of charge_codes; track i; let i = $index) {
+                @if (charge_codes().length) {
+                    @for (code of charge_codes(); track i; let i = $index) {
                         <div
                             class="flex w-full items-center space-x-2 px-2 py-1 hover:bg-base-200"
                         >
@@ -46,7 +46,7 @@ import { CateringStateService } from './catering-state.service';
                             >
                                 <input
                                     matInput
-                                    [(ngModel)]="charge_codes[i]"
+                                    [(ngModel)]="charge_codes()[i]"
                                     [placeholder]="
                                         'CATERING.CHARGE_CODES' | translate
                                     "
@@ -83,7 +83,7 @@ import { CateringStateService } from './catering-state.service';
                 <p>{{ 'CATERING.CHARGE_CODE_SAVE' | translate }}</p>
             </main>
         }
-        @if (!loading) {
+        @if (!loading()) {
             <footer
                 class="flex items-center space-x-2 border-t border-base-200 p-2"
             >
@@ -130,20 +130,27 @@ export class ChargeCodeListModalComponent implements OnInit {
     private _dialog_ref =
         inject<MatDialogRef<ChargeCodeListModalComponent>>(MatDialogRef);
 
-    public charge_codes: string[] = [];
-    public loading = false;
+    public readonly charge_codes = signal<string[]>([]);
+    public readonly loading = signal<boolean>(false);
 
     public async ngOnInit() {
-        this.charge_codes =
-            (await nextValueFrom(this._state.charge_codes)) || [];
+        this.charge_codes.set(
+            (await nextValueFrom(this._state.charge_codes)) || [],
+        );
     }
 
     public newCode() {
-        this.charge_codes.push('');
+        this.charge_codes.update((l) => {
+            l.push('');
+            return l;
+        });
     }
 
     public removeCode(index: number) {
-        this.charge_codes.splice(index, 1);
+        this.charge_codes.update((l) => {
+            l.splice(index, 1);
+            return l;
+        });
     }
 
     /**
@@ -168,10 +175,13 @@ export class ChargeCodeListModalComponent implements OnInit {
                 reader.addEventListener('load', (evt) => {
                     const list =
                         csvToJson((evt.srcElement as any).result) || [];
-                    for (const { code, description } of list) {
-                        this.charge_codes.push(code);
-                    }
-                    this.charge_codes = unique(this.charge_codes);
+                    this.charge_codes.update((l) => {
+                        for (const { code, description } of list) {
+                            l.push(code);
+                        }
+                        l = unique(l);
+                        return l;
+                    });
                     event.target.value = '';
                 });
                 reader.addEventListener('error', (_) =>
@@ -187,8 +197,8 @@ export class ChargeCodeListModalComponent implements OnInit {
     }
 
     public async saveChargeCodes() {
-        this.loading = true;
-        const cleaned_codes = this.charge_codes.filter((_) => _ && _.trim());
+        this.loading.set(true);
+        const cleaned_codes = this.charge_codes().filter((_) => _ && _.trim());
         await this._state.saveSettings({ charge_codes: cleaned_codes });
         this._dialog_ref.close();
     }

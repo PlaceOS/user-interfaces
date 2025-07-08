@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
     AsyncHandler,
@@ -184,7 +184,6 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
     );
     /** List of levels for the active building */
     public readonly updateZones = (z) => {
-        console.warn('Update Zones:', z);
         this._router.navigate([], {
             relativeTo: this._route,
             queryParams: { zone_ids: z.join(',') },
@@ -194,7 +193,6 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
     };
     public readonly updateUIOptions = (o) => this._state.setUIOptions(o);
     public readonly setPeriod = (p) => {
-        console.warn('Set Period:', p);
         this._router.navigate([], {
             relativeTo: this._route,
             queryParams: { period: p },
