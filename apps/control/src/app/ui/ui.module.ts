@@ -44,6 +44,7 @@ import { SanitizePipe } from 'libs/components/src/lib/sanitise.pipe';
 import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { LightingLevelsTooltipComponent } from './lighting-levels-tooltip.component';
+import { ZoomPhoneControlsComponent } from './zoom-phone-controls.component';
 
 const COMPONENTS: Type<any>[] = [
     LightingTooltipComponent,
@@ -93,6 +94,7 @@ const STANDALONE_COMPONENTS: any[] = [
     SafePipe,
     CustomTooltipComponent,
     SettingsToggleComponent,
+    ZoomPhoneControlsComponent,
 ];
 
 @NgModule({
@@ -105,6 +107,6 @@ const STANDALONE_COMPONENTS: any[] = [
         ...STANDALONE_COMPONENTS,
         RouterModule.forChild([]),
     ],
-    exports: [...COMPONENTS, ...MAT_MODULES],
+    exports: [...COMPONENTS, ...MAT_MODULES, ZoomPhoneControlsComponent],
 })
 export class UIModule {}

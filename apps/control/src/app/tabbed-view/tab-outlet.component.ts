@@ -140,6 +140,11 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
                                 [mod]="(tab | async)?.mod"
                             ></tv-controls>
                         }
+                        @case ('zoom-phone') {
+                            <zoom-phone-controls
+                                [mod]="(tab | async)?.mod"
+                            ></zoom-phone-controls>
+                        }
                         @default {
                             @if (help | async) {
                                 <div
