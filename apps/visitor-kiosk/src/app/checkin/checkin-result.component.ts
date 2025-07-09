@@ -47,7 +47,7 @@ const DEFAULT_TEMPLATE = `
                                 photo: photo | async,
                                 title: ev?.title,
                                 host: ev?.user_name || ev.user_email,
-                                zones: zones,
+                                zones: ev?.zones,
                                 date: ev?.date || date,
                                 extra_details:
                                     ev?.extension_data?.extra_details,

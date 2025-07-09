@@ -385,7 +385,7 @@ import { VisitorsStateService } from './visitors-state.service';
                                 email: row?.asset_id,
                                 title: row?.title,
                                 host: row?.user_name || row.user_email,
-                                zones: zones,
+                                zones: row?.zones,
                                 date: row?.date || date,
                                 extra_details:
                                     row?.extension_data?.extra_details,
