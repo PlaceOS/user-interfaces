@@ -12,7 +12,7 @@
                 "baseHref": "./",
                 "outputPath": "dist/apps/caterer-ui",
                 "index": "apps/caterer-ui/src/index.html",
-                "polyfills": ["apps/caterer-ui/src/polyfills.ts"],
+                "polyfills": [],
                 "tsConfig": "apps/caterer-ui/tsconfig.app.json",
                 "fileReplacements": [
                     {

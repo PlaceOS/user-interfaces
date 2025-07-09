@@ -12,7 +12,7 @@
                 "baseHref": "./",
                 "outputPath": "dist/apps/control",
                 "index": "apps/control/src/index.html",
-                "polyfills": ["apps/control/src/polyfills.ts"],
+                "polyfills": [],
                 "tsConfig": "apps/control/tsconfig.app.json",
                 "fileReplacements": [
                     {

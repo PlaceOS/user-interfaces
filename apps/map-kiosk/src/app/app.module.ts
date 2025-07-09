@@ -1,4 +1,8 @@
-import { ErrorHandler, NgModule } from '@angular/core';
+import {
+    ErrorHandler,
+    NgModule,
+    provideZonelessChangeDetection,
+} from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -87,6 +91,7 @@ const STANDALONE_COMPONENTS = [
         }),
     ],
     providers: [
+        provideZonelessChangeDetection(),
         {
             provide: ErrorHandler,
             useValue: Sentry.createErrorHandler({

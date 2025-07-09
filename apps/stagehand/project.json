@@ -14,7 +14,7 @@
                 "outputPath": "dist/apps/stagehand",
                 "index": "apps/stagehand/src/index.html",
                 "browser": "apps/stagehand/src/main.ts",
-                "polyfills": ["zone.js"],
+                "polyfills": [],
                 "tsConfig": "apps/stagehand/tsconfig.app.json",
                 "fileReplacements": [
                     {

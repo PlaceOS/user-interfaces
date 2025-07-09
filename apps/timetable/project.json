@@ -12,7 +12,7 @@
             "options": {
                 "outputPath": "dist/apps/timetable",
                 "index": "apps/timetable/src/index.html",
-                "polyfills": ["apps/timetable/src/polyfills.ts"],
+                "polyfills": [],
                 "tsConfig": "apps/timetable/tsconfig.app.json",
                 "baseHref": "./",
                 "assets": [
