@@ -14,7 +14,7 @@
                 "outputPath": "dist/apps/redirect",
                 "index": "apps/redirect/src/index.html",
                 "browser": "apps/redirect/src/main.ts",
-                "polyfills": ["zone.js"],
+                "polyfills": [],
                 "tsConfig": "apps/redirect/tsconfig.app.json",
                 "assets": [
                     {

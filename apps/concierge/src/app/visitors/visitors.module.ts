@@ -6,6 +6,7 @@ import { Route, RouterModule } from '@angular/router';
 import { UIModule } from '../ui/ui.module';
 
 import { SharedBookingsModule } from '@placeos/bookings';
+import { UserLabelComponent } from 'libs/users/src/lib/user-label.component';
 import { GuestListingComponent } from './guest-listing.component';
 import { InviteVisitorModalComponent } from './invite-visitor-modal.component';
 import { VisitorInductionModalComponent } from './visitor-induction-modal.component';
@@ -29,6 +30,7 @@ const ROUTES: Route[] = [{ path: '', component: VisitorsComponent }];
         FormsModule,
         UIModule,
         SharedBookingsModule,
+        UserLabelComponent,
         RouterModule.forChild(ROUTES),
     ],
 })
