@@ -184,8 +184,10 @@ export class MapRendererComponent
 
     private readonly _outlet_el =
         viewChild<ElementRef<HTMLDivElement>>('outlet');
-    private readonly _feature_list =
-        viewChildren<ElementRef<HTMLDivElement>>('feature');
+    private readonly _feature_list = viewChildren<ElementRef<HTMLDivElement>>(
+        'feature',
+        {},
+    );
 
     @HostListener('window:resize') public onResize() {
         this.zoom.set(1);
@@ -392,16 +394,12 @@ export class MapRendererComponent
         this.updateDisplay();
     }
 
-    /* istanbul ignore next */
-    public trackByFn(index: number, feature: ViewerFeature) {
-        return feature?.track_id;
-    }
-
     private updateFeatureList() {
+        const feature_elements = this._feature_list();
         this.feature_list = (this.features() || [])
             .map((f, idx) => ({
                 ...f,
-                content: this._feature_list[idx]?.nativeElement,
+                content: feature_elements[idx]?.nativeElement,
             }))
             .filter((f) => f.content);
     }

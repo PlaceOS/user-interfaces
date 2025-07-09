@@ -1,5 +1,6 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { lastValueFrom, of } from 'rxjs';
 
 import {
     AsyncHandler,
@@ -13,6 +14,16 @@ import {
 import { OrganisationService } from '@placeos/organisation';
 import { setToken, showMetadata } from '@placeos/ts-client';
 import {
+    catchError,
+    filter,
+    first,
+    map,
+    shareReplay,
+    startWith,
+    switchMap,
+} from 'rxjs/operators';
+
+import {
     Booking,
     LinkedCalendarEvent,
 } from 'libs/bookings/src/lib/booking.class';
@@ -23,22 +34,12 @@ import {
     showEventMetadata,
     updateEventMetadata,
 } from 'libs/events/src/lib/events.fn';
-import { lastValueFrom, of } from 'rxjs';
-import {
-    catchError,
-    filter,
-    first,
-    map,
-    shareReplay,
-    startWith,
-    switchMap,
-} from 'rxjs/operators';
 import { CheckinStateService } from './checkin-state.service';
 
 @Component({
     selector: 'checkin-preferences',
     template: `
-        @if (!loading) {
+        @if (!loading()) {
             <div
                 class="relative flex w-[36rem] flex-col items-center overflow-hidden rounded bg-base-100 p-4 shadow"
             >
@@ -101,7 +102,7 @@ import { CheckinStateService } from './checkin-state.service';
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <div>
                     {{
-                        (type === 'menu'
+                        (type() === 'menu'
                             ? 'APP.VISITOR_KIOSK.BEVERAGE_MENU_LOADING'
                             : 'APP.VISITOR_KIOSK.BEVERAGE_LOADING'
                         ) | translate
@@ -129,8 +130,8 @@ export class CheckinPreferencesComponent
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
 
-    public loading = false;
-    public type = 'menu';
+    public loading = signal(false);
+    public type = signal<'save' | 'menu'>('menu');
     public beverage: CateringItem;
     public readonly event = this._checkin.event;
 
@@ -158,7 +159,7 @@ export class CheckinPreferencesComponent
     );
 
     public ngOnInit(): void {
-        this.loading = true;
+        this.loading.set(true);
         this.subscription(
             '',
             this._route.queryParamMap.subscribe(async (params) => {
@@ -178,7 +179,7 @@ export class CheckinPreferencesComponent
                 if (params.has('jwt')) setToken(params.get('jwt'));
             }),
         );
-        this.type = 'menu';
+        this.type.set('menu');
         this.timeout(
             'event',
             () => {
@@ -198,16 +199,28 @@ export class CheckinPreferencesComponent
         );
         this.subscription(
             'menu',
-            this.menu.subscribe((l) =>
-                l.length ? (this.loading = false) : '',
-            ),
+            this.menu.subscribe((l) => {
+                if (l.length) {
+                    this.loading.set(false);
+                    this.clearTimeout('no_menu');
+                } else {
+                    this.timeout(
+                        'no_menu',
+                        () => {
+                            notifyError('No menu available');
+                            this.next();
+                        },
+                        1000,
+                    );
+                }
+            }),
         );
     }
 
     public async update() {
-        this.type = 'save';
+        this.type.set('save');
         if (!this.beverage) return this.next();
-        this.loading = true;
+        this.loading.set(true);
         const booking = await nextValueFrom(this._checkin.event);
         if (!booking) return notifyError(i18n('APP.VISITOR_KIOSK.LOAD_ERROR'));
         await lastValueFrom(
@@ -259,7 +272,7 @@ export class CheckinPreferencesComponent
             );
         }
         notifySuccess(i18n('APP.VISITOR_KIOSK.BEVERAGE_SUCCESS'));
-        this.loading = false;
+        this.loading.set(false);
         this.next();
     }
 
