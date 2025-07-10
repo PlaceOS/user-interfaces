@@ -77,7 +77,7 @@
         "@nx/workspace": "21.2.0",
         "@placeos/cloud-uploads": "^1.0.5",
         "@placeos/svg-viewer": "^1.0.2",
-        "@placeos/ts-client": "^4.1.8",
+        "@placeos/ts-client": "^4.1.9",
         "@playwright/test": "^1.49.0",
         "@schematics/angular": "20.0.2",
         "@sentry/angular": "^9.19.0",
