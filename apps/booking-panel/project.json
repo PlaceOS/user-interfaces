@@ -12,7 +12,7 @@
                 "baseHref": "./",
                 "outputPath": "dist/apps/booking-panel",
                 "index": "apps/booking-panel/src/index.html",
-                "polyfills": ["apps/booking-panel/src/polyfills.ts"],
+                "polyfills": [],
                 "tsConfig": "apps/booking-panel/tsconfig.app.json",
                 "fileReplacements": [
                     {

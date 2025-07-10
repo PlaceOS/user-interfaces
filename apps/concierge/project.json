@@ -12,7 +12,7 @@
                 "baseHref": "./",
                 "outputPath": "dist/apps/concierge",
                 "index": "apps/concierge/src/index.html",
-                "polyfills": ["apps/concierge/src/polyfills.ts"],
+                "polyfills": [],
                 "tsConfig": "apps/concierge/tsconfig.app.json",
                 "fileReplacements": [
                     {

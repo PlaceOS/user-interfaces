@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, contentChild, viewChild, input } from '@angular/core';
+import { Component, contentChild, input, viewChild } from '@angular/core';
 import { NgControl } from '@angular/forms';
 import { AsyncHandler } from '@placeos/common';
 import { startOfDay } from 'date-fns';
@@ -58,9 +58,12 @@ import { DateRangeCalendarComponent } from './date-range-calendar.component';
 })
 export class DateRangeFieldComponent extends AsyncHandler {
     /** Earliest date available the user is allowed to pick */
-    public readonly from_date = input<number>(startOfDay(Date.now()).valueOf(), { alias: "from" });
+    public readonly from_date = input<number>(
+        startOfDay(Date.now()).valueOf(),
+        { alias: 'from' },
+    );
     /** Latest date available the user is allowed to pick */
-    public readonly to_date = input<number>(undefined, { alias: "to" });
+    public readonly to_date = input<number>(undefined, { alias: 'to' });
     /** Index of the day to start the week on when displaying the calendar */
     public readonly week_start = input(0);
     /** Whether form control is disabled */

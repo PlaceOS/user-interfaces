@@ -126,7 +126,9 @@ import { GroupEventDetailsModalComponent } from './group-event-details-modal.com
                         <div class="text-sm opacity-30">
                             {{ event().date | date: 'MMM' }}
                         </div>
-                        <div class="text-lg">{{ event().date | date: 'd' }}</div>
+                        <div class="text-lg">
+                            {{ event().date | date: 'd' }}
+                        </div>
                     </div>
                     <div class="flex flex-col space-y-2">
                         <h3 class="text-left">{{ event().title }}</h3>
@@ -181,8 +183,8 @@ import { GroupEventDetailsModalComponent } from './group-event-details-modal.com
                                         | translate
                                             : {
                                                   count:
-                                                      event().attendees?.length ||
-                                                      '0',
+                                                      event().attendees
+                                                          ?.length || '0',
                                               }
                                 }}
                             </div>

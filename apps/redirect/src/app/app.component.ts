@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { authority, setAPI_Key } from '@placeos/ts-client';
 import { SettingsService } from 'libs/common/src/lib/settings.service';

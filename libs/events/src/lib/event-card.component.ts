@@ -1,10 +1,10 @@
 import {
-  Component,
-  inject,
-  OnChanges,
-  OnInit,
-  SimpleChanges,
-  input
+    Component,
+    inject,
+    input,
+    OnChanges,
+    OnInit,
+    SimpleChanges,
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, RouterModule } from '@angular/router';
@@ -298,10 +298,7 @@ export class EventCardComponent
     public async getLocationString() {
         const event = this.event();
         const system =
-            event?.resources[0] ||
-            event?.system ||
-            event?.space ||
-            ({} as any);
+            event?.resources[0] || event?.system || event?.space || ({} as any);
         const space = await this._space_pipe.transform(
             system.id || system.email,
         );

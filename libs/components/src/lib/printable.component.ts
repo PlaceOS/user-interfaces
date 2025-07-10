@@ -2,13 +2,13 @@ import { Overlay, OverlayRef } from '@angular/cdk/overlay';
 import { CdkPortal, PortalModule } from '@angular/cdk/portal';
 
 import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  OnDestroy,
-  OnInit,
-  inject,
-  viewChild
+    AfterViewInit,
+    Component,
+    ElementRef,
+    OnDestroy,
+    OnInit,
+    inject,
+    viewChild,
 } from '@angular/core';
 import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
 import { SanitizePipe } from './sanitise.pipe';

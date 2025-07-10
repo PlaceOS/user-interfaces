@@ -1,11 +1,11 @@
 import { CommonModule } from '@angular/common';
 import {
-  Component,
-  forwardRef,
-  inject,
-  OnChanges,
-  SimpleChanges,
-  input
+    Component,
+    forwardRef,
+    inject,
+    input,
+    OnChanges,
+    SimpleChanges,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { AsyncHandler, SettingsService } from '@placeos/common';

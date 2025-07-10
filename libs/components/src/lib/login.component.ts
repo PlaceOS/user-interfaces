@@ -1,9 +1,9 @@
 import {
-  Component,
-  ElementRef,
-  OnInit,
-  inject,
-  viewChild
+    Component,
+    ElementRef,
+    OnInit,
+    inject,
+    viewChild,
 } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { SettingsService } from '@placeos/common';
@@ -110,7 +110,8 @@ export class LoginComponent implements OnInit {
     });
 
     /** Password field element */
-    private readonly pwd_field = viewChild<ElementRef<HTMLInputElement>>('pass_field');
+    private readonly pwd_field =
+        viewChild<ElementRef<HTMLInputElement>>('pass_field');
 
     public readonly logo = this._org.active_building.pipe(
         debounceTime(500),

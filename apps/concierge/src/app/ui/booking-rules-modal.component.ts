@@ -45,11 +45,12 @@ import {
                 {{ 'APP.CONCIERGE.BOOKING_RULES_NOTE' | translate }}
             </div>
             <ng-container [ngSwitch]="view">
-                <booking-rules-form [ruleset]="selected"
+                <booking-rules-form
+                    [ruleset]="selected"
                     [save]="activate_save"
                     (rulesetChange)="save($event)"
                     *ngSwitchCase="'form'"
-                 />
+                />
                 <div class="-mx-4 w-[calc(100%+2rem)] overflow-auto">
                     <simple-table
                         class="block w-full min-w-[48rem] text-sm"
@@ -229,8 +230,8 @@ import {
 })
 export class BookingRulesModalComponent {
     private _data = inject<{
-    type: string;
-}>(MAT_DIALOG_DATA);
+        type: string;
+    }>(MAT_DIALOG_DATA);
     private _org = inject(OrganisationService);
     private _dialog = inject(MatDialog);
 

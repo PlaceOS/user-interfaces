@@ -39,7 +39,8 @@ export class SourceSelectModalData {
 })
 export class SourceSelectModalComponent {
     private _data = inject<SourceSelectModalData>(MAT_DIALOG_DATA);
-    private _dialog_ref = inject<MatDialogRef<SourceSelectModalComponent>>(MatDialogRef);
+    private _dialog_ref =
+        inject<MatDialogRef<SourceSelectModalComponent>>(MatDialogRef);
 
     public simple = false;
     public readonly output = this._data.output;

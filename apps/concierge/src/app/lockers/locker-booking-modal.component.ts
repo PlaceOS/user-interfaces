@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import {
     MAT_DIALOG_DATA,
     MatDialog,
@@ -148,18 +148,19 @@ export class LockerBookingModalComponent
     implements OnInit
 {
     private _data = inject<{
-    booking: Booking;
-    user?: User;
-    link_id?: string;
-    date?: number;
-    level?: BuildingLevel;
-    space?: Locker;
-    allow_time_changes?: boolean;
-    external_user?: boolean;
-    parent_id?: string;
-}>(MAT_DIALOG_DATA);
+        booking: Booking;
+        user?: User;
+        link_id?: string;
+        date?: number;
+        level?: BuildingLevel;
+        space?: Locker;
+        allow_time_changes?: boolean;
+        external_user?: boolean;
+        parent_id?: string;
+    }>(MAT_DIALOG_DATA);
     private _booking_form = inject(BookingFormService);
-    private _dialog_ref = inject<MatDialogRef<LockerBookingModalComponent>>(MatDialogRef);
+    private _dialog_ref =
+        inject<MatDialogRef<LockerBookingModalComponent>>(MatDialogRef);
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
     private _dialog = inject(MatDialog);

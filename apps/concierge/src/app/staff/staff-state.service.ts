@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { searchStaff, StaffUser } from '@placeos/users';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 

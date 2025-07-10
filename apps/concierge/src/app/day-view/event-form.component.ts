@@ -118,7 +118,9 @@ import { map, tap } from 'rxjs/operators';
                                     form().value.resources[0]?.level?.parent_id,
                             }"
                         ></catering-list-field>
-                        @if (form().value.catering?.length && has_codes | async) {
+                        @if (
+                            form().value.catering?.length && has_codes | async
+                        ) {
                             <mat-form-field
                                 appearance="outline"
                                 class="mt-2 w-full"
@@ -159,8 +161,8 @@ import { map, tap } from 'rxjs/operators';
                                 class="w-full"
                                 [class.mt-2]="
                                     !(
-                                        form().value.catering?.length && has_codes
-                                        | async
+                                        form().value.catering?.length &&
+                                            has_codes | async
                                     )
                                 "
                             >

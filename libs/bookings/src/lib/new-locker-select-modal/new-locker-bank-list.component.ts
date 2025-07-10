@@ -35,7 +35,9 @@ import { Locker, LockerBank } from '../locker.class';
                         <li
                             locker_bank
                             class="relative w-full overflow-hidden rounded-lg border border-base-200 bg-base-100 shadow"
-                            [class.!border-blue-400]="active() === locker_bank.id"
+                            [class.!border-blue-400]="
+                                active() === locker_bank.id
+                            "
                         >
                             <button
                                 name="select-locker_bank"

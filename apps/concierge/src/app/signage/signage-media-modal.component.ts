@@ -199,17 +199,15 @@ import { addYears, endOfDay, getUnixTime, startOfDay } from 'date-fns';
 })
 export class SignageMediaModalComponent implements OnDestroy {
     private _data = inject<{
-    media: SignageMedia;
-    file?: File;
-    file_metadata?: [
-        boolean,
-        number
-    ];
-    file_thumbnail?: string;
-    onAdd: (f, m) => Promise<SignageMedia>;
-    preview: (url) => void;
-}>(MAT_DIALOG_DATA);
-    private _dialog_ref = inject<MatDialogRef<SignageMediaModalComponent>>(MatDialogRef);
+        media: SignageMedia;
+        file?: File;
+        file_metadata?: [boolean, number];
+        file_thumbnail?: string;
+        onAdd: (f, m) => Promise<SignageMedia>;
+        preview: (url) => void;
+    }>(MAT_DIALOG_DATA);
+    private _dialog_ref =
+        inject<MatDialogRef<SignageMediaModalComponent>>(MatDialogRef);
 
     public loading = false;
     public readonly item = this._data.media;

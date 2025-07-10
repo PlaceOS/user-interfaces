@@ -1,10 +1,4 @@
-import {
-  Component,
-  OnInit,
-  inject,
-  input,
-  output
-} from '@angular/core';
+import { Component, OnInit, inject, input, output } from '@angular/core';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { debounceTime, map, tap } from 'rxjs/operators';

@@ -76,7 +76,8 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
 export class RegionModalComponent extends AsyncHandler {
     private _org = inject(OrganisationService);
     private _data = inject<Region | undefined>(MAT_DIALOG_DATA);
-    private _dialog_ref = inject<MatDialogRef<RegionModalComponent>>(MatDialogRef);
+    private _dialog_ref =
+        inject<MatDialogRef<RegionModalComponent>>(MatDialogRef);
 
     public loading = false;
     public readonly building_list = this._org.building_list;

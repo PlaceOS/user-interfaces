@@ -39,6 +39,5 @@ import { Router } from '@angular/router';
 export class NotFoundComponent implements OnInit {
     router = inject(Router);
 
-
     ngOnInit(): void {}
 }

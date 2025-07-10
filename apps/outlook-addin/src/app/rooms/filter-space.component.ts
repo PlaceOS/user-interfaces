@@ -189,8 +189,8 @@ import { FeaturesFilterService } from './features-filter.service';
 })
 export class FilterSpaceComponent implements OnInit {
     data = inject<{
-    data;
-}>(MAT_BOTTOM_SHEET_DATA);
+        data;
+    }>(MAT_BOTTOM_SHEET_DATA);
     private _bottomsheetRef = inject<MatBottomSheetRef<any>>(MatBottomSheetRef);
     private _featuresFilterService = inject(FeaturesFilterService);
     private _state = inject(EventFormService);

@@ -63,7 +63,8 @@ export interface BookingModalData {
 export class BookingModalComponent implements OnInit {
     private _data = inject<BookingModalData>(MAT_DIALOG_DATA);
     private _service = inject(EventFormService);
-    private _dialog_ref = inject<MatDialogRef<BookingModalComponent>>(MatDialogRef);
+    private _dialog_ref =
+        inject<MatDialogRef<BookingModalComponent>>(MatDialogRef);
     private _settings = inject(SettingsService);
 
     public readonly event = output<DialogEvent>();

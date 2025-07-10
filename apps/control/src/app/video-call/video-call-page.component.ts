@@ -287,6 +287,7 @@ export class VideoCallPageComponent extends AsyncHandler implements OnInit {
     }
 
     private _onCallEnded() {
-        if (this.redirect()) this._router.navigate(['/panel', this._control.id]);
+        if (this.redirect())
+            this._router.navigate(['/panel', this._control.id]);
     }
 }

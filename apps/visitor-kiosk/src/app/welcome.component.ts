@@ -1,4 +1,10 @@
-import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
+import {
+    ChangeDetectorRef,
+    Component,
+    OnDestroy,
+    OnInit,
+    inject,
+} from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { AsyncHandler, LocaleService, SettingsService } from '@placeos/common';

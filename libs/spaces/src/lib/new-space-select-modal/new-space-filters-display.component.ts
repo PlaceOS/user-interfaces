@@ -1,11 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-  Component,
-  OnInit,
-  inject,
-  input,
-  output
-} from '@angular/core';
+import { Component, OnInit, inject, input, output } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';

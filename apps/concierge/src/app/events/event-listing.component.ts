@@ -7,11 +7,13 @@ import { EventStateService } from './event-state.service';
 @Component({
     selector: 'event-listing',
     template: `
-        <mat-progress-bar class="w-full"
+        <mat-progress-bar
+            class="w-full"
             [class.opacity-0]="!(loading | async)"
             mode="indeterminate"
-         />
-        <simple-table class="block w-full min-w-[72rem] text-sm"
+        />
+        <simple-table
+            class="block w-full min-w-[72rem] text-sm"
             [data]="event_list"
             empty_message="No group events for selected period"
             [columns]="[
@@ -66,7 +68,7 @@ import { EventStateService } from './event-state.service';
                 },
             ]"
             [sortable]="true"
-         />
+        />
         <div class="h-20 w-full"></div>
         <ng-template #event_template let-item="row">
             <div class="flex items-center space-x-2 px-3 py-2">

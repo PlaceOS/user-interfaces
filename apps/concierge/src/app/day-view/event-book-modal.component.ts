@@ -373,12 +373,13 @@ import { map, tap } from 'rxjs/operators';
 })
 export class EventBookModalComponent implements OnInit {
     private _data = inject<{
-    event: CalendarEvent;
-}>(MAT_DIALOG_DATA);
+        event: CalendarEvent;
+    }>(MAT_DIALOG_DATA);
     private _event_form = inject(EventFormService);
     private _settings = inject(SettingsService);
     private _catering = inject(CateringOrderStateService);
-    private _dialog_ref = inject<MatDialogRef<EventBookModalComponent>>(MatDialogRef);
+    private _dialog_ref =
+        inject<MatDialogRef<EventBookModalComponent>>(MatDialogRef);
     private _dialog = inject(MatDialog);
 
     @Output() public event = new EventEmitter<DialogEvent>();

@@ -30,7 +30,6 @@ import { SettingsService } from '@placeos/common';
 export class ControlComponent implements OnInit {
     private _settings = inject(SettingsService);
 
-
     public ngOnInit(): void {
         this._settings.title = 'Control';
     }

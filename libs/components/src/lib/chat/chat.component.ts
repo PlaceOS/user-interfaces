@@ -1,10 +1,10 @@
 import { CommonModule } from '@angular/common';
 import {
-  Component,
-  ElementRef,
-  OnInit,
-  inject,
-  viewChild
+    Component,
+    ElementRef,
+    OnInit,
+    inject,
+    viewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
@@ -256,8 +256,10 @@ export class ChatComponent extends AsyncHandler implements OnInit {
         return this._settings.get('app.chat.enabled');
     }
 
-    private readonly _input_el = viewChild<ElementRef<HTMLTextAreaElement>>('input');
-    private readonly _container_el = viewChild<ElementRef<HTMLDivElement>>('container');
+    private readonly _input_el =
+        viewChild<ElementRef<HTMLTextAreaElement>>('input');
+    private readonly _container_el =
+        viewChild<ElementRef<HTMLDivElement>>('container');
 
     public toggleChat() {
         this.show = !this.show;

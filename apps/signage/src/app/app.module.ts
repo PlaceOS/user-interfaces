@@ -1,4 +1,9 @@
-import { ErrorHandler, LOCALE_ID, NgModule } from '@angular/core';
+import {
+    ErrorHandler,
+    LOCALE_ID,
+    NgModule,
+    provideZonelessChangeDetection,
+} from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { Router } from '@angular/router';
@@ -54,6 +59,7 @@ import { SignagePanelComponent } from './signage.component';
         }),
     ],
     providers: [
+        provideZonelessChangeDetection(),
         {
             provide: ErrorHandler,
             useValue: Sentry.createErrorHandler({

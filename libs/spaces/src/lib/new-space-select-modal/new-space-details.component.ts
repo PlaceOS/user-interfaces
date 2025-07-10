@@ -1,10 +1,10 @@
 import {
-  Component,
-  OnChanges,
-  SimpleChanges,
-  inject,
-  input,
-  output
+    Component,
+    OnChanges,
+    SimpleChanges,
+    inject,
+    input,
+    output,
 } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { ViewerFeature } from '@placeos/svg-viewer';
@@ -183,10 +183,7 @@ export class NewSpaceDetailsComponent implements OnChanges {
     public readonly fav = input(false);
     public readonly active = input(false);
     public readonly hide_map = input(false);
-    public readonly alert = input<[
-    string,
-    string
-]>(undefined);
+    public readonly alert = input<[string, string]>(undefined);
 
     public readonly activeChange = output<boolean>();
     public readonly close = output<void>();

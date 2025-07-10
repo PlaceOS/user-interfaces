@@ -2,19 +2,19 @@ import { Overlay, OverlayRef } from '@angular/cdk/overlay';
 import { CdkPortal, PortalModule } from '@angular/cdk/portal';
 import { CommonModule } from '@angular/common';
 import {
-  Component,
-  ElementRef,
-  HostListener,
-  Injectable,
-  Injector,
-  OnChanges,
-  OnDestroy,
-  SimpleChanges,
-  TemplateRef,
-  Type,
-  inject,
-  viewChild,
-  input
+    Component,
+    ElementRef,
+    Injectable,
+    Injector,
+    OnChanges,
+    OnDestroy,
+    OnInit,
+    SimpleChanges,
+    TemplateRef,
+    Type,
+    inject,
+    input,
+    viewChild,
 } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
 import { SanitizePipe } from './sanitise.pipe';
@@ -33,7 +33,6 @@ export class CustomTooltipData<T = any> {
     selector: '[customTooltip]',
     template: `
         <ng-content />
-
         <ng-template cdk-portal>
             <div custom-tooltip class="relative print:hidden">
                 @switch (type) {
@@ -54,22 +53,35 @@ export class CustomTooltipData<T = any> {
             </div>
         </ng-template>
     `,
+    styles: [
+        `
+            :host {
+                pointer-events: auto !important;
+            }
+        `,
+    ],
     imports: [CommonModule, PortalModule, SanitizePipe],
 })
 export class CustomTooltipComponent<T = any>
     extends AsyncHandler
-    implements OnChanges, OnDestroy
+    implements OnChanges, OnDestroy, OnInit
 {
     private _element = inject<ElementRef<HTMLElement>>(ElementRef);
     private _overlay = inject(Overlay);
     private _injector = inject(Injector);
 
     /** Horizontal position of the rendered overlay */
-    public readonly x_pos = input<'start' | 'center' | 'end'>('end', { alias: "xPosition" });
+    public readonly x_pos = input<'start' | 'center' | 'end'>('end', {
+        alias: 'xPosition',
+    });
     /** Vertical position of the rendered overlay */
-    public readonly y_pos = input<'top' | 'center' | 'bottom'>('top', { alias: "yPosition" });
+    public readonly y_pos = input<'top' | 'center' | 'bottom'>('top', {
+        alias: 'yPosition',
+    });
     /** Content to render in the tooltip */
-    public readonly content = input<TemplateRef<any> | Type<any> | string>(undefined);
+    public readonly content = input<TemplateRef<any> | Type<any> | string>(
+        undefined,
+    );
     /** Data associated with the tooltip content */
     public readonly data = input<T>(undefined);
     /** Whether tooltip has a backdrop */
@@ -87,15 +99,32 @@ export class CustomTooltipComponent<T = any>
 
     private readonly _portal = viewChild(CdkPortal);
 
-    @HostListener('click') public readonly onClick = () => this.open();
-    @HostListener('touchend') public readonly onTouch = () => this.open();
-    @HostListener('mouseenter') public readonly onEnter = () =>
-        this.hover() ? this.open() : '';
-    @HostListener('mouseleave') public readonly onLeave = () =>
-        this.hover() ? this.close() : '';
-
-    constructor() {
-        super();
+    public ngOnInit(): void {
+        const open = () => this.open();
+        const hover_open = () => (this.hover() ? this.open() : '');
+        const hover_close = () => (this.hover() ? this.close() : '');
+        this._element.nativeElement.addEventListener('click', open);
+        this._element.nativeElement.addEventListener('touchend', open);
+        this._element.nativeElement.addEventListener('mouseenter', hover_open);
+        this._element.nativeElement.addEventListener('mouseleave', hover_close);
+        this.subscription('click', () =>
+            this._element.nativeElement.removeEventListener('click', open),
+        );
+        this.subscription('touchend', () =>
+            this._element.nativeElement.removeEventListener('touchend', open),
+        );
+        this.subscription('mouseenter', () =>
+            this._element.nativeElement.removeEventListener(
+                'mouseenter',
+                hover_open,
+            ),
+        );
+        this.subscription('mouseleave', () =>
+            this._element.nativeElement.removeEventListener(
+                'mouseleave',
+                hover_close,
+            ),
+        );
     }
 
     public ngOnChanges(changes: SimpleChanges): void {

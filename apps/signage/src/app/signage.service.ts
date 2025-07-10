@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { AsyncHandler, log, shuffleArray } from '@placeos/common';
 import {
     responseHeaders,

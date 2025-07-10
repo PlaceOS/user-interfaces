@@ -1,4 +1,11 @@
-import { Component, OnChanges, SimpleChanges, inject, input, output } from '@angular/core';
+import {
+    Component,
+    OnChanges,
+    SimpleChanges,
+    inject,
+    input,
+    output,
+} from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { BookingFormService } from '@placeos/bookings';
 import {
@@ -19,7 +26,10 @@ import { addDays, endOfDay, set } from 'date-fns';
         able to check-in.
         </div> -->
         @if (form()) {
-            <div class="space-y-2 divide-y divide-base-200" [formGroup]="form()">
+            <div
+                class="space-y-2 divide-y divide-base-200"
+                [formGroup]="form()"
+            >
                 @if (allow_groups) {
                     <section class="flex items-center">
                         <button
@@ -182,7 +192,9 @@ import { addDays, endOfDay, set } from 'date-fns';
                         <div class="flex items-center space-x-2">
                             <div class="w-1/3 flex-1">
                                 <mat-checkbox
-                                    [ngModel]="!!form().value.secondary_resource"
+                                    [ngModel]="
+                                        !!form().value.secondary_resource
+                                    "
                                     (ngModelChange)="
                                         form().patchValue({
                                             secondary_resource: $event

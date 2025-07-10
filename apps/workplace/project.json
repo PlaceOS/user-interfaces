@@ -12,7 +12,7 @@
                 "baseHref": "./",
                 "outputPath": "dist/apps/workplace",
                 "index": "apps/workplace/src/index.html",
-                "polyfills": ["apps/workplace/src/polyfills.ts"],
+                "polyfills": [],
                 "tsConfig": "apps/workplace/tsconfig.app.json",
                 "fileReplacements": [
                     {

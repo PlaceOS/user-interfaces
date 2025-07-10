@@ -154,9 +154,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 </div>
             </ng-container>
         </div>
-        <mat-progress-bar *ngIf="loading | async"
-            mode="indeterminate"
-         />
+        <mat-progress-bar *ngIf="loading | async" mode="indeterminate" />
         <ng-template #empty_state>
             <div
                 class="flex h-full w-full flex-col items-center justify-center space-y-4 p-8"

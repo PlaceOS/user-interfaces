@@ -1,9 +1,9 @@
 import {
-  Component,
-  OnChanges,
-  SimpleChanges,
-  input,
-  output
+    Component,
+    OnChanges,
+    SimpleChanges,
+    input,
+    output,
 } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
 import { CalendarEvent } from '@placeos/events';

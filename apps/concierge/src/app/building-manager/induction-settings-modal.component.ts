@@ -69,7 +69,8 @@ export class InductionSettingsModalComponent implements OnInit {
     private _zone_id = inject(MAT_DIALOG_DATA);
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
-    private _dialog_ref = inject<MatDialogRef<InductionSettingsModalComponent>>(MatDialogRef);
+    private _dialog_ref =
+        inject<MatDialogRef<InductionSettingsModalComponent>>(MatDialogRef);
 
     public loading = '';
     public induction_details = '';

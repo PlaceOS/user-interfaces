@@ -86,7 +86,8 @@ import { RoomConfirmService } from './room-confirm.service';
 })
 export class RoomTileComponent implements OnInit {
     data = inject(MAT_BOTTOM_SHEET_DATA);
-    private _bottomSheetRef = inject<MatBottomSheetRef<RoomTileComponent>>(MatBottomSheetRef);
+    private _bottomSheetRef =
+        inject<MatBottomSheetRef<RoomTileComponent>>(MatBottomSheetRef);
     private _roomConfirmService = inject(RoomConfirmService);
 
     space: Space;

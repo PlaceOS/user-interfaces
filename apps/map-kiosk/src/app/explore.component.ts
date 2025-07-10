@@ -1,4 +1,4 @@
-import { Component, HostListener, OnInit, inject } from '@angular/core';
+import { Component, HostListener, inject, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
@@ -125,7 +125,7 @@ import { first, map } from 'rxjs/operators';
         <div class="flex h-1/2 flex-1">
             <div
                 sidebar
-                class="hidden w-[20rem] border-r border-base-300 bg-base-100 px-2 py-4 text-base-content sm:block"
+                class="hidden w-[20rem] overflow-auto border-r border-base-300 bg-base-100 px-2 py-4 text-base-content sm:block"
             >
                 @if ((levels | async)?.length) {
                     <button

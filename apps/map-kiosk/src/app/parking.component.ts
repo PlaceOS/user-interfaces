@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -30,7 +30,7 @@ import { combineLatest, map } from 'rxjs';
                 <icon class="text-2xl text-info">arrow_forward</icon>
             </header>
             <main
-                class="pointer-events-none w-full flex-1 border-y border-base-300"
+                class="pointer-events-none relative w-full flex-1 border-y border-base-300"
             >
                 <interactive-map
                     [src]="url | async"
@@ -48,14 +48,14 @@ import { combineLatest, map } from 'rxjs';
                 class="flex w-full flex-col items-center bg-base-100 p-2 leading-tight"
             >
                 @let status = counts | async;
-                <div class="text-3xl">Free Spaces: {{ status.free }}</div>
+                <div class="text-3xl">Free Spaces: {{ status?.free }}</div>
                 <div class="mb-2 opacity-30">
-                    Total Capacity: {{ status.total }} spaces
+                    Total Capacity: {{ status?.total }} spaces
                 </div>
                 <div class="h-4 w-[50vw] rounded-full bg-base-300">
                     <div
                         class="h-full rounded-full bg-success"
-                        [style.width]="status.percent + '%'"
+                        [style.width]="status?.percent + '%'"
                     ></div>
                 </div>
             </footer>

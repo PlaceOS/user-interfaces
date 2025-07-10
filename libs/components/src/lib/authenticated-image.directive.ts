@@ -1,10 +1,10 @@
 import {
-  Directive,
-  ElementRef,
-  OnChanges,
-  SimpleChanges,
-  inject,
-  input
+    Directive,
+    ElementRef,
+    OnChanges,
+    SimpleChanges,
+    inject,
+    input,
 } from '@angular/core';
 import { apiKey, authority, token } from '@placeos/ts-client';
 

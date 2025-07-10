@@ -1,9 +1,9 @@
 import {
-  Component,
-  SimpleChanges,
-  forwardRef,
-  inject,
-  input
+    Component,
+    SimpleChanges,
+    forwardRef,
+    inject,
+    input,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -214,11 +214,11 @@ export class AssetListFieldComponent implements ControlValueAccessor {
     private _state = inject(AssetStateService);
 
     public readonly options = input<{
-    date?: number;
-    duration?: number;
-    all_day?: boolean;
-    zone_id?: string;
-}>({});
+        date?: number;
+        duration?: number;
+        all_day?: boolean;
+        zone_id?: string;
+    }>({});
     public readonly rejected_ids = input<string[]>([]);
     public asset_requests: AssetRequest[] = [];
     public disabled = false;

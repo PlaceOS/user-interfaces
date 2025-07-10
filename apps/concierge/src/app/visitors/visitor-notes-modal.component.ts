@@ -61,9 +61,10 @@ import { i18n, notifyError, notifySuccess } from '@placeos/common';
 })
 export class VisitorNotesModalComponent {
     private _data = inject<{
-    item: Booking;
-}>(MAT_DIALOG_DATA);
-    private _dialog_ref = inject<MatDialogRef<VisitorNotesModalComponent>>(MatDialogRef);
+        item: Booking;
+    }>(MAT_DIALOG_DATA);
+    private _dialog_ref =
+        inject<MatDialogRef<VisitorNotesModalComponent>>(MatDialogRef);
 
     public item: Booking = this._data.item;
     public notes = this.item.extension_data?.notes || '';

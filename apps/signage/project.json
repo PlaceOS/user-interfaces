@@ -12,7 +12,7 @@
                 "baseHref": "./",
                 "outputPath": "dist/apps/signage",
                 "index": "apps/signage/src/index.html",
-                "polyfills": ["apps/signage/src/polyfills.ts"],
+                "polyfills": [],
                 "tsConfig": "apps/signage/tsconfig.app.json",
                 "fileReplacements": [
                     {

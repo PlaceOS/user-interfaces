@@ -12,7 +12,7 @@
                 "baseHref": "./",
                 "outputPath": "dist/apps/map-kiosk",
                 "index": "apps/map-kiosk/src/index.html",
-                "polyfills": ["apps/map-kiosk/src/polyfills.ts"],
+                "polyfills": [],
                 "tsConfig": "apps/map-kiosk/tsconfig.app.json",
                 "fileReplacements": [
                     {

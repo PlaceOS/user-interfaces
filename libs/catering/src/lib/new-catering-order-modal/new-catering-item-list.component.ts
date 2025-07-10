@@ -1,11 +1,11 @@
 import { CommonModule } from '@angular/common';
 import {
-  Component,
-  OnChanges,
-  SimpleChanges,
-  inject,
-  input,
-  output
+    Component,
+    OnChanges,
+    SimpleChanges,
+    inject,
+    input,
+    output,
 } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';

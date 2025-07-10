@@ -1,4 +1,12 @@
-import { Component, OnChanges, OnInit, SimpleChanges, inject, input, output } from '@angular/core';
+import {
+    Component,
+    OnChanges,
+    OnInit,
+    SimpleChanges,
+    inject,
+    input,
+    output,
+} from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { BookingFormService, Locker } from '@placeos/bookings';

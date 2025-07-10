@@ -12,7 +12,7 @@
             "options": {
                 "outputPath": "dist/apps/enrolment",
                 "index": "apps/enrolment/src/index.html",
-                "polyfills": ["apps/enrolment/src/polyfills.ts"],
+                "polyfills": [],
                 "tsConfig": "apps/enrolment/tsconfig.app.json",
                 "baseHref": "./",
                 "assets": [

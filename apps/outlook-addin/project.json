@@ -12,7 +12,7 @@
                 "baseHref": "./",
                 "outputPath": "dist/apps/outlook-addin",
                 "index": "apps/outlook-addin/src/index.html",
-                "polyfills": ["apps/outlook-addin/src/polyfills.ts"],
+                "polyfills": [],
                 "tsConfig": "apps/outlook-addin/tsconfig.app.json",
                 "fileReplacements": [
                     {

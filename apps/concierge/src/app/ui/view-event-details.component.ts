@@ -163,11 +163,7 @@ export class ViewEventDetailsComponent {
 
     public get space_id() {
         const event = this.event();
-        return (
-            event?.resources[0]?.id ||
-            event?.space?.id ||
-            event?.system?.id
-        );
+        return event?.resources[0]?.id || event?.space?.id || event?.system?.id;
     }
 
     public get time() {

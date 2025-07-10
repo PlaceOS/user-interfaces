@@ -1,9 +1,4 @@
-import {
-  Component,
-  SimpleChanges,
-  input,
-  output
-} from '@angular/core';
+import { Component, SimpleChanges, input, output } from '@angular/core';
 import { ViewerFeature } from '@placeos/svg-viewer';
 
 import { MatRippleModule } from '@angular/material/core';
@@ -93,12 +88,16 @@ import { BookingAsset } from '../booking-form.service';
                     <div class="flex items-center space-x-2">
                         <icon>desk</icon>
                         <p>
-                            {{ desk().display_name || desk().name || desk().id }}
+                            {{
+                                desk().display_name || desk().name || desk().id
+                            }}
                         </p>
                     </div>
                     <div class="flex items-center space-x-2">
                         <icon>place</icon>
-                        <p>{{ desk().zone?.display_name || desk().zone?.name }}</p>
+                        <p>
+                            {{ desk().zone?.display_name || desk().zone?.name }}
+                        </p>
                     </div>
                 </section>
                 @if (desk().features?.length) {

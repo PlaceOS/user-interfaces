@@ -98,7 +98,8 @@ import { AssetManagerStateService } from './asset-manager-state.service';
 })
 export class AssetCategoryFormComponent {
     private _state = inject(AssetManagerStateService);
-    private _dialog_ref = inject<MatDialogRef<AssetCategoryFormComponent>>(MatDialogRef);
+    private _dialog_ref =
+        inject<MatDialogRef<AssetCategoryFormComponent>>(MatDialogRef);
 
     public loading = false;
     public readonly form = generateAssetCategoryForm();
@@ -110,8 +111,8 @@ export class AssetCategoryFormComponent {
 
     constructor() {
         const _data = inject<{
-    category?: AssetCategory;
-}>(MAT_DIALOG_DATA);
+            category?: AssetCategory;
+        }>(MAT_DIALOG_DATA);
 
         if (_data?.category) this.form.patchValue(_data.category);
     }

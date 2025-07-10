@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { Route, RouterModule } from '@angular/router';
 import { SharedExploreModule } from '@placeos/explore';
@@ -36,6 +37,7 @@ const STANDALONE_COMPONENTS = [
         RouterModule.forChild(ROUTES),
         SharedExploreModule,
         FormsModule,
+        MatMenuModule,
         MatSlideToggleModule,
         ...STANDALONE_COMPONENTS,
     ],

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { MAP_FEATURE_DATA } from 'libs/common/src/lib/types';
 
@@ -15,7 +15,7 @@ export interface MapPinData {
         <div
             class="-z-1 absolute bottom-1/2 left-1/2 flex w-[24rem] -translate-x-1/2 flex-col items-center"
         >
-            @if (message && show_message) {
+            @if (message && show_message()) {
                 <div
                     name="message"
                     class="text-gray-700 m-2 rounded bg-base-100 p-2 shadow"
@@ -23,7 +23,7 @@ export interface MapPinData {
                     {{ message }}
                 </div>
             }
-            @if (show) {
+            @if (show()) {
                 <svg
                     name="pin"
                     viewBox="0 0 380 560"
@@ -78,11 +78,11 @@ export class MapPinComponent implements OnInit {
     /** Action to perform when clicking pin */
     public readonly action = this._details.action || null;
 
-    public show: boolean;
-    public show_message: boolean;
+    public show = signal(false);
+    public show_message = signal(false);
 
     public ngOnInit() {
-        setTimeout(() => (this.show = true), 300);
-        setTimeout(() => (this.show_message = true), 1000);
+        setTimeout(() => this.show.set(true), 300);
+        setTimeout(() => this.show_message.set(true), 1000);
     }
 }

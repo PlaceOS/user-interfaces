@@ -256,10 +256,14 @@ export class PanelViewComponent extends AsyncHandler {
     );
 
     private _recognition: any;
-    private readonly _video_el = viewChild<ElementRef<HTMLVideoElement>>('video');
-    private readonly _canvas_el = viewChild<ElementRef<HTMLCanvasElement>>('canvas');
-    private readonly _message_el = viewChild<ElementRef<HTMLDivElement>>('message_element');
-    private readonly _waveform_canvas_el = viewChild<ElementRef<HTMLCanvasElement>>('waveform_canvas');
+    private readonly _video_el =
+        viewChild<ElementRef<HTMLVideoElement>>('video');
+    private readonly _canvas_el =
+        viewChild<ElementRef<HTMLCanvasElement>>('canvas');
+    private readonly _message_el =
+        viewChild<ElementRef<HTMLDivElement>>('message_element');
+    private readonly _waveform_canvas_el =
+        viewChild<ElementRef<HTMLCanvasElement>>('waveform_canvas');
 
     public get user() {
         return currentUser();

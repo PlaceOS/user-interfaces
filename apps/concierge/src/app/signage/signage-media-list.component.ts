@@ -1,4 +1,10 @@
-import { Component, OnChanges, SimpleChanges, inject, input } from '@angular/core';
+import {
+    Component,
+    inject,
+    input,
+    OnChanges,
+    SimpleChanges,
+} from '@angular/core';
 import { listSignagePlaylistMedia, SignageMedia } from '@placeos/ts-client';
 import { getUnixTime, startOfMinute } from 'date-fns';
 import { BehaviorSubject, combineLatest } from 'rxjs';

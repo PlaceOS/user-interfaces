@@ -1,11 +1,11 @@
 import {
-  Component,
-  ElementRef,
-  OnInit,
-  inject,
-  viewChild,
-  input,
-  output
+    Component,
+    ElementRef,
+    OnInit,
+    inject,
+    input,
+    output,
+    viewChild,
 } from '@angular/core';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { BuildingLevel, OrganisationService } from '@placeos/organisation';
@@ -39,7 +39,8 @@ export class CiscoMapComponent extends AsyncHandler implements OnInit {
     public readonly zoomChange = output<number>();
     public readonly zoneChange = output<BuildingLevel>();
 
-    private readonly _mapContainer = viewChild.required<ElementRef<HTMLDivElement>>('map_container');
+    private readonly _mapContainer =
+        viewChild.required<ElementRef<HTMLDivElement>>('map_container');
     private _map: SpacesRichMap;
 
     constructor() {

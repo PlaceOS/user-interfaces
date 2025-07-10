@@ -1,5 +1,5 @@
 import { Clipboard } from '@angular/cdk/clipboard';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SwUpdate } from '@angular/service-worker';
 import {
@@ -66,7 +66,6 @@ export class AppComponent extends AsyncHandler implements OnInit {
     private _cache = inject(SwUpdate);
     private _snackbar = inject(MatSnackBar);
     private _clipboard = inject(Clipboard);
-
 
     public async ngOnInit() {
         log('APP', 'MOCKS:', MOCKS);

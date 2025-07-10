@@ -139,7 +139,8 @@ export class GlobalSearchComponent extends AsyncHandler {
             ? (this.filter_str = '')
             : this._service.setFilter(s);
 
-    public readonly _input_el = viewChild<ElementRef<HTMLInputElement>>('input');
+    public readonly _input_el =
+        viewChild<ElementRef<HTMLInputElement>>('input');
 
     public showInput() {
         this.show = true;

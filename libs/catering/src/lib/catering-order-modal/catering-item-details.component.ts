@@ -1,10 +1,10 @@
 import { CommonModule } from '@angular/common';
 import {
-  Component,
-  OnChanges,
-  SimpleChanges,
-  input,
-  output
+    Component,
+    OnChanges,
+    SimpleChanges,
+    input,
+    output,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';

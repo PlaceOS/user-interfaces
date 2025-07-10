@@ -44,7 +44,8 @@ const EMPTY = [];
 @Component({
     selector: 'explore-map-view',
     template: `
-        <interactive-map [src]="url | async"
+        <interactive-map
+            [src]="url | async"
             [styles]="styles | async"
             [features]="features | async"
             [actions]="actions | async"
@@ -52,7 +53,7 @@ const EMPTY = [];
             [focus]="locate"
             [options]="{ controls: true }"
             (mapInfo)="map_info = $event || {}"
-         />
+        />
         @if (!(use_mapsindoors$ | async)) {
             <div
                 controls

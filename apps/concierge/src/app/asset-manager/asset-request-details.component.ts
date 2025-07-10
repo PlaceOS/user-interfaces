@@ -19,7 +19,9 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     <button
                         icon
                         matRipple
-                        (click)="request = null(); requestChange.emit(request())"
+                        (click)="
+                            request = null(); requestChange.emit(request())
+                        "
                         class="absolute right-1 top-1"
                     >
                         <icon>close</icon>
@@ -42,7 +44,8 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                     [href]="'mailto:' + request().user_email"
                                 >
                                     {{
-                                        request().user_email || 'staff@place.tech'
+                                        request().user_email ||
+                                            'staff@place.tech'
                                     }}
                                 </a>
                             </div>
@@ -154,7 +157,9 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                 [class.bg-success]="
                                     request().status === 'approved'
                                 "
-                                [class.bg-error]="request().status === 'declined'"
+                                [class.bg-error]="
+                                    request().status === 'declined'
+                                "
                                 [class.bg-warning]="
                                     request().status === 'tentative'
                                 "

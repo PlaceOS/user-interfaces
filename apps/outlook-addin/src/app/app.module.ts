@@ -2,7 +2,7 @@ import {
     provideHttpClient,
     withInterceptorsFromDi,
 } from '@angular/common/http';
-import { NgModule } from '@angular/core';
+import { NgModule, provideZonelessChangeDetection } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -102,6 +102,10 @@ const STANDALONE_COMPONENTS = [
             enabled: environment.production,
         }),
     ],
-    providers: [SpacePipe, provideHttpClient(withInterceptorsFromDi())],
+    providers: [
+        provideZonelessChangeDetection(),
+        SpacePipe,
+        provideHttpClient(withInterceptorsFromDi()),
+    ],
 })
 export class AppModule {}

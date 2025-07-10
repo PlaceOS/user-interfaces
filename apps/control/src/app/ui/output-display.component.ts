@@ -1,4 +1,10 @@
-import { Component, OnChanges, SimpleChanges, inject, input } from '@angular/core';
+import {
+    Component,
+    OnChanges,
+    SimpleChanges,
+    inject,
+    input,
+} from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -97,7 +103,8 @@ export class OutputDisplayComponent extends AsyncHandler implements OnChanges {
 
     public readonly icons = ICON_MAP;
 
-    public readonly switchSource = () => this._state.switchSource(this.item().id);
+    public readonly switchSource = () =>
+        this._state.switchSource(this.item().id);
     public readonly setVolume = (v) =>
         this.timeout('volume', () => this._state.setVolume(v, this.item().id));
     public readonly setMute = (s) => this._state.setMute(s, this.item().id);

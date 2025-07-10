@@ -12,7 +12,7 @@
                 "baseHref": "./",
                 "outputPath": "dist/apps/visitor-kiosk",
                 "index": "apps/visitor-kiosk/src/index.html",
-                "polyfills": ["apps/visitor-kiosk/src/polyfills.ts"],
+                "polyfills": [],
                 "tsConfig": "apps/visitor-kiosk/tsconfig.app.json",
                 "fileReplacements": [
                     {
