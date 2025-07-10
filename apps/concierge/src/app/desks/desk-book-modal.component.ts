@@ -35,7 +35,8 @@ import { BehaviorSubject } from 'rxjs';
 })
 export class DeskBookModalComponent {
     private _booking_form = inject(BookingFormService);
-    private _dialog_ref = inject<MatDialogRef<DeskBookModalComponent>>(MatDialogRef);
+    private _dialog_ref =
+        inject<MatDialogRef<DeskBookModalComponent>>(MatDialogRef);
     private _settings = inject(SettingsService);
 
     public readonly event = output<DialogEvent>();

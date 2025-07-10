@@ -31,7 +31,6 @@ import { first } from 'rxjs/operators';
 export class PointsTopbarComponent extends AsyncHandler {
     private _org = inject(OrganisationService);
 
-
     public async ngOnInit() {
         await this._org.initialised.pipe(first((_) => _)).toPromise();
     }

@@ -137,6 +137,8 @@ export class NewCateringItemListItemComponent {
     public readonly select = output();
 
     public get options() {
-        return this.item().option_list?.map((_) => _.name).join(', ');
+        return this.item()
+            .option_list?.map((_) => _.name)
+            .join(', ');
     }
 }

@@ -1,5 +1,5 @@
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
-import { Component, SimpleChanges, inject, input } from '@angular/core';
+import { Component, inject, input, SimpleChanges } from '@angular/core';
 import { Router } from '@angular/router';
 import { nextValueFrom } from '@placeos/common';
 import {

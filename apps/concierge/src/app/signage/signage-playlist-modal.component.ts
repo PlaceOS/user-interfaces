@@ -207,10 +207,11 @@ import { SignageStateService } from './signage-state.service';
     standalone: false,
 })
 export class SignagePlaylistModalComponent {
-    private _data = inject<SignagePlaylist>(MAT_DIALOG_DATA) ?? {} as any;
+    private _data = inject<SignagePlaylist>(MAT_DIALOG_DATA) ?? ({} as any);
     private _state = inject(SignageStateService);
     private _dialog = inject(MatDialog);
-    private _dialog_ref = inject<MatDialogRef<SignagePlaylistModalComponent>>(MatDialogRef);
+    private _dialog_ref =
+        inject<MatDialogRef<SignagePlaylistModalComponent>>(MatDialogRef);
 
     public loading = false;
     public readonly playlist = this._data;
@@ -237,7 +238,8 @@ export class SignagePlaylistModalComponent {
         valid_until: new FormControl(this.playlist.valid_until * 1000),
     });
 
-    public readonly search_input = viewChild<ElementRef<HTMLInputElement>>('search_input');
+    public readonly search_input =
+        viewChild<ElementRef<HTMLInputElement>>('search_input');
 
     public async savePlaylist() {
         this.form.markAllAsTouched();

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit, Output, inject } from '@angular/core';
+import { Component, EventEmitter, inject, OnInit, Output } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import {
     MAT_DIALOG_DATA,
@@ -210,9 +210,10 @@ const CHARS = '0123456789ABCDEF';
 })
 export class DeskModalComponent implements OnInit {
     private _data = inject<{
-    desk?: Desk;
-}>(MAT_DIALOG_DATA);
-    private _dialog_ref = inject<MatDialogRef<DeskModalComponent>>(MatDialogRef);
+        desk?: Desk;
+    }>(MAT_DIALOG_DATA);
+    private _dialog_ref =
+        inject<MatDialogRef<DeskModalComponent>>(MatDialogRef);
     private _org = inject(OrganisationService);
     private _dialog = inject(MatDialog);
 

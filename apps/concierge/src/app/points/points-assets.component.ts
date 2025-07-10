@@ -20,7 +20,8 @@ export interface PointAsset {
 @Component({
     selector: 'points-assets',
     template: `
-        <simple-table class="block w-full min-w-[32rem]"
+        <simple-table
+            class="block w-full min-w-[32rem]"
             [data]="asset_list"
             [columns]="[
                 { key: 'name', name: 'FORM.NAME' | translate },
@@ -55,7 +56,7 @@ export interface PointAsset {
             ]"
             [sortable]="true"
             [empty_message]="'APP.CONCIERGE.POINTS_ASSETS_EMPTY' | translate"
-         />
+        />
         <ng-template #type_template let-data="data">
             <div class="p-2">
                 <span class="rounded bg-base-200 px-2 py-1 text-sm capitalize">

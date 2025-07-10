@@ -1,12 +1,12 @@
 import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  forwardRef,
-  OnChanges,
-  SimpleChanges,
-  viewChild,
-  input
+    AfterViewInit,
+    Component,
+    ElementRef,
+    forwardRef,
+    input,
+    OnChanges,
+    SimpleChanges,
+    viewChild,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { AsyncHandler, uploadFile } from '@placeos/common';

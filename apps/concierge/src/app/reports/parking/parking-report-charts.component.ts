@@ -1,4 +1,4 @@
-import { Component, SimpleChanges, inject, input } from '@angular/core';
+import { Component, inject, input, SimpleChanges } from '@angular/core';
 
 import {
     AsyncHandler,

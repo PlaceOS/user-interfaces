@@ -1,9 +1,9 @@
 import {
-  Component,
-  ElementRef,
-  OnInit,
-  inject,
-  viewChild
+    Component,
+    ElementRef,
+    OnInit,
+    inject,
+    viewChild,
 } from '@angular/core';
 import {
     AsyncHandler,
@@ -54,7 +54,8 @@ export class MapCanvasComponent extends AsyncHandler implements OnInit {
     public svg_ratio = 1;
     public width = 10000;
 
-    private readonly canvas_element = viewChild<ElementRef<HTMLCanvasElement>>('canvas');
+    private readonly canvas_element =
+        viewChild<ElementRef<HTMLCanvasElement>>('canvas');
 
     public get ratioed_height(): number {
         return +(this.width * this.ratio).toFixed(2);

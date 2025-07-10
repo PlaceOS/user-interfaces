@@ -1,4 +1,10 @@
-import { Component, ElementRef, OnInit, inject, viewChild } from '@angular/core';
+import {
+    Component,
+    ElementRef,
+    OnInit,
+    inject,
+    viewChild,
+} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AsyncHandler, randomInt } from '@placeos/common';
 import { addDays, addWeeks, endOfDay, format, startOfDay } from 'date-fns';
@@ -221,13 +227,16 @@ export class AnalyticsComponent extends AsyncHandler implements OnInit {
         });
     };
 
-    private readonly _line_graph_el = viewChild<ElementRef<HTMLCanvasElement>>('line_graph');
+    private readonly _line_graph_el =
+        viewChild<ElementRef<HTMLCanvasElement>>('line_graph');
     private _line_graph: Chart;
 
-    private readonly _distro_graph_el = viewChild<ElementRef<HTMLCanvasElement>>('distro_graph');
+    private readonly _distro_graph_el =
+        viewChild<ElementRef<HTMLCanvasElement>>('distro_graph');
     private _distro_graph: Chart;
 
-    private readonly _usage_graph_el = viewChild<ElementRef<HTMLCanvasElement>>('usage_graph');
+    private readonly _usage_graph_el =
+        viewChild<ElementRef<HTMLCanvasElement>>('usage_graph');
     private _usage_graph: Chart;
 
     public ngOnInit() {

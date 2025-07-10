@@ -35,7 +35,9 @@ export class DayviewSpaceComponent extends AsyncHandler implements OnInit {
     public readonly events = this._state.filtered.pipe(
         map((bookings) => {
             return bookings.filter((bkn) =>
-                bkn.resources.find((space) => this.space().email === space.email),
+                bkn.resources.find(
+                    (space) => this.space().email === space.email,
+                ),
             );
         }),
     );

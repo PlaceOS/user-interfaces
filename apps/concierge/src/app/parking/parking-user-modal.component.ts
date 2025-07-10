@@ -157,7 +157,8 @@ import { ParkingUser } from './parking-state.service';
 })
 export class ParkingUserModalComponent extends AsyncHandler implements OnInit {
     private _data = inject<ParkingUser>(MAT_DIALOG_DATA);
-    private _dialog_ref = inject<MatDialogRef<ParkingUserModalComponent>>(MatDialogRef);
+    private _dialog_ref =
+        inject<MatDialogRef<ParkingUserModalComponent>>(MatDialogRef);
 
     @Output() public readonly event = new EventEmitter<DialogEvent>();
     public loading = false;

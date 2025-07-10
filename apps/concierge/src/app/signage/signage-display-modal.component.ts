@@ -97,9 +97,10 @@ import { addSystem, PlaceSystem, updateSystem } from '@placeos/ts-client';
 })
 export class SignageDisplayModalComponent {
     private _data = inject<{
-    display?: PlaceSystem;
-}>(MAT_DIALOG_DATA);
-    private _dialog_ref = inject<MatDialogRef<SignageDisplayModalComponent>>(MatDialogRef);
+        display?: PlaceSystem;
+    }>(MAT_DIALOG_DATA);
+    private _dialog_ref =
+        inject<MatDialogRef<SignageDisplayModalComponent>>(MatDialogRef);
     private _org = inject(OrganisationService);
 
     public loading = false;

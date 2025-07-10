@@ -133,9 +133,7 @@ import { map } from 'rxjs/operators';
                                                 block.start | date: 'shortTime'
                                             }}
                                             -
-                                            {{
-                                                block.end | date: 'shortTime'
-                                            }}
+                                            {{ block.end | date: 'shortTime' }}
                                             |
                                             {{ block.location }}
                                         </div>
@@ -243,7 +241,8 @@ import { map } from 'rxjs/operators';
 export class AutoReleaseSettingsModalComponent implements OnInit {
     private _id = inject(MAT_DIALOG_DATA);
     private _dialog = inject(MatDialog);
-    private _dialog_ref = inject<MatDialogRef<AutoReleaseSettingsModalComponent>>(MatDialogRef);
+    private _dialog_ref =
+        inject<MatDialogRef<AutoReleaseSettingsModalComponent>>(MatDialogRef);
     private _settings = inject(SettingsService);
 
     public readonly types = ['desk', 'parking', 'locker', 'visitor'];

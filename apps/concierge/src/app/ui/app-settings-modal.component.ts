@@ -216,9 +216,10 @@ import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
 })
 export class AppSettingsModalComponent {
     private _data = inject<{
-    zone: PlaceZone;
-}>(MAT_DIALOG_DATA);
-    private _dialog_ref = inject<MatDialogRef<AppSettingsModalComponent>>(MatDialogRef);
+        zone: PlaceZone;
+    }>(MAT_DIALOG_DATA);
+    private _dialog_ref =
+        inject<MatDialogRef<AppSettingsModalComponent>>(MatDialogRef);
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
 

@@ -1,11 +1,11 @@
 import { CommonModule } from '@angular/common';
 import {
-  Component,
-  OnChanges,
-  SimpleChanges,
-  inject,
-  input,
-  output
+    Component,
+    OnChanges,
+    SimpleChanges,
+    inject,
+    input,
+    output,
 } from '@angular/core';
 import {
     FormControl,
@@ -521,9 +521,7 @@ export class BookingRulesFormComponent implements OnChanges {
     public ngOnChanges(changes: SimpleChanges): void {
         const ruleset = this.ruleset();
         if (changes.ruleset && ruleset) {
-            this.available_conditions = Object.keys(
-                ruleset.conditions || {},
-            );
+            this.available_conditions = Object.keys(ruleset.conditions || {});
             this.form.patchValue(ruleset);
         }
         if (

@@ -1,11 +1,11 @@
 import {
-  Component,
-  ElementRef,
-  OnDestroy,
-  OnInit,
-  viewChild,
-  input,
-  output
+    Component,
+    ElementRef,
+    input,
+    OnDestroy,
+    OnInit,
+    output,
+    viewChild,
 } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
 
@@ -105,8 +105,10 @@ export class TakePhotoComponent
     public has_photo = false;
     public loading = false;
 
-    private readonly _video_el = viewChild<ElementRef<HTMLVideoElement>>('video');
-    private readonly _canvas_el = viewChild<ElementRef<HTMLCanvasElement>>('canvas');
+    private readonly _video_el =
+        viewChild<ElementRef<HTMLVideoElement>>('video');
+    private readonly _canvas_el =
+        viewChild<ElementRef<HTMLCanvasElement>>('canvas');
 
     private constraints = {
         audio: false,

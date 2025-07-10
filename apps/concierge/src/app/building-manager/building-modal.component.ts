@@ -19,11 +19,12 @@ import { Building } from '@placeos/organisation';
             "
             (confirm)="save()"
         >
-            <building-form [building]="building"
+            <building-form
+                [building]="building"
                 [save]="save_state"
                 [(loading)]="loading"
                 (done)="close($event)"
-             />
+            />
         </fullscreen-modal-shell>
     `,
     styles: [``],
@@ -31,7 +32,8 @@ import { Building } from '@placeos/organisation';
 })
 export class BuildingModalComponent {
     private _data = inject<Building | undefined>(MAT_DIALOG_DATA);
-    private _dialog_ref = inject<MatDialogRef<BuildingModalComponent>>(MatDialogRef);
+    private _dialog_ref =
+        inject<MatDialogRef<BuildingModalComponent>>(MatDialogRef);
 
     public loading = false;
     public save_state = 0;

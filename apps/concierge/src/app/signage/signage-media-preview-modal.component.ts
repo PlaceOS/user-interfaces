@@ -63,12 +63,12 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 })
 export class SignageMediaPreviewModalComponent {
     private _data = inject<{
-    url: URL;
-    type: 'image' | 'video';
-    save: boolean;
-    name: string;
-    file?: File;
-}>(MAT_DIALOG_DATA);
+        url: URL;
+        type: 'image' | 'video';
+        save: boolean;
+        name: string;
+        file?: File;
+    }>(MAT_DIALOG_DATA);
 
     public readonly save = output<any>();
     public loading = '';

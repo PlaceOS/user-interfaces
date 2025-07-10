@@ -165,7 +165,8 @@ export class CardInputFieldComponent
     public readonly digits = Array(16).fill(0);
     private _index = 0;
 
-    private readonly _input_el = viewChild.required<ElementRef<HTMLInputElement>>('input');
+    private readonly _input_el =
+        viewChild.required<ElementRef<HTMLInputElement>>('input');
 
     private _onChange?: (_: PaymentCardDetails) => void;
     private _onTouch?: (_: PaymentCardDetails) => void;
@@ -202,8 +203,7 @@ export class CardInputFieldComponent
         const _input_el = this._input_el();
         return (
             document.activeElement === _input_el.nativeElement ||
-            document.activeElement ===
-                _input_el.nativeElement.parentElement
+            document.activeElement === _input_el.nativeElement.parentElement
         );
     }
 

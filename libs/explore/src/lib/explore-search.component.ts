@@ -1,9 +1,9 @@
 import {
-  Component,
-  ElementRef,
-  OnInit,
-  inject,
-  viewChild
+    Component,
+    ElementRef,
+    OnInit,
+    inject,
+    viewChild,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
@@ -143,8 +143,10 @@ export class ExploreSearchComponent extends AsyncHandler implements OnInit {
     public readonly loading = this._search.loading;
     public readonly setFilter = (s) => this._search.setFilter(s);
 
-    private readonly _input_el = viewChild<ElementRef<HTMLInputElement>>('input');
-    private readonly _button_el = viewChild<ElementRef<HTMLButtonElement>>('button');
+    private readonly _input_el =
+        viewChild<ElementRef<HTMLInputElement>>('input');
+    private readonly _button_el =
+        viewChild<ElementRef<HTMLButtonElement>>('button');
 
     constructor() {
         super();

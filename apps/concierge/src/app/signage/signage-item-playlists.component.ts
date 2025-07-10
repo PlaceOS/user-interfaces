@@ -1,10 +1,10 @@
 import {
-  Component,
-  OnChanges,
-  SimpleChanges,
-  inject,
-  input,
-  output
+    Component,
+    OnChanges,
+    SimpleChanges,
+    inject,
+    input,
+    output,
 } from '@angular/core';
 import { SignagePlaylist } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest } from 'rxjs';

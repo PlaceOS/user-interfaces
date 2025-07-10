@@ -219,7 +219,10 @@ import { ScheduleStateService } from './schedule-state.service';
 export class ScheduleFilterCardComponent {
     private _state = inject(ScheduleStateService);
     private _settings = inject(SettingsService);
-    private _sheet_ref = inject<MatBottomSheetRef<ScheduleFilterCardComponent>>(MatBottomSheetRef);
+    private _sheet_ref =
+        inject<MatBottomSheetRef<ScheduleFilterCardComponent>>(
+            MatBottomSheetRef,
+        );
 
     public readonly filters = this._state.filters;
 

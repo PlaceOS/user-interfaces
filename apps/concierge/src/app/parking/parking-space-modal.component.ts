@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit, Output, inject } from '@angular/core';
+import { Component, EventEmitter, inject, OnInit, Output } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { DialogEvent } from '@placeos/common';
@@ -121,7 +121,8 @@ import { ParkingSpace } from './parking-state.service';
 })
 export class ParkingSpaceModalComponent implements OnInit {
     private _data = inject<ParkingSpace>(MAT_DIALOG_DATA);
-    private _dialog_ref = inject<MatDialogRef<ParkingSpaceModalComponent>>(MatDialogRef);
+    private _dialog_ref =
+        inject<MatDialogRef<ParkingSpaceModalComponent>>(MatDialogRef);
 
     @Output() public readonly event = new EventEmitter<DialogEvent>();
     public loading: boolean;

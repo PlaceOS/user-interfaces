@@ -99,7 +99,8 @@ import {
 })
 export class ShortUrlModalComponent extends AsyncHandler {
     private _data = inject<ShortURL | undefined>(MAT_DIALOG_DATA);
-    private _dialog_ref = inject<MatDialogRef<ShortUrlModalComponent>>(MatDialogRef);
+    private _dialog_ref =
+        inject<MatDialogRef<ShortUrlModalComponent>>(MatDialogRef);
 
     public loading = false;
 

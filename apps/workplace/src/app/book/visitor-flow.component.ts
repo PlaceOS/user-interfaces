@@ -26,7 +26,6 @@ import { Router } from '@angular/router';
 export class VisitorFlowComponent {
     private _router = inject(Router);
 
-
     public onDone() {
         this._router.navigate(['/']);
     }

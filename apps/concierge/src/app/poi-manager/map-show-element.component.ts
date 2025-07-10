@@ -21,9 +21,8 @@ import { MAP_FEATURE_DATA } from 'libs/common/src/lib/types';
 })
 export class MapShowElementComponent {
     private _data = inject<{
-    hover: boolean;
-}>(MAP_FEATURE_DATA);
-
+        hover: boolean;
+    }>(MAP_FEATURE_DATA);
 
     public get hover() {
         return !!this._data?.hover;

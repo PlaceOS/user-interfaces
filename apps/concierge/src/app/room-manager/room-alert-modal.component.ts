@@ -75,9 +75,10 @@ import { PlaceSystem, showMetadata, updateMetadata } from '@placeos/ts-client';
 })
 export class RoomAlertModalComponent {
     private _data = inject<{
-    room: PlaceSystem;
-}>(MAT_DIALOG_DATA);
-    private _dialog_ref = inject<MatDialogRef<RoomAlertModalComponent>>(MatDialogRef);
+        room: PlaceSystem;
+    }>(MAT_DIALOG_DATA);
+    private _dialog_ref =
+        inject<MatDialogRef<RoomAlertModalComponent>>(MatDialogRef);
     private _org = inject(OrganisationService);
 
     public loading = false;

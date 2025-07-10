@@ -92,7 +92,8 @@ import { ControlStateService } from '../control-state.service';
 export class SelectMeetingModalComponent {
     private _service = inject(ControlStateService);
     private _dialog = inject(MatDialog);
-    private _dialog_ref = inject<MatDialogRef<SelectMeetingModalComponent>>(MatDialogRef);
+    private _dialog_ref =
+        inject<MatDialogRef<SelectMeetingModalComponent>>(MatDialogRef);
 
     public readonly calendars = this._service.calendars;
     public readonly events = this._service.events;

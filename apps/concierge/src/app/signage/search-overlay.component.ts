@@ -1,9 +1,9 @@
 import {
-  Component,
-  SimpleChanges,
-  TemplateRef,
-  input,
-  output
+    Component,
+    SimpleChanges,
+    TemplateRef,
+    input,
+    output,
 } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 

@@ -10,12 +10,13 @@ import { AssetsReportService } from './assets-report.service';
 @Component({
     selector: '[report-assets]',
     template: `
-        <reports-options (printing)="printing = $event"
+        <reports-options
+            (printing)="printing = $event"
             [loading]="loading | async"
             [has_data]="total_count | async"
             (download)="downloadReport()"
             (generate)="generateReport()"
-         />
+        />
         <div
             class="relative h-1/2 w-full flex-1 overflow-auto print:h-auto print:overflow-visible"
         >

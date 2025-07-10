@@ -261,7 +261,8 @@ export class LandingColleaguesComponent extends AsyncHandler {
 
     public readonly updateSearch = (s) => this._state.setOptions({ search: s });
 
-    private readonly _input_el = viewChild.required<ElementRef<HTMLInputElement>>('search_input');
+    private readonly _input_el =
+        viewChild.required<ElementRef<HTMLInputElement>>('search_input');
 
     public newMeeting(user: User) {
         this._event_form.newForm();

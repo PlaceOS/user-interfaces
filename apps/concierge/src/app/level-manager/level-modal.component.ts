@@ -115,7 +115,8 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
 export class LevelModalComponent {
     private _org = inject(OrganisationService);
     private _data = inject<BuildingLevel | undefined>(MAT_DIALOG_DATA);
-    private _dialog_ref = inject<MatDialogRef<LevelModalComponent>>(MatDialogRef);
+    private _dialog_ref =
+        inject<MatDialogRef<LevelModalComponent>>(MatDialogRef);
 
     public loading = false;
     public readonly building_list = this._org.building_list;

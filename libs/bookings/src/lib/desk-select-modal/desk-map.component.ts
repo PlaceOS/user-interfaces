@@ -1,10 +1,10 @@
 import {
-  Component,
-  OnInit,
-  SimpleChanges,
-  inject,
-  input,
-  output
+    Component,
+    OnInit,
+    SimpleChanges,
+    inject,
+    input,
+    output,
 } from '@angular/core';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { map } from 'rxjs/operators';

@@ -1,11 +1,11 @@
 import { CommonModule } from '@angular/common';
 import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  Renderer2,
-  inject,
-  viewChild
+    AfterViewInit,
+    Component,
+    ElementRef,
+    Renderer2,
+    inject,
+    viewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
@@ -349,7 +349,8 @@ export class FindAvailabilityModalComponent
         shareReplay(1),
     );
 
-    private readonly _container_el = viewChild.required<ElementRef<HTMLDivElement>>('container');
+    private readonly _container_el =
+        viewChild.required<ElementRef<HTMLDivElement>>('container');
 
     public get today() {
         return isSameDay(this.date, Date.now());

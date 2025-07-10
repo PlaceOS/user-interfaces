@@ -69,10 +69,13 @@ import { Observable } from 'rxjs';
 })
 export class AssetCategoryManagementModalComponent {
     private _data = inject<{
-    list: Observable<AssetCategory[]>;
-    edit: (i?) => any;
-}>(MAT_DIALOG_DATA);
-    private _dialog_ref = inject<MatDialogRef<AssetCategoryManagementModalComponent>>(MatDialogRef);
+        list: Observable<AssetCategory[]>;
+        edit: (i?) => any;
+    }>(MAT_DIALOG_DATA);
+    private _dialog_ref =
+        inject<MatDialogRef<AssetCategoryManagementModalComponent>>(
+            MatDialogRef,
+        );
 
     public readonly changed = new EventEmitter();
     public readonly list = this._data.list;

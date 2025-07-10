@@ -1,12 +1,12 @@
 import { CommonModule } from '@angular/common';
 import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  input,
-  model,
-  OnInit,
-  viewChild
+    AfterViewInit,
+    Component,
+    ElementRef,
+    input,
+    model,
+    OnInit,
+    viewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -298,7 +298,8 @@ export class QuestionComponent implements AfterViewInit, OnInit {
     public type_options = QuestionTypeOptions;
     public rating_options: number[] = [1, 2, 3];
 
-    private readonly _container_el = viewChild<ElementRef<HTMLDivElement>>('container_el');
+    private readonly _container_el =
+        viewChild<ElementRef<HTMLDivElement>>('container_el');
 
     public get valid() {
         const q = this.question();

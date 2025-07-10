@@ -15,8 +15,8 @@ export class ViewAttendeesModalComponent
     implements OnChanges, OnInit
 {
     private _data = inject<{
-    attendees: User[];
-}>(MAT_DIALOG_DATA);
+        attendees: User[];
+    }>(MAT_DIALOG_DATA);
 
     public attendees: User[];
 

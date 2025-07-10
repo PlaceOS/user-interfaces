@@ -7,10 +7,11 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
 @Component({
     selector: 'app-contact-tracing-report',
     template: `
-        <contact-tracing-options (printing)="printing = $event"
+        <contact-tracing-options
+            (printing)="printing = $event"
             (download)="downloadReport()"
             class="print:hidden"
-         />
+        />
         <div
             class="relative h-1/2 w-full flex-1 overflow-auto print:h-auto print:overflow-visible"
         >

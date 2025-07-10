@@ -159,7 +159,8 @@ import { Space } from '@placeos/spaces';
 })
 export class RoomDetailsComponent implements OnInit {
     data = inject(MAT_BOTTOM_SHEET_DATA);
-    private _bottomSheetRef = inject<MatBottomSheetRef<RoomDetailsComponent>>(MatBottomSheetRef);
+    private _bottomSheetRef =
+        inject<MatBottomSheetRef<RoomDetailsComponent>>(MatBottomSheetRef);
 
     space: Space | any;
     room_added: Boolean = false;

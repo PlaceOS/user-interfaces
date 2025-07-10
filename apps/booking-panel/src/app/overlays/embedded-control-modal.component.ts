@@ -76,7 +76,8 @@ export class EmbeddedControlModalComponent
     extends AsyncHandler
     implements OnInit
 {
-    private _dialog_ref = inject<MatDialogRef<EmbeddedControlModalComponent>>(MatDialogRef);
+    private _dialog_ref =
+        inject<MatDialogRef<EmbeddedControlModalComponent>>(MatDialogRef);
     private _data = inject<EmbeddedControlModalData>(MAT_DIALOG_DATA);
 
     /** Control URL to embed into the modal */

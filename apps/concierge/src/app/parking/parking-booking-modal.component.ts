@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Booking, BookingFormService, ParkingSpace } from '@placeos/bookings';
@@ -160,18 +160,19 @@ export class ParkingBookingModalComponent
     implements OnInit
 {
     private _data = inject<{
-    booking: Booking;
-    user?: User;
-    link_id?: string;
-    date?: number;
-    level?: BuildingLevel;
-    space?: ParkingSpace;
-    allow_time_changes?: boolean;
-    external_user?: boolean;
-    parent_id?: string;
-}>(MAT_DIALOG_DATA);
+        booking: Booking;
+        user?: User;
+        link_id?: string;
+        date?: number;
+        level?: BuildingLevel;
+        space?: ParkingSpace;
+        allow_time_changes?: boolean;
+        external_user?: boolean;
+        parent_id?: string;
+    }>(MAT_DIALOG_DATA);
     private _booking_form = inject(BookingFormService);
-    private _dialog_ref = inject<MatDialogRef<ParkingBookingModalComponent>>(MatDialogRef);
+    private _dialog_ref =
+        inject<MatDialogRef<ParkingBookingModalComponent>>(MatDialogRef);
     private _settings = inject(SettingsService);
 
     public loading = false;

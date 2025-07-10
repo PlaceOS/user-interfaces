@@ -1,5 +1,5 @@
 import { formatDate } from '@angular/common';
-import { Injectable, inject } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Booking } from '@placeos/bookings';
 import {
     downloadFile,

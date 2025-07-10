@@ -1,11 +1,11 @@
 import {
-  Component,
-  OnChanges,
-  OnInit,
-  SimpleChanges,
-  inject,
-  input,
-  output
+    Component,
+    OnChanges,
+    OnInit,
+    SimpleChanges,
+    inject,
+    input,
+    output,
 } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { first } from 'rxjs/operators';

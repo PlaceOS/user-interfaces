@@ -1,9 +1,4 @@
-import {
-  Component,
-  SimpleChanges,
-  input,
-  output
-} from '@angular/core';
+import { Component, SimpleChanges, input, output } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { ImageCarouselComponent } from 'libs/components/src/lib/image-carousel.component';

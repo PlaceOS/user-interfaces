@@ -1,10 +1,10 @@
 import {
-  Component,
-  OnChanges,
-  OnInit,
-  SimpleChanges,
-  input,
-  output
+    Component,
+    OnChanges,
+    OnInit,
+    SimpleChanges,
+    input,
+    output,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';

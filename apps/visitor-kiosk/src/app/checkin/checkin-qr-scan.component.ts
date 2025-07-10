@@ -1,4 +1,11 @@
-import { AfterViewInit, Component, ElementRef, OnDestroy, inject, viewChild } from '@angular/core';
+import {
+    AfterViewInit,
+    Component,
+    ElementRef,
+    OnDestroy,
+    inject,
+    viewChild,
+} from '@angular/core';
 import { Router } from '@angular/router';
 import {
     AsyncHandler,
@@ -108,7 +115,8 @@ export class CheckinQRScanComponent
     /** Email address of the visitor */
     public email: string;
     /** Video element to emit camera feed */
-    private readonly _video_el = viewChild<ElementRef<HTMLVideoElement>>('video');
+    private readonly _video_el =
+        viewChild<ElementRef<HTMLVideoElement>>('video');
     /** QR Reader */
     private _reader;
 

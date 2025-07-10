@@ -55,7 +55,6 @@ import { AsyncHandler, SettingsService } from '@placeos/common';
 export class AccessibilityControlsComponent extends AsyncHandler {
     private _settings = inject(SettingsService);
 
-
     public get dark_mode() {
         return this.can_change_dark_mode && this._settings.theme === 'dark';
     }

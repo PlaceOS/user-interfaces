@@ -65,7 +65,8 @@ import { showMetadata, updateMetadata } from '@placeos/ts-client';
 export class ItemListModalComponent implements OnInit {
     private _bld_id = inject(MAT_DIALOG_DATA);
     private _settings = inject(SettingsService);
-    private _dialog_ref = inject<MatDialogRef<ItemListModalComponent>>(MatDialogRef);
+    private _dialog_ref =
+        inject<MatDialogRef<ItemListModalComponent>>(MatDialogRef);
 
     public item_list: { name: string; email: string }[] = [];
     public loading = false;

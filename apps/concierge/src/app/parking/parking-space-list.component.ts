@@ -9,10 +9,12 @@ import { ParkingStateService } from './parking-state.service';
 @Component({
     selector: 'parking-space-list',
     template: `
-        <mat-progress-bar [class.opacity-0]="!(loading | async)?.includes('spaces')"
+        <mat-progress-bar
+            [class.opacity-0]="!(loading | async)?.includes('spaces')"
             class="w-full"
-         />
-        <simple-table class="block min-w-[52rem] text-sm"
+        />
+        <simple-table
+            class="block min-w-[52rem] text-sm"
             [data]="spaces"
             [columns]="[
                 {
@@ -43,7 +45,7 @@ import { ParkingStateService } from './parking-state.service';
             ]"
             [filter]="(options | async)?.search"
             [sortable]="true"
-         />
+        />
         <ng-template #status_template let-row="row">
             <div
                 class="mx-auto flex h-8 w-8 items-center justify-center rounded"

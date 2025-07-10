@@ -89,13 +89,13 @@ import { debounceTime, map } from 'rxjs/operators';
 })
 export class HelpModalComponent {
     private _data = inject<{
-    items: {
-        id: string;
-        title: string;
-        content: string;
-    }[];
-    active_id?: string;
-}>(MAT_DIALOG_DATA);
+        items: {
+            id: string;
+            title: string;
+            content: string;
+        }[];
+        active_id?: string;
+    }>(MAT_DIALOG_DATA);
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
 

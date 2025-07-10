@@ -1,4 +1,10 @@
-import { Component, OnChanges, SimpleChanges, inject, input } from '@angular/core';
+import {
+    Component,
+    OnChanges,
+    SimpleChanges,
+    inject,
+    input,
+} from '@angular/core';
 import { addMinutes, differenceInMinutes, format, startOfDay } from 'date-fns';
 
 import { SettingsService } from '@placeos/common';

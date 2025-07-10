@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AsyncHandler, current_user, SettingsService } from '@placeos/common';
 import { first } from 'rxjs/operators';

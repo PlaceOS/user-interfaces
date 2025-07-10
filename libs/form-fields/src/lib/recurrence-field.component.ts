@@ -1,10 +1,10 @@
 import {
-  Component,
-  forwardRef,
-  inject,
-  OnChanges,
-  SimpleChanges,
-  input
+    Component,
+    forwardRef,
+    inject,
+    input,
+    OnChanges,
+    SimpleChanges,
 } from '@angular/core';
 import {
     ControlValueAccessor,

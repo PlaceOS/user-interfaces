@@ -250,8 +250,8 @@ export class PointsAssetModalComponent extends AsyncHandler {
     private _spaces = inject(SpacesService);
     private _desks = inject(DesksStateService);
     private _data = inject<{
-    asset?: any;
-}>(MAT_DIALOG_DATA);
+        asset?: any;
+    }>(MAT_DIALOG_DATA);
 
     @Output() public event = new EventEmitter<DialogEvent>();
 

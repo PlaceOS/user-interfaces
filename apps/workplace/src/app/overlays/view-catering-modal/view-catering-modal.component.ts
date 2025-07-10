@@ -13,9 +13,9 @@ import { AsyncHandler } from '@placeos/common';
 })
 export class ViewCateringModalComponent extends AsyncHandler implements OnInit {
     private _data = inject<{
-    catering: CateringItem[];
-    catering_note: string;
-}>(MAT_DIALOG_DATA);
+        catering: CateringItem[];
+        catering_note: string;
+    }>(MAT_DIALOG_DATA);
     private _router = inject(Router);
     private _dialog = inject(MatDialog);
 

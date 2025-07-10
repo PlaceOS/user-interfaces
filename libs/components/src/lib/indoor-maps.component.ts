@@ -1,13 +1,13 @@
 import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  OnChanges,
-  OnInit,
-  SimpleChanges,
-  inject,
-  viewChild,
-  input
+    AfterViewInit,
+    Component,
+    ElementRef,
+    OnChanges,
+    OnInit,
+    SimpleChanges,
+    inject,
+    input,
+    viewChild,
 } from '@angular/core';
 import {
     AsyncHandler,
@@ -281,7 +281,9 @@ export class IndoorMapsComponent
             await this.mapActions();
         }
         if (change.locate && this.locate() && mapsindoors) {
-            const searchParams = { q: this.searchElement().nativeElement.value };
+            const searchParams = {
+                q: this.searchElement().nativeElement.value,
+            };
             const locations =
                 await mapsindoors?.services.LocationsService.getLocations(
                     searchParams,

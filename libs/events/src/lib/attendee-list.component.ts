@@ -25,7 +25,9 @@ import { User } from 'libs/users/src/lib/user.class';
                         custom_title()
                             ? custom_title()
                             : ('ATTENDEES_COUNT'
-                              | translate: { count: list().length } : list().length)
+                              | translate
+                                  : { count: list().length }
+                                  : list().length)
                     }}
                 </div>
                 @if (!hide_close()) {
@@ -34,7 +36,9 @@ import { User } from 'libs/users/src/lib/user.class';
             </div>
             <div class="w-full flex-1 overflow-auto">
                 @for (user of list(); track user) {
-                    @if (!user.resource && (host() !== user.email || show_host())) {
+                    @if (
+                        !user.resource && (host() !== user.email || show_host())
+                    ) {
                         <div
                             attendee
                             class="flex items-center space-x-2 p-2 hover:bg-base-200"
