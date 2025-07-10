@@ -123,40 +123,40 @@
     /* Info */
     --in: hsla(217, 91%, 60%, 1); /* Blue */
     --inl: hsla(
-        214,
-        100%,
-        97%,
-        1
+        224,
+        76%,
+        48%,
+        0.3
     ); /* Light Blue for use with base content colour */
     --inc: hsl(0, 0%, 100%); /* White content on light blue background */
 
     /* Success */
     --su: hsla(118, 50%, 43%, 1); /* Green */
     --sul: hsla(
-        152,
-        81%,
-        96%,
-        1
+        163,
+        94%,
+        24%,
+        0.3
     ); /* Light Green for use with base content colour */
     --suc: hsl(0, 0%, 100%); /* White content on light green background */
 
     /* Warning */
     --wa: hsla(45, 100%, 64%, 1); /* Yellow */
     --wal: hsla(
-        48,
-        100%,
-        96%,
-        1
+        26,
+        90%,
+        37%,
+        0.3
     ); /* Light Yellow for use with base content colour */
     --wac: hsl(0, 0%, 0%); /* Black content on yellow background */
 
     /* Error */
     --er: hsla(354, 75%, 53%, 1); /* Red */
     --erl: hsla(
-        356,
-        100%,
-        97%,
-        1
+        345,
+        83%,
+        41%,
+        0.3
     ); /* Light Red for use with base content colour */
     --erc: hsl(0, 0%, 100%); /* White content on red background */
 }

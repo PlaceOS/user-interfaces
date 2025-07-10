@@ -18,8 +18,8 @@ import { CustomTooltipData } from './custom-tooltip.component';
                     {{ 'COMMON.CONTROLS_ACCESSIBILITY' | translate }}
                 </div>
             </div>
-            @if (can_change_dark_mode) {
-                <div action class="w-full p-2 text-left">
+            <div class="space-y-2 p-2">
+                @if (can_change_dark_mode) {
                     <settings-toggle
                         [ngModel]="dark_mode"
                         (ngModelChange)="setDarkMode($event)"
@@ -30,9 +30,7 @@ import { CustomTooltipData } from './custom-tooltip.component';
                             <div>{{ 'COMMON.DARK_MODE' | translate }}</div>
                         </div>
                     </settings-toggle>
-                </div>
-            }
-            <div action class="w-full px-2 pb-2 text-left">
+                }
                 <settings-toggle
                     [ngModel]="accessible"
                     (ngModelChange)="applySetting('accessible', $event)"

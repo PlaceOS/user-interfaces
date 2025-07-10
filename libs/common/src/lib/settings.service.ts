@@ -56,8 +56,7 @@ export class SettingsService extends AsyncHandler {
 
     public get theme() {
         const allow_dark_mode = this.get('app.allow_dark_mode');
-        const theme = allow_dark_mode ? this.get('theme') : 'light';
-        return theme;
+        return allow_dark_mode ? this.get('theme') : 'light';
     }
 
     /** Get observable for key */
@@ -130,10 +129,16 @@ export class SettingsService extends AsyncHandler {
         const user = await firstTruthyValueFrom(current_user);
         const data = await lastValueFrom(showMetadata(user.id, 'settings'));
         this._user_settings.next(data.details || {});
-        this._initDarkMode();
-        this._applyTheme();
-        this._setFontSize();
-        this._setPrintFontSize();
+        this.timeout(
+            'init',
+            () => {
+                this._initDarkMode();
+                this._applyTheme();
+                this._setFontSize();
+                this._setPrintFontSize();
+            },
+            1000,
+        );
     }
 
     /** Whether settings service has initialised */
@@ -237,14 +242,18 @@ export class SettingsService extends AsyncHandler {
 
     private _applyTheme() {
         const allow_dark_mode = this.get('app.allow_dark_mode');
-        const theme = allow_dark_mode ? this.theme : 'light';
+        this._clearTheme();
+        if (!allow_dark_mode) return;
+        document.body.classList.add(`theme-${this.theme}`);
+    }
+
+    private _clearTheme() {
         const class_list = document.body.classList.value.split(' ');
         for (const item of class_list) {
             if (item.startsWith('theme-')) {
                 document.body.classList.remove(item);
             }
         }
-        document.body.classList.add(`theme-${theme}`);
     }
 
     private _setPrintFontSize() {
@@ -258,7 +267,7 @@ export class SettingsService extends AsyncHandler {
     }
 
     private _initDarkMode() {
-        if (this.theme || true) return;
+        if (this.theme) return;
         const os_dark = window?.matchMedia
             ? window?.matchMedia('(prefers-color-scheme: dark)')?.matches
             : false;
