@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -30,7 +30,7 @@ import { combineLatest, map } from 'rxjs';
                 <icon class="text-2xl text-info">arrow_forward</icon>
             </header>
             <main
-                class="pointer-events-none w-full flex-1 border-y border-base-300"
+                class="pointer-events-none relative w-full flex-1 border-y border-base-300"
             >
                 <interactive-map
                     [src]="url | async"
