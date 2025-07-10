@@ -92,6 +92,12 @@ Plug your laptop into the HDMI to stream it to the screen, or access the CMS to 
             help: 'vidconf-help',
             controls: 'vidconf-controls',
         },
+        {
+            icon: 'call',
+            name: 'Zoom Phone',
+            inputs: ['Zoom_1'],
+            controls: 'zoom-phone',
+        },
     ];
 
     public volume = 0;
