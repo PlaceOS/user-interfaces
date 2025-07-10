@@ -224,7 +224,7 @@ import { map } from 'rxjs/operators';
                 class="flex flex-col items-center justify-center space-y-2 p-32"
             >
                 <mat-spinner [diameter]="48"></mat-spinner>
-                <p>{{ loading }}</p>
+                <p>{{ loading() }}</p>
             </main>
         }
         @if (!loading()) {
