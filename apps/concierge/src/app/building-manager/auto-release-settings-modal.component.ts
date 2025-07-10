@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import {
     MAT_DIALOG_DATA,
     MatDialog,
@@ -43,14 +43,14 @@ import { map } from 'rxjs/operators';
             <h3 class="text-xl font-medium">
                 {{ 'APP.CONCIERGE.AUTO_RELEASE_HEADER' | translate }}
             </h3>
-            @if (!loading) {
+            @if (!loading()) {
                 <button icon matRipple mat-dialog-close>
                     <icon class="text-2xl">close</icon>
                 </button>
             }
         </header>
-        @if (!loading) {
-            <main class="w-[32rem] overflow-auto px-4">
+        @if (!loading()) {
+            <main class="max-h-[65vh] w-[32rem] overflow-auto px-4">
                 <div class="flex space-x-2">
                     <div class="flex-1">
                         <label>
@@ -227,7 +227,7 @@ import { map } from 'rxjs/operators';
                 <p>{{ loading }}</p>
             </main>
         }
-        @if (!loading) {
+        @if (!loading()) {
             <footer class="flex justify-end border-t border-base-200 px-4 py-2">
                 <button btn matRipple class="w-32" (click)="save()">
                     {{ 'COMMON.SAVE' | translate }}
@@ -246,7 +246,7 @@ export class AutoReleaseSettingsModalComponent implements OnInit {
     private _settings = inject(SettingsService);
 
     public readonly types = ['desk', 'parking', 'locker', 'visitor'];
-    public loading = '';
+    public loading = signal('');
     public readonly id = this._id;
     public settings: Record<string, any> = {
         custom: [],
@@ -331,7 +331,7 @@ export class AutoReleaseSettingsModalComponent implements OnInit {
     }
 
     public async loadSettings(id: string) {
-        this.loading = i18n('APP.CONCIERGE.AUTO_RELEASE_LOADING');
+        this.loading.set(i18n('APP.CONCIERGE.AUTO_RELEASE_LOADING'));
         this.settings = { custom: [] };
         const settings = await nextValueFrom(
             querySettings({ parent_id: id }).pipe(map((_) => _.data)),
@@ -349,13 +349,13 @@ export class AutoReleaseSettingsModalComponent implements OnInit {
             const key = name + '_time_before';
             if (key in this.settings) this.settings.custom.push(name);
         }
-        this.loading = '';
+        this.loading.set('');
         console.log('START HOUR:', this.start_hour);
         setTimeout(() => console.log('START HOUR:', this.start_hour), 1000);
     }
 
     public async save() {
-        this.loading = i18n('APP.CONCIERGE.AUTO_RELEASE_SAVING');
+        this.loading.set(i18n('APP.CONCIERGE.AUTO_RELEASE_SAVING'));
         const settings = await querySettings({ parent_id: this.id })
             .pipe(map((_) => _.data))
             .toPromise();
@@ -384,14 +384,16 @@ export class AutoReleaseSettingsModalComponent implements OnInit {
             throw e;
         };
         unencrypted.id
-            ? await updateSettings(unencrypted.id, unencrypted)
-                  .toPromise()
-                  .catch(on_error)
-            : await addSettings(unencrypted).toPromise().catch(on_error);
+            ? await lastValueFrom(
+                  updateSettings(unencrypted.id, unencrypted),
+              ).catch(on_error)
+            : await lastValueFrom(addSettings(unencrypted)).catch(on_error);
 
         const metadata_key =
             this._settings.get('app.workplace_metadata_key') || 'workplace_app';
-        const metadata = await showMetadata(this.id, metadata_key).toPromise();
+        const metadata = await lastValueFrom(
+            showMetadata(this.id, metadata_key),
+        );
         const details: any = metadata.details || {};
         details.auto_release = new_settings;
         await nextValueFrom(
@@ -402,7 +404,7 @@ export class AutoReleaseSettingsModalComponent implements OnInit {
             }),
         ).catch(on_error);
         notifySuccess(i18n('APP.CONCIERGE.AUTO_RELEASE_SUCCESS'));
-        this.loading = '';
+        this.loading.set('');
         this._dialog_ref.close();
     }
 }
