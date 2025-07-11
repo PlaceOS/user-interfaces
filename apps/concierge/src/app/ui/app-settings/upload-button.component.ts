@@ -1,6 +1,10 @@
-import { Component, forwardRef, input } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Component, forwardRef, input, signal } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { notifyError, uploadFile } from '@placeos/common';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
 
 @Component({
     selector: 'upload-button',
@@ -8,27 +12,33 @@ import { notifyError, uploadFile } from '@placeos/common';
         <button
             icon
             matRipple
-            [disabled]="uploading"
-            class="h-12 w-12 rounded bg-secondary text-secondary-content"
-            [title]="value"
+            [disabled]="uploading()"
+            class="h-12 w-12 overflow-hidden rounded bg-secondary text-secondary-content"
+            [title]="value()"
         >
-            @if (!uploading) {
+            @if (!uploading()) {
                 <icon>cloud_upload</icon>
             }
             <input
                 type="file"
-                class="absolute inset-0 opacity-0"
+                class="absolute inset-0 cursor-pointer opacity-0"
                 (change)="uploadImage($event)"
             />
-            @if (uploading) {
+            @if (uploading()) {
                 <mat-spinner
-                    [mode]="!progress ? 'indeterminate' : 'determinate'"
+                    [mode]="!progress() ? 'indeterminate' : 'determinate'"
                     diameter="32"
-                    [value]="progress"
+                    [value]="progress()"
                 ></mat-spinner>
             }
         </button>
     `,
+    imports: [
+        CommonModule,
+        MatProgressSpinnerModule,
+        IconComponent,
+        MatRippleModule,
+    ],
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,
@@ -36,13 +46,12 @@ import { notifyError, uploadFile } from '@placeos/common';
             multi: true,
         },
     ],
-    standalone: false,
 })
 export class UploadButtonComponent {
     public readonly type = input<string>('image');
-    public uploading = false;
-    public progress = 0;
-    public value = '';
+    public uploading = signal(false);
+    public progress = signal(0);
+    public value = signal('');
 
     /** Form control on change handler */
     private _onChange: (_: string) => void;
@@ -57,9 +66,9 @@ export class UploadButtonComponent {
      * @param new_value New value to set on the form field
      */
     public setValue(new_value: string): void {
-        if (this.value === new_value) return;
+        if (this.value() === new_value) return;
         console.error('Set Value:', this.value, new_value);
-        this.value = new_value;
+        this.value.set(new_value);
         /* istanbul ignore else */
         if (this._onChange) this._onChange(new_value);
     }
@@ -70,7 +79,7 @@ export class UploadButtonComponent {
      * @param value The new value for the component
      */
     public writeValue(value: string) {
-        this.value = value;
+        this.value.set(value);
     }
 
     public uploadImage(event: Event) {
@@ -87,25 +96,25 @@ export class UploadButtonComponent {
             return notifyError(`File is not an ${type}`);
         }
         console.log(`Uploading file...`);
-        this.progress = 0;
-        this.uploading = true;
+        this.progress.set(0);
+        this.uploading.set(true);
         let status = null;
         uploadFile(file).subscribe(
             (s) => {
                 console.log(`Progress:`, s);
-                this.progress = s.progress;
+                this.progress.set(s.progress);
                 status = s;
             },
             () => {
                 notifyError('Failed to upload image. Try again later');
-                this.uploading = false;
+                this.uploading.set(false);
             },
             () => {
                 const id = (status as any).upload._request.upload_id;
                 this.setValue(
                     `/api/engine/v2/uploads/${encodeURIComponent(id)}/url`,
                 );
-                this.uploading = false;
+                this.uploading.set(false);
             },
         );
     }

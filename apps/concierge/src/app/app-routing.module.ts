@@ -145,6 +145,11 @@ const routes: Routes = [
             ),
     },
     {
+        path: 'deals-n-offers',
+        loadChildren: () =>
+            import('./deals/deals.module').then((m) => m.DealsModule),
+    },
+    {
         path: 'points-of-interest',
         loadChildren: () =>
             import('./poi-manager/poi-manager.module').then(

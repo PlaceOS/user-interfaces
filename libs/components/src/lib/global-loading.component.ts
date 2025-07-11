@@ -48,17 +48,13 @@ export class GlobalLoadingComponent extends AsyncHandler implements OnInit {
     private _settings = inject(SettingsService);
 
     public loading = signal(false);
-    public readonly online = signal(false);
-
-    constructor() {
-        super();
-    }
+    public readonly online = signal(true);
 
     public async ngOnInit() {
         this.loading.set(true);
-        this.online.set(isOnline());
         await firstTruthyValueFrom(this._org.initialised);
         await firstTruthyValueFrom(this._settings.initialised);
+        this.online.set(isOnline());
         this.interval(
             'has_token',
             () => {

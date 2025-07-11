@@ -1,14 +1,15 @@
-import { Component, ElementRef, OnInit, inject } from '@angular/core';
+import { Component, ElementRef, OnInit, inject, signal } from '@angular/core';
 import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
     AsyncHandler,
     SettingsService,
     currentUser,
+    firstTruthyValueFrom,
     i18n,
     unique,
 } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
-import { debounceTime, filter, first } from 'rxjs/operators';
+import { debounceTime, filter } from 'rxjs/operators';
 
 @Component({
     selector: 'app-sidebar',
@@ -16,7 +17,7 @@ import { debounceTime, filter, first } from 'rxjs/operators';
         <div
             class="h-full w-64 overflow-auto border-r border-base-200 py-2 pr-3"
         >
-            @for (link of filtered_links; track link.id + '' + $index) {
+            @for (link of filtered_links(); track link.id + '' + $index) {
                 @if (!link.children) {
                     <a
                         matRipple
@@ -102,7 +103,7 @@ export class ApplicationSidebarComponent
     public show_block: Record<string, boolean> = {};
     public links = [];
 
-    public filtered_links = [];
+    public filtered_links = signal([]);
 
     public get feature_list() {
         return this._settings.get('app.features') || [];
@@ -123,7 +124,7 @@ export class ApplicationSidebarComponent
     }
 
     public async ngOnInit() {
-        await this._org.initialised.pipe(first((_) => _)).toPromise();
+        await firstTruthyValueFrom(this._org.initialised);
         this.links = [
             {
                 name: i18n('APP.CONCIERGE.MENU_BOOKINGS'),
@@ -258,6 +259,11 @@ export class ApplicationSidebarComponent
                         name: i18n('APP.CONCIERGE.MENU_MANAGE_EMAILS'),
                         route: ['/email-templates'],
                     },
+                    {
+                        id: 'deals-n-offers',
+                        name: i18n('APP.CONCIERGE.MENU_MANAGE_DEALS'),
+                        route: ['/deals-n-offers'],
+                    },
                 ],
             },
             {
@@ -382,30 +388,32 @@ export class ApplicationSidebarComponent
                 'id',
             );
         }
-        this.filtered_links = this.links
-            .map((link) => ({
-                ...link,
-                children: link.children
-                    ? link.children.filter((_) =>
-                          this._isFeatureAvailable(_.id),
-                      )
-                    : null,
-            }))
-            .filter(
-                (_) =>
-                    ((!_.id ||
-                        _.id === 'home' ||
-                        this._isFeatureAvailable(_.id)) &&
-                        _.route) ||
-                    _.children?.length,
-            );
-        if (this.filtered_links.find((_) => _.id === 'home')) {
-            const link = this.filtered_links.find((_) => _.id === 'home');
+        this.filtered_links.set(
+            this.links
+                .map((link) => ({
+                    ...link,
+                    children: link.children
+                        ? link.children.filter((_) =>
+                              this._isFeatureAvailable(_.id),
+                          )
+                        : null,
+                }))
+                .filter(
+                    (_) =>
+                        ((!_.id ||
+                            _.id === 'home' ||
+                            this._isFeatureAvailable(_.id)) &&
+                            _.route) ||
+                        _.children?.length,
+                ),
+        );
+        if (this.filtered_links().find((_) => _.id === 'home')) {
+            const link = this.filtered_links().find((_) => _.id === 'home');
             link.route = this._settings.get('app.default_route') || ['/'];
         }
         if (!this.is_admin) {
-            this.filtered_links = this.filtered_links.filter(
-                (_) => _.id !== 'facilities',
+            this.filtered_links.update((links) =>
+                links.filter((_) => _.id !== 'facilities'),
             );
         }
     }
