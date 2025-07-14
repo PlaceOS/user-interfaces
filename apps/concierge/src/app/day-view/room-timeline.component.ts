@@ -84,7 +84,7 @@ import { EventsStateService } from './events-state.service';
             >
                 @for (space of spaces | async; track space) {
                     <div
-                        class="relative flex h-full w-56 items-center justify-center"
+                        class="relative flex h-full w-56 items-center justify-center px-4"
                     >
                         <div class="truncate">
                             {{ space.display_name || space.name }}

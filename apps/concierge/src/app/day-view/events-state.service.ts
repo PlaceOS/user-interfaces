@@ -149,7 +149,15 @@ export class EventsStateService extends AsyncHandler {
             }
             return forkJoin(zone_ids.map((id) => requestSpacesForZone(id)));
         }),
-        map((l) => flatten<Space>(l).filter((_) => _.bookable)),
+        map((l) =>
+            flatten<Space>(l)
+                .filter((_) => _.bookable)
+                .sort((a, b) =>
+                    (a.display_name || a.name || '').localeCompare(
+                        b.display_name || b.name || '',
+                    ),
+                ),
+        ),
         tap(() => this._loading.next(false)),
         shareReplay(1),
     );
