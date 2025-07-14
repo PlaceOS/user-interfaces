@@ -265,6 +265,12 @@ export class TopMenuComponent
                 icon: 'local_activity',
                 name: i18n('APP.WORKPLACE.MENU_EVENTS'),
             },
+            {
+                id: 'deals-n-offers',
+                route: '/deals-n-offers',
+                icon: 'confirmation_number',
+                name: i18n('APP.WORKPLACE.MENU_DEALS'),
+            },
         ];
     }
 

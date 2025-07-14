@@ -97,6 +97,7 @@ import { Deal, DealsService } from './deals.service';
                                             {{ deal.name }}
                                         </h3>
                                         <p class="text-sm opacity-50">
+                                            Valid until
                                             {{
                                                 deal.expires_at
                                                     | date: 'mediumDate'

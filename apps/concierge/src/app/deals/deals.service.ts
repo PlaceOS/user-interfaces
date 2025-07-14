@@ -1,6 +1,6 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { AsyncHandler, i18n, randomString } from '@placeos/common';
+import { AsyncHandler, Deal, i18n, randomString } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
 import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
@@ -19,18 +19,6 @@ import {
     tap,
 } from 'rxjs';
 import { DealModalComponent } from './deal-modal.component';
-
-export interface Deal {
-    id: string;
-    name: string;
-    type: string;
-    details: string;
-    description: string;
-    terms: string;
-    code: string;
-    image: string;
-    expires_at: number;
-}
 
 @Injectable({
     providedIn: 'root',
