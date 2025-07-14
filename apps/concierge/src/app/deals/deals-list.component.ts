@@ -97,10 +97,15 @@ import { Deal, DealsService } from './deals.service';
                                             {{ deal.name }}
                                         </h3>
                                         <p class="text-sm opacity-50">
-                                            Valid until
                                             {{
-                                                deal.expires_at
-                                                    | date: 'mediumDate'
+                                                'COMMON.VALID_UNTIL_DATE'
+                                                    | translate
+                                                        : {
+                                                              date:
+                                                                  deal.expires_at
+                                                                  | date
+                                                                      : 'mediumDate',
+                                                          }
                                             }}
                                         </p>
                                     </div>
@@ -120,10 +125,16 @@ import { Deal, DealsService } from './deals.service';
                                     class="flex flex-col items-center space-y-4 text-center"
                                 >
                                     <p class="text-lg font-bold">
-                                        No Deals or Offers Available
+                                        {{
+                                            'APP.CONCIERGE.DEALS_EMPTY_TITLE'
+                                                | translate
+                                        }}
                                     </p>
                                     <p class="text-sm opacity-50">
-                                        Add a new deal or offer to get started.
+                                        {{
+                                            'APP.CONCIERGE.DEALS_EMPTY_BODY'
+                                                | translate
+                                        }}
                                     </p>
                                     <button
                                         btn

@@ -9,11 +9,11 @@ import { DealsService } from './deals.service';
         <div class="absolute inset-0 flex flex-col overflow-auto">
             <topbar />
             <main
-                class="min-h-1/2 flex h-1/2 flex-1 flex-col overflow-auto bg-base-200 px-4"
+                class="min-h-1/2 flex h-1/2 flex-1 flex-col overflow-auto bg-base-200 px-4 pt-2"
             >
                 @let deal_list = filtered_deals$ | async;
                 <div class="sticky top-0 mx-auto mb-2 w-[40rem] max-w-full">
-                    <div class="flex flex-wrap py-4">
+                    <div class="-mx-2 flex flex-wrap py-2">
                         @let type_list = types | async;
                         <button
                             matRipple
@@ -21,7 +21,7 @@ import { DealsService } from './deals.service';
                             [class.bg-base-100]="type.value === ''"
                             (click)="type.next('')"
                         >
-                            All
+                            {{ 'COMMON.ALL' | translate }}
                         </button>
                         @for (t of type_list; track type) {
                             <button
@@ -114,9 +114,15 @@ import { DealsService } from './deals.service';
                                         {{ deal.name }}
                                     </h3>
                                     <p class="text-sm opacity-50">
-                                        Valid until
                                         {{
-                                            deal.expires_at | date: 'mediumDate'
+                                            'COMMON.VALID_UNTIL_DATE'
+                                                | translate
+                                                    : {
+                                                          date:
+                                                              deal.expires_at
+                                                              | date
+                                                                  : 'mediumDate',
+                                                      }
                                         }}
                                     </p>
                                 </div>
@@ -136,12 +142,16 @@ import { DealsService } from './deals.service';
                                 class="flex flex-col items-center space-y-4 text-center"
                             >
                                 <p class="text-lg font-bold">
-                                    No Deals or Offers Available
+                                    {{
+                                        'APP.WORKPLACE.DEALS_EMPTY_TITLE'
+                                            | translate
+                                    }}
                                 </p>
                                 <p class="text-sm opacity-50">
-                                    We're working on bringing you exciting deals
-                                    and offers. Please check back later or
-                                    explore other sections.
+                                    {{
+                                        'APP.WORKPLACE.DEALS_EMPTY_BODY'
+                                            | translate
+                                    }}
                                 </p>
                                 <button btn matRipple>
                                     <icon>refresh</icon>
