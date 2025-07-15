@@ -585,7 +585,9 @@
         "ASSETS_DELIVER_TOGGLE": "Exact Time",
         "ASSETS_DELIVER_DATE": "Delivery Date",
         "ASSETS_DELIVER_TIME": "Deliver After",
-        "ASSETS_AVAILABLE": "{{ count }} available"
+        "ASSETS_AVAILABLE": "{{ count }} available",
+        "RULES_HIDDEN_1": "The selected {{ type }} is unavailable for the selected time or duration",
+        "RULES_HIDDEN_N": "Some of the selected {{ type }}s are unavailable for the selected time or duration"
     },
     "CALENDAR_EVENT": {
         "CATERING": "Catering",
