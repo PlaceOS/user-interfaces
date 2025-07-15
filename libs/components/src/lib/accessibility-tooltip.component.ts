@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { AsyncHandler, SettingsService } from '@placeos/common';
+import { AsyncHandler, currentUser, SettingsService } from '@placeos/common';
 import { CustomTooltipData } from './custom-tooltip.component';
 
 @Component({
@@ -39,6 +39,16 @@ import { CustomTooltipData } from './custom-tooltip.component';
                     <div class="flex items-center space-x-2">
                         <icon class="-ml-2 text-xl">playlist_add</icon>
                         <div>{{ 'COMMON.TEXT_SIZE' | translate }}</div>
+                    </div>
+                </settings-toggle>
+                <settings-toggle
+                    [ngModel]="accessible"
+                    (ngModelChange)="setLocatable($event)"
+                    [toggle]="true"
+                >
+                    <div class="flex items-center space-x-2">
+                        <icon class="-ml-2 text-xl">emergency_share</icon>
+                        <div>{{ 'COMMON.LOCATABLE' | translate }}</div>
                     </div>
                 </settings-toggle>
             </div>
@@ -94,6 +104,10 @@ export class AccessibilityTooltipComponent extends AsyncHandler {
         return this._settings.get('font_size') || 16;
     }
 
+    public get locatable() {
+        return currentUser().locatable;
+    }
+
     public readonly applySetting = (n, v) =>
         this.timeout(
             'apply_setting',
@@ -102,6 +116,8 @@ export class AccessibilityTooltipComponent extends AsyncHandler {
         );
 
     public readonly close = () => this._data?.close();
+    public readonly setLocatable = (l: boolean) =>
+        this._settings.updateLocatable(l);
 
     constructor() {
         super();

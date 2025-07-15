@@ -69,6 +69,8 @@ export class User {
     public readonly assistance_required: boolean;
     /** Whether user is a resource */
     public readonly resource: boolean;
+    /** Whether user is a resource */
+    public readonly locatable: boolean;
     /** Photo upload ID */
     public readonly photo_upload_id: string;
 
@@ -96,6 +98,7 @@ export class User {
         this.checked_in = !!data.checked_in;
         this.required = data.required ?? true;
         this.resource = data.resource ?? false;
+        this.locatable = data.locatable ?? false;
         this.response_status = data.response_status || '';
         const groups = data.groups || [];
         this.department = data.department ?? '';

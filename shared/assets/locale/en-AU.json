@@ -242,7 +242,8 @@
         "WFH": "Work from Home",
         "AOL": "Away on Leave",
         "END_OF_LIST": "End of list",
-        "NO_DESCRIPTION": "No description"
+        "NO_DESCRIPTION": "No description",
+        "LOCATABLE": "Location tracking"
     },
     "LANGUAGE": {
         "ENGLISH": "English",
