@@ -1,4 +1,5 @@
 import {
+    AfterViewInit,
     Component,
     ElementRef,
     inject,
@@ -32,6 +33,7 @@ import { addMinutes, endOfDay, getUnixTime } from 'date-fns';
 import QrScanner from 'qr-scanner';
 
 import { OrganisationService } from '@placeos/organisation';
+import { lastValueFrom } from 'rxjs';
 
 @Component({
     selector: 'book-code-flow',
@@ -178,7 +180,7 @@ import { OrganisationService } from '@placeos/organisation';
 })
 export class BookCodeFlowComponent
     extends AsyncHandler
-    implements OnInit, OnDestroy
+    implements OnInit, OnDestroy, AfterViewInit
 {
     private readonly _router = inject(Router);
     private readonly _route = inject(ActivatedRoute);
@@ -259,34 +261,32 @@ export class BookCodeFlowComponent
         type: BookingType = 'desk',
     ) {
         this.loading = true;
-        let bookings = await queryBookings({
-            period_start: getUnixTime(Date.now()),
-            period_end: getUnixTime(addMinutes(Date.now(), 5)),
-            type,
-            email: currentUser().email,
-        })
-            .toPromise()
-            .catch((_) => [] as Booking[]);
+        let bookings = await lastValueFrom(
+            queryBookings({
+                period_start: getUnixTime(Date.now()),
+                period_end: getUnixTime(addMinutes(Date.now(), 5)),
+                type,
+                email: currentUser().email,
+            }),
+        ).catch((_) => [] as Booking[]);
         const item = bookings.find((_) => _.asset_id === asset_id);
         if (item) {
-            await checkinBooking(item.id, true)
-                .toPromise()
-                .catch((_) => {
-                    notifyError(
-                        `Unable to checkin booking with resource "${asset_id}"`,
-                    );
-                    this.loading = false;
-                    throw _;
-                });
+            await lastValueFrom(checkinBooking(item.id, true)).catch((_) => {
+                notifyError(
+                    `Unable to checkin booking with resource "${asset_id}"`,
+                );
+                this.loading = false;
+                throw _;
+            });
             this._router.navigate(['/book', 'code', 'success']);
         } else {
-            bookings = await queryBookings({
-                period_start: getUnixTime(Date.now()),
-                period_end: getUnixTime(endOfDay(Date.now())),
-                type,
-            })
-                .toPromise()
-                .catch((_) => [] as Booking[]);
+            bookings = await lastValueFrom(
+                queryBookings({
+                    period_start: getUnixTime(Date.now()),
+                    period_end: getUnixTime(endOfDay(Date.now())),
+                    type,
+                }),
+            ).catch((_) => [] as Booking[]);
             let item = bookings.find((_) => _.asset_id === asset_id);
             if (item) {
                 this._router.navigate(['/book', 'code', 'error'], {
@@ -294,13 +294,13 @@ export class BookCodeFlowComponent
                 });
                 return;
             }
-            bookings = await queryBookings({
-                period_start: getUnixTime(Date.now()),
-                period_end: getUnixTime(addMinutes(Date.now(), 5)),
-                type,
-            })
-                .toPromise()
-                .catch((_) => [] as Booking[]);
+            bookings = await lastValueFrom(
+                queryBookings({
+                    period_start: getUnixTime(Date.now()),
+                    period_end: getUnixTime(addMinutes(Date.now(), 5)),
+                    type,
+                }),
+            ).catch((_) => [] as Booking[]);
             item = bookings.find((_) => _.asset_id === asset_id);
             if (item) {
                 this._router.navigate(['/book', 'code', 'error'], {
@@ -320,29 +320,29 @@ export class BookCodeFlowComponent
     private async _checkinEvent(space_id: string, email?: string) {
         if (!email) email = currentUser().email;
         this.loading = true;
-        const bookings = await queryEvents({
-            period_start: getUnixTime(Date.now()),
-            period_end: getUnixTime(Date.now() + 5 * 60 * 1000),
-        })
-            .toPromise()
-            .catch((_) => []);
+        const bookings = await lastValueFrom(
+            queryEvents({
+                period_start: getUnixTime(Date.now()),
+                period_end: getUnixTime(Date.now() + 5 * 60 * 1000),
+            }),
+        ).catch((_) => []);
         const item = bookings.find((_) =>
             _.resources.find((s) => s.id === space_id || s.email === space_id),
         );
         if (item) {
-            await checkinEventGuest(item.id, email, true)
-                .toPromise()
-                .catch((_) => {
+            await lastValueFrom(checkinEventGuest(item.id, email, true)).catch(
+                (_) => {
                     notifyError(
                         `Unable to checkin event with resource "${space_id}"`,
                     );
                     this.loading = false;
                     throw _;
-                });
+                },
+            );
             this._router.navigate(['/book', 'code', 'success']);
             this.loading = false;
         } else {
-            const space = await showSystem(space_id).toPromise();
+            const space = await lastValueFrom(showSystem(space_id));
             if (space) {
                 this._event_form.newForm(new CalendarEvent({ system: space }));
             }
