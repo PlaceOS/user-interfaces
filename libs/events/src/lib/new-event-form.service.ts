@@ -39,6 +39,8 @@ import {
     flatten,
     getInvalidFields,
     i18n,
+    nextValueFrom,
+    rulesForResource,
     SettingsService,
     unique,
 } from '@placeos/common';
@@ -485,15 +487,23 @@ export class EventFormService extends AsyncHandler {
             const space_list = await Promise.all(
                 changed_spaces.map((_) => this._space_pipe.transform(_.email)),
             );
+            const date = this.form.value.all_day
+                ? startOfDay(this.form.value.date).valueOf()
+                : this.form.value.date;
+            const duration = this.form.value.all_day
+                ? Math.max(24 * 60, this.form.value.duration)
+                : this.form.value.duration;
             await this._checkResourcesAvailable(
                 space_list,
-                this.form.value.all_day
-                    ? startOfDay(this.form.value.date).valueOf()
-                    : this.form.value.date,
-                this.form.value.all_day
-                    ? Math.max(24 * 60, this.form.value.duration)
-                    : this.form.value.duration,
+                date,
+                duration,
                 event.ical_uid || event.id || '',
+            ).catch(on_error);
+            await this._checkResourceRules(
+                space_list,
+                date,
+                duration,
+                this._host(this.form.value.host, spaces[0]?.email),
             ).catch(on_error);
         } else if (!space_list.length && this.lone_space) {
             spaces = [await this._space_pipe.transform(this.lone_space)];
@@ -697,6 +707,37 @@ export class EventFormService extends AsyncHandler {
         return true;
     }
 
+    private async _checkResourceRules(
+        spaces: Space[],
+        date: number,
+        duration: number,
+        host: string,
+    ) {
+        const rules = await nextValueFrom(this.booking_rules$);
+        const space_rules = spaces.map((space) => {
+            const bld = this._org.buildings.find((b) =>
+                space.zones.includes(b.id),
+            );
+            return rulesForResource(
+                {
+                    date,
+                    duration,
+                    host: { email: host } as any,
+                    resource: space,
+                },
+                rules[bld.id],
+            );
+        });
+        if (!space_rules.every((_) => !_.hidden)) {
+            throw i18n(
+                'CALENDAR_EVENT.SPACE_BOOKING_RULES_HIDDEN',
+                undefined,
+                spaces.length,
+            );
+        }
+        return true;
+    }
+
     private async _performBooking(
         event: CalendarEvent,
         query: Record<string, string | number>,
@@ -715,7 +756,7 @@ export class EventFormService extends AsyncHandler {
                 (_) => _.email !== old_system || _.id !== old_system,
             );
         }
-        return (
+        return lastValueFrom(
             this.book_internal
                 ? saveBooking(
                       newBookingFromCalendarEvent({
@@ -727,8 +768,8 @@ export class EventFormService extends AsyncHandler {
                                   : 'tentative',
                       } as any),
                   ).pipe(map((_) => newCalendarEventFromBooking(_)))
-                : saveEvent(event, query)
-        )?.toPromise();
+                : saveEvent(event, query),
+        );
     }
 
     private async _removeBookingAfterError(
@@ -738,16 +779,18 @@ export class EventFormService extends AsyncHandler {
         e,
     ) {
         if (is_new) {
-            await removeEvent(
-                event.id,
-                event.resources.length
-                    ? {
-                          calendar:
-                              this.form.value.host || currentUser()?.email,
-                          system_id: event.resources[0].id,
-                      }
-                    : {},
-            )?.toPromise();
+            await lastValueFrom(
+                removeEvent(
+                    event.id,
+                    event.resources.length
+                        ? {
+                              calendar:
+                                  this.form.value.host || currentUser()?.email,
+                              system_id: event.resources[0].id,
+                          }
+                        : {},
+                ),
+            );
             throw e?.status === 409
                 ? i18n('CALENDAR_EVENT.ASSETS_CLASH_ERROR')
                 : i18n('CALENDAR_EVENT.ASSETS_ERROR');

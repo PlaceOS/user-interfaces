@@ -659,6 +659,8 @@
         "SPACE_LEVEL_ANY": "Any level",
         "SPACE_SELECT_EMPTY": "No available spaces for selected time and/or filters",
         "SPACE_SELECT_LOADING": "Finding available spaces...",
+        "SPACE_BOOKING_RULES_HIDDEN_1": "The selected room is not available for the selected time or duration",
+        "SPACE_BOOKING_RULES_HIDDEN_N": "Some of the selected rooms are not available for the selected time or duration",
         "CONFIRM_DETAILS": "Confirm Meeting",
         "FINISHED": "Return home",
         "LOADING": "Creating meeting requests...",
