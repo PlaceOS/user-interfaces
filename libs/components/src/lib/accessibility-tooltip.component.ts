@@ -1,5 +1,5 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { AsyncHandler, currentUser, SettingsService } from '@placeos/common';
+import { Component, inject, OnInit, signal } from '@angular/core';
+import { AsyncHandler, current_user, SettingsService } from '@placeos/common';
 import { CustomTooltipData } from './custom-tooltip.component';
 
 @Component({
@@ -32,7 +32,7 @@ import { CustomTooltipData } from './custom-tooltip.component';
                     </settings-toggle>
                 }
                 <settings-toggle
-                    [ngModel]="locatable"
+                    [ngModel]="locatable()"
                     (ngModelChange)="setLocatable($event)"
                     [toggle]="true"
                 >
@@ -42,7 +42,7 @@ import { CustomTooltipData } from './custom-tooltip.component';
                     </div>
                 </settings-toggle>
                 <settings-toggle
-                    [(ngModel)]="accessible"
+                    [ngModel]="accessible()"
                     (ngModelChange)="applySetting('accessible', $event)"
                     [toggle]="true"
                 >
@@ -91,7 +91,8 @@ export class AccessibilityTooltipComponent
     private _data = inject(CustomTooltipData);
     private _settings = inject(SettingsService);
 
-    public accessible = false;
+    public readonly accessible = signal(false);
+    public readonly locatable = signal(false);
 
     public get dark_mode() {
         return this._settings.theme === 'dark';
@@ -105,23 +106,32 @@ export class AccessibilityTooltipComponent
         return this._settings.get('font_size') || 16;
     }
 
-    public get locatable() {
-        return currentUser().locatable;
-    }
-
     public readonly applySetting = (n, v) =>
         this.timeout(
             'apply_setting',
-            () => this._settings.saveUserSetting(n, v),
+            () => {
+                this._settings.saveUserSetting(n, v);
+                if (n === 'accessible') {
+                    this.accessible.set(v);
+                }
+            },
             500,
         );
 
     public readonly close = () => this._data?.close();
-    public readonly setLocatable = (l: boolean) =>
+    public readonly setLocatable = (l: boolean) => {
         this._settings.updateLocatable(l);
+        this.locatable.set(l);
+    };
 
     public async ngOnInit() {
-        this.accessible = !!this._settings.get('accessible');
+        this.accessible.set(!!this._settings.get('accessible'));
+        this.subscription(
+            'user',
+            current_user.subscribe((u) => {
+                this.locatable.set(u.locatable);
+            }),
+        );
     }
 
     public setDarkMode(state: boolean) {
