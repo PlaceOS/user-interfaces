@@ -52,7 +52,7 @@ import { CustomTooltipData } from './custom-tooltip.component';
                     </div>
                 </settings-toggle>
             </div>
-            @if (accessible) {
+            @if (accessible()) {
                 <div class="bg-base-200 px-8 py-4 text-center">
                     {{ 'COMMON.TEXT_SIZE_MSG' | translate }}
                 </div>
