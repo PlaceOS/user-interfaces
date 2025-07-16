@@ -1,6 +1,12 @@
 import { inject, Injectable } from '@angular/core';
 import { endOfDay, format, getUnixTime, startOfDay } from 'date-fns';
-import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
+import {
+    BehaviorSubject,
+    combineLatest,
+    lastValueFrom,
+    Observable,
+    of,
+} from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -293,28 +299,30 @@ export class CateringOrdersService extends AsyncHandler {
         ].map((i) => new CateringOrder({ ...i }).toJSON());
         const system_id =
             order.event?.resources[0]?.id || order.event?.system?.id;
-        const extension_data = await showEventMetadata(
-            order.event.id,
-            system_id,
-        ).toPromise();
-        const event = new CalendarEvent({
-            ...({ ...order.event, extension_data } as any),
-            catering,
-        });
-        const booking = await updateEventMetadata(
-            event.id,
-            system_id,
-            event.extension_data,
-        ).toPromise();
+        let booking: Booking;
+        if (system_id) {
+            const extension_data = await lastValueFrom(
+                showEventMetadata(order.event.id, system_id),
+            );
+            const event = new CalendarEvent({
+                ...({ ...order.event, extension_data } as any),
+                catering,
+            });
+            await lastValueFrom(
+                updateEventMetadata(event.id, system_id, event.extension_data),
+            );
+        }
         if (this.using_bookings) {
-            const booking = BOOKINGS[order.id];
-            await updateBooking(booking.id, {
-                ...booking.toJSON(),
-                extension_data: {
-                    ...booking.extension_data,
-                    details: updated_order.toJSON(),
-                },
-            }).toPromise();
+            booking = BOOKINGS[order.id];
+            await lastValueFrom(
+                updateBooking(booking.id, {
+                    ...booking.toJSON(),
+                    extension_data: {
+                        ...booking.extension_data,
+                        details: updated_order.toJSON(),
+                    },
+                }),
+            );
         }
         this.timeout('refresh-list', () => this._poll.next(Date.now()), 1000);
         order.status = status;
