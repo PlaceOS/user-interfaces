@@ -6,6 +6,7 @@ import {
     OnDestroy,
     OnInit,
     output,
+    signal,
     viewChild,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -38,7 +39,7 @@ import { lastValueFrom } from 'rxjs';
 @Component({
     selector: 'book-code-flow',
     template: `
-        @if (!loading) {
+        @if (!loading()) {
             <div
                 class="relative flex flex-1 items-center justify-center overflow-hidden bg-neutral"
             >
@@ -50,7 +51,7 @@ import { lastValueFrom } from 'rxjs';
                 <div
                     class="absolute inset-0 flex flex-col items-center justify-center text-center text-white"
                 >
-                    @if (is_scanning) {
+                    @if (is_scanning()) {
                         <div
                             class="relative z-10 flex flex-col items-center justify-end"
                         >
@@ -60,12 +61,12 @@ import { lastValueFrom } from 'rxjs';
                                 Scan QR Code
                             </h2>
                             <span class="mb-4">
-                                Scan the QR code outisde a PlaceOS room or
+                                Scan the QR code outside a PlaceOS room or
                                 space.
                             </span>
                         </div>
                     }
-                    @if (!is_scanning) {
+                    @if (!is_scanning()) {
                         <div
                             class="relative z-10 flex flex-col items-center justify-end"
                         >
@@ -84,7 +85,7 @@ import { lastValueFrom } from 'rxjs';
                         <div
                             box
                             class="m-8 flex h-64 w-64 items-center justify-center space-x-2 rounded-2xl p-8 transition-all"
-                            [class.input]="!is_scanning"
+                            [class.input]="!is_scanning()"
                         >
                             <span class="uppercase">Booking ID</span>
                             <input
@@ -103,11 +104,11 @@ import { lastValueFrom } from 'rxjs';
                             matRipple
                             [class]="
                                 'w-40 flex-1 border-none text-black ' +
-                                (is_scanning
+                                (is_scanning()
                                     ? 'bg-base-100'
                                     : 'bg-transparent bg-opacity-50 hover:bg-base-100')
                             "
-                            (click)="is_scanning = true"
+                            (click)="is_scanning.set(true)"
                         >
                             Scan Code
                         </button>
@@ -115,11 +116,11 @@ import { lastValueFrom } from 'rxjs';
                             matRipple
                             [class]="
                                 'w-40 flex-1 border-none text-black ' +
-                                (!is_scanning
+                                (!is_scanning()
                                     ? 'bg-base-100'
                                     : 'bg-transparent bg-opacity-50 hover:bg-base-100')
                             "
-                            (click)="is_scanning = false"
+                            (click)="is_scanning.set(false)"
                         >
                             Enter Code
                         </button>
@@ -188,13 +189,11 @@ export class BookCodeFlowComponent
     private readonly _booking_form = inject(BookingFormService);
     private readonly _org = inject(OrganisationService);
 
-    /** Menu event */
     public readonly menu = output();
-    /** Boolean to toggle scan/code */
-    public is_scanning = true;
-    /** Room Code input value */
+    public readonly is_scanning = signal(false);
+    public readonly loading = signal(false);
+
     public room_code: string;
-    public loading = false;
 
     private _qr_scanner;
     /** Video element to emit camera feed */
@@ -202,13 +201,7 @@ export class BookCodeFlowComponent
         viewChild<ElementRef<HTMLVideoElement>>('video');
 
     public ngOnDestroy() {
-        const _video_el = this._video_el();
-        if (_video_el?.nativeElement?.srcObject) {
-            (_video_el.nativeElement.srcObject as any)
-                .getTracks()
-                .forEach((track) => track?.stop());
-        }
-        this._qr_scanner?.stop();
+        this._stopScanning();
     }
 
     public async ngOnInit() {
@@ -228,17 +221,7 @@ export class BookCodeFlowComponent
     }
 
     public ngAfterViewInit() {
-        if (!navigator.mediaDevices?.getUserMedia || this.loading) return;
-        navigator.mediaDevices
-            .getUserMedia({ video: true })
-            .then(
-                (stream) => (this._video_el().nativeElement.srcObject = stream),
-            )
-            .catch((e) => console.error('Unable to fetch media devices!', e));
-        this._qr_scanner = new QrScanner(this._video_el().nativeElement, (r) =>
-            this.handleQrCode(r),
-        );
-        this._qr_scanner.start();
+        this.timeout('initialise', () => this._startScanning());
     }
 
     private handleQrCode(result: string) {
@@ -260,7 +243,8 @@ export class BookCodeFlowComponent
         asset_id: string,
         type: BookingType = 'desk',
     ) {
-        this.loading = true;
+        this.loading.set(true);
+        this._stopScanning();
         let bookings = await lastValueFrom(
             queryBookings({
                 period_start: getUnixTime(Date.now()),
@@ -275,7 +259,7 @@ export class BookCodeFlowComponent
                 notifyError(
                     `Unable to checkin booking with resource "${asset_id}"`,
                 );
-                this.loading = false;
+                this.loading.set(false);
                 throw _;
             });
             this._router.navigate(['/book', 'code', 'success']);
@@ -314,12 +298,13 @@ export class BookCodeFlowComponent
             this._booking_form.newForm(type, new Booking({ asset_id, type }));
             this._booking_form.setOptions({ type });
         }
-        this.loading = false;
+        this.loading.set(false);
     }
 
     private async _checkinEvent(space_id: string, email?: string) {
         if (!email) email = currentUser().email;
-        this.loading = true;
+        this.loading.set(true);
+        this._stopScanning();
         const bookings = await lastValueFrom(
             queryEvents({
                 period_start: getUnixTime(Date.now()),
@@ -335,12 +320,12 @@ export class BookCodeFlowComponent
                     notifyError(
                         `Unable to checkin event with resource "${space_id}"`,
                     );
-                    this.loading = false;
+                    this.loading.set(false);
                     throw _;
                 },
             );
             this._router.navigate(['/book', 'code', 'success']);
-            this.loading = false;
+            this.loading.set(false);
         } else {
             const space = await lastValueFrom(showSystem(space_id));
             if (space) {
@@ -348,6 +333,33 @@ export class BookCodeFlowComponent
             }
             this._router.navigate(['/book', 'meeting']);
         }
-        this.loading = false;
+        this.loading.set(false);
+    }
+
+    private _startScanning() {
+        if (!navigator.mediaDevices?.getUserMedia || this.loading()) return;
+        const video_el = this._video_el()?.nativeElement;
+        if (!video_el)
+            return this.timeout('retry_start_scan', () =>
+                this._startScanning(),
+            );
+        navigator.mediaDevices
+            .getUserMedia({ video: true })
+            .then((stream) => (video_el.srcObject = stream))
+            .catch((e) => console.error('Unable to fetch media devices!', e));
+        this._qr_scanner = new QrScanner(this._video_el().nativeElement, (r) =>
+            this.handleQrCode(r),
+        );
+        this._qr_scanner.start();
+    }
+
+    private _stopScanning() {
+        const video_el = this._video_el()?.nativeElement;
+        if (video_el?.srcObject) {
+            (video_el?.srcObject as MediaStream)
+                .getTracks()
+                .forEach((track) => track?.stop());
+        }
+        this._qr_scanner?.stop();
     }
 }
