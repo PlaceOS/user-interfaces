@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { AsyncHandler, currentUser, SettingsService } from '@placeos/common';
 import { CustomTooltipData } from './custom-tooltip.component';
 
@@ -32,23 +32,23 @@ import { CustomTooltipData } from './custom-tooltip.component';
                     </settings-toggle>
                 }
                 <settings-toggle
-                    [ngModel]="accessible"
-                    (ngModelChange)="applySetting('accessible', $event)"
-                    [toggle]="true"
-                >
-                    <div class="flex items-center space-x-2">
-                        <icon class="-ml-2 text-xl">playlist_add</icon>
-                        <div>{{ 'COMMON.TEXT_SIZE' | translate }}</div>
-                    </div>
-                </settings-toggle>
-                <settings-toggle
-                    [ngModel]="accessible"
+                    [ngModel]="locatable"
                     (ngModelChange)="setLocatable($event)"
                     [toggle]="true"
                 >
                     <div class="flex items-center space-x-2">
                         <icon class="-ml-2 text-xl">emergency_share</icon>
                         <div>{{ 'COMMON.LOCATABLE' | translate }}</div>
+                    </div>
+                </settings-toggle>
+                <settings-toggle
+                    [(ngModel)]="accessible"
+                    (ngModelChange)="applySetting('accessible', $event)"
+                    [toggle]="true"
+                >
+                    <div class="flex items-center space-x-2">
+                        <icon class="-ml-2 text-xl">playlist_add</icon>
+                        <div>{{ 'COMMON.TEXT_SIZE' | translate }}</div>
                     </div>
                 </settings-toggle>
             </div>
@@ -84,9 +84,14 @@ import { CustomTooltipData } from './custom-tooltip.component';
     styles: [``],
     standalone: false,
 })
-export class AccessibilityTooltipComponent extends AsyncHandler {
+export class AccessibilityTooltipComponent
+    extends AsyncHandler
+    implements OnInit
+{
     private _data = inject(CustomTooltipData);
     private _settings = inject(SettingsService);
+
+    public accessible = false;
 
     public get dark_mode() {
         return this._settings.theme === 'dark';
@@ -94,10 +99,6 @@ export class AccessibilityTooltipComponent extends AsyncHandler {
 
     public get can_change_dark_mode() {
         return !!this._settings.get('app.allow_dark_mode');
-    }
-
-    public get accessible() {
-        return !!this._settings.get('accessible');
     }
 
     public get font_size() {
@@ -119,8 +120,8 @@ export class AccessibilityTooltipComponent extends AsyncHandler {
     public readonly setLocatable = (l: boolean) =>
         this._settings.updateLocatable(l);
 
-    constructor() {
-        super();
+    public async ngOnInit() {
+        this.accessible = !!this._settings.get('accessible');
     }
 
     public setDarkMode(state: boolean) {
