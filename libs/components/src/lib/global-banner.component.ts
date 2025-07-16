@@ -4,6 +4,7 @@ import { nextValueFrom, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { debounceTime, map, shareReplay } from 'rxjs/operators';
+import { IconComponent } from './icon.component';
 
 export interface BannerDetails {
     id: string;
@@ -45,7 +46,7 @@ export interface BannerDetails {
             }
         `,
     ],
-    imports: [CommonModule],
+    imports: [CommonModule, IconComponent],
 })
 export class GlobalBannerComponent {
     private _settings = inject(SettingsService);

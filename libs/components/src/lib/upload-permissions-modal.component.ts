@@ -1,26 +1,33 @@
 import { Component, NO_ERRORS_SCHEMA, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
 import {
     MAT_DIALOG_DATA,
     MatDialogModule,
     MatDialogRef,
 } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import { UploadPermissions } from '@placeos/common';
+import { IconComponent } from './icon.component';
+import { SettingsToggleComponent } from './settings-toggle.component';
 
 @Component({
     selector: 'upload-permissions-modal',
     template: `
-        <header>
-            <h2>Upload File</h2>
-            <button btn icon mat-dialog-close>
+        <header
+            class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded border-none bg-base-200 p-2"
+        >
+            <h2 class="px-2 text-xl font-medium">Upload File</h2>
+            <button icon matRipple mat-dialog-close>
                 <icon>close</icon>
             </button>
         </header>
-        <main class="min-w-[20rem] p-4">
-            <div class="flex flex-col space-y-2">
+        <main class="min-w-[20rem] space-y-2 px-4 py-2">
+            <div class="flex flex-col">
                 <label>File Name</label>
-                <mat-form-field appearance="outline">
+                <mat-form-field appearance="outline" class="no-subscript">
                     <input
                         matInput
                         [ngModel]="file.name"
@@ -29,8 +36,10 @@ import { UploadPermissions } from '@placeos/common';
                     />
                 </mat-form-field>
             </div>
-            <div class="pb-4">
-                <mat-checkbox [(ngModel)]="is_public">Public</mat-checkbox>
+            <div>
+                <settings-toggle [(ngModel)]="is_public"
+                    >Public</settings-toggle
+                >
             </div>
             @if (!is_public) {
                 <div class="flex flex-col space-y-2">
@@ -48,9 +57,12 @@ import { UploadPermissions } from '@placeos/common';
         <footer
             class="flex items-center justify-end space-x-2 border-t border-base-200 px-4 py-2"
         >
-            <button btn class="inverse w-32" mat-dialog-close>Cancel</button>
+            <button btn matRipple class="inverse w-32" mat-dialog-close>
+                Cancel
+            </button>
             <button
                 btn
+                matRipple
                 class="w-32"
                 [mat-dialog-close]="{ file, is_public, permissions }"
             >
@@ -60,7 +72,16 @@ import { UploadPermissions } from '@placeos/common';
     `,
     schemas: [NO_ERRORS_SCHEMA],
     styles: [``],
-    imports: [MatDialogModule, MatFormFieldModule, FormsModule],
+    imports: [
+        MatDialogModule,
+        MatFormFieldModule,
+        FormsModule,
+        MatSelectModule,
+        SettingsToggleComponent,
+        IconComponent,
+        MatInputModule,
+        MatRippleModule,
+    ],
 })
 export class UploadPermissionsModalComponent {
     private _dialog_ref =

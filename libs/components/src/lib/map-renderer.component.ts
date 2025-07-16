@@ -137,14 +137,14 @@ export class MapRendererComponent
 {
     private _injector = inject(Injector);
 
-    /** URL to the SVG file */
-    public readonly src = input<string>(undefined);
-    /** Custom CSS styles to apply to the SVG file */
-    public readonly styles = input<ViewerStyles>(undefined);
     /** Zoom level to apply to the SVG */
     public readonly zoom = model(1);
     /** Zoom level to apply to the SVG */
     public readonly center = model<Point>({ x: 0.5, y: 0.5 });
+    /** URL to the SVG file */
+    public readonly src = input<string>(undefined);
+    /** Custom CSS styles to apply to the SVG file */
+    public readonly styles = input<ViewerStyles>(undefined);
     /** List of features to renderer over the SVG */
     public readonly features = input<ViewerFeature[]>(undefined);
     /** List of labels to renderer over the SVG */

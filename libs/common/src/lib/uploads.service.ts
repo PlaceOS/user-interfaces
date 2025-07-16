@@ -31,7 +31,7 @@ export class UploadsService {
     }
 
     public uploadFileWithPermissions(file: File) {
-        return new Promise<number>((resolve, reject) => {
+        return new Promise<string>((resolve, reject) => {
             const ref = this._dialog.open(UploadPermissionsModalComponent, {
                 data: { file },
             });
@@ -53,14 +53,14 @@ export class UploadsService {
 
     public uploadFile(
         file: File,
-        pub: boolean = true,
+        pub = true,
         permissions: UploadPermissions = 'none',
     ) {
-        return new Promise<number>((resolve) => {
+        return new Promise<string>((resolve) => {
             let resolved = false;
             const update_fn = (details) => {
                 if (!resolved) {
-                    resolve(details.id);
+                    resolve(details.upload?.id || details.id);
                     resolved = true;
                 }
                 this._upload_list.next([
