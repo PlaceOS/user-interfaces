@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { BookingFormService, findNearbyFeature } from '@placeos/bookings';
 import {
@@ -26,7 +26,7 @@ import { set } from 'date-fns';
                     ' — ' +
                     (last_event.date_end | date: time_format),
             };
-        @if (!loading) {
+        @if (!loading()) {
             <div
                 class="absolute inset-0 z-50 flex flex-col overflow-auto bg-base-100"
             >
@@ -98,15 +98,16 @@ import { set } from 'date-fns';
     styles: [``],
     standalone: false,
 })
-export class MeetingFlowSuccessComponent {
+export class MeetingFlowSuccessComponent implements OnInit {
     private _event_form = inject(EventFormService);
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
     private _booking_form = inject(BookingFormService);
     private _router = inject(Router);
 
-    public loading = false;
     private _space_pipe: SpacePipe = new SpacePipe(this._org);
+
+    public readonly loading = signal(false);
 
     public get allow_desk_booking() {
         return this._settings.get('app.features').includes('desks');
@@ -132,8 +133,8 @@ export class MeetingFlowSuccessComponent {
     }
 
     public ngOnInit() {
-        this.loading = true;
-        setTimeout(() => (this.loading = false), 500);
+        this.loading.set(true);
+        setTimeout(() => this.loading.set(false), 500);
     }
 
     public startDeskBooking() {
