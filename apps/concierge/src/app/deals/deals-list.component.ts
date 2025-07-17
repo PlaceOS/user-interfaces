@@ -7,11 +7,13 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
-import { DateFieldComponent } from '@placeos/form-fields';
+import { Deal, unique } from '@placeos/common';
+import { addMonths, endOfMonth, startOfDay } from 'date-fns';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { SimpleTableComponent } from 'libs/components/src/lib/simple-table.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { Deal, DealsService } from './deals.service';
+import { BehaviorSubject, combineLatest, map } from 'rxjs';
+import { DealsService } from './deals.service';
 
 @Component({
     selector: `deals-list`,
@@ -53,15 +55,35 @@ import { Deal, DealsService } from './deals.service';
                         <icon class="text-2xl">browse</icon>
                     </button>
                 </div>
-                <a-date-field
-                    [(ngModel)]="date"
-                    class="no-subscript"
-                ></a-date-field>
                 <mat-form-field appearance="outline" class="no-subscript">
-                    <mat-select placeholder="All Types">
-                        <mat-option value="all">All Types</mat-option>
-                        <mat-option value="active">Active</mat-option>
-                        <mat-option value="inactive">Inactive</mat-option>
+                    <mat-select
+                        [ngModel]="expires.getValue()"
+                        (ngModelChange)="expires.next($event)"
+                        placeholder="All Deals"
+                    >
+                        <mat-option [value]="0">All Deals</mat-option>
+                        <mat-option [value]="-1">Expired Deals</mat-option>
+                        <mat-option [value]="1">Expires next month</mat-option>
+                        <mat-option [value]="2">Expires in 2 months</mat-option>
+                        <mat-option [value]="3">Expires in 3 months</mat-option>
+                        <mat-option [value]="6">Expires in 6 months</mat-option>
+                        <mat-option [value]="12"
+                            >Expires in 12 months</mat-option
+                        >
+                    </mat-select>
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="no-subscript">
+                    <mat-select
+                        [ngModel]="type.getValue()"
+                        (ngModelChange)="type.next($event)"
+                        placeholder="All Types"
+                    >
+                        <mat-option value="">All Types</mat-option>
+                        @for (t of types | async; track t) {
+                            <mat-option [value]="t" class="capitalize">{{
+                                t
+                            }}</mat-option>
+                        }
                     </mat-select>
                 </mat-form-field>
             </div>
@@ -153,7 +175,7 @@ import { Deal, DealsService } from './deals.service';
                 } @else {
                     <div class="min-w-[56rem]">
                         <simple-table
-                            [data]="deals | async"
+                            [data]="filtered_deals | async"
                             class="text-sm"
                             [sortable]="true"
                             [columns]="[
@@ -293,7 +315,6 @@ import { Deal, DealsService } from './deals.service';
         IconComponent,
         MatRippleModule,
         MatTooltipModule,
-        DateFieldComponent,
         MatFormFieldModule,
         MatSelectModule,
         FormsModule,
@@ -306,7 +327,38 @@ export class DealsListComponent {
     private _deals = inject(DealsService);
 
     public readonly display = signal<'list' | 'grid'>('list');
+    public readonly expires = new BehaviorSubject(0);
+    public readonly type = new BehaviorSubject('');
     public readonly deals = this._deals.deals$;
+    public readonly types = this.deals.pipe(
+        map((_) => unique(_.map((d) => d.type)).filter((type) => !!type)),
+    );
+    public readonly filtered_deals = combineLatest([
+        this.deals,
+        this.expires,
+        this.type,
+    ]).pipe(
+        map(([deals, expires, type]) => {
+            let deal_list = deals;
+            if (expires > 0) {
+                const start = startOfDay(Date.now()).valueOf();
+                const end = endOfMonth(
+                    addMonths(Date.now(), expires),
+                ).valueOf();
+                deal_list = deal_list.filter(
+                    (deal) => deal.expires_at >= start && deal.expires_at < end,
+                );
+            } else if (expires < 0) {
+                deal_list = deal_list.filter(
+                    (deal) => deal.expires_at < Date.now(),
+                );
+            }
+            if (type) {
+                deal_list = deal_list.filter((deal) => deal.type === type);
+            }
+            return deal_list;
+        }),
+    );
     public date = Date.now();
 
     public readonly remove = (deal: Deal) => this._deals.removeDeal(deal);
