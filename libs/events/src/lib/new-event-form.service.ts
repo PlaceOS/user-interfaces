@@ -23,7 +23,7 @@ import {
     tap,
 } from 'rxjs/operators';
 
-import { showMetadata } from '@placeos/ts-client';
+import { showMetadata, showUser } from '@placeos/ts-client';
 
 import { EventLinkModalComponent } from './event-link-modal.component';
 import { CalendarEvent, setDefaultCreator } from './event.class';
@@ -713,6 +713,9 @@ export class EventFormService extends AsyncHandler {
         duration: number,
         host: string,
     ) {
+        const user = await lastValueFrom(showUser(host)).catch(() => ({
+            email: host,
+        }));
         const rules = await nextValueFrom(this.booking_rules$);
         const space_rules = spaces.map((space) => {
             const bld = this._org.buildings.find((b) =>
@@ -722,7 +725,7 @@ export class EventFormService extends AsyncHandler {
                 {
                     date,
                     duration,
-                    host: { email: host } as any,
+                    host: new User(user),
                     resource: space,
                 },
                 rules[bld.id],
