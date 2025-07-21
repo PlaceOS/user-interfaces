@@ -20,6 +20,7 @@ import {
     listChildMetadata,
     PlaceZone,
     showMetadata,
+    showUser,
 } from '@placeos/ts-client';
 import {
     addDays,
@@ -862,6 +863,9 @@ export class BookingFormService extends AsyncHandler {
         duration: number,
         host: string,
     ) {
+        const user = await lastValueFrom(showUser(host)).catch(() => ({
+            email: host,
+        }));
         if (!assets?.length) return true;
         const rules = await nextValueFrom(this.booking_rules);
         const resource_rules = assets?.map((space) => {
@@ -872,7 +876,7 @@ export class BookingFormService extends AsyncHandler {
                 {
                     date,
                     duration,
-                    host: { email: host } as any,
+                    host: new User(user),
                     resource: space,
                 },
                 rules[bld.id],
