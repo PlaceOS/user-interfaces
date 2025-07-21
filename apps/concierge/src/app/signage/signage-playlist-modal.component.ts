@@ -7,7 +7,7 @@ import {
 } from '@angular/material/dialog';
 import { notifyError } from '@placeos/common';
 import { MediaAnimation, SignagePlaylist } from '@placeos/ts-client';
-import { getUnixTime } from 'date-fns';
+import { addDays, format, getUnixTime, set } from 'date-fns';
 import { BehaviorSubject } from 'rxjs';
 import { SignageStateService } from './signage-state.service';
 
@@ -200,6 +200,29 @@ import { SignageStateService } from './signage-state.service';
                         ></a-date-field>
                     </div>
                 </div>
+                <div class="flex space-x-4">
+                    <div class="flex-1">
+                        <label for="play-from">{{
+                            'APP.CONCIERGE.PLAY_FROM' | translate
+                        }}</label>
+                        <a-time-field
+                            name="play-from"
+                            class="w-full"
+                            formControlName="play_from"
+                        ></a-time-field>
+                    </div>
+                    <div class="flex-1">
+                        <label for="play-until">{{
+                            'APP.CONCIERGE.PLAY_UNTIL' | translate
+                        }}</label>
+                        <a-time-field
+                            name="play-until"
+                            class="w-full"
+                            [from]="form.value.play_from"
+                            formControlName="play_until"
+                        ></a-time-field>
+                    </div>
+                </div>
             </form>
         </fullscreen-modal-shell>
     `,
@@ -236,10 +259,33 @@ export class SignagePlaylistModalComponent {
         ),
         valid_from: new FormControl(this.playlist.valid_from * 1000),
         valid_until: new FormControl(this.playlist.valid_until * 1000),
+        play_hours: new FormControl(this.playlist.play_hours || '00:00-23:59'),
+        play_from: new FormControl(0),
+        play_until: new FormControl(0),
     });
 
     public readonly search_input =
         viewChild<ElementRef<HTMLInputElement>>('search_input');
+
+    public ngOnInit() {
+        const [from, to] = this.form.controls.play_hours.value.split('-');
+        this.form.patchValue({
+            play_from: addDays(
+                set(Date.now(), {
+                    hours: parseInt(from.split(':')[0]),
+                    minutes: parseInt(from.split(':')[1]),
+                }),
+                1,
+            ).valueOf(),
+            play_until: addDays(
+                set(Date.now(), {
+                    hours: parseInt(to.split(':')[0]),
+                    minutes: parseInt(to.split(':')[1]),
+                }),
+                1,
+            ).valueOf(),
+        });
+    }
 
     public async savePlaylist() {
         this.form.markAllAsTouched();
@@ -247,6 +293,7 @@ export class SignagePlaylistModalComponent {
         if (this.form.invalid) return;
         this.loading = true;
         const form_value = this.form.getRawValue();
+        form_value.play_hours = `${format(form_value.play_from, 'HH:mm')}-${format(form_value.play_until, 'HH:mm')}`;
         const result = await this._state
             .savePlaylist({
                 ...form_value,

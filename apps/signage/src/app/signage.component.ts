@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { SignageService } from './signage.service';
@@ -8,7 +8,7 @@ import { SignageService } from './signage.service';
     template: `
         <media-player
             [playlist]="playlist | async"
-            [controls]="debug"
+            [controls]="debug()"
             [animation_time]="animation_time"
         />
     `,
@@ -28,7 +28,7 @@ export class SignagePanelComponent extends AsyncHandler {
     private _settings = inject(SettingsService);
 
     public readonly playlist = this._signage.playlist;
-    public debug = false;
+    public readonly debug = signal(false);
 
     public get animation_time() {
         return this._settings.get('app.default_animation_time');
@@ -52,7 +52,7 @@ export class SignagePanelComponent extends AsyncHandler {
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
-                if (params.has('debug')) this.debug = true;
+                if (params.has('debug')) this.debug.set(true);
             }),
         );
     }

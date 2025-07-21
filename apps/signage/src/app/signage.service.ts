@@ -80,6 +80,7 @@ export class SignageService extends AsyncHandler {
         map((item: any) => {
             if (!item) return [];
             // Constuct list of playlists
+            console.log('Mappings:', item);
             let playlists = [...item.playlist_mappings[item.id]];
             for (const zone of item.zones) {
                 if (!item.playlist_mappings[zone]) continue;
@@ -88,47 +89,62 @@ export class SignageService extends AsyncHandler {
             // Map playlists to media
             const playlist_media = playlists
                 .map((id) => {
-                    const [_, media_list] = item.playlist_config[id] as [
+                    const [playlist, media_list] = item.playlist_config[id] as [
                         SignagePlaylist,
                         string[],
                     ];
                     const media = media_list.map((media_id) => ({
                         id: media_id,
                         playlist_id: id,
+                        valid_from: playlist?.valid_from || 0,
+                        valid_until: playlist?.valid_until || 0,
+                        play_hours: playlist?.play_hours || '00:00-00:00',
                     }));
-                    return _.random ? shuffleArray(media) : media;
+                    return playlist.random ? shuffleArray(media) : media;
                 })
                 .flat();
             return playlist_media
-                .map(({ id, playlist_id }) => {
-                    const media_ref: SignageMedia | null =
-                        item.playlist_media.find((item) => item.id === id);
-                    if (!media_ref) return null;
-                    const playlist: SignagePlaylist | undefined =
-                        item.playlist_config[playlist_id][0];
-                    return {
+                .map(
+                    ({
                         id,
-                        url: media_ref.media_url,
-                        name: media_ref.name,
-                        animation:
-                            media_ref.animation || playlist.default_animation,
-                        playlist_name: playlist?.name || '',
-                        type: media_ref.media_type,
-                        start_time: media_ref.start_time || 0,
-                        duration:
-                            media_ref.play_time ||
-                            media_ref.video_length ||
-                            playlist?.default_duration ||
-                            15 * 1000,
-                        getURL: async () =>
-                            media_ref
-                                ? await this._media_cache
-                                      .getFile(media_ref.media_url)
-                                      .then((_) => URL.createObjectURL(_))
-                                      .catch((_) => '')
-                                : null,
-                    };
-                })
+                        playlist_id,
+                        valid_from,
+                        valid_until,
+                        play_hours,
+                    }) => {
+                        const media_ref: SignageMedia | null =
+                            item.playlist_media.find((item) => item.id === id);
+                        if (!media_ref) return null;
+                        const playlist: SignagePlaylist | undefined =
+                            item.playlist_config[playlist_id][0];
+                        return {
+                            id,
+                            url: media_ref.media_url,
+                            name: media_ref.name,
+                            animation:
+                                media_ref.animation ||
+                                playlist.default_animation,
+                            playlist_name: playlist?.name || '',
+                            type: media_ref.media_type,
+                            start_time: media_ref.start_time || 0,
+                            duration:
+                                media_ref.play_time ||
+                                media_ref.video_length ||
+                                playlist?.default_duration ||
+                                15 * 1000,
+                            valid_from: media_ref.valid_from || valid_from,
+                            valid_until: media_ref.valid_until || valid_until,
+                            play_hours,
+                            getURL: async () =>
+                                media_ref
+                                    ? await this._media_cache
+                                          .getFile(media_ref.media_url)
+                                          .then((_) => URL.createObjectURL(_))
+                                          .catch((_) => '')
+                                    : null,
+                        };
+                    },
+                )
                 .filter((_) => !!_);
         }),
         shareReplay(1),

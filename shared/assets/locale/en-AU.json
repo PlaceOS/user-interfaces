@@ -1761,6 +1761,8 @@
             "APPROVER": "Approver",
             "VALID_FROM": "Valid From",
             "VALID_UNTIL": "Valid Until",
+            "PLAY_FROM": "Play From",
+            "PLAY_UNTIL": "Play Until",
             "AVAILABLE_ROOMS_HEADER": "Set {{ type }} availability for rooms",
             "AVAILABLE_ROOMS_SAVING": "Saving room availability for {{ type }}...",
             "AVAILABLE_ROOMS_ENABLE": "Enable Selected",
