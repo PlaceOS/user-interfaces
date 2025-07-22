@@ -1764,6 +1764,8 @@
             "VALID_UNTIL": "Valid Until",
             "PLAY_FROM": "Play From",
             "PLAY_UNTIL": "Play Until",
+            "PLAY_AT": "Play At",
+            "PLAY_CRON": "Play Schedule",
             "AVAILABLE_ROOMS_HEADER": "Set {{ type }} availability for rooms",
             "AVAILABLE_ROOMS_SAVING": "Saving room availability for {{ type }}...",
             "AVAILABLE_ROOMS_ENABLE": "Enable Selected",

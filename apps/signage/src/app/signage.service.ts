@@ -229,7 +229,6 @@ export class SignageService extends AsyncHandler {
         this.timeout(
             'post-metrics',
             async () => {
-                console.log('Post Metrics:', this._metrics);
                 if (EMPTY_METRICS === JSON.stringify(this._metrics)) return;
                 const display_id = this._display.getValue();
                 await lastValueFrom(

@@ -513,7 +513,7 @@ export class MediaPlayerComponent
             this.isValidMedia(item)
         ) {
             this.event.emit({ type: 'playlist_count', ref_id: item.playlist });
-            if (old_item.playlist && this.progress() > 0) {
+            if (old_item?.playlist && this.progress() > 0) {
                 this.event.emit({
                     type: 'playlist_through',
                     ref_id: old_item.playlist,
