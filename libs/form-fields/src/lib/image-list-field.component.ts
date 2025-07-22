@@ -252,7 +252,7 @@ export class ImageListFieldComponent
     public readonly uploads = combineLatest([
         this.upload_list,
         this.upload_ids,
-    ]).pipe(map(([list, ids]) => list.filter((i) => ids.includes(i.id))));
+    ]).pipe(map(([list, ids]) => list.filter((i) => ids.includes(i?.id))));
 
     public get length() {
         return this.list.length + this._upload_list.getValue().length + 1;
@@ -283,7 +283,7 @@ export class ImageListFieldComponent
             this.upload_list.subscribe((list) => {
                 const id_list = this.upload_ids.getValue();
                 for (const id of id_list) {
-                    const item = list.find((_) => _.id === id);
+                    const item = list.find((_) => _?.id === id);
                     if (item && item.progress >= 100) {
                         this.addImageUrl(item.link);
                         this.upload_ids.next(
@@ -369,13 +369,13 @@ export class ImageListFieldComponent
         if (list.length === 0) return;
         const global_list = await nextValueFrom(this._uploads.upload_list);
         const new_list = global_list.filter((_) =>
-            list.find((i) => i === _.id),
+            list.find((i) => i === _?.id),
         );
         const done_list = new_list.filter((file) => file.progress >= 100);
         this._upload_list.next(new_list);
         done_list.forEach((i) => {
             console.log('ID:', { ...i });
-            this.upload_map[i.id] = i.upload.id;
+            this.upload_map[i?.id] = i.upload?.id || i?.id;
             delete i.upload;
         });
         if (done_list.length >= list.length)

@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { SignageService } from './signage.service';
@@ -21,7 +21,7 @@ import { SignageService } from './signage.service';
     `,
     standalone: false,
 })
-export class SignagePanelComponent extends AsyncHandler {
+export class SignagePanelComponent extends AsyncHandler implements OnInit {
     private _router = inject(Router);
     private _route = inject(ActivatedRoute);
     private _signage = inject(SignageService);
