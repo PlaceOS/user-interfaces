@@ -200,7 +200,6 @@ export class DateFieldComponent
      * @param new_value New value to set on the form field
      */
     public setValue(new_value: number) {
-        console.log('Set Date:', new_value);
         // Keep hours and minutes of the old date
         const old_date = new Date(this.date() || Date.now());
         let new_date = set(new_value, {
@@ -209,10 +208,8 @@ export class DateFieldComponent
         }).valueOf();
         // Check that new date is before from
         if (new_date < this.from.valueOf()) {
-            console.log('Date before from:', this.from);
             new_date = this.from.valueOf();
         }
-        console.log('Date:', this.date(), new_date);
         this.date.set(new_date);
         if (this._onChange) this._onChange(new_date);
         this._tooltip()?.close();

@@ -215,9 +215,7 @@ export class MapRendererComponent
     }
 
     public ngOnDestroy(): void {
-        if (this.viewer) {
-            removeViewer(this.viewer);
-        }
+        if (this.viewer) removeViewer(this.viewer);
     }
 
     public ngOnChanges(changes: SimpleChanges): void {
@@ -276,7 +274,7 @@ export class MapRendererComponent
     /** Update overlays, styles and actions of viewer */
     private updateView() {
         try {
-            if (!getViewer(this.viewer) || this.loading) {
+            if (!getViewer(this.viewer) || this.loading()) {
                 return this.timeout('update_view', () => this.updateView());
             }
             this.updateFeatureList();
