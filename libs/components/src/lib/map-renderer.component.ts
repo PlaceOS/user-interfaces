@@ -12,6 +12,7 @@ import {
     OnDestroy,
     OnInit,
     output,
+    signal,
     SimpleChanges,
     TemplateRef,
     Type,
@@ -56,8 +57,15 @@ function isSamePoint(p1: Point, p2: Point): boolean {
             [class.hidden]="!src()"
         ></div>
         @if (src()) {
-            @if (!viewer || loading) {
+            @if (!viewer || loading()) {
                 <mat-spinner class="absolute" [diameter]="48" />
+            }
+            @if (viewer === '~empty~') {
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <div class="opacity-30">
+                        {{ 'EXPLORE.MAP_FAILED_TO_LOAD' | translate }}
+                    </div>
+                </div>
             }
         } @else {
             <div class="absolute inset-0 flex items-center justify-center">
@@ -153,21 +161,14 @@ export class MapRendererComponent
     public readonly actions = input<ViewAction[]>(undefined);
     /** Number of times to reset the map */
     public readonly reset = input(0);
-
     public readonly options = input<any>(undefined);
-
     public readonly focus = input<string>(undefined);
-
     public readonly zoomChange = output<number>();
-
     public readonly centerChange = output<Point>();
-
     public readonly mapInfo = output<any>();
-
-    public loading: boolean;
+    public readonly loading = signal(false);
 
     public injectors: Injector[] = [];
-
     public feature_list: ViewerFeature[] = [];
 
     /** ID of the active SVG Viewer */
@@ -221,7 +222,11 @@ export class MapRendererComponent
 
     public ngOnChanges(changes: SimpleChanges): void {
         if (changes.src && this.src()) {
-            this.createView().catch((e) => console.warn(e));
+            this.createView().catch((e) => {
+                console.warn(e);
+                this.loading.set(false);
+                this.viewer = '~empty~';
+            });
         }
         if (changes.features) {
             this.updateInjectors();
@@ -261,7 +266,11 @@ export class MapRendererComponent
     }
 
     public ngAfterViewInit() {
-        this.createView().catch((e) => console.warn(e));
+        this.createView().catch((e) => {
+            console.warn(e);
+            this.loading.set(false);
+            this.viewer = '~empty~';
+        });
     }
 
     /** Update overlays, styles and actions of viewer */
@@ -312,8 +321,8 @@ export class MapRendererComponent
         if (!simp_url.includes('svg') && !simp_url.includes('upload')) return;
         const _outlet_el = this._outlet_el();
         const src = this.src();
-        if (src && _outlet_el?.nativeElement && !this.loading) {
-            this.loading = true;
+        if (src && _outlet_el?.nativeElement && !this.loading()) {
+            this.loading.set(true);
             const styles = this.styles();
             const labels = this.labels();
             const actions = this.actions();
@@ -353,13 +362,12 @@ export class MapRendererComponent
                 labels: labels,
                 actions: actions,
                 options: options,
-            }).catch((e) => {
-                console.warn(e);
-                return '';
-            });
-            this.loading = false;
-            if (!this.viewer) return;
-            this.loading = false;
+            }).catch((e) => '');
+            this.loading.set(false);
+            if (!this.viewer) {
+                this.viewer = '~empty~';
+                return;
+            }
             this.subscription(
                 'view_changes',
                 listenToViewerChanges(this.viewer)?.subscribe((v) => {
@@ -374,7 +382,7 @@ export class MapRendererComponent
             this.mapInfo.emit(viewer.mappings);
             const focus = this.focus();
             if (focus) this.focusOn(focus);
-        } else if ((src && !_outlet_el?.nativeElement) || this.loading) {
+        } else if ((src && !_outlet_el?.nativeElement) || this.loading()) {
             this.timeout('create_view', () =>
                 this.createView().catch((e) => console.warn(e)),
             );

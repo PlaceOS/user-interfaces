@@ -416,6 +416,7 @@
         "BOOK_RESOURCE": "Book - {{ name }}",
         "MAPSINDOORS_INIT_FAILED": "Failed to initialise map view.",
         "MAP_EMPTY": "No map is set to display",
+        "MAP_FAILED_TO_LOAD": "Failed to load map",
         "COORDINATES": "Coordinates",
         "MAP_ID": "Map ID",
         "MAP_ID_EMPTY": "No map ID",
