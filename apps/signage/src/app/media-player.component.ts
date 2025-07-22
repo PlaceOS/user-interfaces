@@ -35,7 +35,6 @@ export type MediaPlayerState = 'PAUSED' | 'PLAYING';
 @Component({
     selector: 'media-player',
     template: `
-        {{ controls() }}
         <div #previous_container class="absolute left-0 top-0 h-full w-full">
             <img
                 #previous_image_el
@@ -199,6 +198,8 @@ export type MediaPlayerState = 'PAUSED' | 'PLAYING';
                                     [class.bg-base-300]="$index !== index()"
                                     [class.!bg-error]="!is_valid"
                                     [class.!text-error-content]="!is_valid"
+                                    [matTooltip]="validateMedia(item)"
+                                    matTooltipPosition="right"
                                 >
                                     <div
                                         class="relative flex h-7 w-7 items-center justify-center"
@@ -419,11 +420,11 @@ export class MediaPlayerComponent
         this.setPlaylistItem(new_index);
     }
 
-    public isValidMedia(item: MediaPlayerItem): boolean {
+    public validateMedia(item: MediaPlayerItem) {
         if (item.valid_from && item.valid_from * 1000 > Date.now())
-            return false;
+            return 'Media not valid yet.';
         if (item.valid_until && item.valid_until * 1000 < Date.now())
-            return false;
+            return 'Media expired.';
         const [from, until] = item.play_hours.split('-');
         if (from !== until) {
             const [from_hours, from_minutes] = from.split(':');
@@ -436,10 +437,14 @@ export class MediaPlayerComponent
                 hours: parseInt(until_hours),
                 minutes: parseInt(until_minutes),
             }).valueOf();
-            if (start > Date.now()) return false;
-            if (end < Date.now()) return false;
+            if (start > Date.now()) return 'Before hours';
+            if (end < Date.now()) return 'After hours';
         }
-        return true;
+        return '';
+    }
+
+    public isValidMedia(item: MediaPlayerItem): boolean {
+        return this.validateMedia(item) === '';
     }
 
     public toggleLoop() {

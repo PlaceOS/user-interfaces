@@ -205,7 +205,7 @@ export class SignageService extends AsyncHandler {
 
     public async storeMetricEvent(event: MediaEvent) {
         if (event.type === 'media_count') {
-            const value = this._metrics[event.ref_id] || 0;
+            const value = this._metrics.media_counts[event.ref_id] || 0;
             this._metrics.media_counts[event.ref_id] = value + 1;
         } else {
             const playlist = this._playlists.find(
@@ -213,10 +213,12 @@ export class SignageService extends AsyncHandler {
             );
             if (!playlist || !playlist?.random) {
                 if (event.type === 'playlist_through') {
-                    const value = this._metrics[event.ref_id] || 0;
+                    const value =
+                        this._metrics.play_through_counts[event.ref_id] || 0;
                     this._metrics.play_through_counts[event.ref_id] = value + 1;
                 } else if (event.type === 'playlist_count') {
-                    const value = this._metrics[event.ref_id] || 0;
+                    const value =
+                        this._metrics.playlist_counts[event.ref_id] || 0;
                     this._metrics.playlist_counts[event.ref_id] = value + 1;
                 }
             }
