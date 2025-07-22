@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AsyncHandler, SettingsService } from '@placeos/common';
-import { SignageService } from './signage.service';
+import { MediaEvent, SignageService } from './signage.service';
 
 @Component({
     selector: 'signage-panel',
@@ -10,6 +10,7 @@ import { SignageService } from './signage.service';
             [playlist]="playlist | async"
             [controls]="debug()"
             [animation_time]="animation_time"
+            (event)="handlePlayerEvent($event)"
         />
     `,
     styles: `
@@ -55,5 +56,9 @@ export class SignagePanelComponent extends AsyncHandler implements OnInit {
                 if (params.has('debug')) this.debug.set(true);
             }),
         );
+    }
+
+    public handlePlayerEvent(e: MediaEvent) {
+        this._signage.storeMetricEvent(e);
     }
 }

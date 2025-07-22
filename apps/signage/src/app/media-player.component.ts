@@ -13,10 +13,12 @@ import {
 import { AsyncHandler, shuffleArrayWithFirstItem } from '@placeos/common';
 import { MediaAnimation } from '@placeos/ts-client';
 import { set } from 'date-fns';
+import { MediaEvent } from './signage.service';
 
 export interface MediaPlayerItem {
     id: string;
     name: string;
+    playlist: string;
     playlist_name: string;
     animation: MediaAnimation;
     type: 'image' | 'video';
@@ -282,6 +284,7 @@ export class MediaPlayerComponent
     public readonly stateChange = output<MediaPlayerState>();
     public readonly indexChange = output<number>();
     public readonly mutedChange = output<boolean>();
+    public readonly event = output<MediaEvent>();
 
     public readonly duration = signal(0);
     public readonly progress = signal(0);
@@ -388,7 +391,10 @@ export class MediaPlayerComponent
 
     public nextItem() {
         if (this.hold_over_item()) {
-            this._item_playlist.shift();
+            const item = this._item_playlist.shift();
+            if (this.progress() > 50) {
+                this.event.emit({ type: 'media_count', ref_id: item.id });
+            }
             this.setPlaylistItem(0);
             this.hold_over_item.set(false);
             return;
@@ -404,6 +410,12 @@ export class MediaPlayerComponent
             return;
         }
         const new_index = next_index % this._item_playlist.length;
+        if (this.progress() > 50) {
+            this.event.emit({
+                type: 'media_count',
+                ref_id: this._item_playlist[this.index()].id,
+            });
+        }
         this.setPlaylistItem(new_index);
     }
 
@@ -462,11 +474,14 @@ export class MediaPlayerComponent
     private _updateItem() {
         if (this.state() === 'PAUSED') return;
         const duration = Date.now() - this._item_start;
-        this.progress.set(
-            Math.floor(
-                (duration / (this.active_item?.duration || 15 * 1000)) * 100,
-            ),
-        );
+        if (this._item_start) {
+            this.progress.set(
+                Math.floor(
+                    (duration / (this.active_item?.duration || 15 * 1000)) *
+                        100,
+                ),
+            );
+        }
         this.duration.set(Math.floor(duration / 1000));
 
         if (!this._item_playlist?.length) return;
@@ -481,9 +496,25 @@ export class MediaPlayerComponent
     }
 
     private setPlaylistItem(index: number) {
+        const old_index = this.index();
         this.index.set(index);
         this.indexChange.emit(index);
         const item = this.active_item;
+
+        const old_item = this._item_playlist[old_index];
+        if (
+            old_item?.id !== item?.id &&
+            old_item?.playlist !== item?.playlist &&
+            this.isValidMedia(item)
+        ) {
+            this.event.emit({ type: 'playlist_count', ref_id: item.playlist });
+            if (old_item.playlist && this.progress() > 0) {
+                this.event.emit({
+                    type: 'playlist_through',
+                    ref_id: old_item.playlist,
+                });
+            }
+        }
         if (!item) return;
         if (!this.isValidMedia(item)) {
             this.nextItem();
