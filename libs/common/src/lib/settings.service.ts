@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Title } from '@angular/platform-browser';
-import { showMetadata, updateMetadata } from '@placeos/ts-client';
+import { showMetadata, updateMetadata, updateUser } from '@placeos/ts-client';
 import { format, isSameDay } from 'date-fns';
 import { BehaviorSubject, Observable, lastValueFrom } from 'rxjs';
 
@@ -15,7 +15,7 @@ import { DEFAULT_SETTINGS } from './settings';
 import { HashMap } from './types';
 
 import { GoogleAnalyticsService } from './google-analytics.service';
-import { currentUser, current_user } from './user-state';
+import { currentUser, current_user, reloadUserData } from './user-state';
 import { VERSION } from './version';
 
 declare global {
@@ -178,6 +178,13 @@ export class SettingsService extends AsyncHandler {
         if (name === 'dark_mode') this.setTheme(value ? 'dark' : '');
         if (name === 'font_size') this._setFontSize();
         this.timeout('save_settings', () => this._savePendingChanges(), 2400);
+    }
+
+    public async updateLocatable(locatable: boolean) {
+        await lastValueFrom(
+            updateUser(currentUser().id, { locatable }, 'patch'),
+        );
+        reloadUserData();
     }
 
     public overrideCssVariable(key: string, value: string, important = false) {

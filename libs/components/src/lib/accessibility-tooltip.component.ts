@@ -1,5 +1,5 @@
-import { Component, inject } from '@angular/core';
-import { AsyncHandler, SettingsService } from '@placeos/common';
+import { Component, inject, OnInit, signal } from '@angular/core';
+import { AsyncHandler, current_user, SettingsService } from '@placeos/common';
 import { CustomTooltipData } from './custom-tooltip.component';
 
 @Component({
@@ -32,7 +32,17 @@ import { CustomTooltipData } from './custom-tooltip.component';
                     </settings-toggle>
                 }
                 <settings-toggle
-                    [ngModel]="accessible"
+                    [ngModel]="locatable()"
+                    (ngModelChange)="setLocatable($event)"
+                    [toggle]="true"
+                >
+                    <div class="flex items-center space-x-2">
+                        <icon class="-ml-2 text-xl">emergency_share</icon>
+                        <div>{{ 'COMMON.LOCATABLE' | translate }}</div>
+                    </div>
+                </settings-toggle>
+                <settings-toggle
+                    [ngModel]="accessible()"
                     (ngModelChange)="applySetting('accessible', $event)"
                     [toggle]="true"
                 >
@@ -42,7 +52,7 @@ import { CustomTooltipData } from './custom-tooltip.component';
                     </div>
                 </settings-toggle>
             </div>
-            @if (accessible) {
+            @if (accessible()) {
                 <div class="bg-base-200 px-8 py-4 text-center">
                     {{ 'COMMON.TEXT_SIZE_MSG' | translate }}
                 </div>
@@ -74,9 +84,15 @@ import { CustomTooltipData } from './custom-tooltip.component';
     styles: [``],
     standalone: false,
 })
-export class AccessibilityTooltipComponent extends AsyncHandler {
+export class AccessibilityTooltipComponent
+    extends AsyncHandler
+    implements OnInit
+{
     private _data = inject(CustomTooltipData);
     private _settings = inject(SettingsService);
+
+    public readonly accessible = signal(false);
+    public readonly locatable = signal(false);
 
     public get dark_mode() {
         return this._settings.theme === 'dark';
@@ -86,10 +102,6 @@ export class AccessibilityTooltipComponent extends AsyncHandler {
         return !!this._settings.get('app.allow_dark_mode');
     }
 
-    public get accessible() {
-        return !!this._settings.get('accessible');
-    }
-
     public get font_size() {
         return this._settings.get('font_size') || 16;
     }
@@ -97,14 +109,29 @@ export class AccessibilityTooltipComponent extends AsyncHandler {
     public readonly applySetting = (n, v) =>
         this.timeout(
             'apply_setting',
-            () => this._settings.saveUserSetting(n, v),
+            () => {
+                this._settings.saveUserSetting(n, v);
+                if (n === 'accessible') {
+                    this.accessible.set(v);
+                }
+            },
             500,
         );
 
     public readonly close = () => this._data?.close();
+    public readonly setLocatable = (l: boolean) => {
+        this._settings.updateLocatable(l);
+        this.locatable.set(l);
+    };
 
-    constructor() {
-        super();
+    public async ngOnInit() {
+        this.accessible.set(!!this._settings.get('accessible'));
+        this.subscription(
+            'user',
+            current_user.subscribe((u) => {
+                this.locatable.set(u.locatable);
+            }),
+        );
     }
 
     public setDarkMode(state: boolean) {

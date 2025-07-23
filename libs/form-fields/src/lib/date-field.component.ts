@@ -7,6 +7,7 @@ import {
     input,
     model,
     OnInit,
+    signal,
     viewChild,
 } from '@angular/core';
 import {
@@ -45,8 +46,8 @@ export enum TimezoneDiffRange {
                 class="flex w-1/2 flex-1 flex-col truncate px-4 py-2 text-left leading-tight"
             >
                 <div class="text-base font-normal">
-                    @if (date) {
-                        {{ date | date: date_format }}
+                    @if (date()) {
+                        {{ date() | date: date_format }}
                     } @else {
                         <span class="opacity-30">{{
                             'FORM.DATE_EMPTY' | translate
@@ -79,7 +80,7 @@ export enum TimezoneDiffRange {
         <ng-template #calendar_picker>
             <div class="relative w-[18rem] rounded bg-base-100 px-2 py-4">
                 <date-calendar
-                    [ngModel]="date || now"
+                    [ngModel]="date() || now"
                     [from]="from"
                     [to]="until"
                     [offset_weekday]="week_start()"
@@ -127,7 +128,7 @@ export class DateFieldComponent
     public readonly timezone = input<string>('');
     public readonly range = input<TimezoneDiffRange>(TimezoneDiffRange.Both);
     /** Currently selected date */
-    public date: number;
+    public readonly date = signal(Date.now());
 
     public readonly now = Date.now();
 
@@ -148,13 +149,13 @@ export class DateFieldComponent
     private _date_pipe = new DatePipe('en');
 
     public get start_of_day() {
-        const start = startOfDay(this.date).valueOf();
+        const start = startOfDay(this.date()).valueOf();
         const format = `MMM d, ${this.time_format}${this.range() === 1 ? ' (z)' : ''}`;
         return this._date_pipe.transform(start, format, this.tz);
     }
 
     public get end_of_day() {
-        const end = endOfDay(this.date).valueOf();
+        const end = endOfDay(this.date()).valueOf();
         const format = `MMM d, ${this.time_format}${this.range() === 1 ? ' (z)' : ''}`;
         return this._date_pipe.transform(end, format, this.tz);
     }
@@ -191,7 +192,7 @@ export class DateFieldComponent
 
     public ngOnInit() {
         this._control = this._injector.get(NgControl);
-        this.date = Date.now();
+        this.date.set(Date.now());
     }
 
     /**
@@ -200,7 +201,7 @@ export class DateFieldComponent
      */
     public setValue(new_value: number) {
         // Keep hours and minutes of the old date
-        const old_date = new Date(this.date);
+        const old_date = new Date(this.date() || Date.now());
         let new_date = set(new_value, {
             hours: old_date.getHours(),
             minutes: old_date.getMinutes(),
@@ -209,10 +210,8 @@ export class DateFieldComponent
         if (new_date < this.from.valueOf()) {
             new_date = this.from.valueOf();
         }
-        this.date = new_date;
-        if (this._onChange) {
-            this._onChange(new_date);
-        }
+        this.date.set(new_date);
+        if (this._onChange) this._onChange(new_date);
         this._tooltip()?.close();
     }
 
@@ -222,7 +221,7 @@ export class DateFieldComponent
      * @param value The new value for the component
      */
     public writeValue(value: number) {
-        this.date = value;
+        this.date.set(value);
         this._tooltip()?.close();
     }
 

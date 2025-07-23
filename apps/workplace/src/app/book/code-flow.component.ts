@@ -1,10 +1,12 @@
 import {
+    AfterViewInit,
     Component,
     ElementRef,
     inject,
     OnDestroy,
     OnInit,
     output,
+    signal,
     viewChild,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -32,11 +34,12 @@ import { addMinutes, endOfDay, getUnixTime } from 'date-fns';
 import QrScanner from 'qr-scanner';
 
 import { OrganisationService } from '@placeos/organisation';
+import { lastValueFrom } from 'rxjs';
 
 @Component({
     selector: 'book-code-flow',
     template: `
-        @if (!loading) {
+        @if (!loading()) {
             <div
                 class="relative flex flex-1 items-center justify-center overflow-hidden bg-neutral"
             >
@@ -48,7 +51,7 @@ import { OrganisationService } from '@placeos/organisation';
                 <div
                     class="absolute inset-0 flex flex-col items-center justify-center text-center text-white"
                 >
-                    @if (is_scanning) {
+                    @if (is_scanning()) {
                         <div
                             class="relative z-10 flex flex-col items-center justify-end"
                         >
@@ -58,12 +61,12 @@ import { OrganisationService } from '@placeos/organisation';
                                 Scan QR Code
                             </h2>
                             <span class="mb-4">
-                                Scan the QR code outisde a PlaceOS room or
+                                Scan the QR code outside a PlaceOS room or
                                 space.
                             </span>
                         </div>
                     }
-                    @if (!is_scanning) {
+                    @if (!is_scanning()) {
                         <div
                             class="relative z-10 flex flex-col items-center justify-end"
                         >
@@ -82,7 +85,7 @@ import { OrganisationService } from '@placeos/organisation';
                         <div
                             box
                             class="m-8 flex h-64 w-64 items-center justify-center space-x-2 rounded-2xl p-8 transition-all"
-                            [class.input]="!is_scanning"
+                            [class.input]="!is_scanning()"
                         >
                             <span class="uppercase">Booking ID</span>
                             <input
@@ -101,11 +104,11 @@ import { OrganisationService } from '@placeos/organisation';
                             matRipple
                             [class]="
                                 'w-40 flex-1 border-none text-black ' +
-                                (is_scanning
+                                (is_scanning()
                                     ? 'bg-base-100'
                                     : 'bg-transparent bg-opacity-50 hover:bg-base-100')
                             "
-                            (click)="is_scanning = true"
+                            (click)="is_scanning.set(true)"
                         >
                             Scan Code
                         </button>
@@ -113,11 +116,11 @@ import { OrganisationService } from '@placeos/organisation';
                             matRipple
                             [class]="
                                 'w-40 flex-1 border-none text-black ' +
-                                (!is_scanning
+                                (!is_scanning()
                                     ? 'bg-base-100'
                                     : 'bg-transparent bg-opacity-50 hover:bg-base-100')
                             "
-                            (click)="is_scanning = false"
+                            (click)="is_scanning.set(false)"
                         >
                             Enter Code
                         </button>
@@ -178,7 +181,7 @@ import { OrganisationService } from '@placeos/organisation';
 })
 export class BookCodeFlowComponent
     extends AsyncHandler
-    implements OnInit, OnDestroy
+    implements OnInit, OnDestroy, AfterViewInit
 {
     private readonly _router = inject(Router);
     private readonly _route = inject(ActivatedRoute);
@@ -186,13 +189,11 @@ export class BookCodeFlowComponent
     private readonly _booking_form = inject(BookingFormService);
     private readonly _org = inject(OrganisationService);
 
-    /** Menu event */
     public readonly menu = output();
-    /** Boolean to toggle scan/code */
-    public is_scanning = true;
-    /** Room Code input value */
+    public readonly is_scanning = signal(false);
+    public readonly loading = signal(false);
+
     public room_code: string;
-    public loading = false;
 
     private _qr_scanner;
     /** Video element to emit camera feed */
@@ -200,13 +201,7 @@ export class BookCodeFlowComponent
         viewChild<ElementRef<HTMLVideoElement>>('video');
 
     public ngOnDestroy() {
-        const _video_el = this._video_el();
-        if (_video_el?.nativeElement?.srcObject) {
-            (_video_el.nativeElement.srcObject as any)
-                .getTracks()
-                .forEach((track) => track?.stop());
-        }
-        this._qr_scanner?.stop();
+        this._stopScanning();
     }
 
     public async ngOnInit() {
@@ -226,17 +221,7 @@ export class BookCodeFlowComponent
     }
 
     public ngAfterViewInit() {
-        if (!navigator.mediaDevices?.getUserMedia || this.loading) return;
-        navigator.mediaDevices
-            .getUserMedia({ video: true })
-            .then(
-                (stream) => (this._video_el().nativeElement.srcObject = stream),
-            )
-            .catch((e) => console.error('Unable to fetch media devices!', e));
-        this._qr_scanner = new QrScanner(this._video_el().nativeElement, (r) =>
-            this.handleQrCode(r),
-        );
-        this._qr_scanner.start();
+        this.timeout('initialise', () => this._startScanning());
     }
 
     private handleQrCode(result: string) {
@@ -258,35 +243,34 @@ export class BookCodeFlowComponent
         asset_id: string,
         type: BookingType = 'desk',
     ) {
-        this.loading = true;
-        let bookings = await queryBookings({
-            period_start: getUnixTime(Date.now()),
-            period_end: getUnixTime(addMinutes(Date.now(), 5)),
-            type,
-            email: currentUser().email,
-        })
-            .toPromise()
-            .catch((_) => [] as Booking[]);
+        this.loading.set(true);
+        this._stopScanning();
+        let bookings = await lastValueFrom(
+            queryBookings({
+                period_start: getUnixTime(Date.now()),
+                period_end: getUnixTime(addMinutes(Date.now(), 5)),
+                type,
+                email: currentUser().email,
+            }),
+        ).catch((_) => [] as Booking[]);
         const item = bookings.find((_) => _.asset_id === asset_id);
         if (item) {
-            await checkinBooking(item.id, true)
-                .toPromise()
-                .catch((_) => {
-                    notifyError(
-                        `Unable to checkin booking with resource "${asset_id}"`,
-                    );
-                    this.loading = false;
-                    throw _;
-                });
+            await lastValueFrom(checkinBooking(item.id, true)).catch((_) => {
+                notifyError(
+                    `Unable to checkin booking with resource "${asset_id}"`,
+                );
+                this.loading.set(false);
+                throw _;
+            });
             this._router.navigate(['/book', 'code', 'success']);
         } else {
-            bookings = await queryBookings({
-                period_start: getUnixTime(Date.now()),
-                period_end: getUnixTime(endOfDay(Date.now())),
-                type,
-            })
-                .toPromise()
-                .catch((_) => [] as Booking[]);
+            bookings = await lastValueFrom(
+                queryBookings({
+                    period_start: getUnixTime(Date.now()),
+                    period_end: getUnixTime(endOfDay(Date.now())),
+                    type,
+                }),
+            ).catch((_) => [] as Booking[]);
             let item = bookings.find((_) => _.asset_id === asset_id);
             if (item) {
                 this._router.navigate(['/book', 'code', 'error'], {
@@ -294,13 +278,13 @@ export class BookCodeFlowComponent
                 });
                 return;
             }
-            bookings = await queryBookings({
-                period_start: getUnixTime(Date.now()),
-                period_end: getUnixTime(addMinutes(Date.now(), 5)),
-                type,
-            })
-                .toPromise()
-                .catch((_) => [] as Booking[]);
+            bookings = await lastValueFrom(
+                queryBookings({
+                    period_start: getUnixTime(Date.now()),
+                    period_end: getUnixTime(addMinutes(Date.now(), 5)),
+                    type,
+                }),
+            ).catch((_) => [] as Booking[]);
             item = bookings.find((_) => _.asset_id === asset_id);
             if (item) {
                 this._router.navigate(['/book', 'code', 'error'], {
@@ -314,40 +298,68 @@ export class BookCodeFlowComponent
             this._booking_form.newForm(type, new Booking({ asset_id, type }));
             this._booking_form.setOptions({ type });
         }
-        this.loading = false;
+        this.loading.set(false);
     }
 
     private async _checkinEvent(space_id: string, email?: string) {
         if (!email) email = currentUser().email;
-        this.loading = true;
-        const bookings = await queryEvents({
-            period_start: getUnixTime(Date.now()),
-            period_end: getUnixTime(Date.now() + 5 * 60 * 1000),
-        })
-            .toPromise()
-            .catch((_) => []);
+        this.loading.set(true);
+        this._stopScanning();
+        const bookings = await lastValueFrom(
+            queryEvents({
+                period_start: getUnixTime(Date.now()),
+                period_end: getUnixTime(Date.now() + 5 * 60 * 1000),
+            }),
+        ).catch((_) => []);
         const item = bookings.find((_) =>
             _.resources.find((s) => s.id === space_id || s.email === space_id),
         );
         if (item) {
-            await checkinEventGuest(item.id, email, true)
-                .toPromise()
-                .catch((_) => {
+            await lastValueFrom(checkinEventGuest(item.id, email, true)).catch(
+                (_) => {
                     notifyError(
                         `Unable to checkin event with resource "${space_id}"`,
                     );
-                    this.loading = false;
+                    this.loading.set(false);
                     throw _;
-                });
+                },
+            );
             this._router.navigate(['/book', 'code', 'success']);
-            this.loading = false;
+            this.loading.set(false);
         } else {
-            const space = await showSystem(space_id).toPromise();
+            const space = await lastValueFrom(showSystem(space_id));
             if (space) {
                 this._event_form.newForm(new CalendarEvent({ system: space }));
             }
             this._router.navigate(['/book', 'meeting']);
         }
-        this.loading = false;
+        this.loading.set(false);
+    }
+
+    private _startScanning() {
+        if (!navigator.mediaDevices?.getUserMedia || this.loading()) return;
+        const video_el = this._video_el()?.nativeElement;
+        if (!video_el)
+            return this.timeout('retry_start_scan', () =>
+                this._startScanning(),
+            );
+        navigator.mediaDevices
+            .getUserMedia({ video: true })
+            .then((stream) => (video_el.srcObject = stream))
+            .catch((e) => console.error('Unable to fetch media devices!', e));
+        this._qr_scanner = new QrScanner(this._video_el().nativeElement, (r) =>
+            this.handleQrCode(r),
+        );
+        this._qr_scanner.start();
+    }
+
+    private _stopScanning() {
+        const video_el = this._video_el()?.nativeElement;
+        if (video_el?.srcObject) {
+            (video_el?.srcObject as MediaStream)
+                .getTracks()
+                .forEach((track) => track?.stop());
+        }
+        this._qr_scanner?.stop();
     }
 }

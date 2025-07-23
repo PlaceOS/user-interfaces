@@ -335,9 +335,11 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
             ({ position }) =>
                 typeof position !== 'string' || position in this.map_info,
         );
-        if (!loc) {
-            loc = locations[0];
-            notifyWarn(i18n(`EXPLORE.LOCATE_USER_FOUND_NO_PIN`));
+        if (!loc) loc = locations[0];
+        if (typeof loc.position !== 'string') {
+            notifyWarn(
+                i18n(`EXPLORE.LOCATE_USER_FOUND_NO_PIN`, { type: loc.type }),
+            );
         }
         this._state.setLevel(this._org.levelWithID([locations[0]?.level])?.id);
         const pos: any = loc.position;

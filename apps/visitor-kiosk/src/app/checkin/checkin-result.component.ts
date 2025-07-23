@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { AsyncHandler, nextValueFrom, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
@@ -38,7 +38,7 @@ const DEFAULT_TEMPLATE = `
                     [innerHTML]="result_template | async | sanitize: 'html'"
                 ></div>
                 @let ev = event | async;
-                @if (printing) {
+                @if (printing()) {
                     <div printable class="print-only">
                         <user-label
                             [user]="{
@@ -64,7 +64,7 @@ const DEFAULT_TEMPLATE = `
                             {{ 'APP.VISITOR_KIOSK.PRINT_LABEL' | translate }}
                         </button>
                     }
-                    @if (allow_beverages) {
+                    @if (allow_beverages()) {
                         <button
                             btn
                             matRipple
@@ -102,8 +102,8 @@ export class CheckinResultsComponent extends AsyncHandler implements OnInit {
     public date = Date.now();
     public zones = [];
     public e;
-    public allow_beverages = false;
-    public printing = false;
+    public readonly allow_beverages = signal(false);
+    public readonly printing = signal(false);
     public readonly event = this._checkin.event;
     public readonly guest = this._checkin.guest;
     public readonly photo = this._checkin.photo;
@@ -159,7 +159,7 @@ export class CheckinResultsComponent extends AsyncHandler implements OnInit {
     );
 
     public readonly print = () => {
-        this.printing = true;
+        this.printing.set(true);
         this.qr_code = generateQRCode(this.e?.asset_id);
         this.timeout('print', () => window.print());
     };
@@ -194,9 +194,10 @@ export class CheckinResultsComponent extends AsyncHandler implements OnInit {
         const standalone_location = this._settings.get(
             'app.standalone_visitor_location',
         );
-        this.allow_beverages =
+        this.allow_beverages.set(
             this._settings.get('app.allow_beverages') &&
-            (event.linked_event || standalone_location);
+                (event.linked_event || standalone_location),
+        );
     }
 
     public previous(): void {

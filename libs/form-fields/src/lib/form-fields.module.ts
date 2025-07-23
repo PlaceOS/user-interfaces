@@ -4,6 +4,7 @@ import { ActionFieldComponent } from './action-field.component';
 import { BookingRulesFormComponent } from './booking-rules-form.component';
 import { CompactCounterComponent } from './compact-counter.component';
 import { CounterComponent } from './counter.component';
+import { CronInputFieldComponent } from './cron-input-field.component';
 import { DateCalendarComponent } from './date-calendar.component';
 import { DateFieldComponent } from './date-field.component';
 import { DateRangeCalendarComponent } from './date-range-calendar.component';
@@ -45,6 +46,7 @@ const COMPONENTS = [
     UploadListFieldComponent,
     UserListFieldComponent,
     UserSearchFieldComponent,
+    CronInputFieldComponent,
 
     RecurrenceModalComponent,
     BookingRulesFormComponent,

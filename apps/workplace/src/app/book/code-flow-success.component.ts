@@ -12,7 +12,9 @@ import { Component } from '@angular/core';
                 </h2>
                 <img src="assets/icons/success.svg" />
                 <p class="max-w-[32rem] text-center">
-                    {{ 'APP.WORKPLACE.CHECKED_IN' | translate }}
+                    {{
+                        'APP.WORKPLACE.RESOURCE_CHECKED_IN_MESSAGE' | translate
+                    }}
                 </p>
             </main>
             <footer
@@ -24,7 +26,7 @@ import { Component } from '@angular/core';
                     class="w-full max-w-[32rem]"
                     [routerLink]="['/']"
                 >
-                    {{ 'APP.WORKPLACE.BOOKING_DONE_CONTINUE' | translate }}
+                    {{ 'COMMON.CONTINUE' | translate }}
                 </a>
             </footer>
         </div>

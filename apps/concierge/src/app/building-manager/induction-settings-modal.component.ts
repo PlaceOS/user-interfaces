@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import {
     SettingsService,
@@ -8,6 +8,7 @@ import {
 } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
+import { lastValueFrom } from 'rxjs';
 
 @Component({
     selector: 'induction-settings-modal',
@@ -18,13 +19,13 @@ import { showMetadata, updateMetadata } from '@placeos/ts-client';
             <h3 class="text-xl font-medium">
                 {{ 'APP.CONCIERGE.INDUCTION_HEADER' | translate }}
             </h3>
-            @if (!loading) {
+            @if (!loading()) {
                 <button icon matRipple mat-dialog-close>
                     <icon class="text-2xl">close</icon>
                 </button>
             }
         </header>
-        @if (!loading) {
+        @if (!loading()) {
             <main class="flex flex-col space-y-2 px-4">
                 <settings-toggle
                     [(ngModel)]="is_enabled"
@@ -49,10 +50,10 @@ import { showMetadata, updateMetadata } from '@placeos/ts-client';
                 class="flex flex-col items-center justify-center space-y-2 p-32"
             >
                 <mat-spinner [diameter]="48"></mat-spinner>
-                <p>{{ loading }}</p>
+                <p>{{ loading() }}</p>
             </main>
         }
-        @if (!loading) {
+        @if (!loading()) {
             <footer
                 class="mt-2 flex justify-end border-t border-base-200 px-4 py-2"
             >
@@ -72,7 +73,7 @@ export class InductionSettingsModalComponent implements OnInit {
     private _dialog_ref =
         inject<MatDialogRef<InductionSettingsModalComponent>>(MatDialogRef);
 
-    public loading = '';
+    public loading = signal('');
     public induction_details = '';
     public is_enabled = false;
     public settings: Record<string, any> = {};
@@ -83,20 +84,18 @@ export class InductionSettingsModalComponent implements OnInit {
     }
 
     public async loadSettings() {
-        this.loading = i18n('APP.CONCIERGE.INDUCTION_LOADING');
+        this.loading.set(i18n('APP.CONCIERGE.INDUCTION_LOADING'));
         const visitor_kiosk_app =
             this._settings.get('app.visitor_kiosk_app') || 'visitor-kiosk_app';
         this.settings = {};
         const [bld_metadata, org_metadata, org_settings] = await Promise.all([
-            await showMetadata(this._zone_id, visitor_kiosk_app).toPromise(),
-            await showMetadata(
-                this._org.organisation.id,
-                visitor_kiosk_app,
-            ).toPromise(),
-            await showMetadata(
-                this._org.organisation.id,
-                'settings',
-            ).toPromise(),
+            await lastValueFrom(showMetadata(this._zone_id, visitor_kiosk_app)),
+            await lastValueFrom(
+                showMetadata(this._org.organisation.id, visitor_kiosk_app),
+            ),
+            await lastValueFrom(
+                showMetadata(this._org.organisation.id, 'settings'),
+            ),
         ]);
         this.settings = {
             ...org_settings.details,
@@ -105,24 +104,22 @@ export class InductionSettingsModalComponent implements OnInit {
         };
         this.induction_details = this.settings.induction_details || '';
         this.is_enabled = this.settings.induction_enabled ?? false;
-        this.loading = '';
+        this.loading.set('');
     }
 
     public async save() {
-        this.loading = i18n('APP.CONCIERGE.INDUCTION_SAVING');
+        this.loading.set(i18n('APP.CONCIERGE.INDUCTION_SAVING'));
         const visitor_kiosk_app =
             this._settings.get('app.visitor_kiosk_app') || 'visitor-kiosk_app';
         const concierge_app =
             this._settings.get('app.concierge_app') || 'concierge_app';
         this._dialog_ref.disableClose = true;
-        const metadata = await showMetadata(
-            this._zone_id,
-            visitor_kiosk_app,
-        ).toPromise();
-        const con_metadata = await showMetadata(
-            this._zone_id,
-            concierge_app,
-        ).toPromise();
+        const metadata = await lastValueFrom(
+            showMetadata(this._zone_id, visitor_kiosk_app),
+        );
+        const con_metadata = await lastValueFrom(
+            showMetadata(this._zone_id, concierge_app),
+        );
         const visitor_metadata = {
             ...metadata.details,
             induction_details: this.induction_details,
@@ -133,32 +130,28 @@ export class InductionSettingsModalComponent implements OnInit {
             induction_details: this.induction_details,
             induction_enabled: this.is_enabled,
         };
-        const result = await updateMetadata(this._zone_id, {
-            name: metadata.name || visitor_kiosk_app,
-            description: metadata.description || '',
-            details: visitor_metadata,
-        })
-            .toPromise()
-            .catch((err) => {
-                console.error(err);
-                notifyError(
-                    i18n('APP.CONCIERGE.INDUCTION_ERROR', { error: err }),
-                );
-            });
-        const result2 = await updateMetadata(this._zone_id, {
-            name: con_metadata.name || concierge_app,
-            description: con_metadata.description || '',
-            details: concierge_metadata,
-        })
-            .toPromise()
-            .catch((err) => {
-                console.error(err);
-                notifyError(
-                    i18n('APP.CONCIERGE.INDUCTION_ERROR', { error: err }),
-                );
-            });
-        this.loading = '';
-        if (result) {
+        const result_visitor = await lastValueFrom(
+            updateMetadata(this._zone_id, {
+                name: metadata.name || visitor_kiosk_app,
+                description: metadata.description || '',
+                details: visitor_metadata,
+            }),
+        ).catch((err) => {
+            console.error(err);
+            notifyError(i18n('APP.CONCIERGE.INDUCTION_ERROR', { error: err }));
+        });
+        const result_concierge = await lastValueFrom(
+            updateMetadata(this._zone_id, {
+                name: con_metadata.name || concierge_app,
+                description: con_metadata.description || '',
+                details: concierge_metadata,
+            }),
+        ).catch((err) => {
+            console.error(err);
+            notifyError(i18n('APP.CONCIERGE.INDUCTION_ERROR', { error: err }));
+        });
+        this.loading.set('');
+        if (result_visitor) {
             notifySuccess(i18n('APP.CONCIERGE.INDUCTION_SUCCESS'));
             this._dialog_ref.close();
         }

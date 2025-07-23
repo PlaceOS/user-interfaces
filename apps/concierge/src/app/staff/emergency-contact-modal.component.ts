@@ -1,4 +1,4 @@
-import { Component, inject, viewChild } from '@angular/core';
+import { Component, inject, signal, viewChild } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import {
@@ -29,13 +29,13 @@ import { EmergencyContact } from './emergency-contacts.component';
                     ) | translate
                 }}
             </h2>
-            @if (!loading) {
+            @if (!loading()) {
                 <button icon matRipple mat-dialog-close>
                     <icon>close</icon>
                 </button>
             }
         </header>
-        @if (!loading) {
+        @if (!loading()) {
             <main class="w-[36rem] p-4">
                 <form [formGroup]="form">
                     <a-user-search-field
@@ -84,26 +84,6 @@ import { EmergencyContact } from './emergency-contacts.component';
                                 />
                             </mat-form-field>
                         </div>
-                    </div>
-                    <div class="flex flex-col">
-                        <label for="name">{{
-                            'RESOURCE.LEVEL' | translate
-                        }}</label>
-                        <mat-form-field appearance="outline">
-                            <mat-select
-                                formControlName="zone"
-                                [placeholder]="'COMMON.LEVEL_ALL' | translate"
-                            >
-                                <mat-option value="">{{
-                                    'COMMON.LEVEL_ALL' | translate
-                                }}</mat-option>
-                                @for (level of levels | async; track level) {
-                                    <mat-option [value]="level.id">
-                                        {{ level.display_name || level.name }}
-                                    </mat-option>
-                                }
-                            </mat-select>
-                        </mat-form-field>
                     </div>
                     <div class="flex flex-col">
                         <label for="email">{{
@@ -162,7 +142,7 @@ import { EmergencyContact } from './emergency-contacts.component';
                 <p>{{ 'APP.CONCIERGE.CONTACTS_SAVING' | translate }}</p>
             </main>
         }
-        @if (!loading) {
+        @if (!loading()) {
             <footer
                 class="flex items-center justify-end border-t border-base-200 px-4 py-2"
             >
@@ -199,7 +179,7 @@ export class EmergencyContactModalComponent {
 
     private _changes = new BehaviorSubject(0);
 
-    public loading = false;
+    public loading = signal(false);
     public role_name: string;
     public readonly contact?: EmergencyContact = this._data;
     public readonly data = combineLatest([
@@ -227,7 +207,7 @@ export class EmergencyContactModalComponent {
     public async addRole() {
         if (!this.role_name) return;
         this._tooltip().close();
-        this.loading = true;
+        this.loading.set(true);
         this._dialog_ref.disableClose = true;
         const data: any = await nextValueFrom(this.data);
         await updateMetadata(this._org.building.id, {
@@ -245,7 +225,7 @@ export class EmergencyContactModalComponent {
             roles: [...(this.form.value.roles || []), this.role_name],
         });
         this.role_name = '';
-        this.loading = false;
+        this.loading.set(false);
         this._dialog_ref.disableClose = false;
     }
 
@@ -258,7 +238,7 @@ export class EmergencyContactModalComponent {
     }
 
     public async save() {
-        this.loading = true;
+        this.loading.set(true);
         this._dialog_ref.disableClose = true;
         const data: any = await nextValueFrom(this.data);
         const contacts = data?.contacts || [];
@@ -274,7 +254,7 @@ export class EmergencyContactModalComponent {
             .toPromise()
             .catch((e) => {
                 this._dialog_ref.disableClose = false;
-                this.loading = false;
+                this.loading.set(false);
                 notifyError(
                     i18n('APP.CONCIERGE.CONTACTS_SAVE_ERROR', { error: e }),
                 );
@@ -282,7 +262,7 @@ export class EmergencyContactModalComponent {
             });
         this._dialog_ref.disableClose = false;
         notifySuccess(i18n('APP.CONCIERGE.CONTACTS_SAVE_SUCCESS'));
-        this.loading = false;
+        this.loading.set(false);
         this._dialog_ref.close();
     }
 }

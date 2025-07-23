@@ -1,13 +1,23 @@
-import { Component, ElementRef, inject, viewChild } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
 import {
-    MAT_DIALOG_DATA,
-    MatDialog,
-    MatDialogRef,
-} from '@angular/material/dialog';
-import { notifyError } from '@placeos/common';
+    Component,
+    ElementRef,
+    inject,
+    OnInit,
+    signal,
+    viewChild,
+} from '@angular/core';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { notifyError, padLength } from '@placeos/common';
 import { MediaAnimation, SignagePlaylist } from '@placeos/ts-client';
-import { getUnixTime } from 'date-fns';
+import {
+    addDays,
+    endOfDay,
+    format,
+    getUnixTime,
+    set,
+    startOfDay,
+} from 'date-fns';
 import { BehaviorSubject } from 'rxjs';
 import { SignageStateService } from './signage-state.service';
 
@@ -23,7 +33,7 @@ import { SignageStateService } from './signage-state.service';
             "
             (confirm)="savePlaylist()"
             [loading]="
-                loading
+                loading()
                     ? ('APP.CONCIERGE.SIGNAGE_PLAYLISTS_SAVING' | translate)
                     : ''
             "
@@ -60,30 +70,36 @@ import { SignageStateService } from './signage-state.service';
                     >
                     </settings-toggle>
                 </div>
-                <div class="flex items-center space-x-4">
-                    <label
-                        for="default-duration"
-                        class="m-0 flex w-auto min-w-0 items-center space-x-2"
-                    >
-                        <div>Default Play Time</div>
-                        <icon
-                            class="text-xl"
-                            matTooltip="Default length of time to hold images on screen"
+                <div class="pb-4 pt-2">
+                    <div class="relative rounded border border-base-300">
+                        <label
+                            for="default-duration"
+                            class="absolute left-2 top-0 m-0 flex w-auto min-w-0 -translate-y-1/2 items-center space-x-2 bg-base-100 px-2"
                         >
-                            info
-                        </icon>
-                    </label>
-                    <div class="font-mono text-xs">
-                        {{ form.value.default_duration / 1000 | mediaDuration }}
+                            <div>Default Play Time</div>
+                        </label>
+                        <div class="flex items-center px-2 pt-2">
+                            <mat-slider
+                                class="flex-1"
+                                min="5000"
+                                max="300000"
+                                step="1000"
+                            >
+                                <input
+                                    name="default-duration"
+                                    matSliderThumb
+                                    formControlName="default_duration"
+                                />
+                            </mat-slider>
+                            <div class="w-16 px-2 text-right font-mono text-xs">
+                                {{
+                                    form.value.default_duration / 1000
+                                        | mediaDuration
+                                }}
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <mat-slider min="5000" max="300000" step="1000">
-                    <input
-                        name="default-duration"
-                        matSliderThumb
-                        formControlName="default_duration"
-                    />
-                </mat-slider>
                 <div class="flex space-x-2">
                     <div class="flex-1">
                         <label for="orientation">{{
@@ -196,8 +212,126 @@ import { SignageStateService } from './signage-state.service';
                             class="w-full"
                             [from]="form.value.valid_from"
                             formControlName="valid_until"
-                            [disabled]="!form.value.valid_from"
                         ></a-date-field>
+                    </div>
+                </div>
+                <div
+                    class="relative mb-12 space-y-2 rounded border border-base-300 px-4 pt-4"
+                >
+                    <label
+                        for="schedule"
+                        class="absolute left-2 top-0 m-0 flex w-auto min-w-0 -translate-y-1/2 items-center space-x-2 bg-base-100 px-2"
+                    >
+                        <div>Schedule</div>
+                    </label>
+                    <mat-form-field
+                        appearance="outline"
+                        class="no-subscript w-full"
+                    >
+                        <mat-select
+                            [ngModel]="schedule()"
+                            (ngModelChange)="schedule.set($event)"
+                            [ngModelOptions]="{ standalone: true }"
+                        >
+                            <mat-option value="">No schedule</mat-option>
+                            <mat-option value="between"
+                                >Play Between</mat-option
+                            >
+                            <mat-option
+                                value="exact"
+                                (click)="form.patchValue({ play_duration: 30 })"
+                                >Set Date & Time</mat-option
+                            >
+                            <mat-option
+                                value="recurring"
+                                (click)="form.patchValue({ play_duration: 30 })"
+                                >Recurring Schedule</mat-option
+                            >
+                        </mat-select>
+                    </mat-form-field>
+                    <div class="pt-2">
+                        @if (schedule() === 'between') {
+                            <div class="flex space-x-4">
+                                <div class="flex-1">
+                                    <label for="play-from">{{
+                                        'APP.CONCIERGE.PLAY_FROM' | translate
+                                    }}</label>
+                                    <a-time-field
+                                        name="play-from"
+                                        class="w-full"
+                                        [no_past_times]="false"
+                                        formControlName="play_from"
+                                    ></a-time-field>
+                                </div>
+                                <div class="flex-1">
+                                    <label for="play-until">{{
+                                        'APP.CONCIERGE.PLAY_UNTIL' | translate
+                                    }}</label>
+                                    <a-time-field
+                                        name="play-until"
+                                        class="w-full"
+                                        [no_past_times]="false"
+                                        [from]="form.value.play_from"
+                                        formControlName="play_until"
+                                    ></a-time-field>
+                                </div>
+                            </div>
+                        } @else if (schedule() === 'exact') {
+                            <div class="flex space-x-4">
+                                <div class="flex-1">
+                                    <label for="play-at">{{
+                                        'APP.CONCIERGE.PLAY_AT' | translate
+                                    }}</label>
+                                    <a-date-field
+                                        name="play-at"
+                                        class="w-full"
+                                        formControlName="play_at"
+                                    ></a-date-field>
+                                </div>
+                                <div class="flex-1">
+                                    <label for="play-at-time">&nbsp;</label>
+                                    <a-time-field
+                                        name="play-at-time"
+                                        class="w-full"
+                                        [ngModel]="form.value.play_at"
+                                        (ngModelChange)="
+                                            form.patchValue({ play_at: $event })
+                                        "
+                                        [ngModelOptions]="{ standalone: true }"
+                                    ></a-time-field>
+                                </div>
+                            </div>
+                            <label for="play-duration">{{
+                                'APP.CONCIERGE.PLAY_DURATION' | translate
+                            }}</label>
+                            <a-duration-field
+                                name="play-duration"
+                                class="w-full"
+                                formControlName="play_duration"
+                            ></a-duration-field>
+                        } @else if (schedule() === 'recurring') {
+                            <div class="flex space-x-4">
+                                <div class="flex-1">
+                                    <label for="name">{{
+                                        'APP.CONCIERGE.PLAY_CRON' | translate
+                                    }}</label>
+                                    <cron-input-field
+                                        formControlName="play_cron"
+                                    />
+                                </div>
+                                <div class="flex-1">
+                                    <label for="play-duration">{{
+                                        'APP.CONCIERGE.PLAY_DURATION'
+                                            | translate
+                                    }}</label>
+                                    <a-duration-field
+                                        name="play-duration"
+                                        class="w-full"
+                                        formControlName="play_duration"
+                                    ></a-duration-field>
+                                </div>
+                            </div>
+                        }
                     </div>
                 </div>
             </form>
@@ -206,16 +340,18 @@ import { SignageStateService } from './signage-state.service';
     styles: [``],
     standalone: false,
 })
-export class SignagePlaylistModalComponent {
+export class SignagePlaylistModalComponent implements OnInit {
     private _data = inject<SignagePlaylist>(MAT_DIALOG_DATA) ?? ({} as any);
     private _state = inject(SignageStateService);
-    private _dialog = inject(MatDialog);
     private _dialog_ref =
         inject<MatDialogRef<SignagePlaylistModalComponent>>(MatDialogRef);
 
-    public loading = false;
+    public readonly loading = signal(false);
     public readonly playlist = this._data;
     public readonly media = this._state.media;
+    public readonly schedule = signal<'' | 'between' | 'exact' | 'recurring'>(
+        '',
+    );
 
     public readonly search = new BehaviorSubject('');
 
@@ -236,26 +372,99 @@ export class SignagePlaylistModalComponent {
         ),
         valid_from: new FormControl(this.playlist.valid_from * 1000),
         valid_until: new FormControl(this.playlist.valid_until * 1000),
+        play_hours: new FormControl(this.playlist.play_hours || '00:00-00:00'),
+        play_duration: new FormControl(0),
+        play_from: new FormControl(0),
+        play_until: new FormControl(0),
+        play_at: new FormControl(this.playlist.play_at * 1000 || Date.now()),
+        play_cron: new FormControl('* * * * *'),
     });
 
     public readonly search_input =
         viewChild<ElementRef<HTMLInputElement>>('search_input');
 
+    public ngOnInit() {
+        this.form.patchValue({
+            ...this.playlist,
+            valid_from: this.playlist.valid_from * 1000,
+            valid_until: this.playlist.valid_until * 1000,
+        });
+        const { play_hours, play_at, play_cron } = this.form.value;
+        let [from, to] = (play_hours || '').split('-');
+        if (!from) from = '00:00';
+        if (!to) to = '00:00';
+        this.form.patchValue({
+            play_from: addDays(
+                set(Date.now(), {
+                    hours: parseInt(from.split(':')[0]),
+                    minutes: parseInt(from.split(':')[1]),
+                }),
+                1,
+            ).valueOf(),
+            play_until: addDays(
+                set(Date.now(), {
+                    hours: parseInt(to.split(':')[0]),
+                    minutes: parseInt(to.split(':')[1]),
+                }),
+                1,
+            ).valueOf(),
+            play_duration:
+                parseInt(from.split(':')[0]) * 60 +
+                parseInt(from.split(':')[1]),
+        });
+        this.schedule.set(
+            play_cron
+                ? 'recurring'
+                : play_at
+                  ? 'exact'
+                  : from !== to
+                    ? 'between'
+                    : '',
+        );
+    }
+
     public async savePlaylist() {
         this.form.markAllAsTouched();
         this.form.updateValueAndValidity();
         if (this.form.invalid) return;
-        this.loading = true;
+        this.loading.set(true);
         const form_value = this.form.getRawValue();
+        if (this.schedule() === 'between') {
+            form_value.play_hours = `${format(form_value.play_from, 'HH:mm')}-${format(form_value.play_until, 'HH:mm')}`;
+            delete form_value.play_at;
+            delete form_value.play_cron;
+        } else if (this.schedule() === 'exact') {
+            delete form_value.play_cron;
+            const hours = padLength(Math.floor(form_value.play_duration / 60));
+            const minutes = padLength(form_value.play_duration % 60);
+            form_value.play_hours = `${hours}:${minutes}`;
+        } else if (this.schedule() === 'recurring') {
+            const hours = padLength(Math.floor(form_value.play_duration / 60));
+            const minutes = padLength(form_value.play_duration % 60);
+            form_value.play_hours = `${hours}:${minutes}`;
+            delete form_value.play_at;
+        } else {
+            delete form_value.play_hours;
+            delete form_value.play_at;
+            delete form_value.play_cron;
+        }
+        console.log('Duration:', form_value.play_duration);
+        delete form_value.play_from;
+        delete form_value.play_until;
+        delete form_value.play_duration;
+        if (!form_value.valid_until) delete form_value.valid_until;
+        if (!form_value.valid_from) delete form_value.valid_from;
+        console.log('Form:', form_value);
+        debugger;
         const result = await this._state
             .savePlaylist({
-                ...form_value,
-                valid_from: getUnixTime(form_value.valid_from),
-                valid_until: getUnixTime(form_value.valid_until),
+                ...(form_value as any),
+                valid_from: getUnixTime(startOfDay(form_value.valid_from)),
+                valid_until: getUnixTime(endOfDay(form_value.valid_until)),
             })
             .catch((_) => {
                 notifyError('Error saving playlist');
-                this.loading = false;
+                this.loading.set(false);
                 throw _;
             });
         this._dialog_ref.close(result);

@@ -134,13 +134,6 @@ export interface EmergencyContactData {
                                 sortable: false,
                             },
                             {
-                                key: 'zone',
-                                name: 'COMMON.ZONE' | translate,
-                                content: zone_template,
-                                size: '8rem',
-                                sortable: false,
-                            },
-                            {
                                 key: 'actions',
                                 name: ' ',
                                 content: actions_template,
@@ -255,8 +248,6 @@ export class EmergencyContactsComponent {
         const success = this._clipboard.copy(id);
         if (success) notifySuccess("User's email copied to clipboard.");
     };
-
-    public ngOnInit() {}
 
     public manageRoles() {
         const ref = this._dialog.open(RoleManagementModalComponent, {});
