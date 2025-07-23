@@ -20,7 +20,7 @@ import ZoomMeeting from '@zoom/meetingsdk/embedded';
     selector: `zoom-controls`,
     template: `
         <div class="absolute inset-2 rounded bg-base-200">
-            <div #outlet></div>
+            <div #outlet class="h-full w-full"></div>
         </div>
     `,
     styles: [``],
