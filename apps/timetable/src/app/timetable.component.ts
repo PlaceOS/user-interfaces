@@ -38,7 +38,7 @@ import { debounceTime, map } from 'rxjs/operators';
                     class="sticky left-0 z-20 flex min-h-full w-16 min-w-[4rem] flex-col border-r border-base-300 bg-base-100"
                 >
                     <div
-                        class="min-h-[3rem] w-full border-b border-base-300"
+                        class="z-50 min-h-[3rem] w-full border-b border-base-300"
                     ></div>
                     <div class="relative flex h-1/2 w-full flex-1 flex-col">
                         <div
@@ -59,10 +59,12 @@ import { debounceTime, map } from 'rxjs/operators';
                                     text
                                     class="absolute left-0 right-2 top-0 -translate-y-1/2 bg-base-100 pr-2 text-right text-sm"
                                 >
-                                    {{ hr % 12 === 0 ? '12' : hr % 12 }}
-                                    <span class="text-[0.625rem]">{{
-                                        hr >= 12 ? 'PM' : 'AM'
-                                    }}</span>
+                                    @if (i > 0) {
+                                        {{ hr % 12 === 0 ? '12' : hr % 12 }}
+                                        <span class="text-[0.625rem]">{{
+                                            hr >= 12 ? 'PM' : 'AM'
+                                        }}</span>
+                                    }
                                 </div>
                                 <div
                                     class="absolute inset-x-0 top-1/2 w-full border-b border-base-300"
@@ -144,6 +146,7 @@ export class AppTimetableComponent extends AsyncHandler implements OnInit {
 
     public async ngOnInit() {
         await firstTruthyValueFrom(this._org.initialised);
+        await firstTruthyValueFrom(this._settings.initialised);
         await firstTruthyValueFrom(this._spaces.initialised);
         this.interval('time', () => this.date.set(Date.now()), 2000);
         this.subscription(
