@@ -50,7 +50,7 @@ import { debounceTime, map } from 'rxjs/operators';
                                 class="arrow absolute left-0 top-0 -translate-y-1/2"
                             ></div>
                         </div>
-                        @for (hr of hours; track i; let i = $index) {
+                        @for (hr of hours(); track hr; let i = $index) {
                             <div
                                 hour
                                 class="relative z-10 min-h-[2rem] w-full flex-1 border-b border-base-300"
@@ -59,9 +59,9 @@ import { debounceTime, map } from 'rxjs/operators';
                                     text
                                     class="absolute left-0 right-2 top-0 -translate-y-1/2 bg-base-100 pr-2 text-right text-sm"
                                 >
-                                    {{ hr }}
+                                    {{ hr % 12 === 0 ? '12' : hr % 12 }}
                                     <span class="text-[0.625rem]">{{
-                                        i >= 12 ? 'PM' : 'AM'
+                                        hr >= 12 ? 'PM' : 'AM'
                                     }}</span>
                                 </div>
                                 <div
@@ -76,12 +76,19 @@ import { debounceTime, map } from 'rxjs/operators';
                         <space-timetable
                             class="relative z-10 min-w-[24vw] flex-1 border-r border-base-300"
                             [space]="space"
+                            [time_offset]="offset()"
+                            [time_period]="length()"
                         ></space-timetable>
                     }
                 } @else {
                     <div
-                        class="flex min-w-[30vw] flex-1 flex-col items-center justify-center text-white opacity-60"
+                        class="flex min-w-[30vw] flex-1 flex-col items-center justify-center opacity-30"
                     >
+                        <icon
+                            className="material-symbols-sharp"
+                            class="text-8xl"
+                            >no_meeting_room</icon
+                        >
                         <p>No spaces have been selected</p>
                     </div>
                 }
@@ -113,9 +120,9 @@ export class AppTimetableComponent extends AsyncHandler implements OnInit {
 
     public readonly spaces = signal<Space[]>([]);
     public readonly date = signal(Date.now());
-    public readonly hours = new Array(24)
-        .fill(0)
-        .map((_, idx) => (idx % 12 === 0 ? 12 : idx % 12));
+    public readonly hours = signal([]);
+    public readonly offset = signal(0);
+    public readonly length = signal(24);
 
     public readonly time = computed(() => startOfSecond(this.date()));
 
@@ -136,6 +143,7 @@ export class AppTimetableComponent extends AsyncHandler implements OnInit {
     );
 
     public async ngOnInit() {
+        await firstTruthyValueFrom(this._org.initialised);
         await firstTruthyValueFrom(this._spaces.initialised);
         this.interval('time', () => this.date.set(Date.now()), 2000);
         this.subscription(
@@ -144,8 +152,24 @@ export class AppTimetableComponent extends AsyncHandler implements OnInit {
                 if (params.has('sys_ids')) {
                     const id_list = params.get('sys_ids').split(',');
                     this.spaces.set(id_list.map((_) => this._spaces.find(_)));
+                    this._initTimeBlocks();
                 }
             }),
+        );
+        this._initTimeBlocks();
+    }
+
+    private _initTimeBlocks() {
+        const block_start = Math.floor(
+            this._settings.get('app.block_start') || 0,
+        );
+        const block_end = Math.floor(this._settings.get('app.block_end') || 24);
+        this.offset.set(block_start);
+        this.length.set(block_end - block_start);
+        this.hours.set(
+            new Array(block_end - block_start)
+                .fill(0)
+                .map((_, i) => i + block_start),
         );
     }
 }

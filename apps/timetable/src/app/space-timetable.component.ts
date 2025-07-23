@@ -25,6 +25,8 @@ import { Space } from '@placeos/spaces';
                         {{ event.date }}
                         <space-event-details
                             [event]="event"
+                            [time_offset]="time_offset()"
+                            [time_period]="time_period()"
                         ></space-event-details>
                     }
                 </div>
@@ -45,6 +47,8 @@ import { Space } from '@placeos/spaces';
 })
 export class SpaceTimetableComponent extends AsyncHandler {
     public readonly space = input<Space>(null);
+    public readonly time_offset = input<number>(0);
+    public readonly time_period = input<number>(24);
 
     public readonly bookings = signal<any[]>([]);
 }
