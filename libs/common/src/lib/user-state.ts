@@ -1,5 +1,5 @@
 import { showUser } from '@placeos/ts-client';
-import { BehaviorSubject, combineLatest } from 'rxjs';
+import { BehaviorSubject, combineLatest, lastValueFrom } from 'rxjs';
 import { delay, map, retry } from 'rxjs/operators';
 
 import { StaffUser } from 'libs/users/src/lib/user.class';
@@ -31,7 +31,7 @@ setTimeout(() => {
 
 export function reloadUserData() {
     setTimeout(async () => {
-        const user = await showUser('current').toPromise();
+        const user = await lastValueFrom(showUser('current'));
         _current_user.next(new StaffUser(user as any));
     }, 300);
 }

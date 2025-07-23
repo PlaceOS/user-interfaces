@@ -13,6 +13,6 @@ export class TranslatePipe implements PipeTransform {
         args: Record<string, any> = {},
         plural?: number,
     ) {
-        return this._locale.get(value, args, plural);
+        return this._locale.get(value, args, plural) || value;
     }
 }

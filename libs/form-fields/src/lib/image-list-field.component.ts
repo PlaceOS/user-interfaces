@@ -27,13 +27,14 @@ import {
     unique,
     UploadsService,
 } from '@placeos/common';
+import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { ImageViewerComponent } from 'libs/components/src/lib/image-viewer.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 
 export interface UploadDetails {
     /** Unique ID for the upload */
-    id: number;
+    id: string;
     /** Name of the file uploaded */
     name: string;
     /** Progress of the file upload */
@@ -110,7 +111,7 @@ export interface UploadDetails {
             }
             @for (item of uploads | async; track item; let i = $index) {
                 <div
-                    image
+                    upload
                     class="border-base-content/10 /5 flex h-32 w-36 flex-shrink-0 items-center justify-center rounded border bg-base-200 bg-cover bg-center"
                     [style.transform]="'translate(-' + offset + '00%)'"
                     [matTooltip]="item.error"
@@ -225,6 +226,7 @@ export interface UploadDetails {
         IconComponent,
         CommonModule,
         TranslatePipe,
+        AuthenticatedImageDirective,
     ],
 })
 export class ImageListFieldComponent
@@ -238,10 +240,11 @@ export class ImageListFieldComponent
     /** List of images */
     public list: string[] = [];
     /** List of images */
-    public upload_ids = new BehaviorSubject<number[]>([]);
+    public upload_map: Record<string, string> = {};
+    public upload_ids = new BehaviorSubject<string[]>([]);
     private _upload_list = new BehaviorSubject<UploadDetails[]>([]);
     public readonly upload_list = this._upload_list.asObservable();
-    public offset: number = 0;
+    public offset = 0;
 
     public readonly view_space = signal(0);
     public readonly separators = [COMMA, ENTER];
@@ -249,7 +252,7 @@ export class ImageListFieldComponent
     public readonly uploads = combineLatest([
         this.upload_list,
         this.upload_ids,
-    ]).pipe(map(([list, ids]) => list.filter((i) => ids.includes(i.id))));
+    ]).pipe(map(([list, ids]) => list.filter((i) => ids.includes(i?.id))));
 
     public get length() {
         return this.list.length + this._upload_list.getValue().length + 1;
@@ -259,10 +262,6 @@ export class ImageListFieldComponent
         viewChild<ElementRef<HTMLDivElement>>('image_list');
     private readonly _file_input =
         viewChild<ElementRef<HTMLInputElement>>('file_input');
-
-    constructor() {
-        super();
-    }
 
     /** Form control on change handler */
     private _onChange: (_: string[]) => void;
@@ -284,7 +283,7 @@ export class ImageListFieldComponent
             this.upload_list.subscribe((list) => {
                 const id_list = this.upload_ids.getValue();
                 for (const id of id_list) {
-                    const item = list.find((_) => _.id === id);
+                    const item = list.find((_) => _?.id === id);
                     if (item && item.progress >= 100) {
                         this.addImageUrl(item.link);
                         this.upload_ids.next(
@@ -370,11 +369,15 @@ export class ImageListFieldComponent
         if (list.length === 0) return;
         const global_list = await nextValueFrom(this._uploads.upload_list);
         const new_list = global_list.filter((_) =>
-            list.find((i) => i === _.id),
+            list.find((i) => i === _?.id),
         );
         const done_list = new_list.filter((file) => file.progress >= 100);
         this._upload_list.next(new_list);
-        done_list.forEach((i) => delete i.upload);
+        done_list.forEach((i) => {
+            console.log('ID:', { ...i });
+            this.upload_map[i?.id] = i.upload?.id || i?.id;
+            delete i.upload;
+        });
         if (done_list.length >= list.length)
             this.clearInterval('update_status');
     }

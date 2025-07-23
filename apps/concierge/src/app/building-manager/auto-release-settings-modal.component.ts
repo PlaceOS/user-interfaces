@@ -183,7 +183,7 @@ import { map } from 'rxjs/operators';
                     </mat-select>
                 </mat-form-field>
                 @for (name of types; track name) {
-                    @if (settings.resources.includes(name)) {
+                    @if (settings.resources?.includes(name)) {
                         <div
                             class="mb-4 space-y-4 rounded-lg border border-base-200"
                         >

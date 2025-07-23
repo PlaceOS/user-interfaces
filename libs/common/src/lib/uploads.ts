@@ -6,13 +6,13 @@ import {
 import { Observable } from 'rxjs';
 import { takeWhile } from 'rxjs/operators';
 
-import { randomInt } from './general';
+import { randomString } from './general';
 
 import * as blobUtil from 'blob-util';
 
 export interface UploadDetails {
     /** Unique ID for the upload */
-    id: number;
+    id: string;
     /** Name of the file uploaded */
     name: string;
     /** Progress of the file upload */
@@ -37,7 +37,7 @@ export type UploadPermissions = 'none' | 'support' | 'admin';
  */
 export function uploadFile(
     file: File,
-    pub: boolean = true,
+    pub = true,
     permissions: UploadPermissions = 'none',
 ): Observable<UploadDetails> {
     return new Observable((observer) => {
@@ -52,7 +52,7 @@ export function uploadFile(
             } as any);
             const upload = upload_list[0];
             const upload_details: UploadDetails = {
-                id: randomInt(9999_9999_9999),
+                id: upload?.id || `uploads-${randomString(8)}`,
                 name: file.name,
                 progress: 0,
                 link: '',

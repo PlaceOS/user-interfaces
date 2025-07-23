@@ -28,7 +28,13 @@ import {
     updateSystem,
 } from '@placeos/ts-client';
 import { Attachment } from '@placeos/users';
-import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
+import {
+    BehaviorSubject,
+    combineLatest,
+    lastValueFrom,
+    Observable,
+    of,
+} from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -215,7 +221,7 @@ export class SignageStateService extends AsyncHandler {
         const ref = this._dialog.open(SignageDisplayModalComponent, {
             data: { display },
         });
-        const result = await ref.afterClosed().toPromise();
+        const result = await lastValueFrom(ref.afterClosed());
         this.timeout('changed', () => this._change.next(Date.now()));
         return result;
     }
@@ -234,11 +240,13 @@ export class SignageStateService extends AsyncHandler {
         if (result.reason !== 'done') return;
         result.loading(i18n('APP.CONCIERGE.SIGNAGE_DISPLAYS_REMOVE_LOADING'));
         if (display.map_id || display.email || display.module_list.length > 0) {
-            await updateSystem(display.id, {
-                signage: false,
-            } as any).toPromise();
+            await lastValueFrom(
+                updateSystem(display.id, {
+                    signage: false,
+                } as any),
+            );
         } else {
-            await removeSystem(display.id).toPromise();
+            await lastValueFrom(removeSystem(display.id));
         }
         this._change.next(Date.now());
         notifySuccess(i18n('APP.CONCIERGE.SIGNAGE_DISPLAYS_REMOVE_SUCCESS'));
@@ -246,10 +254,12 @@ export class SignageStateService extends AsyncHandler {
     }
 
     public async savePlaylist(playlist: Partial<SignagePlaylist>) {
-        const call = playlist.id
-            ? updateSignagePlaylist(playlist.id, playlist)
-            : addSignagePlaylist(playlist);
-        const new_playlist = await call.toPromise();
+        const call = lastValueFrom(
+            playlist.id
+                ? updateSignagePlaylist(playlist.id, playlist)
+                : addSignagePlaylist(playlist),
+        );
+        const new_playlist = await call;
         notifySuccess(i18n('APP.CONCIERGE.SIGNAGE_PLAYLISTS_SAVE_SUCCESS'));
         this._change.next(Date.now());
     }

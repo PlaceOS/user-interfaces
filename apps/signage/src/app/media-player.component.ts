@@ -6,20 +6,27 @@ import {
     OnChanges,
     OnInit,
     output,
+    signal,
     SimpleChanges,
     viewChild,
 } from '@angular/core';
 import { AsyncHandler, shuffleArrayWithFirstItem } from '@placeos/common';
 import { MediaAnimation } from '@placeos/ts-client';
+import { set } from 'date-fns';
+import { MediaEvent } from './signage.service';
 
 export interface MediaPlayerItem {
     id: string;
     name: string;
+    playlist: string;
     playlist_name: string;
     animation: MediaAnimation;
     type: 'image' | 'video';
     start_time: number;
     duration: number;
+    valid_from: number;
+    valid_until: number;
+    play_hours: string;
     getURL: () => Promise<URL>;
 }
 
@@ -28,7 +35,6 @@ export type MediaPlayerState = 'PAUSED' | 'PLAYING';
 @Component({
     selector: 'media-player',
     template: `
-        {{ controls() }}
         <div #previous_container class="absolute left-0 top-0 h-full w-full">
             <img
                 #previous_image_el
@@ -52,15 +58,15 @@ export type MediaPlayerState = 'PAUSED' | 'PLAYING';
         @if (controls()) {
             <div
                 class="absolute bottom-[4.5rem] left-1/2 w-56 -translate-x-1/2 overflow-hidden rounded-full border border-base-300 bg-base-100 p-1"
-                [matTooltip]="duration | mediaDuration"
+                [matTooltip]="duration() | mediaDuration"
                 matTooltipPosition="above"
             >
                 <mat-progress-bar
                     class="overflow-hidden rounded-full"
                     mode="determinate"
-                    [value]="progress"
+                    [value]="progress()"
                 ></mat-progress-bar>
-                @if (in_animation) {
+                @if (in_animation()) {
                     <div class="absolute inset-1 rounded-full bg-success"></div>
                 }
             </div>
@@ -162,9 +168,9 @@ export type MediaPlayerState = 'PAUSED' | 'PLAYING';
                     <icon [class.opacity-30]="!shuffle()"> shuffle </icon>
                 </button>
             </div>
-            @if (show_playlist) {
+            @if (show_playlist()) {
                 <div
-                    class="absolute bottom-24 right-4 top-4 flex flex-col space-y-2 overflow-auto rounded-xl border border-base-300 bg-base-100 p-2"
+                    class="absolute bottom-24 right-4 top-4 flex min-w-[20rem] flex-col space-y-2 overflow-auto rounded-xl border border-base-300 bg-base-100 p-2"
                 >
                     <div class="flex items-center space-x-4 p-2">
                         <h2>{{ 'APP.SIGNAGE.MEDIA_LIST' | translate }}</h2>
@@ -174,12 +180,14 @@ export type MediaPlayerState = 'PAUSED' | 'PLAYING';
                     </div>
                     <div>
                         @for (item of playlist_items; track item) {
+                            @let is_valid = isValidMedia(item);
                             <button
                                 matRipple
                                 class="flex w-[20rem] items-center space-x-2 rounded-lg p-2 text-left hover:bg-base-200"
                                 [class.overflow-visible]="$index === index()"
                                 [class.pointer-events-none]="$index === index()"
                                 (click)="setPlaylistItem($index)"
+                                [disabled]="!is_valid"
                             >
                                 <div
                                     class="flex h-10 w-10 items-center justify-center rounded-full"
@@ -188,11 +196,15 @@ export type MediaPlayerState = 'PAUSED' | 'PLAYING';
                                         $index === index()
                                     "
                                     [class.bg-base-300]="$index !== index()"
+                                    [class.!bg-error]="!is_valid"
+                                    [class.!text-error-content]="!is_valid"
+                                    [matTooltip]="validateMedia(item)"
+                                    matTooltipPosition="right"
                                 >
                                     <div
                                         class="relative flex h-7 w-7 items-center justify-center"
                                     >
-                                        @if ($index === index()) {
+                                        @if (is_valid && $index === index()) {
                                             <span
                                                 class="absolute z-0 inline-flex h-full w-full animate-ping rounded-full bg-info opacity-75"
                                             ></span>
@@ -203,9 +215,11 @@ export type MediaPlayerState = 'PAUSED' | 'PLAYING';
                                                 $index !== index()
                                             "
                                             >{{
-                                                $index === index()
-                                                    ? 'play_arrow'
-                                                    : 'not_started'
+                                                !is_valid
+                                                    ? 'error'
+                                                    : $index === index()
+                                                      ? 'play_arrow'
+                                                      : 'not_started'
                                             }}</icon
                                         >
                                     </div>
@@ -237,9 +251,9 @@ export type MediaPlayerState = 'PAUSED' | 'PLAYING';
                 icon
                 matRipple
                 class="absolute right-6 top-6 border border-base-200 bg-base-100 shadow"
-                (click)="show_playlist = !show_playlist"
+                (click)="show_playlist.set(!show_playlist())"
             >
-                <icon>{{ show_playlist ? 'close' : 'queue_music' }}</icon>
+                <icon>{{ show_playlist() ? 'close' : 'queue_music' }}</icon>
             </button>
         }
     `,
@@ -271,12 +285,13 @@ export class MediaPlayerComponent
     public readonly stateChange = output<MediaPlayerState>();
     public readonly indexChange = output<number>();
     public readonly mutedChange = output<boolean>();
+    public readonly event = output<MediaEvent>();
 
-    public duration = 0;
-    public progress = 0;
-    public show_playlist = false;
-    public hold_over_item = true;
-    public in_animation = false;
+    public readonly duration = signal(0);
+    public readonly progress = signal(0);
+    public readonly show_playlist = signal(false);
+    public readonly hold_over_item = signal(true);
+    public readonly in_animation = signal(false);
 
     private _item_playlist: MediaPlayerItem[] = [];
 
@@ -320,10 +335,10 @@ export class MediaPlayerComponent
             );
             if (this.index() >= 0 && current_exists) {
                 this._item_playlist = [current_item, ...this._item_playlist];
-                this.hold_over_item = true;
+                this.hold_over_item.set(true);
                 this.index.set(0);
             } else {
-                this.hold_over_item = false;
+                this.hold_over_item.set(false);
             }
             this.togglePause();
             this._updateItem();
@@ -376,10 +391,13 @@ export class MediaPlayerComponent
     }
 
     public nextItem() {
-        if (this.hold_over_item) {
-            this._item_playlist.shift();
+        if (this.hold_over_item()) {
+            const item = this._item_playlist.shift();
+            if (this.progress() > 50) {
+                this.event.emit({ type: 'media_count', ref_id: item.id });
+            }
             this.setPlaylistItem(0);
-            this.hold_over_item = false;
+            this.hold_over_item.set(false);
             return;
         }
         let next_index = this.index() + 1;
@@ -393,7 +411,40 @@ export class MediaPlayerComponent
             return;
         }
         const new_index = next_index % this._item_playlist.length;
+        if (this.progress() > 50) {
+            this.event.emit({
+                type: 'media_count',
+                ref_id: this._item_playlist[this.index()].id,
+            });
+        }
         this.setPlaylistItem(new_index);
+    }
+
+    public validateMedia(item: MediaPlayerItem) {
+        if (item.valid_from && item.valid_from * 1000 > Date.now())
+            return 'Media not valid yet.';
+        if (item.valid_until && item.valid_until * 1000 < Date.now())
+            return 'Media expired.';
+        const [from, until] = item.play_hours.split('-');
+        if (from !== until) {
+            const [from_hours, from_minutes] = from.split(':');
+            const [until_hours, until_minutes] = until.split(':');
+            const start = set(Date.now(), {
+                hours: parseInt(from_hours),
+                minutes: parseInt(from_minutes),
+            }).valueOf();
+            const end = set(Date.now(), {
+                hours: parseInt(until_hours),
+                minutes: parseInt(until_minutes),
+            }).valueOf();
+            if (start > Date.now()) return 'Before hours';
+            if (end < Date.now()) return 'After hours';
+        }
+        return '';
+    }
+
+    public isValidMedia(item: MediaPlayerItem): boolean {
+        return this.validateMedia(item) === '';
     }
 
     public toggleLoop() {
@@ -406,9 +457,9 @@ export class MediaPlayerComponent
     public toggleShuffle() {
         this.shuffle.set(!this.shuffle());
         const current_item = this.active_item;
-        if (this.hold_over_item) {
+        if (this.hold_over_item()) {
             this._item_playlist.shift();
-            this.hold_over_item = false;
+            this.hold_over_item.set(false);
         }
         if (this.shuffle()) {
             shuffleArrayWithFirstItem(this._item_playlist, this.index());
@@ -428,10 +479,15 @@ export class MediaPlayerComponent
     private _updateItem() {
         if (this.state() === 'PAUSED') return;
         const duration = Date.now() - this._item_start;
-        this.progress = Math.floor(
-            (duration / (this.active_item?.duration || 15 * 1000)) * 100,
-        );
-        this.duration = Math.floor(duration / 1000);
+        if (this._item_start) {
+            this.progress.set(
+                Math.floor(
+                    (duration / (this.active_item?.duration || 15 * 1000)) *
+                        100,
+                ),
+            );
+        }
+        this.duration.set(Math.floor(duration / 1000));
 
         if (!this._item_playlist?.length) return;
         this._processURLs();
@@ -445,14 +501,34 @@ export class MediaPlayerComponent
     }
 
     private setPlaylistItem(index: number) {
+        const old_index = this.index();
         this.index.set(index);
         this.indexChange.emit(index);
         const item = this.active_item;
+
+        const old_item = this._item_playlist[old_index];
+        if (
+            old_item?.id !== item?.id &&
+            old_item?.playlist !== item?.playlist &&
+            this.isValidMedia(item)
+        ) {
+            this.event.emit({ type: 'playlist_count', ref_id: item.playlist });
+            if (old_item?.playlist && this.progress() > 0) {
+                this.event.emit({
+                    type: 'playlist_through',
+                    ref_id: old_item.playlist,
+                });
+            }
+        }
         if (!item) return;
+        if (!this.isValidMedia(item)) {
+            this.nextItem();
+            return;
+        }
         this._item_start = Date.now();
         this._item_progress = 0;
-        this.progress = 0;
-        this.duration = 0;
+        this.progress.set(0);
+        this.duration.set(0);
         const url = this.url(item.id);
         if (!url) {
             this.timeout('wait-for-url', () => this.setPlaylistItem(index));
@@ -516,7 +592,7 @@ export class MediaPlayerComponent
     private _transition() {
         if (!this.active_item) return;
         if (this.state() === 'PLAYING') this.togglePause();
-        this.in_animation = true;
+        this.in_animation.set(true);
         if (this.active_item.animation === MediaAnimation.Cut) {
             this.timeout('re-start', () => this._onTransitionEnd(), 500);
             return;
@@ -589,7 +665,7 @@ export class MediaPlayerComponent
         this._previous_img_element().nativeElement.classList.add('hidden');
         prev_container_el.classList.remove('player-animate');
         container_el.classList.remove('player-animate');
-        this.in_animation = false;
+        this.in_animation.set(false);
         this.togglePause();
     }
 }

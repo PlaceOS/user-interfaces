@@ -20,6 +20,7 @@ import {
     listChildMetadata,
     PlaceZone,
     showMetadata,
+    showUser,
 } from '@placeos/ts-client';
 import {
     addDays,
@@ -233,53 +234,45 @@ export class BookingFormService extends AsyncHandler {
                         : this._org.building?.id) ||
                     this._org.organisation.id,
             }).pipe(
-                map(
-                    (booked_ids) => {
-                        const start = this.form.getRawValue().date;
-                        const end = addMinutes(
-                            start,
-                            this.form.getRawValue().duration,
-                        ).valueOf();
-                        this._resource_use = {};
-                        for (const id of booked_ids) {
-                            this._resource_use[id] = ' ';
-                        }
-                        const available = resources.filter((asset) => {
-                            const is_restricted = rulesForResource(
-                                {
-                                    date,
-                                    duration,
-                                    resource: asset,
-                                    host: user || currentUser(),
-                                },
-                                restrictions[asset.zone?.id] ||
-                                    restrictions[asset.zone?.parent_id] ||
-                                    restrictions[this._org.building.id] ||
-                                    [],
-                            ).hidden;
-                            return (
-                                !is_restricted &&
-                                (!asset.groups?.length ||
-                                    asset.groups.some((grp) =>
-                                        currentUser().groups.includes(grp),
-                                    )) &&
-                                asset.bookable !== false &&
-                                (!options.features ||
-                                    options.features?.every((_) =>
-                                        asset.features.includes(_),
-                                    )) &&
-                                (!options.zone_id ||
-                                    options.zone_id === asset.zone?.id ||
-                                    options.zone_id ===
-                                        asset.zone?.parent_id) &&
-                                !booked_ids.includes(asset.id)
-                            );
-                        });
-                        console.log('Resources Available:', available);
-                        return available;
-                    },
-                    catchError(() => of([])),
-                ),
+                map((booked_ids) => {
+                    this._resource_use = {};
+                    for (const id of booked_ids) {
+                        this._resource_use[id] = ' ';
+                    }
+                    const available = resources.filter((asset) => {
+                        const is_restricted = rulesForResource(
+                            {
+                                date,
+                                duration,
+                                resource: asset,
+                                host: user || currentUser(),
+                            },
+                            restrictions[asset.zone?.id] ||
+                                restrictions[asset.zone?.parent_id] ||
+                                restrictions[this._org.building.id] ||
+                                [],
+                        ).hidden;
+                        return (
+                            !is_restricted &&
+                            (!asset.groups?.length ||
+                                asset.groups.some((grp) =>
+                                    currentUser().groups.includes(grp),
+                                )) &&
+                            asset.bookable !== false &&
+                            (!options.features ||
+                                options.features?.every((_) =>
+                                    asset.features.includes(_),
+                                )) &&
+                            (!options.zone_id ||
+                                options.zone_id === asset.zone?.id ||
+                                options.zone_id === asset.zone?.parent_id) &&
+                            !booked_ids.includes(asset.id)
+                        );
+                    });
+                    console.log('Resources Available:', available);
+                    return available;
+                }),
+                catchError(() => of([])),
             );
         }),
         tap(() => this._loading.next('')),
@@ -555,16 +548,21 @@ export class BookingFormService extends AsyncHandler {
         const value = this.form.getRawValue();
         const booking = this._booking.getValue() || new Booking();
         if (!ignore_check) {
-            await this.checkResourceAvailable(
+            const host =
+                value.user?.email || value.user_email || currentUser()?.email;
+            await this._checkResourceAvailable(
                 {
                     ...booking,
                     ...value,
-                    user_email:
-                        value.user?.email ||
-                        value.user_email ||
-                        currentUser()?.email,
+                    user_email: host,
                 },
                 this._options.getValue().type,
+            );
+            await this._checkResourceRules(
+                value.resources,
+                value.date,
+                value.duration,
+                host,
             );
         }
         if (this._payments.enabled) {
@@ -608,7 +606,7 @@ export class BookingFormService extends AsyncHandler {
                       zone.id,
                   ])
                 : [this._org.organisation.id, this._org.region?.id];
-        const q: any = event_id
+        const q: Record<string, any> = event_id
             ? { ical_uid: value.ical_uid, event_id: event_id }
             : parent_id
               ? { booking_id: parent_id }
@@ -728,7 +726,7 @@ export class BookingFormService extends AsyncHandler {
         );
         const available = await Promise.all(
             group_members.map((_, idx) =>
-                this.checkResourceAvailable(
+                this._checkResourceAvailable(
                     {
                         ...form,
                         asset_id: resources[idx].map_id || resources[idx].id,
@@ -803,19 +801,21 @@ export class BookingFormService extends AsyncHandler {
     }
 
     /** Check if the given resource is available for the selected user to book */
-    private async checkResourceAvailable(
+    private async _checkResourceAvailable(
         { id, asset_id, date, duration, user_email }: Partial<Booking>,
         type: BookingType,
     ) {
         if (!user_email) throw i18n('BOOKINGS.NO_USER');
         if (type === 'group-event') return true;
-        const bookings = await queryBookings({
-            period_start: getUnixTime(date),
-            period_end: getUnixTime(date + duration * 60 * 1000),
-            type,
-            email: user_email,
-            limit: 1000,
-        }).toPromise();
+        const bookings = await lastValueFrom(
+            queryBookings({
+                period_start: getUnixTime(date),
+                period_end: getUnixTime(date + duration * 60 * 1000),
+                type,
+                email: user_email,
+                limit: 1000,
+            }),
+        );
         const active_bookings = bookings.filter(
             (_) =>
                 _.status !== 'declined' &&
@@ -857,11 +857,42 @@ export class BookingFormService extends AsyncHandler {
         return true;
     }
 
-    public loadResourceList(type: BookingType) {
+    private async _checkResourceRules(
+        assets: BookingAsset[],
+        date: number,
+        duration: number,
+        host: string,
+    ) {
+        const user = await lastValueFrom(showUser(host)).catch(() => ({
+            email: host,
+        }));
+        if (!assets?.length) return true;
+        const rules = await nextValueFrom(this.booking_rules);
+        const resource_rules = assets?.map((space) => {
+            const bld = this._org.buildings.find(
+                (b) => space.zone.parent_id === b.id,
+            );
+            return rulesForResource(
+                {
+                    date,
+                    duration,
+                    host: new User(user),
+                    resource: space,
+                },
+                rules[bld.id],
+            );
+        });
+        if (!resource_rules.every((_) => !_.hidden)) {
+            throw i18n('BOOKINGS.RULES_HIDDEN', undefined, assets.length);
+        }
+        return true;
+    }
+
+    public loadResourceList(type: string) {
         const use_region = this._settings.get('app.use_region');
         const map_metadata = (_) =>
             (_?.metadata[type]?.details instanceof Array
-                ? _.metadata[type]!.details
+                ? _.metadata[type].details
                 : []
             ).map((d) => ({
                 ...d,

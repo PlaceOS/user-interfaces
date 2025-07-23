@@ -1,15 +1,16 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AsyncHandler, SettingsService } from '@placeos/common';
-import { SignageService } from './signage.service';
+import { MediaEvent, SignageService } from './signage.service';
 
 @Component({
     selector: 'signage-panel',
     template: `
         <media-player
             [playlist]="playlist | async"
-            [controls]="debug"
+            [controls]="debug()"
             [animation_time]="animation_time"
+            (event)="handlePlayerEvent($event)"
         />
     `,
     styles: `
@@ -21,14 +22,14 @@ import { SignageService } from './signage.service';
     `,
     standalone: false,
 })
-export class SignagePanelComponent extends AsyncHandler {
+export class SignagePanelComponent extends AsyncHandler implements OnInit {
     private _router = inject(Router);
     private _route = inject(ActivatedRoute);
     private _signage = inject(SignageService);
     private _settings = inject(SettingsService);
 
     public readonly playlist = this._signage.playlist;
-    public debug = false;
+    public readonly debug = signal(false);
 
     public get animation_time() {
         return this._settings.get('app.default_animation_time');
@@ -52,8 +53,12 @@ export class SignagePanelComponent extends AsyncHandler {
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
-                if (params.has('debug')) this.debug = true;
+                if (params.has('debug')) this.debug.set(true);
             }),
         );
+    }
+
+    public handlePlayerEvent(e: MediaEvent) {
+        this._signage.storeMetricEvent(e);
     }
 }

@@ -225,7 +225,7 @@ import { lastValueFrom } from 'rxjs';
                                         </mat-form-field>
                                     </div>
                                     <div class="flex-1">
-                                        <label for="banner-type">Type</label>
+                                        <label for="banner-type">Message</label>
                                         <mat-form-field
                                             appearance="outline"
                                             class="w-full"

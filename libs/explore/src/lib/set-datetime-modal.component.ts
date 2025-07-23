@@ -8,6 +8,7 @@ import {
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { SettingsService } from '@placeos/common';
+
 import { BookingAsset } from 'libs/bookings/src/lib/booking-form.service';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
@@ -20,14 +21,16 @@ import { User } from 'libs/users/src/lib/user.class';
 @Component({
     selector: 'set-datetime-modal',
     template: `
-        <header classs="flex items-center justify-between">
-            <h2>Set date and time</h2>
+        <header
+            class="m-2 flex h-14 w-[calc(100%-1rem)] items-center justify-between rounded border-none bg-base-200 p-2"
+        >
+            <h2 class="px-2 text-xl font-medium">Set date and time</h2>
             <button icon matRipple mat-dialog-close>
                 <icon>close</icon>
             </button>
         </header>
         @if (form) {
-            <main [formGroup]="form" class="w-[24rem] max-w-[85vw] pt-4">
+            <main [formGroup]="form" class="w-[24rem] max-w-[85vw]">
                 @if (resource) {
                     <div
                         class="mx-auto flex w-[640px] max-w-[calc(100%-2rem)] flex-col space-x-0 sm:flex-row sm:space-x-2"
@@ -97,7 +100,7 @@ import { User } from 'libs/users/src/lib/user.class';
             </main>
         }
         <footer
-            class="flex w-full items-center justify-center border-t border-base-200 p-2"
+            class="mx-2 mb-2 flex w-[calc(100%-1rem)] items-center justify-end rounded border-none bg-base-200 p-2"
         >
             <button btn matRipple [mat-dialog-close]="form.value" class="w-32">
                 {{ 'COMMON.CONTINUE' | translate }}

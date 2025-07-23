@@ -242,7 +242,7 @@ import { SignageStateService } from './signage-state.service';
                     <icon class="text-6xl">hide_image</icon>
                     <p>
                         {{
-                            'APP.CONCIERGE.SIGNAGE_PLAYLIST_MEDIA_EMPTY'
+                            'APP.CONCIERGE.SIGNAGE_PLAYLISTS_MEDIA_EMPTY'
                                 | translate
                         }}
                     </p>

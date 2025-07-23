@@ -83,6 +83,9 @@ export class NewDeskFlowComponent extends AsyncHandler implements OnInit {
                             new Desk({
                                 id: asset.id,
                                 name: asset.name || asset.id,
+                                zone:
+                                    asset.zone ||
+                                    (this._org.levelsForBuilding()[0] as any),
                             }),
                         ],
                     });
