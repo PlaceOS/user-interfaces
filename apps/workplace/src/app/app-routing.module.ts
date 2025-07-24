@@ -66,6 +66,13 @@ const routes: Routes = [
                 (m) => m.GroupEventsModule,
             ),
     },
+    {
+        path: 'deals-n-offers',
+        canActivate: [AuthorisedUserGuard],
+        canLoad: [AuthorisedUserGuard],
+        loadChildren: () =>
+            import('./deals/deals.module').then((m) => m.DealsModule),
+    },
     { path: '**', redirectTo: '-', pathMatch: 'full' },
 ];
 

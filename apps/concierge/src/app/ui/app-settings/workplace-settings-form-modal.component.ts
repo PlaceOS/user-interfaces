@@ -128,6 +128,9 @@ import { lastValueFrom } from 'rxjs';
                                         <mat-option value="group-events"
                                             >Group Events</mat-option
                                         >
+                                        <mat-option value="deals-n-offers">
+                                            Deals & Offers
+                                        </mat-option>
                                     </mat-select>
                                 </mat-form-field>
                             </div>

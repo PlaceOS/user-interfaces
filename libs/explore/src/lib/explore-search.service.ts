@@ -234,7 +234,7 @@ export class ExploreSearchService {
         this._org.active_building,
         this._poi_metadata,
     ]).pipe(
-        filter(([bld]) => !!bld.id),
+        filter(([bld]) => !!bld?.id),
         map(([bld, metadata]) => {
             const mapping = metadata.details || {};
             const levels = this._org.levelsForBuilding(bld);

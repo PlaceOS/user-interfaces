@@ -89,7 +89,13 @@ export enum TimezoneDiffRange {
             </div>
         </ng-template>
     `,
-    styles: [``],
+    styles: [
+        `
+            :host.no-subscript > .error {
+                display: none;
+            }
+        `,
+    ],
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,

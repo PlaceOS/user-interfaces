@@ -144,6 +144,9 @@ import { lastValueFrom } from 'rxjs';
                                         <mat-option value="email-templates">
                                             Email Templates
                                         </mat-option>
+                                        <mat-option value="deals-n-offers">
+                                            Deals & Offers
+                                        </mat-option>
                                         <mat-option value="reports">
                                             Reports
                                         </mat-option>
