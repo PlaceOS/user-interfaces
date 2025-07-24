@@ -1800,6 +1800,7 @@
             "PLAY_AT": "Play At",
             "PLAY_CRON": "Play Schedule",
             "PLAY_DURATION": "Play For",
+            "PLAY_ONCE": "Play Once",
             "AVAILABLE_ROOMS_HEADER": "Set {{ type }} availability for rooms",
             "AVAILABLE_ROOMS_SAVING": "Saving room availability for {{ type }}...",
             "AVAILABLE_ROOMS_ENABLE": "Enable Selected",

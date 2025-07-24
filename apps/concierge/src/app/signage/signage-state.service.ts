@@ -256,7 +256,7 @@ export class SignageStateService extends AsyncHandler {
     public async savePlaylist(playlist: Partial<SignagePlaylist>) {
         const call = lastValueFrom(
             playlist.id
-                ? updateSignagePlaylist(playlist.id, playlist)
+                ? updateSignagePlaylist(playlist.id, playlist, 'put')
                 : addSignagePlaylist(playlist),
         );
         const new_playlist = await call;

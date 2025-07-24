@@ -1,4 +1,4 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { AsyncHandler, log, randomInt, shuffleArray } from '@placeos/common';
 import {
     post,
@@ -7,7 +7,14 @@ import {
     SignageMedia,
     SignagePlaylist,
 } from '@placeos/ts-client';
-import { BehaviorSubject, combineLatest, lastValueFrom, of } from 'rxjs';
+import { addSeconds, differenceInSeconds } from 'date-fns';
+import {
+    BehaviorSubject,
+    combineLatest,
+    interval,
+    lastValueFrom,
+    of,
+} from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -18,7 +25,9 @@ import {
     startWith,
     switchMap,
 } from 'rxjs/operators';
+import { getNextCronRunTimestampInRange } from './cron-helpers';
 import { MediaCacheService } from './media-cache.service';
+import { time } from './media-helpers';
 import { MediaPlayerItem } from './types';
 
 const DISPLAY_KEY = 'PlaceOS.SIGNAGE.display_details';
@@ -26,6 +35,11 @@ const DISPLAY_KEY = 'PlaceOS.SIGNAGE.display_details';
 export interface MediaEvent {
     type: 'media_count' | 'playlist_count' | 'playlist_through';
     ref_id: string;
+}
+
+interface PlaylistOverride {
+    ends_at: number;
+    playlist: MediaPlayerItem[];
 }
 
 interface SignageMetrics {
@@ -39,6 +53,11 @@ const EMPTY_METRICS = JSON.stringify({
     playlist_counts: {},
     media_counts: {},
 });
+
+function durationStampToMinutes(duration: string) {
+    const [hours, minutes] = duration.split(':').map(Number);
+    return hours * 60 + minutes;
+}
 
 @Injectable({
     providedIn: 'root',
@@ -56,6 +75,11 @@ export class SignageService extends AsyncHandler {
         playlist_counts: {},
         media_counts: {},
     };
+
+    public readonly override_playlist = signal<PlaylistOverride>({
+        ends_at: 0,
+        playlist: [],
+    });
 
     public readonly display = combineLatest([this._display, this._poll]).pipe(
         filter(([_]) => !!_),
@@ -104,8 +128,6 @@ export class SignageService extends AsyncHandler {
     public readonly playlist = this.display.pipe(
         map((item: any) => {
             if (!item) return [];
-            // Constuct list of playlists
-            console.log('Mappings:', item);
             let playlists = [...item.playlist_mappings[item.id]];
             for (const zone of item.zones) {
                 if (!item.playlist_mappings[zone]) continue;
@@ -119,29 +141,38 @@ export class SignageService extends AsyncHandler {
                 (p) => !p.play_at && !p.play_cron,
             );
         }),
+        startWith([]),
         shareReplay(1),
     );
 
     public readonly override_playlists = this.display.pipe(
         map((item: any) => {
             if (!item) return [];
-            // Constuct list of playlists
-            console.log('Mappings:', item);
-            let playlists = [...item.playlist_mappings[item.id]];
+            let playlists: string[] = [...item.playlist_mappings[item.id]];
             for (const zone of item.zones) {
                 if (!item.playlist_mappings[zone]) continue;
                 playlists = playlists.concat(item.playlist_mappings[zone]);
             }
-            this._playlists = playlists;
+            this._playlists = playlists as any;
+            const filtered = playlists.filter((id) => {
+                const [playlist] = item.playlist_config[id] as [
+                    SignagePlaylist,
+                    string[],
+                ];
+                return playlist.play_at || playlist.play_cron;
+            });
             // Map playlists to media
-            return this._getPlaylistMedia(
-                item,
-                playlists,
-                (p) => !!(p.play_at || p.play_cron),
-            );
+            return filtered;
         }),
+        startWith([]),
         shareReplay(1),
     );
+
+    public readonly override_check = combineLatest([
+        this.display,
+        this.override_playlists,
+        interval(30 * 1000).pipe(startWith(0)),
+    ]);
 
     public setDisplay(system_id: string) {
         this._display.next(system_id);
@@ -168,6 +199,116 @@ export class SignageService extends AsyncHandler {
         });
         this.interval('poll', () => this._poll.next(Date.now()), 60 * 1000);
         this.interval('metrics', () => this._postMetrics(), 10 * 60 * 1000);
+        this.subscription(
+            'override_check',
+            this.override_check.subscribe(([display, playlists]) => {
+                const playlist_details: SignagePlaylist[] = playlists.map(
+                    (id) => display.playlist_config[id][0],
+                );
+                const active_playlists = playlist_details.filter((plist) => {
+                    if (plist.play_at) {
+                        return (
+                            Math.abs(
+                                differenceInSeconds(plist.play_at, time()),
+                            ) <= 36
+                        );
+                    }
+                    if (plist.play_cron && plist.play_cron !== '* * * * *') {
+                        try {
+                            const next = getNextCronRunTimestampInRange(
+                                plist.play_cron,
+                                60,
+                                addSeconds(time(), -30).valueOf(),
+                            );
+                            return !!next;
+                        } catch {
+                            return false;
+                        }
+                    }
+                    return false;
+                });
+                const existing_override = this.override_playlist();
+                if (
+                    active_playlists.every(({ id }) =>
+                        existing_override.playlist.find(
+                            (media) => media.playlist === id,
+                        ),
+                    )
+                ) {
+                    return;
+                }
+                const media = this._getPlaylistMedia(
+                    display,
+                    active_playlists.map((_) => _.id),
+                );
+                const duration_minutes = playlist_details.reduce(
+                    (a, v) => Math.max(a, durationStampToMinutes(v.play_hours)),
+                    0,
+                );
+                const duration = duration_minutes * 60 * 1000;
+                log('SIGNAGE', 'Setting override playlist', [
+                    media,
+                    duration || 0,
+                ]);
+                this.override_playlist.set({
+                    playlist: media,
+                    ends_at: duration ? time() + duration : 0,
+                });
+            }),
+        );
+    }
+
+    public setPlaylistOverride(media: MediaPlayerItem[], ends_at = 0) {
+        this.override_playlist.set({ playlist: media, ends_at });
+    }
+
+    public clearPlaylistOverride() {
+        this.override_playlist.set({ playlist: [], ends_at: 0 });
+    }
+
+    public async storeMetricEvent(event: MediaEvent) {
+        if (event.type === 'media_count') {
+            const value = this._metrics.media_counts[event.ref_id] || 0;
+            this._metrics.media_counts[event.ref_id] = value + 1;
+        } else {
+            const playlist = this._playlists.find(
+                ({ id }) => id === event.ref_id,
+            );
+            if (!playlist || !playlist?.random) {
+                if (event.type === 'playlist_through') {
+                    const value =
+                        this._metrics.play_through_counts[event.ref_id] || 0;
+                    this._metrics.play_through_counts[event.ref_id] = value + 1;
+                } else if (event.type === 'playlist_count') {
+                    const value =
+                        this._metrics.playlist_counts[event.ref_id] || 0;
+                    this._metrics.playlist_counts[event.ref_id] = value + 1;
+                }
+            }
+        }
+    }
+
+    private _postMetrics() {
+        this.timeout(
+            'post-metrics',
+            async () => {
+                if (EMPTY_METRICS === JSON.stringify(this._metrics)) return;
+                const display_id = this._display.getValue();
+                await lastValueFrom(
+                    post(
+                        `/api/engine/v2/signage/${encodeURIComponent(display_id)}/metrics`,
+                        this._metrics,
+                    ),
+                );
+                log('SIGNAGE', 'Posted metrics:', [this._metrics]);
+                this._metrics = {
+                    play_through_counts: {},
+                    playlist_counts: {},
+                    media_counts: {},
+                };
+            },
+            randomInt(60),
+        );
     }
 
     private _getPlaylistMedia(
@@ -227,50 +368,5 @@ export class SignageService extends AsyncHandler {
                 } as MediaPlayerItem;
             })
             .filter((_) => !!_);
-    }
-
-    public async storeMetricEvent(event: MediaEvent) {
-        if (event.type === 'media_count') {
-            const value = this._metrics.media_counts[event.ref_id] || 0;
-            this._metrics.media_counts[event.ref_id] = value + 1;
-        } else {
-            const playlist = this._playlists.find(
-                ({ id }) => id === event.ref_id,
-            );
-            if (!playlist || !playlist?.random) {
-                if (event.type === 'playlist_through') {
-                    const value =
-                        this._metrics.play_through_counts[event.ref_id] || 0;
-                    this._metrics.play_through_counts[event.ref_id] = value + 1;
-                } else if (event.type === 'playlist_count') {
-                    const value =
-                        this._metrics.playlist_counts[event.ref_id] || 0;
-                    this._metrics.playlist_counts[event.ref_id] = value + 1;
-                }
-            }
-        }
-    }
-
-    private _postMetrics() {
-        this.timeout(
-            'post-metrics',
-            async () => {
-                if (EMPTY_METRICS === JSON.stringify(this._metrics)) return;
-                const display_id = this._display.getValue();
-                await lastValueFrom(
-                    post(
-                        `/api/engine/v2/signage/${encodeURIComponent(display_id)}/metrics`,
-                        this._metrics,
-                    ),
-                );
-                log('SIGNAGE', 'Posted metrics:', [this._metrics]);
-                this._metrics = {
-                    play_through_counts: {},
-                    playlist_counts: {},
-                    media_counts: {},
-                };
-            },
-            randomInt(60),
-        );
     }
 }

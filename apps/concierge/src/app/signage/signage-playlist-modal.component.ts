@@ -309,6 +309,12 @@ import { SignageStateService } from './signage-state.service';
                                 class="w-full"
                                 formControlName="play_duration"
                             ></a-duration-field>
+                            <settings-toggle
+                                formControlName="play_once"
+                                class="mb-4"
+                            >
+                                {{ 'APP.CONCIERGE.PLAY_ONCE' | translate }}
+                            </settings-toggle>
                         } @else if (schedule() === 'recurring') {
                             <div class="flex space-x-4">
                                 <div class="flex-1">
@@ -331,6 +337,12 @@ import { SignageStateService } from './signage-state.service';
                                     ></a-duration-field>
                                 </div>
                             </div>
+                            <settings-toggle
+                                formControlName="play_once"
+                                class="mb-4"
+                            >
+                                {{ 'APP.CONCIERGE.PLAY_ONCE' | translate }}
+                            </settings-toggle>
                         }
                     </div>
                 </div>
@@ -376,6 +388,7 @@ export class SignagePlaylistModalComponent implements OnInit {
         play_duration: new FormControl(0),
         play_from: new FormControl(0),
         play_until: new FormControl(0),
+        play_once: new FormControl(false),
         play_at: new FormControl(this.playlist.play_at * 1000 || Date.now()),
         play_cron: new FormControl('* * * * *'),
     });
@@ -411,6 +424,7 @@ export class SignagePlaylistModalComponent implements OnInit {
             play_duration:
                 parseInt(from.split(':')[0]) * 60 +
                 parseInt(from.split(':')[1]),
+            play_once: !play_hours,
         });
         this.schedule.set(
             play_cron
@@ -431,10 +445,10 @@ export class SignagePlaylistModalComponent implements OnInit {
         const form_value = this.form.getRawValue();
         if (this.schedule() === 'between') {
             form_value.play_hours = `${format(form_value.play_from, 'HH:mm')}-${format(form_value.play_until, 'HH:mm')}`;
-            delete form_value.play_at;
-            delete form_value.play_cron;
+            form_value.play_at = 0;
+            form_value.play_cron = '';
         } else if (this.schedule() === 'exact') {
-            delete form_value.play_cron;
+            form_value.play_cron = '';
             const hours = padLength(Math.floor(form_value.play_duration / 60));
             const minutes = padLength(form_value.play_duration % 60);
             form_value.play_hours = `${hours}:${minutes}`;
@@ -442,20 +456,18 @@ export class SignagePlaylistModalComponent implements OnInit {
             const hours = padLength(Math.floor(form_value.play_duration / 60));
             const minutes = padLength(form_value.play_duration % 60);
             form_value.play_hours = `${hours}:${minutes}`;
-            delete form_value.play_at;
+            form_value.play_at = 0;
         } else {
-            delete form_value.play_hours;
-            delete form_value.play_at;
-            delete form_value.play_cron;
+            form_value.play_hours = '';
+            form_value.play_at = 0;
+            form_value.play_cron = '';
         }
-        console.log('Duration:', form_value.play_duration);
         delete form_value.play_from;
         delete form_value.play_until;
         delete form_value.play_duration;
         if (!form_value.valid_until) delete form_value.valid_until;
         if (!form_value.valid_from) delete form_value.valid_from;
-        console.log('Form:', form_value);
-        debugger;
+        if (form_value.play_once) form_value.play_hours = '';
         const result = await this._state
             .savePlaylist({
                 ...(form_value as any),

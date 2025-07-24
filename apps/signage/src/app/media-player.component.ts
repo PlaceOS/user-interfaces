@@ -19,59 +19,91 @@ import { MediaPlayerItem, MediaPlayerState } from './types';
 @Component({
     selector: 'media-player',
     template: `
-        <div #previous_container class="absolute left-0 top-0 h-full w-full">
-            <img
-                #previous_image_el
-                class="absolute left-0 top-0 hidden h-full w-full object-contain object-center"
-            />
-            <video
-                #previous_video_el
-                class="absolute left-0 top-0 hidden h-full w-full object-contain object-center"
-            ></video>
-        </div>
-        <div #media_container class="absolute left-0 top-0 h-full w-full">
-            <img
-                #img_el
-                class="absolute left-0 top-0 h-full w-full object-contain object-center"
-            />
-            <video
-                #video_el
-                class="absolute left-0 top-0 h-full w-full object-contain object-center"
-            ></video>
-        </div>
-        @if (controls()) {
-            <div class="absolute left-0 top-0 p-4">
-                <time-controls />
-            </div>
-            <div class="absolute bottom-0 left-1/2 -translate-x-1/2">
-                <media-controls
-                    [state]="state()"
-                    [loop]="loop()"
-                    [muted]="muted()"
-                    [shuffle]="shuffle()"
-                    [progress]="progress()"
-                    [duration]="duration()"
-                    [animating]="in_animation()"
-                    (event)="handleControlEvent($event)"
+        <div class="absolute inset-0 bg-[#212121]">
+            <div
+                #previous_container
+                class="absolute left-0 top-0 h-full w-full"
+            >
+                <img
+                    #previous_image_el
+                    class="absolute left-0 top-0 hidden h-full w-full object-contain object-center"
                 />
+                <video
+                    #previous_video_el
+                    class="absolute left-0 top-0 hidden h-full w-full object-contain object-center"
+                ></video>
             </div>
-            @if (show_playlist()) {
-                <div class="absolute right-0 top-0 p-4">
-                    <playlist-display
-                        [playlist]="playlist_items"
-                        (selected)="setPlaylistItem($event)"
+            <div #media_container class="absolute left-0 top-0 h-full w-full">
+                <img
+                    #img_el
+                    class="absolute left-0 top-0 h-full w-full object-contain object-center"
+                />
+                <video
+                    #video_el
+                    class="absolute left-0 top-0 h-full w-full object-contain object-center"
+                ></video>
+            </div>
+            @if (controls()) {
+                <div class="absolute left-0 top-0 p-4">
+                    <time-controls />
+                </div>
+                <div class="absolute bottom-0 left-1/2 -translate-x-1/2">
+                    <media-controls
+                        [state]="state()"
+                        [loop]="loop()"
+                        [muted]="muted()"
+                        [shuffle]="shuffle()"
+                        [progress]="progress()"
+                        [duration]="duration()"
+                        [animating]="in_animation()"
+                        (event)="handleControlEvent($event)"
                     />
                 </div>
+                @if (can_close()) {
+                    <div class="absolute left-1/2 top-0 -translate-x-1/2 p-2">
+                        <div
+                            class="flex items-center space-x-4 rounded-full border border-base-200 bg-base-100 p-2"
+                        >
+                            <h2 class="max-w-[30vw] truncate py-2 pl-4">
+                                {{
+                                    playlist_items[0]?.playlist_name ||
+                                        'Unknown'
+                                }}
+                            </h2>
+                            <div
+                                class="rounded bg-base-200 px-2 py-1 font-mono text-[0.625rem]"
+                            >
+                                Override
+                            </div>
+                            <button
+                                icon
+                                matRipple
+                                class="border border-base-300"
+                                (click)="closed.emit()"
+                            >
+                                <icon>close</icon>
+                            </button>
+                        </div>
+                    </div>
+                }
+                @if (show_playlist()) {
+                    <div class="absolute right-0 top-0 p-4">
+                        <playlist-display
+                            [playlist]="playlist_items"
+                            (selected)="setPlaylistItem($event)"
+                        />
+                    </div>
+                }
+                <button
+                    icon
+                    matRipple
+                    class="absolute right-6 top-6 border border-base-200 bg-base-100 shadow"
+                    (click)="show_playlist.set(!show_playlist())"
+                >
+                    <icon>{{ show_playlist() ? 'close' : 'queue_music' }}</icon>
+                </button>
             }
-            <button
-                icon
-                matRipple
-                class="absolute right-6 top-6 border border-base-200 bg-base-100 shadow"
-                (click)="show_playlist.set(!show_playlist())"
-            >
-                <icon>{{ show_playlist() ? 'close' : 'queue_music' }}</icon>
-            </button>
-        }
+        </div>
     `,
     styles: [
         `
@@ -92,6 +124,8 @@ export class MediaPlayerComponent
 {
     public readonly playlist = input<MediaPlayerItem[]>([]);
     public readonly controls = input(false);
+    public readonly override = input(false);
+    public readonly can_close = input(false);
     public readonly loop = model<'NONE' | 'ONE' | 'ALL'>('ALL');
     public readonly shuffle = model(false);
     public readonly index = model(-1);
@@ -102,6 +136,7 @@ export class MediaPlayerComponent
     public readonly indexChange = output<number>();
     public readonly mutedChange = output<boolean>();
     public readonly event = output<MediaEvent>();
+    public readonly closed = output<void>();
 
     public readonly duration = signal(0);
     public readonly progress = signal(0);
@@ -170,6 +205,17 @@ export class MediaPlayerComponent
         if (changes.muted) {
             this._video_element().nativeElement.muted = !!this.muted();
         }
+        if (changes.override) {
+            if (this.override()) {
+                if (this.state() === 'PLAYING') this.togglePause();
+                this.interval('override', () =>
+                    this.state() === 'PLAYING' ? this.togglePause() : '',
+                );
+            } else {
+                if (this.state() === 'PAUSED') this.togglePause();
+                this.clearInterval('override');
+            }
+        }
     }
 
     public url(id: string) {
@@ -202,7 +248,9 @@ export class MediaPlayerComponent
             this._item_start = Date.now() - this._item_progress;
             this._item_progress = 0;
             if (this.active_item?.type === 'video') {
-                this._video_element().nativeElement.play();
+                requestAnimationFrame(() =>
+                    this._video_element().nativeElement.play(),
+                );
             }
             if (this.index() === -1) this._updateItem();
         }
@@ -313,7 +361,8 @@ export class MediaPlayerComponent
         const old_item = this._item_playlist[old_index];
         if (
             old_item?.id !== item?.id &&
-            old_item?.playlist !== item?.playlist &&
+            (old_item?.playlist !== item?.playlist ||
+                old_index >= this._item_playlist.length - 1) &&
             this.isValidMedia(item)
         ) {
             this.event.emit({ type: 'playlist_count', ref_id: item.playlist });
@@ -343,7 +392,9 @@ export class MediaPlayerComponent
             this._video_element().nativeElement.src = url.toString();
             this._video_element().nativeElement.classList.remove('hidden');
             try {
-                this._video_element().nativeElement.play();
+                requestAnimationFrame(() =>
+                    this._video_element().nativeElement.play(),
+                );
             } catch (e) {
                 this.nextItem();
             }

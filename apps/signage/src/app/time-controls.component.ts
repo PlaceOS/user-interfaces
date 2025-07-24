@@ -43,11 +43,13 @@ import { SettingsToggleComponent } from '../../../../libs/components/src/lib/set
                     </div>
                     <div class="flex h-14 space-x-2">
                         <a-date-field
+                            [from]="1"
                             [ngModel]="edited_time()"
                             (ngModelChange)="edited_time.set($event)"
                             class="w-40 flex-1"
                         />
                         <a-time-field
+                            [no_past_times]="false"
                             [ngModel]="edited_time()"
                             (ngModelChange)="edited_time.set($event)"
                             class="w-40 flex-1"
