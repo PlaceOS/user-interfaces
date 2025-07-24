@@ -1,14 +1,18 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { AsyncHandler, i18n, Identity } from '@placeos/common';
+import {
+    AsyncHandler,
+    firstTruthyValueFrom,
+    i18n,
+    Identity,
+} from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { PlaceSystem, querySystems } from '@placeos/ts-client';
 import { of } from 'rxjs';
 import {
     catchError,
     filter,
-    first,
     map,
     shareReplay,
     switchMap,
@@ -36,22 +40,22 @@ const STORE_BUILDING_KEY = `${STORE_PREFIX}.building`;
                 @if (!loading) {
                     <main class="px-4 py-2">
                         <!-- <label for="building">{{'APP.SIGNAGE.BOOTSTRAP_BUILDING' | translate}}</label>
-                <mat-form-field appearance="outline">
-                  <mat-select
-                    #select
-                    name="building"
-                    [ngModel]="(active_building | async)?.id"
-                    (ngModelChange)="setBuilding($event)"
-                    [placeholder]="'APP.SIGNAGE.BOOTSTRAP_BUILDING_SELECT' | translate"
-                    >
-                    <mat-option
-                      *ngFor="let option of buildings | async"
-                      [value]="option.id"
-                      >
-                      {{ option.name }}
-                    </mat-option>
-                  </mat-select>
-                </mat-form-field> -->
+                            <mat-form-field appearance="outline">
+                            <mat-select
+                                #select
+                                name="building"
+                                [ngModel]="(active_building | async)?.id"
+                                (ngModelChange)="setBuilding($event)"
+                                [placeholder]="'APP.SIGNAGE.BOOTSTRAP_BUILDING_SELECT' | translate"
+                                >
+                                <mat-option
+                                *ngFor="let option of buildings | async"
+                                [value]="option.id"
+                                >
+                                {{ option.name }}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field> -->
                         <label for="display">
                             {{ 'APP.SIGNAGE.BOOTSTRAP_DISPLAY' | translate }}
                         </label>
@@ -173,7 +177,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
     }
 
     public async ngOnInit() {
-        await this._org.initialised.pipe(first((_) => _)).toPromise();
+        await firstTruthyValueFrom(this._org.initialised);
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
@@ -204,9 +208,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
      */
     public async bootstrapKiosk() {
         this.loading = i18n('APP.SIGNAGE.BOOTSTRAP_LOADING');
-        const bld = await this.active_building
-            .pipe(first((_) => !!_))
-            .toPromise();
+        const bld = await firstTruthyValueFrom(this.active_building);
         if (!bld?.id || !this.active_display || !localStorage) {
             this.loading = '';
             return;

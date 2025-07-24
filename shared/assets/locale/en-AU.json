@@ -9,6 +9,7 @@
         "APPLY": "Apply",
         "ACCEPT": "Accept",
         "CANCEL": "Cancel",
+        "CLEAR": "Clear",
         "CANCEL_BOOKING": "Cancel Booking",
         "REFRESH": "Refresh",
         "CHANGE": "Change",
@@ -1934,7 +1935,10 @@
             "LOOP_OFF": "Loop [Off]",
             "SHUFFLE": "Shuffle [{{ state }}]",
             "MEDIA_LIST": "Media to play",
-            "MEDIA_LIST_END": "End of player media"
+            "MEDIA_LIST_END": "End of player media",
+            "MEDIA_LIST_EMPTY": "No media available to play",
+            "PLAYLIST_LENGTH_1": "{{ count }} item",
+            "PLAYLIST_LENGTH_N": "{{ count }} items"
         },
         "OUTLOOK": {},
         "MAP_KIOSK": {},

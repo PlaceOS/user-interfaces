@@ -12,25 +12,9 @@ import {
 } from '@angular/core';
 import { AsyncHandler, shuffleArrayWithFirstItem } from '@placeos/common';
 import { MediaAnimation } from '@placeos/ts-client';
-import { set } from 'date-fns';
+import { validateMedia } from './media-helpers';
 import { MediaEvent } from './signage.service';
-
-export interface MediaPlayerItem {
-    id: string;
-    name: string;
-    playlist: string;
-    playlist_name: string;
-    animation: MediaAnimation;
-    type: 'image' | 'video';
-    start_time: number;
-    duration: number;
-    valid_from: number;
-    valid_until: number;
-    play_hours: string;
-    getURL: () => Promise<URL>;
-}
-
-export type MediaPlayerState = 'PAUSED' | 'PLAYING';
+import { MediaPlayerItem, MediaPlayerState } from './types';
 
 @Component({
     selector: 'media-player',
@@ -56,195 +40,27 @@ export type MediaPlayerState = 'PAUSED' | 'PLAYING';
             ></video>
         </div>
         @if (controls()) {
-            <div
-                class="absolute bottom-[4.5rem] left-1/2 w-56 -translate-x-1/2 overflow-hidden rounded-full border border-base-300 bg-base-100 p-1"
-                [matTooltip]="duration() | mediaDuration"
-                matTooltipPosition="above"
-            >
-                <mat-progress-bar
-                    class="overflow-hidden rounded-full"
-                    mode="determinate"
-                    [value]="progress()"
-                ></mat-progress-bar>
-                @if (in_animation()) {
-                    <div class="absolute inset-1 rounded-full bg-success"></div>
-                }
+            <div class="absolute left-0 top-0 p-4">
+                <time-controls />
             </div>
-            <div
-                class="absolute bottom-2 left-1/2 flex -translate-x-1/2 items-center space-x-2 overflow-hidden rounded-full border border-base-300 bg-base-100 p-2 text-lg"
-            >
-                <button
-                    icon
-                    matRipple
-                    class="hover:bg-base-200"
-                    (click)="previousItem()"
-                    [matTooltip]="'APP.SIGNAGE.PREVIOUS' | translate"
-                >
-                    <icon>skip_previous</icon>
-                </button>
-                <button
-                    icon
-                    matRipple
-                    class="hover:bg-base-200"
-                    (click)="togglePause()"
-                    [matTooltip]="
-                        (state() === 'PLAYING'
-                            ? 'APP.SIGNAGE.PLAY'
-                            : 'APP.SIGNAGE.PAUSE'
-                        ) | translate
-                    "
-                >
-                    <icon>{{
-                        state() === 'PLAYING' ? 'pause' : 'play_arrow'
-                    }}</icon>
-                </button>
-                <button
-                    icon
-                    matRipple
-                    class="hover:bg-base-200"
-                    (click)="nextItem()"
-                    [matTooltip]="'APP.SIGNAGE.NEXT' | translate"
-                >
-                    <icon>skip_next</icon>
-                </button>
-                <button
-                    icon
-                    matRipple
-                    class="hover:bg-base-200"
-                    (click)="toggleMuted()"
-                    [matTooltip]="
-                        'APP.SIGNAGE.VOLUME'
-                            | translate
-                                : {
-                                      state:
-                                          (muted() ? 'COMMON.OFF' : 'COMMON.ON')
-                                          | translate,
-                                  }
-                    "
-                >
-                    <icon>{{ muted() ? 'volume_off' : 'volume_up' }}</icon>
-                </button>
-                <button
-                    icon
-                    matRipple
-                    class="hover:bg-base-200"
-                    (click)="toggleLoop()"
-                    [matTooltip]="
-                        (loop() === 'ALL'
-                            ? 'APP.SIGNAGE.LOOP_ALL'
-                            : loop() === 'ONE'
-                              ? 'APP.SIGNAGE.LOOP_ONE'
-                              : 'APP.SIGNAGE.LOOP_OFF'
-                        ) | translate
-                    "
-                >
-                    <icon [class.opacity-30]="loop() === 'NONE'">
-                        {{
-                            loop() === 'ALL'
-                                ? 'repeat'
-                                : loop() === 'ONE'
-                                  ? 'repeat_one'
-                                  : 'repeat'
-                        }}
-                    </icon>
-                </button>
-                <button
-                    icon
-                    matRipple
-                    class="hover:bg-base-200"
-                    (click)="toggleShuffle()"
-                    [matTooltip]="
-                        'APP.SIGNAGE.SHUFFLE'
-                            | translate
-                                : {
-                                      state:
-                                          (shuffle()
-                                              ? 'COMMON.ON'
-                                              : 'COMMON.OFF'
-                                          ) | translate,
-                                  }
-                    "
-                >
-                    <icon [class.opacity-30]="!shuffle()"> shuffle </icon>
-                </button>
+            <div class="absolute bottom-0 left-1/2 -translate-x-1/2">
+                <media-controls
+                    [state]="state()"
+                    [loop]="loop()"
+                    [muted]="muted()"
+                    [shuffle]="shuffle()"
+                    [progress]="progress()"
+                    [duration]="duration()"
+                    [animating]="in_animation()"
+                    (event)="handleControlEvent($event)"
+                />
             </div>
             @if (show_playlist()) {
-                <div
-                    class="absolute bottom-24 right-4 top-4 flex min-w-[20rem] flex-col space-y-2 overflow-auto rounded-xl border border-base-300 bg-base-100 p-2"
-                >
-                    <div class="flex items-center space-x-4 p-2">
-                        <h2>{{ 'APP.SIGNAGE.MEDIA_LIST' | translate }}</h2>
-                        <div class="text-xs opacity-30">
-                            ({{ playlist_items?.length || 0 }} items)
-                        </div>
-                    </div>
-                    <div>
-                        @for (item of playlist_items; track item) {
-                            @let is_valid = isValidMedia(item);
-                            <button
-                                matRipple
-                                class="flex w-[20rem] items-center space-x-2 rounded-lg p-2 text-left hover:bg-base-200"
-                                [class.overflow-visible]="$index === index()"
-                                [class.pointer-events-none]="$index === index()"
-                                (click)="setPlaylistItem($index)"
-                                [disabled]="!is_valid"
-                            >
-                                <div
-                                    class="flex h-10 w-10 items-center justify-center rounded-full"
-                                    [class.bg-info]="$index === index()"
-                                    [class.text-info-content]="
-                                        $index === index()
-                                    "
-                                    [class.bg-base-300]="$index !== index()"
-                                    [class.!bg-error]="!is_valid"
-                                    [class.!text-error-content]="!is_valid"
-                                    [matTooltip]="validateMedia(item)"
-                                    matTooltipPosition="right"
-                                >
-                                    <div
-                                        class="relative flex h-7 w-7 items-center justify-center"
-                                    >
-                                        @if (is_valid && $index === index()) {
-                                            <span
-                                                class="absolute z-0 inline-flex h-full w-full animate-ping rounded-full bg-info opacity-75"
-                                            ></span>
-                                        }
-                                        <icon
-                                            class="relative z-10 text-2xl"
-                                            [class.opacity-30]="
-                                                $index !== index()
-                                            "
-                                            >{{
-                                                !is_valid
-                                                    ? 'error'
-                                                    : $index === index()
-                                                      ? 'play_arrow'
-                                                      : 'not_started'
-                                            }}</icon
-                                        >
-                                    </div>
-                                </div>
-                                <div class="flex w-1/2 flex-1 flex-col">
-                                    <div class="truncate">{{ item.name }}</div>
-                                    <div class="text-xs opacity-30">
-                                        {{ item.playlist_name }}
-                                    </div>
-                                </div>
-                                <div
-                                    class="rounded bg-info px-2 py-1 font-mono text-xs text-info-content"
-                                >
-                                    {{ item.duration / 1000 | mediaDuration }}
-                                </div>
-                            </button>
-                        }
-                    </div>
-                    <div class="flex flex-col justify-end">
-                        <div
-                            class="rounded-lg bg-base-300 p-2 text-center text-xs opacity-30"
-                        >
-                            {{ 'APP.SIGNAGE.MEDIA_LIST_END' | translate }}
-                        </div>
-                    </div>
+                <div class="absolute right-0 top-0 p-4">
+                    <playlist-display
+                        [playlist]="playlist_items"
+                        (selected)="setPlaylistItem($event)"
+                    />
                 </div>
             }
             <button
@@ -320,6 +136,8 @@ export class MediaPlayerComponent
         viewChild<ElementRef<HTMLImageElement>>('img_el');
     private readonly _video_element =
         viewChild<ElementRef<HTMLVideoElement>>('video_el');
+
+    public readonly validateMedia = (i) => validateMedia(i);
 
     public ngOnInit() {
         this.interval('playlist_check', () => this._updateItem(), 50);
@@ -420,31 +238,8 @@ export class MediaPlayerComponent
         this.setPlaylistItem(new_index);
     }
 
-    public validateMedia(item: MediaPlayerItem) {
-        if (item.valid_from && item.valid_from * 1000 > Date.now())
-            return 'Media not valid yet.';
-        if (item.valid_until && item.valid_until * 1000 < Date.now())
-            return 'Media expired.';
-        const [from, until] = item.play_hours.split('-');
-        if (from !== until) {
-            const [from_hours, from_minutes] = from.split(':');
-            const [until_hours, until_minutes] = until.split(':');
-            const start = set(Date.now(), {
-                hours: parseInt(from_hours),
-                minutes: parseInt(from_minutes),
-            }).valueOf();
-            const end = set(Date.now(), {
-                hours: parseInt(until_hours),
-                minutes: parseInt(until_minutes),
-            }).valueOf();
-            if (start > Date.now()) return 'Before hours';
-            if (end < Date.now()) return 'After hours';
-        }
-        return '';
-    }
-
     public isValidMedia(item: MediaPlayerItem): boolean {
-        return this.validateMedia(item) === '';
+        return validateMedia(item) === '';
     }
 
     public toggleLoop() {
@@ -474,6 +269,15 @@ export class MediaPlayerComponent
                     : 0,
             );
         }
+    }
+
+    public handleControlEvent(event: any) {
+        if (event === 'SHUFFLE') this.toggleShuffle();
+        else if (event === 'PLAY') this.togglePause();
+        else if (event === 'PAUSE') this.togglePause();
+        else if (event === 'NEXT') this.nextItem();
+        else if (event === 'PREVIOUS') this.previousItem();
+        else if (event === 'MUTE') this.toggleMuted();
     }
 
     private _updateItem() {
