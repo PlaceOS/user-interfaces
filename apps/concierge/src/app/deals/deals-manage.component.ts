@@ -20,6 +20,7 @@ import {
     i18n,
     nextValueFrom,
     notifyError,
+    notifySuccess,
 } from '@placeos/common';
 import { DateFieldComponent } from '@placeos/form-fields';
 import { OrganisationService } from '@placeos/organisation';
@@ -232,7 +233,7 @@ export class DealsManageComponent extends AsyncHandler implements OnInit {
             throw e;
         });
         this.loading.set('');
-        notifyError(i18n('APP.CONCIERGE.DEALS_SAVED'));
+        notifySuccess(i18n('APP.CONCIERGE.DEALS_SAVED'));
         this._router.navigate(['/deals-n-offers']);
     }
 

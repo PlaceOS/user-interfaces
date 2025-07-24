@@ -101,11 +101,13 @@ import { DealsService } from './deals.service';
                                     <div
                                         class="relative h-36 w-48 max-w-full overflow-hidden rounded-b-lg bg-base-200"
                                     >
-                                        <img
-                                            [src]="deal.image"
-                                            alt="Deal Image"
-                                            class="h-full w-full object-cover"
-                                        />
+                                        @if (deal.image) {
+                                            <img
+                                                [src]="deal.image"
+                                                alt="Deal Image"
+                                                class="h-full w-full object-cover"
+                                            />
+                                        }
                                         @if (deal.details) {
                                             <div
                                                 class="absolute bottom-2 left-2 max-w-full truncate rounded bg-info px-2 py-1 text-xs text-info-content shadow"
@@ -219,11 +221,17 @@ import { DealsService } from './deals.service';
                         <div
                             class="flex h-full w-full items-center justify-center p-2"
                         >
-                            <img
+                            <div
                                 class="h-16 w-16 rounded bg-base-200 object-cover"
-                                [src]="deal.image"
-                                alt="{{ deal.name }}"
-                            />
+                            >
+                                @if (deal.image) {
+                                    <img
+                                        class="h-16 w-16 rounded bg-base-200 object-cover"
+                                        [src]="deal.image"
+                                        alt="{{ deal.name }}"
+                                    />
+                                }
+                            </div>
                         </div>
                     </ng-template>
                     <ng-template #description_template let-data="data">
