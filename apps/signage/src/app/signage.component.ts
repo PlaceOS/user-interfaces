@@ -53,9 +53,17 @@ export class SignagePanelComponent extends AsyncHandler implements OnInit {
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
-                if (params.has('debug')) this.debug.set(true);
+                if (params.has('debug')) {
+                    this.debug.set(true);
+                    sessionStorage.setItem(
+                        'SIGNAGE.debug',
+                        params.get('debug'),
+                    );
+                }
             }),
         );
+        const debug = sessionStorage.getItem('SIGNAGE.debug');
+        if (debug && debug !== 'false') this.debug.set(true);
     }
 
     public handlePlayerEvent(e: MediaEvent) {

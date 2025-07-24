@@ -19,6 +19,7 @@ import {
     switchMap,
 } from 'rxjs/operators';
 import { MediaCacheService } from './media-cache.service';
+import { MediaPlayerItem } from './types';
 
 const DISPLAY_KEY = 'PlaceOS.SIGNAGE.display_details';
 
@@ -112,66 +113,32 @@ export class SignageService extends AsyncHandler {
             }
             this._playlists = playlists;
             // Map playlists to media
-            const playlist_media = playlists
-                .map((id) => {
-                    const [playlist, media_list] = item.playlist_config[id] as [
-                        SignagePlaylist,
-                        string[],
-                    ];
-                    const media = media_list.map((media_id) => ({
-                        id: media_id,
-                        playlist_id: id,
-                        valid_from: playlist?.valid_from || 0,
-                        valid_until: playlist?.valid_until || 0,
-                        play_hours: playlist?.play_hours || '00:00-00:00',
-                    }));
-                    return playlist.random ? shuffleArray(media) : media;
-                })
-                .flat();
-            return playlist_media
-                .map(
-                    ({
-                        id,
-                        playlist_id,
-                        valid_from,
-                        valid_until,
-                        play_hours,
-                    }) => {
-                        const media_ref: SignageMedia | null =
-                            item.playlist_media.find((item) => item.id === id);
-                        if (!media_ref) return null;
-                        const playlist: SignagePlaylist | undefined =
-                            item.playlist_config[playlist_id][0];
-                        return {
-                            id,
-                            url: media_ref.media_url,
-                            name: media_ref.name,
-                            animation:
-                                media_ref.animation ||
-                                playlist.default_animation,
-                            playlist: playlist_id || '',
-                            playlist_name: playlist?.name || '',
-                            type: media_ref.media_type,
-                            start_time: media_ref.start_time || 0,
-                            duration:
-                                media_ref.play_time ||
-                                media_ref.video_length ||
-                                playlist?.default_duration ||
-                                15 * 1000,
-                            valid_from: media_ref.valid_from || valid_from,
-                            valid_until: media_ref.valid_until || valid_until,
-                            play_hours,
-                            getURL: async () =>
-                                media_ref
-                                    ? await this._media_cache
-                                          .getFile(media_ref.media_url)
-                                          .then((_) => URL.createObjectURL(_))
-                                          .catch((_) => '')
-                                    : null,
-                        };
-                    },
-                )
-                .filter((_) => !!_);
+            return this._getPlaylistMedia(
+                item,
+                playlists,
+                (p) => !p.play_at && !p.play_cron,
+            );
+        }),
+        shareReplay(1),
+    );
+
+    public readonly override_playlists = this.display.pipe(
+        map((item: any) => {
+            if (!item) return [];
+            // Constuct list of playlists
+            console.log('Mappings:', item);
+            let playlists = [...item.playlist_mappings[item.id]];
+            for (const zone of item.zones) {
+                if (!item.playlist_mappings[zone]) continue;
+                playlists = playlists.concat(item.playlist_mappings[zone]);
+            }
+            this._playlists = playlists;
+            // Map playlists to media
+            return this._getPlaylistMedia(
+                item,
+                playlists,
+                (p) => !!(p.play_at || p.play_cron),
+            );
         }),
         shareReplay(1),
     );
@@ -201,6 +168,65 @@ export class SignageService extends AsyncHandler {
         });
         this.interval('poll', () => this._poll.next(Date.now()), 60 * 1000);
         this.interval('metrics', () => this._postMetrics(), 10 * 60 * 1000);
+    }
+
+    private _getPlaylistMedia(
+        display: any,
+        playlists: string[],
+        filter_fn: (item: SignagePlaylist) => boolean = () => true,
+    ): MediaPlayerItem[] {
+        const playlist_media = playlists
+            .map((id) => {
+                const [playlist, media_list] = display.playlist_config[id] as [
+                    SignagePlaylist,
+                    string[],
+                ];
+                if (!filter_fn(playlist)) return [];
+                const media = media_list.map((media_id) => ({
+                    id: media_id,
+                    playlist_id: id,
+                    valid_from: playlist?.valid_from || 0,
+                    valid_until: playlist?.valid_until || 0,
+                    play_hours: playlist?.play_hours || '00:00-00:00',
+                }));
+                return playlist.random ? shuffleArray(media) : media;
+            })
+            .flat();
+        return playlist_media
+            .map(({ id, playlist_id, valid_from, valid_until, play_hours }) => {
+                const media_ref: SignageMedia | null =
+                    display.playlist_media.find((item) => item.id === id);
+                if (!media_ref) return null;
+                const playlist: SignagePlaylist | undefined =
+                    display.playlist_config[playlist_id][0];
+                return {
+                    id,
+                    url: media_ref.media_url,
+                    name: media_ref.name,
+                    animation:
+                        media_ref.animation || playlist.default_animation,
+                    playlist: playlist_id || '',
+                    playlist_name: playlist?.name || '',
+                    type: media_ref.media_type,
+                    start_time: media_ref.start_time || 0,
+                    duration:
+                        media_ref.play_time ||
+                        media_ref.video_length ||
+                        playlist?.default_duration ||
+                        15 * 1000,
+                    valid_from: media_ref.valid_from || valid_from,
+                    valid_until: media_ref.valid_until || valid_until,
+                    play_hours,
+                    getURL: async () =>
+                        media_ref
+                            ? await this._media_cache
+                                  .getFile(media_ref.media_url)
+                                  .then((_) => URL.createObjectURL(_))
+                                  .catch((_) => '')
+                            : null,
+                } as MediaPlayerItem;
+            })
+            .filter((_) => !!_);
     }
 
     public async storeMetricEvent(event: MediaEvent) {

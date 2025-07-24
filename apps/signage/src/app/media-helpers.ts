@@ -2,13 +2,16 @@ import { set } from 'date-fns';
 import { MediaPlayerItem } from './types';
 
 let _time_override = 0;
+let _time_offset = 0;
 
-export function setMockTime(date: number): void {
+export function setMockTime(date: number, progress = false): void {
     _time_override = date;
+    _time_offset = progress ? Date.now() : 0;
 }
 
 export function time() {
-    return _time_override || Date.now();
+    const offset = _time_offset ? Date.now() - _time_offset : 0;
+    return (_time_override || Date.now()) + offset;
 }
 
 export function validateMedia(item: MediaPlayerItem) {

@@ -6,10 +6,10 @@ export async function requestScreenWakeLock() {
     if (!isFixedDevice()) return;
     if (_wake_lock) await _wake_lock.release();
     // create an async function to request a wake lock
-    try {
+    if (document.visibilityState === 'visible') {
         _wake_lock = await navigator.wakeLock.request('screen');
-    } catch (err) {
-        throw err;
+    } else {
+        setTimeout(() => requestScreenWakeLock(), 1000);
     }
 }
 

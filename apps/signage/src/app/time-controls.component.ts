@@ -11,6 +11,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { DateFieldComponent } from 'libs/form-fields/src/lib/date-field.component';
 import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.component';
+import { SettingsToggleComponent } from '../../../../libs/components/src/lib/settings-toggle.component';
 
 @Component({
     selector: 'time-controls',
@@ -52,6 +53,9 @@ import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.componen
                             class="w-40 flex-1"
                         />
                     </div>
+                    <settings-toggle [(ngModel)]="is_static" class="mb-2 w-full"
+                        >Static</settings-toggle
+                    >
                     <div class="flex items-center space-x-2">
                         <button
                             btn
@@ -79,11 +83,13 @@ import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.componen
         DateFieldComponent,
         TimeFieldComponent,
         TranslatePipe,
+        SettingsToggleComponent,
     ],
 })
 export class TimeControlsComponent extends AsyncHandler implements OnInit {
     public readonly time = signal(Date.now());
     public readonly edited_time = signal(Date.now());
+    public is_static = false;
 
     private _tooltip = viewChild(CustomTooltipComponent);
 
@@ -101,7 +107,7 @@ export class TimeControlsComponent extends AsyncHandler implements OnInit {
     }
 
     public save() {
-        setMockTime(this.edited_time());
+        setMockTime(this.edited_time(), !this.is_static);
         this.time.set(this.edited_time());
         this._tooltip()?.close();
     }

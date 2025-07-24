@@ -6,13 +6,13 @@ export interface MediaPlayerItem {
     playlist: string;
     playlist_name: string;
     animation: MediaAnimation;
-    type: 'image' | 'video';
+    type: string;
     start_time: number;
     duration: number;
     valid_from: number;
     valid_until: number;
     play_hours: string;
-    getURL: () => Promise<URL>;
+    getURL: () => Promise<string | URL>;
 }
 
 export type MediaPlayerState = 'PAUSED' | 'PLAYING';
