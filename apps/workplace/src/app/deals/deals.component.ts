@@ -94,13 +94,15 @@ import { DealsService } from './deals.service';
                                 (click)="view(deal)"
                             >
                                 <div
-                                    class="relative h-48 w-full max-w-full overflow-hidden rounded-b-lg bg-base-200"
+                                    class="relative h-48 w-full max-w-full overflow-hidden rounded-b-lg bg-base-300"
                                 >
-                                    <img
-                                        [src]="deal.image"
-                                        alt="Deal Image"
-                                        class="h-full w-full object-cover"
-                                    />
+                                    @if (deal.image) {
+                                        <img
+                                            [src]="deal.image"
+                                            alt="Deal Image"
+                                            class="h-full w-full object-cover"
+                                        />
+                                    }
                                     @if (deal.details) {
                                         <div
                                             class="absolute bottom-2 left-2 max-w-full truncate rounded bg-info px-2 py-1 text-xs text-info-content shadow"

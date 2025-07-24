@@ -15,13 +15,17 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
     selector: 'deal-details-modal',
     template: `
         <div class="relative bg-base-100">
-            <div class="relative h-48 w-[32rem] max-w-[calc(100vw-2rem)]">
-                <img
-                    class="h-full w-full object-cover"
-                    auth
-                    [source]="deal.image"
-                    alt="Deal Image"
-                />
+            <div
+                class="relative h-48 w-[32rem] max-w-[calc(100vw-2rem)] overflow-hidden rounded-b-lg bg-base-300"
+            >
+                @if (deal.image) {
+                    <img
+                        class="h-full w-full object-cover"
+                        auth
+                        [source]="deal.image"
+                        alt="Deal Image"
+                    />
+                }
                 @if (deal.details) {
                     <div
                         class="absolute bottom-2 left-2 max-w-full truncate rounded bg-info px-2 py-1 text-xs text-info-content shadow"

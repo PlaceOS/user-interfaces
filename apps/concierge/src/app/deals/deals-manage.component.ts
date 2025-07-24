@@ -25,10 +25,12 @@ import {
 import { DateFieldComponent } from '@placeos/form-fields';
 import { OrganisationService } from '@placeos/organisation';
 import { addMonths } from 'date-fns';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+
 import { UploadButtonComponent } from '../ui/app-settings/upload-button.component';
 import { DealsService } from './deals.service';
+
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 
 @Component({
     selector: `deals-manage`,
