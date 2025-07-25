@@ -1,6 +1,13 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { AsyncHandler, log, randomInt, shuffleArray } from '@placeos/common';
 import {
+    AsyncHandler,
+    log,
+    nextValueFrom,
+    randomInt,
+    shuffleArray,
+} from '@placeos/common';
+import {
+    getModule,
     post,
     responseHeaders,
     showSignage,
@@ -24,6 +31,7 @@ import {
     shareReplay,
     startWith,
     switchMap,
+    tap,
 } from 'rxjs/operators';
 import { getNextCronRunTimestampInRange } from './cron-helpers';
 import { MediaCacheService } from './media-cache.service';
@@ -123,6 +131,24 @@ export class SignageService extends AsyncHandler {
             return value;
         }),
         shareReplay(1),
+    );
+
+    public readonly triggers = this.display.pipe(
+        tap((display) => {
+            const triggers = Object.keys(display.playlist_mappings).filter(
+                (_) => _.startsWith('trig-'),
+            );
+            this.unsubWith('trigger_');
+            const mod = getModule(display.id, '_TRIGGER__1');
+            for (const id of triggers) {
+                const binding = mod.binding(id);
+                this.subscription(`trigger_bind-${id}`, binding.bind());
+                this.subscription(
+                    `trigger_listen-${id}`,
+                    binding.listen().subscribe(() => this._handleTrigger(id)),
+                );
+            }
+        }),
     );
 
     public readonly playlist = this.display.pipe(
@@ -368,5 +394,15 @@ export class SignageService extends AsyncHandler {
                 } as MediaPlayerItem;
             })
             .filter((_) => !!_);
+    }
+
+    private async _handleTrigger(id: string) {
+        const display = await nextValueFrom(this.display);
+        if (this.override_playlist().playlist?.length > 0) return;
+        const playlists = [...display.playlist_mappings[id]];
+        const media = this._getPlaylistMedia(display, playlists, () => true);
+        if (media.length <= 0) return;
+        log('SIGNAGE', `Handled trigger ${id}`, [media]);
+        this.setPlaylistOverride(media);
     }
 }

@@ -1521,6 +1521,7 @@
             "SIGNAGE_PLAYLISTS_REMOVE_MSG": "Are you sure you wish to remove the playlist \"{{ name }}\"?",
             "SIGNAGE_PLAYLISTS_REMOVE_LOADING": "Removing playlist...",
             "SIGNAGE_PLAYLISTS_REMOVE_SUCCESS": "Successfully removed playlist",
+            "SIGNAGE_PLAYLISTS_COPY_ID": "Copy Playlist's ID",
             "SIGNAGE_DISPLAY": "Display",
             "SIGNAGE_DISPLAYS": "Displays",
             "SIGNAGE_DISPLAYS_ADD": "Add Display",

@@ -1,7 +1,8 @@
+import { Clipboard } from '@angular/cdk/clipboard';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { Component, inject, input, SimpleChanges } from '@angular/core';
 import { Router } from '@angular/router';
-import { nextValueFrom } from '@placeos/common';
+import { nextValueFrom, notifyInfo } from '@placeos/common';
 import {
     listSignagePlaylistMedia,
     MediaAnimation,
@@ -24,8 +25,9 @@ import { SignageStateService } from './signage-state.service';
     selector: 'signage-playlist-media-list',
     template: `
         <div class="relative flex h-full w-full flex-col space-y-4 p-4">
+            @let playlist = selected_playlist | async;
             <h3 class="text-center text-xl font-medium">
-                Playlist - {{ (selected_playlist | async)?.name }}
+                Playlist - {{ playlist?.name }}
             </h3>
             <button
                 icon
@@ -42,6 +44,17 @@ import { SignageStateService } from './signage-state.service';
                         <div class="pr-2">
                             {{
                                 'APP.CONCIERGE.SIGNAGE_PLAYLISTS_EDIT'
+                                    | translate
+                            }}
+                        </div>
+                    </div>
+                </button>
+                <button mat-menu-item (click)="copyID(playlist?.id)">
+                    <div class="flex items-center space-x-2">
+                        <icon class="text-2xl">copy</icon>
+                        <div class="pr-2">
+                            {{
+                                'APP.CONCIERGE.SIGNAGE_PLAYLISTS_COPY_ID'
                                     | translate
                             }}
                         </div>
@@ -262,6 +275,7 @@ import { SignageStateService } from './signage-state.service';
 export class SignagePlaylistMediaListComponent {
     private _state = inject(SignageStateService);
     private _router = inject(Router);
+    private _clipboard = inject(Clipboard);
 
     public readonly playlist = input('');
     public readonly playlist_count = input(0);
@@ -369,5 +383,10 @@ export class SignagePlaylistMediaListComponent {
         moveItemInArray(list, event.previousIndex, event.currentIndex);
         await this._state.updatePlaylistMedia(id, list);
         this._playlist.next(this.playlist());
+    }
+
+    public async copyID(id: string) {
+        this._clipboard.copy(id);
+        notifyInfo('Copied playlist ID to clipboard.');
     }
 }
