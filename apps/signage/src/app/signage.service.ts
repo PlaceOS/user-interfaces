@@ -164,7 +164,7 @@ export class SignageService extends AsyncHandler {
             return this._getPlaylistMedia(
                 item,
                 playlists,
-                (p) => !p.play_at && !p.play_cron,
+                (p) => !p.play_at && !p.play_cron && p.enabled,
             );
         }),
         startWith([]),
@@ -185,7 +185,9 @@ export class SignageService extends AsyncHandler {
                     SignagePlaylist,
                     string[],
                 ];
-                return playlist.play_at || playlist.play_cron;
+                return (
+                    (playlist.play_at || playlist.play_cron) && playlist.enabled
+                );
             });
             // Map playlists to media
             return filtered;
@@ -400,7 +402,11 @@ export class SignageService extends AsyncHandler {
         const display = await nextValueFrom(this.display);
         if (this.override_playlist().playlist?.length > 0) return;
         const playlists = [...display.playlist_mappings[id]];
-        const media = this._getPlaylistMedia(display, playlists, () => true);
+        const media = this._getPlaylistMedia(
+            display,
+            playlists,
+            (p) => p.enabled,
+        );
         if (media.length <= 0) return;
         log('SIGNAGE', `Handled trigger ${id}`, [media]);
         this.setPlaylistOverride(media);
