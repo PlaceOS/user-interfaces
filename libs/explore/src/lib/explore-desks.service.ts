@@ -7,7 +7,6 @@ import {
     catchError,
     debounceTime,
     filter,
-    first,
     map,
     shareReplay,
     switchMap,
@@ -18,6 +17,7 @@ import {
     AsyncHandler,
     BookingRuleset,
     currentUser,
+    firstTruthyValueFrom,
     i18n,
     nextValueFrom,
     notifyError,
@@ -213,7 +213,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
     }
 
     public async init() {
-        await this._org.initialised.pipe(first((_) => _)).toPromise();
+        await firstTruthyValueFrom(this._org.initialised);
         this.setOptions({
             enable_booking:
                 this._settings.get('app.desks.enable_maps') !== false,
@@ -332,7 +332,9 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
                     map_id: desk.name,
                     name: desk.name || desk.map_id,
                     user: show_desk_users
-                        ? this._users[desk.map_id] || desk.staff_name
+                        ? this._users[desk.map_id] ||
+                          desk.staff_name ||
+                          (desk as any).assigned_name
                         : '',
                     status: this._statuses[desk.map_id],
                     department: this._departments[desk.map_id] || '',
