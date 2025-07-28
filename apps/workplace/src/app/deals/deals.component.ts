@@ -1,5 +1,7 @@
-import { Component, inject } from '@angular/core';
-import { unique } from '@placeos/common';
+import { Component, inject, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { firstTruthyValueFrom, SettingsService, unique } from '@placeos/common';
+import { OrganisationService } from '@placeos/organisation';
 import { BehaviorSubject, combineLatest, map } from 'rxjs';
 import { DealsService } from './deals.service';
 
@@ -172,8 +174,11 @@ import { DealsService } from './deals.service';
     styles: [``],
     standalone: false,
 })
-export class DealsComponent {
+export class DealsComponent implements OnInit {
     private _service = inject(DealsService);
+    private _org = inject(OrganisationService);
+    private _settings = inject(SettingsService);
+    private _router = inject(Router);
 
     public readonly deals$ = this._service.deals$;
     public readonly types = this._service.deals$.pipe(
@@ -204,5 +209,14 @@ export class DealsComponent {
 
     public sort(type: string) {
         this.sort_type.next(type);
+    }
+
+    public async ngOnInit() {
+        await firstTruthyValueFrom(this._org.initialised);
+        await firstTruthyValueFrom(this._settings.initialised);
+        const has_deals = (this._settings.get('app.features') || []).includes(
+            'deals-n-offers',
+        );
+        if (!has_deals) this._router.navigate(['/']);
     }
 }
