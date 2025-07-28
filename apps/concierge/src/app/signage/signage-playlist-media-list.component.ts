@@ -1,6 +1,6 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
-import { Component, inject, input, SimpleChanges } from '@angular/core';
+import { Component, inject, input, signal, SimpleChanges } from '@angular/core';
 import { Router } from '@angular/router';
 import { nextValueFrom, notifyInfo } from '@placeos/common';
 import {
@@ -18,6 +18,7 @@ import {
     shareReplay,
     startWith,
     switchMap,
+    tap,
 } from 'rxjs/operators';
 import { SignageStateService } from './signage-state.service';
 
@@ -29,6 +30,20 @@ import { SignageStateService } from './signage-state.service';
             <h3 class="text-center text-xl font-medium">
                 Playlist - {{ playlist?.name }}
             </h3>
+            @if (!approved()) {
+                <button
+                    icon
+                    matRipple
+                    class="absolute left-2 top-2 !m-0"
+                    [matTooltip]="
+                        'APP.CONCIERGE.SIGNAGE_PLAYLISTS_NOT_APPROVED'
+                            | translate
+                    "
+                    (click)="approvePlaylist(playlist)"
+                >
+                    <icon class="text-2xl text-warning">warning</icon>
+                </button>
+            }
             <button
                 icon
                 matRipple
@@ -49,9 +64,24 @@ import { SignageStateService } from './signage-state.service';
                         </div>
                     </div>
                 </button>
+                <button
+                    mat-menu-item
+                    [disabled]="approved()"
+                    (click)="approvePlaylist(playlist)"
+                >
+                    <div class="flex items-center space-x-2">
+                        <icon class="text-2xl">order_approve</icon>
+                        <div class="pr-2">
+                            {{
+                                'APP.CONCIERGE.SIGNAGE_PLAYLISTS_APPROVE'
+                                    | translate
+                            }}
+                        </div>
+                    </div>
+                </button>
                 <button mat-menu-item (click)="copyID(playlist?.id)">
                     <div class="flex items-center space-x-2">
-                        <icon class="text-2xl">copy</icon>
+                        <icon class="text-2xl">content_copy</icon>
                         <div class="pr-2">
                             {{
                                 'APP.CONCIERGE.SIGNAGE_PLAYLISTS_COPY_ID'
@@ -279,6 +309,7 @@ export class SignagePlaylistMediaListComponent {
 
     public readonly playlist = input('');
     public readonly playlist_count = input(0);
+    public readonly approved = signal(0);
 
     public playlist_ids: string[] = [];
 
@@ -307,6 +338,10 @@ export class SignagePlaylistMediaListComponent {
         this._router.navigate(['/signage/media', {}]);
     };
 
+    public readonly approvePlaylist = async (plist) => {
+        await this._state.approvePlaylist(plist);
+    };
+
     public readonly selected_playlist = combineLatest([
         this._playlist,
         this._state.playlists,
@@ -326,6 +361,7 @@ export class SignagePlaylistMediaListComponent {
                 catchError(() => of({ id: '', items: [] })),
             ),
         ),
+        tap((_: any) => this.approved.set(_.approved)),
         shareReplay(1),
     );
 

@@ -46,6 +46,7 @@ import {
 
 import { MatDialog } from '@angular/material/dialog';
 import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
+import { SignageApprovePlaylistModalComponent } from './signage-approve-playlist-modal.component';
 import { SignageDisplayModalComponent } from './signage-display-modal.component';
 import { SignageMediaModalComponent } from './signage-media-modal.component';
 import { SignageMediaPreviewModalComponent } from './signage-media-preview-modal.component';
@@ -110,7 +111,7 @@ export class SignageStateService extends AsyncHandler {
     ]).pipe(
         filter(([_]) => !!_?.id),
         debounceTime(300),
-        switchMap(([bld]) => querySignageMedia({ limit: 2500 } as any)),
+        switchMap(() => querySignageMedia({ limit: 2500 } as any)),
         map((_) => _.data.sort((a, b) => b.created_at - a.created_at)),
         shareReplay(1),
     );
@@ -277,23 +278,24 @@ export class SignageStateService extends AsyncHandler {
             this._dialog,
         );
         if (result.reason !== 'done') return;
-        await removeSignagePlaylist(playlist.id).toPromise();
+        await lastValueFrom(removeSignagePlaylist(playlist.id));
         notifySuccess(i18n('APP.CONCIERGE.SIGNAGE_PLAYLISTS_REMOVE_SUCCESS'));
         this._change.next(Date.now());
         result.close();
     }
 
     public async updatePlaylistMedia(playlist_id: string, list: string[]) {
-        await updateSignagePlaylistMedia(playlist_id, list).toPromise();
+        await lastValueFrom(updateSignagePlaylistMedia(playlist_id, list));
         notifySuccess(
             i18n('APP.CONCIERGE.SIGNAGE_PLAYLISTS_MEDIA_SAVE_SUCCESS'),
         );
     }
 
-    public getPlaylistMedia(playlist_id: string) {
-        return listSignagePlaylistMedia(playlist_id)
-            .toPromise()
-            .then((_) => _.items);
+    public async getPlaylistMedia(playlist_id: string) {
+        const { items } = await lastValueFrom(
+            listSignagePlaylistMedia(playlist_id),
+        );
+        return items;
     }
 
     public previewMedia(item: SignageMedia) {
@@ -397,7 +399,7 @@ export class SignageStateService extends AsyncHandler {
         for (const key in data) {
             if (!data[key]) delete data[key];
         }
-        const result = await addSignageMedia(data).toPromise();
+        const result = await lastValueFrom(addSignageMedia(data));
         this._active_upload.next(null);
         this._change.next(Date.now());
         return result;
@@ -405,7 +407,13 @@ export class SignageStateService extends AsyncHandler {
 
     public async updateMedia(item: SignageMedia) {
         if (!item?.id) return;
-        await updateSignageMedia(item.id, item).toPromise();
+        await lastValueFrom(updateSignageMedia(item.id, item));
+    }
+
+    public async approvePlaylist(playlist: SignagePlaylist) {
+        this._dialog.open(SignageApprovePlaylistModalComponent, {
+            data: playlist,
+        });
     }
 
     public async removeMedia(item: SignageMedia) {

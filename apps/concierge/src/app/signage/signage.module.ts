@@ -8,6 +8,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { ComponentsModule } from '@placeos/components';
 import { UIModule } from '../ui/ui.module';
 import { SearchOverlayComponent } from './search-overlay.component';
+import { SignageApprovePlaylistModalComponent } from './signage-approve-playlist-modal.component';
 import { SignageDisplayModalComponent } from './signage-display-modal.component';
 import { SignageDisplaysComponent } from './signage-displays.component';
 import { SignageItemPlaylistsComponent } from './signage-item-playlists.component';
@@ -64,6 +65,7 @@ export const COMPONENTS: Type<any>[] = [
         MatTabsModule,
         DragDropModule,
         ZoneSelectModalComponent,
+        SignageApprovePlaylistModalComponent,
     ],
 })
 export class SignageModule {}
