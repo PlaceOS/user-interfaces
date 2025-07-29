@@ -8,7 +8,13 @@ import {
 import { MatDialog } from '@angular/material/dialog';
 import { showMetadata } from '@placeos/ts-client';
 import { addDays, endOfDay, getUnixTime, startOfDay } from 'date-fns';
-import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
+import {
+    BehaviorSubject,
+    combineLatest,
+    lastValueFrom,
+    Observable,
+    of,
+} from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -404,7 +410,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
             const ref = this._dialog.open(SetDatetimeModalComponent, {
                 data: { date, duration, until, host, resource },
             });
-            const details = await ref.afterClosed().toPromise();
+            const details = await lastValueFrom(ref.afterClosed());
             if (!details) throw 'User cancelled';
             date = details.date;
             duration = details.duration;
