@@ -28,7 +28,7 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
                 class="relative flex w-[calc(100%-1rem)] items-center overflow-hidden px-1 pt-2"
                 [style.padding-right]="(join_code ? 6 : 0) + 'rem'"
             >
-                @for (tab of tabs | async; track tab) {
+                @for (tab of tabs | async; track tab.id || $index) {
                     <a
                         matRipple
                         class="mx-1 flex h-24 w-32 flex-col items-center justify-center overflow-hidden rounded-b-none rounded-t bg-base-100 leading-tight text-base-content opacity-60 shadow"
