@@ -83,7 +83,7 @@ export class UploadButtonComponent {
     }
 
     public uploadImage(event: Event) {
-        if (this.uploading) {
+        if (this.uploading()) {
             return notifyError('Already uploading a file...');
         }
         const element: HTMLInputElement = event.target as any;
