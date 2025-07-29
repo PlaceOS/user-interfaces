@@ -5,9 +5,10 @@ import {
     MatDialog,
     MatDialogRef,
 } from '@angular/material/dialog';
-import { DialogEvent, randomString, unique } from '@placeos/common';
+import { DialogEvent, notifyInfo, randomString, unique } from '@placeos/common';
 import { Desk, OrganisationService } from '@placeos/organisation';
 import { showStaff, User } from '@placeos/users';
+import { lastValueFrom } from 'rxjs';
 import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.component';
 
 const CHARS = '0123456789ABCDEF';
@@ -255,7 +256,7 @@ export class DeskModalComponent implements OnInit {
 
     public async ngOnInit() {
         if (this.desk?.assigned_to) {
-            const user = await showStaff(this.desk.assigned_to).toPromise();
+            const user = await lastValueFrom(showStaff(this.desk.assigned_to));
             if (user) {
                 this.form.patchValue({
                     assigned_user: user,
@@ -273,15 +274,26 @@ export class DeskModalComponent implements OnInit {
         this.loading = true;
         const value = { ...this.form.getRawValue() };
         if (value.assigned_user) {
-            value.assigned_to = value.assigned_user.email;
-            value.assigned_name = value.assigned_user.name;
-            delete value.assigned_user;
+            value.assigned_to = value.assigned_user?.email || value.assigned_to;
+            value.assigned_name =
+                value.assigned_user?.name || value.assigned_name;
         } else {
             delete value.assigned_to;
             delete value.assigned_name;
         }
+        delete value.assigned_user;
+
         this._dialog_ref.disableClose = true;
-        this.event.emit({ reason: 'done', metadata: value });
+        const has_changes = Object.keys(this.desk).some(
+            (key) => value[key] !== this.desk[key],
+        );
+        if (has_changes) {
+            this.event.emit({ reason: 'done', metadata: value });
+        } else {
+            this._dialog_ref.disableClose = false;
+            notifyInfo('No changes were made.');
+            this._dialog_ref.close();
+        }
     }
 
     public selectItemfromMap() {

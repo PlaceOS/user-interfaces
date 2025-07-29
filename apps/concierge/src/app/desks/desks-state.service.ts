@@ -268,10 +268,12 @@ export class DesksStateService extends AsyncHandler {
     public async editDesk(desk: Desk = new Desk()) {
         const ref = this._dialog.open(DeskModalComponent, { data: { desk } });
         const state = await Promise.race([
-            ref.afterClosed().toPromise(),
-            ref.componentInstance.event
-                .pipe(first((_) => _.reason === 'done'))
-                .toPromise(),
+            lastValueFrom(ref.afterClosed()),
+            lastValueFrom(
+                ref.componentInstance.event.pipe(
+                    first((_) => _.reason === 'done'),
+                ),
+            ),
         ]);
         if (state?.reason !== 'done') return;
         const zone = this._filters.getValue().zones[0];
@@ -285,26 +287,24 @@ export class DesksStateService extends AsyncHandler {
         const idx = desk_list.findIndex((_) => _.id === desk.id);
         if (idx >= 0) desk_list[idx] = new_desk;
         else desk_list.push(new_desk);
-        await updateMetadata(zone, {
-            name: 'desks',
-            details: desk_list,
-            description: 'List of available desks',
-        })
-            .toPromise()
-            .catch((e) => {
-                notifyError(
-                    i18n('APP.CONCIERGE.DESKS_SAVE_ERROR', { error: e }),
-                );
-                ref.componentInstance.loading = false;
-                throw e;
-            });
+        await lastValueFrom(
+            updateMetadata(zone, {
+                name: 'desks',
+                details: desk_list,
+                description: 'List of available desks',
+            }),
+        ).catch((e) => {
+            notifyError(i18n('APP.CONCIERGE.DESKS_SAVE_ERROR', { error: e }));
+            ref.componentInstance.loading = false;
+            throw e;
+        });
         let recreate = false;
         if (
             desk.assigned_to &&
             (desk.assigned_to !== new_desk.assigned_to ||
                 desk.id !== new_desk.id)
         ) {
-            this._clearAssignedBooking(desk);
+            await this._clearAssignedBooking(desk);
             recreate = true;
         }
         if (
