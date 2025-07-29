@@ -40,7 +40,7 @@ export interface SpaceInfoData {
             <div
                 name="space-info"
                 [id]="space?.id"
-                class="pointer-events-none absolute left-0 top-0 transform overflow-hidden rounded bg-base-100 shadow"
+                class="pointer-events-none absolute left-0 top-0 w-64 transform overflow-hidden rounded bg-base-100 shadow"
                 [class.-translate-x-full]="x_pos === 'end'"
                 [class.-translate-y-full]="y_pos === 'bottom'"
             >
@@ -119,25 +119,23 @@ export interface SpaceInfoData {
     `,
     styles: [
         `
-            [name='space-info'] {
-                width: 16rem;
-            }
-
             [status] {
-                background-color: #43a047;
-                font-weight: 500;
+                background-color: var(--su);
+                color: var(--suc);
             }
 
             [status].busy {
-                background-color: #e53935;
+                background-color: var(--er);
+                color: var(--erc);
             }
 
             [status].pending {
-                background-color: #ffb300;
+                background-color: var(--wa);
+                color: var(--wac);
             }
 
             [status].not-bookable {
-                background-color: #757575;
+                background-color: var(--b3);
             }
         `,
     ],

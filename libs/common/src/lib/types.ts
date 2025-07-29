@@ -78,3 +78,15 @@ export interface DialogEvent<T = any> {
 export const MAP_FEATURE_DATA = new InjectionToken<any>(
     'Data for Map Features',
 );
+
+export interface Deal {
+    id: string;
+    name: string;
+    type: string;
+    details: string;
+    description: string;
+    terms: string;
+    code: string;
+    image: string;
+    expires_at: number;
+}

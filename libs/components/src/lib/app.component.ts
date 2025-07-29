@@ -143,13 +143,17 @@ export class AppComponent extends AsyncHandler implements OnInit {
 
     public async ngOnInit() {
         log('APP', 'MOCKS:', MOCKS);
-        this._hotkey.listen(['Control', 'Alt', 'Shift', 'KeyM'], () => {
-            localStorage.setItem(
-                'mock',
-                `${localStorage.getItem('mock') !== 'true'}`,
-            );
-            location.reload();
-        });
+        if (MOCKS) {
+            this._hotkey.listen(['Control', 'Alt', 'Shift', 'KeyM'], () => {
+                localStorage.setItem(
+                    'mock',
+                    `${localStorage.getItem('mock') !== 'true'}`,
+                );
+                location.reload();
+            });
+        } else {
+            localStorage.removeItem('mock');
+        }
         this._hotkey.listen(['Control', 'Alt', 'Shift', 'KeyD'], () => {
             this._settings.saveUserSetting(
                 'dark_mode',
@@ -199,7 +203,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
         const settings = this._settings.get('composer') || {};
         settings.mock =
             !!this._settings.get('mock') ||
-            location.origin.includes('demo.place.tech');
+            (MOCKS && location.origin.includes('demo.place.tech'));
         /** Add query parameters if removed due to hash routing */
         if (START_QUERY) {
             const query = convertPairStringToMap(START_QUERY.substring(1));

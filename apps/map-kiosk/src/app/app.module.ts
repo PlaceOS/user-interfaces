@@ -31,6 +31,7 @@ import { ExploreComponent } from './explore.component';
 import { FooterMenuComponent } from './footer-menu.component';
 
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatSelectModule } from '@angular/material/select';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
@@ -51,6 +52,7 @@ const MAT_MODULES = [
     MatSlideToggleModule,
     MatSelectModule,
     MatFormFieldModule,
+    MatMenuModule,
 ];
 
 const STANDALONE_COMPONENTS = [

@@ -28,8 +28,24 @@ import { GlobalLoadingComponent } from 'libs/components/src/lib/global-loading.c
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { MediaDurationPipe } from 'libs/components/src/lib/media-duration.pipe';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+
+import { MediaControlsComponent } from './media-controls.component';
 import { MediaPlayerComponent } from './media-player.component';
+import { PlaylistDisplayComponent } from './playlist-display.component';
 import { SignagePanelComponent } from './signage.component';
+import { TimeControlsComponent } from './time-controls.component';
+
+const STANDALONE_COMPONENTS = [
+    MediaControlsComponent,
+    TimeControlsComponent,
+    PlaylistDisplayComponent,
+
+    IconComponent,
+    GlobalLoadingComponent,
+    GlobalBannerComponent,
+    TranslatePipe,
+    MediaDurationPipe,
+];
 
 @NgModule({
     declarations: [
@@ -49,11 +65,7 @@ import { SignagePanelComponent } from './signage.component';
         MatFormFieldModule,
         MatSelectModule,
         MatTooltipModule,
-        IconComponent,
-        GlobalLoadingComponent,
-        GlobalBannerComponent,
-        TranslatePipe,
-        MediaDurationPipe,
+        ...STANDALONE_COMPONENTS,
         ServiceWorkerModule.register('ngsw-worker.js', {
             enabled: environment.production,
         }),

@@ -1,8 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, OnInit, inject } from '@angular/core';
+import { Component, ElementRef, OnInit, inject, signal } from '@angular/core';
 import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
 
 import { MAP_FEATURE_DATA } from 'libs/common/src/lib/types';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 
 export interface DeskInfoData {
     id: string;
@@ -35,60 +36,95 @@ export interface DeskInfoData {
                 name="space-info"
                 [id]="map_id"
                 [class]="
-                    'pointer-events-none absolute left-0 top-0 rounded bg-base-100 p-4 shadow ' +
+                    'pointer-events-none absolute left-0 top-0 w-64 rounded-b-lg rounded-tr-lg bg-base-100 p-1 shadow ' +
                     x_pos +
                     ' ' +
                     y_pos
                 "
             >
-                <div class="arrow"></div>
-                <div class="details">
-                    <h4 map-id class="m-0 font-medium">
-                        {{ name || map_id || id }}
-                    </h4>
-                    @if (user) {
-                        <p user class="mt-2 text-sm">{{ user }}</p>
-                    }
-                    @if (user && department) {
-                        <p user class="mt-1 text-sm">
-                            {{ department }}
-                        </p>
-                    }
-                    @if (start) {
-                        <p start class="mt-1 text-sm">
-                            {{ start | date: 'shortTime' }} &ndash;
-                            {{ end | date: 'shortTime' }}
-                        </p>
-                    }
+                <div class="rounded-md border border-base-200 p-1">
+                    <div class="triangle absolute left-1 top-1"></div>
+                    <div class="flex w-full items-center space-x-4">
+                        <div class="flex flex-1 flex-col px-2 py-1">
+                            <h4 map-id class="m-0 truncate font-medium">
+                                {{ name || map_id || id }}
+                            </h4>
+                            @if (user) {
+                                <p user class="text-xs">
+                                    {{ user }}
+                                </p>
+                            }
+                            @if (user && department) {
+                                <p user class="text-xs">
+                                    {{ department }}
+                                </p>
+                            }
+                            @if (start) {
+                                <p start class="text-xs">
+                                    {{ start | date: 'shortTime' }} &ndash;
+                                    {{ end | date: 'shortTime' }}
+                                </p>
+                            }
+                        </div>
+                        <div class="relative flex flex-wrap text-sm">
+                            <div
+                                status
+                                [class]="
+                                    'text-light rounded border border-base-100 p-1 px-2 capitalize shadow ' +
+                                    status()
+                                "
+                            >
+                                {{
+                                    (status() === 'not-bookable'
+                                        ? 'COMMON.STATUS_NOT_BOOKABLE'
+                                        : 'COMMON.STATUS_' +
+                                          (status() | uppercase)
+                                    ) | translate
+                                }}
+                            </div>
+                            @if (status !== 'not-bookable') {
+                                <div available-until>
+                                    {{ available_until }}
+                                </div>
+                            }
+                        </div>
+                    </div>
                 </div>
             </div>
         </ng-template>
     `,
     styles: [
         `
-            [name='space-info'] {
-                width: 16rem;
+            .triangle {
+                width: 0px;
+                height: 0px;
+                border-style: solid;
+                border-width: 0.5rem 0.5rem 0 0;
+                border-color: currentColor transparent transparent transparent;
+                transform: rotate(0deg);
             }
 
-            [name='status'] {
-                background-color: #43a047;
-                font-weight: 500;
+            [status] {
+                background-color: var(--su);
+                color: var(--suc);
             }
 
-            [name='status'].busy {
-                background-color: #e53935;
+            [status].busy {
+                background-color: var(--er);
+                color: var(--erc);
             }
 
-            [name='status'].pending {
-                background-color: #ffb300;
+            [status].pending {
+                background-color: var(--wa);
+                color: var(--wac);
             }
 
-            [name='status'].not-bookable {
-                background-color: #757575;
+            [status].not-bookable {
+                background-color: var(--b3);
             }
         `,
     ],
-    imports: [CommonModule, CustomTooltipComponent],
+    imports: [CommonModule, CustomTooltipComponent, TranslatePipe],
 })
 export class ExploreDeskInfoComponent implements OnInit {
     private _details = inject<DeskInfoData>(MAP_FEATURE_DATA);
@@ -101,7 +137,7 @@ export class ExploreDeskInfoComponent implements OnInit {
     public readonly user = this._details.user;
     public readonly start = this._details.start;
     public readonly end = this._details.end;
-    public readonly status = this._details.status;
+    public readonly status = this._details.status || signal('');
     public readonly department = this._details.department;
 
     public y_pos: 'top' | 'bottom';

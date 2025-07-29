@@ -1,13 +1,24 @@
-import { inject, Injectable, OnDestroy } from '@angular/core';
+import {
+    inject,
+    Injectable,
+    OnDestroy,
+    signal,
+    WritableSignal,
+} from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { showMetadata } from '@placeos/ts-client';
 import { addDays, endOfDay, getUnixTime, startOfDay } from 'date-fns';
-import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
+import {
+    BehaviorSubject,
+    combineLatest,
+    lastValueFrom,
+    Observable,
+    of,
+} from 'rxjs';
 import {
     catchError,
     debounceTime,
     filter,
-    first,
     map,
     shareReplay,
     switchMap,
@@ -18,6 +29,7 @@ import {
     AsyncHandler,
     BookingRuleset,
     currentUser,
+    firstTruthyValueFrom,
     i18n,
     nextValueFrom,
     notifyError,
@@ -64,7 +76,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
     private _options = new BehaviorSubject<DeskOptions>({});
     private _presence = new BehaviorSubject<string[]>([]);
     private _signs_of_life = new BehaviorSubject<string[]>([]);
-    private _statuses: Record<string, string> = {};
+    private _statuses: Record<string, WritableSignal<string>> = {};
     private _users: Record<string, string> = {};
     private _departments: Record<string, string> = {};
 
@@ -191,7 +203,9 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
                         },
                         restrictions,
                     )?.hidden;
-                    this._statuses[d_id] =
+                    if (!this._statuses[d_id])
+                        this._statuses[d_id] = signal('free');
+                    this._statuses[d_id].set(
                         bookable && !is_restricted
                             ? !is_used && !has_presence && !is_checked_in
                                 ? has_signs
@@ -200,7 +214,8 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
                                 : !has_presence && !is_checked_in
                                   ? 'pending'
                                   : 'busy'
-                            : 'not-bookable';
+                            : 'not-bookable',
+                    );
                 }
                 this.processDesks(desks);
             },
@@ -213,7 +228,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
     }
 
     public async init() {
-        await this._org.initialised.pipe(first((_) => _)).toPromise();
+        await firstTruthyValueFrom(this._org.initialised);
         this.setOptions({
             enable_booking:
                 this._settings.get('app.desks.enable_maps') !== false,
@@ -284,12 +299,12 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
         const style_map = {};
         const colours = this._settings.get('app.explore.colors') || {};
         for (const desk_id in this._statuses) {
-            if (!this._statuses[desk_id]) continue;
+            if (!this._statuses[desk_id]?.()) continue;
             style_map[`#${desk_id}`] = {
                 fill:
-                    colours[`desk-${this._statuses[desk_id]}`] ||
-                    colours[`${this._statuses[desk_id]}`] ||
-                    DEFAULT_COLOURS[`${this._statuses[desk_id]}`],
+                    colours[`desk-${this._statuses[desk_id]()}`] ||
+                    colours[`${this._statuses[desk_id]()}`] ||
+                    DEFAULT_COLOURS[`${this._statuses[desk_id]()}`],
             };
         }
         this._state.setStyles('desks', style_map);
@@ -321,6 +336,9 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
         const show_desk_users =
             this._settings.get('app.desks.show_users') ?? true;
         for (const desk of desks) {
+            if (!this._statuses[desk.map_id]) {
+                this._statuses[desk.map_id] = signal('free');
+            }
             list.push({
                 track_id: `desk:hover:${desk.map_id || desk.id}`,
                 location: desk.map_id || desk.id,
@@ -332,7 +350,9 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
                     map_id: desk.name,
                     name: desk.name || desk.map_id,
                     user: show_desk_users
-                        ? this._users[desk.map_id] || desk.staff_name
+                        ? this._users[desk.map_id] ||
+                          desk.staff_name ||
+                          (desk as any).assigned_name
                         : '',
                     status: this._statuses[desk.map_id],
                     department: this._departments[desk.map_id] || '',
@@ -390,7 +410,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
             const ref = this._dialog.open(SetDatetimeModalComponent, {
                 data: { date, duration, until, host, resource },
             });
-            const details = await ref.afterClosed().toPromise();
+            const details = await lastValueFrom(ref.afterClosed());
             if (!details) throw 'User cancelled';
             date = details.date;
             duration = details.duration;
@@ -400,7 +420,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
     }
 
     private async _bookDesk(desk: Desk, options: DeskOptions) {
-        if (this._statuses[desk.id] !== 'free') {
+        if (this._statuses[desk.id]?.() !== 'free') {
             return notifyError(
                 i18n('EXPLORE.DESK_AVAILABLE_ERROR', {
                     name: desk.name || 'Desk',

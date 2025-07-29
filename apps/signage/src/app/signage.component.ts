@@ -1,6 +1,7 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AsyncHandler, SettingsService } from '@placeos/common';
+import { time } from './media-helpers';
 import { MediaEvent, SignageService } from './signage.service';
 
 @Component({
@@ -9,9 +10,22 @@ import { MediaEvent, SignageService } from './signage.service';
         <media-player
             [playlist]="playlist | async"
             [controls]="debug()"
+            [override]="override_playlist().playlist.length > 0"
             [animation_time]="animation_time"
             (event)="handlePlayerEvent($event)"
+            class="z-0"
         />
+        @if (override_playlist().playlist.length > 0) {
+            <media-player
+                [playlist]="override_playlist().playlist"
+                [controls]="debug()"
+                [can_close]="true"
+                [animation_time]="animation_time"
+                (event)="handlePlayerEvent($event, true)"
+                (closed)="clearOverridePlaylist()"
+                class="absolute inset-0 z-10"
+            />
+        }
     `,
     styles: `
         :host {
@@ -29,7 +43,11 @@ export class SignagePanelComponent extends AsyncHandler implements OnInit {
     private _settings = inject(SettingsService);
 
     public readonly playlist = this._signage.playlist;
+    public readonly override_playlist = this._signage.override_playlist;
     public readonly debug = signal(false);
+
+    public readonly clearOverridePlaylist = () =>
+        this._signage.clearPlaylistOverride();
 
     public get animation_time() {
         return this._settings.get('app.default_animation_time');
@@ -53,12 +71,32 @@ export class SignagePanelComponent extends AsyncHandler implements OnInit {
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
-                if (params.has('debug')) this.debug.set(true);
+                if (params.has('debug')) {
+                    this.debug.set(true);
+                    sessionStorage.setItem(
+                        'SIGNAGE.debug',
+                        params.get('debug'),
+                    );
+                }
             }),
         );
+        const debug = sessionStorage.getItem('SIGNAGE.debug');
+        if (debug && debug !== 'false') this.debug.set(true);
+        // Check override playlists for time endings
+        this.interval('check_override', () => {
+            const { ends_at } = this.override_playlist();
+            if (ends_at && ends_at < time()) {
+                this._signage.clearPlaylistOverride();
+            }
+        });
     }
 
-    public handlePlayerEvent(e: MediaEvent) {
+    public handlePlayerEvent(e: MediaEvent, overridden = false) {
+        // Check override playlists for single play throughs
+        if (overridden && e.type === 'playlist_through') {
+            const { ends_at } = this.override_playlist();
+            if (!ends_at) this._signage.clearPlaylistOverride();
+        }
         this._signage.storeMetricEvent(e);
     }
 }

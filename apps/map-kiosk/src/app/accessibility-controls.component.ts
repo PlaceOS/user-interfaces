@@ -4,17 +4,19 @@ import { AsyncHandler, SettingsService } from '@placeos/common';
 @Component({
     selector: 'accessibility-controls',
     template: `
-        <button
-            matRipple
-            class="flex w-full items-center justify-between rounded p-2 hover:bg-base-200"
-            (click)="setDarkMode(!dark_mode)"
-        >
-            <div>Dark Mode</div>
-            <mat-slide-toggle
-                [ngModel]="dark_mode"
-                (ngModelChange)="setDarkMode($event)"
-            ></mat-slide-toggle>
-        </button>
+        @if (can_change_dark_mode) {
+            <button
+                matRipple
+                class="flex w-full items-center justify-between rounded p-2 hover:bg-base-200"
+                (click)="setDarkMode(!dark_mode)"
+            >
+                <div>Dark Mode</div>
+                <mat-slide-toggle
+                    [ngModel]="dark_mode"
+                    (ngModelChange)="setDarkMode($event)"
+                ></mat-slide-toggle>
+            </button>
+        }
         <!-- <button
             matRipple
             class="flex items-center justify-between hover:bg-base-200 w-full p-2 rounded"

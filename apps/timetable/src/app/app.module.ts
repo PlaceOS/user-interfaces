@@ -15,6 +15,7 @@ import { BindingDirective } from 'libs/components/src/lib/binding.directive';
 import { ChatComponent } from 'libs/components/src/lib/chat/chat.component';
 import { GlobalBannerComponent } from 'libs/components/src/lib/global-banner.component';
 import { GlobalLoadingComponent } from 'libs/components/src/lib/global-loading.component';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
 
 import { environment } from '../environments/environment';
 import { SpaceEventDetailsComponent } from './space-event-details.component';
@@ -29,6 +30,7 @@ const STANDALONE_COMPONENTS = [
     GlobalLoadingComponent,
     GlobalBannerComponent,
     ChatComponent,
+    IconComponent,
 ];
 
 @NgModule({

@@ -50,8 +50,6 @@ const COMPONENTS: Type<any>[] = [
     ConciergeSettingsFormModalComponent,
     VisitorKioskSettingsFormModalComponent,
     SelectMapItemModalComponent,
-
-    UploadButtonComponent,
 ];
 
 const MAT_MODULES: any[] = [
@@ -83,6 +81,7 @@ const ANGULAR_MODULES: any[] = [FormsModule, ReactiveFormsModule];
         SharedSpacesModule,
         AssetsModule,
         RouterModule.forChild([]),
+        UploadButtonComponent,
     ],
     exports: [
         ...COMPONENTS,
@@ -91,6 +90,7 @@ const ANGULAR_MODULES: any[] = [FormsModule, ReactiveFormsModule];
         FormFieldsModule,
         ComponentsModule,
         AssetsModule,
+        UploadButtonComponent,
     ],
 })
 export class UIModule {}
