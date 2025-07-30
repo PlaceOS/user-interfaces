@@ -287,6 +287,11 @@ export class DesksStateService extends AsyncHandler {
         const idx = desk_list.findIndex((_) => _.id === desk.id);
         if (idx >= 0) desk_list[idx] = new_desk;
         else desk_list.push(new_desk);
+        if (!new_desk.bookable) {
+            new_desk.assigned_to = '';
+            delete new_desk.assigned_name;
+            delete new_desk.assigned_user;
+        }
         await lastValueFrom(
             updateMetadata(zone, {
                 name: 'desks',
@@ -298,7 +303,6 @@ export class DesksStateService extends AsyncHandler {
             ref.componentInstance.loading = false;
             throw e;
         });
-        if (!new_desk.bookable) (new_desk as any).assigned_to = '';
         let recreate = false;
         if (
             desk.assigned_to &&
