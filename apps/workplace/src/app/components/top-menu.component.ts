@@ -23,8 +23,8 @@ import { OrganisationService } from '@placeos/organisation';
             <div
                 #menuContainer
                 menu
-                [class.opacity-0]="mobile_menu || checking"
-                [class.!h-0]="mobile_menu"
+                [class.opacity-0]="mobile_menu() || checking()"
+                [class.!h-0]="mobile_menu()"
                 (window:resize)="checkMenu()"
                 class="flex h-full w-full min-w-full items-center justify-center overflow-hidden text-base-content"
             >
@@ -59,7 +59,7 @@ import { OrganisationService } from '@placeos/organisation';
                 }
             </div>
         }
-        @if (mobile_menu) {
+        @if (mobile_menu()) {
             <div
                 class="absolute inset-y-0 -right-16 left-0 flex items-center justify-end"
             >
@@ -141,8 +141,8 @@ export class TopMenuComponent
     public readonly buildings = this._org.building_list;
     public readonly building = this._org.active_building;
     public previous_size = 9999;
-    public checking = false;
-    public mobile_menu = false;
+    public readonly checking = signal(false);
+    public readonly mobile_menu = signal(false);
     public readonly hide_text = signal(false);
 
     public readonly setBuilding = (b) => (this._org.building = b);
@@ -198,7 +198,7 @@ export class TopMenuComponent
         viewChild<ElementRef<HTMLDivElement>>('menuContainer');
 
     public ngOnInit() {
-        this.checking = true;
+        this.checking.set(true);
         this.subscription(
             'building',
             this._org.active_building.subscribe(() =>
@@ -293,19 +293,20 @@ export class TopMenuComponent
         const menu_width = this.menu().nativeElement?.offsetWidth || 0;
         const container_width =
             this._element.nativeElement.parentElement.offsetWidth;
-        this.checking = false;
+        this.checking.set(false);
         if (menu_width > container_width && !this.hide_text()) {
             this.hide_text.set(true);
             this.timeout('check_menu', () => this.checkMenu(), 20);
-            this.checking = true;
+            this.checking.set(true);
             this.previous_size = container_width;
             return;
         }
-        if (this.hide_text()) this.mobile_menu = menu_width > container_width;
+        if (this.hide_text())
+            this.mobile_menu.set(menu_width > container_width);
         if (container_width > this.previous_size && this.hide_text()) {
             this.hide_text.set(false);
             this.timeout('check_menu', () => this.checkMenu(), 20);
-            this.checking = true;
+            this.checking.set(true);
         }
         this.previous_size = container_width;
     }

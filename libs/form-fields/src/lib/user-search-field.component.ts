@@ -6,7 +6,6 @@ import {
     inject,
     input,
     model,
-    OnInit,
     signal,
     viewChild,
 } from '@angular/core';
@@ -16,111 +15,116 @@ import {
     NG_VALUE_ACCESSOR,
 } from '@angular/forms';
 import { authority, queryUsers } from '@placeos/ts-client';
-import { forkJoin, Observable, of, Subject } from 'rxjs';
+import { BehaviorSubject, forkJoin, Observable, of } from 'rxjs';
 import {
     catchError,
     debounceTime,
-    distinctUntilChanged,
     map,
+    shareReplay,
+    startWith,
     switchMap,
+    tap,
 } from 'rxjs/operators';
 
-import { AsyncHandler, flatten, SettingsService } from '@placeos/common';
+import { AsyncHandler, SettingsService } from '@placeos/common';
 
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
+import { CommonModule } from '@angular/common';
+import { MatRippleModule } from '@angular/material/core';
+import { searchGuests } from '@placeos/users';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { searchGuests } from 'libs/users/src/lib/guests.fn';
 import { searchStaff } from 'libs/users/src/lib/staff.fn';
 import { User } from 'libs/users/src/lib/user.class';
 
 @Component({
     selector: 'a-user-search-field',
     template: `
-        <mat-form-field appearance="outline" class="no-subscript w-full">
-            <input
-                #input
-                matInput
-                keyboard
-                name="user-search"
-                [ngModel]="search_str()"
-                (ngModelChange)="search$.next($event); search_str.set($event)"
-                [disabled]="disabled()"
-                [placeholder]="
-                    placeholder() || ('FORM.USER_SEARCH' | translate)
-                "
-                [matAutocomplete]="auto"
-                (keyup.enter)="
-                    validate() && validate()(search_str())
-                        ? setValue(search_str())
-                        : ''
-                "
-                (blur)="resetSearchString()"
-                (focus)="cancelReset()"
-            />
-            <icon matPrefix class="relative text-2xl">search</icon>
-            @if (loading()) {
-                <mat-spinner matSuffix diameter="16" />
+        <div class="flex w-full space-x-2">
+            <mat-form-field appearance="outline">
+                <icon
+                    matPrefix
+                    class="block flex w-6 items-center justify-center text-2xl"
+                    >search</icon
+                >
+                <input
+                    matInput
+                    [ngModel]="search_term.getValue()"
+                    (ngModelChange)="search_term.next($event)"
+                    [disabled]="disabled()"
+                    [matAutocomplete]="auto"
+                    [placeholder]="placeholder() | translate"
+                    (blur)="resetTerm()"
+                />
+                @if (loading()) {
+                    <mat-spinner matSuffix diameter="24"></mat-spinner>
+                }
+                <mat-autocomplete
+                    #auto="matAutocomplete"
+                    [displayWith]="displayFn"
+                    (optionSelected)="setValue($event.option.value)"
+                >
+                    @let user_list = search_results | async;
+                    @let term = search_term.getValue();
+                    @for (user of user_list; track $index) {
+                        <mat-option [value]="user">
+                            <div class="leading-tight">
+                                <div>{{ user.name }}</div>
+                                <div class="text-xs opacity-30">
+                                    {{ user.email }}
+                                </div>
+                            </div>
+                        </mat-option>
+                    }
+                    @if (term && validate() && validate()(term)) {
+                        <mat-option class="pointer-events-none relative">
+                            <div
+                                class="pointer-events-auto absolute inset-0 px-4"
+                                (mousedown)="stopEvent($event)"
+                                (touchstart)="stopEvent($event)"
+                                (click)="
+                                    setValue(search_str); stopEvent($event)
+                                "
+                            >
+                                <div class="pointer-events-none">
+                                    {{
+                                        'FORM.USER_ADD_EXTERNAL'
+                                            | translate: { name: term }
+                                    }}
+                                </div>
+                            </div>
+                        </mat-option>
+                    }
+                    @if (
+                        !user_list?.length &&
+                        (search_term.getValue() || error())
+                    ) {
+                        <mat-option
+                            [disabled]="!empty_fn()"
+                            (click)="empty_fn()()"
+                        >
+                            {{ (term ? 'FORM.USER_EMPTY' : '') | translate }}
+                            {{ error() }}
+                        </mat-option>
+                    }
+                </mat-autocomplete>
+                <mat-error>{{ error() }}</mat-error>
+            </mat-form-field>
+            @if (clear()) {
+                <button
+                    icon
+                    matRipple
+                    class="h-12 w-12 rounded border border-secondary text-secondary"
+                    (click)="clearUser()"
+                >
+                    <icon>person_cancel</icon>
+                </button>
             }
-        </mat-form-field>
-        <mat-autocomplete
-            #auto="matAutocomplete"
-            (optionSelected)="setValue($event.option.value)"
-        >
-            @for (option of user_list; track option) {
-                <mat-option (click)="setValue(option); blurInput()">
-                    <div class="leading-tight">{{ option.name }}</div>
-                    <div class="w-full text-xs opacity-60">
-                        {{ option.email }}
-                        @if (
-                            option.username && option.username !== option.email
-                        ) {
-                            <span>
-                                (<span class="truncate">{{
-                                    option.username
-                                }}</span
-                                >)
-                            </span>
-                        }
-                    </div>
-                </mat-option>
-            }
-            @if (search_str && validate() && validate()(search_str())) {
-                <mat-option class="pointer-events-none relative">
-                    <div
-                        class="pointer-events-auto absolute inset-0 px-4"
-                        (mousedown)="
-                            $event.stopPropagation(); $event.preventDefault()
-                        "
-                        (touchstart)="
-                            $event.stopPropagation(); $event.preventDefault()
-                        "
-                        (click)="
-                            setValue(search_str);
-                            $event.stopPropagation();
-                            $event.preventDefault()
-                        "
-                    >
-                        <div class="pointer-events-none">
-                            {{
-                                'FORM.USER_ADD_EXTERNAL'
-                                    | translate: { name: search_str }
-                            }}
-                        </div>
-                    </div>
-                </mat-option>
-            }
-            @if (!user_list?.length && (search_str || error())) {
-                <mat-option [disabled]="!empty_fn()" (click)="empty_fn()()">
-                    {{ (search_str ? 'FORM.USER_EMPTY' : '') | translate }}
-                    {{ error() }}
-                </mat-option>
-            }
-        </mat-autocomplete>
+        </div>
     `,
     styles: [
         `
@@ -141,29 +145,37 @@ import { User } from 'libs/users/src/lib/user.class';
         },
     ],
     imports: [
+        CommonModule,
+        FormsModule,
         MatFormFieldModule,
         MatInputModule,
         MatProgressSpinnerModule,
         MatAutocompleteModule,
-        FormsModule,
+        MatRippleModule,
         IconComponent,
         TranslatePipe,
     ],
 })
 export class UserSearchFieldComponent
     extends AsyncHandler
-    implements OnInit, ControlValueAccessor
+    implements ControlValueAccessor
 {
     private _settings = inject(SettingsService);
+
+    public readonly search_term = new BehaviorSubject<string>('');
+    public readonly loading = signal(false);
+    public readonly user = signal<User | null>(null);
 
     /** Whether form field is disabled */
     public readonly disabled = model<boolean>(undefined);
     /** Placeholder text to display */
-    public readonly placeholder = input<string>(undefined);
+    public readonly placeholder = input<string>('FORM.USER_SEARCH');
     /** Limit available options to these */
     public readonly options = input<User[]>(undefined);
     /** Whether guests should also show when searching for users */
     public readonly guests = input<boolean>(undefined);
+    /** Whether to show clear button */
+    public readonly clear = input<boolean>(false);
     /** Message to display when no user matches have been found */
     public readonly error = input('');
     /** Function to validate the search string */
@@ -172,109 +184,66 @@ export class UserSearchFieldComponent
     public readonly empty_fn = input<() => void>(undefined);
     /** Function for filtering the results of the user list */
     public readonly filter = input<(_: any, s?: string) => boolean>(undefined);
-
+    /** Function for querying the user list */
     public readonly query_fn = input<(_: string) => Observable<User[]>>((q) =>
         this._settings.get('app.basic_user_search')
             ? queryUsers({ q, authority_id: authority()?.id }).pipe(
                   map((_) => _.data.map((_) => new User(_))),
                   catchError(() => of([])),
               )
-            : searchStaff(q).pipe(catchError(() => of([]))),
-    );
-    /** Currently selected user */
-    public active_user: User;
-    /** User list to display */
-    public user_list: User[];
-    /** Whether user list is loading */
-    public loading = signal(false);
-    /** Current display value of the search input field  */
-    public search_str = signal('');
-    /** Subject holding the value of the search */
-    public search$ = new Subject<string>();
-    /** List of users from an API search */
-    public search_results$: Observable<User[]> = this.search$.pipe(
-        debounceTime(400),
-        distinctUntilChanged(),
-        switchMap((query) => {
-            this.loading.set(true);
-            const options = this.options();
-            return options && options.length > 0
-                ? of(options)
-                : query.length >= 3
-                  ? !this.guests()
-                      ? this.query_fn()(query)
-                      : forkJoin([
-                            searchStaff(query).pipe(catchError(() => of([]))),
-                            searchGuests(query).pipe(catchError(() => of([]))),
-                        ])
-                  : of([]);
-        }),
-        catchError(() => of([])),
-        map((list: User[]) => {
-            this.loading.set(false);
-            list = flatten(list);
-            const search = this.search_str().toLowerCase();
-            return list.filter((item) => {
-                const filter = this.filter();
-                return !filter || filter(item, search);
-            });
-        }),
+            : this.guests()
+              ? forkJoin([
+                    searchStaff(q).pipe(catchError(() => of([]))),
+                    searchGuests(q).pipe(catchError(() => of([]))),
+                ])
+              : searchStaff(q).pipe(catchError(() => of([]))),
     );
 
-    constructor() {
-        super();
-    }
+    public readonly search_results = this.search_term.pipe(
+        debounceTime(300),
+        switchMap((term) => {
+            if (term && typeof term !== 'string') return of([term]);
+            if (term === this.user()?.name) return of([this.user()]);
+            this.loading.set(true);
+            const s = (term || '').toLowerCase();
+            return this.options()?.length
+                ? of(
+                      this.options().filter(
+                          (_) =>
+                              _.name.toLowerCase().includes(s) ||
+                              _.email.toLowerCase().includes(s),
+                      ),
+                  )
+                : s.length > 2
+                  ? this.query_fn()(s)
+                  : of([]);
+        }),
+        tap(() => this.loading.set(false)),
+        startWith([]),
+        shareReplay(1),
+    );
 
     private _onChange: (_: User) => void;
     private _onTouch: (_: User) => void;
     public readonly registerOnChange = (fn) => (this._onChange = fn);
     public readonly registerOnTouched = (fn) => (this._onTouch = fn);
+    public readonly setDisabledState = (s) => this.disabled.set(s);
 
     private readonly _input_el = viewChild('input', { read: ElementRef });
-
-    public cancelReset = () => this.clearTimeout('reset');
-
-    public blurInput = () => {
-        this.timeout('blur', () => this._input_el()?.nativeElement?.blur());
-    };
-
-    public ngOnInit(): void {
-        // Process API results
-        this.subscription(
-            'search_results',
-            this.search_results$.subscribe((list) => (this.user_list = list)),
-        );
-        this.resetSearchString();
-    }
-
-    /**
-     * Reset the search string back to the name of the active user
-     */
-    public resetSearchString() {
-        this.timeout(
-            'reset',
-            () => this.search_str.set(this.active_user?.name || ''),
-            100,
-        );
-    }
 
     /**
      * Update the form field value
      * @param new_value New value to set on the form field
      */
     public setValue(new_value: User | string, email?: string): void {
-        if (!new_value) return;
-        if (typeof new_value === 'string' && new_value === this.search_str()) {
-            new_value = new User({
-                name: (this.search_str() || email || '').split('@')[0],
-                email: this.search_str() || email || '',
-            });
-        }
-        const user = new_value as User;
-        if (!('name' in user) && !('email' in user)) return;
-        this.active_user = user;
-        if (this._onChange) this._onChange(user);
-        this.resetSearchString();
+        const value =
+            typeof new_value === 'string'
+                ? new User({ name: new_value, email })
+                : new_value;
+        this._onChange ? this._onChange(value) : null;
+        this._onTouch ? this._onTouch(value) : null;
+        this.user.set(value);
+        console.log('Set User:', value);
     }
 
     /**
@@ -282,11 +251,29 @@ export class UserSearchFieldComponent
      * @param value The new value for the component
      */
     public writeValue(value: User) {
-        this.active_user = value;
-        this.resetSearchString();
+        this.user.set(value);
+        this.resetTerm();
     }
 
-    public setDisabledState(disabled: boolean) {
-        this.disabled.set(disabled);
+    public displayFn(user: User): string {
+        return user && user.name ? user.name : '';
+    }
+
+    public stopEvent(event: Event) {
+        event.stopPropagation();
+        event.preventDefault();
+    }
+
+    public clearUser() {
+        this.user.set(null);
+        this._onChange ? this._onChange(null) : null;
+        this._onTouch ? this._onTouch(null) : null;
+        this.resetTerm();
+    }
+
+    public resetTerm() {
+        this.search_term.next(this.user() as any);
+        const input = this._input_el()?.nativeElement;
+        if (input) input.value = this.search_term.getValue();
     }
 }
