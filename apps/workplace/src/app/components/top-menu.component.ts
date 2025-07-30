@@ -4,6 +4,7 @@ import {
     ElementRef,
     inject,
     OnInit,
+    signal,
     viewChild,
 } from '@angular/core';
 import { Router } from '@angular/router';
@@ -46,7 +47,7 @@ import { OrganisationService } from '@placeos/organisation';
                             >
                                 {{ route.icon }}
                             </icon>
-                            @if (!hide_text) {
+                            @if (!hide_text()) {
                                 <span class="truncate">{{ route.name }}</span>
                             }
                             <div
@@ -142,7 +143,7 @@ export class TopMenuComponent
     public previous_size = 9999;
     public checking = false;
     public mobile_menu = false;
-    public hide_text = false;
+    public readonly hide_text = signal(false);
 
     public readonly setBuilding = (b) => (this._org.building = b);
 
@@ -293,16 +294,16 @@ export class TopMenuComponent
         const container_width =
             this._element.nativeElement.parentElement.offsetWidth;
         this.checking = false;
-        if (menu_width > container_width && !this.hide_text) {
-            this.hide_text = true;
+        if (menu_width > container_width && !this.hide_text()) {
+            this.hide_text.set(true);
             this.timeout('check_menu', () => this.checkMenu(), 20);
             this.checking = true;
             this.previous_size = container_width;
             return;
         }
-        if (this.hide_text) this.mobile_menu = menu_width > container_width;
-        if (container_width > this.previous_size && this.hide_text) {
-            this.hide_text = false;
+        if (this.hide_text()) this.mobile_menu = menu_width > container_width;
+        if (container_width > this.previous_size && this.hide_text()) {
+            this.hide_text.set(false);
             this.timeout('check_menu', () => this.checkMenu(), 20);
             this.checking = true;
         }

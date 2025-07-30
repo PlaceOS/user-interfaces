@@ -1,4 +1,4 @@
-import { Component, inject, input } from '@angular/core';
+import { Component, inject, model } from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { BookingFormService } from '@placeos/bookings';
 import { AsyncHandler, SettingsService, notifyError } from '@placeos/common';
@@ -115,7 +115,7 @@ export class NewParkingFlowConfirmComponent extends AsyncHandler {
     private _sheet_ref = inject(MatBottomSheetRef, { optional: true });
     private _settings = inject(SettingsService);
 
-    public readonly show_close = input<boolean>(false);
+    public readonly show_close = model<boolean>(false);
 
     public readonly loading = this._state.loading;
 

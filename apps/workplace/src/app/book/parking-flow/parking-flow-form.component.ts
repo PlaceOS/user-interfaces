@@ -187,7 +187,7 @@ export class ParkingFlowFormComponent extends AsyncHandler {
         this.sheet_ref = this._bottom_sheet.open(
             NewParkingFlowConfirmComponent,
         );
-        this.sheet_ref.instance.show_close = true;
+        this.sheet_ref.instance.show_close.set(true);
         this.sheet_ref.afterDismissed().subscribe((value) => {
             if (value) {
                 this._router.navigate(['/book', 'parking', 'success']);

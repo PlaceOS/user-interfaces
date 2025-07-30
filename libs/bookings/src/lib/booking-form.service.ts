@@ -879,7 +879,7 @@ export class BookingFormService extends AsyncHandler {
                     host: new User(user),
                     resource: space,
                 },
-                rules[bld.id],
+                rules[bld?.id] || [],
             );
         });
         if (!resource_rules.every((_) => !_.hidden)) {
