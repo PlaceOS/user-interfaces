@@ -45,7 +45,7 @@ import { User } from 'libs/users/src/lib/user.class';
     selector: 'a-user-search-field',
     template: `
         <div class="flex w-full space-x-2">
-            <mat-form-field appearance="outline">
+            <mat-form-field appearance="outline" class="w-1/2 flex-1">
                 <icon
                     matPrefix
                     class="block flex w-6 items-center justify-center text-2xl"

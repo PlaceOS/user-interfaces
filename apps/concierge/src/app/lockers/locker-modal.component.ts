@@ -70,7 +70,7 @@ function validateNoOverlap(box: Box, check_boxes: Box[]): boolean {
                     <label for="user">{{
                         'APP.CONCIERGE.USER_ASSIGNED' | translate
                     }}</label>
-                    <div class="mb-4 flex items-center space-x-2">
+                    <div class="mb-4 flex space-x-2">
                         <a-user-search-field
                             name="user"
                             formControlName="assigned_user"
