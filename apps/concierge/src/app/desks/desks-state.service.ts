@@ -298,6 +298,7 @@ export class DesksStateService extends AsyncHandler {
             ref.componentInstance.loading = false;
             throw e;
         });
+        if (!new_desk.bookable) (new_desk as any).assigned_to = '';
         let recreate = false;
         if (
             desk.assigned_to &&
