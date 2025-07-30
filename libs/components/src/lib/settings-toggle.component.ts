@@ -5,6 +5,7 @@ import {
     NG_VALUE_ACCESSOR,
 } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { IconComponent } from './icon.component';
 
 @Component({
@@ -78,7 +79,7 @@ import { IconComponent } from './icon.component';
             multi: true,
         },
     ],
-    imports: [MatCheckboxModule, FormsModule, IconComponent],
+    imports: [MatCheckboxModule, FormsModule, IconComponent, MatTooltipModule],
 })
 export class SettingsToggleComponent implements ControlValueAccessor {
     public readonly toggle = input<boolean>(undefined);
