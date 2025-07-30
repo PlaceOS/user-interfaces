@@ -1,5 +1,5 @@
 import { COMMA, ENTER, SPACE } from '@angular/cdk/keycodes';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { MatChipInputEvent } from '@angular/material/chips';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
@@ -7,12 +7,18 @@ import {
     SettingsService,
     TIMEZONES_IANA,
     currentUser,
+    firstTruthyValueFrom,
     formatDuration,
     getInvalidFields,
     notifyError,
     unique,
 } from '@placeos/common';
-import { EventFormService, showEvent } from '@placeos/events';
+import {
+    CalendarEvent,
+    EventFormService,
+    showEvent,
+    showEventMetadata,
+} from '@placeos/events';
 import {
     Building,
     BuildingLevel,
@@ -21,7 +27,7 @@ import {
 import { Space, SpacePipe } from '@placeos/spaces';
 import { StaffUser } from '@placeos/users';
 import { differenceInMinutes, format, startOfDay } from 'date-fns';
-import { first } from 'rxjs/operators';
+import { lastValueFrom } from 'rxjs';
 import { EventStateService } from './event-state.service';
 
 const EMPTY = [];
@@ -29,7 +35,7 @@ const EMPTY = [];
 @Component({
     selector: 'app-event-manage',
     template: `
-        @if (!loading) {
+        @if (!loading()) {
             <div class="absolute inset-0 overflow-auto bg-base-100">
                 <header
                     class="sticky top-0 z-10 mx-auto my-2 flex w-full max-w-[640px] items-center justify-between rounded border-none bg-base-200 px-4 py-2"
@@ -42,7 +48,7 @@ const EMPTY = [];
                             ) | translate
                         }}
                     </h2>
-                    @if (!loading) {
+                    @if (!loading()) {
                         <a
                             icon
                             matRipple
@@ -471,7 +477,7 @@ const EMPTY = [];
                             ></image-list-field>
                         </ng-container>
                     </section>
-                    @if (!loading) {
+                    @if (!loading()) {
                         <footer
                             class="fixed bottom-0 left-1/2 z-10 mx-auto my-2 flex w-full max-w-[640px] -translate-x-1/2 items-center justify-end rounded border-none bg-base-200 px-4 py-2"
                         >
@@ -502,7 +508,7 @@ export class EventManageComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
 
-    public loading = false;
+    public readonly loading = signal(false);
     public timezones: string[] = [];
     public resource: string;
     public filtered_timezones: string[] = [];
@@ -551,7 +557,7 @@ export class EventManageComponent extends AsyncHandler implements OnInit {
     };
 
     public async ngOnInit() {
-        await this._org.initialised.pipe(first((_) => _)).toPromise();
+        await firstTruthyValueFrom(this._org.initialised);
         this.form.patchValue({
             location:
                 this._org.building.address || this._org.building.display_name,
@@ -563,9 +569,25 @@ export class EventManageComponent extends AsyncHandler implements OnInit {
             'route.params',
             this._route.paramMap.subscribe(async (params) => {
                 if (params.has('id')) {
-                    const booking = await showEvent(params.get('id'), {
-                        calendar: this._state.calendar,
-                    }).toPromise();
+                    let booking = await lastValueFrom(
+                        showEvent(params.get('id'), {
+                            calendar: this._state.calendar,
+                        }),
+                    );
+                    const metadata = await lastValueFrom(
+                        showEventMetadata(
+                            params.get('id'),
+                            booking.system?.id,
+                            { ical_uid: booking.ical_uid },
+                        ),
+                    ).catch(() => ({}));
+                    booking = new CalendarEvent({
+                        ...booking,
+                        extension_data: {
+                            ...booking.extension_data,
+                            ...metadata,
+                        },
+                    });
                     if (!booking)
                         return this._router.navigate([
                             '/entertainment',
@@ -648,7 +670,7 @@ export class EventManageComponent extends AsyncHandler implements OnInit {
                 `Some form fields are invalid. [${getInvalidFields(this.form)}]`,
             );
         }
-        this.loading = true;
+        this.loading.set(true);
         let resources = this.form.getRawValue().resources;
         const space = await new SpacePipe().transform(this._state.calendar);
         resources.push(
@@ -666,10 +688,10 @@ export class EventManageComponent extends AsyncHandler implements OnInit {
         this.form.patchValue({ resources, host: this._state.calendar });
         const date = this.form.getRawValue().date;
         const res = await this._form_state
-            .postForm(false, [this._state.calendar], true)
+            .postForm(false, [this._state.calendar], true, true)
             .catch((e) => notifyError(e));
         this._state.changed();
-        this.loading = false;
+        this.loading.set(false);
         if (res) {
             this._router.navigate(['/entertainment', 'events'], {
                 queryParams: { range: startOfDay(date).valueOf() },

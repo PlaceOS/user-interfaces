@@ -450,6 +450,7 @@ export class EventFormService extends AsyncHandler {
         force = false,
         ignore_space_check: string[] = [],
         ignore_owner = false,
+        force_calendar = false,
     ) {
         this.form.markAllAsTouched();
         if (this.form.invalid && !force) {
@@ -558,8 +559,9 @@ export class EventFormService extends AsyncHandler {
         const is_owner =
             this.form.value.host === currentUser()?.email ||
             this.form.value.creator === currentUser()?.email;
-        if (is_owner && !ignore_owner)
+        if ((is_owner && !ignore_owner) || force_calendar)
             query.calendar = this.form.value.host || this.form.value.creator;
+        if (force_calendar) delete query.system_id;
         const processed_assets = (this.form.value.assets || []).map((_) =>
             new AssetRequest(_).toJSON(),
         );
