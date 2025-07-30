@@ -1,5 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { AsyncHandler, SettingsService } from '@placeos/common';
+import { combineLatest, map } from 'rxjs';
 import { ParkingStateService } from './parking-state.service';
 
 @Component({
@@ -11,7 +12,7 @@ import { ParkingStateService } from './parking-state.service';
         />
         <simple-table
             class="block min-w-[76rem] text-sm"
-            [data]="events"
+            [data]="filtered_events"
             [columns]="[
                 {
                     key: 'state',
@@ -232,6 +233,25 @@ export class ParkingBookingsListComponent
     public readonly events = this._state.bookings;
     public readonly options = this._state.options;
     public readonly loading = this._state.loading;
+
+    public readonly filtered_events = combineLatest([
+        this._state.bookings,
+        this.options,
+    ]).pipe(
+        map(([booking_list, { search }]) => {
+            const s = search.toLowerCase();
+            return !s
+                ? booking_list
+                : booking_list.filter(
+                      (b) =>
+                          b.user_name.toLowerCase().includes(s) ||
+                          b.user_email.toLowerCase().includes(s) ||
+                          b.booked_by_name.toLowerCase().includes(s) ||
+                          b.booked_by_email.toLowerCase().includes(s) ||
+                          b.asset_name.toLowerCase().includes(s),
+                  );
+        }),
+    );
 
     public readonly reject = (e) => this._state.rejectBooking(e);
     public readonly approve = (e) => this._state.approveBooking(e);
