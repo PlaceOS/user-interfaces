@@ -29,7 +29,7 @@ import { ParkingUser } from './parking-state.service';
                     class="flex max-h-[65vh] flex-col overflow-auto p-4"
                     [formGroup]="form"
                 >
-                    <div class="mb-4 flex items-center space-x-2">
+                    <div class="mb-4 flex space-x-2">
                         <a-user-search-field
                             name="user"
                             formControlName="user"
