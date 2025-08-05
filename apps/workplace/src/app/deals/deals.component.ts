@@ -25,7 +25,7 @@ import { DealsService } from './deals.service';
                         >
                             {{ 'COMMON.ALL' | translate }}
                         </button>
-                        @for (t of type_list; track type) {
+                        @for (t of type_list; track t) {
                             <button
                                 matRipple
                                 class="m-1 rounded-full border border-base-300 px-4 py-1"
@@ -87,7 +87,7 @@ import { DealsService } from './deals.service';
                     </div>
                 </div>
                 <div
-                    class="mx-auto grid w-[40rem] max-w-full grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
+                    class="mx-auto mb-4 grid w-[40rem] max-w-full grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
                 >
                     @for (deal of deal_list; track deal.id) {
                         <div>
@@ -100,7 +100,8 @@ import { DealsService } from './deals.service';
                                 >
                                     @if (deal.image) {
                                         <img
-                                            [src]="deal.image"
+                                            auth
+                                            [source]="deal.image"
                                             alt="Deal Image"
                                             class="h-full w-full object-cover"
                                         />

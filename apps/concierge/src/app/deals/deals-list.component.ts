@@ -103,7 +103,8 @@ import { DealsService } from './deals.service';
                                     >
                                         @if (deal.image) {
                                             <img
-                                                [src]="deal.image"
+                                                auth
+                                                [source]="deal.image"
                                                 alt="Deal Image"
                                                 class="h-full w-full object-cover"
                                             />
@@ -226,8 +227,9 @@ import { DealsService } from './deals.service';
                             >
                                 @if (deal.image) {
                                     <img
+                                        auth
                                         class="h-16 w-16 rounded bg-base-200 object-cover"
-                                        [src]="deal.image"
+                                        [source]="deal.image"
                                         alt="{{ deal.name }}"
                                     />
                                 }
