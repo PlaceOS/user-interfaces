@@ -9,6 +9,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import { Deal, unique } from '@placeos/common';
 import { addMonths, endOfMonth, startOfDay } from 'date-fns';
+import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { SimpleTableComponent } from 'libs/components/src/lib/simple-table.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
@@ -331,6 +332,7 @@ import { DealsService } from './deals.service';
         ReactiveFormsModule,
         SimpleTableComponent,
         MatMenuModule,
+        AuthenticatedImageDirective,
     ],
 })
 export class DealsListComponent {
