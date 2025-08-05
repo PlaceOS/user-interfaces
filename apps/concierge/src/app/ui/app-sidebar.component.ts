@@ -160,12 +160,6 @@ export class ApplicationSidebarComponent
                         name: i18n('APP.CONCIERGE.MENU_CATERING_BOOKINGS'),
                         route: ['/book/catering/orders'],
                     },
-                ],
-            },
-            {
-                name: i18n('APP.CONCIERGE.MENU_VISITORS'),
-                icon: 'badge',
-                children: [
                     {
                         id: 'visitors',
                         name: i18n('APP.CONCIERGE.MENU_VISITOR_BOOKINGS'),

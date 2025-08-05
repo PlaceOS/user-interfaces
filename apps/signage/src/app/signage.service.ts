@@ -213,7 +213,9 @@ export class SignageService extends AsyncHandler {
             this._retry.pipe(debounceTime(15 * 1000), startWith(0)),
         ]).subscribe(async ([_]) => {
             const available_media = this._media_cache.availableFiles();
-            const media = _.playlist_media.map((_) => _.media_url);
+            const media = _.playlist_media
+                .filter((_) => _.type !== 'webpage')
+                .map((_) => _.media_url);
             const extra_media = available_media.filter(
                 (url) => !media.includes(url),
             );
@@ -388,10 +390,12 @@ export class SignageService extends AsyncHandler {
                     play_hours,
                     getURL: async () =>
                         media_ref
-                            ? await this._media_cache
-                                  .getFile(media_ref.media_url)
-                                  .then((_) => URL.createObjectURL(_))
-                                  .catch((_) => '')
+                            ? media_ref.media_type === 'webpage'
+                                ? media_ref.media_url
+                                : await this._media_cache
+                                      .getFile(media_ref.media_url)
+                                      .then((_) => URL.createObjectURL(_))
+                                      .catch((_) => '')
                             : null,
                 } as MediaPlayerItem;
             })

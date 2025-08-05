@@ -3,11 +3,14 @@ import {
     inject,
     input,
     OnChanges,
+    signal,
     SimpleChanges,
 } from '@angular/core';
+import { notifyError } from '@placeos/common';
+import { isValidUrl } from '@placeos/spaces';
 import { listSignagePlaylistMedia, SignageMedia } from '@placeos/ts-client';
 import { getUnixTime, startOfMinute } from 'date-fns';
-import { BehaviorSubject, combineLatest } from 'rxjs';
+import { BehaviorSubject, combineLatest, lastValueFrom } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { SignageStateService } from './signage-state.service';
 
@@ -26,6 +29,39 @@ import { SignageStateService } from './signage-state.service';
                     (ngModelChange)="search.next($event)"
                 />
             </mat-form-field>
+            <button
+                icon
+                matRipple
+                customTooltip
+                [content]="add_link_template"
+                class="absolute right-14 top-2 border border-base-300"
+                [matTooltip]="'APP.CONCIERGE.SIGNAGE_MEDIA_LINK' | translate"
+                matTooltipPosition="left"
+            >
+                <icon>link</icon>
+            </button>
+            <ng-template #add_link_template>
+                <div
+                    class="my-2 flex w-[20rem] flex-col space-y-4 rounded-lg border border-base-300 bg-base-100 p-4 shadow"
+                >
+                    <mat-form-field appearance="outline" class="no-subscript">
+                        <input
+                            matInput
+                            [placeholder]="'COMMON.URL' | translate"
+                            [(ngModel)]="link"
+                        />
+                    </mat-form-field>
+                    <button
+                        btn
+                        matRipple
+                        class="w-full"
+                        (click)="addFromLink(link())"
+                    >
+                        <icon class="mr-2 text-2xl">add</icon>
+                        <div>{{ 'COMMON.ADD' | translate }}</div>
+                    </button>
+                </div>
+            </ng-template>
             <button
                 icon
                 matRipple
@@ -95,11 +131,19 @@ import { SignageStateService } from './signage-state.service';
                                 [class.text-warning-content]="
                                     media.media_type === 'image'
                                 "
+                                [class.bg-success]="
+                                    media.media_type === 'webpage'
+                                "
+                                [class.text-success-content]="
+                                    media.media_type === 'webpage'
+                                "
                             >
                                 {{
                                     (media.media_type === 'image'
                                         ? 'COMMON.IMAGE'
-                                        : 'COMMON.VIDEO'
+                                        : media.media_type === 'webpage'
+                                          ? 'COMMON.WEBPAGE'
+                                          : 'COMMON.VIDEO'
                                     ) | translate
                                 }}
                             </div>
@@ -262,6 +306,8 @@ import { SignageStateService } from './signage-state.service';
 export class SignageMediaListComponent implements OnChanges {
     private _state = inject(SignageStateService);
 
+    public readonly link = signal('');
+
     public readonly playlist_count = input(0);
     public readonly search = new BehaviorSubject<string>('');
     public readonly playlist_search = new BehaviorSubject<string>('');
@@ -289,6 +335,16 @@ export class SignageMediaListComponent implements OnChanges {
     public readonly previewFile = (event) =>
         this._state.previewFileFromInput(event);
 
+    public readonly addFromLink = async (url: string) => {
+        const is_valid = isValidUrl(url);
+        if (!is_valid) {
+            notifyError('Supplied URL is not valid.');
+            return;
+        }
+        await this._state.addMediaFromLink(url);
+        this.link.set('');
+    };
+
     public playlist_ids: string[] = [];
 
     public get now() {
@@ -315,9 +371,9 @@ export class SignageMediaListComponent implements OnChanges {
     // public drop(event) {}
 
     public async addToPlaylist(media_id: string, playlist: any) {
-        const media_list = await listSignagePlaylistMedia(
-            playlist.id,
-        ).toPromise();
+        const media_list = await lastValueFrom(
+            listSignagePlaylistMedia(playlist.id),
+        );
         const new_media_list = [...media_list.items, media_id];
         await this._state.updatePlaylistMedia(playlist.id, new_media_list);
     }

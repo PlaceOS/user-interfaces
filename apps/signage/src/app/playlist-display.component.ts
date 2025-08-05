@@ -31,21 +31,21 @@ import { MediaPlayerItem } from './types';
             </div>
             @if (playlist().length > 0) {
                 <div>
-                    @for (item of playlist(); track item.id) {
+                    @for (item of playlist(); track item.id; let i = $index) {
                         @let is_valid = isValidMedia(item);
                         <button
                             matRipple
                             class="flex w-[20rem] items-center space-x-2 rounded-lg p-2 text-left hover:bg-base-200"
-                            [class.overflow-visible]="$index === index()"
-                            [class.pointer-events-none]="$index === index()"
-                            (click)="setPlaylistItem($index)"
+                            [class.overflow-visible]="i === index()"
+                            [class.pointer-events-none]="i === index()"
+                            (click)="setPlaylistItem(i)"
                             [disabled]="!is_valid"
                         >
                             <div
                                 class="flex h-10 w-10 items-center justify-center rounded-full"
-                                [class.bg-info]="$index === index()"
-                                [class.text-info-content]="$index === index()"
-                                [class.bg-base-300]="$index !== index()"
+                                [class.bg-info]="i === index()"
+                                [class.text-info-content]="i === index()"
+                                [class.bg-base-300]="i !== index()"
                                 [class.!bg-error]="!is_valid"
                                 [class.!text-error-content]="!is_valid"
                                 [matTooltip]="validateMedia(item)"
@@ -54,18 +54,18 @@ import { MediaPlayerItem } from './types';
                                 <div
                                     class="relative flex h-7 w-7 items-center justify-center"
                                 >
-                                    @if (is_valid && $index === index()) {
+                                    @if (is_valid && i === index()) {
                                         <span
                                             class="absolute z-0 inline-flex h-full w-full animate-ping rounded-full bg-info opacity-75"
                                         ></span>
                                     }
                                     <icon
                                         class="relative z-10 text-2xl"
-                                        [class.opacity-30]="$index !== index()"
+                                        [class.opacity-30]="i !== index()"
                                         >{{
                                             !is_valid
                                                 ? 'error'
-                                                : $index === index()
+                                                : i === index()
                                                   ? 'play_arrow'
                                                   : 'not_started'
                                         }}</icon

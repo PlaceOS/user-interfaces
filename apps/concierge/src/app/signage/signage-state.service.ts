@@ -132,7 +132,7 @@ export class SignageStateService extends AsyncHandler {
         this._org.active_building,
         this._change,
     ]).pipe(
-        filter(([region, bld]) => !!bld?.id),
+        filter(([, bld]) => !!bld?.id),
         switchMap(([region, bld]) =>
             querySystems({
                 zone_id:
@@ -159,7 +159,7 @@ export class SignageStateService extends AsyncHandler {
         this._org.active_building,
         this._change,
     ]).pipe(
-        switchMap(([bld]) =>
+        switchMap(() =>
             queryZones({
                 limit: 250,
             } as any).pipe(catchError(() => of({ data: [] }))),
@@ -333,23 +333,47 @@ export class SignageStateService extends AsyncHandler {
         });
         ref.afterClosed().subscribe(() => URL.revokeObjectURL(url));
         ref.componentInstance.save.subscribe(async () => {
-            ref.componentInstance.loading = 'Saving...';
+            ref.componentInstance.loading.set('Saving...');
             const new_media = await this.addMedia(media).catch((e) => {
                 notifyError('Error saving media.');
-                ref.componentInstance.loading = '';
+                ref.componentInstance.loading.set('');
                 throw e;
             });
             if (playlist_id && new_media.id) {
-                const media_list =
-                    await listSignagePlaylistMedia(playlist_id).toPromise();
+                const media_list = await lastValueFrom(
+                    listSignagePlaylistMedia(playlist_id),
+                );
                 const new_media_list = [...media_list.items, new_media.id];
-                await updateSignagePlaylistMedia(
-                    playlist_id,
-                    new_media_list,
-                ).toPromise();
+                await lastValueFrom(
+                    updateSignagePlaylistMedia(playlist_id, new_media_list),
+                );
             }
             ref.close();
         });
+    }
+
+    public async addMediaFromLink(
+        url: string,
+        media_item: SignageMedia = new SignageMedia({}),
+    ) {
+        const url_obj = new URL(url);
+        const data = {
+            ...new SignageMedia({
+                ...media_item,
+                name: media_item.name || url_obj.hostname,
+                media_uri: url,
+                media_type: 'webpage',
+                orientation: 'landscape',
+            }),
+        };
+        for (const key in data) {
+            if (!data[key]) delete data[key];
+        }
+        const result = await lastValueFrom(addSignageMedia(data));
+        this._active_upload.next(null);
+        this._change.next(Date.now());
+        notifySuccess('Successfully added media from link');
+        return result;
     }
 
     public async addMedia(
@@ -372,12 +396,12 @@ export class SignageStateService extends AsyncHandler {
                     () => (!resolved ? resolve(state) : null),
                 );
             });
-        const [is_landscape, _] = await this._getMediaMetadata(file);
+        const [is_landscape] = await this._getMediaMetadata(file);
         const thumbnail_image = await this._generateThumbnail(
             file,
             1280,
             720,
-        ).catch((_) => null);
+        ).catch(() => null);
         const media = await upload(file);
         let thumbnail = null;
         if (thumbnail_image) {

@@ -22,7 +22,7 @@ import { MediaPlayerItem, MediaPlayerState } from './types';
         <div class="absolute inset-0 bg-[#212121]">
             <div
                 #previous_container
-                class="absolute left-0 top-0 h-full w-full"
+                class="pointer-events-none absolute left-0 top-0 h-full w-full"
             >
                 <img
                     #previous_image_el
@@ -32,8 +32,15 @@ import { MediaPlayerItem, MediaPlayerState } from './types';
                     #previous_video_el
                     class="absolute left-0 top-0 hidden h-full w-full object-contain object-center"
                 ></video>
+                <iframe
+                    #previous_web_el
+                    class="absolute left-0 top-0 h-full w-full border-0"
+                ></iframe>
             </div>
-            <div #media_container class="absolute left-0 top-0 h-full w-full">
+            <div
+                #media_container
+                class="pointer-events-none absolute left-0 top-0 h-full w-full"
+            >
                 <img
                     #img_el
                     class="absolute left-0 top-0 h-full w-full object-contain object-center"
@@ -42,6 +49,10 @@ import { MediaPlayerItem, MediaPlayerState } from './types';
                     #video_el
                     class="absolute left-0 top-0 h-full w-full object-contain object-center"
                 ></video>
+                <iframe
+                    #web_el
+                    class="absolute left-0 top-0 h-full w-full border-0"
+                ></iframe>
             </div>
             @if (controls()) {
                 <div class="absolute left-0 top-0 p-4">
@@ -89,6 +100,7 @@ import { MediaPlayerItem, MediaPlayerState } from './types';
                 @if (show_playlist()) {
                     <div class="absolute right-0 top-0 p-4">
                         <playlist-display
+                            [index]="index()"
                             [playlist]="playlist_items"
                             (selected)="setPlaylistItem($event)"
                         />
@@ -164,6 +176,8 @@ export class MediaPlayerComponent
         viewChild<ElementRef<HTMLImageElement>>('previous_image_el');
     private readonly _previous_video_element =
         viewChild<ElementRef<HTMLVideoElement>>('previous_video_el');
+    private readonly _previous_web_element =
+        viewChild<ElementRef<HTMLIFrameElement>>('previous_web_el');
 
     private readonly _container =
         viewChild<ElementRef<HTMLDivElement>>('media_container');
@@ -171,6 +185,8 @@ export class MediaPlayerComponent
         viewChild<ElementRef<HTMLImageElement>>('img_el');
     private readonly _video_element =
         viewChild<ElementRef<HTMLVideoElement>>('video_el');
+    private readonly _web_element =
+        viewChild<ElementRef<HTMLIFrameElement>>('web_el');
 
     public readonly validateMedia = (i) => validateMedia(i);
 
@@ -389,17 +405,25 @@ export class MediaPlayerComponent
         }
         if (item.type === 'video') {
             this._image_element().nativeElement.classList.add('hidden');
+            this._web_element().nativeElement.classList.add('hidden');
             this._video_element().nativeElement.src = url.toString();
             this._video_element().nativeElement.classList.remove('hidden');
             try {
                 requestAnimationFrame(() =>
                     this._video_element().nativeElement.play(),
                 );
-            } catch (e) {
+            } catch {
                 this.nextItem();
             }
+        } else if (item.type === 'webpage') {
+            this._video_element().nativeElement.classList.add('hidden');
+            this._image_element().nativeElement.classList.add('hidden');
+            this._web_element().nativeElement.src = url.toString();
+            this._web_element().nativeElement.classList.remove('hidden');
+            this._video_element().nativeElement.pause();
         } else {
             this._video_element().nativeElement.classList.add('hidden');
+            this._web_element().nativeElement.classList.add('hidden');
             this._image_element().nativeElement.src = url.toString();
             this._image_element().nativeElement.classList.remove('hidden');
             this._video_element().nativeElement.pause();
@@ -455,6 +479,7 @@ export class MediaPlayerComponent
         const indexValue = this.index();
         if (indexValue !== -1) {
             const img_el = this._previous_img_element().nativeElement;
+            const web_el = this._previous_web_element().nativeElement;
             const video_el = this._previous_video_element().nativeElement;
             let index = indexValue - 1;
             if (index < 0) index = this._item_playlist.length - 1;
@@ -463,10 +488,17 @@ export class MediaPlayerComponent
             if (url) {
                 if (item.type === 'video') {
                     img_el.classList.add('hidden');
+                    web_el.classList.add('hidden');
                     video_el.src = url.toString();
                     video_el.classList.remove('hidden');
+                } else if (item.type === 'web') {
+                    img_el.classList.add('hidden');
+                    video_el.classList.add('hidden');
+                    web_el.src = url.toString();
+                    web_el.classList.remove('hidden');
                 } else {
                     video_el.classList.add('hidden');
+                    web_el.classList.add('hidden');
                     img_el.src = url.toString();
                     img_el.classList.remove('hidden');
                 }
@@ -518,6 +550,7 @@ export class MediaPlayerComponent
         prev_container_el.classList.remove('opacity-0');
         this._previous_video_element().nativeElement.classList.add('hidden');
         this._previous_img_element().nativeElement.classList.add('hidden');
+        this._previous_web_element().nativeElement.classList.add('hidden');
         prev_container_el.classList.remove('player-animate');
         container_el.classList.remove('player-animate');
         this.in_animation.set(false);

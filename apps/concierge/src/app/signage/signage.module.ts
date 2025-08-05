@@ -42,7 +42,6 @@ export const COMPONENTS: Type<any>[] = [
     SignageTopbarComponent,
     SignageMediaComponent,
     SignageMediaModalComponent,
-    SignageMediaPreviewModalComponent,
     SignagePlaylistModalComponent,
     SignageMediaListComponent,
     SignagePlaylistMediaListComponent,
@@ -66,6 +65,8 @@ export const COMPONENTS: Type<any>[] = [
         DragDropModule,
         ZoneSelectModalComponent,
         SignageApprovePlaylistModalComponent,
+
+        SignageMediaPreviewModalComponent,
     ],
 })
 export class SignageModule {}

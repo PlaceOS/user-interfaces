@@ -1,5 +1,10 @@
-import { Component, inject, output } from '@angular/core';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { Component, inject, output, signal } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
+import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { SafePipe } from 'libs/components/src/lib/safe.pipe';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 
 @Component({
     selector: 'signage-media-preview-modal',
@@ -10,30 +15,36 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
             <h1 class="px-2">
                 {{
                     'APP.CONCIERGE.SIGNAGE_MEDIA_PREVIEW_HEADER'
-                        | translate: { name: name }
+                        | translate: { name: name() }
                 }}
             </h1>
             <button icon matRipple mat-dialog-close>
                 <icon>close</icon>
             </button>
         </header>
-        @if (!loading) {
+        @if (!loading()) {
             <main class="bg-base-200">
                 <div
                     class="flex h-[65vh] max-h-[65vh] w-[80vw] max-w-[80vw] items-center justify-center"
                 >
-                    @if (type === 'image') {
+                    @if (type() === 'image') {
                         <img
                             class="h-full w-full object-contain object-center"
                             auth
-                            [source]="resource.toString()"
+                            [source]="resource()"
                         />
                     }
-                    @if (type === 'video') {
+                    @if (type() === 'webpage') {
+                        <iframe
+                            class="h-full w-full object-contain object-center"
+                            [src]="resource() | safe: 'resource'"
+                        ></iframe>
+                    }
+                    @if (type() === 'video') {
                         <video
                             class="h-full w-full object-contain object-center"
                             auth
-                            [source]="resource.toString()"
+                            [source]="resource()"
                             autoplay
                             controls
                         ></video>
@@ -45,10 +56,10 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
                 class="flex h-[20rem] max-h-[65vh] w-[28rem] max-w-[80vw] flex-col items-center justify-center p-8"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
-                <p>{{ loading }}</p>
+                <p>{{ loading() }}</p>
             </main>
         }
-        @if (can_save && !loading) {
+        @if (can_save() && !loading()) {
             <footer
                 class="flex items-center justify-end space-x-2 border-t border-base-300 p-2"
             >
@@ -59,22 +70,34 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
         }
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        MatDialogModule,
+        MatRippleModule,
+        AuthenticatedImageDirective,
+        TranslatePipe,
+        IconComponent,
+        SafePipe,
+    ],
 })
 export class SignageMediaPreviewModalComponent {
     private _data = inject<{
         url: URL;
-        type: 'image' | 'video';
+        type: 'image' | 'video' | 'webpage';
         save: boolean;
         name: string;
         file?: File;
     }>(MAT_DIALOG_DATA);
-
     public readonly save = output<any>();
-    public loading = '';
-    public readonly resource = this._data.url;
-    public readonly type = this._data.type;
-    public readonly name = this._data.name;
+
+    public readonly loading = signal('');
+    public readonly resource = signal(this._data.url.toString());
+    public readonly name = signal(this._data.name);
+    public readonly type = signal(this._data.type);
+    public readonly can_save = signal(this._data.save !== false);
+
     public readonly file = this._data.file;
-    public readonly can_save = this._data.save !== false;
+
+    public ngOnInit() {
+        console.log('Data:', this._data);
+    }
 }

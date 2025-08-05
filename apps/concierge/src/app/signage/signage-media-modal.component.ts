@@ -30,14 +30,21 @@ import { addYears, endOfDay, getUnixTime, startOfDay } from 'date-fns';
                 <div class="flex flex-col">
                     <button
                         matRipple
-                        class="relative mx-auto mb-4 h-48 w-full overflow-hidden rounded-xl bg-base-300"
+                        class="pointer-events-none relative mx-auto mb-4 h-48 w-full overflow-hidden rounded-xl bg-base-300"
                         (click)="preview()"
                     >
-                        <img
-                            class="h-full w-full object-contain object-center"
-                            auth
-                            [source]="thumbnail || url"
-                        />
+                        @if (media_type === 'webpage') {
+                            <iframe
+                                class="h-[100vh] w-full object-contain object-center"
+                                [src]="url | safe: 'resource'"
+                            ></iframe>
+                        } @else {
+                            <img
+                                class="h-full w-full object-contain object-center"
+                                auth
+                                [source]="thumbnail || url"
+                            />
+                        }
                         <div
                             class="absolute left-2 top-2 rounded bg-base-400 px-2 py-1 text-xs capitalize"
                         >
