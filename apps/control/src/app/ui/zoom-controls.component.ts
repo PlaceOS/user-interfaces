@@ -61,7 +61,7 @@ interface Participant {
                         Current Meeting
                     </div>
                     <div class="min-h-20 w-[20rem] p-4">
-                        <div>
+                        <div class="truncate">
                             {{ current_meeting()?.title }}
                             @if (!current_meeting()) {
                                 <span class="opacity-30">No meeting</span>
@@ -99,7 +99,7 @@ interface Participant {
                         Upcoming Meeting
                     </div>
                     <div class="min-h-20 w-[20rem] p-4">
-                        <div>
+                        <div class="truncate">
                             {{ next_meeting()?.title }}
                             @if (!next_meeting()) {
                                 <span class="opacity-30"
