@@ -122,14 +122,16 @@ interface Participant {
                     class="relative flex h-full w-full space-x-2 overflow-hidden rounded-lg border border-base-300 bg-base-200 p-2 shadow"
                 >
                     <div
-                        class="flex flex-1 flex-col items-center space-y-2 rounded-lg border border-base-300 bg-base-100"
+                        class="relative flex flex-1 flex-col items-center space-y-2 rounded-lg border border-base-300 bg-base-100"
                     >
                         <div
                             class="flex w-full items-center space-x-2 border-b border-base-200 px-4 py-3"
                         >
                             <h3 class="font-medium">Call Actions</h3>
                         </div>
-                        <div class="flex w-full flex-col space-y-2 p-2">
+                        <div
+                            class="relative flex w-full flex-col space-y-2 p-2"
+                        >
                             <button
                                 btn
                                 matRipple
@@ -167,6 +169,40 @@ interface Participant {
                             <button
                                 btn
                                 matRipple
+                                class="w-full rounded-full border border-base-300 bg-base-100 text-base-content"
+                                (click)="toggleSharing()"
+                            >
+                                <div class="flex w-full items-center text-left">
+                                    <icon class="mr-2 text-2xl">share</icon>
+                                    <div class="whitespace-nowrap pr-2">
+                                        {{ sharing() ? 'Stop' : 'Start' }}
+                                        Sharing
+                                    </div>
+                                </div>
+                            </button>
+                            <button
+                                btn
+                                matRipple
+                                class="w-full rounded-full border border-base-300 bg-base-100 text-base-content"
+                                (click)="toggleRecording()"
+                            >
+                                <div class="flex w-full items-center text-left">
+                                    <icon class="mr-2 text-2xl"
+                                        >fiber_manual_record</icon
+                                    >
+                                    <div class="whitespace-nowrap pr-2">
+                                        {{
+                                            recording() === 'Stop'
+                                                ? 'Start'
+                                                : 'Stop'
+                                        }}
+                                        Recording
+                                    </div>
+                                </div>
+                            </button>
+                            <button
+                                btn
+                                matRipple
                                 class="w-full rounded-full border-0 bg-error text-error-content"
                                 (click)="leave()"
                             >
@@ -178,6 +214,18 @@ interface Participant {
                                 </div>
                             </button>
                         </div>
+                        @if (recording() !== 'Stop') {
+                            <div
+                                class="absolute inset-x-2 bottom-2 flex items-center space-x-2 rounded-lg border border-error bg-error-light p-2"
+                            >
+                                <div class="m-2 h-4 w-4 rounded-full bg-error">
+                                    <div
+                                        class="h-full w-full animate-ping rounded-full bg-error"
+                                    ></div>
+                                </div>
+                                <div>Recording in Progress</div>
+                            </div>
+                        }
                     </div>
                     <div
                         class="flex h-full flex-1 flex-col space-y-2 rounded-lg border border-base-300 bg-base-100 shadow"
@@ -269,6 +317,7 @@ interface Participant {
                                             matRipple
                                             class="flex h-9 w-9 items-center justify-center rounded-full border border-error text-error"
                                             matTooltip="Remove participant"
+                                            [disabled]="user.is_host"
                                             (click)="removeParticipant(user)"
                                         >
                                             <icon class="text-lg"
@@ -336,6 +385,8 @@ export class ZoomControlsComponent
     public readonly next_pending = signal(false);
     public readonly current_meeting = signal(null);
     public readonly next_meeting = signal(null);
+    public readonly sharing = signal(false);
+    public readonly recording = signal('Stop');
     public readonly is_joined = computed(
         () => this.joined() && this.zoom_joined(),
     );
@@ -433,7 +484,23 @@ export class ZoomControlsComponent
         // user.video_muted = !user.video_muted;
     }
 
+    public async toggleSharing() {
+        const module = await this.module();
+        if (!module) return;
+        await module.execute('share_content', [!this.sharing()]);
+    }
+
+    public async toggleRecording() {
+        const module = await this.module();
+        if (!module) return;
+        await module.execute('recording', [
+            this.recording() === 'Stop' ? 'Start' : 'Stop',
+        ]);
+    }
+
     public async removeParticipant(user: Participant) {
+        const result = await this._zoom_client.expel(user.id);
+        console.log(result);
         const module = await this.module();
         if (!module) return;
         await module.execute('remove_participant', [user.id]);
@@ -576,6 +643,22 @@ export class ZoomControlsComponent
                             joined
                                 .listen()
                                 .subscribe((v) => this.joined.set(v)),
+                        );
+                        const sharing = mod.binding('share_content');
+                        this.subscription('sharing-bind', sharing.bind());
+                        this.subscription(
+                            'sharing',
+                            sharing
+                                .listen()
+                                .subscribe((v) => this.sharing.set(v)),
+                        );
+                        const recording = mod.binding('recording');
+                        this.subscription('recording-bind', recording.bind());
+                        this.subscription(
+                            'recording',
+                            recording
+                                .listen()
+                                .subscribe((v) => this.recording.set(v)),
                         );
                         const next_pending = mod.binding('next_pending');
                         this.subscription(
