@@ -391,7 +391,7 @@ export class MediaPlayerComponent
         }
         if (!item) return;
         if (!this.isValidMedia(item)) {
-            this.nextItem();
+            if (old_index !== index) this.nextItem();
             return;
         }
         this._item_start = Date.now();
