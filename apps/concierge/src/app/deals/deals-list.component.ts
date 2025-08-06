@@ -177,7 +177,7 @@ import { DealsService } from './deals.service';
                         }
                     </div>
                 } @else {
-                    <div class="min-w-[56rem]">
+                    <div class="mb-4 min-w-[64rem]">
                         <simple-table
                             [data]="filtered_deals | async"
                             class="text-sm"
@@ -238,8 +238,10 @@ import { DealsService } from './deals.service';
                         </div>
                     </ng-template>
                     <ng-template #description_template let-data="data">
-                        <div class="flex px-4 py-2 text-sm">
-                            {{ data }}
+                        <div
+                            class="flex max-h-24 overflow-hidden px-4 py-2 text-sm"
+                        >
+                            <div class="line-clamp-4">{{ data }}</div>
                             @if (!data) {
                                 <span class="opacity-30"
                                     >No description available</span

@@ -14,9 +14,9 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 @Component({
     selector: 'deal-details-modal',
     template: `
-        <div class="relative bg-base-100">
+        <div class="relative w-[32rem] max-w-[calc(100vw-2rem)] bg-base-100">
             <div
-                class="relative h-48 w-[32rem] max-w-[calc(100vw-2rem)] overflow-hidden rounded-b-lg bg-base-300"
+                class="relative h-48 w-[32rem] max-w-full overflow-hidden rounded-b-lg bg-base-300"
             >
                 @if (deal.image) {
                     <img
@@ -47,7 +47,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                     <div class="pr-2">{{ 'COMMON.REMOVE' | translate }}</div>
                 </button> -->
             </header>
-            <div class="space-y-2 p-4">
+            <div class="max-h-[60vh] space-y-2 overflow-auto p-4">
                 <h4 class="font-medium">
                     {{ 'COMMON.DESCRIPTION' | translate }}
                 </h4>
@@ -57,7 +57,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                     {{ deal.expires_at | date: 'mediumDate' }}
                 </p>
                 <h4 class="font-medium">{{ 'COMMON.TERMS' | translate }}</h4>
-                <p class="pb-4 text-sm">{{ deal.description }}</p>
+                <p class="pb-4 text-sm">{{ deal.terms }}</p>
             </div>
             <button
                 icon

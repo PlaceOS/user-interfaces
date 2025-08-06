@@ -11,10 +11,12 @@ import { DealsService } from './deals.service';
         <div class="absolute inset-0 flex flex-col overflow-auto">
             <topbar />
             <main
-                class="min-h-1/2 flex h-1/2 flex-1 flex-col overflow-auto bg-base-200 px-4 pt-2"
+                class="min-h-1/2 flex h-1/2 flex-1 flex-col overflow-auto bg-base-200 px-4"
             >
                 @let deal_list = filtered_deals$ | async;
-                <div class="sticky top-0 mx-auto mb-2 w-[40rem] max-w-full">
+                <div
+                    class="sticky top-0 z-20 mx-auto mb-2 w-[40rem] max-w-full bg-base-200 px-2 pt-2"
+                >
                     <div class="-mx-2 flex flex-wrap py-2">
                         @let type_list = types | async;
                         <button
@@ -87,7 +89,7 @@ import { DealsService } from './deals.service';
                     </div>
                 </div>
                 <div
-                    class="mx-auto mb-4 grid w-[40rem] max-w-full grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
+                    class="mx-auto mb-4 grid w-[40rem] max-w-full grid-cols-1 gap-4 px-2 sm:grid-cols-2 lg:grid-cols-3"
                 >
                     @for (deal of deal_list; track deal.id) {
                         <div>
