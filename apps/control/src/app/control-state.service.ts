@@ -299,7 +299,7 @@ export class ControlStateService extends AsyncHandler {
         shareReplay(1),
     );
     public readonly tabs: Observable<TabDetails[]> = this.system_id.pipe(
-        switchMap((id) => this._listenToSystemBinding(id, 'tabs')),
+        switchMap((id) => this._listenToSystemBinding(id, 'local_tabs')),
         map((_) => _ || []),
         shareReplay(1),
     );

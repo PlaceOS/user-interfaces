@@ -253,7 +253,10 @@
         "VALID_UNTIL": "Valid until",
         "VALID_UNTIL_DATE": "Valid until {{ date }}",
         "TERMS": "Terms & Conditions",
-        "LOCATABLE": "Location tracking"
+        "LOCATABLE": "Location tracking",
+        "PEOPLE_COUNT": "0 people",
+        "PEOPLE_COUNT_1": "1 person",
+        "PEOPLE_COUNT_N": "{{ count }} people"
     },
     "LANGUAGE": {
         "ENGLISH": "English",
