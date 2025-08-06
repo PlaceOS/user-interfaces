@@ -51,6 +51,9 @@ interface Participant {
                     [disabled]="!current_meeting()"
                     class="overflow-hidden rounded-lg border border-base-300 bg-base-100 p-2 text-left shadow"
                     (click)="join(current_meeting().event_start)"
+                    [class.!border-info]="
+                        joined() === current_meeting().event_start
+                    "
                 >
                     <div
                         class="rounded bg-base-200 px-4 py-2 text-lg font-medium"
@@ -74,13 +77,19 @@ interface Participant {
                             </div>
                         }
                     </div>
-                    <button btn class="w-full" [disabled]="!current_meeting()">
+                    <button
+                        btn
+                        class="w-full"
+                        [disabled]="!current_meeting() || is_joined()"
+                    >
                         Join
                     </button>
                 </button>
                 <button
                     matRipple
-                    [disabled]="!next_meeting() || !next_pending()"
+                    [disabled]="
+                        !next_meeting() || !next_pending() || is_joined()
+                    "
                     class="overflow-hidden rounded-lg border border-base-300 bg-base-100 p-2 text-left shadow"
                     (click)="join(next_meeting().event_start)"
                 >
@@ -394,6 +403,7 @@ export class ZoomControlsComponent
     public readonly audio_muted = signal(false);
     public readonly video_muted = signal(false);
     public readonly participants = signal([]);
+    public readonly user = signal(null);
 
     public async module() {
         const sys_id = await nextValueFrom(this._service.system_id);
@@ -437,6 +447,7 @@ export class ZoomControlsComponent
             .then(() => {
                 console.log('Zoom meeting joined successfully');
                 this.zoom_joined.set(true);
+                this.user.set(this._zoom_client.getCurrentUser());
             })
             .catch((error) => {
                 this.zoom_joined.set(false);
@@ -499,6 +510,10 @@ export class ZoomControlsComponent
     }
 
     public async removeParticipant(user: Participant) {
+        if (user.id === this.user()?.userId) {
+            this.leave();
+            return;
+        }
         const result = await this._zoom_client.expel(user.id);
         console.log(result);
         const module = await this.module();
