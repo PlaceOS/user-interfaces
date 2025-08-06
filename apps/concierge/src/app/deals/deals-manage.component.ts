@@ -70,6 +70,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                             placeholder="Name of the deal or offer"
                             required
                         />
+                        <mat-error>Name is required</mat-error>
                     </mat-form-field>
                     <label for="type"
                         >{{ 'COMMON.TYPE' | translate }}
@@ -83,6 +84,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                             placeholder="Type of the deal or offer"
                             required
                         />
+                        <mat-error>Type is required</mat-error>
                     </mat-form-field>
                     <label for="details">{{
                         'COMMON.DETAILS' | translate
@@ -224,7 +226,7 @@ export class DealsManageComponent extends AsyncHandler implements OnInit {
         if (this.form.invalid) {
             return notifyError(
                 i18n('FORM.INVALID_FIELDS', {
-                    fields: getInvalidFields(this.form),
+                    field_list: getInvalidFields(this.form),
                 }),
             );
         }
