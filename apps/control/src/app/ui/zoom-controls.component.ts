@@ -50,9 +50,9 @@ interface Participant {
                     matRipple
                     [disabled]="!current_meeting()"
                     class="overflow-hidden rounded-lg border border-base-300 bg-base-100 p-2 text-left shadow"
-                    (click)="join(current_meeting().event_start)"
+                    (click)="join(current_meeting()?.event_start)"
                     [class.!border-info]="
-                        joined() === current_meeting().event_start
+                        joined() === current_meeting()?.event_start
                     "
                 >
                     <div
@@ -91,7 +91,7 @@ interface Participant {
                         !next_meeting() || !next_pending() || is_joined()
                     "
                     class="overflow-hidden rounded-lg border border-base-300 bg-base-100 p-2 text-left shadow"
-                    (click)="join(next_meeting().event_start)"
+                    (click)="join(next_meeting()?.event_start)"
                 >
                     <div
                         class="rounded bg-base-200 px-4 py-2 text-lg font-medium"
