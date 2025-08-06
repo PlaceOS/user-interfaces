@@ -23,11 +23,13 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { filter } from 'rxjs';
 
+type DeviceState = 'NONE' | 'MUTED' | 'UNMUTED';
+
 interface Participant {
     id: string;
     name: string;
-    video_muted: boolean;
-    audio_muted: boolean;
+    video_muted: DeviceState;
+    audio_muted: DeviceState;
     speaking: boolean;
     is_host: boolean;
 }
@@ -43,7 +45,7 @@ interface Participant {
         <div
             class="absolute inset-0 flex items-center justify-center bg-base-100"
         >
-            <div class="flex h-full w-64 flex-col space-y-2 p-4">
+            <div class="flex h-full w-[18rem] flex-col space-y-2 p-4">
                 <button
                     matRipple
                     [disabled]="!current_meeting()"
@@ -55,7 +57,7 @@ interface Participant {
                     >
                         Current Meeting
                     </div>
-                    <div class="min-h-20 w-64 p-4">
+                    <div class="min-h-20 w-[20rem] p-4">
                         <div>
                             {{ current_meeting()?.title }}
                             @if (!current_meeting()) {
@@ -87,7 +89,7 @@ interface Participant {
                     >
                         Upcoming Meeting
                     </div>
-                    <div class="min-h-20 w-64 p-4">
+                    <div class="min-h-20 w-[20rem] p-4">
                         <div>
                             {{ next_meeting()?.title }}
                             @if (!next_meeting()) {
@@ -117,57 +119,68 @@ interface Participant {
             </div>
             <div class="h-full w-1/2 flex-1 py-4 pr-4">
                 <div
-                    class="relative h-full w-full overflow-hidden rounded-lg border border-base-300 bg-base-200 shadow"
+                    class="relative flex h-full w-full space-x-2 overflow-hidden rounded-lg border border-base-300 bg-base-200 p-2 shadow"
                 >
                     <div
-                        class="absolute bottom-2 left-1/2 flex -translate-x-1/2 items-center space-x-2"
+                        class="flex flex-1 flex-col items-center space-y-2 rounded-lg border border-base-300 bg-base-100"
                     >
-                        <button
-                            btn
-                            matRipple
-                            class="rounded-full border-0 bg-base-100 text-base-content shadow"
-                            (click)="toggleAudioMuteAll()"
+                        <div
+                            class="flex w-full items-center space-x-2 border-b border-base-200 px-4 py-3"
                         >
-                            <div class="flex items-center">
-                                <icon class="mr-2 text-2xl">{{
-                                    audio_muted() ? 'mic_off' : 'mic'
-                                }}</icon>
-                                <div class="whitespace-nowrap pr-2">
-                                    {{ audio_muted() ? 'Unmute' : 'Mute' }} All
-                                    Audio
+                            <h3 class="font-medium">Call Actions</h3>
+                        </div>
+                        <div class="flex w-full flex-col space-y-2 p-2">
+                            <button
+                                btn
+                                matRipple
+                                class="w-full rounded-full border border-base-300 bg-base-100 text-base-content"
+                                (click)="toggleAudioMuteAll()"
+                            >
+                                <div class="flex w-full items-center text-left">
+                                    <icon class="mr-2 text-2xl">{{
+                                        audio_muted() ? 'mic_off' : 'mic'
+                                    }}</icon>
+                                    <div class="whitespace-nowrap pr-2">
+                                        {{ audio_muted() ? 'Unmute' : 'Mute' }}
+                                        All Audio
+                                    </div>
                                 </div>
-                            </div>
-                        </button>
-                        <button
-                            btn
-                            matRipple
-                            class="rounded-full border-0 bg-base-100 text-base-content shadow"
-                            (click)="toggleVideoMuteAll()"
-                        >
-                            <div class="flex items-center">
-                                <icon class="mr-2 text-2xl">{{
-                                    video_muted() ? 'videocam_off' : 'videocam'
-                                }}</icon>
-                                <div class="whitespace-nowrap pr-2">
-                                    {{ video_muted() ? 'Unmute' : 'Mute' }} All
-                                    Video
+                            </button>
+                            <button
+                                btn
+                                matRipple
+                                class="w-full rounded-full border border-base-300 bg-base-100 text-base-content"
+                                (click)="toggleVideoMuteAll()"
+                            >
+                                <div class="flex w-full items-center text-left">
+                                    <icon class="mr-2 text-2xl">{{
+                                        video_muted()
+                                            ? 'videocam_off'
+                                            : 'videocam'
+                                    }}</icon>
+                                    <div class="whitespace-nowrap pr-2">
+                                        {{ video_muted() ? 'Unmute' : 'Mute' }}
+                                        All Video
+                                    </div>
                                 </div>
-                            </div>
-                        </button>
-                        <button
-                            btn
-                            matRipple
-                            class="rounded-full border-0 bg-error text-error-content shadow"
-                            (click)="leave()"
-                        >
-                            <div class="flex items-center px-2">
-                                <icon class="mr-2 text-2xl">call_end</icon>
-                                <div class="pr-2">Leave</div>
-                            </div>
-                        </button>
+                            </button>
+                            <button
+                                btn
+                                matRipple
+                                class="w-full rounded-full border-0 bg-error text-error-content"
+                                (click)="leave()"
+                            >
+                                <div
+                                    class="m-0 flex w-full items-center text-left"
+                                >
+                                    <icon class="mr-2 text-2xl">call_end</icon>
+                                    <div class="pr-2">Leave</div>
+                                </div>
+                            </button>
+                        </div>
                     </div>
                     <div
-                        class="absolute right-2 top-2 flex h-[calc(100%-5rem)] min-w-[18rem] flex-col space-y-2 rounded-lg border border-base-300 bg-base-100 shadow"
+                        class="flex h-full flex-1 flex-col space-y-2 rounded-lg border border-base-300 bg-base-100 shadow"
                     >
                         <div
                             class="flex items-center space-x-2 border-b border-base-200 px-4 py-3"
@@ -187,12 +200,12 @@ interface Participant {
                             </div>
                         </div>
                         <div
-                            class="h-1/2 w-full flex-1 overflow-auto px-2 pb-2"
+                            class="h-1/2 w-full flex-1 space-y-2 overflow-auto px-2 pb-2"
                         >
                             @if (participants().length) {
                                 @for (user of participants(); track user.id) {
                                     <div
-                                        class="flex items-center space-x-2 rounded border border-base-200 p-1"
+                                        class="flex items-center space-x-2 rounded border border-base-200 p-2"
                                         [class.!border-info]="user.speaking"
                                     >
                                         <div
@@ -200,19 +213,30 @@ interface Participant {
                                         >
                                             {{ user.name }}
                                         </div>
+                                        @if (user.is_host) {
+                                            <div class="text-xs text-info">
+                                                Host
+                                            </div>
+                                        }
                                         <button
                                             icon
                                             matRipple
-                                            class="border border-base-200"
-                                            [class.bg-error]="user.audio_muted"
+                                            class="flex h-9 w-9 items-center justify-center rounded-full border border-base-200"
+                                            [disabled]="
+                                                user.audio_muted === 'NONE'
+                                            "
+                                            [class.bg-error]="
+                                                user.audio_muted === 'MUTED'
+                                            "
                                             [matTooltip]="
-                                                user.audio_muted
+                                                user.audio_muted === 'MUTED'
                                                     ? 'Unmute audio'
                                                     : 'Mute audio'
                                             "
+                                            (click)="toggleUserAudio(user)"
                                         >
-                                            <icon>{{
-                                                user.audio_muted
+                                            <icon class="text-lg">{{
+                                                user.audio_muted === 'MUTED'
                                                     ? 'mic_off'
                                                     : 'mic'
                                             }}</icon>
@@ -220,16 +244,22 @@ interface Participant {
                                         <button
                                             icon
                                             matRipple
-                                            class="border border-base-200"
-                                            [class.bg-error]="user.video_muted"
+                                            class="flex h-9 w-9 items-center justify-center rounded-full border border-base-200"
+                                            [class.bg-error]="
+                                                user.video_muted === 'MUTED'
+                                            "
+                                            [disabled]="
+                                                user.video_muted === 'NONE'
+                                            "
                                             [matTooltip]="
-                                                user.video_muted
+                                                user.video_muted === 'MUTED'
                                                     ? 'Unmute video'
                                                     : 'Mute video'
                                             "
+                                            (click)="toggleUserVideo(user)"
                                         >
-                                            <icon>{{
-                                                user.video_muted
+                                            <icon class="text-lg">{{
+                                                user.video_muted === 'MUTED'
                                                     ? 'videocam_off'
                                                     : 'videocam'
                                             }}</icon>
@@ -237,10 +267,13 @@ interface Participant {
                                         <button
                                             icon
                                             matRipple
-                                            class="border border-error text-error"
+                                            class="flex h-9 w-9 items-center justify-center rounded-full border border-error text-error"
                                             matTooltip="Remove participant"
+                                            (click)="removeParticipant(user)"
                                         >
-                                            <icon>person_remove</icon>
+                                            <icon class="text-lg"
+                                                >person_remove</icon
+                                            >
                                         </button>
                                     </div>
                                 }
@@ -269,7 +302,17 @@ interface Participant {
             </div>
         </div>
     `,
-    styles: [``],
+    styles: [
+        `
+            [disabled] {
+                pointer-events: none;
+            }
+
+            button[icon] {
+                min-width: 0;
+            }
+        `,
+    ],
     imports: [
         CommonModule,
         MatRippleModule,
@@ -343,17 +386,6 @@ export class ZoomControlsComponent
             .then(() => {
                 console.log('Zoom meeting joined successfully');
                 this.zoom_joined.set(true);
-                const attendees = this._zoom_client.getAttendeeslist();
-                this.participants.set(
-                    attendees.map((a) => ({
-                        id: a.userId,
-                        name: a.displayName,
-                        is_host: a.isHost,
-                        audio_muted: !!a.muted,
-                        video_muted: !!a.video,
-                        speaking: false,
-                    })),
-                );
             })
             .catch((error) => {
                 this.zoom_joined.set(false);
@@ -382,12 +414,14 @@ export class ZoomControlsComponent
     }
 
     public async toggleUserAudio(user: Participant) {
-        const result = await this._zoom_client.mute(!user.audio_muted, user.id);
+        if (user.audio_muted === 'NONE') return;
+        const new_state = user.audio_muted === 'MUTED' ? false : true;
+        const result = await this._zoom_client.mute(new_state, user.id);
         console.log(result);
         // const module = await this.module();
         // if (!module) return;
         // await module.execute('mic_mute', [!user.audio_muted)]);
-        user.audio_muted = !user.audio_muted;
+        user.audio_muted = new_state ? 'MUTED' : 'UNMUTED';
     }
 
     public async toggleUserVideo(user: Participant) {
@@ -405,40 +439,111 @@ export class ZoomControlsComponent
         await module.execute('remove_participant', [user.id]);
     }
 
+    private _updateParticipant(details: any) {
+        this.participants.update((users) => {
+            const old_user = users.find((_) => _.id === details.userId) || {
+                audio_muted: 'NONE',
+                video_muted: 'NONE',
+            };
+            users = users.filter((_) => _.id !== details.userId);
+            console.log(
+                'Audio:',
+                details.displayName || old_user.name,
+                details.audio || `<EMPTY>`,
+                old_user.audio !== 'NONE',
+                old_user.audio_muted,
+                details.audio || old_user.audio_muted !== 'NONE'
+                    ? details.muted
+                        ? 'MUTED'
+                        : 'UNMUTED'
+                    : '',
+            );
+            users.push({
+                id: details.userId || old_user.id,
+                name:
+                    details.displayName ||
+                    details.userName ||
+                    old_user.name ||
+                    '',
+                is_host: details.isHost || old_user.is_host,
+                audio_muted:
+                    (details.audio || old_user.audio_muted !== 'NONE'
+                        ? details.muted
+                            ? 'MUTED'
+                            : 'UNMUTED'
+                        : '') ||
+                    old_user.audio_muted ||
+                    'NONE',
+                video_muted:
+                    (details.video != null || old_user.video_muted !== 'NONE'
+                        ? 'UNMUTED'
+                        : '') ||
+                    old_user.video_muted ||
+                    'NONE',
+                speaking: old_user.speaking || false,
+            });
+            users = users.sort((a, b) => a.name.localeCompare(b.name));
+            return users;
+        });
+    }
+
+    private _removeParticipant(details: any) {
+        this.participants.update((users) => {
+            users = users.filter((_) => _.id !== details.userId);
+            users = users.sort((a, b) => a.name.localeCompare(b.name));
+            return users;
+        });
+    }
+
     private _listenToZoomClient() {
         const on_user_update = (details: any) => {
-            this.participants.update((existing) => {
-                existing = existing.filter((_) => _.id !== details.userId);
-                existing.push({
-                    id: details.userId,
-                    name: details.displayName,
-                    is_host: details.isHost,
-                    audio_muted: !!details.muted,
-                    video_muted: !!details.video,
-                    speaking: false,
+            console.log('on_user_update', details);
+            if (details instanceof Array) {
+                details.forEach((detail) => {
+                    this._updateParticipant(detail);
                 });
-                return existing;
-            });
+            } else {
+                this._updateParticipant(details);
+            }
         };
         this._zoom_client.on('user-added', on_user_update);
         this._zoom_client.on('user-updated', on_user_update);
-        this._zoom_client.on('user-removed', (details) => {
-            this.participants.update((existing) => {
-                existing = existing.filter((_) => _.id !== details.userId);
-                return existing;
-            });
+        this._zoom_client.on('user-removed', (details: any) => {
+            console.log('user-removed', details);
+            if (details instanceof Array) {
+                details.forEach((detail) => {
+                    this._removeParticipant(detail);
+                });
+            } else {
+                this._removeParticipant(details);
+            }
         });
         this._zoom_client.on('active-speaker', (speakers: any[]) => {
-            this.participants.update((existing) => {
-                for (const user of existing) {
+            console.log('active-speaker', speakers);
+            this.participants.update((users) => {
+                for (const user of users) {
                     user.speaking = !!speakers.find(
                         ({ userId }) => userId === user.id,
                     );
+                    this.timeout(
+                        `clear-speaker_${user.id}`,
+                        () => {
+                            this.participants.update((list) =>
+                                list.map((_) =>
+                                    _.id === user.id
+                                        ? { ..._, speaking: false }
+                                        : _,
+                                ),
+                            );
+                        },
+                        1000,
+                    );
                 }
-                return existing;
+                return [...users];
             });
         });
         this._zoom_client.on('connection-change', (payload) => {
+            console.log('connection-change', payload);
             if (payload.state === 'Closed') this.zoom_joined.set(false);
         });
     }
