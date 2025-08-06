@@ -338,7 +338,6 @@ export class ZoomControlsComponent
             time ? [time] : [],
         );
         console.log('Meeting joined:', meeting);
-        meeting.password = 'P1BO3Il84TOyvXJ5DtbIwYLipdBd5Q.1';
         this._zoom_client
             .join({ ...meeting })
             .then(() => {
