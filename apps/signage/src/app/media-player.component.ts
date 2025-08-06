@@ -211,6 +211,7 @@ export class MediaPlayerComponent
             }
             this.togglePause();
             this._updateItem();
+            this._validatePlaylist();
         }
         if (changes.animation_time) {
             document.documentElement.style.setProperty(
@@ -555,5 +556,17 @@ export class MediaPlayerComponent
         container_el.classList.remove('player-animate');
         this.in_animation.set(false);
         this.togglePause();
+    }
+
+    private _validatePlaylist() {
+        const has_valid_items = this.playlist().some((item) =>
+            this.isValidMedia(item),
+        );
+        if (!has_valid_items) {
+            this.event.emit({
+                type: 'playlist_through',
+                ref_id: this.playlist()[0].playlist,
+            });
+        }
     }
 }
