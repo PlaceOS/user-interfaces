@@ -389,7 +389,7 @@ export class ZoomControlsComponent
 
     public readonly mod = input('Zoom');
     public readonly in_progress = signal(false);
-    public readonly joined = signal(false);
+    public readonly joined = signal(0);
     public readonly zoom_joined = signal(false);
     public readonly next_pending = signal(false);
     public readonly current_meeting = signal(null);
@@ -426,12 +426,18 @@ export class ZoomControlsComponent
         if (changes.mod) this._listenToBindings();
     }
 
+    public async ngOnDestroy() {
+        if (this.joined()) await this.leave().catch();
+        super.ngOnDestroy();
+    }
+
     public async leave() {
         const result = await this._zoom_client.leaveMeeting();
         console.log('Meeting left:', result);
         const module = await this.module();
         if (!module) return;
         await module.execute('leave_meeting');
+        this.joined.set(0);
     }
 
     public async join(time: number) {
@@ -451,6 +457,13 @@ export class ZoomControlsComponent
             })
             .catch((error) => {
                 this.zoom_joined.set(false);
+                console.log('Error:', error);
+                if (error.errorCode === 5012) {
+                    this.leave();
+                    this.timeout('rejoin', () => this.join(time));
+                    return;
+                }
+                // this.leave();
                 notifyError(
                     `Failed to join zoom meeting. Error: ${error.reason}`,
                 );
@@ -502,6 +515,8 @@ export class ZoomControlsComponent
     }
 
     public async toggleRecording() {
+        // const result = await this._zoom_client.record(this.recording() === 'Stop' ? 'start' : 'stop);
+        // console.log(result);
         const module = await this.module();
         if (!module) return;
         await module.execute('recording', [
