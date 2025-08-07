@@ -5,6 +5,7 @@ import {
     inject,
     input,
     OnChanges,
+    OnDestroy,
     OnInit,
     signal,
     SimpleChanges,
@@ -46,6 +47,7 @@ interface Participant {
             class="absolute inset-0 flex items-center justify-center bg-base-100"
         >
             <div class="flex h-full w-[18rem] flex-col space-y-2 p-4">
+                {{ joined() }} {{ zoom_joined() }}
                 <button
                     matRipple
                     [disabled]="!current_meeting()"
@@ -381,7 +383,7 @@ interface Participant {
 })
 export class ZoomControlsComponent
     extends AsyncHandler
-    implements OnChanges, OnInit
+    implements OnChanges, OnInit, OnDestroy
 {
     private _service = inject(ControlStateService);
     private _outlet_el = viewChild<ElementRef<HTMLDivElement>>('outlet');
@@ -471,8 +473,6 @@ export class ZoomControlsComponent
     }
 
     public async toggleAudioMuteAll() {
-        const result = await this._zoom_client.muteAll(!this.audio_muted());
-        console.log(result);
         const module = await this.module();
         if (!module) return;
         await module.execute('mic_mute', [!this.audio_muted()]);
@@ -480,8 +480,6 @@ export class ZoomControlsComponent
     }
 
     public async toggleVideoMuteAll() {
-        const result = await this._zoom_client.muteAll(!this.video_muted());
-        console.log(result);
         const module = await this.module();
         if (!module) return;
         await module.execute('camera_mute', [!this.video_muted()]);
@@ -642,6 +640,10 @@ export class ZoomControlsComponent
         this._zoom_client.on('connection-change', (payload) => {
             console.log('connection-change', payload);
             if (payload.state === 'Closed') this.zoom_joined.set(false);
+            if (payload.state === 'Connected') {
+                this.joined.set(this.current_meeting()?.event_start || 1);
+                this.zoom_joined.set(true);
+            }
         });
     }
 
