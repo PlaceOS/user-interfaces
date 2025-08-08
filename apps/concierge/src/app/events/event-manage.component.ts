@@ -685,7 +685,11 @@ export class EventManageComponent extends AsyncHandler implements OnInit {
             resources.push(resource);
         }
         resources = unique(resources, 'email');
-        this.form.patchValue({ resources, host: this._state.calendar });
+        this.form.patchValue({
+            resources,
+            host: this._state.calendar,
+            shared_event: true,
+        });
         const date = this.form.getRawValue().date;
         const res = await this._form_state
             .postForm(false, [this._state.calendar], true, true)
