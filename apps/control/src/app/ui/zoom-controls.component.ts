@@ -46,8 +46,7 @@ interface Participant {
         <div
             class="absolute inset-0 flex items-center justify-center bg-base-100"
         >
-            <div class="flex h-full w-[18rem] flex-col space-y-2 p-4">
-                {{ joined() }} {{ zoom_joined() }}
+            <div class="relative flex h-full w-[18rem] flex-col space-y-2 p-4">
                 <button
                     matRipple
                     [disabled]="!current_meeting()"
@@ -127,6 +126,22 @@ interface Participant {
                         Join
                     </button>
                 </button>
+                @if (!is_joined()) {
+                    <button
+                        btn
+                        matRipple
+                        class="absolute bottom-4 left-4 w-[calc(100%-2rem)] rounded-full border border-base-300 bg-base-100 text-base-content"
+                        (click)="toggleSharing()"
+                    >
+                        <div class="flex w-full items-center text-left">
+                            <icon class="mr-2 text-2xl">share</icon>
+                            <div class="whitespace-nowrap pr-2">
+                                {{ sharing() ? 'Stop' : 'Start' }}
+                                Sharing
+                            </div>
+                        </div>
+                    </button>
+                }
             </div>
             <div class="h-full w-1/2 flex-1 py-4 pr-4">
                 <div
@@ -686,9 +701,9 @@ export class ZoomControlsComponent
         );
     }
 
-    private _bindValue<T>(
+    private _bindValue<T = any>(
         name: string,
-        on_change: (T) => void,
+        on_change: (v: T) => void,
         module: PlaceModuleBinding,
     ) {
         if (!module) return;
