@@ -155,7 +155,7 @@ interface Participant {
                                     }}</icon>
                                     <div class="whitespace-nowrap pr-2">
                                         {{ audio_muted() ? 'Unmute' : 'Mute' }}
-                                        All Audio
+                                        Microphone
                                     </div>
                                 </div>
                             </button>
@@ -173,7 +173,7 @@ interface Participant {
                                     }}</icon>
                                     <div class="whitespace-nowrap pr-2">
                                         {{ video_muted() ? 'Unmute' : 'Mute' }}
-                                        All Video
+                                        Camera
                                     </div>
                                 </div>
                             </button>
