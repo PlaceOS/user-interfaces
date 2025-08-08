@@ -66,6 +66,9 @@ import { BookingAsset } from '../booking-form.service';
                 >
             </button>
             <div class="space-y-2 px-2 pb-2 pt-0">
+                @if (!desk().images?.length) {
+                    <div class="h-8 w-full"></div>
+                }
                 <section actions class="z-0 p-2">
                     <h2 class="mb-2 mt-4 text-2xl font-medium">
                         {{ desk().display_name || desk().name || desk().id }}

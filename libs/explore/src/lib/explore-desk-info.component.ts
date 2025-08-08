@@ -66,28 +66,30 @@ export interface DeskInfoData {
                                 </p>
                             }
                         </div>
-                        <div class="relative flex flex-wrap text-sm">
-                            <div
-                                status
-                                [class]="
-                                    'text-light rounded border border-base-100 p-1 px-2 capitalize shadow ' +
-                                    status()
-                                "
-                            >
-                                {{
-                                    (status() === 'not-bookable'
-                                        ? 'COMMON.STATUS_NOT_BOOKABLE'
-                                        : 'COMMON.STATUS_' +
-                                          (status() | uppercase)
-                                    ) | translate
-                                }}
-                            </div>
-                            @if (status !== 'not-bookable') {
-                                <div available-until>
-                                    {{ available_until }}
+                        @if (status()) {
+                            <div class="relative flex flex-wrap text-sm">
+                                <div
+                                    status
+                                    [class]="
+                                        'text-light rounded border border-base-100 p-1 px-2 capitalize shadow ' +
+                                        status()
+                                    "
+                                >
+                                    {{
+                                        (status() === 'not-bookable'
+                                            ? 'COMMON.STATUS_NOT_BOOKABLE'
+                                            : 'COMMON.STATUS_' +
+                                              (status() | uppercase)
+                                        ) | translate
+                                    }}
                                 </div>
-                            }
-                        </div>
+                                @if (status !== 'not-bookable') {
+                                    <div available-until>
+                                        {{ available_until }}
+                                    </div>
+                                }
+                            </div>
+                        }
                     </div>
                 </div>
             </div>

@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import {
     MAT_DIALOG_DATA,
@@ -42,11 +42,11 @@ export const FAV_DESK_KEY = 'favourite_spaces';
                         icon
                         matRipple
                         class="rounded-l rounded-r-none"
-                        [class.bg-base-100]="view !== 'list'"
-                        [class.bg-secondary]="view === 'list'"
-                        [class.text-secondary-content]="view === 'list'"
+                        [class.bg-base-100]="view() !== 'list'"
+                        [class.bg-secondary]="view() === 'list'"
+                        [class.text-secondary-content]="view() === 'list'"
                         [matTooltip]="'COMMON.LIST' | translate"
-                        (click)="view = 'list'"
+                        (click)="view.set('list')"
                     >
                         <icon>list</icon>
                     </button>
@@ -54,11 +54,11 @@ export const FAV_DESK_KEY = 'favourite_spaces';
                         icon
                         matRipple
                         class="rounded-l-none rounded-r"
-                        [class.bg-base-100]="view !== 'map'"
-                        [class.bg-secondary]="view === 'map'"
-                        [class.text-secondary-content]="view === 'map'"
+                        [class.bg-base-100]="view() !== 'map'"
+                        [class.bg-secondary]="view() === 'map'"
+                        [class.text-secondary-content]="view() === 'map'"
                         [matTooltip]="'COMMON.MAP' | translate"
-                        (click)="view = 'map'"
+                        (click)="view.set('map')"
                     >
                         <icon>map</icon>
                     </button>
@@ -76,58 +76,77 @@ export const FAV_DESK_KEY = 'favourite_spaces';
                     [class.hidden]="!show_filters"
                 >
                     <new-space-filters
-                        [hide_levels]="view !== 'list'"
+                        [hide_levels]="view() !== 'list'"
                     ></new-space-filters>
                 </div>
                 <div
                     class="h-full w-full overflow-auto rounded border border-base-300 bg-base-200 sm:w-[20rem] lg:block"
-                    [class.hidden]="show_filters || displayed"
-                    [class.sm:hidden]="displayed"
-                    [class.md:block]="!displayed"
-                    [class.p-2]="view === 'list'"
+                    [class.hidden]="show_filters || displayed()"
+                    [class.sm:hidden]="displayed()"
+                    [class.md:block]="!displayed()"
+                    [class.p-2]="view() === 'list'"
+                    [style.width]="
+                        view() !== 'list'
+                            ? displayed()
+                                ? 'calc(100vw - 44rem)'
+                                : 'calc(100vw - 24rem)'
+                            : ''
+                    "
                 >
-                    @if (view === 'list') {
+                    @if (view() === 'list') {
                         <new-space-filters-display
                             [(view)]="view"
                         ></new-space-filters-display>
                     }
-                    @if (view === 'list') {
+                    @if (view() === 'list') {
                         <new-space-list
                             list
-                            [active]="displayed?.id"
+                            [active]="displayed()?.id"
                             [selected]="selected_ids"
                             [favorites]="favorites"
                             (toggleFav)="toggleFavourite($event)"
-                            (onSelect)="displayed = $event"
+                            (onSelect)="displayed.set($event)"
                         ></new-space-list>
                     } @else {
                         <new-space-map
                             map
                             class="h-full w-full"
-                            [is_displayed]="!!displayed"
-                            [active]="displayed?.id"
-                            (onSelect)="displayed = $event"
+                            [is_displayed]="!!displayed()"
+                            [active]="displayed()?.id"
+                            (onSelect)="displayed.set($event)"
                         >
                         </new-space-map>
                     }
                 </div>
                 <div
-                    class="h-full w-full overflow-auto rounded border border-base-300 shadow sm:w-[20rem] lg:block"
-                    [class.hidden]="show_filters || !displayed"
-                    [class.sm:hidden]="!displayed"
-                    [class.md:block]="displayed"
+                    class="relative h-full w-full overflow-auto rounded border border-base-300 shadow sm:w-[20rem]"
+                    [class.hidden]="show_filters || !displayed()"
+                    [class.sm:hidden]="!displayed()"
+                    [class.md:block]="displayed()"
+                    [class.lg:block]="view() === 'list'"
                 >
+                    @if (displayed()) {
+                        <button
+                            icon
+                            matRipple
+                            class="absolute left-2 top-2 z-20 hidden border border-base-300 bg-base-100 md:flex"
+                            (click)="displayed.set(null)"
+                        >
+                            <icon>close</icon>
+                        </button>
+                    }
                     <new-space-details
                         details
-                        [space]="displayed"
-                        [active]="selected_ids.includes(displayed?.id)"
-                        [hide_map]="view === 'map'"
-                        (activeChange)="setSelected(displayed, $event)"
+                        [space]="displayed()"
+                        [active]="selected_ids.includes(displayed()?.id)"
+                        [hide_map]="view() === 'map'"
+                        (activeChange)="setSelected(displayed(), $event)"
                         [fav]="
-                            displayed && this.favorites.includes(displayed?.id)
+                            displayed &&
+                            this.favorites.includes(displayed()?.id)
                         "
-                        (toggleFav)="toggleFavourite(displayed)"
-                        (close)="displayed = null"
+                        (toggleFav)="toggleFavourite(displayed())"
+                        (close)="displayed.set(null)"
                     ></new-space-details>
                 </div>
                 @if (!displayed) {
@@ -164,17 +183,19 @@ export const FAV_DESK_KEY = 'favourite_spaces';
                     btn
                     matRipple
                     name="toggle-space"
-                    [disabled]="!displayed"
-                    [class.inverse]="isSelected(displayed?.id)"
-                    (click)="setSelected(displayed, !isSelected(displayed?.id))"
+                    [disabled]="!displayed()"
+                    [class.inverse]="isSelected(displayed()?.id)"
+                    (click)="
+                        setSelected(displayed(), !isSelected(displayed()?.id))
+                    "
                 >
                     <div class="flex items-center">
                         <icon class="text-xl">{{
-                            isSelected(displayed?.id) ? 'remove' : 'add'
+                            isSelected(displayed()?.id) ? 'remove' : 'add'
                         }}</icon>
                         <div class="mr-1">
                             {{
-                                (isSelected(displayed?.id)
+                                (isSelected(displayed()?.id)
                                     ? 'COMMON.REMOVE_FROM'
                                     : 'COMMON.ADD_TO'
                                 ) | translate
@@ -185,7 +206,15 @@ export const FAV_DESK_KEY = 'favourite_spaces';
             </footer>
         </div>
     `,
-    styles: [``],
+    styles: [
+        `
+            @media screen and (max-width: 640px) {
+                [list] {
+                    width: 100% !important;
+                }
+            }
+        `,
+    ],
     imports: [
         TranslatePipe,
         IconComponent,
@@ -211,9 +240,9 @@ export class NewSpaceSelectModalComponent {
     }>(MAT_DIALOG_DATA);
 
     public show_filters = false;
-    public displayed?: Space;
     public selected: Space[] = [];
-    public view = 'list';
+    public readonly view = signal<'list' | 'map'>('list');
+    public readonly displayed = signal<Space | null>(null);
     public readonly multiday = !!this._data.multiday;
     public readonly room_alerts = this._event_form.room_alerts;
 

@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import {
     MAT_DIALOG_DATA,
@@ -40,11 +40,11 @@ export const FAV_DESK_KEY = 'favourite_desks';
                         icon
                         matRipple
                         class="rounded-l rounded-r-none"
-                        [class.bg-base-100]="view !== 'list'"
-                        [class.bg-secondary]="view === 'list'"
-                        [class.text-secondary-content]="view === 'list'"
+                        [class.bg-base-100]="view() !== 'list'"
+                        [class.bg-secondary]="view() === 'list'"
+                        [class.text-secondary-content]="view() === 'list'"
                         [matTooltip]="'COMMON.LIST' | translate"
-                        (click)="view = 'list'"
+                        (click)="view.set('list')"
                     >
                         <icon>list</icon>
                     </button>
@@ -52,11 +52,11 @@ export const FAV_DESK_KEY = 'favourite_desks';
                         icon
                         matRipple
                         class="rounded-l-none rounded-r"
-                        [class.bg-base-100]="view !== 'map'"
-                        [class.bg-secondary]="view === 'map'"
-                        [class.text-secondary-content]="view === 'map'"
+                        [class.bg-base-100]="view() !== 'map'"
+                        [class.bg-secondary]="view() === 'map'"
+                        [class.text-secondary-content]="view() === 'map'"
                         [matTooltip]="'COMMON.MAP' | translate"
-                        (click)="view = 'map'"
+                        (click)="view.set('map')"
                     >
                         <icon>map</icon>
                     </button>
@@ -73,58 +73,78 @@ export const FAV_DESK_KEY = 'favourite_desks';
                     [class.hidden]="!show_filters"
                 >
                     <new-desk-filters
-                        [hide_levels]="view !== 'list'"
+                        [hide_levels]="view() !== 'list'"
                     ></new-desk-filters>
                 </div>
                 <div
-                    class="h-full w-full overflow-auto rounded border border-base-300 bg-base-200 sm:w-[20rem] lg:block"
-                    [class.hidden]="show_filters || displayed"
-                    [class.sm:hidden]="displayed"
-                    [class.md:block]="!displayed"
-                    [class.p-2]="view === 'list'"
+                    list
+                    class="h-full w-full min-w-[20rem] overflow-auto rounded border border-base-300 bg-base-200 sm:w-[20rem] lg:block"
+                    [class.hidden]="show_filters || displayed()"
+                    [class.sm:hidden]="displayed()"
+                    [class.md:block]="!displayed()"
+                    [class.p-2]="view() === 'list'"
+                    [style.width]="
+                        view() !== 'list'
+                            ? displayed()
+                                ? 'calc(100vw - 44rem)'
+                                : 'calc(100vw - 24rem)'
+                            : ''
+                    "
                 >
-                    @if (view === 'list') {
+                    @if (view() === 'list') {
                         <new-desk-filters-display
                             [(view)]="view"
                         ></new-desk-filters-display>
                     }
-                    @if (view === 'list') {
+                    @if (view() === 'list') {
                         <new-desk-list
-                            [active]="displayed?.id"
+                            [active]="displayed()?.id"
                             [selected]="selected_ids"
                             [favorites]="favorites"
                             (toggleFav)="toggleFavourite($event)"
-                            (onSelect)="displayed = $event"
+                            (onSelect)="displayed.set($event)"
                         ></new-desk-list>
                     } @else {
                         <new-desk-map
                             class="h-full w-full"
-                            [is_displayed]="!!displayed"
-                            [active]="displayed?.id"
-                            (onSelect)="displayed = $event"
+                            [is_displayed()]="!!displayed()"
+                            [active]="displayed()?.id"
+                            (onSelect)="displayed.set($event)"
                         >
                         </new-desk-map>
                     }
                 </div>
                 <div
-                    class="h-full w-full overflow-auto rounded border border-base-300 shadow sm:w-[20rem] lg:block"
-                    [class.hidden]="show_filters || !displayed"
-                    [class.sm:hidden]="!displayed"
-                    [class.md:block]="displayed"
+                    class="relative h-full w-full overflow-auto rounded border border-base-300 shadow sm:w-[20rem]"
+                    [class.hidden]="show_filters || !displayed()"
+                    [class.sm:hidden]="!displayed()"
+                    [class.md:block]="displayed()"
+                    [class.lg:block]="view() === 'list'"
                 >
+                    @if (displayed()) {
+                        <button
+                            icon
+                            matRipple
+                            class="absolute left-2 top-2 z-20 hidden border border-base-300 bg-base-100 md:flex"
+                            (click)="displayed.set(null)"
+                        >
+                            <icon>close</icon>
+                        </button>
+                    }
                     <new-desk-details
-                        [desk]="displayed"
-                        [active]="selected_ids.includes(displayed?.id)"
-                        [hide_map]="view === 'map'"
-                        (activeChange)="setSelected(displayed, $event)"
+                        [desk]="displayed()"
+                        [active]="selected_ids.includes(displayed()?.id)"
+                        [hide_map]="view() === 'map'"
+                        (activeChange)="setSelected(displayed(), $event)"
                         [fav]="
-                            displayed && this.favorites.includes(displayed?.id)
+                            displayed() &&
+                            this.favorites.includes(displayed()?.id)
                         "
-                        (toggleFav)="toggleFavourite(displayed)"
-                        (close)="displayed = null"
+                        (toggleFav)="toggleFavourite(displayed())"
+                        (close)="displayed.set(null)"
                     ></new-desk-details>
                 </div>
-                @if (!displayed) {
+                @if (!displayed()) {
                     <button
                         icon
                         matRipple
@@ -158,17 +178,19 @@ export const FAV_DESK_KEY = 'favourite_desks';
                     btn
                     matRipple
                     name="toggle-desk"
-                    [disabled]="!displayed"
-                    [class.inverse]="isSelected(displayed?.id)"
-                    (click)="setSelected(displayed, !isSelected(displayed?.id))"
+                    [disabled]="!displayed()"
+                    [class.inverse]="isSelected(displayed()?.id)"
+                    (click)="
+                        setSelected(displayed(), !isSelected(displayed()?.id))
+                    "
                 >
                     <div class="flex items-center">
                         <icon class="text-xl">{{
-                            isSelected(displayed?.id) ? 'remove' : 'add'
+                            isSelected(displayed()?.id) ? 'remove' : 'add'
                         }}</icon>
                         <div class="mr-1">
                             {{
-                                (isSelected(displayed?.id)
+                                (isSelected(displayed()?.id)
                                     ? 'COMMON.REMOVE_FROM'
                                     : 'COMMON.ADD_TO'
                                 ) | translate
@@ -179,7 +201,15 @@ export const FAV_DESK_KEY = 'favourite_desks';
             </footer>
         </div>
     `,
-    styles: [``],
+    styles: [
+        `
+            @media screen and (max-width: 640px) {
+                [list] {
+                    width: 100% !important;
+                }
+            }
+        `,
+    ],
     imports: [
         TranslatePipe,
         IconComponent,
@@ -200,9 +230,9 @@ export class NewDeskSelectModalComponent {
         inject<MatDialogRef<NewDeskSelectModalComponent>>(MatDialogRef);
 
     public selected: BookingAsset[] = [];
-    public displayed: BookingAsset | null = null;
-    public view: 'list' | 'map' = 'list';
-    public show_filters = false;
+    public readonly view = signal<'list' | 'map'>('list');
+    public readonly displayed = signal<BookingAsset | null>(null);
+    public readonly show_filters = signal(false);
 
     public get is_safari() {
         return isMobileSafari();
@@ -225,7 +255,7 @@ export class NewDeskSelectModalComponent {
         if (state) list.push(item);
         this.selected = list;
         if (!this._data.options.group && state) {
-            this.displayed = null;
+            this.displayed.set(null);
             setTimeout(() => this._dialog_ref.close([item]), 50);
         }
     }
