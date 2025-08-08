@@ -12,7 +12,7 @@ import {
     viewChild,
 } from '@angular/core';
 import { AsyncHandler, nextValueFrom, notifyError } from '@placeos/common';
-import { getModule } from '@placeos/ts-client';
+import { getModule, PlaceModuleBinding } from '@placeos/ts-client';
 
 import { ControlStateService } from '../control-state.service';
 
@@ -653,79 +653,47 @@ export class ZoomControlsComponent
                 'system',
                 this._service.system_id
                     .pipe(filter((_) => !!_))
-                    .subscribe((id) => {
-                        const module = this.mod() || 'Zoom';
-                        const mod = getModule(id, module);
-                        if (!mod) return;
-                        const in_progress = mod.binding('meeting_in_progress');
-                        this.subscription(
-                            'in_progress-bind',
-                            in_progress.bind(),
-                        );
-                        this.subscription(
-                            'in_progress',
-                            in_progress
-                                .listen()
-                                .subscribe((v) => this.in_progress.set(v)),
-                        );
-                        const joined = mod.binding('meeting_joined');
-                        this.subscription('joined-bind', joined.bind());
-                        this.subscription(
-                            'joined',
-                            joined.listen().subscribe((v) => {
-                                this.joined.set(v);
-                                if (v) this.join(v);
-                            }),
-                        );
-                        const sharing = mod.binding('share_content');
-                        this.subscription('sharing-bind', sharing.bind());
-                        this.subscription(
-                            'sharing',
-                            sharing
-                                .listen()
-                                .subscribe((v) => this.sharing.set(v)),
-                        );
-                        const recording = mod.binding('recording');
-                        this.subscription('recording-bind', recording.bind());
-                        this.subscription(
-                            'recording',
-                            recording
-                                .listen()
-                                .subscribe((v) => this.recording.set(v)),
-                        );
-                        const next_pending = mod.binding('next_pending');
-                        this.subscription(
-                            'next_pending-bind',
-                            next_pending.bind(),
-                        );
-                        this.subscription(
-                            'next_pending',
-                            next_pending
-                                .listen()
-                                .subscribe((v) => this.next_pending.set(v)),
-                        );
-                        // Listend for bookings details
-                        const bookings_mod = getModule(id, 'Bookings');
-                        console.log('Bookings Module', bookings_mod);
-                        if (!bookings_mod) return;
-                        const current = bookings_mod.binding('current_booking');
-                        this.subscription('current-bind', current.bind());
-                        this.subscription(
-                            'current',
-                            current
-                                .listen()
-                                .subscribe((v) => this.current_meeting.set(v)),
-                        );
-                        const next = bookings_mod.binding('next_booking');
-                        this.subscription('next-bind', next.bind());
-                        this.subscription(
-                            'next_pending',
-                            next
-                                .listen()
-                                .subscribe((v) => this.next_meeting.set(v)),
-                        );
-                    }),
+                    .subscribe((id) => this._bindSystem(id)),
             );
         });
+    }
+
+    private _bindSystem(id: string) {
+        const module = this.mod() || 'Zoom';
+        const mod = getModule(id, module);
+        this._bindValue(
+            'meeting_in_progress',
+            (v) => this.in_progress.set(v),
+            mod,
+        );
+        this._bindValue(
+            'meeting_joined',
+            (v) => {
+                this.joined.set(v);
+                if (v) this.join(v);
+            },
+            mod,
+        );
+        this._bindValue('share_content', (v) => this.sharing.set(v), mod);
+        this._bindValue('recording', (v) => this.recording.set(v), mod);
+        this._bindValue('next_pending', (v) => this.next_pending.set(v), mod);
+        // Listend for bookings details
+        const bookings_mod = getModule(id, 'Bookings');
+        this._bindValue(
+            'current_booking',
+            (v) => this.current_meeting.set(v),
+            bookings_mod,
+        );
+    }
+
+    private _bindValue<T>(
+        name: string,
+        on_change: (T) => void,
+        module: PlaceModuleBinding,
+    ) {
+        if (!module) return;
+        const value = module.binding(name);
+        this.subscription(`${name}-bind`, value.bind());
+        this.subscription(`${name}`, value.listen().subscribe(on_change));
     }
 }
