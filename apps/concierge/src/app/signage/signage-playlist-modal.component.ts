@@ -447,6 +447,7 @@ export class SignagePlaylistModalComponent implements OnInit {
             form_value.play_hours = `${format(form_value.play_from, 'HH:mm')}-${format(form_value.play_until, 'HH:mm')}`;
             form_value.play_at = 0;
             form_value.play_cron = '';
+            delete form_value.play_once;
         } else if (this.schedule() === 'exact') {
             form_value.play_cron = '';
             const hours = padLength(Math.floor(form_value.play_duration / 60));

@@ -196,6 +196,7 @@ export class MediaPlayerComponent
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.playlist) {
+            this.progress.set(0);
             if (this.state() === 'PLAYING') this.togglePause();
             const current_item = this.active_item;
             this._item_playlist = [...(this.playlist() || [])];
@@ -361,6 +362,7 @@ export class MediaPlayerComponent
         if (!this._item_playlist?.length) return;
         this._processURLs();
         if (this.index() === -1) {
+            this.progress.set(0);
             this.setPlaylistItem(0);
         }
         const item = this.active_item;
@@ -376,14 +378,21 @@ export class MediaPlayerComponent
         const item = this.active_item;
 
         const old_item = this._item_playlist[old_index];
+        console.log(
+            'Set Playlist Item',
+            old_item?.id,
+            item?.id,
+            this._item_playlist.length,
+            this.progress(),
+        );
         if (
-            old_item?.id !== item?.id &&
+            (old_item?.id !== item?.id || this._item_playlist.length === 1) &&
             (old_item?.playlist !== item?.playlist ||
                 old_index >= this._item_playlist.length - 1) &&
             this.isValidMedia(item)
         ) {
             this.event.emit({ type: 'playlist_count', ref_id: item.playlist });
-            if (old_item?.playlist && this.progress() > 0) {
+            if (old_item?.playlist && this.progress() > 50) {
                 this.event.emit({
                     type: 'playlist_through',
                     ref_id: old_item.playlist,
@@ -394,12 +403,6 @@ export class MediaPlayerComponent
         if (!this.isValidMedia(item)) {
             if (old_index !== index) this.nextItem();
             return;
-        }
-        if (old_item && old_index === index && this.progress() > 0) {
-            this.event.emit({
-                type: 'playlist_through',
-                ref_id: old_item.playlist,
-            });
         }
         this._item_start = Date.now();
         this._item_progress = 0;
