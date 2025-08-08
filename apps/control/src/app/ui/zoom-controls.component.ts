@@ -672,9 +672,10 @@ export class ZoomControlsComponent
                         this.subscription('joined-bind', joined.bind());
                         this.subscription(
                             'joined',
-                            joined
-                                .listen()
-                                .subscribe((v) => this.joined.set(v)),
+                            joined.listen().subscribe((v) => {
+                                this.joined.set(v);
+                                if (v) this.join(v);
+                            }),
                         );
                         const sharing = mod.binding('share_content');
                         this.subscription('sharing-bind', sharing.bind());
