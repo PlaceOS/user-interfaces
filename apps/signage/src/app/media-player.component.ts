@@ -395,6 +395,12 @@ export class MediaPlayerComponent
             if (old_index !== index) this.nextItem();
             return;
         }
+        if (old_item && old_index === index && this.progress() > 0) {
+            this.event.emit({
+                type: 'playlist_through',
+                ref_id: old_item.playlist,
+            });
+        }
         this._item_start = Date.now();
         this._item_progress = 0;
         this.progress.set(0);
@@ -559,13 +565,14 @@ export class MediaPlayerComponent
     }
 
     private _validatePlaylist() {
+        if (!this.playlist().length) return;
         const has_valid_items = this.playlist().some((item) =>
             this.isValidMedia(item),
         );
         if (!has_valid_items) {
             this.event.emit({
                 type: 'playlist_through',
-                ref_id: this.playlist()[0].playlist,
+                ref_id: this.playlist()[0]?.playlist,
             });
         }
     }
