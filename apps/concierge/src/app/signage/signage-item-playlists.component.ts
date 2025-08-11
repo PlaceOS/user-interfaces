@@ -62,7 +62,7 @@ const PLAYLIST_ITEM_COUNTS = {};
                         <button
                             matRipple
                             cdkDragHandle
-                            class="flex h-full w-6 items-center justify-center rounded hover:bg-base-200"
+                            class="!m-0 flex h-full w-6 items-center justify-center rounded hover:bg-base-200"
                             [matTooltip]="
                                 'APP.CONCIERGE.SIGNAGE_MEDIA_REORDER'
                                     | translate
@@ -82,6 +82,14 @@ const PLAYLIST_ITEM_COUNTS = {};
                                 }}
                             </div>
                         </div>
+                        @if (isScheduled(item)) {
+                            <div
+                                class="rounded border border-info bg-base-100 bg-info-light p-1 text-lg"
+                                [matTooltip]="'COMMON.SCHEDULED' | translate"
+                            >
+                                <icon>event</icon>
+                            </div>
+                        }
                         <button
                             icon
                             matRipple
@@ -199,6 +207,12 @@ export class SignageItemPlaylistsComponent implements OnChanges {
         }),
         startWith([]),
     );
+
+    public isScheduled(item: SignagePlaylist): boolean {
+        return (
+            !!item.play_at || !!item.play_cron || item.play_hours.includes('-')
+        );
+    }
 
     public playlistCount(id: string) {
         return PLAYLIST_ITEM_COUNTS[id]?.count || 0;

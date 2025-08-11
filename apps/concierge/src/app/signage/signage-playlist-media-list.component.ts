@@ -7,6 +7,7 @@ import {
     listSignagePlaylistMedia,
     MediaAnimation,
     SignageMedia,
+    SignagePlaylist,
 } from '@placeos/ts-client';
 import { getUnixTime, startOfMinute } from 'date-fns';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
@@ -165,6 +166,13 @@ import { SignageStateService } from './signage-state.service';
                         >{{ (selected_playlist | async)?.orientation }}</span
                     >
                 </div>
+                @if (isScheduled(selected_playlist | async)) {
+                    <div
+                        class="m-1 rounded bg-base-200 px-2 py-2 text-xs uppercase"
+                    >
+                        {{ 'COMMON.SCHEDULED' | translate }}
+                    </div>
+                }
             </div>
             @if ((media | async).length > 0) {
                 <div
@@ -202,7 +210,7 @@ import { SignageStateService } from './signage-state.service';
                             <button
                                 matRipple
                                 cdkDragHandle
-                                class="flex h-full w-6 items-center justify-center rounded hover:bg-base-200"
+                                class="!m-0 flex h-full w-6 items-center justify-center rounded hover:bg-base-200"
                                 matTooltip="Drag to reorder"
                             >
                                 <icon>drag_handle</icon>
@@ -379,6 +387,12 @@ export class SignagePlaylistMediaListComponent {
 
     public get now() {
         return getUnixTime(startOfMinute(Date.now()));
+    }
+
+    public isScheduled(item: SignagePlaylist): boolean {
+        return (
+            !!item.play_at || !!item.play_cron || item.play_hours.includes('-')
+        );
     }
 
     public ngOnChanges(changes: SimpleChanges) {
