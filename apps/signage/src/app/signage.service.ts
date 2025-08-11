@@ -153,7 +153,7 @@ export class SignageService extends AsyncHandler {
 
     public readonly playlist = this.display.pipe(
         map((item: any) => {
-            if (!item) return [];
+            if (!item?.id) return [];
             let playlists = [...item.playlist_mappings[item.id]];
             for (const zone of item.zones) {
                 if (!item.playlist_mappings[zone]) continue;
@@ -161,11 +161,12 @@ export class SignageService extends AsyncHandler {
             }
             this._playlists = playlists;
             // Map playlists to media
-            return this._getPlaylistMedia(
+            const media = this._getPlaylistMedia(
                 item,
                 playlists,
                 (p) => !p.play_at && !p.play_cron && p.enabled,
             );
+            return media;
         }),
         startWith([]),
         shareReplay(1),
@@ -173,7 +174,7 @@ export class SignageService extends AsyncHandler {
 
     public readonly override_playlists = this.display.pipe(
         map((item: any) => {
-            if (!item) return [];
+            if (!item?.id) return [];
             let playlists: string[] = [...item.playlist_mappings[item.id]];
             for (const zone of item.zones) {
                 if (!item.playlist_mappings[zone]) continue;
@@ -214,7 +215,9 @@ export class SignageService extends AsyncHandler {
         ]).subscribe(async ([_]) => {
             const available_media = this._media_cache.availableFiles();
             const media = _.playlist_media
-                .filter((_) => _.type !== 'webpage')
+                .filter(
+                    (_) => _.type !== 'webpage' && _.media_type !== 'webpage',
+                )
                 .map((_) => _.media_url);
             const extra_media = available_media.filter(
                 (url) => !media.includes(url),

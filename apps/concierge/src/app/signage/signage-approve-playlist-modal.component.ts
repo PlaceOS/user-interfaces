@@ -43,7 +43,7 @@ import { SignageStateService } from './signage-state.service';
                     @let versions = playlist_versions | async;
                     @let media = playlist_media | async;
                     <div
-                        class="rounded border border-base-300 bg-success-light"
+                        class="w-[24rem] rounded border border-base-300 bg-success-light"
                     >
                         @let current_version = versions?.[0];
                         @let current_media = media?.[0] || [];
@@ -72,14 +72,16 @@ import { SignageStateService } from './signage-state.service';
                             </div>
                             @for (item of current_media; track item.id) {
                                 <div
-                                    class="rounded border border-base-300 bg-base-100 p-2"
+                                    class="truncate rounded border border-base-300 bg-base-100 p-2"
                                 >
                                     {{ item.name }}
                                 </div>
                             }
                         </div>
                     </div>
-                    <div class="rounded border border-base-300 bg-error-light">
+                    <div
+                        class="w-[24rem] rounded border border-base-300 bg-error-light"
+                    >
                         @let previous_version = versions?.[1];
                         @let previous_media = media?.[1] || [];
                         <div
@@ -107,7 +109,7 @@ import { SignageStateService } from './signage-state.service';
                             </div>
                             @for (item of previous_media; track item.id) {
                                 <div
-                                    class="rounded border border-base-300 bg-base-100 p-2"
+                                    class="truncate rounded border border-base-300 bg-base-100 p-2"
                                 >
                                     {{ item.name }}
                                 </div>

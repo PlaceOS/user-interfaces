@@ -413,11 +413,19 @@ export class MediaPlayerComponent
             this.timeout('wait-for-url', () => this.setPlaylistItem(index));
             return;
         }
+        this._video_element().nativeElement.classList.add('hidden');
+        this._web_element().nativeElement.classList.add('hidden');
+        this._image_element().nativeElement.classList.add('hidden');
+        const active_el = (
+            item.type === 'video'
+                ? this._video_element()
+                : item.type === 'webpage'
+                  ? this._web_element()
+                  : this._image_element()
+        ).nativeElement;
+        active_el.src = url.toString();
+        active_el.classList.remove('hidden');
         if (item.type === 'video') {
-            this._image_element().nativeElement.classList.add('hidden');
-            this._web_element().nativeElement.classList.add('hidden');
-            this._video_element().nativeElement.src = url.toString();
-            this._video_element().nativeElement.classList.remove('hidden');
             try {
                 requestAnimationFrame(() =>
                     this._video_element().nativeElement.play(),
@@ -425,17 +433,7 @@ export class MediaPlayerComponent
             } catch {
                 this.nextItem();
             }
-        } else if (item.type === 'webpage') {
-            this._video_element().nativeElement.classList.add('hidden');
-            this._image_element().nativeElement.classList.add('hidden');
-            this._web_element().nativeElement.src = url.toString();
-            this._web_element().nativeElement.classList.remove('hidden');
-            this._video_element().nativeElement.pause();
         } else {
-            this._video_element().nativeElement.classList.add('hidden');
-            this._web_element().nativeElement.classList.add('hidden');
-            this._image_element().nativeElement.src = url.toString();
-            this._image_element().nativeElement.classList.remove('hidden');
             this._video_element().nativeElement.pause();
         }
         this._transition();
