@@ -199,7 +199,7 @@ export class SignageService extends AsyncHandler {
     public readonly override_check = combineLatest([
         this.display,
         this.override_playlists,
-        interval(30 * 1000).pipe(startWith(0)),
+        interval(15 * 1000).pipe(startWith(0)),
     ]);
 
     public setDisplay(system_id: string) {
@@ -240,15 +240,15 @@ export class SignageService extends AsyncHandler {
                         return (
                             Math.abs(
                                 differenceInSeconds(plist.play_at, time()),
-                            ) <= 36
+                            ) <= 18
                         );
                     }
                     if (plist.play_cron && plist.play_cron !== '* * * * *') {
                         try {
                             const next = getNextCronRunTimestampInRange(
                                 plist.play_cron,
-                                60,
-                                addSeconds(time(), -30).valueOf(),
+                                28,
+                                addSeconds(time(), -14).valueOf(),
                             );
                             return !!next;
                         } catch {
