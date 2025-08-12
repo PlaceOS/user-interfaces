@@ -405,9 +405,10 @@ export class SignageStateService extends AsyncHandler {
         const media = await upload(file);
         let thumbnail = null;
         if (thumbnail_image) {
-            thumbnail = await upload(
-                dataURLtoFile(thumbnail_image, `thumb+${file.name}`),
-            );
+            const name_parts = file.name.split('.');
+            name_parts.pop(); // Drop the extension
+            const name = `thumb+${name_parts.join('.')}.jpg`;
+            thumbnail = await upload(dataURLtoFile(thumbnail_image, name));
         }
         const data = {
             ...new SignageMedia({
@@ -488,9 +489,10 @@ export class SignageStateService extends AsyncHandler {
         console.log('File:', file, max_width, max_height);
         if (file.type.includes('video')) {
             return this._generateVideoThumbnail(file, max_width, max_height);
-        } else {
+        } else if (file.type.includes('image') || file.type.includes('svg')) {
             return this._generateImageThumbnail(file, max_width, max_height);
         }
+        return '';
     }
 
     private _generateImageThumbnail(
