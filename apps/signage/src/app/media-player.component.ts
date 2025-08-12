@@ -277,7 +277,7 @@ export class MediaPlayerComponent
     public nextItem() {
         if (this.hold_over_item()) {
             const item = this._item_playlist.shift();
-            if (this.progress() > 50) {
+            if (this.progress() > 50 && this.isValidMedia(item)) {
                 this.event.emit({ type: 'media_count', ref_id: item.id });
             }
             this.setPlaylistItem(0);
@@ -295,11 +295,9 @@ export class MediaPlayerComponent
             return;
         }
         const new_index = next_index % this._item_playlist.length;
-        if (this.progress() > 50) {
-            this.event.emit({
-                type: 'media_count',
-                ref_id: this._item_playlist[this.index()].id,
-            });
+        const old_item = this._item_playlist[this.index()];
+        if (this.progress() > 50 && this.isValidMedia(old_item)) {
+            this.event.emit({ type: 'media_count', ref_id: old_item.id });
         }
         this.setPlaylistItem(new_index);
     }

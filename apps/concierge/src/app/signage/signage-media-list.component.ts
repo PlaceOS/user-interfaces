@@ -204,7 +204,7 @@ import { SignageStateService } from './signage-state.service';
 
                                 @for (
                                     playlist of playlists | async;
-                                    track playlist
+                                    track playlist.id
                                 ) {
                                     <button
                                         mat-menu-item
