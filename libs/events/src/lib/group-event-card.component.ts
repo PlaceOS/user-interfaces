@@ -103,7 +103,7 @@ import { GroupEventDetailsModalComponent } from './group-event-details-modal.com
                 class="mx-auto flex h-56 w-[63rem] max-w-full overflow-hidden rounded-xl border border-base-300 bg-base-100 shadow hover:border-info hover:shadow-2xl"
             >
                 <div
-                    class="relative flex h-full w-1/2 min-w-56 max-w-[20rem] items-center justify-between overflow-hidden border-r border-base-200 bg-base-200"
+                    class="relative flex h-full w-1/2 max-w-[18rem] items-center justify-between overflow-hidden border-r border-base-200 bg-base-200"
                 >
                     @if (event().images?.length) {
                         <img
@@ -121,7 +121,10 @@ import { GroupEventDetailsModalComponent } from './group-event-details-modal.com
                         {{ 'CALENDAR_EVENT.GROUP_FEATURED' | translate }}
                     </div>
                 </div>
-                <div details class="flex space-x-4 px-8 py-4">
+                <div
+                    details
+                    class="flex w-1/2 max-w-[calc(100%-18rem)] flex-1 space-x-4 overflow-hidden px-4 py-4"
+                >
                     <div class="flex flex-col items-center">
                         <div class="text-sm opacity-30">
                             {{ event().date | date: 'MMM' }}
@@ -130,7 +133,7 @@ import { GroupEventDetailsModalComponent } from './group-event-details-modal.com
                             {{ event().date | date: 'd' }}
                         </div>
                     </div>
-                    <div class="flex flex-col space-y-2">
+                    <div class="flex w-px flex-1 flex-col space-y-2">
                         <h3 class="text-left">{{ event().title }}</h3>
                         <div time class="text-left text-sm opacity-30">
                             {{ event().date | date: 'EEEE' }}
