@@ -57,7 +57,7 @@ export class GroupEventsStateService {
             list
                 .filter(
                     (_) =>
-                        _.extension_data.view_access !== 'PRIVATE' &&
+                        _.extension_data.view_access === 'OPEN' &&
                         _.extension_data.shared_event,
                 )
                 .sort((a, b) => a.date - b.date),
