@@ -60,7 +60,7 @@ import { NewCateringItemListItemComponent } from './new-catering-item-list-item.
                                 [selected]="selected().includes(item.custom_id)"
                                 [favourite]="isFavourite(item.id)"
                                 [code]="code"
-                                (toggleFav)="toggleFav(item.id)"
+                                (toggleFav)="toggleFav.emit(item.id)"
                                 (select)="selectItem(item, true)"
                             ></new-catering-item-list-item>
                         }

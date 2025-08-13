@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, input, OnInit, output } from '@angular/core';
+import { Component, inject, input, model, OnInit, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -215,7 +215,7 @@ export class NewCateringItemFiltersComponent
 
     public readonly at_time = input(false);
     public readonly at_timeChange = output<boolean>();
-    public readonly offset = input(0);
+    public readonly offset = model(0);
     public readonly offsetChange = output<number>();
     public readonly offset_day = input(0);
     public readonly offset_dayChange = output<number>();

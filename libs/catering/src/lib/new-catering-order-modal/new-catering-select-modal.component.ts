@@ -15,6 +15,7 @@ import { NewCateringItemFiltersComponent } from './new-catering-item-filters.com
 import { NewCateringItemListComponent } from './new-catering-item-list.component';
 
 const EMPTY_FAVS: string[] = [];
+const FAV_KEY = 'favourite_menu_items';
 
 @Component({
     selector: 'new-catering-select-modal',
@@ -73,7 +74,7 @@ const EMPTY_FAVS: string[] = [];
                             !!displayed &&
                             this.favorites.includes(displayed?.id || '')
                         "
-                        (toggleFav)="toggleFavourite(displayed!)"
+                        (toggleFav)="toggleFavourite(displayed!.id)"
                         (close)="displayed = null"
                     ></new-catering-item-details>
                 </div>
@@ -165,9 +166,7 @@ export class NewCateringSelectModalComponent {
     public show_filters = false;
 
     public get favorites() {
-        return (
-            this._settings.get<string[]>('favourite_menu_items') || EMPTY_FAVS
-        );
+        return this._settings.get<string[]>(FAV_KEY) || EMPTY_FAVS;
     }
 
     public get selected_ids() {
@@ -196,6 +195,7 @@ export class NewCateringSelectModalComponent {
         if (this._data.caterer) {
             this._order.setFilters({ caterer: this._data.caterer });
         }
+        console.log('Favourites:', this.favorites);
     }
 
     public isSelected(id: string) {
@@ -216,18 +216,16 @@ export class NewCateringSelectModalComponent {
         this.selected = list;
     }
 
-    public toggleFavourite(item: CateringItem) {
+    public toggleFavourite(item: string) {
         const fav_list = this.favorites;
-        const new_state = !fav_list.includes(item.id);
+        const new_state = !fav_list.includes(item);
+        console.log('Favourites:', item, new_state);
         if (new_state) {
-            this._settings.saveUserSetting('favourite_menu_items', [
-                ...fav_list,
-                item.id,
-            ]);
+            this._settings.saveUserSetting(FAV_KEY, [...fav_list, item]);
         } else {
             this._settings.saveUserSetting(
-                'favourite_menu_items',
-                fav_list.filter((_) => _ !== item.id),
+                FAV_KEY,
+                fav_list.filter((_) => _ !== item),
             );
         }
     }
