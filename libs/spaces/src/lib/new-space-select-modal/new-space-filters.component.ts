@@ -250,8 +250,8 @@ import { SpacesService } from '../spaces.service';
                         <settings-toggle
                             class="w-full"
                             [name]="'COMMON.FAVOURITES_ONLY' | translate"
-                            [ngModel]="(options | async)?.show_fav"
-                            (ngModelChange)="setOptions({ show_fav: $event })"
+                            [ngModel]="(filters | async)?.show_fav"
+                            (ngModelChange)="setFilters({ show_fav: $event })"
                             [ngModelOptions]="{ standalone: true }"
                         ></settings-toggle>
                     </div>
@@ -338,6 +338,7 @@ export class NewSpaceFiltersComponent {
     public readonly viewing_map = input<boolean>(undefined);
     public can_close = false;
     public readonly options = this._event_form.options$;
+    public readonly filters = this._event_form.filters$;
 
     public readonly building = this._org.active_building;
     public readonly buildings = this._org.active_buildings;
@@ -389,6 +390,7 @@ export class NewSpaceFiltersComponent {
     }
 
     public readonly setOptions = (o) => this._event_form.setOptions(o);
+    public readonly setFilters = (f) => this._event_form.setFilters(f);
 
     public get bld() {
         return this._org.building;
