@@ -118,7 +118,7 @@ import { GroupEventDetailsModalComponent } from './group-event-details-modal.com
                 >
                     <icon class="text-base">star</icon>
                     <div class="uppercase">
-                        {{ 'CALEDAR_EVENT.GROUP_FEATURED' | translate }}
+                        {{ 'CALENDAR_EVENT.GROUP_FEATURED' | translate }}
                     </div>
                 </div>
                 <div details class="flex space-x-4 px-8 py-4">
