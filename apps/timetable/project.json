@@ -15,6 +15,12 @@
                 "polyfills": [],
                 "tsConfig": "apps/timetable/tsconfig.app.json",
                 "baseHref": "./",
+                "fileReplacements": [
+                    {
+                        "replace": "libs/common/src/lib/settings.ts",
+                        "with": "apps/timetable/src/environments/settings.ts"
+                    }
+                ],
                 "assets": [
                     "apps/timetable/src/favicon.ico",
                     "apps/timetable/src/assets",

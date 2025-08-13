@@ -2,7 +2,7 @@
  * ROOT APPLICATION SETTINGS
  */
 const app: any = {
-    name: 'Timetable',
+    name: 'timetable',
     title: 'Timetable Application',
     description: 'PlaceOS Timetable UI written with Angular Framework',
     short_name: 'TIMETABLE',
