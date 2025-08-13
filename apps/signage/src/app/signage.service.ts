@@ -231,7 +231,7 @@ export class SignageService extends AsyncHandler {
             if (has_failures) this._retry.next(Date.now());
         });
         this.interval('poll', () => this._poll.next(Date.now()), 60 * 1000);
-        this.interval('metrics', () => this._postMetrics(), 10 * 60 * 1000);
+        this.interval('metrics', () => this._postMetrics(), 1 * 60 * 1000);
         this.subscription(
             'override_check',
             this.override_check.subscribe(([display, playlists]) => {

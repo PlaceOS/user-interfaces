@@ -15,6 +15,7 @@ export function time() {
 }
 
 export function validateMedia(item: MediaPlayerItem) {
+    if (!item || !item.id) return 'Invalid media';
     if (item.valid_from && item.valid_from * 1000 > Date.now())
         return 'Media not valid yet.';
     if (item.valid_until && item.valid_until * 1000 < Date.now())

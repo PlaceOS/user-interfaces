@@ -382,15 +382,14 @@ export class MediaPlayerComponent
             item?.id,
             this._item_playlist.length,
             this.progress(),
+            this._isLastValidPlaylistItem(old_index),
         );
-        if (
-            (old_item?.id !== item?.id || this._item_playlist.length === 1) &&
-            (old_item?.playlist !== item?.playlist ||
-                old_index >= this._item_playlist.length - 1) &&
-            this.isValidMedia(item)
-        ) {
-            this.event.emit({ type: 'playlist_count', ref_id: item.playlist });
-            if (old_item?.playlist && this.progress() > 50) {
+        if (this._isLastValidPlaylistItem(old_index) && old_item?.playlist) {
+            this.event.emit({
+                type: 'playlist_count',
+                ref_id: old_item.playlist,
+            });
+            if (this.progress() > 50) {
                 this.event.emit({
                     type: 'playlist_through',
                     ref_id: old_item.playlist,
@@ -582,5 +581,21 @@ export class MediaPlayerComponent
                 ref_id: this.playlist()[0]?.playlist,
             });
         }
+    }
+
+    private _isLastValidPlaylistItem(idx: number) {
+        const playlist = this.playlist();
+        const item = playlist[idx];
+        if (!item || !this.isValidMedia(item)) return false;
+        if (idx === playlist.length - 1) return true;
+        let next_index = idx + 1;
+        let next_item = playlist[next_index];
+        while (!next_item && !this.isValidMedia(next_item)) {
+            next_index += 1;
+            if (next_index >= playlist.length) next_index = 0;
+            next_item = playlist[next_index];
+        }
+        if (next_index === idx) return true;
+        return item.playlist !== next_item.playlist;
     }
 }
