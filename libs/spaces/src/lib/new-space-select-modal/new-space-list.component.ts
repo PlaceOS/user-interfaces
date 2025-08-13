@@ -126,7 +126,7 @@ import { Space } from '../space.class';
                                         </div>
                                     }
                                 </div>
-                                <div class="space-y-2">
+                                <div class="max-w-48 space-y-2">
                                     <div
                                         class="mr-10 truncate text-left font-medium"
                                     >

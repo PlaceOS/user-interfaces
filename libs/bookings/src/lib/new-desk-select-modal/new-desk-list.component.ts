@@ -61,9 +61,11 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
                                     }
                                 </div>
                                 <div class="flex-1 space-y-2 pt-2 text-left">
-                                    <span class="font-medium">
+                                    <div
+                                        class="w-[calc(100%-2rem)] truncate font-medium"
+                                    >
                                         {{ desk.name || desk.id || 'Desk' }}
-                                    </span>
+                                    </div>
                                     <div
                                         class="flex items-center space-x-2 text-sm"
                                     >
