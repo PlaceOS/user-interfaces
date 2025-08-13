@@ -488,6 +488,14 @@ export class MediaPlayerComponent
             const web_el = this._previous_web_element().nativeElement;
             const video_el = this._previous_video_element().nativeElement;
             let index = indexValue - 1;
+            while (
+                !this.isValidMedia(this._item_playlist[index]) ||
+                index === indexValue
+            ) {
+                index = index - 1;
+                if (index < 0) index = this._item_playlist.length - 1;
+            }
+            if (index === indexValue) index = indexValue - 1;
             if (index < 0) index = this._item_playlist.length - 1;
             const item = this._item_playlist[index];
             const url = this.url(item.id);
