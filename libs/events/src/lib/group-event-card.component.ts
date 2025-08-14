@@ -185,9 +185,7 @@ import { GroupEventDetailsModalComponent } from './group-event-details-modal.com
                                     'CALENDAR_EVENT.GROUP_ATTENDING'
                                         | translate
                                             : {
-                                                  count:
-                                                      event().attendees
-                                                          ?.length || '0',
+                                                  count: attendees || '0',
                                               }
                                 }}
                             </div>
@@ -247,6 +245,14 @@ export class GroupEventCardComponent {
         return (
             !this.is_onsite ||
             this.event()?.extension_data.attendance_type === 'ANY'
+        );
+    }
+
+    public get attendees() {
+        return (
+            this.event()?.attendees?.filter(
+                (user) => user.email !== this.group_event_calendar,
+            )?.length || 0
         );
     }
 
