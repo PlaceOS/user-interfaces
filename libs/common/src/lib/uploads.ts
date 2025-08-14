@@ -13,6 +13,8 @@ import * as blobUtil from 'blob-util';
 export interface UploadDetails {
     /** Unique ID for the upload */
     id: string;
+    /** Unique ID for the upload */
+    upload_id?: string;
     /** Name of the file uploaded */
     name: string;
     /** Progress of the file upload */
@@ -63,12 +65,15 @@ export function uploadFile(
             upload.status
                 .pipe(takeWhile((_) => _.status !== 'complete', true))
                 .subscribe((state) => {
+                    upload_details.upload_id = (
+                        upload as any
+                    )._request.upload_id;
                     if (upload.access_url) {
                         upload_details.link = !pub
                             ? `${
                                   location.origin
                               }/api/engine/v2/uploads/${encodeURIComponent(
-                                  upload.id,
+                                  upload_details.upload_id || upload.id,
                               )}/url`
                             : upload.access_url;
                     }
