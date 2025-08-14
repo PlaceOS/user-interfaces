@@ -583,6 +583,7 @@ export class EventFormService extends AsyncHandler {
                 attendees: this.form.value.attendees.map((_) => {
                     const v = { ..._ };
                     delete v.visit_expected;
+                    delete v.extension_data;
                     return v;
                 }),
                 assets: processed_assets,

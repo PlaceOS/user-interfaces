@@ -95,6 +95,8 @@ export class CalendarEvent {
     public readonly recurring_event_id: string;
     /** Whether event details should be private */
     public readonly private: boolean;
+    /** Permission level for the event */
+    public readonly permission: string;
     /** File attachements for the event */
     public readonly attachments: FileDetails[];
     /** Extra data associated with the event */
@@ -297,6 +299,12 @@ export class CalendarEvent {
                 : this.extension_data.assets) || [];
         this.extension_data.images =
             this.extension_data.images || data.images || [];
+        this.extension_data.view_access =
+            this.extension_data.view_access ||
+            data.view_access ||
+            (data.permission?.toUpperCase() as any) ||
+            'OPEN';
+        this.permission = data.permission || this.extension_data.view_access;
         this.extension_data.assets = asset_requests.map(
             (i) => new AssetRequest({ ...i, event: simple_event } as any),
         );

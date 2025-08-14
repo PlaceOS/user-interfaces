@@ -613,6 +613,8 @@ export class EventManageComponent extends AsyncHandler implements OnInit {
                         ),
                         ...metadata,
                     });
+                    if (!this.form.value.view_access)
+                        this.form.patchValue({ view_access: 'OPEN' });
                 }
             }),
         );

@@ -53,7 +53,7 @@ import { EventStateService } from './event-state.service';
                     size: '8.5rem',
                 },
                 {
-                    key: 'access',
+                    key: 'permission',
                     name: 'COMMON.PUBLISHED' | translate,
                     content: published_template,
                     size: '6rem',
