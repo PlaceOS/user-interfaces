@@ -139,9 +139,9 @@ import { EventStateService } from './event-state.service';
                 customTooltip
                 [content]="view_attendees"
                 class="mx-auto h-12 w-12 rounded"
-                [disabled]="!item.attendees?.length"
+                [disabled]="!attendeeCount(item.attendees)"
             >
-                {{ item.attendees?.length || 0 }}
+                {{ attendeeCount(item.attendees) || 0 }}
             </button>
             <ng-template #view_attendees>
                 <div
@@ -308,6 +308,12 @@ export class EventListingComponent {
 
     public get time_format() {
         return this._settings.time_format;
+    }
+    public attendeeCount(attendees: User[]) {
+        if (!attendees?.length) return 0;
+        return attendees.filter(
+            (user: User) => user.email !== this._state.calendar,
+        ).length;
     }
 
     public checkedInCount(attendees: User[]) {
