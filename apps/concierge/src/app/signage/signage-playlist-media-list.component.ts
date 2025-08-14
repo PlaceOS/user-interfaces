@@ -2,7 +2,12 @@ import { Clipboard } from '@angular/cdk/clipboard';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { Component, inject, input, signal, SimpleChanges } from '@angular/core';
 import { Router } from '@angular/router';
-import { nextValueFrom, notifyInfo } from '@placeos/common';
+import {
+    currentUser,
+    nextValueFrom,
+    notifyInfo,
+    SettingsService,
+} from '@placeos/common';
 import {
     listSignagePlaylistMedia,
     MediaAnimation,
@@ -36,6 +41,7 @@ import { SignageStateService } from './signage-state.service';
                     icon
                     matRipple
                     class="absolute left-2 top-2 !m-0"
+                    [disabled]="!is_admin"
                     [matTooltip]="
                         'APP.CONCIERGE.SIGNAGE_PLAYLISTS_NOT_APPROVED'
                             | translate
@@ -67,7 +73,7 @@ import { SignageStateService } from './signage-state.service';
                 </button>
                 <button
                     mat-menu-item
-                    [disabled]="approved()"
+                    [disabled]="approved() || !is_admin"
                     (click)="approvePlaylist(playlist)"
                 >
                     <div class="flex items-center space-x-2">
@@ -314,6 +320,7 @@ export class SignagePlaylistMediaListComponent {
     private _state = inject(SignageStateService);
     private _router = inject(Router);
     private _clipboard = inject(Clipboard);
+    private _settings = inject(SettingsService);
 
     public readonly playlist = input('');
     public readonly playlist_count = input(0);
@@ -322,6 +329,12 @@ export class SignagePlaylistMediaListComponent {
     public playlist_ids: string[] = [];
 
     private _playlist = new BehaviorSubject<string>('');
+
+    public get is_admin() {
+        const groups = currentUser().groups || [];
+        const admin_group = this._settings.get('app.admin_group') || 'admin';
+        return groups.includes(admin_group) || groups.includes('placeos_admin');
+    }
 
     public readonly editPlaylist = async () => {
         const playlist = await nextValueFrom(this.selected_playlist);
