@@ -574,10 +574,14 @@ export class EventManageComponent extends AsyncHandler implements OnInit {
                             calendar: this._state.calendar,
                         }),
                     );
+                    const space_pipe = new SpacePipe();
+                    const space = await space_pipe.transform(
+                        this._state.calendar,
+                    );
                     const metadata = await lastValueFrom(
                         showEventMetadata(
                             params.get('id'),
-                            booking.system?.id,
+                            space?.id || booking.system.id,
                             { ical_uid: booking.ical_uid },
                         ),
                     ).catch(() => ({}));
@@ -607,6 +611,7 @@ export class EventManageComponent extends AsyncHandler implements OnInit {
                         resources: booking.resources.filter(
                             (_) => _.email !== this._state.calendar,
                         ),
+                        ...metadata,
                     });
                 }
             }),
@@ -687,6 +692,7 @@ export class EventManageComponent extends AsyncHandler implements OnInit {
         resources = unique(resources, 'email');
         this.form.patchValue({
             resources,
+            creator: currentUser()?.email,
             host: this._state.calendar,
             shared_event: true,
         });
