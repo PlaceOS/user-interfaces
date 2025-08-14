@@ -324,8 +324,7 @@ import {
                                     | translate
                                         : {
                                               going: attendance,
-                                              interested:
-                                                  event.attendees?.length,
+                                              interested: attendees,
                                           }
                             }}
                         </div>
@@ -485,7 +484,7 @@ export class GroupEventDetailsModalComponent {
     public features: ViewerFeature[] = [];
     public locate = '';
     public showing_map = false;
-    public show_attendees: boolean = false;
+    public show_attendees = false;
     public styles = {};
     public raw_description = '';
     public calendar_space: Space;
@@ -536,6 +535,14 @@ export class GroupEventDetailsModalComponent {
     public get attendance() {
         return (
             this.event.attendees?.filter((_: any) => _.checked_in)?.length || 0
+        );
+    }
+
+    public get attendees() {
+        return (
+            this.event.attendees?.filter(
+                (user) => user.email !== this.group_event_calendar,
+            )?.length || 0
         );
     }
 
