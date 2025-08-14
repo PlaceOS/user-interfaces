@@ -384,7 +384,7 @@ export class SignageStateService extends AsyncHandler {
             new Promise<{ id: string; link: string }>((resolve, reject) => {
                 let state = null;
                 let resolved = false;
-                uploadFile(file).subscribe(
+                uploadFile(file, false).subscribe(
                     (s) => {
                         state = s;
                         if (s.link) {
