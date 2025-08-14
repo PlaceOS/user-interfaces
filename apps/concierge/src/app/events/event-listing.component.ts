@@ -148,7 +148,7 @@ import { EventStateService } from './event-state.service';
                     class="relative h-[28rem] w-[20rem] overflow-auto rounded bg-white shadow"
                 >
                     <attendee-list
-                        [list]="item.attendees"
+                        [list]="attendeeList(item.attendees)"
                         [host]="item.user_email || item.host"
                         [show_host]="false"
                         [hide_close]="true"
@@ -314,6 +314,13 @@ export class EventListingComponent {
         return attendees.filter(
             (user: User) => user.email !== this._state.calendar,
         ).length;
+    }
+
+    public attendeeList(attendees: User[]) {
+        if (!attendees?.length) return [];
+        return attendees.filter(
+            (user: User) => user.email !== this._state.calendar,
+        );
     }
 
     public checkedInCount(attendees: User[]) {
