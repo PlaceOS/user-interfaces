@@ -361,11 +361,11 @@ export class SignagePlaylistMediaListComponent {
         }),
     );
 
-    private _playlist_media = this._playlist.pipe(
+    private _playlist_media = this.selected_playlist.pipe(
         filter((playlist) => !!playlist),
         debounceTime(300),
         switchMap((playlist) =>
-            listSignagePlaylistMedia(playlist).pipe(
+            listSignagePlaylistMedia(playlist.id).pipe(
                 catchError(() => of({ id: '', items: [] })),
             ),
         ),

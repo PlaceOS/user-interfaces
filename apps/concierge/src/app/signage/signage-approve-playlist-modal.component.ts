@@ -53,7 +53,7 @@ import { SignageStateService } from './signage-state.service';
                             <h3>Version to approve</h3>
                             <div class="font-mono text-xs opacity-50">
                                 {{
-                                    current_version.updated_at * 1000
+                                    current_version?.updated_at * 1000
                                         | date: 'dd MMM, HH:mm'
                                 }}
                             </div>
@@ -64,10 +64,10 @@ import { SignageStateService } from './signage-state.service';
                                     'COMMON.ITEM_COUNT'
                                         | translate
                                             : {
-                                                  count: current_version.items
+                                                  count: current_version?.items
                                                       .length,
                                               }
-                                            : current_version.items.length
+                                            : current_version?.items.length
                                 }}
                             </div>
                             @for (item of current_media; track item.id) {
@@ -90,7 +90,7 @@ import { SignageStateService } from './signage-state.service';
                             <h3>Previous version</h3>
                             <div class="font-mono text-xs opacity-50">
                                 {{
-                                    previous_version.updated_at * 1000
+                                    previous_version?.updated_at * 1000
                                         | date: 'dd MMM, HH:mm'
                                 }}
                             </div>
@@ -101,10 +101,10 @@ import { SignageStateService } from './signage-state.service';
                                     'COMMON.ITEM_COUNT'
                                         | translate
                                             : {
-                                                  count: previous_version.items
+                                                  count: previous_version?.items
                                                       .length,
                                               }
-                                            : previous_version.items.length
+                                            : previous_version?.items.length
                                 }}
                             </div>
                             @for (item of previous_media; track item.id) {
