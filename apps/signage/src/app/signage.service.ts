@@ -388,8 +388,14 @@ export class SignageService extends AsyncHandler {
                         media_ref.video_length ||
                         playlist?.default_duration ||
                         15 * 1000,
-                    valid_from: media_ref.valid_from || valid_from,
-                    valid_until: media_ref.valid_until || valid_until,
+                    valid_from:
+                        valid_from && media_ref.valid_from
+                            ? Math.max(valid_from, media_ref.valid_from)
+                            : media_ref.valid_from || valid_from,
+                    valid_until:
+                        valid_until && media_ref.valid_until
+                            ? Math.min(valid_until, media_ref.valid_until)
+                            : media_ref.valid_until || valid_until,
                     play_hours,
                     getURL: async () =>
                         media_ref

@@ -70,7 +70,7 @@ import { VisitorsStateService } from './visitors-state.service';
                     key: 'induction',
                     name: 'BOOKINGS.INDUCTED' | translate,
                     content: induction_template,
-                    show: !!inductions_enabled,
+                    show: !!inductions_enabled(),
                     size: '5.5rem',
                 },
                 {
@@ -390,7 +390,7 @@ import { VisitorsStateService } from './visitors-state.service';
                                 extra_details:
                                     row?.extension_data?.extra_details,
                                 pass_number: row?.extension_data?.pass_number,
-                                qr_code: qr_code,
+                                qr_code: qr_code(),
                             }"
                             class="!text-base"
                         />
@@ -518,7 +518,7 @@ import { VisitorsStateService } from './visitors-state.service';
                             mat-menu-item
                             [matMenuTriggerFor]="pass_menu"
                             (click)="
-                                pass_number = row.extension_data.pass_number
+                                pass_number.set(row.extension_data.pass_number)
                             "
                         >
                             <div class="flex items-center space-x-2">
@@ -552,8 +552,8 @@ import { VisitorsStateService } from './visitors-state.service';
                                     btn
                                     matRipple
                                     class="w-full"
-                                    [disabled]="!pass_number"
-                                    (click)="setPass(row, pass_number)"
+                                    [disabled]="!pass_number()"
+                                    (click)="setPass(row, pass_number())"
                                 >
                                     {{ 'COMMON.SAVE' | translate }}
                                 </button>
@@ -675,9 +675,9 @@ export class GuestListingComponent extends AsyncHandler {
     public readonly guests = this._state.filtered_bookings;
     public readonly search = this._state.search;
     public readonly filters = this._state.filters;
-    public inductions_enabled = false;
-    public qr_code = '';
-    public pass_number = '';
+    public readonly inductions_enabled = signal(false);
+    public readonly qr_code = signal('');
+    public readonly pass_number = signal('');
 
     public hide_field(id: string) {
         return (this._settings.get('app.visitors.hide_fields') || []).includes(
@@ -763,7 +763,7 @@ export class GuestListingComponent extends AsyncHandler {
     }
 
     public printVisitorPass(item: Booking) {
-        this.qr_code = generateQRCode(item.asset_id);
+        this.qr_code.set(generateQRCode(item.asset_id));
         this.printing.set(item.id);
         this.timeout('print', () => {
             window.print();
@@ -798,8 +798,9 @@ export class GuestListingComponent extends AsyncHandler {
                     ...(org_metadata.details || {}),
                     ...(metadata.details || {}),
                 };
-                this.inductions_enabled =
-                    data?.induction_enabled && data?.induction_details;
+                this.inductions_enabled.set(
+                    data?.induction_enabled && data?.induction_details,
+                );
             }),
         );
     }
@@ -827,7 +828,7 @@ export class GuestListingComponent extends AsyncHandler {
             saveBooking(new Booking({ ...row, pass_number: pass } as any)),
         );
         this._state.poll();
-        this.pass_number = '';
+        this.pass_number.set('');
         notifySuccess(i18n('APP.CONCIERGE.VISITORS_SAVED_PASS'));
     }
 }

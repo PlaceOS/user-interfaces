@@ -466,14 +466,20 @@ export class SignagePlaylistModalComponent implements OnInit {
         delete form_value.play_from;
         delete form_value.play_until;
         delete form_value.play_duration;
-        if (!form_value.valid_until) delete form_value.valid_until;
-        if (!form_value.valid_from) delete form_value.valid_from;
+        if (form_value.valid_from) {
+            form_value.valid_from = getUnixTime(
+                startOfDay(form_value.valid_from),
+            );
+        } else delete form_value.valid_from;
+        if (form_value.valid_until) {
+            form_value.valid_until = getUnixTime(
+                endOfDay(form_value.valid_until),
+            );
+        } else delete form_value.valid_until;
         if (form_value.play_once) form_value.play_hours = '';
         const result = await this._state
             .savePlaylist({
                 ...(form_value as any),
-                valid_from: getUnixTime(startOfDay(form_value.valid_from)),
-                valid_until: getUnixTime(endOfDay(form_value.valid_until)),
             })
             .catch((_) => {
                 notifyError('Error saving playlist');

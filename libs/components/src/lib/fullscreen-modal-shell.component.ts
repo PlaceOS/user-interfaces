@@ -10,10 +10,13 @@ import { TranslatePipe } from './translate.pipe';
     selector: 'fullscreen-modal-shell,[fs-modal-shell]',
     template: `
         <div
-            class="fixed bottom-0 left-0 right-0 top-0 flex flex-col overflow-auto bg-base-100"
+            class="flex h-screen w-screen flex-col items-center overflow-auto bg-base-200"
         >
+            <div
+                class="fixed top-0 mx-auto h-screen w-[40rem] max-w-full border-x border-base-300 bg-base-100"
+            ></div>
             <header
-                class="sticky top-0 z-10 mx-auto my-2 flex h-14 w-full max-w-[640px] items-center justify-between rounded border-none bg-base-200 px-4 py-2"
+                class="sticky top-0 z-10 mx-auto my-2 flex h-14 w-full max-w-[39rem] items-center justify-between rounded border-none bg-base-200 px-4 py-2"
             >
                 <h2 class="text-xl font-medium capitalize">
                     {{ heading() }}
@@ -33,7 +36,7 @@ import { TranslatePipe } from './translate.pipe';
                 }
             </header>
             <main
-                class="z-0 mx-auto h-1/2 w-full max-w-[640px] flex-1 space-y-8 px-4 py-2"
+                class="z-0 mx-auto h-1/2 w-full max-w-[39rem] flex-1 space-y-8 p-2"
             >
                 @if (!loading()) {
                     <ng-content></ng-content>
@@ -49,7 +52,7 @@ import { TranslatePipe } from './translate.pipe';
             </main>
             @if (!loading() && !hide_confirm()) {
                 <footer
-                    class="fixed bottom-0 left-1/2 z-10 mx-auto my-2 flex w-full max-w-[640px] -translate-x-1/2 items-center justify-end rounded border-none bg-base-200 px-4 py-2"
+                    class="fixed bottom-0 left-1/2 z-10 mx-auto my-2 flex w-full max-w-[39rem] -translate-x-1/2 items-center justify-end rounded border-none bg-base-200 px-4 py-2"
                 >
                     <button btn matRipple class="w-32" (click)="confirm.emit()">
                         {{ confirm_text() || ('COMMON.SAVE' | translate) }}
