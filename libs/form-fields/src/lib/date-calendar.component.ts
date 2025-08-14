@@ -5,6 +5,7 @@ import {
     inject,
     input,
     OnChanges,
+    OnInit,
     SimpleChanges,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
@@ -12,6 +13,7 @@ import { AsyncHandler, SettingsService } from '@placeos/common';
 import {
     addDays,
     addMonths,
+    differenceInMonths,
     isBefore,
     isSameMonth,
     set,
@@ -32,9 +34,12 @@ interface DateItem {
     template: `
         <div class="p-2">
             <div class="flex items-center justify-between">
-                <div class="pl-1.5 pr-2 font-medium">
+                <button
+                    class="pl-1.5 pr-2 font-medium"
+                    (dblclick)="setMonthToCurrent()"
+                >
                     {{ date_list[6]?.id || date | date: 'LLLL yyyy' }}
-                </div>
+                </button>
                 <div class="flex items-center">
                     <button
                         icon
@@ -108,7 +113,7 @@ interface DateItem {
 })
 export class DateCalendarComponent
     extends AsyncHandler
-    implements ControlValueAccessor, OnChanges
+    implements ControlValueAccessor, OnChanges, OnInit
 {
     private _settings = inject(SettingsService);
 
@@ -161,6 +166,12 @@ export class DateCalendarComponent
 
     public changeMonth(change: number) {
         this.offset += change;
+        this.generateDates();
+    }
+
+    public setMonthToCurrent() {
+        const diff = differenceInMonths(this.date, startOfMonth(Date.now()));
+        this.offset = -diff;
         this.generateDates();
     }
 
