@@ -8,6 +8,7 @@ import {
     updateSignageMedia,
 } from '@placeos/ts-client';
 import { addYears, endOfDay, getUnixTime, startOfDay } from 'date-fns';
+import { lastValueFrom } from 'rxjs';
 
 @Component({
     selector: 'signage-media-modal',
@@ -293,9 +294,17 @@ export class SignageMediaModalComponent implements OnDestroy {
         const new_media = {
             ...this.item,
             ...form_value,
-            valid_from: getUnixTime(new Date(form_value.valid_from)),
-            valid_until: getUnixTime(form_value.valid_until),
         };
+        if (form_value.valid_from) {
+            new_media.valid_from = getUnixTime(
+                startOfDay(form_value.valid_from),
+            );
+        } else delete new_media.valid_from;
+        if (form_value.valid_until) {
+            new_media.valid_until = getUnixTime(
+                endOfDay(form_value.valid_until),
+            );
+        } else delete new_media.valid_until;
         const onError = (e) => {
             this._dialog_ref.disableClose = false;
             this.loading = false;
@@ -305,9 +314,9 @@ export class SignageMediaModalComponent implements OnDestroy {
             throw e;
         };
         if (this.item.id) {
-            await updateSignageMedia(this.item.id, new_media)
-                .toPromise()
-                .catch(onError);
+            await lastValueFrom(
+                updateSignageMedia(this.item.id, new_media),
+            ).catch(onError);
         } else {
             await this._data.onAdd(this.file, new_media).catch(onError);
         }
