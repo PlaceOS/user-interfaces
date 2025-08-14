@@ -558,6 +558,7 @@ export class EventManageComponent extends AsyncHandler implements OnInit {
 
     public async ngOnInit() {
         await firstTruthyValueFrom(this._org.initialised);
+        const space_pipe = new SpacePipe();
         this.form.patchValue({
             location:
                 this._org.building.address || this._org.building.display_name,
@@ -574,14 +575,13 @@ export class EventManageComponent extends AsyncHandler implements OnInit {
                             calendar: this._state.calendar,
                         }),
                     );
-                    const space_pipe = new SpacePipe();
                     const space = await space_pipe.transform(
                         this._state.calendar,
                     );
                     const metadata = await lastValueFrom(
                         showEventMetadata(
                             params.get('id'),
-                            space?.id || booking.system.id,
+                            space?.id || booking.system?.id,
                             { ical_uid: booking.ical_uid },
                         ),
                     ).catch(() => ({}));

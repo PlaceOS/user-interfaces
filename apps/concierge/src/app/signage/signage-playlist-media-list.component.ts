@@ -391,7 +391,10 @@ export class SignagePlaylistMediaListComponent {
 
     public isScheduled(item: SignagePlaylist): boolean {
         return (
-            !!item.play_at || !!item.play_cron || item.play_hours.includes('-')
+            item &&
+            (!!item.play_at ||
+                !!item.play_cron ||
+                item.play_hours.includes('-'))
         );
     }
 

@@ -1,10 +1,19 @@
-import { Injectable, inject } from '@angular/core';
-import { SettingsService, unique } from '@placeos/common';
+import { inject, Injectable } from '@angular/core';
+import { currentUser, SettingsService, unique } from '@placeos/common';
 import { queryEvents } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
+import { querySystemsWithEmails } from '@placeos/ts-client';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
-import { BehaviorSubject, combineLatest } from 'rxjs';
-import { filter, map, shareReplay, switchMap, tap } from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, of } from 'rxjs';
+import {
+    catchError,
+    debounceTime,
+    filter,
+    map,
+    shareReplay,
+    switchMap,
+    tap,
+} from 'rxjs/operators';
 
 export interface GroupEventOptions {
     date: number;
@@ -39,25 +48,41 @@ export class GroupEventsStateService {
     public readonly filters = this._filters.asObservable();
     public readonly tags = this._tag_list.asObservable();
 
+    public readonly calendar_system = this._org.active_building.pipe(
+        debounceTime(100),
+        switchMap((bld) =>
+            !bld
+                ? of(null)
+                : querySystemsWithEmails({ in: this.calendar }).pipe(
+                      map((r) => r.data?.[0]),
+                      catchError(() => of(null)),
+                  ),
+        ),
+        shareReplay(1),
+    );
+
     public readonly events = combineLatest([
         this._org.active_building,
+        this.calendar_system,
         this._options,
     ]).pipe(
-        filter(([building]) => !!building),
-        switchMap(([building, options]) =>
+        filter(([building, sys]) => !!building && !!sys),
+        switchMap(([building, sys, options]) =>
             queryEvents({
                 period_start: getUnixTime(startOfDay(options.date)),
                 period_end: getUnixTime(
                     endOfDay(options.end || options.date || Date.now()),
                 ),
-                calendars: this.calendar,
+                system_ids: sys.id,
             }),
         ),
         map((list) =>
             list
                 .filter(
                     (_) =>
-                        _.extension_data.view_access === 'OPEN' &&
+                        (_.extension_data.view_access === 'OPEN' ||
+                            currentUser()?.email === _.creator ||
+                            currentUser()?.email === _.host) &&
                         _.extension_data.shared_event,
                 )
                 .sort((a, b) => a.date - b.date),

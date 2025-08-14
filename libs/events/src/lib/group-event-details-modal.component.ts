@@ -21,6 +21,7 @@ import {
     OrganisationService,
 } from '@placeos/organisation';
 import { ViewerFeature } from '@placeos/svg-viewer';
+import { GuestUser } from '@placeos/users';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
@@ -28,6 +29,7 @@ import { SanitizePipe } from 'libs/components/src/lib/sanitise.pipe';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { Space } from 'libs/spaces/src/lib/space.class';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
+import { lastValueFrom } from 'rxjs';
 import { AttendeeListComponent } from './attendee-list.component';
 import { CalendarEvent } from './event.class';
 import {
@@ -138,7 +140,7 @@ import {
                                 </icon>
                                 <div class="mr-2">
                                     {{
-                                        'CALENDAR_EVENT.GROUP_PREMOTE'
+                                        'CALENDAR_EVENT.GROUP_PROMOTE'
                                             | translate
                                     }}
                                 </div>
@@ -473,8 +475,8 @@ export class GroupEventDetailsModalComponent {
     private _dialog_ref =
         inject<MatDialogRef<GroupEventDetailsModalComponent>>(MatDialogRef);
 
-    public edit = this._data.edit_fn;
-    public remove = this._data.remove_fn;
+    public readonly edit = this._data.edit_fn;
+    public readonly remove = this._data.remove_fn;
     public space: Space;
     public event: CalendarEvent = this._data.event;
     public concierge = this._data.concierge;
@@ -486,6 +488,7 @@ export class GroupEventDetailsModalComponent {
     public show_attendees: boolean = false;
     public styles = {};
     public raw_description = '';
+    public calendar_space: Space;
 
     public get time_format() {
         return this._settings.time_format;
@@ -566,6 +569,9 @@ export class GroupEventDetailsModalComponent {
         this.space = await space_pipe.transform(
             resource?.id || resource?.email,
         );
+        this.calendar_space = await space_pipe.transform(
+            this.group_event_calendar,
+        );
         const map_id = (this.event.extension_data as any)?.map_id;
         const id = this.space?.map_id || map_id;
         if (id) {
@@ -608,17 +614,25 @@ export class GroupEventDetailsModalComponent {
 
     public async toggleInterest() {
         let user = this.guest_details;
+        console.log('System', this.event, this.calendar_space);
+        const _user = new GuestUser(currentUser());
         if (this.is_interested && user) {
-            await removeEventGuest(this.event.id, currentUser() as any, {
-                system_id: this.event.system?.id,
-            }).toPromise();
+            await lastValueFrom(
+                removeEventGuest(this.event.id, _user, {
+                    system_id: this.calendar_space?.id,
+                    calendar: this.group_event_calendar,
+                }),
+            );
             (this.event as any).attendees = (this.event.attendees || []).filter(
                 (_: any) => _.email !== user.email,
             );
         } else {
-            user = await addEventGuest(this.event.id, currentUser() as any, {
-                system_id: this.event.system?.id,
-            }).toPromise();
+            user = await lastValueFrom(
+                addEventGuest(this.event.id, _user, {
+                    system_id: this.calendar_space?.id,
+                    calendar: this.group_event_calendar,
+                }),
+            );
             (this.event as any).attendees = unique(
                 [...(this.event.attendees || []), user],
                 'email',
@@ -628,10 +642,14 @@ export class GroupEventDetailsModalComponent {
 
     public async toggleAttendance() {
         let user = this.guest_details;
+        const _user = new GuestUser(currentUser());
         if (!user) {
-            user = await addEventGuest(this.event.id, currentUser() as any, {
-                system_id: this.event.system?.id,
-            }).toPromise();
+            user = await lastValueFrom(
+                addEventGuest(this.event.id, _user, {
+                    system_id: this.event.system?.id,
+                    calendar: this.group_event_calendar,
+                }),
+            );
             (this.event as any).attendees = unique(
                 [...(this.event.attendees || []), user],
                 'email',
@@ -639,9 +657,11 @@ export class GroupEventDetailsModalComponent {
         }
         user = { ...currentUser(), ...(user || {}) };
         if (!user.email) return;
-        await checkinEventGuest(this.event.id, user.email, !this.is_going, {
-            system_id: this.event.system?.id,
-        }).toPromise();
+        await lastValueFrom(
+            checkinEventGuest(this.event.id, user.email, !this.is_going, {
+                system_id: this.event.system?.id,
+            }),
+        );
         const guest = this.event.attendees.find((_) => _.email === user.email);
         if (!guest) return;
         (guest as any).checked_in = !this.is_going;
