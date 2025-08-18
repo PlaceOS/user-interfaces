@@ -553,6 +553,10 @@ export class ScheduleStateService extends AsyncHandler {
         }),
     );
 
+    public get dateValue() {
+        return this._date.getValue();
+    }
+
     constructor() {
         super();
         this.subscription(

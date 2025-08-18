@@ -1,7 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
-import { startOfDay } from 'date-fns';
+import { isSameDay, startOfDay } from 'date-fns';
 import { debounceTime, filter, map } from 'rxjs/operators';
 import {
     ScheduleOptions,
@@ -34,6 +34,18 @@ import {
                     {{ 'COMMON.WEEK' | translate }}
                 </button>
             </div>
+            @if (!is_today) {
+                <div class="w-full px-2">
+                    <button
+                        btn
+                        matRipple
+                        class="inverse w-full"
+                        (click)="setDateToToday()"
+                    >
+                        {{ 'COMMON.TODAY' | translate }}
+                    </button>
+                </div>
+            }
             @if (period === 'day') {
                 <date-calendar
                     class="border-b border-base-200"
@@ -301,6 +313,14 @@ export class ScheduleSidebarComponent extends AsyncHandler implements OnInit {
 
     public get period() {
         return this._state.getOptions()?.period;
+    }
+
+    public get is_today() {
+        return isSameDay(this._state.dateValue, Date.now());
+    }
+
+    public setDateToToday() {
+        this._state.setDate(Date.now());
     }
 
     public setOptions(options: ScheduleOptions) {
