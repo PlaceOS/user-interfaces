@@ -21,6 +21,10 @@ export interface PointOfInterest {
     qr_code?: string;
     qr_link?: string;
     can_search?: boolean;
+    image?: string;
+    media_type?: 'audio' | 'video';
+    media_url?: string;
+    extra_details?: [string, string][];
 }
 
 @Injectable({

@@ -257,7 +257,9 @@
         "VALID_UNTIL": "Valid until",
         "VALID_UNTIL_DATE": "Valid until {{ date }}",
         "TERMS": "Terms & Conditions",
-        "LOCATABLE": "Location tracking"
+        "LOCATABLE": "Location tracking",
+        "UPLOAD_IMAGE": "Upload Image",
+        "UPLOAD_IMAGE_INFO": "Drag & Drop or click to upload an image"
     },
     "LANGUAGE": {
         "ENGLISH": "English",
@@ -344,6 +346,7 @@
         "CLEAR": "Clear form",
         "RESET": "Reset form",
         "NOTES": "Notes",
+        "IMAGE": "Image",
         "RECURRENCE": "Recurrence",
         "RECURRENCE_REPEAT_EVERY": "Repeat Every",
         "RECURRENCE_REPEAT_ON": "Repeat on",
@@ -1250,6 +1253,9 @@
             "POI_MAP_SELECT_HEADER": "Select Point of Interest from map",
             "POI_MAP_SELECT_RESULTS": "Results ({{ count }})",
             "POI_MAP_SELECT_RESULTS_EMPTY": "No results found",
+            "POI_MEDIA": "Media",
+            "POI_MEDIA_URL": "Media URL",
+            "POI_DETAILS": "Extra Details",
             "URLS_HEADER": "Short URL Management",
             "URLS_ADD": "Add Short URL",
             "URLS_NEW": "New Short URL",

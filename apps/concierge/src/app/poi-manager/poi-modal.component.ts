@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import {
     MAT_DIALOG_DATA,
@@ -7,12 +7,12 @@ import {
 } from '@angular/material/dialog';
 import {
     AsyncHandler,
-    SettingsService,
     createShortURL,
     getInvalidFields,
     nextValueFrom,
     notifyError,
     randomString,
+    SettingsService,
     updateShortURL,
 } from '@placeos/common';
 import { Building, OrganisationService } from '@placeos/organisation';
@@ -34,6 +34,10 @@ import { PointOfInterest } from './poi-management.service';
             [loading]="loading ? ('APP.CONCIERGE.POI_SAVING' | translate) : ''"
         >
             <form [formGroup]="form">
+                <image-field
+                    class="!mb-4 block"
+                    formControlName="image"
+                ></image-field>
                 @if (form.controls.name) {
                     <div class="flex flex-col">
                         <label for="name">
@@ -110,7 +114,7 @@ import { PointOfInterest } from './poi-management.service';
                         </mat-select>
                     </mat-form-field>
                     @if (location_type === 'map_id') {
-                        <div class="flex items-center space-x-4 pb-2">
+                        <div class="flex items-center space-x-2 pb-2">
                             <mat-form-field
                                 class="no-subscript"
                                 appearance="outline"
@@ -178,8 +182,64 @@ import { PointOfInterest } from './poi-management.service';
                             formControlName="can_search"
                         >
                         </settings-toggle>
-                        <div class="flex-1"></div>
                     </div>
+                    <label for="media" class="mt-4">
+                        {{ 'APP.CONCIERGE.POI_MEDIA' | translate }}
+                    </label>
+                    <div class="flex items-center space-x-2 pt-2">
+                        <mat-form-field
+                            appearance="outline"
+                            class="no-subscript"
+                        >
+                            <input
+                                matInput
+                                formControlName="media_url"
+                                [placeholder]="
+                                    'APP.CONCIERGE.POI_MEDIA_URL' | translate
+                                "
+                            />
+                        </mat-form-field>
+                        <upload-button></upload-button>
+                    </div>
+                    <label for="extra-details" class="mt-4">
+                        {{ 'APP.CONCIERGE.POI_DETAILS' | translate }}
+                    </label>
+                    <div class="space-y-2">
+                        @for (value of extra_details; track $index) {
+                            <div class="flex items-center space-x-2">
+                                <mat-form-field
+                                    appearance="outline"
+                                    class="no-subscript"
+                                >
+                                    <input
+                                        matInput
+                                        [(ngModel)]="value[0]"
+                                        [ngModelOptions]="{ standalone: true }"
+                                        placeholder="Label"
+                                    />
+                                </mat-form-field>
+                                <mat-form-field
+                                    appearance="outline"
+                                    class="no-subscript"
+                                >
+                                    <input
+                                        matInput
+                                        [(ngModel)]="value[1]"
+                                        [ngModelOptions]="{ standalone: true }"
+                                        placeholder="Content"
+                                    />
+                                </mat-form-field>
+                            </div>
+                        }
+                    </div>
+                    <button
+                        btn
+                        matRipple
+                        class="mb-4 mt-2 w-full"
+                        (click)="extra_details.push(['', ''])"
+                    >
+                        Add Details Item
+                    </button>
                 </div>
             </form>
         </fullscreen-modal-shell>
@@ -187,7 +247,7 @@ import { PointOfInterest } from './poi-management.service';
     styles: [``],
     standalone: false,
 })
-export class POIModalComponent extends AsyncHandler {
+export class POIModalComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);
     private _data = inject<PointOfInterest | undefined>(MAT_DIALOG_DATA);
     private _dialog_ref = inject<MatDialogRef<POIModalComponent>>(MatDialogRef);
@@ -199,6 +259,7 @@ export class POIModalComponent extends AsyncHandler {
         this._data?.location instanceof Array ? 'coordinates' : 'map_id';
     public readonly building_list = this._org.building_list;
     public readonly level_list = this._org.active_levels;
+    public readonly extra_details = this._data?.extra_details || [];
 
     public get building() {
         return this._org.building;
@@ -218,6 +279,10 @@ export class POIModalComponent extends AsyncHandler {
             Validators.required,
         ]),
         can_search: new FormControl(this._data?.can_search ?? false),
+        image: new FormControl(this._data?.image || ''),
+        media_type: new FormControl(this._data?.media_type || 'audio'),
+        media_url: new FormControl(this._data?.media_url || ''),
+        extra_details: new FormControl(this._data?.extra_details || {}),
     });
 
     public async ngOnInit() {
@@ -251,6 +316,11 @@ export class POIModalComponent extends AsyncHandler {
                 ).join(', ')}]`,
             );
         }
+        this.form.patchValue({
+            extra_details: this.extra_details.filter(
+                ([key, value]) => key && value,
+            ),
+        });
         const data: any = this.form.getRawValue();
         if (!data.id) data.id = `POI-${randomString(8)}`;
         data.short_link_id = this._data?.short_link_id;

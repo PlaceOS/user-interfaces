@@ -40,6 +40,7 @@ import { DateFieldComponent } from './date-field.component';
                     formControlName="interval"
                     [min]="1"
                     [max]="60"
+                    [step]="1"
                 ></compact-counter>
                 <mat-form-field
                     appearance="outline"

@@ -11,6 +11,7 @@ import { DateRangeCalendarComponent } from './date-range-calendar.component';
 import { DateRangeFieldComponent } from './date-range-field.component';
 import { DurationFieldComponent } from './duration-field.component';
 import { HostSelectFieldComponent } from './host-select-field.component';
+import { ImageFieldComponent } from './image-field.component';
 import { ImageListFieldComponent } from './image-list-field.component';
 import { ItemListFieldComponent } from './item-list-field.component';
 import { PlaceUserPipe } from './place-user.pipe';
@@ -47,6 +48,7 @@ const COMPONENTS = [
     UserListFieldComponent,
     UserSearchFieldComponent,
     CronInputFieldComponent,
+    ImageFieldComponent,
 
     RecurrenceModalComponent,
     BookingRulesFormComponent,
