@@ -223,6 +223,15 @@ export class BookingFormService extends AsyncHandler {
                 date = startOfDay(date).valueOf();
                 duration = 24 * 60 - 1;
             }
+            console.log(
+                'Booking:',
+                options.type,
+                user,
+                date,
+                duration,
+                resources.length,
+                restrictions,
+            );
             return bookedResourceList({
                 period_start: getUnixTime(date),
                 period_end: getUnixTime(addMinutes(date, duration)),
