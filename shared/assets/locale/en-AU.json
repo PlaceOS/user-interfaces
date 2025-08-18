@@ -1243,6 +1243,7 @@
             "POI_NEW": "New Point of Interest",
             "POI_EDIT": "Edit Point of Interest",
             "POI_REMOVE": "Delete Point of Interest",
+            "POI_PREVIEW": "Preview Point of Interest",
             "POI_SAVING": "Saving point of interest...",
             "POI_LIST_EMPTY": "No points of interest found.",
             "POI_SEARCHABLE": "Searchable",

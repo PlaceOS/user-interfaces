@@ -199,7 +199,14 @@ import { PointOfInterest } from './poi-management.service';
                                 "
                             />
                         </mat-form-field>
-                        <upload-button></upload-button>
+                        <upload-button
+                            [ngModel]="form.value.media_url"
+                            (ngModelChange)="
+                                form.patchValue({ media_url: $event })
+                            "
+                            [ngModelOptions]="{ standalone: true }"
+                            [types]="['audio', 'video']"
+                        ></upload-button>
                     </div>
                     <label for="extra-details" class="mt-4">
                         {{ 'APP.CONCIERGE.POI_DETAILS' | translate }}

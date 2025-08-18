@@ -18,7 +18,7 @@ type BoundsMap = Record<string, Rect>;
 declare let mapsindoors: any;
 
 @Component({
-    selector: 'select-poi-map-modal',
+    selector: 'select-map-item-modal',
     template: `
         <header>
             <h2>{{ 'APP.CONCIERGE.POI_MAP_SELECT_HEADER' | translate }}</h2>
@@ -78,7 +78,9 @@ declare let mapsindoors: any;
                     list
                     class="flex h-1/2 flex-1 flex-col space-y-2 overflow-auto px-2"
                 >
-                    <div class="sticky top-0 z-10 w-full bg-base-100 px-1 py-3">
+                    <div
+                        class="sticky top-0 z-10 w-full bg-base-100 px-1 py-3 text-sm"
+                    >
                         {{
                             'APP.CONCIERGE.POI_MAP_SELECT_RESULTS'
                                 | translate
@@ -89,7 +91,9 @@ declare let mapsindoors: any;
                                       }
                         }}
                         @if (last_page) {
-                            <span>
+                            <span
+                                class="rounded-full border border-info bg-info-light px-2 py-1 text-xs"
+                            >
                                 {{ page * 100 + 1 }} -
                                 {{
                                     (search_results | async)?.length >
@@ -118,7 +122,9 @@ declare let mapsindoors: any;
                                 (click)="selected.next(poi.id)"
                                 (mouseover)="hovered.next(poi.id)"
                             >
-                                <div class="flex w-full flex-col">
+                                <div
+                                    class="flex w-full flex-col font-mono text-sm"
+                                >
                                     <div class="">{{ poi.name || poi.id }}</div>
                                     @if (poi.location) {
                                         <div class="text-xs opacity-30">

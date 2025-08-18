@@ -48,7 +48,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
     ],
 })
 export class UploadButtonComponent {
-    public readonly type = input<string>('image');
+    public readonly types = input<string[]>(['image']);
     public uploading = signal(false);
     public progress = signal(0);
     public value = signal('');
@@ -91,9 +91,9 @@ export class UploadButtonComponent {
         const files: FileList = element.files;
         const file = files[0];
         console.log(`File: ${file.name}`);
-        const type = this.type();
-        if (!file.type.includes(type)) {
-            return notifyError(`File is not an ${type}`);
+        const types = this.types();
+        if (!types.some((t) => file.type.includes(t))) {
+            return notifyError(`File is not an ${types.join(', ')}`);
         }
         console.log(`Uploading file...`);
         this.progress.set(0);

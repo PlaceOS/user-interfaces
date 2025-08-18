@@ -124,6 +124,14 @@ import {
                             }}</span>
                         </div>
                     </button>
+                    <button mat-menu-item (click)="preview(row)">
+                        <div class="flex items-center space-x-2">
+                            <icon>preview</icon>
+                            <span>{{
+                                'APP.CONCIERGE.POI_PREVIEW' | translate
+                            }}</span>
+                        </div>
+                    </button>
                     <button mat-menu-item (click)="remove(row)">
                         <div class="text-red-500 flex items-center space-x-2">
                             <icon class="text-error">delete</icon>
@@ -149,6 +157,8 @@ export class POIListComponent {
         this._manager.editPointOfInterest(region);
     public readonly remove = (region) =>
         this._manager.removePointOfInterest(region);
+    public readonly preview = (poi) =>
+        this._manager.previewPointOfInterest(poi);
 
     public get kiosk_url() {
         const path = this._settings.get('app.kiosk_url_path') || '/map-kiosk';

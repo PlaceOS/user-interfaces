@@ -58,7 +58,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                     >
                         <icon>link</icon>
                     </button>
-                    <button
+                    <!-- <button
                         icon
                         matRipple
                         matTooltip="Copy Image URL"
@@ -75,7 +75,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                         (click)="copyLink()"
                     >
                         <icon>link</icon>
-                    </button>
+                    </button> -->
                 </div>
             } @else {
                 <div
