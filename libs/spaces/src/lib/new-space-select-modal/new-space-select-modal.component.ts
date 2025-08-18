@@ -80,6 +80,7 @@ export const FAV_DESK_KEY = 'favourite_spaces';
                     ></new-space-filters>
                 </div>
                 <div
+                    list
                     class="h-full w-full overflow-auto rounded border border-base-300 bg-base-200 sm:w-[20rem] lg:block"
                     [class.hidden]="show_filters || displayed()"
                     [class.sm:hidden]="displayed()"
