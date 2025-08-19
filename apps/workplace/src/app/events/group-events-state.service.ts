@@ -80,9 +80,10 @@ export class GroupEventsStateService {
             list
                 .filter(
                     (_) =>
-                        (_.extension_data.view_access === 'OPEN' ||
+                        (_.permission !== 'private' ||
                             currentUser()?.email === _.creator ||
-                            currentUser()?.email === _.host) &&
+                            currentUser()?.email === _.host ||
+                            currentUser()?.email === _.mailbox) &&
                         _.extension_data.shared_event,
                 )
                 .sort((a, b) => a.date - b.date),
