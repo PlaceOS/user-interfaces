@@ -35,6 +35,7 @@ import { ExploreDesksService } from './explore-desks.service';
 import { ExploreLockersService } from './explore-lockers.service';
 import { ExploreMapControlComponent } from './explore-map-control.component';
 import { ExploreParkingService } from './explore-parking.service';
+import { ExplorePointOfInterestService } from './explore-poi.service';
 import { ExploreSpacesService } from './explore-spaces.service';
 import { ExploreStateService } from './explore-state.service';
 import { ExploreZonesService } from './explore-zones.service';
@@ -124,6 +125,7 @@ const EMPTY = [];
         ExploreZonesService,
         ExploreParkingService,
         ExploreLockersService,
+        ExplorePointOfInterestService,
         SpacePipe,
     ],
     imports: [
@@ -142,6 +144,7 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
     private _zones = inject(ExploreZonesService);
     private _parking = inject(ExploreParkingService);
     private _lockers = inject(ExploreLockersService);
+    private _pois = inject(ExplorePointOfInterestService);
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
     private _spaces = inject(SpacesService);

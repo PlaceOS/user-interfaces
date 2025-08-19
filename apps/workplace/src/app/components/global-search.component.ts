@@ -1,4 +1,10 @@
-import { Component, ElementRef, inject, viewChild } from '@angular/core';
+import {
+    Component,
+    ElementRef,
+    inject,
+    signal,
+    viewChild,
+} from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
 
 import { ExploreSearchService } from '@placeos/explore';
@@ -20,11 +26,11 @@ import { ExploreSearchService } from '@placeos/explore';
                 search
                 class="absolute right-2 top-1/2 z-50 flex h-12 max-w-[calc(100vw-4rem)] -translate-y-1/2 items-center space-x-2 rounded-[24px] border-2 border-neutral bg-base-100 px-2 shadow"
                 [ngClass]="{
-                    'w-[32rem]': show,
-                    'w-px': !show,
-                    'opacity-100': show,
-                    'opacity-0': !show,
-                    'pointer-events-none': !show,
+                    'w-[32rem]': show(),
+                    'w-px': !show(),
+                    'opacity-100': show(),
+                    'opacity-0': !show(),
+                    'pointer-events-none': !show(),
                 }"
                 (click)="showInput()"
             >
@@ -41,19 +47,19 @@ import { ExploreSearchService } from '@placeos/explore';
                     <mat-spinner [diameter]="32"></mat-spinner>
                 }
             </div>
-            @if (filter_str) {
+            @if (filter_str()) {
                 <div
                     search
                     class="absolute bottom-0 right-2 flex max-h-[40vh] max-w-[calc(100vw-4rem)] translate-y-[calc(100%-1rem)] flex-col items-center overflow-auto rounded-b border border-base-200 bg-base-100 pt-4 shadow"
                     [ngClass]="{
-                        'w-[32rem]': show,
-                        'w-px': !show,
-                        'opacity-100': show,
-                        'opacity-0': !show,
-                        'pointer-events-none': !show,
+                        'w-[32rem]': show(),
+                        'w-px': !show(),
+                        'opacity-100': show(),
+                        'opacity-0': !show(),
+                        'pointer-events-none': !show(),
                     }"
                 >
-                    @if (!(results | async)?.length && filter_str) {
+                    @if (!(results | async)?.length && filter_str()) {
                         <div empty class="w-full p-4 text-center opacity-60">
                             {{
                                 'APP.WORKPLACE.GLOBAL_SEARCH_EMPTY' | translate
@@ -72,7 +78,7 @@ import { ExploreSearchService } from '@placeos/explore';
                             </div>
                         }
                     }
-                    @if (!(loading | async) && filter_str) {
+                    @if (!(loading | async) && filter_str()) {
                         @for (
                             option of results | async | slice: 0 : 100;
                             track option.id + $index
@@ -130,25 +136,25 @@ export class GlobalSearchComponent extends AsyncHandler {
 
     public readonly results = this._service.search_results;
     public readonly loading = this._service.loading;
-    public show = false;
+    public readonly show = signal(false);
 
-    public filter_str = '';
+    public readonly filter_str = signal('');
 
     public readonly setFilter = (s) =>
         s instanceof Object
-            ? (this.filter_str = '')
+            ? this.filter_str.set('')
             : this._service.setFilter(s);
 
     public readonly _input_el =
         viewChild<ElementRef<HTMLInputElement>>('input');
 
     public showInput() {
-        this.show = true;
+        this.show.set(true);
         this._input_el().nativeElement.focus();
         this.clearTimeout('close');
     }
 
     public hideInput() {
-        this.timeout('close', () => (this.show = false));
+        this.timeout('close', () => this.show.set(false));
     }
 }

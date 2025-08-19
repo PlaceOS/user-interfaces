@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import {
     Point,
     ViewAction,
@@ -12,7 +12,6 @@ import {
     catchError,
     debounceTime,
     filter,
-    first,
     map,
     shareReplay,
     switchMap,
@@ -20,6 +19,7 @@ import {
 
 import {
     AsyncHandler,
+    firstTruthyValueFrom,
     HashMap,
     SettingsService,
     unique,
@@ -138,6 +138,7 @@ export class ExploreStateService extends AsyncHandler {
                     continue;
                 list = list.concat(actions[key]);
             }
+            console.log('Actions:', list);
             return list;
         }),
     );
@@ -200,7 +201,7 @@ export class ExploreStateService extends AsyncHandler {
     }
 
     public async init() {
-        await this._org.initialised.pipe(first((_) => _)).toPromise();
+        await firstTruthyValueFrom(this._org.initialised);
         this._org.active_levels
             .pipe(filter((_) => !!_))
             .subscribe((level_list) => {

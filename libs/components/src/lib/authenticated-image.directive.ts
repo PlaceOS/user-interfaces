@@ -13,14 +13,16 @@ import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
 const IMAGE_STORE = new Map<string, string>();
 
 @Directive({
-    selector: 'img[auth], video[auth]',
+    selector: 'img[auth], video[auth], audio[auth]',
 })
 export class AuthenticatedImageDirective
     extends AsyncHandler
     implements OnChanges
 {
     private _element =
-        inject<ElementRef<HTMLImageElement | HTMLVideoElement>>(ElementRef);
+        inject<
+            ElementRef<HTMLImageElement | HTMLVideoElement | HTMLAudioElement>
+        >(ElementRef);
 
     public readonly source = input<string>(undefined);
 
