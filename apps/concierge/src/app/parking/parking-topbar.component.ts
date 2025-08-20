@@ -110,6 +110,7 @@ import { ParkingStateService } from './parking-state.service';
                     }
                 </mat-select>
             </mat-form-field>
+            @if (path === 'events') {}
             <div class="w-0 flex-1"></div>
             @if (path !== 'events' && path !== 'map') {
                 <button
@@ -125,6 +126,29 @@ import { ParkingStateService } from './parking-state.service';
                 </button>
             }
             @if (path === 'events' || path === 'map') {
+                <div
+                    class="mr-2 flex items-center space-x-2 rounded-md border border-base-300 py-1 pl-3 pr-1 text-sm"
+                    matTooltip="Parking Spaces Occupied"
+                >
+                    {{ (bookings | async)?.length || 0 }} of
+                    {{ (spaces | async)?.length || '' }}
+                    <icon class="!ml-1 text-lg">car_lock</icon>
+                    @let percent =
+                        ((bookings | async)?.length || 0) /
+                        ((spaces | async)?.length || 0);
+                    <span
+                        class="rounded px-2 py-1 font-mono text-xs"
+                        [class.bg-error]="percent === 100"
+                        [class.text-error-content]="percent === 100"
+                        [class.bg-warning]="percent > 50 && percent < 100"
+                        [class.text-warning-content]="
+                            percent > 50 && percent < 100
+                        "
+                        [class.bg-success]="percent < 50"
+                        [class.text-success-content]="percent < 50"
+                        >{{ percent * 100 | number: '2.0-0' }}%</span
+                    >
+                </div>
                 <date-options (dateChange)="setDate($event)"></date-options>
             }
         </div>
@@ -159,6 +183,8 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
     public readonly levels = this._state.levels;
     /** Options set for week view */
     public readonly options = this._state.options;
+    public readonly spaces = this._state.spaces;
+    public readonly bookings = this._state.bookings;
     /** Set filtered date */
     public readonly setDate = (d) => this._state.setOptions({ date: d });
     /** Set filter string */

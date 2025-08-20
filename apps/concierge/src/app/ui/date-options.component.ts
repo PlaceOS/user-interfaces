@@ -36,30 +36,47 @@ import {
                 <icon>today</icon>
             </button>
         }
-        <button icon matRipple (click)="previousDay()">
+        <button
+            icon
+            matRipple
+            class="rounded hover:bg-base-200"
+            (click)="previousDay()"
+        >
             <icon>keyboard_arrow_left</icon>
         </button>
         @if (!is_new()) {
-            <button icon matRipple (click)="nextDay()">
+            <button
+                icon
+                matRipple
+                class="rounded hover:bg-base-200"
+                (click)="nextDay()"
+            >
                 <icon>keyboard_arrow_right</icon>
             </button>
         }
-        <div
-            class="display relative mx-4 flex h-12 w-28 items-center justify-center leading-none"
+        <button
+            matRipple
+            (dblclick)="setDate()"
+            class="display relative mx-4 flex h-12 w-28 items-center justify-center rounded leading-none hover:bg-base-200"
         >
             @if (is_today) {
                 <div
-                    class="absolute left-1/2 top-0 -translate-x-1/2 text-xs text-info"
+                    class="absolute left-1/2 top-1 -translate-x-1/2 text-xs text-info"
                 >
                     {{ 'COMMON.TODAY' | translate }}
                 </div>
             }
-            <div class="relative" [class.top-1]="is_today">
+            <div class="relative" [class.top-2]="is_today">
                 {{ date() | date: 'mediumDate' }}
             </div>
-        </div>
+        </button>
         @if (is_new()) {
-            <button icon matRipple (click)="nextDay()">
+            <button
+                icon
+                matRipple
+                class="rounded hover:bg-base-200"
+                (click)="nextDay()"
+            >
                 <icon>keyboard_arrow_right</icon>
             </button>
         }
@@ -156,7 +173,7 @@ export class DateOptionsComponent
         }
     }
 
-    public setDate(date: number, emit = true) {
+    public setDate(date: number = Date.now(), emit = true) {
         date = startOfMinute(date).valueOf();
         this.date.set(date);
         this._router.navigate([], {
