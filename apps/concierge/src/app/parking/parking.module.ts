@@ -35,10 +35,23 @@ const ROUTES: Route[] = [
         path: '',
         component: ParkingComponent,
         children: [
-            { path: 'events', component: ParkingBookingsListComponent },
-            { path: 'manage/users', component: ParkingUsersListComponent },
-            { path: 'manage/map', component: ParkingMapComponent },
-            { path: 'manage', component: ParkingSpaceListComponent },
+            {
+                path: 'events',
+                children: [
+                    { path: 'map', component: ParkingMapComponent },
+                    { path: 'list', component: ParkingBookingsListComponent },
+                    { path: '**', redirectTo: 'list' },
+                ],
+            },
+            {
+                path: 'manage',
+                children: [
+                    { path: 'users', component: ParkingUsersListComponent },
+                    { path: 'map', component: ParkingMapComponent },
+                    { path: 'spaces', component: ParkingSpaceListComponent },
+                    { path: '**', redirectTo: 'spaces' },
+                ],
+            },
             { path: '**', redirectTo: 'events' },
         ],
     },

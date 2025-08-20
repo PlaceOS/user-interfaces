@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
 import { ParkingStateService } from './parking-state.service';
@@ -11,13 +11,22 @@ import { ParkingStateService } from './parking-state.service';
             <app-sidebar></app-sidebar>
             <main class="relative flex h-full w-1/2 flex-1 flex-col">
                 <parking-topbar></parking-topbar>
-                @if (path !== 'events') {
+                @if (section() !== 'events') {
                     <div class="px-8 pb-2">
-                        <nav mat-tab-nav-bar [tabPanel]="tabPanel">
+                        <nav
+                            mat-tab-nav-bar
+                            class="overflow-hidden rounded bg-base-200"
+                            [tabPanel]="tabPanel"
+                        >
                             <a
                                 mat-tab-link
-                                [routerLink]="['/book', 'parking', 'manage']"
-                                [active]="path === 'manage'"
+                                [routerLink]="[
+                                    '/book',
+                                    'parking',
+                                    'manage',
+                                    'spaces',
+                                ]"
+                                [active]="view() === 'spaces'"
                             >
                                 {{
                                     'APP.CONCIERGE.PARKING_TAB_SPACES'
@@ -32,7 +41,7 @@ import { ParkingStateService } from './parking-state.service';
                                     'manage',
                                     'users',
                                 ]"
-                                [active]="path === 'users'"
+                                [active]="view() === 'users'"
                             >
                                 {{
                                     'APP.CONCIERGE.PARKING_TAB_USERS'
@@ -47,7 +56,7 @@ import { ParkingStateService } from './parking-state.service';
                                     'manage',
                                     'map',
                                 ]"
-                                [active]="path === 'map'"
+                                [active]="view() === 'map'"
                             >
                                 {{
                                     'APP.CONCIERGE.PARKING_TAB_MAP' | translate
@@ -111,7 +120,8 @@ export class ParkingComponent extends AsyncHandler implements OnInit {
     /** List of levels for the active building */
     public readonly levels = this._state.levels;
 
-    public path = '';
+    public readonly section = signal<'events' | 'manage'>('events');
+    public readonly view = signal<'spaces' | 'list' | 'map' | 'users'>('list');
 
     public ngOnInit() {
         this.subscription('poll_bookings', () => this._state.startPolling());
@@ -125,13 +135,9 @@ export class ParkingComponent extends AsyncHandler implements OnInit {
     }
 
     private _updatePath() {
-        this.timeout(
-            'update_path',
-            () => {
-                const parts = this._router.url?.split('/') || [''];
-                this.path = parts[parts.length - 1].split('?')[0];
-            },
-            50,
-        );
+        const parts = this._router.url?.split('/') || [''];
+        const [section, view] = parts.slice(-2);
+        this.section.set(section as any);
+        this.view.set(view.split('?')[0] as any);
     }
 }

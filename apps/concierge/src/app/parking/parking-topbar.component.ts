@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { debounceTime } from 'rxjs/operators';
 
@@ -21,7 +21,7 @@ import { ParkingStateService } from './parking-state.service';
         <div class="flex w-full items-center space-x-2 px-8 py-4">
             <h2 class="text-2xl font-medium">
                 {{
-                    (path !== 'events'
+                    (section() !== 'events'
                         ? 'APP.CONCIERGE.PARKING_HEADER'
                         : 'APP.CONCIERGE.PARKING_BOOK_HEADER'
                     ) | translate
@@ -40,7 +40,7 @@ import { ParkingStateService } from './parking-state.service';
                         : 'Select a level to add a space'
                 "
             >
-                @if (path === 'manage') {
+                @if (view() === 'spaces') {
                     <button
                         btn
                         matRipple
@@ -55,7 +55,7 @@ import { ParkingStateService } from './parking-state.service';
                     </button>
                 }
             </div>
-            @if (path === 'users') {
+            @if (view() === 'users') {
                 <button
                     btn
                     matRipple
@@ -68,7 +68,7 @@ import { ParkingStateService } from './parking-state.service';
                     <icon>add</icon>
                 </button>
             }
-            @if (path === 'events' && !disable_reservations) {
+            @if (section() === 'events' && !disable_reservations) {
                 <button
                     btn
                     matRipple
@@ -83,6 +83,32 @@ import { ParkingStateService } from './parking-state.service';
             }
         </div>
         <div class="mb-2 flex h-14 items-center bg-base-100 px-8">
+            @if (section() === 'events') {
+                <div class="mr-2 flex items-center">
+                    <a
+                        btn
+                        matRipple
+                        name="deals-list"
+                        class="rounded-l rounded-r-none px-2"
+                        [class.inverse]="view() !== 'list'"
+                        [routerLink]="['events', 'list']"
+                        [matTooltip]="'COMMON.LIST' | translate"
+                    >
+                        <icon class="text-2xl">list</icon>
+                    </a>
+                    <a
+                        btn
+                        matRipple
+                        name="deals-grid"
+                        class="rounded-l-none rounded-r px-2"
+                        [class.inverse]="view() !== 'map'"
+                        [routerLink]="['events', 'map']"
+                        [matTooltip]="'COMMON.MAP' | translate"
+                    >
+                        <icon class="text-2xl">map</icon>
+                    </a>
+                </div>
+            }
             <mat-form-field appearance="outline" class="no-subscript w-56">
                 <mat-select
                     [(ngModel)]="zones"
@@ -110,9 +136,8 @@ import { ParkingStateService } from './parking-state.service';
                     }
                 </mat-select>
             </mat-form-field>
-            @if (path === 'events') {}
-            <div class="w-0 flex-1"></div>
-            @if (path !== 'events' && path !== 'map') {
+            <div class="w-px min-w-2 flex-1"></div>
+            @if (view() !== 'list' && view() !== 'map') {
                 <button
                     icon
                     matRipple
@@ -125,7 +150,7 @@ import { ParkingStateService } from './parking-state.service';
                     <icon>lock_open</icon>
                 </button>
             }
-            @if (path === 'events' || path === 'map') {
+            @if (section() === 'events') {
                 <div
                     class="mr-2 flex items-center space-x-2 rounded-md border border-base-300 py-1 pl-3 pr-1 text-sm"
                     matTooltip="Parking Spaces Occupied"
@@ -149,6 +174,8 @@ import { ParkingStateService } from './parking-state.service';
                         >{{ percent * 100 | number: '2.0-0' }}%</span
                     >
                 </div>
+            }
+            @if (view() === 'list' || view() === 'map') {
                 <date-options (dateChange)="setDate($event)"></date-options>
             }
         </div>
@@ -176,7 +203,8 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
     private _settings = inject(SettingsService);
     private _dialog = inject(MatDialog);
 
-    public path = '';
+    public readonly section = signal<'events' | 'manage'>('events');
+    public readonly view = signal<'spaces' | 'list' | 'map' | 'users'>('list');
     /** List of selected levels */
     public zones: string[] = [];
     /** List of levels for the active building */
@@ -278,13 +306,9 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
     }
 
     private _updatePath() {
-        this.timeout(
-            'update_path',
-            () => {
-                const parts = this._router.url?.split('/') || [''];
-                this.path = parts[parts.length - 1].split('?')[0];
-            },
-            20,
-        );
+        const parts = this._router.url?.split('/') || [''];
+        const [section, view] = parts.slice(-2);
+        this.section.set(section as any);
+        this.view.set(view.split('?')[0] as any);
     }
 }
