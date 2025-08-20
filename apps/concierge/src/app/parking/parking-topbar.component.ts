@@ -68,7 +68,7 @@ import { ParkingStateService } from './parking-state.service';
                     <icon>add</icon>
                 </button>
             }
-            @if (path === 'events') {
+            @if (path === 'events' && !disable_reservations) {
                 <button
                     btn
                     matRipple
@@ -177,6 +177,10 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
 
     public get use_region() {
         return !!this._settings.get('app.use_region');
+    }
+
+    public get disable_reservations() {
+        return !!this._settings.get('app.parking.disable_bookings');
     }
 
     public manageRestrictions() {

@@ -10,7 +10,6 @@ import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 
 export interface PointOfInterest {
     id: string;
@@ -125,7 +124,6 @@ export interface PointOfInterest {
         MatRippleModule,
         MatDialogModule,
         IconComponent,
-        TranslatePipe,
         AuthenticatedImageDirective,
     ],
 })
