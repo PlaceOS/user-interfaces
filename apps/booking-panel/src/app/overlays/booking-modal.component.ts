@@ -8,7 +8,7 @@ import {
     getInvalidFields,
     HashMap,
     i18n,
-    log,
+    notifyError,
 } from '@placeos/common';
 import { Space } from '@placeos/spaces';
 import { getModule } from '@placeos/ts-client';
@@ -85,6 +85,7 @@ export async function openBookingModal(
                                     [query_fn]="searchStaff"
                                     formControlName="organiser"
                                     class="mb-2"
+                                    [error]="'Host is required'"
                                 ></a-user-search-field>
                             </div>
                         }
@@ -215,8 +216,7 @@ export class BookingModalComponent extends AsyncHandler implements OnInit {
     public save() {
         this.form.markAllAsTouched();
         if (!this.form.valid) {
-            return log(
-                'PANEL',
+            return notifyError(
                 i18n(`FORM.INVALID_FIELDS`, {
                     field_list: getInvalidFields(this.form).join(', '),
                 }),

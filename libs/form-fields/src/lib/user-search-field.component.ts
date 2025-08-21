@@ -218,6 +218,7 @@ export class UserSearchFieldComponent
                   ? this.query_fn()(s)
                   : of([]);
         }),
+        map((_) => _.filter((_) => !!_)),
         tap(() => this.loading.set(false)),
         startWith([]),
         shareReplay(1),
