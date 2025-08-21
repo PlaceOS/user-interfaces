@@ -89,15 +89,19 @@ import { EventsStateService } from './events-state.service';
                                 }}</span>
                             }
                         </p>
-                        <div class="mb-2 h-32 w-64 overflow-hidden bg-base-200">
-                            @if (space) {
+                        @if (space?.images?.length && false) {
+                            <div
+                                class="mb-2 h-32 w-full overflow-hidden rounded bg-base-200"
+                            >
                                 <img
                                     auth
-                                    class="min-h-full min-w-full object-cover"
+                                    class="min-h-full min-w-full object-cover object-center"
                                     [source]="space?.images[0]"
                                 />
-                            }
-                        </div>
+                            </div>
+                        } @else {
+                            <hr class="mb-2 border-base-300 bg-base-200" />
+                        }
                         <div class="mb-2 flex items-center space-x-2">
                             <div
                                 class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
@@ -130,7 +134,7 @@ import { EventsStateService } from './events-state.service';
                                 [disabled]="status[event.id] === 'accept'"
                                 (click)="approve(event)"
                             >
-                                <div>
+                                <div class="ml-2">
                                     {{
                                         (status[event.id] === 'accept'
                                             ? 'COMMON.APPROVED'
@@ -138,7 +142,7 @@ import { EventsStateService } from './events-state.service';
                                         ) | translate
                                     }}
                                 </div>
-                                <icon class="text-success">done</icon>
+                                <icon class="text-2xl text-success">done</icon>
                             </button>
                             <button
                                 btn
@@ -147,7 +151,7 @@ import { EventsStateService } from './events-state.service';
                                 [disabled]="status[event.id] === 'decline'"
                                 (click)="reject(event)"
                             >
-                                <div>
+                                <div class="ml-2">
                                     {{
                                         (status[event.id] === 'decline'
                                             ? 'COMMON.DECLINED'
@@ -155,7 +159,7 @@ import { EventsStateService } from './events-state.service';
                                         ) | translate
                                     }}
                                 </div>
-                                <icon class="text-error">close</icon>
+                                <icon class="text-2xl text-error">close</icon>
                             </button>
                         </div>
                     </div>
