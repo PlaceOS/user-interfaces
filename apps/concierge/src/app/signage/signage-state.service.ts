@@ -5,7 +5,7 @@ import {
     notifyError,
     notifySuccess,
     SettingsService,
-    uploadFile,
+    UploadsService,
 } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import {
@@ -97,6 +97,7 @@ export class SignageStateService extends AsyncHandler {
     private _org = inject(OrganisationService);
     private _dialog = inject(MatDialog);
     private _settings = inject(SettingsService);
+    private _uploads = inject(UploadsService);
 
     private _loading = new BehaviorSubject(false);
     private _change = new BehaviorSubject(0);
@@ -380,20 +381,29 @@ export class SignageStateService extends AsyncHandler {
         file: File,
         media_item: SignageMedia = new SignageMedia({}),
     ) {
-        const upload = (file) =>
+        const uploadDetails = (id) =>
             new Promise<{ id: string; link: string }>((resolve, reject) => {
                 let state = null;
                 let resolved = false;
-                uploadFile(file, false).subscribe(
-                    (s) => {
-                        state = s;
-                        if (s.link) {
-                            resolved = true;
-                            resolve({ id: s.upload.id, link: s.link });
-                        }
-                    },
-                    reject,
-                    () => (!resolved ? resolve(state) : null),
+                this.subscription(
+                    `upload-${id}`,
+                    this._uploads.upload_list.subscribe(
+                        (list) => {
+                            state = list.find(
+                                (s) => s.upload?.id === id || s.id,
+                            );
+                            if (state && state.link) {
+                                resolved = true;
+                                resolve({
+                                    id: state.upload.id || id,
+                                    link: state.link,
+                                });
+                                this.unsub(`upload-${id}`);
+                            }
+                        },
+                        reject,
+                        () => (!resolved ? resolve(state) : null),
+                    ),
                 );
             });
         const [is_landscape] = await this._getMediaMetadata(file);
@@ -402,13 +412,19 @@ export class SignageStateService extends AsyncHandler {
             1280,
             720,
         ).catch(() => null);
-        const media = await upload(file);
+        const media_id = await this._uploads.uploadFileWithPermissions(file);
+        const media = await uploadDetails(media_id);
         let thumbnail = null;
         if (thumbnail_image) {
             const name_parts = file.name.split('.');
             name_parts.pop(); // Drop the extension
             const name = `thumb+${name_parts.join('.')}.jpg`;
-            thumbnail = await upload(dataURLtoFile(thumbnail_image, name));
+
+            const thumb_id = await this._uploads.uploadFile(
+                dataURLtoFile(thumbnail_image, name),
+                true,
+            );
+            thumbnail = await uploadDetails(thumb_id);
         }
         const data = {
             ...new SignageMedia({

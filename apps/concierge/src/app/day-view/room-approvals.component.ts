@@ -89,7 +89,7 @@ import { EventsStateService } from './events-state.service';
                                 }}</span>
                             }
                         </p>
-                        @if (space?.images?.length && false) {
+                        @if (space?.images?.length) {
                             <div
                                 class="mb-2 h-32 w-full overflow-hidden rounded bg-base-200"
                             >
