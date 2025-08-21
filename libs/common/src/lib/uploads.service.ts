@@ -30,10 +30,10 @@ export class UploadsService {
         this._upload_list.next(in_progress_list);
     }
 
-    public uploadFileWithPermissions(file: File) {
+    public uploadFileWithPermissions(file: File, default_public = true) {
         return new Promise<string>((resolve, reject) => {
             const ref = this._dialog.open(UploadPermissionsModalComponent, {
-                data: { file },
+                data: { file, is_public: default_public },
             });
             ref.afterClosed().subscribe(async (details) => {
                 if (details) {

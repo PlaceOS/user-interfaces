@@ -88,12 +88,13 @@ export class UploadPermissionsModalComponent {
         inject<MatDialogRef<UploadPermissionsModalComponent>>(MatDialogRef);
     private _data = inject<{
         file: File;
+        is_public: boolean;
     }>(MAT_DIALOG_DATA);
 
     /** File to upload */
     public readonly file: File = this._data.file;
     /** Whether file should be public */
-    public is_public = true;
+    public is_public = !!this._data.is_public;
     /** Permissions for file */
     public permissions: UploadPermissions = 'none';
 
