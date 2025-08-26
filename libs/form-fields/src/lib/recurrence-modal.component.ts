@@ -13,7 +13,7 @@ import {
     RecurrEndType,
     RecurrType,
 } from '@placeos/common';
-import { addDays, addMonths, startOfWeek } from 'date-fns';
+import { addDays, addMonths, endOfDay, startOfWeek } from 'date-fns';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { CompactCounterComponent } from './compact-counter.component';
 import { DateFieldComponent } from './date-field.component';
@@ -39,7 +39,7 @@ import { DateFieldComponent } from './date-field.component';
                 <compact-counter
                     formControlName="interval"
                     [min]="1"
-                    [max]="60"
+                    [max]="form.value.type === 'daily' ? 7 : 12"
                     [step]="1"
                 ></compact-counter>
                 <mat-form-field
@@ -53,18 +53,22 @@ import { DateFieldComponent } from './date-field.component';
                                 : 'FORM.RECURRENCE_DAYS'
                             ) | translate
                         }}</mat-option>
-                        <mat-option value="weekly">{{
-                            (form.value.interval === 1
-                                ? 'FORM.RECURRENCE_WEEK'
-                                : 'FORM.RECURRENCE_WEEKS'
-                            ) | translate
-                        }}</mat-option>
-                        <mat-option value="monthly">{{
-                            (form.value.interval === 1
-                                ? 'FORM.RECURRENCE_MONTH'
-                                : 'FORM.RECURRENCE_MONTHS'
-                            ) | translate
-                        }}</mat-option>
+                        @if (available_days >= 14) {
+                            <mat-option value="weekly">{{
+                                (form.value.interval === 1
+                                    ? 'FORM.RECURRENCE_WEEK'
+                                    : 'FORM.RECURRENCE_WEEKS'
+                                ) | translate
+                            }}</mat-option>
+                        }
+                        @if (available_days >= 28) {
+                            <mat-option value="monthly">{{
+                                (form.value.interval === 1
+                                    ? 'FORM.RECURRENCE_MONTH'
+                                    : 'FORM.RECURRENCE_MONTHS'
+                                ) | translate
+                            }}</mat-option>
+                        }
                     </mat-select>
                 </mat-form-field>
             </div>
@@ -116,7 +120,10 @@ import { DateFieldComponent } from './date-field.component';
                         <mat-radio-button value="date">{{
                             'FORM.RECURRENCE_ENDS_ON' | translate
                         }}</mat-radio-button>
-                        <a-date-field formControlName="end_date"></a-date-field>
+                        <a-date-field
+                            formControlName="end_date"
+                            [to]="end_date"
+                        ></a-date-field>
                     </div>
                     <div class="mt-2 flex items-center">
                         <mat-radio-button value="instances">{{
@@ -173,11 +180,16 @@ export class RecurrenceModalComponent extends AsyncHandler implements OnInit {
         value: Recurrence;
         iom: number;
         date: number;
+        available_days: number;
     }>(MAT_DIALOG_DATA);
 
     public readonly instance_fn = (v) => `${v} instances`;
     public readonly date = this._data.date || Date.now();
     public readonly week = this._data.iom ?? 1;
+    public readonly available_days = this._data.available_days;
+    public readonly end_date = endOfDay(
+        addDays(this.date, this.available_days),
+    ).valueOf();
     public readonly month_instance =
         this.week === -1
             ? 'Last'
@@ -212,6 +224,9 @@ export class RecurrenceModalComponent extends AsyncHandler implements OnInit {
     }
 
     public ngOnInit() {
+        if (this.form.value.end_date > this.end_date) {
+            this.form.patchValue({ end_date: this.end_date });
+        }
         this.subscription(
             'end_type',
             this.form.controls.end_type.valueChanges.subscribe((type) =>
@@ -234,6 +249,9 @@ export class RecurrenceModalComponent extends AsyncHandler implements OnInit {
             set.clear();
             set.add(new Date(this.date).getDay() as any);
             this.form.patchValue({ weekdays: set });
+        }
+        if (this.available_days < 14) {
+            this.form.controls.type.disable();
         }
     }
 

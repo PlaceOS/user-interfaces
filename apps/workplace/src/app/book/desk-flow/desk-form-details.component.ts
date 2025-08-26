@@ -180,6 +180,7 @@ import { addDays, endOfDay, set } from 'date-fns';
                                 [ngModel]="form().value"
                                 (ngModelChange)="onRecurrenceChange($event)"
                                 [ngModelOptions]="{ standalone: true }"
+                                [available_days]="available_days"
                             ></recurrence-field>
                             @if (form().value.id) {
                                 <mat-checkbox formControlName="update_master">
@@ -388,13 +389,12 @@ export class NewDeskFormDetailsComponent
             : '';
     }
 
+    public get available_days() {
+        return this._settings.get('app.desks.available_period') || 90;
+    }
+
     public get end_date() {
-        return endOfDay(
-            addDays(
-                Date.now(),
-                this._settings.get('app.desks.available_period') || 90,
-            ),
-        ).valueOf();
+        return endOfDay(addDays(Date.now(), this.available_days)).valueOf();
     }
 
     public get use_24hr() {

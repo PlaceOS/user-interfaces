@@ -185,7 +185,9 @@ export class BookingFormService extends AsyncHandler {
         switchMap(([list, { type }]) =>
             Promise.all(
                 list.map((bld) =>
-                    showMetadata(bld.id, `${type}_booking_rules`).toPromise(),
+                    lastValueFrom(
+                        showMetadata(bld.id, `${type}_booking_rules`),
+                    ),
                 ),
             ),
         ),

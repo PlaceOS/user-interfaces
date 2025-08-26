@@ -48,22 +48,26 @@ import { RecurrenceModalComponent } from './recurrence-modal.component';
                 <mat-option value="daily">{{
                     'FORM.RECURRENCE_DAILY' | translate
                 }}</mat-option>
-                <mat-option value="weekly">
-                    {{
-                        'FORM.RECURRENCE_WEEKLY_ON'
-                            | translate: { day: date() | date: 'EEEE' }
-                    }}
-                </mat-option>
-                <mat-option value="monthly">
-                    {{
-                        'FORM.RECURRENCE_MONTH_INSTANCE'
-                            | translate
-                                : {
-                                      index: instance_of_month,
-                                      day: date() | date: 'EEEE',
-                                  }
-                    }}
-                </mat-option>
+                @if (available_days() >= 14) {
+                    <mat-option value="weekly">
+                        {{
+                            'FORM.RECURRENCE_WEEKLY_ON'
+                                | translate: { day: date() | date: 'EEEE' }
+                        }}
+                    </mat-option>
+                }
+                @if (available_days() >= 28) {
+                    <mat-option value="monthly">
+                        {{
+                            'FORM.RECURRENCE_MONTH_INSTANCE'
+                                | translate
+                                    : {
+                                          index: instance_of_month,
+                                          day: date() | date: 'EEEE',
+                                      }
+                        }}
+                    </mat-option>
+                }
                 @if (false) {
                     <mat-option value="yearly">
                         Anually on {{ date() | date: 'LLLL dd' }}
@@ -114,6 +118,7 @@ export class RecurrenceFieldComponent
 
     public readonly type = input<'event' | 'booking'>('booking');
     public readonly date = input(Date.now());
+    public readonly available_days = input(180);
     public prev_type = 'none';
     public recurr_type = 'none';
     public iom = 0;
@@ -185,7 +190,12 @@ export class RecurrenceFieldComponent
 
     public openCustomRecurrenceModal() {
         const ref = this._dialog.open(RecurrenceModalComponent, {
-            data: { value: this.value, iom: this.iom, date: this.date() },
+            data: {
+                value: this.value,
+                iom: this.iom,
+                date: this.date(),
+                available_days: this.available_days(),
+            },
         });
         ref.afterClosed().subscribe((d?) =>
             setTimeout(() => {
