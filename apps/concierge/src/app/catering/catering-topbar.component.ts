@@ -8,7 +8,12 @@ import {
     CateringStateService,
     ChargeCodeListModalComponent,
 } from '@placeos/catering';
-import { AsyncHandler, nextValueFrom, SettingsService } from '@placeos/common';
+import {
+    AsyncHandler,
+    nextValueFrom,
+    notifySuccess,
+    SettingsService,
+} from '@placeos/common';
 import { AvailableRoomsStateModalComponent } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
 import { combineLatest } from 'rxjs';
@@ -255,10 +260,12 @@ export class CateringTopbarComponent extends AsyncHandler implements OnInit {
         this.subscription(
             'room-availability',
             ref.componentInstance.change.subscribe(async (list) => {
+                console.log('List:', list);
                 await this._catering
                     .saveSettings({ disabled_rooms: list })
                     .catch();
-                ref.componentInstance.loading = false;
+                ref.componentInstance.loading.set(false);
+                notifySuccess('Room availability settings saved');
             }),
         );
     }

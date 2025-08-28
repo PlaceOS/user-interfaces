@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, output } from '@angular/core';
+import { Component, inject, output, signal } from '@angular/core';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
@@ -15,7 +15,7 @@ import { TranslatePipe } from './translate.pipe';
     template: `
         <div>
             <header
-                class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded border-none bg-base-200 p-2"
+                class="sticky top-0 z-10 m-2 h-14 w-[calc(100%-1rem)] rounded border-none bg-base-200 p-2"
             >
                 <h2 class="px-2 text-xl font-medium">
                     {{
@@ -23,18 +23,18 @@ import { TranslatePipe } from './translate.pipe';
                             | translate: { type: type }
                     }}
                 </h2>
-                @if (!loading) {
+                @if (!loading()) {
                     <button icon matRipple mat-dialog-close>
                         <icon>close</icon>
                     </button>
                 }
             </header>
-            @if (!loading) {
+            @if (!loading()) {
                 <main class="max-h-[65vh] w-[32rem] overflow-auto">
                     <table class="min-w-[32rem]">
                         <thead class="border-b border-base-200">
                             <tr>
-                                <td class="w-12" (click)="toggleRoom('*')">
+                                <td class="w-12 py-1" (click)="toggleRoom('*')">
                                     <mat-checkbox
                                         class="pointer-events-none"
                                         [checked]="
@@ -49,14 +49,15 @@ import { TranslatePipe } from './translate.pipe';
                                     ></mat-checkbox>
                                 </td>
                                 <td></td>
-                                <td class="text-right text-xs">
+                                <td class="px-8 text-right text-xs">
+                                    @let rm_list = rooms | async;
                                     {{
                                         'APP.CONCIERGE.AVAILABLE_ROOMS_COUNT'
                                             | translate
                                                 : {
-                                                      count: (rooms | async)
-                                                          ?.length,
+                                                      count: rm_list?.length,
                                                   }
+                                                : rm_list?.length
                                     }}
                                 </td>
                             </tr>
@@ -107,9 +108,26 @@ import { TranslatePipe } from './translate.pipe';
                         </tbody>
                     </table>
                 </main>
+                <footer
+                    class="flex items-center justify-end space-x-2 border-t border-base-200 p-2"
+                >
+                    <button btn matRipple (click)="enableSelected()">
+                        {{ 'APP.CONCIERGE.AVAILABLE_ROOMS_ENABLE' | translate }}
+                    </button>
+                    <button
+                        btn
+                        matRipple
+                        class="inverse"
+                        (click)="disableSelected()"
+                    >
+                        {{
+                            'APP.CONCIERGE.AVAILABLE_ROOMS_DISABLE' | translate
+                        }}
+                    </button>
+                </footer>
             } @else {
                 <main
-                    class="flex h-48 w-64 flex-col items-center justify-center space-y-2 p-8"
+                    class="flex h-48 w-full min-w-64 flex-col items-center justify-center space-y-2 p-16 text-center"
                 >
                     <mat-spinner diameter="32"></mat-spinner>
                     <p>
@@ -120,16 +138,6 @@ import { TranslatePipe } from './translate.pipe';
                     </p>
                 </main>
             }
-            <footer
-                class="flex items-center justify-end space-x-4 border-t border-base-200 px-4 py-2"
-            >
-                <button btn matRipple (click)="enableSelected()">
-                    {{ 'APP.CONCIERGE.AVAILABLE_ROOMS_ENABLE' | translate }}
-                </button>
-                <button btn matRipple (click)="disableSelected()">
-                    {{ 'APP.CONCIERGE.AVAILABLE_ROOMS_DISABLE' | translate }}
-                </button>
-            </footer>
         </div>
     `,
     styles: [
@@ -154,7 +162,7 @@ export class AvailableRoomsStateModalComponent {
     private _org = inject(OrganisationService);
 
     public readonly change = output<string[]>();
-    public loading = false;
+    public readonly loading = signal(false);
     public selected: string[] = [];
     public readonly rooms = requestSpacesForZone(this._org.building.id);
     public readonly type: string = this._data.type;
@@ -174,7 +182,7 @@ export class AvailableRoomsStateModalComponent {
     }
 
     public async enableSelected() {
-        this.loading = true;
+        this.loading.set(true);
         const disabled_list = this.disabled_rooms;
         const list = disabled_list.filter((_) => !this.selected.includes(_));
         this.disabled_rooms = list;
@@ -182,7 +190,7 @@ export class AvailableRoomsStateModalComponent {
     }
 
     public async disableSelected() {
-        this.loading = true;
+        this.loading.set(true);
         const disabled_list = this.disabled_rooms;
         const list = unique(disabled_list.concat(this.selected));
         this.disabled_rooms = list;

@@ -5,7 +5,7 @@ import {
     showMetadata,
     updateMetadata,
 } from '@placeos/ts-client';
-import { BehaviorSubject, combineLatest, of } from 'rxjs';
+import { BehaviorSubject, combineLatest, lastValueFrom, of } from 'rxjs';
 import {
     catchError,
     filter,
@@ -440,22 +440,26 @@ export class CateringStateService extends AsyncHandler {
     }
 
     private updateMenu(zone_id: string, menu: CateringItem[]) {
-        return updateMetadata(zone_id, {
-            id: zone_id,
-            name: 'catering',
-            details: menu,
-            description: `Catering menu for ${zone_id}`,
-        }).toPromise();
+        return lastValueFrom(
+            updateMetadata(zone_id, {
+                id: zone_id,
+                name: 'catering',
+                details: menu,
+                description: `Catering menu for ${zone_id}`,
+            }),
+        );
     }
 
     public async saveSettings(settings: CateringSettings) {
         const old_settings = await nextValueFrom(this.settings);
-        const result = await updateMetadata(this._org.building.id, {
-            id: this._org.building.id,
-            name: 'catering-settings',
-            details: { ...old_settings, ...settings },
-            description: `Catering settings for ${this._org.building.id}`,
-        }).toPromise();
+        const result = await lastValueFrom(
+            updateMetadata(this._org.building.id, {
+                id: this._org.building.id,
+                name: 'catering-settings',
+                details: { ...old_settings, ...settings },
+                description: `Catering settings for ${this._org.building.id}`,
+            }),
+        );
         this._change.next(Date.now());
         return result;
     }

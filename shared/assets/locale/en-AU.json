@@ -1824,6 +1824,8 @@
             "AVAILABLE_ROOMS_SAVING": "Saving room availability for {{ type }}...",
             "AVAILABLE_ROOMS_ENABLE": "Enable Selected",
             "AVAILABLE_ROOMS_DISABLE": "Disable Selected",
+            "AVAILABLE_ROOMS_COUNT_1": "{{ count }} room",
+            "AVAILABLE_ROOMS_COUNT_N": "{{ count }} rooms",
             "AVAILABLE_ROOMS_COUNT": "{{ count }} room(s)",
             "BOOKING_RULES_HEADER": "{{ type }} Booking Rules",
             "BOOKING_RULES_NEW": "New {{ type }} Booking Ruleset",

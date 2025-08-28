@@ -1,6 +1,11 @@
 import { Component, inject, input } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { AsyncHandler, nextValueFrom, SettingsService } from '@placeos/common';
+import {
+    AsyncHandler,
+    nextValueFrom,
+    notifySuccess,
+    SettingsService,
+} from '@placeos/common';
 import { AvailableRoomsStateModalComponent } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
 import { AssetManagerStateService } from './asset-manager-state.service';
@@ -196,7 +201,8 @@ export class AssetManagerTopbarComponent extends AsyncHandler {
                 await this._state
                     .saveSettings({ disabled_rooms: list })
                     .catch();
-                ref.componentInstance.loading = false;
+                ref.componentInstance.loading.set(false);
+                notifySuccess('Room availability settings saved');
             }),
         );
     }
