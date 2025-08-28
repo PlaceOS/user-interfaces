@@ -2,6 +2,12 @@ import { addMinutes, isAfter, isBefore } from 'date-fns';
 
 import { User } from 'libs/users/src/lib/user.class';
 
+declare global {
+    interface Window {
+        debug_booking_rules?: boolean;
+    }
+}
+
 export interface BookingRuleset {
     id?: string;
     name?: string;
@@ -114,22 +120,26 @@ export function rulesForResource(
             details.resource.zones?.includes(ruleset.zone)
         ) {
             if (checkRulesMatch(details, ruleset)) {
-                console.log(
-                    'Matched Ruleset:',
-                    details.resource.id,
-                    details,
-                    ruleset,
-                );
+                if (window.debug_booking_rules) {
+                    console.log(
+                        'Matched Ruleset:',
+                        details.resource.id,
+                        details,
+                        ruleset,
+                    );
+                }
                 return ruleset.rules;
             }
         }
     }
-    console.log(
-        'No Matched Ruleset:',
-        details.resource.id,
-        details,
-        DEFAULT_RULES,
-    );
+    if (window.debug_booking_rules) {
+        console.log(
+            'No Matched Ruleset:',
+            details.resource.id,
+            details,
+            DEFAULT_RULES,
+        );
+    }
     return DEFAULT_RULES;
 }
 
