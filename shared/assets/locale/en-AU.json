@@ -259,7 +259,8 @@
         "TERMS": "Terms & Conditions",
         "LOCATABLE": "Location tracking",
         "UPLOAD_IMAGE": "Upload Image",
-        "UPLOAD_IMAGE_INFO": "Drag & Drop or click to upload an image"
+        "UPLOAD_IMAGE_INFO": "Drag & Drop or click to upload an image",
+        "BOOKED_BY": "Booked By"
     },
     "LANGUAGE": {
         "ENGLISH": "English",

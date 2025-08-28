@@ -3,6 +3,7 @@ import { BehaviorSubject, combineLatest, lastValueFrom } from 'rxjs';
 import { delay, map, retry } from 'rxjs/operators';
 
 import { StaffUser } from 'libs/users/src/lib/user.class';
+import { replaceUser } from 'libs/users/src/lib/user.pipe';
 
 const EMPTY_USER = {
     name: '<empty>',
@@ -31,8 +32,10 @@ setTimeout(() => {
 
 export function reloadUserData() {
     setTimeout(async () => {
-        const user = await lastValueFrom(showUser('current'));
-        _current_user.next(new StaffUser(user as any));
+        const p_user = await lastValueFrom(showUser('current'));
+        const user = new StaffUser(p_user as any);
+        replaceUser(user);
+        _current_user.next(user);
     }, 300);
 }
 

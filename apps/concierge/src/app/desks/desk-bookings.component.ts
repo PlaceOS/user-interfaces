@@ -8,7 +8,7 @@ import { DesksStateService } from './desks-state.service';
     template: `
         <div class="h-full w-full overflow-auto pb-16">
             <simple-table
-                class="block min-w-[72rem] text-sm"
+                class="block min-w-[80rem] text-sm"
                 [data]="bookings"
                 [filter]="(filters | async)?.search"
                 [filter_on]="[
@@ -34,8 +34,13 @@ import { DesksStateService } from './desks-state.service';
                         size: '9rem',
                     },
                     {
-                        key: 'user_name',
+                        key: 'user_email',
                         name: 'COMMON.PERSON' | translate,
+                        content: user_template,
+                    },
+                    {
+                        key: 'booked_by_email',
+                        name: 'COMMON.BOOKED_BY' | translate,
                         content: user_template,
                     },
                     {
@@ -133,19 +138,15 @@ import { DesksStateService } from './desks-state.service';
                     }
                 </div>
             </ng-template>
-            <ng-template #user_template let-row="row">
+            <ng-template #user_template let-email="data">
+                @let user = email | user | async;
                 <div class="flex flex-col justify-center px-4 py-2">
                     <div class="select-all">
-                        {{
-                            row.user_name ||
-                                row.user_email ||
-                                row.booked_by_name ||
-                                row.booked_by_email
-                        }}
+                        {{ user?.name || user?.email || email }}
                     </div>
-                    @if (row.user_name) {
+                    @if (user?.name) {
                         <div class="select-all text-xs opacity-30">
-                            {{ row.user_email }}
+                            {{ email }}
                         </div>
                     }
                 </div>
