@@ -36,6 +36,7 @@ import { BuildingLevel } from 'libs/organisation/src/lib/level.class';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { Space } from 'libs/spaces/src/lib/space.class';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
+import { UserPipe } from 'libs/users/src/lib/user.pipe';
 import { AttendeeListComponent } from './attendee-list.component';
 import { CalendarEvent } from './event.class';
 import { getEventMetadata } from './events.fn';
@@ -210,6 +211,17 @@ const EMPTY_ACTIONS = [];
                             <div>
                                 {{ building?.display_name || building?.name }},
                                 {{ building?.address }}
+                            </div>
+                        </div>
+                    }
+                    @if (event.creator !== event.host) {
+                        <div class="flex items-center space-x-2 px-2">
+                            <icon matTooltip="Created By">person</icon>
+                            <div>
+                                {{
+                                    (event.creator | user)?.name ||
+                                        event.creator
+                                }}
                             </div>
                         </div>
                     }
@@ -711,6 +723,7 @@ const EMPTY_ACTIONS = [];
         ImageCarouselComponent,
         BindingDirective,
         MatTooltipModule,
+        UserPipe,
     ],
 })
 export class EventDetailsModalComponent implements OnInit {

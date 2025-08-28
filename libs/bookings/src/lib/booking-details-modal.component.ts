@@ -26,11 +26,14 @@ import { CommonModule } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { ImageCarouselComponent } from 'libs/components/src/lib/image-carousel.component';
 import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
 import { StatusPillComponent } from 'libs/components/src/lib/status-pill.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { UserPipe } from 'libs/users/src/lib/user.pipe';
+import { lastValueFrom } from 'rxjs';
 import { DeskSettingsModalComponent } from './desk-settings-modal.component';
 
 @Component({
@@ -143,22 +146,22 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                         {{ 'BOOKINGS.DETAILS' | translate }}
                     </h3>
                     <div class="flex items-center space-x-2 px-2">
-                        <icon>event</icon>
+                        <icon matTooltip="Date">event</icon>
                         <div>{{ booking.date | date: 'EEEE, dd LLLL y' }}</div>
                     </div>
                     <div class="flex items-center space-x-2 px-2">
-                        <icon>schedule</icon>
+                        <icon matTooltip="Time">schedule</icon>
                         <div>{{ period }}</div>
                     </div>
                     <div class="flex items-center space-x-2 px-2">
-                        <icon>map</icon>
+                        <icon matTooltip="Level and Resource">map</icon>
                         <div>
                             {{ level?.display_name || level?.name }},
                             {{ booking.asset_name || booking.asset_id }}
                         </div>
                     </div>
                     <div class="flex items-center space-x-2 px-2">
-                        <icon>place</icon>
+                        <icon matTooltip="Location">place</icon>
                         <div>
                             {{ building?.display_name || building?.name }}
                             {{
@@ -166,6 +169,17 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                             }}
                         </div>
                     </div>
+                    @if (booking.booked_by_email !== booking.user_email) {
+                        <div class="flex items-center space-x-2 px-2">
+                            <icon matTooltip="Booked By">person</icon>
+                            <div>
+                                {{
+                                    (booking.booked_by_email | user)?.name ||
+                                        booking.booked_by_name
+                                }}
+                            </div>
+                        </div>
+                    }
                 </div>
                 @if (has_assets) {
                     <div
@@ -383,6 +397,8 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
         StatusPillComponent,
         ImageCarouselComponent,
         MatRippleModule,
+        UserPipe,
+        MatTooltipModule,
     ],
 })
 export class BookingDetailsModalComponent {
@@ -527,21 +543,19 @@ export class BookingDetailsModalComponent {
     public async toggleCheckedIn() {
         this.checking_in = true;
         const bkn = this.booking;
-        const promise = (
+        const promise = lastValueFrom(
             bkn.instance
                 ? checkinBookingInstance(
                       bkn.id,
                       bkn.instance,
                       !this.booking.checked_in,
                   )
-                : checkinBooking(this.booking.id, !this.booking.checked_in)
-        )
-            .toPromise()
-            .catch((_) => {
-                notifyError(i18n('BOOKINGS.CHECK_IN_ERROR'));
-                this.checking_in = false;
-                throw _;
-            });
+                : checkinBooking(this.booking.id, !this.booking.checked_in),
+        ).catch((_) => {
+            notifyError(i18n('BOOKINGS.CHECK_IN_ERROR'));
+            this.checking_in = false;
+            throw _;
+        });
         await promise;
         (this.booking as any).checked_in = !this.booking.checked_in;
         this.checked_out = !this.booking.checked_in;
