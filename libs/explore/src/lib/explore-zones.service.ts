@@ -63,11 +63,10 @@ export class ExploreZonesService extends AsyncHandler {
         filter(([bld, lvl, { is_public }]) => !!bld && !!lvl && !is_public),
         map(([_, lvl]) => {
             this._statuses = {};
-            const system_id = this._org.binding('area_management');
             const mod = this._org.module('area_management', 'AreaManagement');
             if (!mod) return;
-            const bind_areas = mod.binding(`${lvl.id}:areas`);
-            const bind_zone = mod.binding(`${lvl.id}`);
+            const bind_areas = mod.variable(`${lvl.id}:areas`);
+            const bind_zone = mod.variable(`${lvl.id}`);
             const zones = combineLatest([
                 bind_areas.listen(),
                 bind_zone.listen(),

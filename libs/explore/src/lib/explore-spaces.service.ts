@@ -93,36 +93,27 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
             if (!list?.length) return;
             for (const space of list) {
                 const mod = getModule(space.id, 'Bookings');
-                let binding = mod.binding('bookings');
+                let binding = mod.variable('bookings');
                 this.subscription(
                     `b-${space.id}`,
-                    binding
-                        .listen()
-                        .subscribe((d) =>
-                            this.handleBookingsChange(list, space, d),
-                        ),
+                    binding.bindThenSubscribe((d) =>
+                        this.handleBookingsChange(list, space, d),
+                    ),
                 );
-                this.subscription(`b-bind-${space.id}`, binding.bind());
-                binding = mod.binding('status');
+                binding = mod.variable('status');
                 this.subscription(
                     `s-${space.id}`,
-                    binding
-                        .listen()
-                        .subscribe((d) =>
-                            this.handleStatusChange(list, space, d),
-                        ),
+                    binding.bindThenSubscribe((d) =>
+                        this.handleStatusChange(list, space, d),
+                    ),
                 );
-                this.subscription(`s-bind-${space.id}`, binding.bind());
-                binding = mod.binding('presence');
+                binding = mod.variable('presence');
                 this.subscription(
                     `c-${space.id}`,
-                    binding
-                        .listen()
-                        .subscribe((d) =>
-                            this.handlePresenceChange(list, space, d),
-                        ),
+                    binding.bindThenSubscribe((d) =>
+                        this.handlePresenceChange(list, space, d),
+                    ),
                 );
-                this.subscription(`c-bind-${space.id}`, binding.bind());
             }
             this.updateActions(list);
             this._updateHoverElements(list);

@@ -51,7 +51,7 @@ export class ChatService extends AsyncHandler {
         filter((_) => !!_),
         switchMap((id) => {
             const mod = getModule(id, 'LLM');
-            const binding = mod.binding('user_hint');
+            const binding = mod.variable('user_hint');
             this.subscription(`binding:LLM:user_hint`, binding.bind());
             return binding.listen();
         }),

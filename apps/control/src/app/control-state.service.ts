@@ -625,13 +625,11 @@ export class ControlStateService extends AsyncHandler {
         mod = 'System',
         on_change: (v: any) => void = (v) => this.updateProperty(name, v),
     ) {
-        const module = getModule(id, mod).binding(name);
+        const module = getModule(id, mod).variable(name);
         this.subscription(
             `listen:${name}`,
-            module.listen().subscribe(on_change),
+            module.bindThenSubscribe(on_change),
         );
-        const unbind = module.bind();
-        // setTimeout(() => this.subscription(`bind:${name}`, unbind), 300);
     }
 
     /** Update properties of the system data */
@@ -644,7 +642,7 @@ export class ControlStateService extends AsyncHandler {
 
     private _listenToSystemBinding(id: string, name: string) {
         const mod = getModule(id, 'System');
-        const binding = mod.binding(name);
+        const binding = mod.variable(name);
         const unbind = binding.bind();
         this.subscription(`binding:${name}`, unbind);
         return binding.listen();

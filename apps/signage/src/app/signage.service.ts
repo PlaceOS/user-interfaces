@@ -141,11 +141,10 @@ export class SignageService extends AsyncHandler {
             this.unsubWith('trigger_');
             const mod = getModule(display.id, '_TRIGGER__1');
             for (const id of triggers) {
-                const binding = mod.binding(id);
-                this.subscription(`trigger_bind-${id}`, binding.bind());
+                const binding = mod.variable(id);
                 this.subscription(
                     `trigger_listen-${id}`,
-                    binding.listen().subscribe(() => this._handleTrigger(id)),
+                    binding.bindThenSubscribe(() => this._handleTrigger(id)),
                 );
             }
         }),

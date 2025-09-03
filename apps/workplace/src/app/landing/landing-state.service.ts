@@ -9,12 +9,17 @@ import {
     showUser,
     updateMetadata,
 } from '@placeos/ts-client';
-import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
+import {
+    BehaviorSubject,
+    combineLatest,
+    lastValueFrom,
+    Observable,
+    of,
+} from 'rxjs';
 import {
     catchError,
     debounceTime,
     filter,
-    first,
     map,
     shareReplay,
     switchMap,
@@ -27,6 +32,7 @@ import {
     BookingRuleset,
     currentUser,
     filterResourcesFromRules,
+    firstTruthyValueFrom,
     HashMap,
     SettingsService,
     unique,
@@ -103,7 +109,7 @@ export class LandingStateService extends AsyncHandler {
         switchMap((list) =>
             combineLatest(
                 (list || []).map((_) => {
-                    const binding = getModule(_.id, 'Bookings').binding(
+                    const binding = getModule(_.id, 'Bookings').variable(
                         'status',
                     );
                     const obs = binding.listen();
@@ -171,7 +177,7 @@ export class LandingStateService extends AsyncHandler {
     }
 
     public async init() {
-        await this._org.initialised.pipe(first((_) => _)).toPromise();
+        await firstTruthyValueFrom(this._org.initialised);
         this.updateContacts();
         this.subscription(
             'building',
@@ -184,9 +190,11 @@ export class LandingStateService extends AsyncHandler {
         );
         const mod = this._org.module('area_management', 'AreaManagement');
         if (!mod) return;
-        const binding = mod.binding('overview');
-        binding.listen().subscribe((d) => this.updateOccupancy(d || {}));
-        binding.bind();
+        const binding = mod.variable('overview');
+        this.subscription(
+            'overview',
+            binding.bindThenSubscribe((d) => this.updateOccupancy(d || {})),
+        );
     }
 
     public setOptions(options: Partial<LandingOptions>) {
@@ -209,16 +217,13 @@ export class LandingStateService extends AsyncHandler {
     }
 
     public async updateContacts() {
-        const metadata: PlaceMetadata = (await showMetadata(
-            currentUser().id,
-            'contacts',
-        ).toPromise()) as any;
+        const metadata: PlaceMetadata = (await lastValueFrom(
+            showMetadata(currentUser().id, 'contacts'),
+        )) as any;
         const list = metadata.details instanceof Array ? metadata.details : [];
         const users = await Promise.all(
             list.map((_) =>
-                showUser(_.email)
-                    .pipe(catchError(() => of(_)))
-                    .toPromise(),
+                lastValueFrom(showUser(_.email).pipe(catchError(() => of(_)))),
             ),
         );
         this._contacts.next(users.map((i) => new StaffUser(i as any)));
@@ -228,22 +233,26 @@ export class LandingStateService extends AsyncHandler {
         let users = [...this._contacts.getValue()];
         users.push(user);
         users = unique(users, 'email');
-        await updateMetadata(currentUser().id, {
-            name: 'contacts',
-            description: 'Contacts for the User',
-            details: users,
-        }).toPromise();
+        await lastValueFrom(
+            updateMetadata(currentUser().id, {
+                name: 'contacts',
+                description: 'Contacts for the User',
+                details: users,
+            }),
+        );
         this.updateContacts();
     }
 
     public async removeContact(user: User) {
         let users = [...this._contacts.getValue()];
         users = users.filter((u) => u.email !== user.email);
-        await updateMetadata(currentUser().id, {
-            name: 'contacts',
-            description: 'Contacts for the User',
-            details: users,
-        }).toPromise();
+        await lastValueFrom(
+            updateMetadata(currentUser().id, {
+                name: 'contacts',
+                description: 'Contacts for the User',
+                details: users,
+            }),
+        );
         this.updateContacts();
     }
 
@@ -262,14 +271,10 @@ export class LandingStateService extends AsyncHandler {
         const { sys, module, index } = occupancy;
         const mod = getModule(sys, module, index);
         if (!mod) return;
-        if (this._occupancy_binding) {
-            this._occupancy_binding.unbind();
-        }
-        this._occupancy_binding = mod.binding('occupancy');
-        this._occupancy_binding.bind();
+        this._occupancy_binding = mod.variable('occupancy');
         this.subscription(
             'occupancy_binding',
-            this._occupancy_binding.listen().subscribe((value) => {
+            this._occupancy_binding.bindThenSubscribe((value) => {
                 const levels = Object.keys(value).map((key) => ({
                     id: key,
                     ...value[key],

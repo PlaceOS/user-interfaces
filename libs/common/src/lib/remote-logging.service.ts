@@ -111,8 +111,8 @@ export class RemoteLoggingService extends AsyncHandler {
     }
 
     /** List to binding */
-    private _bindTo(id: string, name: string, mod: string = 'Logger') {
-        const module = getModule(id, mod).binding(name);
+    private _bindTo(id: string, name: string, mod = 'Logger') {
+        const module = getModule(id, mod).variable(name);
         this.subscription(`bind:${name}`, module.bind());
         return module.listen();
     }

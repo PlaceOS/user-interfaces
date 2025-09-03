@@ -14,7 +14,7 @@ import {
 import { authority, getModule, onlineState } from '@placeos/ts-client';
 
 import { AsyncHandler } from '@placeos/common';
-import { filter, first } from 'rxjs/operators';
+import { first } from 'rxjs/operators';
 
 @Directive({
     selector: 'i[bind], [binding], co-bind',
@@ -100,24 +100,21 @@ export class BindingDirective<T = any>
                         this.mod(),
                         this.index(),
                     );
-                    const binding = module.binding(this.bind());
+                    const binding = module.variable(this.bind());
                     this._binding = true;
-                    this.subscription('binding', binding.bind());
                     this.subscription(
                         'on_changes',
-                        binding
-                            .listen()
-                            .pipe(filter((_) => _ != null))
-                            .subscribe((value) => {
-                                setTimeout(() => {
-                                    this._binding = false;
-                                    this.clearTimeout('bound');
-                                    if (this.ignore()) return;
-                                    this.model.set(value);
-                                    this._old_model = this.model();
-                                    this.modelChange.emit(this.model());
-                                }, 10);
-                            }),
+                        binding.bindThenSubscribe((value) => {
+                            if (value == null) return;
+                            setTimeout(() => {
+                                this._binding = false;
+                                this.clearTimeout('bound');
+                                if (this.ignore()) return;
+                                this.model.set(value);
+                                this._old_model = this.model();
+                                this.modelChange.emit(this.model());
+                            }, 10);
+                        }),
                     );
                     this.timeout('bound', () => (this._binding = false), 200);
                 },

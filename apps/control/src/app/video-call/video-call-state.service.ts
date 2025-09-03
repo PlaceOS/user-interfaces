@@ -119,7 +119,7 @@ export class VideoCallStateService extends AsyncHandler {
 
     private bindTo(id: string, name: string, mod_name = 'VidConf') {
         const mod = getModule(id, mod_name);
-        const binding = mod.binding(name);
+        const binding = mod.variable(name);
         const unbind = binding.bind();
         this.subscription(`binding:${name}`, unbind);
         return binding.listen();

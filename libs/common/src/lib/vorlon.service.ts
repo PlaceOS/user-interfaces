@@ -23,11 +23,10 @@ export class VorlonService extends AsyncHandler {
         if (system) {
             const module = getModule(system, 'Vorlon');
             if (module) {
-                const binding = module.binding('enabled');
-                this.subscription('binding', binding.bind());
+                const binding = module.variable('enabled');
                 this.subscription(
                     'binding_value',
-                    binding.listen().subscribe((state) => {
+                    binding.bindThenSubscribe((state) => {
                         state
                             ? this.injectVorlonScript()
                             : this.removeVorlonScript();

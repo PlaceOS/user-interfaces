@@ -121,17 +121,14 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
             this._statuses = {};
             const mod = this._org.module('area_management', 'AreaManagement');
             if (!mod) return;
-            const binding = mod.binding(lvl.id);
+            const binding = mod.variable(lvl.id);
             if (!binding) return;
             this.subscription(
                 `lvl-in_use`,
-                binding
-                    .listen()
-                    .subscribe((d) =>
-                        this.processBindingChange(d || {}, mod.id),
-                    ),
+                binding.bindThenSubscribe((d) =>
+                    this.processBindingChange(d || {}, mod.id),
+                ),
             );
-            this.subscription('lvl-in_use_bind', binding.bind());
         }),
     );
 

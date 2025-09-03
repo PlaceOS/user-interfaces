@@ -616,12 +616,11 @@ export class PanelStateService extends AsyncHandler {
         on_change: (v: PanelSettings[K]) => void = (v) =>
             this.updateProperty(name, v),
     ) {
-        const binding = getModule(id, mod).binding(name);
+        const binding = getModule(id, mod).variable(name);
         this.subscription(
             `listen:${name}`,
-            binding.listen().subscribe(on_change),
+            binding.bindThenSubscribe(on_change),
         );
-        this.subscription(`bind:${name}`, binding.bind());
     }
 
     /** Update properties of the system data */
@@ -641,7 +640,7 @@ export class PanelStateService extends AsyncHandler {
     ) {
         const mod = getModule(id, mod_name);
         if (window.debug) window.panel_module = mod;
-        const binding = mod.binding(name);
+        const binding = mod.variable(name);
         this.subscription(`binding:${mod_name}:${name}`, binding.bind());
         return binding.listen();
     }

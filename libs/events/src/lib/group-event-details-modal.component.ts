@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import {
     MAT_DIALOG_DATA,
@@ -337,7 +337,7 @@ import {
                             event-details
                             [innerHTML]="body | sanitize"
                         ></span>
-                        @if (!raw_description.trim()) {
+                        @if (!raw_description()) {
                             <span class="opacity-30">
                                 {{
                                     'CALENDAR_EVENT.GROUP_NO_DESCRIPTION'
@@ -486,7 +486,7 @@ export class GroupEventDetailsModalComponent {
     public showing_map = false;
     public show_attendees = false;
     public styles = {};
-    public raw_description = '';
+    public readonly raw_description = signal('');
     public calendar_space: Space;
 
     public get time_format() {
@@ -597,7 +597,7 @@ export class GroupEventDetailsModalComponent {
             this._org.buildings.find((_) => zones.includes(_.id)) ||
             this._org.building;
         this.locate = map_id || '';
-        this.raw_description = this.removeHtmlTags(this.event.body);
+        this.raw_description.set(this.removeHtmlTags(this.event.body).trim());
     }
 
     public removeHtmlTags(html: string) {

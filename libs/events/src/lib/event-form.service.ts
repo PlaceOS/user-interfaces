@@ -247,7 +247,7 @@ export class OldEventFormService extends AsyncHandler {
         switchMap(([_, list]) => {
             return combineLatest(
                 (list || []).map((_) => {
-                    const binding = getModule(_.id, 'Bookings').binding(
+                    const binding = getModule(_.id, 'Bookings').variable(
                         'bookings',
                     );
                     const obs = binding

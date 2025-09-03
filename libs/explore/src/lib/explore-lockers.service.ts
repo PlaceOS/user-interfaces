@@ -80,20 +80,16 @@ export class ExploreLockersService extends AsyncHandler {
             if (!lvl || is_public) return [];
             const mod = this._org.module('area_management', 'AreaManagement');
             if (!mod) return of({});
-            const binding = mod.binding(lvl.id);
+            const binding = mod.variable(lvl.id);
             this.subscription(
                 `lvl-in_use`,
-                binding
-                    .listen()
-                    .subscribe((data) =>
-                        this._status.next(
-                            data?.value?.filter(
-                                (_) => _.location === 'locker',
-                            ) || [],
-                        ),
+                binding.bindThenSubscribe((data) =>
+                    this._status.next(
+                        data?.value?.filter((_) => _.location === 'locker') ||
+                            [],
                     ),
+                ),
             );
-            this.subscription('lvl-in_use_bind', binding.bind());
         }),
     );
 

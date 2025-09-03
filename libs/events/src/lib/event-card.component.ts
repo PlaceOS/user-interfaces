@@ -4,6 +4,7 @@ import {
     input,
     OnChanges,
     OnInit,
+    signal,
     SimpleChanges,
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
@@ -87,7 +88,7 @@ import { GroupEventDetailsModalComponent } from './group-event-details-modal.com
                                 >meeting_room</icon
                             >
                             <div class="mx-2 truncate">
-                                {{ location }}
+                                {{ location() }}
                             </div>
                         </div>
                         <div class="flex items-center px-4">
@@ -196,7 +197,7 @@ export class EventCardComponent
     public readonly edit_fn = input((d) => null);
     public readonly remove_fn = input((d, t) => null);
 
-    public location = '';
+    public readonly location = signal('');
 
     private _local_tz = getTimezoneOffsetString(
         Intl.DateTimeFormat().resolvedOptions().timeZone,
@@ -280,12 +281,12 @@ export class EventCardComponent
                 }
             }),
         );
-        this.location = await this.getLocationString();
+        this.location.set(await this.getLocationString());
     }
 
     public async ngOnChanges(changes: SimpleChanges) {
         if (changes.event && this.event()) {
-            this.location = await this.getLocationString();
+            this.location.set(await this.getLocationString());
         }
     }
 

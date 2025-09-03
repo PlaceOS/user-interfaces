@@ -421,7 +421,7 @@ export class ExploreSearchService {
         if (is_public) return;
         const mod = this._org.module('location_services', 'LocationServices');
         if (mod) {
-            const binding = mod.binding('emergency_contacts');
+            const binding = mod.variable('emergency_contacts');
             binding.listen().subscribe((contacts_map) => {
                 const list = [];
                 for (const type in contacts_map) {

@@ -21,7 +21,6 @@ import {
     SettingsService,
 } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { FullscreenModalShellComponent } from '../../../components/src/lib/fullscreen-modal-shell.component';
 import { ImageListFieldComponent } from './image-list-field.component';
@@ -163,7 +162,6 @@ export interface SupportRequestType {
         FormsModule,
         ReactiveFormsModule,
         MatProgressSpinnerModule,
-        IconComponent,
         MatRippleModule,
         RichTextInputComponent,
         ImageListFieldComponent,

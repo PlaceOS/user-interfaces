@@ -116,9 +116,10 @@ export class ScheduleStateService extends AsyncHandler {
                 this._loading.next(false);
                 return combineLatest(
                     (list || []).map((space) => {
-                        const binding = getModule(space.id, 'Bookings').binding(
-                            'bookings',
-                        );
+                        const binding = getModule(
+                            space.id,
+                            'Bookings',
+                        ).variable('bookings');
                         const obs = binding.listen().pipe(
                             map((event_list) =>
                                 (event_list || []).map(
