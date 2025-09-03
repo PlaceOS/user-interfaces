@@ -29,7 +29,7 @@ import { OrganisationService } from '@placeos/organisation';
                 class="flex h-full w-full min-w-full items-center justify-center overflow-hidden text-base-content"
             >
                 @for (route of routes; track route) {
-                    @if (features.includes(route.id) || route.id === 'home') {
+                    @if (features().includes(route.id) || route.id === 'home') {
                         <a
                             matRipple
                             [name]="'nav-' + route.id"
@@ -70,7 +70,7 @@ import { OrganisationService } from '@placeos/organisation';
         }
         <mat-menu #menu="matMenu">
             @for (route of routes; track route) {
-                @if (features.includes(route.id) || route.id === 'home') {
+                @if (features().includes(route.id) || route.id === 'home') {
                     <a
                         mat-menu-item
                         [routerLink]="route.route"
@@ -144,6 +144,7 @@ export class TopMenuComponent
     public readonly checking = signal(false);
     public readonly mobile_menu = signal(false);
     public readonly hide_text = signal(false);
+    public readonly features = signal([] as string[]);
 
     public readonly setBuilding = (b) => (this._org.building = b);
 
@@ -153,7 +154,7 @@ export class TopMenuComponent
         return this._settings.get('app.features') || [];
     }
 
-    public get features(): string[] {
+    public get available_features(): string[] {
         const feature_list = this.feature_list;
         const feature_groups: Record<string, string[]> =
             this._settings.get('app.feature_groups') || {};
@@ -276,17 +277,19 @@ export class TopMenuComponent
     }
 
     public ngAfterViewInit() {
-        this.timeout('check_menu', () => this.checkMenu());
+        this.timeout('check_menu', () => this.checkMenu(), 300);
     }
 
     private _checkRoute() {
+        this.features.set(this.available_features);
         if (
             this.type &&
             this.type !== 'home' &&
-            !this.features.includes(this.type)
+            !this.features().includes(this.type)
         ) {
             this._router.navigate(['/']);
         }
+        this.timeout('check_menu', () => this.checkMenu(), 300);
     }
 
     public checkMenu() {

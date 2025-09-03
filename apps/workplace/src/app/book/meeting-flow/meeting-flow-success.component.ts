@@ -20,11 +20,11 @@ import { set } from 'date-fns';
             {
                 level: level?.display_name || level?.name,
                 space: space?.display_name || space?.name,
-                date: last_event.date | date: 'mediumDate',
+                date: last_event()?.date | date: 'mediumDate',
                 time:
-                    (last_event.date | date: time_format) +
+                    (last_event()?.date | date: time_format) +
                     ' — ' +
-                    (last_event.date_end | date: time_format),
+                    (last_event()?.date_end | date: time_format),
             };
         @if (!loading()) {
             <div
@@ -42,7 +42,7 @@ import { set } from 'date-fns';
                     </h2>
                     <img src="assets/icons/success.svg" />
                     <p class="max-w-[32rem] text-center">
-                        @if (last_event?.all_day) {
+                        @if (last_event()?.all_day) {
                             {{
                                 (space
                                     ? 'CALENDAR_EVENT.SUCCESS_WITH_SPACE_ALLDAY'
@@ -50,7 +50,7 @@ import { set } from 'date-fns';
                                 ) | translate: details
                             }}
                         }
-                        @if (!last_event?.all_day) {
+                        @if (!last_event()?.all_day) {
                             {{
                                 (space
                                     ? 'CALENDAR_EVENT.SUCCESS_WITH_SPACE'
@@ -108,17 +108,14 @@ export class MeetingFlowSuccessComponent implements OnInit {
     private _space_pipe: SpacePipe = new SpacePipe(this._org);
 
     public readonly loading = signal(false);
+    public readonly last_event = this._event_form.last_success;
 
     public get allow_desk_booking() {
         return this._settings.get('app.features').includes('desks');
     }
 
-    public get last_event() {
-        return this._event_form.last_success;
-    }
-
     public get space() {
-        return this.last_event.space;
+        return this.last_event()?.space;
     }
 
     public get level() {
@@ -147,12 +144,12 @@ export class MeetingFlowSuccessComponent implements OnInit {
             const level = this._org.levelWithID(space?.zones);
             this._booking_form.setOptions({ type: 'desk', zone_id: level?.id });
             this._booking_form.form.patchValue({
-                date: set(this.last_event.date, {
+                date: set(this.last_event().date, {
                     hours: 8,
                     minutes: 0,
                 }).valueOf(),
                 duration: 10 * 60,
-                all_day: this.last_event.all_day,
+                all_day: this.last_event().all_day,
                 booking_type: 'desk',
                 user: currentUser(),
             });
@@ -171,12 +168,12 @@ export class MeetingFlowSuccessComponent implements OnInit {
                 return notifyError(i18n('APP.WORKPLACE.MEETING_DESK_ERROR'));
             const resource = resources.find((_) => _.map_id === nearby);
             this._booking_form.form.patchValue({
-                date: set(this.last_event.date, {
+                date: set(this.last_event().date, {
                     hours: 8,
                     minutes: 0,
                 }).valueOf(),
                 duration: 10 * 60,
-                all_day: this.last_event.all_day,
+                all_day: this.last_event().all_day,
                 booking_type: 'desk',
                 asset_id: nearby,
                 asset_name: resource.name,

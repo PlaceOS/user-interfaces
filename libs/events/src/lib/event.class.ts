@@ -47,6 +47,8 @@ const DAYS_OF_WEEK = [
 
 type CalendarEventExtended = CalendarEvent & EventExtensionData;
 
+type Visibility = 'normal' | 'personal' | 'public' | 'private' | 'confidential';
+
 /** User's calendar event/booking */
 export class CalendarEvent {
     /** ID of the calendar event */
@@ -97,6 +99,8 @@ export class CalendarEvent {
     public readonly private: boolean;
     /** Permission level for the event */
     public readonly permission: string;
+    /** Visibility level for the event */
+    public readonly visibility: Visibility;
     /** File attachements for the event */
     public readonly attachments: FileDetails[];
     /** Extra data associated with the event */
@@ -266,6 +270,7 @@ export class CalendarEvent {
             data.location || this.space?.display_name || this.space?.name || '';
         this.setup_time = data.setup_time || 0;
         this.breakdown_time = data.breakdown_time || 0;
+        this.visibility = data.visibility || 'normal';
         this.type =
             this.status === 'declined'
                 ? 'cancelled'

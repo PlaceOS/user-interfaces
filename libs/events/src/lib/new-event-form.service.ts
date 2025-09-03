@@ -1,4 +1,4 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Event, NavigationEnd, Router } from '@angular/router';
 import { startOfDay } from 'date-fns';
@@ -15,7 +15,6 @@ import {
     debounceTime,
     distinctUntilKeyChanged,
     filter,
-    first,
     map,
     shareReplay,
     startWith,
@@ -36,6 +35,7 @@ import {
     current_user,
     currentUser,
     filterResourcesFromRules,
+    firstTruthyValueFrom,
     flatten,
     getInvalidFields,
     i18n,
@@ -285,16 +285,18 @@ export class EventFormService extends AsyncHandler {
         shareReplay(1),
     );
 
-    private _last_event: CalendarEvent;
+    public readonly view$ = this._view.asObservable();
+    public readonly last_success = signal<CalendarEvent | null>(null);
 
-    public get last_success() {
+    public loadLastSuccess() {
         const event = new CalendarEvent(
             JSON.parse(
                 sessionStorage?.getItem('PLACEOS.last_modified_event') || '{}',
             ),
         );
-        if (this._last_event?.date === event.date) return this._last_event;
-        this._last_event = event;
+        if (this.last_success()?.date === event.date)
+            return this.last_success();
+        this.last_success.set(event);
         return event;
     }
 
@@ -340,7 +342,7 @@ export class EventFormService extends AsyncHandler {
     }
 
     public async init() {
-        await current_user.pipe(first((_) => !!_)).toPromise();
+        await firstTruthyValueFrom(current_user);
         setDefaultCreator(currentUser());
         this.form.controls.date.valueChanges.subscribe((date) =>
             this.setOptions({ date }),
@@ -374,6 +376,7 @@ export class EventFormService extends AsyncHandler {
             }
             this.storeForm();
         });
+        this.loadLastSuccess();
     }
 
     public setView(value: EventFlowView) {
@@ -669,6 +672,7 @@ export class EventFormService extends AsyncHandler {
             'PLACEOS.last_modified_event',
             JSON.stringify(created_event.toJSON()),
         );
+        this.loadLastSuccess();
         return true;
     }
 

@@ -86,6 +86,7 @@ export function generateEventForm(
         // has_catering: new FormControl(event.has_catering || false),
         visitor_type: new FormControl(event.extension_data?.visitor_type),
         location: new FormControl(event.location),
+        visibility: new FormControl(event.visibility || 'normal'),
         needs_space: new FormControl(true),
         needs_parking: new FormControl(
             event.extension_data?.needs_parking || false,

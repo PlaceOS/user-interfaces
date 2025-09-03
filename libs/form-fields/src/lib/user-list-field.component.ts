@@ -74,7 +74,7 @@ const DENIED_FILE_TYPES = [
                     #origin="matAutocompleteOrigin"
                 >
                     <mat-chip-grid #chipList aria-label="User Seleciom">
-                        @for (item of active_list; track item) {
+                        @for (item of active_list; track item.id) {
                             <mat-chip-row
                                 user
                                 [class.bg-warning]="item.is_external"

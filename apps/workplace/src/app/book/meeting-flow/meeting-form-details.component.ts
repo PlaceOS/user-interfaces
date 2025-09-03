@@ -205,6 +205,26 @@ import {
                         }
                     </div>
                 }
+                @if (allow_visibility) {
+                    <div class="flex w-full flex-col">
+                        <label for="visibility">
+                            {{ 'COMMON.VISIBILITY' | translate }}<span>*</span>
+                        </label>
+                        <mat-form-field appearance="outline">
+                            <mat-select formControlName="visibility">
+                                <mat-option
+                                    *ngFor="let option of visibility_options"
+                                    [value]="option.value"
+                                >
+                                    {{
+                                        'COMMON.VISIBILITY_' + option.label
+                                            | translate
+                                    }}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+                }
             </div>
         }
     `,
@@ -237,6 +257,10 @@ export class MeetingFormDetailsComponent {
 
     public get allow_all_day() {
         return this._settings.get('app.events.allow_all_day');
+    }
+
+    public get allow_visibility() {
+        return this._settings.get('app.events.allow_visibility');
     }
 
     public get allow_recurrence() {
@@ -292,4 +316,12 @@ export class MeetingFormDetailsComponent {
             minutes: diff % 60,
         })})`;
     };
+
+    public readonly visibility_options = [
+        { value: 'normal', label: 'NORMAL' },
+        { value: 'personal', label: 'PERSONAL' },
+        { value: 'public', label: 'PUBLIC' },
+        { value: 'private', label: 'PRIVATE' },
+        { value: 'confidential', label: 'CONFIDENTIAL' },
+    ];
 }

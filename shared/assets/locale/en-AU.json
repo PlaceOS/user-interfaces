@@ -260,7 +260,13 @@
         "LOCATABLE": "Location tracking",
         "UPLOAD_IMAGE": "Upload Image",
         "UPLOAD_IMAGE_INFO": "Drag & Drop or click to upload an image",
-        "BOOKED_BY": "Booked By"
+        "BOOKED_BY": "Booked By",
+        "VISIBILITY": "Visibility",
+        "VISIBILITY_NORMAL": "Normal",
+        "VISIBILITY_PERSONAL": "Personal",
+        "VISIBILITY_PUBLIC": "Public",
+        "VISIBILITY_PRIVATE": "Private",
+        "VISIBILITY_CONFIDENTIAL": "Confidential"
     },
     "LANGUAGE": {
         "ENGLISH": "English",

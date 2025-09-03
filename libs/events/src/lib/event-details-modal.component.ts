@@ -225,6 +225,18 @@ const EMPTY_ACTIONS = [];
                             </div>
                         </div>
                     }
+                    @if (event.visibility && event.visibility !== 'normal') {
+                        <div class="flex items-center space-x-2 px-2">
+                            <icon matTooltip="Visibility">visibility</icon>
+                            <div>
+                                {{
+                                    'COMMON.VISIBILITY_' +
+                                        (event.visibility | uppercase)
+                                        | translate
+                                }}
+                            </div>
+                        </div>
+                    }
                 </div>
                 <div
                     class="min-w-1/3 mt-4 flex-grow-[3] rounded border-base-200 sm:m-2 sm:w-[16rem] sm:border sm:bg-base-100 sm:p-4"
