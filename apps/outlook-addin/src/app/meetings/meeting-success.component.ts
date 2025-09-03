@@ -9,17 +9,17 @@ import { EventFormService } from '@placeos/events';
         >
             <h3 class="text-3xl">Booking Confirmed!</h3>
             <img src="assets/tick_success.svg" />
-            @let room = last_success?.system?.email || '' | space;
+            @let room = last_success()?.system?.email || '' | space;
             <p>
                 Your meeting booking for
                 <i>{{
-                    last_success?.location || room.display_name || room.name
+                    last_success()?.location || room.display_name || room.name
                 }}</i>
                 has been successfully booked for the
-                {{ last_success?.date | date: 'dd MMMM yyyy' }} at
-                {{ last_success?.date | date: 'shortTime' }} -
+                {{ last_success()?.date | date: 'dd MMMM yyyy' }} at
+                {{ last_success()?.date | date: 'shortTime' }} -
                 {{
-                    last_success?.date + last_success?.duration * 60 * 1000
+                    last_success()?.date + last_success()?.duration * 60 * 1000
                         | date: 'shortTime'
                 }}
             </p>

@@ -66,10 +66,10 @@ export class BookingConfirmedComponent implements OnInit {
     duration: CalendarEvent['duration'];
 
     ngOnInit() {
-        this.location = this._state.last_success?.location;
-        this.date = of(this._state.last_success?.date);
+        this.location = this._state.last_success()?.location;
+        this.date = of(this._state.last_success()?.date);
         this.start_time$ = of(
-            new Date(this._state.last_success?.date).toLocaleTimeString(
+            new Date(this._state.last_success()?.date).toLocaleTimeString(
                 'en-US',
                 {
                     hour: 'numeric',
@@ -78,10 +78,10 @@ export class BookingConfirmedComponent implements OnInit {
                 },
             ),
         );
-        this.duration = this._state.last_success?.duration;
+        this.duration = this._state.last_success()?.duration;
         this.end_time$ = of(
             new Date(
-                this._state.last_success?.date + this.duration * 60 * 1000,
+                this._state.last_success()?.date + this.duration * 60 * 1000,
             ).toLocaleTimeString('en-US', {
                 hour: 'numeric',
                 minute: 'numeric',

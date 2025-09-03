@@ -270,7 +270,7 @@ export class CateringTopbarComponent extends AsyncHandler implements OnInit {
                 await this._catering
                     .saveSettings({ disabled_rooms: list })
                     .catch();
-                ref.componentInstance.loading = false;
+                ref.componentInstance.loading.set(false);
             }),
         );
     }
