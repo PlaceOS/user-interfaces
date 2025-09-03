@@ -23,6 +23,7 @@ import {
 import { OrganisationService } from '@placeos/organisation';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { FullscreenModalShellComponent } from '../../../components/src/lib/fullscreen-modal-shell.component';
 import { ImageListFieldComponent } from './image-list-field.component';
 import { RichTextInputComponent } from './rich-text-input.component';
 
@@ -34,152 +35,119 @@ export interface SupportRequestType {
 @Component({
     selector: 'support-ticket-modal',
     template: `
-        <header
-            class="m-2 flex h-14 w-[calc(100%-1rem)] items-center space-x-2 rounded border-none bg-base-200 p-2"
+        <fullscreen-modal-shell
+            [heading]="'Raise a support ticket'"
+            [loading]="loading"
+            [confirm_text]="'COMMON.SUBMIT' | translate"
+            (confirm)="submit()"
         >
-            <h2 class="flex-1 px-2 text-xl font-medium capitalize">
-                Raise a support ticket
-            </h2>
-            <button icon matRipple mat-dialog-close>
-                <icon class="text-2xl">close</icon>
-            </button>
-        </header>
-        @if (!loading) {
-            <main class="w-[32rem] max-w-[85vw]">
-                <form class="px-4 py-2" [formGroup]="form">
-                    <div class="flex flex-wrap items-center sm:space-x-2">
-                        <div class="flex flex-1 flex-col">
-                            <label
-                                >{{ 'FORM.NAME' | translate
-                                }}<span>*</span></label
-                            >
-                            <mat-form-field appearance="outline">
-                                <input
-                                    matInput
-                                    [placeholder]="'FORM.NAME' | translate"
-                                    formControlName="name"
-                                />
-                                <mat-error>{{
-                                    'FORM.NAME_REQUIRED' | translate
-                                }}</mat-error>
-                            </mat-form-field>
-                        </div>
-                        <div class="flex flex-1 flex-col">
-                            <label
-                                >{{ 'FORM.EMAIL' | translate
-                                }}<span>*</span></label
-                            >
-                            <mat-form-field appearance="outline">
-                                <input
-                                    matInput
-                                    [placeholder]="'FORM.EMAIL' | translate"
-                                    formControlName="email"
-                                />
-                                <mat-error>{{
-                                    'FORM.EMAIL_REQUIRED' | translate
-                                }}</mat-error>
-                            </mat-form-field>
-                        </div>
+            <form [formGroup]="form">
+                <div class="flex flex-wrap items-center sm:space-x-2">
+                    <div class="flex flex-1 flex-col">
+                        <label
+                            >{{ 'FORM.NAME' | translate }}<span>*</span></label
+                        >
+                        <mat-form-field appearance="outline">
+                            <input
+                                matInput
+                                [placeholder]="'FORM.NAME' | translate"
+                                formControlName="name"
+                            />
+                            <mat-error>{{
+                                'FORM.NAME_REQUIRED' | translate
+                            }}</mat-error>
+                        </mat-form-field>
                     </div>
+                    <div class="flex flex-1 flex-col">
+                        <label
+                            >{{ 'FORM.EMAIL' | translate }}<span>*</span></label
+                        >
+                        <mat-form-field appearance="outline">
+                            <input
+                                matInput
+                                [placeholder]="'FORM.EMAIL' | translate"
+                                formControlName="email"
+                            />
+                            <mat-error>{{
+                                'FORM.EMAIL_REQUIRED' | translate
+                            }}</mat-error>
+                        </mat-form-field>
+                    </div>
+                </div>
+                <div class="flex flex-col">
+                    <label>{{ 'COMMON.SUPPORT_LOCATION' | translate }}</label>
+                    <mat-form-field appearance="outline" class="w-full">
+                        <mat-select
+                            [placeholder]="
+                                'COMMON.SUPPORT_LOCATION' | translate
+                            "
+                            formControlName="location"
+                        >
+                            @for (bld of buildings | async; track bld) {
+                                <mat-option
+                                    [value]="bld.display_name || bld.name"
+                                >
+                                    {{ bld.display_name || bld.name }}
+                                </mat-option>
+                            }
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+                @if (support_request_types?.length) {
                     <div class="flex flex-col">
-                        <label>{{
-                            'COMMON.SUPPORT_LOCATION' | translate
-                        }}</label>
+                        <label>{{ 'COMMON.SUPPORT_TYPE' | translate }}</label>
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
                                 [placeholder]="
-                                    'COMMON.SUPPORT_LOCATION' | translate
+                                    'COMMON.SUPPORT_TYPE' | translate
                                 "
-                                formControlName="location"
+                                formControlName="issue_type"
                             >
-                                @for (bld of buildings | async; track bld) {
-                                    <mat-option
-                                        [value]="bld.display_name || bld.name"
-                                    >
-                                        {{ bld.display_name || bld.name }}
+                                @for (
+                                    type of support_request_types;
+                                    track type
+                                ) {
+                                    <mat-option [value]="type?.name || type">
+                                        {{ type.name || type }}
                                     </mat-option>
                                 }
                             </mat-select>
                         </mat-form-field>
                     </div>
-                    @if (support_request_types?.length) {
-                        <div class="flex flex-col">
-                            <label>{{
-                                'COMMON.SUPPORT_TYPE' | translate
-                            }}</label>
-                            <mat-form-field appearance="outline" class="w-full">
-                                <mat-select
-                                    [placeholder]="
-                                        'COMMON.SUPPORT_TYPE' | translate
-                                    "
-                                    formControlName="issue_type"
-                                >
-                                    @for (
-                                        type of support_request_types;
-                                        track type
-                                    ) {
-                                        <mat-option
-                                            [value]="type?.name || type"
-                                        >
-                                            {{ type.name || type }}
-                                        </mat-option>
-                                    }
-                                </mat-select>
-                            </mat-form-field>
-                        </div>
+                }
+                <div class="">
+                    <label class="mb-4">
+                        {{ 'COMMON.SUPPORT_DESCRIPTION' | translate }}
+                        <span>*</span>
+                    </label>
+                    <rich-text-input
+                        [placeholder]="'COMMON.SUPPORT_DESCRIPTION' | translate"
+                        formControlName="description"
+                    ></rich-text-input>
+                    @if (desc_error) {
+                        <mat-error class="my-2 text-xs">
+                            {{
+                                'COMMON.SUPPORT_DESCRIPTION_REQUIRED'
+                                    | translate
+                            }}
+                        </mat-error>
                     }
-                    <div class="">
-                        <label class="mb-4">
-                            {{ 'COMMON.SUPPORT_DESCRIPTION' | translate }}
-                            <span>*</span>
-                        </label>
-                        <rich-text-input
-                            [placeholder]="
-                                'COMMON.SUPPORT_DESCRIPTION' | translate
-                            "
-                            formControlName="description"
-                        ></rich-text-input>
-                        @if (desc_error) {
-                            <mat-error class="my-2 text-xs">
-                                {{
-                                    'COMMON.SUPPORT_DESCRIPTION_REQUIRED'
-                                        | translate
-                                }}
-                            </mat-error>
-                        }
-                    </div>
-                    @if (allow_images) {
-                        <div class="pt-4">
-                            <label class="mb-4">{{
-                                'COMMON.SUPPORT_IMAGES' | translate
-                            }}</label>
-                            <image-list-field
-                                formControlName="images"
-                            ></image-list-field>
-                        </div>
-                    }
-                </form>
-                <div class="mb-2 text-center text-xs italic">
-                    {{ 'COMMON.SUPPORT_MSG' | translate }}
                 </div>
-            </main>
-        } @else {
-            <main
-                class="flex min-h-[24rem] w-[32rem] max-w-[100vw] flex-col items-center justify-center space-y-2"
-            >
-                <mat-spinner [diameter]="32"></mat-spinner>
-                <p>{{ 'COMMON.SUPPORT_LOADING' | translate }}</p>
-            </main>
-        }
-        @if (!loading) {
-            <footer
-                class="flex items-center justify-end border-t border-base-200 px-4 py-2"
-            >
-                <button btn matRipple class="w-32" (click)="submit()">
-                    {{ 'COMMON.SUBMIT' | translate }}
-                </button>
-            </footer>
-        }
+                @if (allow_images) {
+                    <div class="pt-4">
+                        <label class="mb-4">{{
+                            'COMMON.SUPPORT_IMAGES' | translate
+                        }}</label>
+                        <image-list-field
+                            formControlName="images"
+                        ></image-list-field>
+                    </div>
+                }
+            </form>
+            <div class="mb-2 text-center text-xs italic">
+                {{ 'COMMON.SUPPORT_MSG' | translate }}
+            </div>
+        </fullscreen-modal-shell>
     `,
     styles: [
         `
@@ -203,6 +171,7 @@ export interface SupportRequestType {
         TranslatePipe,
         MatDialogModule,
         MatRippleModule,
+        FullscreenModalShellComponent,
     ],
 })
 export class SupportTicketModalComponent {
