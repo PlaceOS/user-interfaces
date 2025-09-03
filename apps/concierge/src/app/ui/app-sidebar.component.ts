@@ -146,6 +146,11 @@ export class ApplicationSidebarComponent
                         route: ['/book/parking/events'],
                     },
                     {
+                        id: 'parking-bookings',
+                        name: i18n('APP.CONCIERGE.MENU_PARKING_BOOKINGS'),
+                        route: ['/book/parking/events'],
+                    },
+                    {
                         id: 'lockers',
                         name: i18n('APP.CONCIERGE.MENU_LOCKER_BOOKINGS'),
                         route: ['/book/lockers/events'],
@@ -209,6 +214,11 @@ export class ApplicationSidebarComponent
                     },
                     {
                         id: 'parking',
+                        name: i18n('APP.CONCIERGE.MENU_MANAGE_PARKING'),
+                        route: ['/book/parking/manage'],
+                    },
+                    {
+                        id: 'parking-manage',
                         name: i18n('APP.CONCIERGE.MENU_MANAGE_PARKING'),
                         route: ['/book/parking/manage'],
                     },
