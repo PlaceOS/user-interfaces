@@ -60,11 +60,21 @@ interface UserLabelSettings {
                     <div class="flex space-x-4">
                         <div class="">
                             <label>Width</label>
-                            <a-counter [(ngModel)]="width" />
+                            <a-counter
+                                [(ngModel)]="width"
+                                [min]="1"
+                                [max]="100"
+                                [step]="1"
+                            />
                         </div>
                         <div class="">
                             <label>Height</label>
-                            <a-counter [(ngModel)]="height" />
+                            <a-counter
+                                [(ngModel)]="height"
+                                [min]="1"
+                                [max]="100"
+                                [step]="1"
+                            />
                         </div>
                     </div>
                     <div>
