@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, ElementRef, OnInit, inject } from '@angular/core';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { MAP_FEATURE_DATA } from 'libs/common/src/lib/types';
+import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { CalendarEvent } from 'libs/events/src/lib/event.class';
@@ -58,8 +59,7 @@ export interface SpaceInfoData {
                                 [source]="space.images[0]"
                                 class="min-h-full min-w-full object-cover"
                             />
-                        }
-                        @if (space.images[0]) {
+                        } @else {
                             <div
                                 class="absolute inset-0 bg-neutral opacity-30"
                             ></div>
@@ -140,7 +140,12 @@ export interface SpaceInfoData {
         `,
     ],
 
-    imports: [CommonModule, CustomTooltipComponent, TranslatePipe],
+    imports: [
+        CommonModule,
+        CustomTooltipComponent,
+        TranslatePipe,
+        AuthenticatedImageDirective,
+    ],
 })
 export class ExploreSpaceInfoComponent implements OnInit {
     private _details = inject<SpaceInfoData>(MAP_FEATURE_DATA);
