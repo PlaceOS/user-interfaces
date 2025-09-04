@@ -1,6 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import { Booking } from '@placeos/bookings';
 import { AsyncHandler, nextValueFrom, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { roundToNearestMinutes, startOfMinute } from 'date-fns';
@@ -24,10 +25,10 @@ const DEFAULT_TEMPLATE = `
             <div
                 class="relative flex w-[36rem] flex-col items-center space-y-4 overflow-hidden rounded bg-base-100 p-4 shadow print:hidden"
             >
-                @let details = event | async;
+                @let ev = event | async;
                 <h3 class="text-xl">
                     {{
-                        (details.extension_data?.self_registered
+                        (ev.extension_data?.self_registered
                             ? 'APP.VISITOR_KIOSK.CHECKED_IN_MSG_SELF_REG'
                             : 'APP.VISITOR_KIOSK.CHECKED_IN_MSG'
                         ) | translate
@@ -37,7 +38,6 @@ const DEFAULT_TEMPLATE = `
                     class=""
                     [innerHTML]="result_template | async | sanitize: 'html'"
                 ></div>
-                @let ev = event | async;
                 @if (printing()) {
                     <div printable class="print-only">
                         <user-label
@@ -54,7 +54,9 @@ const DEFAULT_TEMPLATE = `
                                 pass_number: ev?.extension_data?.pass_number,
                                 qr_code: qr_code,
                             }"
-                            class="!text-base"
+                            [width]="label_size().width"
+                            [height]="label_size().height"
+                            [style.font-size]="label_size().scale + 'mm'"
                         />
                     </div>
                 }
@@ -101,9 +103,10 @@ export class CheckinResultsComponent extends AsyncHandler implements OnInit {
     public qr_code = '';
     public date = Date.now();
     public zones = [];
-    public e;
+    public booking: Booking | undefined;
     public readonly allow_beverages = signal(false);
     public readonly printing = signal(false);
+    public readonly label_size = signal({ width: 25, height: 15, scale: 4 });
     public readonly event = this._checkin.event;
     public readonly guest = this._checkin.guest;
     public readonly photo = this._checkin.photo;
@@ -160,7 +163,7 @@ export class CheckinResultsComponent extends AsyncHandler implements OnInit {
 
     public readonly print = () => {
         this.printing.set(true);
-        this.qr_code = generateQRCode(this.e?.asset_id);
+        this.qr_code = generateQRCode(this.booking?.asset_id);
         this.timeout('print', () => window.print());
     };
 
@@ -190,7 +193,7 @@ export class CheckinResultsComponent extends AsyncHandler implements OnInit {
         if (!event) return;
         this.date = event.date || event.booking_start * 1000;
         this.zones = event.zones;
-        this.e = event;
+        this.booking = event;
         const standalone_location = this._settings.get(
             'app.standalone_visitor_location',
         );
@@ -198,6 +201,12 @@ export class CheckinResultsComponent extends AsyncHandler implements OnInit {
             this._settings.get('app.allow_beverages') &&
                 (event.linked_event || standalone_location),
         );
+        const label_size = this._settings.get('app.visitor_label_size') || {};
+        this.label_size.set({
+            width: label_size.width || 25,
+            height: label_size.height || 15,
+            scale: label_size.scale || 4,
+        });
     }
 
     public previous(): void {

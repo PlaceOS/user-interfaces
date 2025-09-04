@@ -1,19 +1,21 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { showMetadata } from '@placeos/ts-client';
 import { lastValueFrom } from 'rxjs';
 
 import { Booking, saveBooking } from '@placeos/bookings';
 import {
     AsyncHandler,
-    SettingsService,
     getTimezoneOffsetString,
     i18n,
     notifyError,
     notifySuccess,
+    SettingsService,
 } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { User } from '@placeos/users';
+import { UserLabelModalComponent } from 'libs/users/src/lib/user-label-modal.component';
 
+import { MatDialog } from '@angular/material/dialog';
 import { generateQRCode } from 'libs/common/src/lib/qr-code';
 import { ParkingStateService } from '../parking/parking-state.service';
 import { VisitorsStateService } from './visitors-state.service';
@@ -377,25 +379,6 @@ import { VisitorsStateService } from './visitors-state.service';
                 <button icon matRipple [matMenuTriggerFor]="guest_menu">
                     <icon>more_horiz</icon>
                 </button>
-                @if (printing() === row?.id) {
-                    <div printable class="print-only">
-                        <user-label
-                            [user]="{
-                                name: row?.asset_name || row?.description,
-                                email: row?.asset_id,
-                                title: row?.title,
-                                host: row?.user_name || row.user_email,
-                                zones: row?.zones,
-                                date: row?.date || date,
-                                extra_details:
-                                    row?.extension_data?.extra_details,
-                                pass_number: row?.extension_data?.pass_number,
-                                qr_code: qr_code(),
-                            }"
-                            class="!text-base"
-                        />
-                    </div>
-                }
                 <mat-menu #guest_menu="matMenu">
                     <button
                         mat-menu-item
@@ -665,11 +648,12 @@ import { VisitorsStateService } from './visitors-state.service';
     styles: [``],
     standalone: false,
 })
-export class GuestListingComponent extends AsyncHandler {
+export class GuestListingComponent extends AsyncHandler implements OnInit {
     private _state = inject(VisitorsStateService);
     private _parking = inject(ParkingStateService);
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
+    private _dialog = inject(MatDialog);
 
     public readonly printing = signal('');
     public readonly guests = this._state.filtered_bookings;
@@ -678,6 +662,7 @@ export class GuestListingComponent extends AsyncHandler {
     public readonly inductions_enabled = signal(false);
     public readonly qr_code = signal('');
     public readonly pass_number = signal('');
+    public readonly user_pass = signal({});
 
     public hide_field(id: string) {
         return (this._settings.get('app.visitors.hide_fields') || []).includes(
@@ -765,10 +750,21 @@ export class GuestListingComponent extends AsyncHandler {
     public printVisitorPass(item: Booking) {
         this.qr_code.set(generateQRCode(item.asset_id));
         this.printing.set(item.id);
-        this.timeout('print', () => {
-            window.print();
-            this.printing.set('');
+        this.user_pass.set({
+            name: item?.asset_name || item?.description,
+            email: item?.asset_id,
+            title: item?.title,
+            host: item?.user_name || item.user_email,
+            zones: item?.zones,
+            date: item?.date || Date.now(),
+            extra_details: item?.extension_data?.extra_details,
+            pass_number: item?.extension_data?.pass_number,
+            qr_code: this.qr_code(),
         });
+        const ref = this._dialog.open(UserLabelModalComponent, {
+            data: this.user_pass(),
+        });
+        ref.afterClosed().subscribe(() => this.printing.set(''));
     }
 
     public inducted(item: Booking) {

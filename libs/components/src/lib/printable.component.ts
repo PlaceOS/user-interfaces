@@ -1,17 +1,8 @@
 import { Overlay, OverlayRef } from '@angular/cdk/overlay';
 import { CdkPortal, PortalModule } from '@angular/cdk/portal';
 
-import {
-    AfterViewInit,
-    Component,
-    ElementRef,
-    OnDestroy,
-    OnInit,
-    inject,
-    viewChild,
-} from '@angular/core';
+import { Component, OnDestroy, OnInit, inject, viewChild } from '@angular/core';
 import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
-import { SanitizePipe } from './sanitise.pipe';
 
 @Component({
     selector: '[printable]',
@@ -22,34 +13,24 @@ import { SanitizePipe } from './sanitise.pipe';
             <div
                 printable-view
                 class="pointer-events-none fixed left-0 top-0 hidden flex-col items-end print:flex"
-                [innerHTML]="content | sanitize"
-            ></div>
+            >
+                <ng-content />
+            </div>
         </ng-template>
     `,
-    imports: [SanitizePipe, PortalModule],
+    imports: [PortalModule],
 })
 export class PrintableComponent
     extends AsyncHandler
-    implements OnInit, OnDestroy, AfterViewInit
+    implements OnInit, OnDestroy
 {
-    private _overlay = inject(Overlay);
-    private _elem = inject<ElementRef<any>>(ElementRef);
-
-    public content = '';
+    private readonly _overlay = inject(Overlay);
     private _overlay_ref: OverlayRef = null;
 
     private readonly _portal = viewChild(CdkPortal);
 
-    constructor() {
-        super();
-    }
-
     public ngOnInit(): void {
         this.open();
-    }
-
-    public ngAfterViewInit(): void {
-        this.content = this._elem.nativeElement.outerHTML;
     }
 
     public ngOnDestroy() {
