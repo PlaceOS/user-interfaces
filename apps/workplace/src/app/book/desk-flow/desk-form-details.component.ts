@@ -79,9 +79,9 @@ import { addDays, endOfDay, set } from 'date-fns';
                     </h3>
                     @if (can_book_for_others && !(options | async)?.group) {
                         <div class="w-full">
-                            <label for="title">
-                                {{ 'FORM.HOST' | translate }}<span>*</span>
-                            </label>
+                            <label for="title">{{
+                                'FORM.HOST' | translate
+                            }}</label>
                             <a-user-search-field
                                 formControlName="user"
                                 class="mb-4"
