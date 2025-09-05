@@ -218,7 +218,12 @@ export class BookingModalComponent extends AsyncHandler implements OnInit {
         if (!this.form.valid) {
             return notifyError(
                 i18n(`FORM.INVALID_FIELDS`, {
-                    field_list: getInvalidFields(this.form).join(', '),
+                    field_list: getInvalidFields(this.form, {
+                        organiser: 'Booked By',
+                        date: 'Date',
+                        duration: 'Duration',
+                        title: 'Title',
+                    }).join(', '),
                 }),
             );
         }

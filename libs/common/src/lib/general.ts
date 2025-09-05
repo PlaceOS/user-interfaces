@@ -350,19 +350,27 @@ export function is24HourTime(): boolean {
     return localeString.indexOf('am') < 0 && localeString.indexOf('pm') < 0;
 }
 
-export function getInvalidFields(form: FormGroup, prefix = '') {
+export function getInvalidFields(
+    form: FormGroup,
+    mappings: Record<string, string> = {},
+    prefix = '',
+) {
     let invalid = [];
     for (const key in form.controls) {
         if (form.controls[key] instanceof FormGroup) {
             invalid = [
                 ...invalid,
-                ...getInvalidFields(form.controls[key] as FormGroup, `${key}.`),
+                ...getInvalidFields(
+                    form.controls[key] as FormGroup,
+                    mappings,
+                    `${key}.`,
+                ),
             ];
         } else if (form.controls[key].invalid) {
             invalid.push(`${prefix}${key}`);
         }
     }
-    return invalid;
+    return invalid.map((field) => mappings[field] || field);
 }
 
 export function removeEmptyFields(obj: Record<string, any>) {
