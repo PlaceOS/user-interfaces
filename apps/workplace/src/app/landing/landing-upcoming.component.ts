@@ -23,6 +23,7 @@ import {
 } from '@placeos/events';
 import { format } from 'date-fns';
 import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
+import { lastValueFrom } from 'rxjs';
 import { LandingStateService } from './landing-state.service';
 
 @Component({
@@ -128,11 +129,13 @@ export class LandingUpcomingComponent
         if (event.creator !== event.mailbox) {
             event =
                 (
-                    await queryEvents({
-                        period_start: event.event_start,
-                        period_end: event.event_end,
-                        ical_uid: event.ical_uid,
-                    }).toPromise()
+                    await lastValueFrom(
+                        queryEvents({
+                            period_start: event.event_start,
+                            period_end: event.event_end,
+                            ical_uid: event.ical_uid,
+                        }),
+                    )
                 ).find((_) => _.ical_uid === event.ical_uid) || event;
         }
         setTimeout(() => this._event_form.newForm(event), 300);
@@ -174,27 +177,29 @@ export class LandingUpcomingComponent
 
         if (resp.reason !== 'done') return;
         resp.loading(i18n('APP.WORKPLACE.SCHEDULE_REMOVE_LOADING'));
-        await (item instanceof CalendarEvent ? removeEvent : removeBooking)(
-            item.id,
-            {
-                calendar: this._settings.get('app.events.use_bookings')
-                    ? null
-                    : currentUser()?.email,
-                system_id: (item as any).system?.id,
-                instance: remove_series ? undefined : !!(item as any).instance,
-                start_time: (item as any).instance
-                    ? (item as any).booking_start
-                    : undefined,
-            } as any,
-        )
-            .toPromise()
-            .catch((e) => {
-                notifyError(
-                    i18n('APP.WORKPLACE.SCHEDULE_REMOVE_ERROR', { error: e }),
-                );
-                resp.close();
-                throw e;
-            });
+        await lastValueFrom(
+            (item instanceof CalendarEvent ? removeEvent : removeBooking)(
+                item.id,
+                {
+                    calendar: this._settings.get('app.events.use_bookings')
+                        ? null
+                        : currentUser()?.email,
+                    system_id: (item as any).system?.id,
+                    instance: remove_series
+                        ? undefined
+                        : !!(item as any).instance,
+                    start_time: (item as any).instance
+                        ? (item as any).booking_start
+                        : undefined,
+                } as any,
+            ),
+        ).catch((e) => {
+            notifyError(
+                i18n('APP.WORKPLACE.SCHEDULE_REMOVE_ERROR', { error: e }),
+            );
+            resp.close();
+            throw e;
+        });
         notifySuccess(i18n('APP.WORKPLACE.SCHEDULE_REMOVE_SUCCESS'));
         this._state.refreshUpcomingEvents();
         this._dialog.closeAll();

@@ -67,7 +67,7 @@ import { SettingsService } from '@placeos/common';
                     </div>
                 </a>
             }
-            @if (features.includes('parking')) {
+            @if (features.includes('lockers')) {
                 <a
                     matRipple
                     class="flex w-64 min-w-64 snap-start items-center space-x-4 rounded border border-base-200 bg-base-100 p-2 shadow"
