@@ -895,6 +895,10 @@ import { lastValueFrom } from 'rxjs';
                                         formControlName="allow_externals"
                                     ></settings-toggle>
                                     <settings-toggle
+                                        name="Allow Visibility options"
+                                        formControlName="allow_visibility"
+                                    ></settings-toggle>
+                                    <settings-toggle
                                         name="Disable notes field"
                                         formControlName="hide_notes"
                                     ></settings-toggle>
@@ -1728,6 +1732,7 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
             all_day_default: new FormControl(false),
             allow_multiday: new FormControl(false),
             use_bookings: new FormControl(false),
+            allow_visibility: new FormControl(false),
             use_building_timezone: new FormControl(false),
             force_host: new FormControl('', Validators.email),
             allow_daily_allday_recurrence: new FormControl(false),

@@ -693,6 +693,10 @@ import { lastValueFrom } from 'rxjs';
                                         name="Display times with building timezone"
                                         formControlName="use_building_timezone"
                                     ></settings-toggle>
+                                    <settings-toggle
+                                        name="Allow Visibility options"
+                                        formControlName="allow_visibility"
+                                    ></settings-toggle>
                                 </div>
                             </section>
                         }
@@ -1262,6 +1266,7 @@ export class ConciergeSettingsFormModalComponent {
             max_duration: new FormControl(360),
             can_book_for_others: new FormControl(false),
             can_book_for_anyone: new FormControl(false),
+            allow_visibility: new FormControl(false),
         }),
         visitors: new FormGroup({
             has_parking: new FormControl(false),
