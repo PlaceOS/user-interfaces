@@ -61,6 +61,13 @@ import { TranslatePipe } from './translate.pipe';
             }
         </div>
     `,
+    styles: [
+        `
+            main {
+                scroll-margin-top: 60px;
+            }
+        `,
+    ],
     imports: [
         TranslatePipe,
         MatProgressSpinnerModule,
