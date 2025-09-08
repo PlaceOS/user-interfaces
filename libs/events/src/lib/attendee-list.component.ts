@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, input, output } from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -20,14 +20,13 @@ import { User } from 'libs/users/src/lib/user.class';
                     </button>
                 }
                 <div class="flex-1 text-center font-medium">
-                    {{ list().length }}
                     {{
                         custom_title()
                             ? custom_title()
-                            : ('ATTENDEES_COUNT'
+                            : ('CALENDAR_EVENT.ATTENDEES_COUNT'
                               | translate
-                                  : { count: list().length }
-                                  : list().length)
+                                  : { count: final_list().length }
+                                  : final_list().length)
                     }}
                 </div>
                 @if (!hide_close()) {
@@ -35,7 +34,7 @@ import { User } from 'libs/users/src/lib/user.class';
                 }
             </div>
             <div class="w-full flex-1 overflow-auto">
-                @for (user of list(); track user) {
+                @for (user of final_list(); track user) {
                     @if (
                         !user.resource && (host() !== user.email || show_host())
                     ) {
@@ -85,6 +84,11 @@ export class AttendeeListComponent {
     public readonly host = input('');
     public readonly show_host = input(true);
     public readonly list = input<User[]>([]);
+    public readonly final_list = computed(() =>
+        this.show_host()
+            ? this.list()
+            : this.list().filter((user) => user.email !== this.host()),
+    );
     public readonly hide_close = input(false);
     public readonly custom_title = input('');
     public readonly close = output();

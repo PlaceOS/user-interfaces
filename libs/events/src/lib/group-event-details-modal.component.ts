@@ -440,7 +440,8 @@ import {
                     <attendee-list
                         [show_host]="false"
                         [list]="event.attendees"
-                        [host]="event.user_email"
+                        [host]="event.host"
+                        [show_host]="false"
                         (click)="show_attendees = false"
                     ></attendee-list>
                 </div>
@@ -459,6 +460,7 @@ import {
         MatMenuModule,
         MatDialogModule,
         AuthenticatedImageDirective,
+        SpacePipe,
     ],
 })
 export class GroupEventDetailsModalComponent {

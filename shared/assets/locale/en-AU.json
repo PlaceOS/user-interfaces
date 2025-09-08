@@ -629,6 +629,7 @@
         "CATERING_ORDER_ADD": "Add Order",
         "CATERING_ORDER_ERROR": "Delivery time is outside of the event time.\nThis order will be ignored.",
         "CATERED": "Catered",
+        "ATTENDEES_COUNT": "{{ count }} attendees",
         "ATTENDEES_COUNT_1": "{{ count }} attendee",
         "ATTENDEES_COUNT_N": "{{ count }} attendees",
         "ATTENDEE_COUNT": "{{ count }} attendee(s)",
