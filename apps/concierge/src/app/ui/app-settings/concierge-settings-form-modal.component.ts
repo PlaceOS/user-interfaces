@@ -149,20 +149,6 @@ import { lastValueFrom } from 'rxjs';
                             </mat-select>
                         </mat-form-field>
                     </div>
-                    <div class="relative -top-4 -mt-2 flex flex-wrap">
-                        @for (feature of form.value.features; track feature) {
-                            @if (scrollable_features.includes(feature)) {
-                                <button
-                                    matRipple
-                                    class="m-1 rounded-full border border-base-300 px-4 py-1 text-sm capitalize"
-                                    [matTooltip]="'Scroll to ' + feature"
-                                    (click)="scrollToFeature(feature)"
-                                >
-                                    {{ feature }}
-                                </button>
-                            }
-                        }
-                    </div>
                     <div
                         class="relative rounded border border-base-300 px-4 pb-2 pt-4"
                     >
@@ -322,7 +308,7 @@ import { lastValueFrom } from 'rxjs';
                     <section
                         spaces
                         id="feature-spaces"
-                        class="relative rounded border border-base-300 px-4 pb-2 pt-4"
+                        class="relative rounded border border-base-300"
                         formGroupName="events"
                     >
                         <h3
@@ -330,296 +316,341 @@ import { lastValueFrom } from 'rxjs';
                         >
                             Room Bookings
                         </h3>
-                        <div class="flex items-center space-x-4">
-                            <div class="flex-1">
-                                <label for="block-start"
-                                    >Block Start Time</label
-                                >
-                                <mat-form-field
-                                    appearance="outline"
-                                    class="w-full"
-                                >
-                                    <mat-select
-                                        name="block-start"
-                                        formControlName="block_start"
-                                        placeholder="12AM (Midnight)"
-                                    >
-                                        <mat-option [value]="0"
-                                            >12AM (Midnight)</mat-option
+                        <button
+                            icon
+                            matRipple
+                            class="absolute right-4 top-0 -translate-y-1/2 bg-base-100"
+                            (click)="shown_group.set('spaces')"
+                        >
+                            <icon>{{
+                                shown_group() === 'spaces'
+                                    ? 'chevron_left'
+                                    : 'keyboard_arrow_down'
+                            }}</icon>
+                        </button>
+                        <div
+                            collapsible
+                            [class.open]="shown_group() === 'spaces'"
+                        >
+                            <div class="content px-4 pb-2 pt-4">
+                                <div class="flex items-center space-x-4">
+                                    <div class="flex-1">
+                                        <label for="block-start"
+                                            >Block Start Time</label
                                         >
-                                        <mat-option [value]="1">1AM</mat-option>
-                                        <mat-option [value]="2">2AM</mat-option>
-                                        <mat-option [value]="3">3AM</mat-option>
-                                        <mat-option [value]="4">4AM</mat-option>
-                                        <mat-option [value]="5">5AM</mat-option>
-                                        <mat-option [value]="6">6AM</mat-option>
-                                        <mat-option [value]="7">7AM</mat-option>
-                                        <mat-option [value]="8">8AM</mat-option>
-                                        <mat-option [value]="9">9AM</mat-option>
-                                        <mat-option [value]="10"
-                                            >10AM</mat-option
+                                        <mat-form-field
+                                            appearance="outline"
+                                            class="w-full"
                                         >
-                                        <mat-option [value]="11"
-                                            >11AM</mat-option
+                                            <mat-select
+                                                name="block-start"
+                                                formControlName="block_start"
+                                                placeholder="12AM (Midnight)"
+                                            >
+                                                <mat-option [value]="0"
+                                                    >12AM (Midnight)</mat-option
+                                                >
+                                                <mat-option [value]="1"
+                                                    >1AM</mat-option
+                                                >
+                                                <mat-option [value]="2"
+                                                    >2AM</mat-option
+                                                >
+                                                <mat-option [value]="3"
+                                                    >3AM</mat-option
+                                                >
+                                                <mat-option [value]="4"
+                                                    >4AM</mat-option
+                                                >
+                                                <mat-option [value]="5"
+                                                    >5AM</mat-option
+                                                >
+                                                <mat-option [value]="6"
+                                                    >6AM</mat-option
+                                                >
+                                                <mat-option [value]="7"
+                                                    >7AM</mat-option
+                                                >
+                                                <mat-option [value]="8"
+                                                    >8AM</mat-option
+                                                >
+                                                <mat-option [value]="9"
+                                                    >9AM</mat-option
+                                                >
+                                                <mat-option [value]="10"
+                                                    >10AM</mat-option
+                                                >
+                                                <mat-option [value]="11"
+                                                    >11AM</mat-option
+                                                >
+                                            </mat-select>
+                                            <mat-hint>
+                                                Start time of dayview blocks
+                                            </mat-hint>
+                                        </mat-form-field>
+                                    </div>
+                                    <div class="flex-1">
+                                        <label for="block-start"
+                                            >Block End Time</label
                                         >
-                                    </mat-select>
-                                    <mat-hint>
-                                        Start time of dayview blocks
-                                    </mat-hint>
-                                </mat-form-field>
+                                        <mat-form-field
+                                            appearance="outline"
+                                            class="w-full"
+                                        >
+                                            <mat-select
+                                                name="block-start"
+                                                formControlName="block_start"
+                                                placeholder="12AM (Midnight)"
+                                            >
+                                                <mat-option [value]="12"
+                                                    >12PM (Midday)</mat-option
+                                                >
+                                                <mat-option [value]="13"
+                                                    >1PM</mat-option
+                                                >
+                                                <mat-option [value]="14"
+                                                    >2PM</mat-option
+                                                >
+                                                <mat-option [value]="15"
+                                                    >3PM</mat-option
+                                                >
+                                                <mat-option [value]="16"
+                                                    >4PM</mat-option
+                                                >
+                                                <mat-option [value]="17"
+                                                    >5PM</mat-option
+                                                >
+                                                <mat-option [value]="18"
+                                                    >6PM</mat-option
+                                                >
+                                                <mat-option [value]="19"
+                                                    >7PM</mat-option
+                                                >
+                                                <mat-option [value]="20"
+                                                    >8PM</mat-option
+                                                >
+                                                <mat-option [value]="21"
+                                                    >9PM</mat-option
+                                                >
+                                                <mat-option [value]="22"
+                                                    >10PM</mat-option
+                                                >
+                                                <mat-option [value]="23"
+                                                    >11PM</mat-option
+                                                >
+                                                <mat-option [value]="24"
+                                                    >12AM (Midnight)</mat-option
+                                                >
+                                            </mat-select>
+                                            <mat-hint>
+                                                End time of dayview blocks
+                                            </mat-hint>
+                                        </mat-form-field>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-4">
+                                    <div class="flex-1">
+                                        <label for="block-height">
+                                            Block Height
+                                        </label>
+                                        <mat-form-field
+                                            appearance="outline"
+                                            class="w-full"
+                                        >
+                                            <mat-select
+                                                name="block-height"
+                                                formControlName="block_height"
+                                            >
+                                                <mat-option [value]="1"
+                                                    >1rem (16px)</mat-option
+                                                >
+                                                <mat-option [value]="1.5"
+                                                    >1.5rem (24px)</mat-option
+                                                >
+                                                <mat-option [value]="2"
+                                                    >2rem (32px)</mat-option
+                                                >
+                                                <mat-option [value]="2.5"
+                                                    >2.5rem (40px)</mat-option
+                                                >
+                                                <mat-option [value]="3"
+                                                    >3rem (48px)</mat-option
+                                                >
+                                                <mat-option [value]="3.5"
+                                                    >3.5rem (56px)</mat-option
+                                                >
+                                                <mat-option [value]="4"
+                                                    >4rem (64px)</mat-option
+                                                >
+                                                <mat-option [value]="4.5"
+                                                    >4.5rem (72px)</mat-option
+                                                >
+                                                <mat-option [value]="5"
+                                                    >5rem (80px)</mat-option
+                                                >
+                                                <mat-option [value]="5.5"
+                                                    >5.5rem (88px)</mat-option
+                                                >
+                                                <mat-option [value]="6"
+                                                    >6rem (96px)</mat-option
+                                                >
+                                                <mat-option [value]="6.5"
+                                                    >6.5rem (104px)</mat-option
+                                                >
+                                                <mat-option [value]="7"
+                                                    >7rem (112px)</mat-option
+                                                >
+                                                <mat-option [value]="7.5"
+                                                    >7.5rem (120px)</mat-option
+                                                >
+                                                <mat-option [value]="8"
+                                                    >8rem (128px)</mat-option
+                                                >
+                                            </mat-select>
+                                            <mat-hint>
+                                                Height of 1 hour in dayview
+                                            </mat-hint>
+                                        </mat-form-field>
+                                    </div>
+                                    <div class="flex-1">
+                                        <label for="max-duration">
+                                            Max Duration
+                                        </label>
+                                        <mat-form-field
+                                            appearance="outline"
+                                            class="w-full"
+                                        >
+                                            <mat-select
+                                                name="max-duration"
+                                                formControlName="max_duration"
+                                            >
+                                                <mat-option [value]="60"
+                                                    >1 Hour</mat-option
+                                                >
+                                                <mat-option [value]="90"
+                                                    >1 Hour 30
+                                                    Minutes</mat-option
+                                                >
+                                                <mat-option [value]="120"
+                                                    >2 Hours</mat-option
+                                                >
+                                                <mat-option [value]="180"
+                                                    >3 Hours</mat-option
+                                                >
+                                                <mat-option [value]="240"
+                                                    >4 Hours</mat-option
+                                                >
+                                                <mat-option [value]="300"
+                                                    >5 Hours</mat-option
+                                                >
+                                                <mat-option [value]="360"
+                                                    >6 Hours</mat-option
+                                                >
+                                                <mat-option [value]="420"
+                                                    >7 Hours</mat-option
+                                                >
+                                                <mat-option [value]="480"
+                                                    >8 Hours</mat-option
+                                                >
+                                                <mat-option [value]="540"
+                                                    >9 Hours</mat-option
+                                                >
+                                                <mat-option [value]="600"
+                                                    >10 Hours</mat-option
+                                                >
+                                                <mat-option [value]="660"
+                                                    >11 Hours</mat-option
+                                                >
+                                                <mat-option [value]="720"
+                                                    >12 Hours</mat-option
+                                                >
+                                                <mat-option [value]="780"
+                                                    >13 Hours</mat-option
+                                                >
+                                                <mat-option [value]="840"
+                                                    >14 Hours</mat-option
+                                                >
+                                                <mat-option [value]="900"
+                                                    >15 Hours</mat-option
+                                                >
+                                                <mat-option [value]="960"
+                                                    >16 Hours</mat-option
+                                                >
+                                                <mat-option [value]="1020"
+                                                    >17 Hours</mat-option
+                                                >
+                                                <mat-option [value]="1080"
+                                                    >18 Hours</mat-option
+                                                >
+                                                <mat-option [value]="1140"
+                                                    >19 Hours</mat-option
+                                                >
+                                                <mat-option [value]="1200"
+                                                    >20 Hours</mat-option
+                                                >
+                                            </mat-select>
+                                            <mat-hint>
+                                                Max duration for single day
+                                                bookings
+                                            </mat-hint>
+                                        </mat-form-field>
+                                    </div>
+                                </div>
+                                <div class="-mx-2 flex flex-wrap items-center">
+                                    <settings-toggle
+                                        name="Allow all day bookings"
+                                        formControlName="allow_all_day"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Default to all day"
+                                        formControlName="all_day_default"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Allow editing setup/breakdown times"
+                                        formControlName="allow_setup_breakdown"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Allow booking for other users"
+                                        formControlName="can_book_for_others"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Allow booking for any other users"
+                                        formControlName="can_book_for_anyone"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Allow booking with assets"
+                                        formControlName="has_assets"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Hide notes field when booking"
+                                        formControlName="hide_notes"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Hide attendees field when booking"
+                                        formControlName="hide_attendees"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Allow booking for external users"
+                                        formControlName="allow_externals"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Enforce capacity for rooms"
+                                        formControlName="strict_capacity_check"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Allow booking for multiple days"
+                                        formControlName="allow_multiday"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Display times with building timezone"
+                                        formControlName="use_building_timezone"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Allow Visibility options"
+                                        formControlName="allow_visibility"
+                                    ></settings-toggle>
+                                </div>
                             </div>
-                            <div class="flex-1">
-                                <label for="block-start">Block End Time</label>
-                                <mat-form-field
-                                    appearance="outline"
-                                    class="w-full"
-                                >
-                                    <mat-select
-                                        name="block-start"
-                                        formControlName="block_start"
-                                        placeholder="12AM (Midnight)"
-                                    >
-                                        <mat-option [value]="12"
-                                            >12PM (Midday)</mat-option
-                                        >
-                                        <mat-option [value]="13"
-                                            >1PM</mat-option
-                                        >
-                                        <mat-option [value]="14"
-                                            >2PM</mat-option
-                                        >
-                                        <mat-option [value]="15"
-                                            >3PM</mat-option
-                                        >
-                                        <mat-option [value]="16"
-                                            >4PM</mat-option
-                                        >
-                                        <mat-option [value]="17"
-                                            >5PM</mat-option
-                                        >
-                                        <mat-option [value]="18"
-                                            >6PM</mat-option
-                                        >
-                                        <mat-option [value]="19"
-                                            >7PM</mat-option
-                                        >
-                                        <mat-option [value]="20"
-                                            >8PM</mat-option
-                                        >
-                                        <mat-option [value]="21"
-                                            >9PM</mat-option
-                                        >
-                                        <mat-option [value]="22"
-                                            >10PM</mat-option
-                                        >
-                                        <mat-option [value]="23"
-                                            >11PM</mat-option
-                                        >
-                                        <mat-option [value]="24"
-                                            >12AM (Midnight)</mat-option
-                                        >
-                                    </mat-select>
-                                    <mat-hint>
-                                        End time of dayview blocks
-                                    </mat-hint>
-                                </mat-form-field>
-                            </div>
-                        </div>
-                        <div class="flex items-center space-x-4">
-                            <div class="flex-1">
-                                <label for="block-height"> Block Height </label>
-                                <mat-form-field
-                                    appearance="outline"
-                                    class="w-full"
-                                >
-                                    <mat-select
-                                        name="block-height"
-                                        formControlName="block_height"
-                                    >
-                                        <mat-option [value]="1"
-                                            >1rem (16px)</mat-option
-                                        >
-                                        <mat-option [value]="1.5"
-                                            >1.5rem (24px)</mat-option
-                                        >
-                                        <mat-option [value]="2"
-                                            >2rem (32px)</mat-option
-                                        >
-                                        <mat-option [value]="2.5"
-                                            >2.5rem (40px)</mat-option
-                                        >
-                                        <mat-option [value]="3"
-                                            >3rem (48px)</mat-option
-                                        >
-                                        <mat-option [value]="3.5"
-                                            >3.5rem (56px)</mat-option
-                                        >
-                                        <mat-option [value]="4"
-                                            >4rem (64px)</mat-option
-                                        >
-                                        <mat-option [value]="4.5"
-                                            >4.5rem (72px)</mat-option
-                                        >
-                                        <mat-option [value]="5"
-                                            >5rem (80px)</mat-option
-                                        >
-                                        <mat-option [value]="5.5"
-                                            >5.5rem (88px)</mat-option
-                                        >
-                                        <mat-option [value]="6"
-                                            >6rem (96px)</mat-option
-                                        >
-                                        <mat-option [value]="6.5"
-                                            >6.5rem (104px)</mat-option
-                                        >
-                                        <mat-option [value]="7"
-                                            >7rem (112px)</mat-option
-                                        >
-                                        <mat-option [value]="7.5"
-                                            >7.5rem (120px)</mat-option
-                                        >
-                                        <mat-option [value]="8"
-                                            >8rem (128px)</mat-option
-                                        >
-                                    </mat-select>
-                                    <mat-hint>
-                                        Height of 1 hour in dayview
-                                    </mat-hint>
-                                </mat-form-field>
-                            </div>
-                            <div class="flex-1">
-                                <label for="max-duration"> Max Duration </label>
-                                <mat-form-field
-                                    appearance="outline"
-                                    class="w-full"
-                                >
-                                    <mat-select
-                                        name="max-duration"
-                                        formControlName="max_duration"
-                                    >
-                                        <mat-option [value]="60"
-                                            >1 Hour</mat-option
-                                        >
-                                        <mat-option [value]="90"
-                                            >1 Hour 30 Minutes</mat-option
-                                        >
-                                        <mat-option [value]="120"
-                                            >2 Hours</mat-option
-                                        >
-                                        <mat-option [value]="180"
-                                            >3 Hours</mat-option
-                                        >
-                                        <mat-option [value]="240"
-                                            >4 Hours</mat-option
-                                        >
-                                        <mat-option [value]="300"
-                                            >5 Hours</mat-option
-                                        >
-                                        <mat-option [value]="360"
-                                            >6 Hours</mat-option
-                                        >
-                                        <mat-option [value]="420"
-                                            >7 Hours</mat-option
-                                        >
-                                        <mat-option [value]="480"
-                                            >8 Hours</mat-option
-                                        >
-                                        <mat-option [value]="540"
-                                            >9 Hours</mat-option
-                                        >
-                                        <mat-option [value]="600"
-                                            >10 Hours</mat-option
-                                        >
-                                        <mat-option [value]="660"
-                                            >11 Hours</mat-option
-                                        >
-                                        <mat-option [value]="720"
-                                            >12 Hours</mat-option
-                                        >
-                                        <mat-option [value]="780"
-                                            >13 Hours</mat-option
-                                        >
-                                        <mat-option [value]="840"
-                                            >14 Hours</mat-option
-                                        >
-                                        <mat-option [value]="900"
-                                            >15 Hours</mat-option
-                                        >
-                                        <mat-option [value]="960"
-                                            >16 Hours</mat-option
-                                        >
-                                        <mat-option [value]="1020"
-                                            >17 Hours</mat-option
-                                        >
-                                        <mat-option [value]="1080"
-                                            >18 Hours</mat-option
-                                        >
-                                        <mat-option [value]="1140"
-                                            >19 Hours</mat-option
-                                        >
-                                        <mat-option [value]="1200"
-                                            >20 Hours</mat-option
-                                        >
-                                    </mat-select>
-                                    <mat-hint>
-                                        Max duration for single day bookings
-                                    </mat-hint>
-                                </mat-form-field>
-                            </div>
-                        </div>
-                        <div class="-mx-2 flex flex-wrap items-center">
-                            <settings-toggle
-                                name="Allow all day bookings"
-                                formControlName="allow_all_day"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Default to all day"
-                                formControlName="all_day_default"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Allow editing setup/breakdown times"
-                                formControlName="allow_setup_breakdown"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Allow booking for other users"
-                                formControlName="can_book_for_others"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Allow booking for any other users"
-                                formControlName="can_book_for_anyone"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Allow booking with assets"
-                                formControlName="has_assets"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Hide notes field when booking"
-                                formControlName="hide_notes"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Hide attendees field when booking"
-                                formControlName="hide_attendees"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Allow booking for external users"
-                                formControlName="allow_externals"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Enforce capacity for rooms"
-                                formControlName="strict_capacity_check"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Allow booking for multiple days"
-                                formControlName="allow_multiday"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Display times with building timezone"
-                                formControlName="use_building_timezone"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Allow Visibility options"
-                                formControlName="allow_visibility"
-                            ></settings-toggle>
                         </div>
                     </section>
                 }
@@ -627,7 +658,7 @@ import { lastValueFrom } from 'rxjs';
                     <section
                         visitors
                         id="feature-visitors"
-                        class="relative rounded border border-base-300 px-4 pb-2 pt-4"
+                        class="relative rounded border border-base-300"
                         formGroupName="visitors"
                     >
                         <h3
@@ -635,51 +666,83 @@ import { lastValueFrom } from 'rxjs';
                         >
                             Visitors
                         </h3>
-                        <label for="hide-fields">Hide Guest List fields</label>
-                        <mat-form-field appearance="outline" class="w-full">
-                            <mat-select
-                                name="hide-fields"
-                                formControlName="hide_fields"
-                                placeholder="No fields selected"
-                                multiple
-                            >
-                                <mat-option value="checked_in_at">
-                                    {{ 'COMMON.CHECKED_IN_AT' | translate }}
-                                </mat-option>
-                                <mat-option value="checked_out_at">
-                                    {{ 'COMMON.CHECKED_OUT_AT' | translate }}
-                                </mat-option>
-                                <mat-option value="state">
-                                    {{ 'COMMON.CHECKED_IN' | translate }}
-                                </mat-option>
-                                <mat-option value="date">
-                                    {{ 'FORM.TIME' | translate }}
-                                </mat-option>
-                                <mat-option value="user_name">
-                                    {{ 'FORM.HOST' | translate }}
-                                </mat-option>
-                                <mat-option value="status">
-                                    {{ 'COMMON.STATE' | translate }}
-                                </mat-option>
-                            </mat-select>
-                            <mat-hint>
-                                Hide selected columns on the visitor listing
-                                table
-                            </mat-hint>
-                        </mat-form-field>
-                        <div class="-mx-2 flex flex-wrap items-center">
-                            <settings-toggle
-                                name="Allow booking parking for visitors"
-                                formControlName="has_parking"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Allow setting pass number for visitors"
-                                formControlName="allow_pass_number"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Show calendar links after booking"
-                                formControlName="show_calendar_links"
-                            ></settings-toggle>
+                        <button
+                            icon
+                            matRipple
+                            class="absolute right-4 top-0 -translate-y-1/2 bg-base-100"
+                            (click)="toggleGroup('visitors')"
+                        >
+                            <icon>{{
+                                show_group().includes('visitors')
+                                    ? 'chevron_left'
+                                    : 'keyboard_arrow_down'
+                            }}</icon>
+                        </button>
+                        <div
+                            collapsible
+                            [class.open]="show_group().includes('visitors')"
+                        >
+                            <div class="content px-4 pb-2 pt-4">
+                                <label for="hide-fields"
+                                    >Hide Guest List fields</label
+                                >
+                                <mat-form-field
+                                    appearance="outline"
+                                    class="w-full"
+                                >
+                                    <mat-select
+                                        name="hide-fields"
+                                        formControlName="hide_fields"
+                                        placeholder="No fields selected"
+                                        multiple
+                                    >
+                                        <mat-option value="checked_in_at">
+                                            {{
+                                                'COMMON.CHECKED_IN_AT'
+                                                    | translate
+                                            }}
+                                        </mat-option>
+                                        <mat-option value="checked_out_at">
+                                            {{
+                                                'COMMON.CHECKED_OUT_AT'
+                                                    | translate
+                                            }}
+                                        </mat-option>
+                                        <mat-option value="state">
+                                            {{
+                                                'COMMON.CHECKED_IN' | translate
+                                            }}
+                                        </mat-option>
+                                        <mat-option value="date">
+                                            {{ 'FORM.TIME' | translate }}
+                                        </mat-option>
+                                        <mat-option value="user_name">
+                                            {{ 'FORM.HOST' | translate }}
+                                        </mat-option>
+                                        <mat-option value="status">
+                                            {{ 'COMMON.STATE' | translate }}
+                                        </mat-option>
+                                    </mat-select>
+                                    <mat-hint>
+                                        Hide selected columns on the visitor
+                                        listing table
+                                    </mat-hint>
+                                </mat-form-field>
+                                <div class="-mx-2 flex flex-wrap items-center">
+                                    <settings-toggle
+                                        name="Allow booking parking for visitors"
+                                        formControlName="has_parking"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Allow setting pass number for visitors"
+                                        formControlName="allow_pass_number"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Show calendar links after booking"
+                                        formControlName="show_calendar_links"
+                                    ></settings-toggle>
+                                </div>
+                            </div>
                         </div>
                     </section>
                 }
@@ -691,7 +754,7 @@ import { lastValueFrom } from 'rxjs';
                     <section
                         bookings
                         id="feature-bookings"
-                        class="relative rounded border border-base-300 px-4 pb-2 pt-4"
+                        class="relative rounded border border-base-300"
                         formGroupName="bookings"
                     >
                         <h3
@@ -699,154 +762,201 @@ import { lastValueFrom } from 'rxjs';
                         >
                             PlaceOS Bookings
                         </h3>
-                        <div>
-                            <label for="available-period">
-                                Available Period
-                            </label>
-                            <mat-form-field appearance="outline" class="w-full">
-                                <mat-select
-                                    name="available-period"
-                                    formControlName="available_period"
-                                >
-                                    <mat-option [value]="1">1 Day</mat-option>
-                                    <mat-option [value]="2">2 Days</mat-option>
-                                    <mat-option [value]="3">3 Days</mat-option>
-                                    <mat-option [value]="4">4 Days</mat-option>
-                                    <mat-option [value]="5">5 Days</mat-option>
-                                    <mat-option [value]="6">6 Days</mat-option>
-                                    <mat-option [value]="7">1 Week</mat-option>
-                                    <mat-option [value]="8">8 Days</mat-option>
-                                    <mat-option [value]="9">9 Days</mat-option>
-                                    <mat-option [value]="10"
-                                        >10 Days</mat-option
+                        <button
+                            icon
+                            matRipple
+                            class="absolute right-4 top-0 -translate-y-1/2 bg-base-100"
+                            (click)="shown_group.set('bookings')"
+                        >
+                            <icon>{{
+                                shown_group() === 'bookings'
+                                    ? 'chevron_left'
+                                    : 'keyboard_arrow_down'
+                            }}</icon>
+                        </button>
+                        <div
+                            collapsible
+                            [class.open]="shown_group() === 'bookings'"
+                        >
+                            <div class="content px-4 pb-2 pt-4">
+                                <div>
+                                    <label for="available-period">
+                                        Available Period
+                                    </label>
+                                    <mat-form-field
+                                        appearance="outline"
+                                        class="w-full"
                                     >
-                                    <mat-option [value]="11"
-                                        >11 Days</mat-option
+                                        <mat-select
+                                            name="available-period"
+                                            formControlName="available_period"
+                                        >
+                                            <mat-option [value]="1"
+                                                >1 Day</mat-option
+                                            >
+                                            <mat-option [value]="2"
+                                                >2 Days</mat-option
+                                            >
+                                            <mat-option [value]="3"
+                                                >3 Days</mat-option
+                                            >
+                                            <mat-option [value]="4"
+                                                >4 Days</mat-option
+                                            >
+                                            <mat-option [value]="5"
+                                                >5 Days</mat-option
+                                            >
+                                            <mat-option [value]="6"
+                                                >6 Days</mat-option
+                                            >
+                                            <mat-option [value]="7"
+                                                >1 Week</mat-option
+                                            >
+                                            <mat-option [value]="8"
+                                                >8 Days</mat-option
+                                            >
+                                            <mat-option [value]="9"
+                                                >9 Days</mat-option
+                                            >
+                                            <mat-option [value]="10"
+                                                >10 Days</mat-option
+                                            >
+                                            <mat-option [value]="11"
+                                                >11 Days</mat-option
+                                            >
+                                            <mat-option [value]="12"
+                                                >12 Days</mat-option
+                                            >
+                                            <mat-option [value]="13"
+                                                >13 Days</mat-option
+                                            >
+                                            <mat-option [value]="14">
+                                                2 Weeks
+                                            </mat-option>
+                                            <mat-option [value]="21">
+                                                3 Weeks
+                                            </mat-option>
+                                            <mat-option [value]="30">
+                                                1 Month
+                                            </mat-option>
+                                            <mat-option [value]="60">
+                                                2 Months
+                                            </mat-option>
+                                            <mat-option [value]="90">
+                                                3 Months
+                                            </mat-option>
+                                            <mat-option [value]="120">
+                                                4 Months
+                                            </mat-option>
+                                            <mat-option [value]="150">
+                                                5 Months
+                                            </mat-option>
+                                            <mat-option [value]="180">
+                                                6 Month
+                                            </mat-option>
+                                        </mat-select>
+                                        <mat-hint>
+                                            Number of days ahead the user is
+                                            able to book
+                                        </mat-hint>
+                                    </mat-form-field>
+                                </div>
+                                <div>
+                                    <label for="max-duration">
+                                        Max Duration
+                                    </label>
+                                    <mat-form-field
+                                        appearance="outline"
+                                        class="w-full"
                                     >
-                                    <mat-option [value]="12"
-                                        >12 Days</mat-option
-                                    >
-                                    <mat-option [value]="13"
-                                        >13 Days</mat-option
-                                    >
-                                    <mat-option [value]="14">
-                                        2 Weeks
-                                    </mat-option>
-                                    <mat-option [value]="21">
-                                        3 Weeks
-                                    </mat-option>
-                                    <mat-option [value]="30">
-                                        1 Month
-                                    </mat-option>
-                                    <mat-option [value]="60">
-                                        2 Months
-                                    </mat-option>
-                                    <mat-option [value]="90">
-                                        3 Months
-                                    </mat-option>
-                                    <mat-option [value]="120">
-                                        4 Months
-                                    </mat-option>
-                                    <mat-option [value]="150">
-                                        5 Months
-                                    </mat-option>
-                                    <mat-option [value]="180">
-                                        6 Month
-                                    </mat-option>
-                                </mat-select>
-                                <mat-hint>
-                                    Number of days ahead the user is able to
-                                    book
-                                </mat-hint>
-                            </mat-form-field>
-                        </div>
-                        <div>
-                            <label for="max-duration"> Max Duration </label>
-                            <mat-form-field appearance="outline" class="w-full">
-                                <mat-select
-                                    name="max-duration"
-                                    formControlName="max_duration"
-                                >
-                                    <mat-option [value]="60">1 Hour</mat-option>
-                                    <mat-option [value]="90"
-                                        >1 Hour 30 Minutes</mat-option
-                                    >
-                                    <mat-option [value]="120"
-                                        >2 Hours</mat-option
-                                    >
-                                    <mat-option [value]="180"
-                                        >3 Hours</mat-option
-                                    >
-                                    <mat-option [value]="240"
-                                        >4 Hours</mat-option
-                                    >
-                                    <mat-option [value]="300"
-                                        >5 Hours</mat-option
-                                    >
-                                    <mat-option [value]="360"
-                                        >6 Hours</mat-option
-                                    >
-                                    <mat-option [value]="420"
-                                        >7 Hours</mat-option
-                                    >
-                                    <mat-option [value]="480"
-                                        >8 Hours</mat-option
-                                    >
-                                    <mat-option [value]="540"
-                                        >9 Hours</mat-option
-                                    >
-                                    <mat-option [value]="600"
-                                        >10 Hours</mat-option
-                                    >
-                                    <mat-option [value]="660"
-                                        >11 Hours</mat-option
-                                    >
-                                    <mat-option [value]="720"
-                                        >12 Hours</mat-option
-                                    >
-                                    <mat-option [value]="780"
-                                        >13 Hours</mat-option
-                                    >
-                                    <mat-option [value]="840"
-                                        >14 Hours</mat-option
-                                    >
-                                    <mat-option [value]="900"
-                                        >15 Hours</mat-option
-                                    >
-                                    <mat-option [value]="960"
-                                        >16 Hours</mat-option
-                                    >
-                                    <mat-option [value]="1020"
-                                        >17 Hours</mat-option
-                                    >
-                                    <mat-option [value]="1080"
-                                        >18 Hours</mat-option
-                                    >
-                                    <mat-option [value]="1140"
-                                        >19 Hours</mat-option
-                                    >
-                                    <mat-option [value]="1200"
-                                        >20 Hours</mat-option
-                                    >
-                                </mat-select>
-                                <mat-hint>
-                                    Max duration for single day bookings
-                                </mat-hint>
-                            </mat-form-field>
-                        </div>
-                        <div class="-mx-2 flex flex-wrap items-center">
-                            <settings-toggle
-                                name="Allow all day bookings"
-                                formControlName="allow_all_day"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Display times with building timezone"
-                                formControlName="use_building_timezone"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Allow booking with assets"
-                                formControlName="has_assets"
-                            ></settings-toggle>
+                                        <mat-select
+                                            name="max-duration"
+                                            formControlName="max_duration"
+                                        >
+                                            <mat-option [value]="60"
+                                                >1 Hour</mat-option
+                                            >
+                                            <mat-option [value]="90"
+                                                >1 Hour 30 Minutes</mat-option
+                                            >
+                                            <mat-option [value]="120"
+                                                >2 Hours</mat-option
+                                            >
+                                            <mat-option [value]="180"
+                                                >3 Hours</mat-option
+                                            >
+                                            <mat-option [value]="240"
+                                                >4 Hours</mat-option
+                                            >
+                                            <mat-option [value]="300"
+                                                >5 Hours</mat-option
+                                            >
+                                            <mat-option [value]="360"
+                                                >6 Hours</mat-option
+                                            >
+                                            <mat-option [value]="420"
+                                                >7 Hours</mat-option
+                                            >
+                                            <mat-option [value]="480"
+                                                >8 Hours</mat-option
+                                            >
+                                            <mat-option [value]="540"
+                                                >9 Hours</mat-option
+                                            >
+                                            <mat-option [value]="600"
+                                                >10 Hours</mat-option
+                                            >
+                                            <mat-option [value]="660"
+                                                >11 Hours</mat-option
+                                            >
+                                            <mat-option [value]="720"
+                                                >12 Hours</mat-option
+                                            >
+                                            <mat-option [value]="780"
+                                                >13 Hours</mat-option
+                                            >
+                                            <mat-option [value]="840"
+                                                >14 Hours</mat-option
+                                            >
+                                            <mat-option [value]="900"
+                                                >15 Hours</mat-option
+                                            >
+                                            <mat-option [value]="960"
+                                                >16 Hours</mat-option
+                                            >
+                                            <mat-option [value]="1020"
+                                                >17 Hours</mat-option
+                                            >
+                                            <mat-option [value]="1080"
+                                                >18 Hours</mat-option
+                                            >
+                                            <mat-option [value]="1140"
+                                                >19 Hours</mat-option
+                                            >
+                                            <mat-option [value]="1200"
+                                                >20 Hours</mat-option
+                                            >
+                                        </mat-select>
+                                        <mat-hint>
+                                            Max duration for single day bookings
+                                        </mat-hint>
+                                    </mat-form-field>
+                                </div>
+                                <div class="-mx-2 flex flex-wrap items-center">
+                                    <settings-toggle
+                                        name="Allow all day bookings"
+                                        formControlName="allow_all_day"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Display times with building timezone"
+                                        formControlName="use_building_timezone"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Allow booking with assets"
+                                        formControlName="has_assets"
+                                    ></settings-toggle>
+                                </div>
+                            </div>
                         </div>
                     </section>
                 }
@@ -854,7 +964,7 @@ import { lastValueFrom } from 'rxjs';
                     <section
                         parking
                         id="feature-parking"
-                        class="relative rounded border border-base-300 px-4 pb-2 pt-4"
+                        class="relative rounded border border-base-300"
                         formGroupName="parking"
                     >
                         <h3
@@ -862,146 +972,193 @@ import { lastValueFrom } from 'rxjs';
                         >
                             Parking
                         </h3>
-                        <div>
-                            <label for="available-period">
-                                Available Period
-                            </label>
-                            <mat-form-field appearance="outline" class="w-full">
-                                <mat-select
-                                    name="available-period"
-                                    formControlName="available_period"
-                                >
-                                    <mat-option [value]="1">1 Day</mat-option>
-                                    <mat-option [value]="2">2 Days</mat-option>
-                                    <mat-option [value]="3">3 Days</mat-option>
-                                    <mat-option [value]="4">4 Days</mat-option>
-                                    <mat-option [value]="5">5 Days</mat-option>
-                                    <mat-option [value]="6">6 Days</mat-option>
-                                    <mat-option [value]="7">1 Week</mat-option>
-                                    <mat-option [value]="8">8 Days</mat-option>
-                                    <mat-option [value]="9">9 Days</mat-option>
-                                    <mat-option [value]="10"
-                                        >10 Days</mat-option
+                        <button
+                            icon
+                            matRipple
+                            class="absolute right-4 top-0 -translate-y-1/2 bg-base-100"
+                            (click)="shown_group.set('parking')"
+                        >
+                            <icon>{{
+                                shown_group() === 'parking'
+                                    ? 'chevron_left'
+                                    : 'keyboard_arrow_down'
+                            }}</icon>
+                        </button>
+                        <div
+                            collapsible
+                            [class.open]="shown_group() === 'parking'"
+                        >
+                            <div class="content px-4 pb-2 pt-4">
+                                <div>
+                                    <label for="available-period">
+                                        Available Period
+                                    </label>
+                                    <mat-form-field
+                                        appearance="outline"
+                                        class="w-full"
                                     >
-                                    <mat-option [value]="11"
-                                        >11 Days</mat-option
+                                        <mat-select
+                                            name="available-period"
+                                            formControlName="available_period"
+                                        >
+                                            <mat-option [value]="1"
+                                                >1 Day</mat-option
+                                            >
+                                            <mat-option [value]="2"
+                                                >2 Days</mat-option
+                                            >
+                                            <mat-option [value]="3"
+                                                >3 Days</mat-option
+                                            >
+                                            <mat-option [value]="4"
+                                                >4 Days</mat-option
+                                            >
+                                            <mat-option [value]="5"
+                                                >5 Days</mat-option
+                                            >
+                                            <mat-option [value]="6"
+                                                >6 Days</mat-option
+                                            >
+                                            <mat-option [value]="7"
+                                                >1 Week</mat-option
+                                            >
+                                            <mat-option [value]="8"
+                                                >8 Days</mat-option
+                                            >
+                                            <mat-option [value]="9"
+                                                >9 Days</mat-option
+                                            >
+                                            <mat-option [value]="10"
+                                                >10 Days</mat-option
+                                            >
+                                            <mat-option [value]="11"
+                                                >11 Days</mat-option
+                                            >
+                                            <mat-option [value]="12"
+                                                >12 Days</mat-option
+                                            >
+                                            <mat-option [value]="13"
+                                                >13 Days</mat-option
+                                            >
+                                            <mat-option [value]="14">
+                                                2 Weeks
+                                            </mat-option>
+                                            <mat-option [value]="21">
+                                                3 Weeks
+                                            </mat-option>
+                                            <mat-option [value]="30">
+                                                1 Month
+                                            </mat-option>
+                                            <mat-option [value]="60">
+                                                2 Months
+                                            </mat-option>
+                                            <mat-option [value]="90">
+                                                3 Months
+                                            </mat-option>
+                                            <mat-option [value]="120">
+                                                4 Months
+                                            </mat-option>
+                                            <mat-option [value]="150">
+                                                5 Months
+                                            </mat-option>
+                                            <mat-option [value]="180">
+                                                6 Month
+                                            </mat-option>
+                                        </mat-select>
+                                        <mat-hint>
+                                            Number of days ahead the user is
+                                            able to book
+                                        </mat-hint>
+                                    </mat-form-field>
+                                </div>
+                                <div>
+                                    <label for="max-duration">
+                                        Max Duration
+                                    </label>
+                                    <mat-form-field
+                                        appearance="outline"
+                                        class="w-full"
                                     >
-                                    <mat-option [value]="12"
-                                        >12 Days</mat-option
-                                    >
-                                    <mat-option [value]="13"
-                                        >13 Days</mat-option
-                                    >
-                                    <mat-option [value]="14">
-                                        2 Weeks
-                                    </mat-option>
-                                    <mat-option [value]="21">
-                                        3 Weeks
-                                    </mat-option>
-                                    <mat-option [value]="30">
-                                        1 Month
-                                    </mat-option>
-                                    <mat-option [value]="60">
-                                        2 Months
-                                    </mat-option>
-                                    <mat-option [value]="90">
-                                        3 Months
-                                    </mat-option>
-                                    <mat-option [value]="120">
-                                        4 Months
-                                    </mat-option>
-                                    <mat-option [value]="150">
-                                        5 Months
-                                    </mat-option>
-                                    <mat-option [value]="180">
-                                        6 Month
-                                    </mat-option>
-                                </mat-select>
-                                <mat-hint>
-                                    Number of days ahead the user is able to
-                                    book
-                                </mat-hint>
-                            </mat-form-field>
-                        </div>
-                        <div>
-                            <label for="max-duration"> Max Duration </label>
-                            <mat-form-field appearance="outline" class="w-full">
-                                <mat-select
-                                    name="max-duration"
-                                    formControlName="max_duration"
-                                >
-                                    <mat-option [value]="60">1 Hour</mat-option>
-                                    <mat-option [value]="90"
-                                        >1 Hour 30 Minutes</mat-option
-                                    >
-                                    <mat-option [value]="120"
-                                        >2 Hours</mat-option
-                                    >
-                                    <mat-option [value]="180"
-                                        >3 Hours</mat-option
-                                    >
-                                    <mat-option [value]="240"
-                                        >4 Hours</mat-option
-                                    >
-                                    <mat-option [value]="300"
-                                        >5 Hours</mat-option
-                                    >
-                                    <mat-option [value]="360"
-                                        >6 Hours</mat-option
-                                    >
-                                    <mat-option [value]="420"
-                                        >7 Hours</mat-option
-                                    >
-                                    <mat-option [value]="480"
-                                        >8 Hours</mat-option
-                                    >
-                                    <mat-option [value]="540"
-                                        >9 Hours</mat-option
-                                    >
-                                    <mat-option [value]="600"
-                                        >10 Hours</mat-option
-                                    >
-                                    <mat-option [value]="660"
-                                        >11 Hours</mat-option
-                                    >
-                                    <mat-option [value]="720"
-                                        >12 Hours</mat-option
-                                    >
-                                    <mat-option [value]="780"
-                                        >13 Hours</mat-option
-                                    >
-                                    <mat-option [value]="840"
-                                        >14 Hours</mat-option
-                                    >
-                                    <mat-option [value]="900"
-                                        >15 Hours</mat-option
-                                    >
-                                    <mat-option [value]="960"
-                                        >16 Hours</mat-option
-                                    >
-                                    <mat-option [value]="1020"
-                                        >17 Hours</mat-option
-                                    >
-                                    <mat-option [value]="1080"
-                                        >18 Hours</mat-option
-                                    >
-                                    <mat-option [value]="1140"
-                                        >19 Hours</mat-option
-                                    >
-                                    <mat-option [value]="1200"
-                                        >20 Hours</mat-option
-                                    >
-                                </mat-select>
-                                <mat-hint>
-                                    Max duration for single day bookings
-                                </mat-hint>
-                            </mat-form-field>
-                        </div>
-                        <div class="-mx-2 flex flex-wrap items-center">
-                            <settings-toggle
-                                name="Allow all day bookings"
-                                formControlName="allow_all_day"
-                            ></settings-toggle>
+                                        <mat-select
+                                            name="max-duration"
+                                            formControlName="max_duration"
+                                        >
+                                            <mat-option [value]="60"
+                                                >1 Hour</mat-option
+                                            >
+                                            <mat-option [value]="90"
+                                                >1 Hour 30 Minutes</mat-option
+                                            >
+                                            <mat-option [value]="120"
+                                                >2 Hours</mat-option
+                                            >
+                                            <mat-option [value]="180"
+                                                >3 Hours</mat-option
+                                            >
+                                            <mat-option [value]="240"
+                                                >4 Hours</mat-option
+                                            >
+                                            <mat-option [value]="300"
+                                                >5 Hours</mat-option
+                                            >
+                                            <mat-option [value]="360"
+                                                >6 Hours</mat-option
+                                            >
+                                            <mat-option [value]="420"
+                                                >7 Hours</mat-option
+                                            >
+                                            <mat-option [value]="480"
+                                                >8 Hours</mat-option
+                                            >
+                                            <mat-option [value]="540"
+                                                >9 Hours</mat-option
+                                            >
+                                            <mat-option [value]="600"
+                                                >10 Hours</mat-option
+                                            >
+                                            <mat-option [value]="660"
+                                                >11 Hours</mat-option
+                                            >
+                                            <mat-option [value]="720"
+                                                >12 Hours</mat-option
+                                            >
+                                            <mat-option [value]="780"
+                                                >13 Hours</mat-option
+                                            >
+                                            <mat-option [value]="840"
+                                                >14 Hours</mat-option
+                                            >
+                                            <mat-option [value]="900"
+                                                >15 Hours</mat-option
+                                            >
+                                            <mat-option [value]="960"
+                                                >16 Hours</mat-option
+                                            >
+                                            <mat-option [value]="1020"
+                                                >17 Hours</mat-option
+                                            >
+                                            <mat-option [value]="1080"
+                                                >18 Hours</mat-option
+                                            >
+                                            <mat-option [value]="1140"
+                                                >19 Hours</mat-option
+                                            >
+                                            <mat-option [value]="1200"
+                                                >20 Hours</mat-option
+                                            >
+                                        </mat-select>
+                                        <mat-hint>
+                                            Max duration for single day bookings
+                                        </mat-hint>
+                                    </mat-form-field>
+                                </div>
+                                <div class="-mx-2 flex flex-wrap items-center">
+                                    <settings-toggle
+                                        name="Allow all day bookings"
+                                        formControlName="allow_all_day"
+                                    ></settings-toggle>
+                                </div>
+                            </div>
                         </div>
                     </section>
                 }
@@ -1009,7 +1166,7 @@ import { lastValueFrom } from 'rxjs';
                     <section
                         lockers
                         id="feature-lockers"
-                        class="relative rounded border border-base-300 px-4 pb-2 pt-4"
+                        class="relative rounded border border-base-300"
                         formGroupName="lockers"
                     >
                         <h3
@@ -1017,27 +1174,46 @@ import { lastValueFrom } from 'rxjs';
                         >
                             Locker Bookings
                         </h3>
-                        <div class="-mx-2 flex flex-wrap items-center">
-                            <settings-toggle
-                                name="Default bookings to all day"
-                                formControlName="all_day_default"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Show Calendar Links after booking"
-                                formControlName="show_calendar_links"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Hide End time option"
-                                formControlName="hide_end_time"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Disable Date selection"
-                                formControlName="disabled_date_select"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Disable start time option"
-                                formControlName="disabled_start_time"
-                            ></settings-toggle>
+                        <button
+                            icon
+                            matRipple
+                            class="absolute right-4 top-0 -translate-y-1/2 bg-base-100"
+                            (click)="shown_group.set('lockers')"
+                        >
+                            <icon>{{
+                                shown_group() === 'lockers'
+                                    ? 'chevron_left'
+                                    : 'keyboard_arrow_down'
+                            }}</icon>
+                        </button>
+                        <div
+                            collapsible
+                            [class.open]="shown_group() === 'lockers'"
+                        >
+                            <div class="content px-4 pb-2 pt-4">
+                                <div class="-mx-2 flex flex-wrap items-center">
+                                    <settings-toggle
+                                        name="Default bookings to all day"
+                                        formControlName="all_day_default"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Show Calendar Links after booking"
+                                        formControlName="show_calendar_links"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Hide End time option"
+                                        formControlName="hide_end_time"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Disable Date selection"
+                                        formControlName="disabled_date_select"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Disable start time option"
+                                        formControlName="disabled_start_time"
+                                    ></settings-toggle>
+                                </div>
+                            </div>
                         </div>
                     </section>
                 }
@@ -1063,16 +1239,11 @@ export class ConciergeSettingsFormModalComponent {
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
 
-    public loading = signal('');
     public existing_settings: Record<string, any> = {};
     public old_settings: Record<string, any> = {};
     public readonly zone = this._data.zone;
-    public readonly scrollable_features = [
-        'spaces',
-        'visitors',
-        'parking',
-        'lockers',
-    ];
+    public readonly loading = signal('');
+    public readonly shown_group = signal('');
     public readonly settings_key =
         this._settings.get('app.concierge_metadata_key') || 'concierge_app';
 
@@ -1165,17 +1336,6 @@ export class ConciergeSettingsFormModalComponent {
         this.form.patchValue(metadata || {});
         this.old_settings = metadata;
         this.loading.set('');
-    }
-
-    public scrollToFeature(feature: string) {
-        const id = `feature-${feature}`;
-        const element = document.getElementById(id);
-        if (!element) return;
-        element.scrollIntoView({
-            behavior: 'smooth',
-            block: 'end',
-            inline: 'nearest',
-        });
     }
 
     public async save() {

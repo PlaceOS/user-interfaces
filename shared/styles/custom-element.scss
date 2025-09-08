@@ -1196,3 +1196,23 @@ survey-widget *::-webkit-scrollbar-thumb {
         text-decoration: underline;
     }
 }
+
+[collapsible] {
+    display: grid;
+    grid-template-rows: 0fr;
+    overflow: hidden;
+    transition: grid-template-rows 300ms;
+
+    &.open {
+        grid-template-rows: 1fr;
+    }
+    & .content {
+        min-height: 0;
+        transition: visibility 300ms;
+        visibility: hidden;
+        overflow: hidden;
+    }
+    &.open .content {
+        visibility: visible;
+    }
+}

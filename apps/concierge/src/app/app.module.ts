@@ -9,7 +9,10 @@ import {
     provideZonelessChangeDetection,
 } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import {
+    BrowserAnimationsModule,
+    provideAnimations,
+} from '@angular/platform-browser/animations';
 import { Router } from '@angular/router';
 import { ServiceWorkerModule } from '@angular/service-worker';
 
@@ -48,6 +51,7 @@ import { LocaleService } from '@placeos/common';
     ],
     providers: [
         provideZonelessChangeDetection(),
+        provideAnimations(),
         {
             provide: MAT_CHIPS_DEFAULT_OPTIONS,
             useValue: {

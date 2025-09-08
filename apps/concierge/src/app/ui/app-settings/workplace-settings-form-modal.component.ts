@@ -107,20 +107,6 @@ import { lastValueFrom } from 'rxjs';
                             </mat-select>
                         </mat-form-field>
                     </div>
-                    <div class="relative -top-4 -mt-2 flex flex-wrap">
-                        @for (feature of form.value.features; track feature) {
-                            @if (scrollable_features.includes(feature)) {
-                                <button
-                                    matRipple
-                                    class="m-1 rounded-full border border-base-300 px-4 py-1 text-sm capitalize"
-                                    [matTooltip]="'Scroll to ' + feature"
-                                    (click)="scrollToFeature(feature)"
-                                >
-                                    {{ feature }}
-                                </button>
-                            }
-                        }
-                    </div>
                     <div>
                         <label for="features"
                             >Hide Global Search Item Types</label
@@ -441,7 +427,7 @@ import { lastValueFrom } from 'rxjs';
                     <section
                         events
                         id="feature-spaces"
-                        class="relative rounded border border-base-300 px-4 pb-2 pt-4"
+                        class="relative rounded border border-base-300"
                         formGroupName="events"
                     >
                         <h3
@@ -449,358 +435,442 @@ import { lastValueFrom } from 'rxjs';
                         >
                             Room Bookings
                         </h3>
-                        <div>
-                            <label for="available-period">
-                                Available Period
-                            </label>
-                            <mat-form-field appearance="outline" class="w-full">
-                                <mat-select
-                                    name="available-period"
-                                    formControlName="allowed_future_days"
-                                >
-                                    <mat-option [value]="1">1 Day</mat-option>
-                                    <mat-option [value]="2">2 Day</mat-option>
-                                    <mat-option [value]="3">3 Day</mat-option>
-                                    <mat-option [value]="4">4 Day</mat-option>
-                                    <mat-option [value]="5">5 Day</mat-option>
-                                    <mat-option [value]="6">6 Day</mat-option>
-                                    <mat-option [value]="7">1 Week</mat-option>
-                                    <mat-option [value]="8">8 Day</mat-option>
-                                    <mat-option [value]="9">9 Day</mat-option>
-                                    <mat-option [value]="10">10 Day</mat-option>
-                                    <mat-option [value]="11">11 Day</mat-option>
-                                    <mat-option [value]="12">12 Day</mat-option>
-                                    <mat-option [value]="13">13 Day</mat-option>
-                                    <mat-option [value]="14">
-                                        2 Weeks
-                                    </mat-option>
-                                    <mat-option [value]="21">
-                                        3 Weeks
-                                    </mat-option>
-                                    <mat-option [value]="30">
-                                        1 Month
-                                    </mat-option>
-                                    <mat-option [value]="45">
-                                        6 Weeks
-                                    </mat-option>
-                                    <mat-option [value]="60">
-                                        2 Months
-                                    </mat-option>
-                                    <mat-option [value]="90">
-                                        3 Months
-                                    </mat-option>
-                                    <mat-option [value]="120">
-                                        4 Months
-                                    </mat-option>
-                                    <mat-option [value]="150">
-                                        5 Months
-                                    </mat-option>
-                                    <mat-option [value]="180">
-                                        6 Month
-                                    </mat-option>
-                                </mat-select>
-                                <mat-hint>
-                                    Number of days ahead the user is able to
-                                    book
-                                </mat-hint>
-                            </mat-form-field>
-                        </div>
-                        <div>
-                            <label for="force-host">Force Host</label>
-                            <mat-form-field appearance="outline" class="w-full">
-                                <input
-                                    matInput
-                                    name="force-host"
-                                    formControlName="force_host"
-                                    placeholder="global.host@acme.tech"
-                                />
-                                <mat-hint>
-                                    Force host of room bookings to be this user
-                                </mat-hint>
-                                <mat-error>Invalid email address</mat-error>
-                            </mat-form-field>
-                        </div>
-                        <div>
-                            <label for="max-duration"> Max Duration </label>
-                            <mat-form-field appearance="outline" class="w-full">
-                                <mat-select
-                                    name="max-duration"
-                                    formControlName="max_duration"
-                                >
-                                    <mat-option [value]="60">1 Hour</mat-option>
-                                    <mat-option [value]="90"
-                                        >1 Hour 30 Minutes</mat-option
+                        <button
+                            icon
+                            matRipple
+                            class="absolute right-4 top-0 -translate-y-1/2 bg-base-100"
+                            (click)="shown_group.set('spaces')"
+                        >
+                            <icon>{{
+                                shown_group() === 'spaces'
+                                    ? 'chevron_left'
+                                    : 'keyboard_arrow_down'
+                            }}</icon>
+                        </button>
+                        <div
+                            collapsible
+                            [class.open]="shown_group() === 'spaces'"
+                        >
+                            <div class="content px-4 pb-2 pt-4">
+                                <div>
+                                    <label for="available-period">
+                                        Available Period
+                                    </label>
+                                    <mat-form-field
+                                        appearance="outline"
+                                        class="w-full"
                                     >
-                                    <mat-option [value]="120"
-                                        >2 Hours</mat-option
+                                        <mat-select
+                                            name="available-period"
+                                            formControlName="allowed_future_days"
+                                        >
+                                            <mat-option [value]="1"
+                                                >1 Day</mat-option
+                                            >
+                                            <mat-option [value]="2"
+                                                >2 Day</mat-option
+                                            >
+                                            <mat-option [value]="3"
+                                                >3 Day</mat-option
+                                            >
+                                            <mat-option [value]="4"
+                                                >4 Day</mat-option
+                                            >
+                                            <mat-option [value]="5"
+                                                >5 Day</mat-option
+                                            >
+                                            <mat-option [value]="6"
+                                                >6 Day</mat-option
+                                            >
+                                            <mat-option [value]="7"
+                                                >1 Week</mat-option
+                                            >
+                                            <mat-option [value]="8"
+                                                >8 Day</mat-option
+                                            >
+                                            <mat-option [value]="9"
+                                                >9 Day</mat-option
+                                            >
+                                            <mat-option [value]="10"
+                                                >10 Day</mat-option
+                                            >
+                                            <mat-option [value]="11"
+                                                >11 Day</mat-option
+                                            >
+                                            <mat-option [value]="12"
+                                                >12 Day</mat-option
+                                            >
+                                            <mat-option [value]="13"
+                                                >13 Day</mat-option
+                                            >
+                                            <mat-option [value]="14">
+                                                2 Weeks
+                                            </mat-option>
+                                            <mat-option [value]="21">
+                                                3 Weeks
+                                            </mat-option>
+                                            <mat-option [value]="30">
+                                                1 Month
+                                            </mat-option>
+                                            <mat-option [value]="45">
+                                                6 Weeks
+                                            </mat-option>
+                                            <mat-option [value]="60">
+                                                2 Months
+                                            </mat-option>
+                                            <mat-option [value]="90">
+                                                3 Months
+                                            </mat-option>
+                                            <mat-option [value]="120">
+                                                4 Months
+                                            </mat-option>
+                                            <mat-option [value]="150">
+                                                5 Months
+                                            </mat-option>
+                                            <mat-option [value]="180">
+                                                6 Month
+                                            </mat-option>
+                                        </mat-select>
+                                        <mat-hint>
+                                            Number of days ahead the user is
+                                            able to book
+                                        </mat-hint>
+                                    </mat-form-field>
+                                </div>
+                                <div>
+                                    <label for="force-host">Force Host</label>
+                                    <mat-form-field
+                                        appearance="outline"
+                                        class="w-full"
                                     >
-                                    <mat-option [value]="180"
-                                        >3 Hours</mat-option
+                                        <input
+                                            matInput
+                                            name="force-host"
+                                            formControlName="force_host"
+                                            placeholder="global.host@acme.tech"
+                                        />
+                                        <mat-hint>
+                                            Force host of room bookings to be
+                                            this user
+                                        </mat-hint>
+                                        <mat-error
+                                            >Invalid email address</mat-error
+                                        >
+                                    </mat-form-field>
+                                </div>
+                                <div>
+                                    <label for="max-duration">
+                                        Max Duration
+                                    </label>
+                                    <mat-form-field
+                                        appearance="outline"
+                                        class="w-full"
                                     >
-                                    <mat-option [value]="240"
-                                        >4 Hours</mat-option
+                                        <mat-select
+                                            name="max-duration"
+                                            formControlName="max_duration"
+                                        >
+                                            <mat-option [value]="60"
+                                                >1 Hour</mat-option
+                                            >
+                                            <mat-option [value]="90"
+                                                >1 Hour 30 Minutes</mat-option
+                                            >
+                                            <mat-option [value]="120"
+                                                >2 Hours</mat-option
+                                            >
+                                            <mat-option [value]="180"
+                                                >3 Hours</mat-option
+                                            >
+                                            <mat-option [value]="240"
+                                                >4 Hours</mat-option
+                                            >
+                                            <mat-option [value]="300"
+                                                >5 Hours</mat-option
+                                            >
+                                            <mat-option [value]="360"
+                                                >6 Hours</mat-option
+                                            >
+                                            <mat-option [value]="420"
+                                                >7 Hours</mat-option
+                                            >
+                                            <mat-option [value]="480"
+                                                >8 Hours</mat-option
+                                            >
+                                            <mat-option [value]="540"
+                                                >9 Hours</mat-option
+                                            >
+                                            <mat-option [value]="600"
+                                                >10 Hours</mat-option
+                                            >
+                                            <mat-option [value]="660"
+                                                >11 Hours</mat-option
+                                            >
+                                            <mat-option [value]="720"
+                                                >12 Hours</mat-option
+                                            >
+                                            <mat-option [value]="780"
+                                                >13 Hours</mat-option
+                                            >
+                                            <mat-option [value]="840"
+                                                >14 Hours</mat-option
+                                            >
+                                            <mat-option [value]="900"
+                                                >15 Hours</mat-option
+                                            >
+                                            <mat-option [value]="960"
+                                                >16 Hours</mat-option
+                                            >
+                                            <mat-option [value]="1020"
+                                                >17 Hours</mat-option
+                                            >
+                                            <mat-option [value]="1080"
+                                                >18 Hours</mat-option
+                                            >
+                                            <mat-option [value]="1140"
+                                                >19 Hours</mat-option
+                                            >
+                                            <mat-option [value]="1200"
+                                                >20 Hours</mat-option
+                                            >
+                                        </mat-select>
+                                        <mat-hint>
+                                            Max duration for single day bookings
+                                        </mat-hint>
+                                    </mat-form-field>
+                                </div>
+                                <div class="flex items-center space-x-4">
+                                    <div>
+                                        <label for="setup">
+                                            Default Setup Duration
+                                        </label>
+                                        <mat-form-field
+                                            appearance="outline"
+                                            class="w-full"
+                                        >
+                                            <mat-select
+                                                name="setup"
+                                                formControlName="setup"
+                                                placeholder="No default setup"
+                                            >
+                                                <mat-option [value]="5">
+                                                    5 Minutes
+                                                </mat-option>
+                                                <mat-option [value]="10">
+                                                    10 Minutes
+                                                </mat-option>
+                                                <mat-option [value]="15">
+                                                    15 Minutes
+                                                </mat-option>
+                                                <mat-option [value]="30">
+                                                    30 Minutes
+                                                </mat-option>
+                                                <mat-option [value]="45">
+                                                    45 Minutes
+                                                </mat-option>
+                                                <mat-option [value]="60">
+                                                    1 Hour
+                                                </mat-option>
+                                                <mat-option [value]="90">
+                                                    1 Hour 30 Minutes
+                                                </mat-option>
+                                                <mat-option [value]="120">
+                                                    2 Hours
+                                                </mat-option>
+                                            </mat-select>
+                                        </mat-form-field>
+                                    </div>
+                                    <div>
+                                        <label for="breakdown">
+                                            Default Breakdown Duration
+                                        </label>
+                                        <mat-form-field
+                                            appearance="outline"
+                                            class="w-full"
+                                        >
+                                            <mat-select
+                                                name="breakdown"
+                                                formControlName="breakdown"
+                                                placeholder="No default breakdown"
+                                            >
+                                                <mat-option [value]="5">
+                                                    5 Minutes
+                                                </mat-option>
+                                                <mat-option [value]="10">
+                                                    10 Minutes
+                                                </mat-option>
+                                                <mat-option [value]="15">
+                                                    15 Minutes
+                                                </mat-option>
+                                                <mat-option [value]="30">
+                                                    30 Minutes
+                                                </mat-option>
+                                                <mat-option [value]="45">
+                                                    45 Minutes
+                                                </mat-option>
+                                                <mat-option [value]="60">
+                                                    1 Hour
+                                                </mat-option>
+                                                <mat-option [value]="90">
+                                                    1 Hour 30 Minutes
+                                                </mat-option>
+                                                <mat-option [value]="120">
+                                                    2 Hours
+                                                </mat-option>
+                                            </mat-select>
+                                        </mat-form-field>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label for="cache-duration">
+                                        Cache Period
+                                    </label>
+                                    <mat-form-field
+                                        appearance="outline"
+                                        class="w-full"
                                     >
-                                    <mat-option [value]="300"
-                                        >5 Hours</mat-option
-                                    >
-                                    <mat-option [value]="360"
-                                        >6 Hours</mat-option
-                                    >
-                                    <mat-option [value]="420"
-                                        >7 Hours</mat-option
-                                    >
-                                    <mat-option [value]="480"
-                                        >8 Hours</mat-option
-                                    >
-                                    <mat-option [value]="540"
-                                        >9 Hours</mat-option
-                                    >
-                                    <mat-option [value]="600"
-                                        >10 Hours</mat-option
-                                    >
-                                    <mat-option [value]="660"
-                                        >11 Hours</mat-option
-                                    >
-                                    <mat-option [value]="720"
-                                        >12 Hours</mat-option
-                                    >
-                                    <mat-option [value]="780"
-                                        >13 Hours</mat-option
-                                    >
-                                    <mat-option [value]="840"
-                                        >14 Hours</mat-option
-                                    >
-                                    <mat-option [value]="900"
-                                        >15 Hours</mat-option
-                                    >
-                                    <mat-option [value]="960"
-                                        >16 Hours</mat-option
-                                    >
-                                    <mat-option [value]="1020"
-                                        >17 Hours</mat-option
-                                    >
-                                    <mat-option [value]="1080"
-                                        >18 Hours</mat-option
-                                    >
-                                    <mat-option [value]="1140"
-                                        >19 Hours</mat-option
-                                    >
-                                    <mat-option [value]="1200"
-                                        >20 Hours</mat-option
-                                    >
-                                </mat-select>
-                                <mat-hint>
-                                    Max duration for single day bookings
-                                </mat-hint>
-                            </mat-form-field>
-                        </div>
-                        <div class="flex items-center space-x-4">
-                            <div>
-                                <label for="setup">
-                                    Default Setup Duration
-                                </label>
-                                <mat-form-field
-                                    appearance="outline"
-                                    class="w-full"
-                                >
-                                    <mat-select
-                                        name="setup"
-                                        formControlName="setup"
-                                        placeholder="No default setup"
-                                    >
-                                        <mat-option [value]="5">
-                                            5 Minutes
-                                        </mat-option>
-                                        <mat-option [value]="10">
-                                            10 Minutes
-                                        </mat-option>
-                                        <mat-option [value]="15">
-                                            15 Minutes
-                                        </mat-option>
-                                        <mat-option [value]="30">
-                                            30 Minutes
-                                        </mat-option>
-                                        <mat-option [value]="45">
-                                            45 Minutes
-                                        </mat-option>
-                                        <mat-option [value]="60">
-                                            1 Hour
-                                        </mat-option>
-                                        <mat-option [value]="90">
-                                            1 Hour 30 Minutes
-                                        </mat-option>
-                                        <mat-option [value]="120">
-                                            2 Hours
-                                        </mat-option>
-                                    </mat-select>
-                                </mat-form-field>
+                                        <mat-select
+                                            name="cache-duration"
+                                            formControlName="cache_duration_in_days"
+                                        >
+                                            <mat-option [value]="-1">
+                                                No cache
+                                            </mat-option>
+                                            <mat-option [value]="1"
+                                                >1 Day</mat-option
+                                            >
+                                            <mat-option [value]="2"
+                                                >2 Days</mat-option
+                                            >
+                                            <mat-option [value]="3"
+                                                >3 Days</mat-option
+                                            >
+                                            <mat-option [value]="4"
+                                                >4 Days</mat-option
+                                            >
+                                            <mat-option [value]="5"
+                                                >5 Days</mat-option
+                                            >
+                                            <mat-option [value]="6"
+                                                >6 Days</mat-option
+                                            >
+                                            <mat-option [value]="7"
+                                                >1 Week</mat-option
+                                            >
+                                            <mat-option [value]="8"
+                                                >8 Days</mat-option
+                                            >
+                                            <mat-option [value]="9"
+                                                >9 Days</mat-option
+                                            >
+                                            <mat-option [value]="10"
+                                                >10 Days</mat-option
+                                            >
+                                            <mat-option [value]="11"
+                                                >11 Days</mat-option
+                                            >
+                                            <mat-option [value]="12"
+                                                >12 Days</mat-option
+                                            >
+                                            <mat-option [value]="13"
+                                                >13 Days</mat-option
+                                            >
+                                            <mat-option [value]="14">
+                                                2 Weeks
+                                            </mat-option>
+                                            <mat-option [value]="21">
+                                                3 Weeks
+                                            </mat-option>
+                                            <mat-option [value]="30">
+                                                1 Month
+                                            </mat-option>
+                                        </mat-select>
+                                        <mat-hint>
+                                            Number of days ahead to grab
+                                            bookings from the room driver
+                                        </mat-hint>
+                                    </mat-form-field>
+                                </div>
+                                <div class="-mx-2 flex flex-wrap items-center">
+                                    <settings-toggle
+                                        name="Allow all day bookings"
+                                        formControlName="allow_all_day"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Default bookings to all day"
+                                        formControlName="all_day_default"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Disable booking requests"
+                                        formControlName="booking_unavailable"
+                                        info="Prevent making backend requests for bookings and give users links to create the booking in their own calendars"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Allow booking for other users"
+                                        formControlName="can_book_for_others"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Allow booking with assets"
+                                        formControlName="has_assets"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Hide attendee actions"
+                                        formControlName="hide_user_actions"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Allow booking multiple spaces"
+                                        formControlName="multiple_spaces"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Force room as host"
+                                        formControlName="room_as_host"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Allow external attendees"
+                                        formControlName="allow_externals"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Allow Visibility options"
+                                        formControlName="allow_visibility"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Disable notes field"
+                                        formControlName="hide_notes"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Hide attendees field"
+                                        formControlName="hide_attendees"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Allow recurring meetings"
+                                        formControlName="allow_recurrence"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Allow multi-day bookings"
+                                        formControlName="allow_multiday"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Use PlaceOS bookings"
+                                        formControlName="use_bookings"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Display times with building timezone"
+                                        formControlName="use_building_timezone"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Allow daily all-day recurrence"
+                                        formControlName="allow_daily_allday_recurrence"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Disable standalone bookings"
+                                        formControlName="no_standalone"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Hide End Time option"
+                                        formControlName="hide_end_time"
+                                    ></settings-toggle>
+                                </div>
                             </div>
-                            <div>
-                                <label for="breakdown">
-                                    Default Breakdown Duration
-                                </label>
-                                <mat-form-field
-                                    appearance="outline"
-                                    class="w-full"
-                                >
-                                    <mat-select
-                                        name="breakdown"
-                                        formControlName="breakdown"
-                                        placeholder="No default breakdown"
-                                    >
-                                        <mat-option [value]="5">
-                                            5 Minutes
-                                        </mat-option>
-                                        <mat-option [value]="10">
-                                            10 Minutes
-                                        </mat-option>
-                                        <mat-option [value]="15">
-                                            15 Minutes
-                                        </mat-option>
-                                        <mat-option [value]="30">
-                                            30 Minutes
-                                        </mat-option>
-                                        <mat-option [value]="45">
-                                            45 Minutes
-                                        </mat-option>
-                                        <mat-option [value]="60">
-                                            1 Hour
-                                        </mat-option>
-                                        <mat-option [value]="90">
-                                            1 Hour 30 Minutes
-                                        </mat-option>
-                                        <mat-option [value]="120">
-                                            2 Hours
-                                        </mat-option>
-                                    </mat-select>
-                                </mat-form-field>
-                            </div>
-                        </div>
-                        <div>
-                            <label for="cache-duration"> Cache Period </label>
-                            <mat-form-field appearance="outline" class="w-full">
-                                <mat-select
-                                    name="cache-duration"
-                                    formControlName="cache_duration_in_days"
-                                >
-                                    <mat-option [value]="-1">
-                                        No cache
-                                    </mat-option>
-                                    <mat-option [value]="1">1 Day</mat-option>
-                                    <mat-option [value]="2">2 Days</mat-option>
-                                    <mat-option [value]="3">3 Days</mat-option>
-                                    <mat-option [value]="4">4 Days</mat-option>
-                                    <mat-option [value]="5">5 Days</mat-option>
-                                    <mat-option [value]="6">6 Days</mat-option>
-                                    <mat-option [value]="7">1 Week</mat-option>
-                                    <mat-option [value]="8">8 Days</mat-option>
-                                    <mat-option [value]="9">9 Days</mat-option>
-                                    <mat-option [value]="10"
-                                        >10 Days</mat-option
-                                    >
-                                    <mat-option [value]="11"
-                                        >11 Days</mat-option
-                                    >
-                                    <mat-option [value]="12"
-                                        >12 Days</mat-option
-                                    >
-                                    <mat-option [value]="13"
-                                        >13 Days</mat-option
-                                    >
-                                    <mat-option [value]="14">
-                                        2 Weeks
-                                    </mat-option>
-                                    <mat-option [value]="21">
-                                        3 Weeks
-                                    </mat-option>
-                                    <mat-option [value]="30">
-                                        1 Month
-                                    </mat-option>
-                                </mat-select>
-                                <mat-hint>
-                                    Number of days ahead to grab bookings from
-                                    the room driver
-                                </mat-hint>
-                            </mat-form-field>
-                        </div>
-                        <div class="-mx-2 flex flex-wrap items-center">
-                            <settings-toggle
-                                name="Allow all day bookings"
-                                formControlName="allow_all_day"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Default bookings to all day"
-                                formControlName="all_day_default"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Disable booking requests"
-                                formControlName="booking_unavailable"
-                                info="Prevent making backend requests for bookings and give users links to create the booking in their own calendars"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Allow booking for other users"
-                                formControlName="can_book_for_others"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Allow booking with assets"
-                                formControlName="has_assets"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Hide attendee actions"
-                                formControlName="hide_user_actions"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Allow booking multiple spaces"
-                                formControlName="multiple_spaces"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Force room as host"
-                                formControlName="room_as_host"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Allow external attendees"
-                                formControlName="allow_externals"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Allow Visibility options"
-                                formControlName="allow_visibility"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Disable notes field"
-                                formControlName="hide_notes"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Hide attendees field"
-                                formControlName="hide_attendees"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Allow recurring meetings"
-                                formControlName="allow_recurrence"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Allow multi-day bookings"
-                                formControlName="allow_multiday"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Use PlaceOS bookings"
-                                formControlName="use_bookings"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Display times with building timezone"
-                                formControlName="use_building_timezone"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Allow daily all-day recurrence"
-                                formControlName="allow_daily_allday_recurrence"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Disable standalone bookings"
-                                formControlName="no_standalone"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Hide End Time option"
-                                formControlName="hide_end_time"
-                            ></settings-toggle>
                         </div>
                     </section>
                 }
@@ -808,7 +878,7 @@ import { lastValueFrom } from 'rxjs';
                     <section
                         desks
                         id="feature-desks"
-                        class="relative rounded border border-base-300 px-4 pb-2 pt-4"
+                        class="relative rounded border border-base-300"
                         formGroupName="desks"
                     >
                         <h3
@@ -816,101 +886,139 @@ import { lastValueFrom } from 'rxjs';
                         >
                             Desk Bookings
                         </h3>
-                        <div>
-                            <label for="available-period">
-                                Available Period
-                            </label>
-                            <mat-form-field appearance="outline" class="w-full">
-                                <mat-select
-                                    name="available-period"
-                                    formControlName="available_period"
-                                >
-                                    <mat-option [value]="1">1 Day</mat-option>
-                                    <mat-option [value]="2">2 Days</mat-option>
-                                    <mat-option [value]="3">3 Days</mat-option>
-                                    <mat-option [value]="4">4 Days</mat-option>
-                                    <mat-option [value]="5">5 Days</mat-option>
-                                    <mat-option [value]="6">6 Days</mat-option>
-                                    <mat-option [value]="7">1 Week</mat-option>
-                                    <mat-option [value]="8">8 Days</mat-option>
-                                    <mat-option [value]="9">9 Days</mat-option>
-                                    <mat-option [value]="10"
-                                        >10 Days</mat-option
+                        <button
+                            icon
+                            matRipple
+                            class="absolute right-4 top-0 -translate-y-1/2 bg-base-100"
+                            (click)="shown_group.set('desks')"
+                        >
+                            <icon>{{
+                                shown_group() === 'desks'
+                                    ? 'chevron_left'
+                                    : 'keyboard_arrow_down'
+                            }}</icon>
+                        </button>
+                        <div
+                            collapsible
+                            [class.open]="shown_group() === 'desks'"
+                        >
+                            <div class="content px-4 pb-2 pt-4">
+                                <div>
+                                    <label for="available-period">
+                                        Available Period
+                                    </label>
+                                    <mat-form-field
+                                        appearance="outline"
+                                        class="w-full"
                                     >
-                                    <mat-option [value]="11"
-                                        >11 Days</mat-option
-                                    >
-                                    <mat-option [value]="12"
-                                        >12 Days</mat-option
-                                    >
-                                    <mat-option [value]="13"
-                                        >13 Days</mat-option
-                                    >
-                                    <mat-option [value]="14">
-                                        2 Weeks
-                                    </mat-option>
-                                    <mat-option [value]="21">
-                                        3 Weeks
-                                    </mat-option>
-                                    <mat-option [value]="30">
-                                        1 Month
-                                    </mat-option>
-                                    <mat-option [value]="60">
-                                        2 Months
-                                    </mat-option>
-                                    <mat-option [value]="90">
-                                        3 Months
-                                    </mat-option>
-                                    <mat-option [value]="120">
-                                        4 Months
-                                    </mat-option>
-                                    <mat-option [value]="150">
-                                        5 Months
-                                    </mat-option>
-                                    <mat-option [value]="180">
-                                        6 Month
-                                    </mat-option>
-                                </mat-select>
-                                <mat-hint>
-                                    Number of days ahead the user is able to
-                                    book
-                                </mat-hint>
-                            </mat-form-field>
-                        </div>
-                        <div class="-mx-2 flex flex-wrap items-center">
-                            <settings-toggle
-                                name="Allow all day bookings"
-                                formControlName="allow_all_day"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Default bookings to all day"
-                                formControlName="all_day_default"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Allow group bookings"
-                                formControlName="allow_groups"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Allow time changes"
-                                formControlName="allow_time_changes"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Auto-allocation"
-                                formControlName="auto_allocation"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Allow booking for others"
-                                formControlName="can_book_for_others"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Allow also booking a locker"
-                                formControlName="can_book_lockers"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Allow requesting assets with booking"
-                                formControlName="has_assets"
-                            ></settings-toggle>
-                            <!-- <settings-toggle
+                                        <mat-select
+                                            name="available-period"
+                                            formControlName="available_period"
+                                        >
+                                            <mat-option [value]="1"
+                                                >1 Day</mat-option
+                                            >
+                                            <mat-option [value]="2"
+                                                >2 Days</mat-option
+                                            >
+                                            <mat-option [value]="3"
+                                                >3 Days</mat-option
+                                            >
+                                            <mat-option [value]="4"
+                                                >4 Days</mat-option
+                                            >
+                                            <mat-option [value]="5"
+                                                >5 Days</mat-option
+                                            >
+                                            <mat-option [value]="6"
+                                                >6 Days</mat-option
+                                            >
+                                            <mat-option [value]="7"
+                                                >1 Week</mat-option
+                                            >
+                                            <mat-option [value]="8"
+                                                >8 Days</mat-option
+                                            >
+                                            <mat-option [value]="9"
+                                                >9 Days</mat-option
+                                            >
+                                            <mat-option [value]="10"
+                                                >10 Days</mat-option
+                                            >
+                                            <mat-option [value]="11"
+                                                >11 Days</mat-option
+                                            >
+                                            <mat-option [value]="12"
+                                                >12 Days</mat-option
+                                            >
+                                            <mat-option [value]="13"
+                                                >13 Days</mat-option
+                                            >
+                                            <mat-option [value]="14">
+                                                2 Weeks
+                                            </mat-option>
+                                            <mat-option [value]="21">
+                                                3 Weeks
+                                            </mat-option>
+                                            <mat-option [value]="30">
+                                                1 Month
+                                            </mat-option>
+                                            <mat-option [value]="60">
+                                                2 Months
+                                            </mat-option>
+                                            <mat-option [value]="90">
+                                                3 Months
+                                            </mat-option>
+                                            <mat-option [value]="120">
+                                                4 Months
+                                            </mat-option>
+                                            <mat-option [value]="150">
+                                                5 Months
+                                            </mat-option>
+                                            <mat-option [value]="180">
+                                                6 Month
+                                            </mat-option>
+                                        </mat-select>
+                                        <mat-hint>
+                                            Number of days ahead the user is
+                                            able to book
+                                        </mat-hint>
+                                    </mat-form-field>
+                                </div>
+                                <div class="-mx-2 flex flex-wrap items-center">
+                                    <settings-toggle
+                                        name="Allow all day bookings"
+                                        formControlName="allow_all_day"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Default bookings to all day"
+                                        formControlName="all_day_default"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Allow group bookings"
+                                        formControlName="allow_groups"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Allow time changes"
+                                        formControlName="allow_time_changes"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Auto-allocation"
+                                        formControlName="auto_allocation"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Allow booking for others"
+                                        formControlName="can_book_for_others"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Allow also booking a locker"
+                                        formControlName="can_book_lockers"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Allow requesting assets with booking"
+                                        formControlName="has_assets"
+                                    ></settings-toggle>
+                                    <!-- <settings-toggle
                                                                                                       name="Hide reason field for desk booking"
                                                                                                       formControlName="hide_reason"
                                                                                                     ></settings-toggle>
@@ -918,34 +1026,36 @@ import { lastValueFrom } from 'rxjs';
                                                                                                       name="Require a reason for desk booking"
                                                                                                       formControlName="needs_reason"
                                                                                                     ></settings-toggle> -->
-                            <settings-toggle
-                                name="Allow Recurring Desk bookings"
-                                formControlName="allow_recurrence"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Auto-checkin map bookingss"
-                                formControlName="auto_checkin"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Default to desk select modal to map view"
-                                formControlName="default_select_as_map"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Show calendar links after booking"
-                                formControlName="show_calendar_links"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Enabled desk height"
-                                formControlName="height_enabled"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Hide Checkin Options"
-                                formControlName="hide_checkin"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Hide End Time option"
-                                formControlName="hide_end_time"
-                            ></settings-toggle>
+                                    <settings-toggle
+                                        name="Allow Recurring Desk bookings"
+                                        formControlName="allow_recurrence"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Auto-checkin map bookingss"
+                                        formControlName="auto_checkin"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Default to desk select modal to map view"
+                                        formControlName="default_select_as_map"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Show calendar links after booking"
+                                        formControlName="show_calendar_links"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Enabled desk height"
+                                        formControlName="height_enabled"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Hide Checkin Options"
+                                        formControlName="hide_checkin"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Hide End Time option"
+                                        formControlName="hide_end_time"
+                                    ></settings-toggle>
+                                </div>
+                            </div>
                         </div>
                     </section>
                 }
@@ -958,7 +1068,7 @@ import { lastValueFrom } from 'rxjs';
                     <section
                         bookings
                         id="feature-bookings"
-                        class="relative rounded border border-base-300 px-4 pb-2 pt-4"
+                        class="relative rounded border border-base-300"
                         formGroupName="bookings"
                     >
                         <h3
@@ -966,51 +1076,74 @@ import { lastValueFrom } from 'rxjs';
                         >
                             PlaceOS Bookings
                         </h3>
-                        <div class="-mx-2 flex flex-wrap items-center">
-                            <settings-toggle
-                                name="Allow all day bookings"
-                                formControlName="allow_all_day"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Default bookings to all day"
-                                formControlName="all_day_default"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Display times with building timezone"
-                                formControlName="use_building_timezone"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Allow booking for other users"
-                                formControlName="can_book_for_others"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Allow booking multiple visitors"
-                                formControlName="multiple_visitors"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Auto-approve bookings"
-                                formControlName="no_approval"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Allow booking with assets"
-                                formControlName="allow_assets"
-                            ></settings-toggle>
-                            <ng-container>
-                                <settings-toggle
-                                    name="Show calendar links after visitor invite"
-                                    [ngModel]="
-                                        form.value.visitors.show_calendar_links
-                                    "
-                                    (ngModelChange)="
-                                        form.controls.visitors.patchValue({
-                                            show_calendar_links: $event,
-                                        })
-                                    "
-                                    [ngModelOptions]="{
-                                        standalone: true,
-                                    }"
-                                ></settings-toggle>
-                            </ng-container>
+                        <button
+                            icon
+                            matRipple
+                            class="absolute right-4 top-0 -translate-y-1/2 bg-base-100"
+                            (click)="shown_group.set('bookings')"
+                        >
+                            <icon>{{
+                                shown_group() === 'bookings'
+                                    ? 'chevron_left'
+                                    : 'keyboard_arrow_down'
+                            }}</icon>
+                        </button>
+                        <div
+                            collapsible
+                            [class.open]="shown_group() === 'bookings'"
+                        >
+                            <div class="content px-4 pb-2 pt-4">
+                                <div class="-mx-2 flex flex-wrap items-center">
+                                    <settings-toggle
+                                        name="Allow all day bookings"
+                                        formControlName="allow_all_day"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Default bookings to all day"
+                                        formControlName="all_day_default"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Display times with building timezone"
+                                        formControlName="use_building_timezone"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Allow booking for other users"
+                                        formControlName="can_book_for_others"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Allow booking multiple visitors"
+                                        formControlName="multiple_visitors"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Auto-approve bookings"
+                                        formControlName="no_approval"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Allow booking with assets"
+                                        formControlName="allow_assets"
+                                    ></settings-toggle>
+                                    <ng-container>
+                                        <settings-toggle
+                                            name="Show calendar links after visitor invite"
+                                            [ngModel]="
+                                                form.value.visitors
+                                                    .show_calendar_links
+                                            "
+                                            (ngModelChange)="
+                                                form.controls.visitors.patchValue(
+                                                    {
+                                                        show_calendar_links:
+                                                            $event,
+                                                    }
+                                                )
+                                            "
+                                            [ngModelOptions]="{
+                                                standalone: true,
+                                            }"
+                                        ></settings-toggle>
+                                    </ng-container>
+                                </div>
+                            </div>
                         </div>
                     </section>
                 }
@@ -1018,7 +1151,7 @@ import { lastValueFrom } from 'rxjs';
                     <section
                         explore
                         id="feature-explore"
-                        class="relative rounded border border-base-300 px-4 pb-2 pt-4"
+                        class="relative rounded border border-base-300"
                         formGroupName="explore"
                     >
                         <h3
@@ -1026,286 +1159,325 @@ import { lastValueFrom } from 'rxjs';
                         >
                             PlaceOS Maps
                         </h3>
-                        <div>
-                            <label for="disable"> Disabled Features </label>
-                            <mat-form-field appearance="outline" class="w-full">
-                                <mat-select
-                                    name="disable"
-                                    formControlName="disable"
-                                    placeholder="No disabled features"
-                                    multiple
-                                >
-                                    <mat-option value="devices"
-                                        >Devices</mat-option
+                        <button
+                            icon
+                            matRipple
+                            class="absolute right-4 top-0 -translate-y-1/2 bg-base-100"
+                            (click)="shown_group.set('explore')"
+                        >
+                            <icon>{{
+                                shown_group() === 'explore'
+                                    ? 'chevron_left'
+                                    : 'keyboard_arrow_down'
+                            }}</icon>
+                        </button>
+                        <div
+                            collapsible
+                            [class.open]="shown_group() === 'explore'"
+                        >
+                            <div class="content px-4 pb-2 pt-4">
+                                <div>
+                                    <label for="disable">
+                                        Disabled Features
+                                    </label>
+                                    <mat-form-field
+                                        appearance="outline"
+                                        class="w-full"
                                     >
-                                    <mat-option value="desks">Desks</mat-option>
-                                    <mat-option value="lockers">
-                                        Lockers
-                                    </mat-option>
-                                    <mat-option value="parking">
-                                        parking
-                                    </mat-option>
-                                    <mat-option value="spaces">
-                                        Rooms
-                                    </mat-option>
-                                    <mat-option value="spaces-presence">
-                                        Room Presence
-                                    </mat-option>
-                                    <mat-option value="zones">Zones</mat-option>
-                                </mat-select>
-                            </mat-form-field>
-                        </div>
-                        <div class="flex items-center space-x-4">
-                            <div class="flex-1">
-                                <label for="disable-actions">
-                                    Disabled Feature Actions
-                                </label>
-                                <mat-form-field
-                                    appearance="outline"
-                                    class="w-full"
-                                >
-                                    <mat-select
-                                        name="disable-actions"
-                                        formControlName="disable_actions"
-                                        placeholder="No disabled actions"
-                                        multiple
-                                    >
-                                        <mat-option value="devices"
-                                            >Devices</mat-option
+                                        <mat-select
+                                            name="disable"
+                                            formControlName="disable"
+                                            placeholder="No disabled features"
+                                            multiple
                                         >
-                                        <mat-option value="desks"
-                                            >Desks</mat-option
-                                        >
-                                        <mat-option value="lockers">
-                                            Lockers
-                                        </mat-option>
-                                        <mat-option value="parking">
-                                            parking
-                                        </mat-option>
-                                        <mat-option value="spaces">
-                                            Rooms
-                                        </mat-option>
-                                        <mat-option value="spaces-presence">
-                                            Room Presence
-                                        </mat-option>
-                                        <mat-option value="zones"
-                                            >Zones</mat-option
-                                        >
-                                    </mat-select>
-                                </mat-form-field>
-                            </div>
-                            <div class="flex-1">
-                                <label for="available-period">
-                                    Disabled Feature Labels
-                                </label>
-                                <mat-form-field
-                                    appearance="outline"
-                                    class="w-full"
-                                >
-                                    <mat-select
-                                        name="disable-labels"
-                                        formControlName="disable_labels"
-                                        placeholder="No disabled labels"
-                                        multiple
-                                    >
-                                        <mat-option value="devices"
-                                            >Devices</mat-option
-                                        >
-                                        <mat-option value="desks"
-                                            >Desks</mat-option
-                                        >
-                                        <mat-option value="lockers">
-                                            Lockers
-                                        </mat-option>
-                                        <mat-option value="parking">
-                                            parking
-                                        </mat-option>
-                                        <mat-option value="spaces">
-                                            Rooms
-                                        </mat-option>
-                                        <mat-option value="spaces-presence">
-                                            Room Presence
-                                        </mat-option>
-                                        <mat-option value="zones"
-                                            >Zones</mat-option
-                                        >
-                                    </mat-select>
-                                </mat-form-field>
-                            </div>
-                        </div>
-                        <div class="flex items-center space-x-4">
-                            <div class="flex-1">
-                                <label for="disable-features">
-                                    Disabled Feature Displays
-                                </label>
-                                <mat-form-field
-                                    appearance="outline"
-                                    class="w-full"
-                                >
-                                    <mat-select
-                                        name="disable-features"
-                                        formControlName="disable_features"
-                                        placeholder="No disabled displays"
-                                        multiple
-                                    >
-                                        <mat-option value="devices"
-                                            >Devices</mat-option
-                                        >
-                                        <mat-option value="desks"
-                                            >Desks</mat-option
-                                        >
-                                        <mat-option value="lockers">
-                                            Lockers
-                                        </mat-option>
-                                        <mat-option value="parking">
-                                            parking
-                                        </mat-option>
-                                        <mat-option value="spaces">
-                                            Rooms
-                                        </mat-option>
-                                        <mat-option value="spaces-presence">
-                                            Room Presence
-                                        </mat-option>
-                                        <mat-option value="zones"
-                                            >Zones</mat-option
-                                        >
-                                    </mat-select>
-                                </mat-form-field>
-                            </div>
-                            <div class="flex-1">
-                                <label for="disable-styles">
-                                    Disabled Feature Styles
-                                </label>
-                                <mat-form-field
-                                    appearance="outline"
-                                    class="w-full"
-                                >
-                                    <mat-select
-                                        name="disable-styles"
-                                        formControlName="disable_styles"
-                                        placeholder="No disabled styles"
-                                        multiple
-                                    >
-                                        <mat-option value="devices"
-                                            >Devices</mat-option
-                                        >
-                                        <mat-option value="desks"
-                                            >Desks</mat-option
-                                        >
-                                        <mat-option value="lockers">
-                                            Lockers
-                                        </mat-option>
-                                        <mat-option value="parking">
-                                            parking
-                                        </mat-option>
-                                        <mat-option value="spaces">
-                                            Rooms
-                                        </mat-option>
-                                        <mat-option value="spaces-presence">
-                                            Room Presence
-                                        </mat-option>
-                                        <mat-option value="zones"
-                                            >Zones</mat-option
-                                        >
-                                    </mat-select>
-                                </mat-form-field>
-                            </div>
-                        </div>
-                        @if (form.value.explore?.show_legend) {
-                            <div
-                                class="relative rounded border border-base-300 p-4"
-                            >
-                                <h3
-                                    class="absolute left-4 top-0 -translate-y-1/2 rounded bg-base-100 px-2 py-1 font-medium"
-                                >
-                                    Legend
-                                </h3>
-                                @for (
-                                    item of form.value.explore.legend || [];
-                                    track item;
-                                    let i = $index
-                                ) {
-                                    <div
-                                        class="mb-4 flex items-center space-x-4"
-                                    >
-                                        <div class="w-3/4 flex-1">
-                                            <mat-form-field
-                                                appearance="outline"
-                                                class="no-subscript w-full"
+                                            <mat-option value="devices"
+                                                >Devices</mat-option
                                             >
-                                                <input
-                                                    matInput
-                                                    placeholder="Legend Key"
-                                                    [(ngModel)]="item[0]"
-                                                    [ngModelOptions]="{
-                                                        standalone: true,
-                                                    }"
-                                                />
-                                            </mat-form-field>
-                                        </div>
-                                        <div
-                                            class="flex w-12 items-center justify-center"
-                                            matTooltip="Legend Color"
+                                            <mat-option value="desks"
+                                                >Desks</mat-option
+                                            >
+                                            <mat-option value="lockers">
+                                                Lockers
+                                            </mat-option>
+                                            <mat-option value="parking">
+                                                parking
+                                            </mat-option>
+                                            <mat-option value="spaces">
+                                                Rooms
+                                            </mat-option>
+                                            <mat-option value="spaces-presence">
+                                                Room Presence
+                                            </mat-option>
+                                            <mat-option value="zones"
+                                                >Zones</mat-option
+                                            >
+                                        </mat-select>
+                                    </mat-form-field>
+                                </div>
+                                <div class="flex items-center space-x-4">
+                                    <div class="flex-1">
+                                        <label for="disable-actions">
+                                            Disabled Feature Actions
+                                        </label>
+                                        <mat-form-field
+                                            appearance="outline"
+                                            class="w-full"
                                         >
-                                            <input
-                                                type="color"
-                                                class="h-11 rounded-lg border border-base-content"
-                                                [(ngModel)]="item[1]"
-                                                [ngModelOptions]="{
-                                                    standalone: true,
-                                                }"
-                                            />
-                                        </div>
+                                            <mat-select
+                                                name="disable-actions"
+                                                formControlName="disable_actions"
+                                                placeholder="No disabled actions"
+                                                multiple
+                                            >
+                                                <mat-option value="devices"
+                                                    >Devices</mat-option
+                                                >
+                                                <mat-option value="desks"
+                                                    >Desks</mat-option
+                                                >
+                                                <mat-option value="lockers">
+                                                    Lockers
+                                                </mat-option>
+                                                <mat-option value="parking">
+                                                    parking
+                                                </mat-option>
+                                                <mat-option value="spaces">
+                                                    Rooms
+                                                </mat-option>
+                                                <mat-option
+                                                    value="spaces-presence"
+                                                >
+                                                    Room Presence
+                                                </mat-option>
+                                                <mat-option value="zones"
+                                                    >Zones</mat-option
+                                                >
+                                            </mat-select>
+                                        </mat-form-field>
+                                    </div>
+                                    <div class="flex-1">
+                                        <label for="available-period">
+                                            Disabled Feature Labels
+                                        </label>
+                                        <mat-form-field
+                                            appearance="outline"
+                                            class="w-full"
+                                        >
+                                            <mat-select
+                                                name="disable-labels"
+                                                formControlName="disable_labels"
+                                                placeholder="No disabled labels"
+                                                multiple
+                                            >
+                                                <mat-option value="devices"
+                                                    >Devices</mat-option
+                                                >
+                                                <mat-option value="desks"
+                                                    >Desks</mat-option
+                                                >
+                                                <mat-option value="lockers">
+                                                    Lockers
+                                                </mat-option>
+                                                <mat-option value="parking">
+                                                    parking
+                                                </mat-option>
+                                                <mat-option value="spaces">
+                                                    Rooms
+                                                </mat-option>
+                                                <mat-option
+                                                    value="spaces-presence"
+                                                >
+                                                    Room Presence
+                                                </mat-option>
+                                                <mat-option value="zones"
+                                                    >Zones</mat-option
+                                                >
+                                            </mat-select>
+                                        </mat-form-field>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-4">
+                                    <div class="flex-1">
+                                        <label for="disable-features">
+                                            Disabled Feature Displays
+                                        </label>
+                                        <mat-form-field
+                                            appearance="outline"
+                                            class="w-full"
+                                        >
+                                            <mat-select
+                                                name="disable-features"
+                                                formControlName="disable_features"
+                                                placeholder="No disabled displays"
+                                                multiple
+                                            >
+                                                <mat-option value="devices"
+                                                    >Devices</mat-option
+                                                >
+                                                <mat-option value="desks"
+                                                    >Desks</mat-option
+                                                >
+                                                <mat-option value="lockers">
+                                                    Lockers
+                                                </mat-option>
+                                                <mat-option value="parking">
+                                                    parking
+                                                </mat-option>
+                                                <mat-option value="spaces">
+                                                    Rooms
+                                                </mat-option>
+                                                <mat-option
+                                                    value="spaces-presence"
+                                                >
+                                                    Room Presence
+                                                </mat-option>
+                                                <mat-option value="zones"
+                                                    >Zones</mat-option
+                                                >
+                                            </mat-select>
+                                        </mat-form-field>
+                                    </div>
+                                    <div class="flex-1">
+                                        <label for="disable-styles">
+                                            Disabled Feature Styles
+                                        </label>
+                                        <mat-form-field
+                                            appearance="outline"
+                                            class="w-full"
+                                        >
+                                            <mat-select
+                                                name="disable-styles"
+                                                formControlName="disable_styles"
+                                                placeholder="No disabled styles"
+                                                multiple
+                                            >
+                                                <mat-option value="devices"
+                                                    >Devices</mat-option
+                                                >
+                                                <mat-option value="desks"
+                                                    >Desks</mat-option
+                                                >
+                                                <mat-option value="lockers">
+                                                    Lockers
+                                                </mat-option>
+                                                <mat-option value="parking">
+                                                    parking
+                                                </mat-option>
+                                                <mat-option value="spaces">
+                                                    Rooms
+                                                </mat-option>
+                                                <mat-option
+                                                    value="spaces-presence"
+                                                >
+                                                    Room Presence
+                                                </mat-option>
+                                                <mat-option value="zones"
+                                                    >Zones</mat-option
+                                                >
+                                            </mat-select>
+                                        </mat-form-field>
+                                    </div>
+                                </div>
+                                @if (form.value.explore?.show_legend) {
+                                    <div
+                                        class="relative rounded border border-base-300 p-4"
+                                    >
+                                        <h3
+                                            class="absolute left-4 top-0 -translate-y-1/2 rounded bg-base-100 px-2 py-1 font-medium"
+                                        >
+                                            Legend
+                                        </h3>
+                                        @for (
+                                            item of form.value.explore.legend ||
+                                                [];
+                                            track item;
+                                            let i = $index
+                                        ) {
+                                            <div
+                                                class="mb-4 flex items-center space-x-4"
+                                            >
+                                                <div class="w-3/4 flex-1">
+                                                    <mat-form-field
+                                                        appearance="outline"
+                                                        class="no-subscript w-full"
+                                                    >
+                                                        <input
+                                                            matInput
+                                                            placeholder="Legend Key"
+                                                            [(ngModel)]="
+                                                                item[0]
+                                                            "
+                                                            [ngModelOptions]="{
+                                                                standalone: true,
+                                                            }"
+                                                        />
+                                                    </mat-form-field>
+                                                </div>
+                                                <div
+                                                    class="flex w-12 items-center justify-center"
+                                                    matTooltip="Legend Color"
+                                                >
+                                                    <input
+                                                        type="color"
+                                                        class="h-11 rounded-lg border border-base-content"
+                                                        [(ngModel)]="item[1]"
+                                                        [ngModelOptions]="{
+                                                            standalone: true,
+                                                        }"
+                                                    />
+                                                </div>
+                                                <button
+                                                    icon
+                                                    matRipple
+                                                    class="h-12 w-12 rounded border border-error text-error"
+                                                    (click)="removeLegend(i)"
+                                                >
+                                                    <icon>delete</icon>
+                                                </button>
+                                            </div>
+                                        }
                                         <button
-                                            icon
+                                            btn
                                             matRipple
-                                            class="h-12 w-12 rounded border border-error text-error"
-                                            (click)="removeLegend(i)"
+                                            class="w-full"
+                                            (click)="addLegend()"
                                         >
-                                            <icon>delete</icon>
+                                            Add Legend Item
                                         </button>
                                     </div>
                                 }
-                                <button
-                                    btn
-                                    matRipple
-                                    class="w-full"
-                                    (click)="addLegend()"
-                                >
-                                    Add Legend Item
-                                </button>
+                                <div class="-mx-2 flex flex-wrap items-center">
+                                    <settings-toggle
+                                        name="Hide device fields"
+                                        formControlName="hide_device_fields"
+                                        info="Hides the MAC address, manufacturer, OS and SSID fields from device info tooltips"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Show Legend"
+                                        formControlName="show_legend"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Hide Zones"
+                                        formControlName="hide_zones"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Show Booking QR Code"
+                                        formControlName="show_booking_qr"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Use defined polygons for zones"
+                                        formControlName="use_zone_polygons"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Show labels for zones"
+                                        formControlName="show_zone_labels"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Show zone sensor info"
+                                        formControlName="show_zone_sensor_info"
+                                    ></settings-toggle>
+                                </div>
                             </div>
-                        }
-                        <div class="-mx-2 flex flex-wrap items-center">
-                            <settings-toggle
-                                name="Hide device fields"
-                                formControlName="hide_device_fields"
-                                info="Hides the MAC address, manufacturer, OS and SSID fields from device info tooltips"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Show Legend"
-                                formControlName="show_legend"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Hide Zones"
-                                formControlName="hide_zones"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Show Booking QR Code"
-                                formControlName="show_booking_qr"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Use defined polygons for zones"
-                                formControlName="use_zone_polygons"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Show labels for zones"
-                                formControlName="show_zone_labels"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Show zone sensor info"
-                                formControlName="show_zone_sensor_info"
-                            ></settings-toggle>
                         </div>
                     </section>
                 }
@@ -1313,7 +1485,7 @@ import { lastValueFrom } from 'rxjs';
                     <section
                         parking
                         id="feature-parking"
-                        class="relative rounded border border-base-300 px-4 pb-2 pt-4"
+                        class="relative rounded border border-base-300"
                         formGroupName="parking"
                     >
                         <h3
@@ -1321,92 +1493,132 @@ import { lastValueFrom } from 'rxjs';
                         >
                             Parking Bookings
                         </h3>
-                        <div>
-                            <label for="available-period">
-                                Available Period
-                            </label>
-                            <mat-form-field appearance="outline" class="w-full">
-                                <mat-select
-                                    name="available-period"
-                                    formControlName="available_period"
-                                >
-                                    <mat-option [value]="1">1 Day</mat-option>
-                                    <mat-option [value]="2">2 Days</mat-option>
-                                    <mat-option [value]="3">3 Days</mat-option>
-                                    <mat-option [value]="4">4 Days</mat-option>
-                                    <mat-option [value]="5">5 Days</mat-option>
-                                    <mat-option [value]="6">6 Days</mat-option>
-                                    <mat-option [value]="7">1 Week</mat-option>
-                                    <mat-option [value]="8">8 Days</mat-option>
-                                    <mat-option [value]="9">9 Days</mat-option>
-                                    <mat-option [value]="10"
-                                        >10 Days</mat-option
+                        <button
+                            icon
+                            matRipple
+                            class="absolute right-4 top-0 -translate-y-1/2 bg-base-100"
+                            (click)="shown_group.set('parking')"
+                        >
+                            <icon>{{
+                                shown_group() === 'parking'
+                                    ? 'chevron_left'
+                                    : 'keyboard_arrow_down'
+                            }}</icon>
+                        </button>
+                        <div
+                            collapsible
+                            [class.open]="shown_group() === 'parking'"
+                        >
+                            <div class="content px-4 pb-2 pt-4">
+                                <div>
+                                    <label for="available-period">
+                                        Available Period
+                                    </label>
+                                    <mat-form-field
+                                        appearance="outline"
+                                        class="w-full"
                                     >
-                                    <mat-option [value]="11"
-                                        >11 Days</mat-option
-                                    >
-                                    <mat-option [value]="12"
-                                        >12 Days</mat-option
-                                    >
-                                    <mat-option [value]="13"
-                                        >13 Days</mat-option
-                                    >
-                                    <mat-option [value]="14">
-                                        2 Weeks
-                                    </mat-option>
-                                    <mat-option [value]="21">
-                                        3 Weeks
-                                    </mat-option>
-                                    <mat-option [value]="30">
-                                        1 Month
-                                    </mat-option>
-                                    <mat-option [value]="60">
-                                        2 Months
-                                    </mat-option>
-                                    <mat-option [value]="90">
-                                        3 Months
-                                    </mat-option>
-                                    <mat-option [value]="120">
-                                        4 Months
-                                    </mat-option>
-                                    <mat-option [value]="150">
-                                        5 Months
-                                    </mat-option>
-                                    <mat-option [value]="180">
-                                        6 Month
-                                    </mat-option>
-                                </mat-select>
-                                <mat-hint>
-                                    Number of days ahead the user is able to
-                                    book
-                                </mat-hint>
-                            </mat-form-field>
-                        </div>
-                        <div class="-mx-2 flex flex-wrap items-center">
-                            <settings-toggle
-                                name="Default bookings to all day"
-                                formControlName="all_day_default"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Allow user selecting booking time"
-                                formControlName="allow_time_changes"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Auto-allocate parking spaces"
-                                formControlName="auto_allocation"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Allow booking for other users"
-                                formControlName="can_book_for_others"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Allow recurring parking bookings"
-                                formControlName="allow_recurrence"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Hide End time option"
-                                formControlName="hide_end_time"
-                            ></settings-toggle>
+                                        <mat-select
+                                            name="available-period"
+                                            formControlName="available_period"
+                                        >
+                                            <mat-option [value]="1"
+                                                >1 Day</mat-option
+                                            >
+                                            <mat-option [value]="2"
+                                                >2 Days</mat-option
+                                            >
+                                            <mat-option [value]="3"
+                                                >3 Days</mat-option
+                                            >
+                                            <mat-option [value]="4"
+                                                >4 Days</mat-option
+                                            >
+                                            <mat-option [value]="5"
+                                                >5 Days</mat-option
+                                            >
+                                            <mat-option [value]="6"
+                                                >6 Days</mat-option
+                                            >
+                                            <mat-option [value]="7"
+                                                >1 Week</mat-option
+                                            >
+                                            <mat-option [value]="8"
+                                                >8 Days</mat-option
+                                            >
+                                            <mat-option [value]="9"
+                                                >9 Days</mat-option
+                                            >
+                                            <mat-option [value]="10"
+                                                >10 Days</mat-option
+                                            >
+                                            <mat-option [value]="11"
+                                                >11 Days</mat-option
+                                            >
+                                            <mat-option [value]="12"
+                                                >12 Days</mat-option
+                                            >
+                                            <mat-option [value]="13"
+                                                >13 Days</mat-option
+                                            >
+                                            <mat-option [value]="14">
+                                                2 Weeks
+                                            </mat-option>
+                                            <mat-option [value]="21">
+                                                3 Weeks
+                                            </mat-option>
+                                            <mat-option [value]="30">
+                                                1 Month
+                                            </mat-option>
+                                            <mat-option [value]="60">
+                                                2 Months
+                                            </mat-option>
+                                            <mat-option [value]="90">
+                                                3 Months
+                                            </mat-option>
+                                            <mat-option [value]="120">
+                                                4 Months
+                                            </mat-option>
+                                            <mat-option [value]="150">
+                                                5 Months
+                                            </mat-option>
+                                            <mat-option [value]="180">
+                                                6 Month
+                                            </mat-option>
+                                        </mat-select>
+                                        <mat-hint>
+                                            Number of days ahead the user is
+                                            able to book
+                                        </mat-hint>
+                                    </mat-form-field>
+                                </div>
+                                <div class="-mx-2 flex flex-wrap items-center">
+                                    <settings-toggle
+                                        name="Default bookings to all day"
+                                        formControlName="all_day_default"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Allow user selecting booking time"
+                                        formControlName="allow_time_changes"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Auto-allocate parking spaces"
+                                        formControlName="auto_allocation"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Allow booking for other users"
+                                        formControlName="can_book_for_others"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Allow recurring parking bookings"
+                                        formControlName="allow_recurrence"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Hide End time option"
+                                        formControlName="hide_end_time"
+                                    ></settings-toggle>
+                                </div>
+                            </div>
                         </div>
                     </section>
                 }
@@ -1414,7 +1626,7 @@ import { lastValueFrom } from 'rxjs';
                     <section
                         lockers
                         id="feature-lockers"
-                        class="relative rounded border border-base-300 px-4 pb-2 pt-4"
+                        class="relative rounded border border-base-300"
                         formGroupName="lockers"
                     >
                         <h3
@@ -1422,27 +1634,46 @@ import { lastValueFrom } from 'rxjs';
                         >
                             Locker Bookings
                         </h3>
-                        <div class="-mx-2 flex flex-wrap items-center">
-                            <settings-toggle
-                                name="Default bookings to all day"
-                                formControlName="all_day_default"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Show Calendar Links after booking"
-                                formControlName="show_calendar_links"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Hide End time option"
-                                formControlName="hide_end_time"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Disable Date selection"
-                                formControlName="disabled_date_select"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Disable start time option"
-                                formControlName="disabled_start_time"
-                            ></settings-toggle>
+                        <button
+                            icon
+                            matRipple
+                            class="absolute right-4 top-0 -translate-y-1/2 bg-base-100"
+                            (click)="shown_group.set('lockers')"
+                        >
+                            <icon>{{
+                                shown_group() === 'lockers'
+                                    ? 'chevron_left'
+                                    : 'keyboard_arrow_down'
+                            }}</icon>
+                        </button>
+                        <div
+                            collapsible
+                            [class.open]="shown_group() === 'lockers'"
+                        >
+                            <div class="content px-4 pb-2 pt-4">
+                                <div class="-mx-2 flex flex-wrap items-center">
+                                    <settings-toggle
+                                        name="Default bookings to all day"
+                                        formControlName="all_day_default"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Show Calendar Links after booking"
+                                        formControlName="show_calendar_links"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Hide End time option"
+                                        formControlName="hide_end_time"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Disable Date selection"
+                                        formControlName="disabled_date_select"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Disable start time option"
+                                        formControlName="disabled_start_time"
+                                    ></settings-toggle>
+                                </div>
+                            </div>
                         </div>
                     </section>
                 }
@@ -1468,18 +1699,11 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
 
-    public readonly loading = signal('');
     public existing_settings: Record<string, any> = {};
     public old_settings: Record<string, any> = {};
+    public readonly loading = signal('');
+    public readonly shown_group = signal<string>('');
     public readonly zone = this._data.zone;
-    public readonly scrollable_features = [
-        'spaces',
-        'desks',
-        'explore',
-        'visitors',
-        'parking',
-        'lockers',
-    ];
     public readonly settings_key =
         this._settings.get('app.workplace_metadata_key') || 'workplace_app';
 
@@ -1639,17 +1863,6 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
         this.form.patchValue(metadata || {});
         this.old_settings = metadata;
         this.loading.set('');
-    }
-
-    public scrollToFeature(feature: string) {
-        const id = `feature-${feature}`;
-        const element = document.getElementById(id);
-        if (!element) return;
-        element.scrollIntoView({
-            behavior: 'smooth',
-            block: 'end',
-            inline: 'nearest',
-        });
     }
 
     public async save() {
