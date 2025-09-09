@@ -320,7 +320,7 @@ import { lastValueFrom } from 'rxjs';
                             icon
                             matRipple
                             class="absolute right-4 top-0 -translate-y-1/2 bg-base-100"
-                            (click)="shown_group.set('spaces')"
+                            (click)="toggleGroup('spaces')"
                         >
                             <icon>{{
                                 shown_group() === 'spaces'
@@ -766,7 +766,7 @@ import { lastValueFrom } from 'rxjs';
                             icon
                             matRipple
                             class="absolute right-4 top-0 -translate-y-1/2 bg-base-100"
-                            (click)="shown_group.set('bookings')"
+                            (click)="toggleGroup('bookings')"
                         >
                             <icon>{{
                                 shown_group() === 'bookings'
@@ -976,7 +976,7 @@ import { lastValueFrom } from 'rxjs';
                             icon
                             matRipple
                             class="absolute right-4 top-0 -translate-y-1/2 bg-base-100"
-                            (click)="shown_group.set('parking')"
+                            (click)="toggleGroup('parking')"
                         >
                             <icon>{{
                                 shown_group() === 'parking'
@@ -1178,7 +1178,7 @@ import { lastValueFrom } from 'rxjs';
                             icon
                             matRipple
                             class="absolute right-4 top-0 -translate-y-1/2 bg-base-100"
-                            (click)="shown_group.set('lockers')"
+                            (click)="toggleGroup('lockers')"
                         >
                             <icon>{{
                                 shown_group() === 'lockers'
@@ -1336,6 +1336,10 @@ export class ConciergeSettingsFormModalComponent {
         this.form.patchValue(metadata || {});
         this.old_settings = metadata;
         this.loading.set('');
+    }
+
+    public toggleGroup(group: string) {
+        this.shown_group.update((shown) => (group === shown ? '' : group));
     }
 
     public async save() {

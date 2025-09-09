@@ -460,9 +460,10 @@ export class EventBookModalComponent implements OnInit {
         return count;
     }
 
-    public async ngOnInit() {
-        await this._event_form.newForm(this._data.event);
+    public ngOnInit() {
+        this._event_form.newForm(this._data.event);
     }
+
     public findAvailableTime() {
         const { attendees, organiser, date, duration } = this.form.value;
         const ref = this._dialog.open(FindAvailabilityModalComponent, {
