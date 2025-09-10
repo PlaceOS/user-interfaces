@@ -798,10 +798,12 @@ export class BookingFormService extends AsyncHandler {
         if (this._settings.get('app.desks.ignore_questions') !== false) return;
         const ref = this._dialog.open(DeskQuestionsModalComponent);
         const result = await Promise.race([
-            ref.componentInstance.event
-                .pipe(first((_) => _.reason === 'done'))
-                .toPromise(),
-            ref.afterClosed().toPromise(),
+            lastValueFrom(
+                ref.componentInstance.event.pipe(
+                    first((_) => _.reason === 'done'),
+                ),
+            ),
+            lastValueFrom(ref.afterClosed()),
         ]);
         if (result?.reason !== 'done') throw 'User cancelled';
         const form = ref.componentInstance.form.getRawValue();
@@ -894,7 +896,11 @@ export class BookingFormService extends AsyncHandler {
             );
         });
         if (!resource_rules.every((_) => !_.hidden)) {
-            throw i18n('BOOKINGS.RULES_HIDDEN', undefined, assets.length);
+            throw i18n(
+                'BOOKINGS.RULES_HIDDEN',
+                { type: this._options.getValue().type || 'resource' },
+                assets.length,
+            );
         }
         return true;
     }
