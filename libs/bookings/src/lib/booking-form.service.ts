@@ -876,9 +876,13 @@ export class BookingFormService extends AsyncHandler {
         duration: number,
         host: string,
     ) {
-        const user = await lastValueFrom(showUser(host)).catch(() => ({
-            email: host,
-        }));
+        const current_user = currentUser();
+        const user =
+            current_user.email === host
+                ? current_user
+                : await lastValueFrom(showUser(host)).catch(() => ({
+                      email: host,
+                  }));
         if (!assets?.length) return true;
         const rules = await nextValueFrom(this.booking_rules);
         const resource_rules = assets?.map((space) => {
