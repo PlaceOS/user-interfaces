@@ -90,13 +90,16 @@ import { startOfMinute } from 'date-fns';
                     </div>
                 </header>
                 @if (show_quick_links) {
-                    <landing-quick-links></landing-quick-links>
+                    <landing-quick-links />
                 }
-                <landing-availability></landing-availability>
+                @if (show_quick_book) {
+                    <landing-quick-book />
+                }
+                <landing-availability />
                 <div
                     class="mx-4 mb-2 h-px w-[calc(100%-2rem)] bg-base-200"
                 ></div>
-                <landing-upcoming></landing-upcoming>
+                <landing-upcoming />
             </div>
         </div>
         @if (!hide_nav) {
@@ -156,5 +159,9 @@ export class LandingComponent {
 
     public get show_quick_links() {
         return this._settings.get('app.show_quick_links');
+    }
+
+    public get show_quick_book() {
+        return this._settings.get('app.show_quick_book');
     }
 }

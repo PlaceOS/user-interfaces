@@ -6,6 +6,7 @@ import {
 import { Router } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
 import {
+    firstTruthyValueFrom,
     getInvalidFields,
     i18n,
     notifyError,
@@ -13,6 +14,7 @@ import {
 } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { isBefore, startOfMinute } from 'date-fns';
+import { lastValueFrom } from 'rxjs';
 import { first } from 'rxjs/operators';
 import { NewDeskFlowConfirmComponent } from './desk-flow-confirm.component';
 
@@ -95,8 +97,10 @@ export class NewDeskFlowFormComponent implements OnInit {
     };
 
     public async ngOnInit() {
-        await this._org.initialised.pipe(first((_) => _));
-        await this._org.active_levels.pipe(first((_) => _?.length > 0));
+        await firstTruthyValueFrom(this._org.initialised);
+        await lastValueFrom(
+            this._org.active_levels.pipe(first((_) => _?.length > 0)),
+        );
         this._state.setOptions({ type: 'desk' });
         this.level = this._org.building?.id;
         this.levels = [

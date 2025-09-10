@@ -414,6 +414,10 @@ import { lastValueFrom } from 'rxjs';
                             formControlName="show_quick_links"
                         ></settings-toggle>
                         <settings-toggle
+                            name="Show landing quick book"
+                            formControlName="show_quick_book"
+                        ></settings-toggle>
+                        <settings-toggle
                             name="Allow dark mode"
                             formControlName="allow_dark_mode"
                         ></settings-toggle>
@@ -1726,6 +1730,7 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
         hide_landing_rooms: new FormControl(false),
         hide_colleagues: new FormControl(false),
         show_quick_links: new FormControl(false),
+        show_quick_book: new FormControl(false),
         allow_dark_mode: new FormControl(true),
         global_search: new FormControl(true),
         use_imperial_units: new FormControl(false),
