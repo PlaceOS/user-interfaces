@@ -1,11 +1,18 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { BookingFormService } from '@placeos/bookings';
-import { SettingsService } from '@placeos/common';
+import { firstTruthyValueFrom, SettingsService } from '@placeos/common';
+import {
+    Building,
+    BuildingLevel,
+    OrganisationService,
+} from '@placeos/organisation';
 import {
     generateCalendarFileLink,
     generateGoogleCalendarLink,
     generateMicrosoftCalendarLink,
 } from 'libs/common/src/lib/calendar-links';
+import { BuildingPipe } from 'libs/components/src/lib/building.pipe';
+import { LevelPipe } from 'libs/components/src/lib/level.pipe';
 
 @Component({
     selector: 'desk-flow-success',
@@ -23,14 +30,14 @@ import {
                             | translate
                                 : {
                                       name:
-                                          (last_event.asset_name ||
-                                              last_event.asset_id) + location,
+                                          last_event.asset_name ||
+                                          last_event.asset_id,
                                   }
                     }}
                 </h2>
                 <img src="assets/icons/success.svg" />
                 @if (last_event) {
-                    <p class="text-center">
+                    <p class="max-w-[40rem] text-center">
                         @let details =
                             {
                                 date:
@@ -43,6 +50,7 @@ import {
                                         last_event.duration * 60 * 1000
                                         | date: time_format),
                                 size: group_size,
+                                location: location(),
                             };
                         @if (is_group) {
                             @if (last_event?.all_day) {
@@ -97,7 +105,7 @@ import {
                             matRipple
                             name="desk-outlook-link"
                             class="inverse flex w-64 items-center space-x-2 rounded p-2 pr-4"
-                            [href]="outlook_link | sanitize: 'url'"
+                            [href]="outlook_link() | sanitize: 'url'"
                             target="_blank"
                             rel="noopener noreferer"
                         >
@@ -111,7 +119,7 @@ import {
                             matRipple
                             name="desk-google-link"
                             class="inverse flex w-64 items-center space-x-2 rounded p-2 pr-4"
-                            [href]="google_link | sanitize: 'url'"
+                            [href]="google_link() | sanitize: 'url'"
                             target="_blank"
                             rel="noopener noreferer"
                         >
@@ -125,7 +133,7 @@ import {
                             matRipple
                             name="desk-ical-link"
                             class="inverse flex w-64 items-center space-x-2 rounded p-2 pr-4"
-                            [href]="ical_link | safe: 'url'"
+                            [href]="ical_link() | safe: 'url'"
                             target="_blank"
                             rel="noopener noreferer"
                         >
@@ -150,22 +158,24 @@ import {
             </footer>
         </div>
     `,
+    providers: [LevelPipe, BuildingPipe],
     standalone: false,
 })
-export class NewDeskFlowSuccessComponent {
+export class NewDeskFlowSuccessComponent implements OnInit {
+    private _org = inject(OrganisationService);
     private _state = inject(BookingFormService);
     private _settings = inject(SettingsService);
+    private _level_pipe = inject(LevelPipe);
+    private _building_pipe = inject(BuildingPipe);
 
-    public outlook_link = '';
-    public google_link = '';
-    public ical_link = '';
-    public get location() {
-        const desk = this.last_event?.extension_data?.booking_asset;
-        if (!desk) return '';
-        return desk.zone
-            ? `, ${desk.zone.display_name || desk.zone.name || desk.zone.id}`
-            : '';
-    }
+    public readonly level = signal(new BuildingLevel());
+    public readonly building = signal(new Building());
+    public readonly outlook_link = signal('');
+    public readonly google_link = signal('');
+    public readonly ical_link = signal('');
+    public readonly location = computed(() => {
+        return `${this.building().display_name || this.level().name}, ${this.level().display_name || this.level().name}`;
+    });
 
     public get is_group() {
         return this.group_size > 1;
@@ -190,13 +200,22 @@ export class NewDeskFlowSuccessComponent {
         return this._settings.time_format;
     }
 
-    public ngOnInit() {
+    public async ngOnInit() {
+        await firstTruthyValueFrom(this._org.initialised);
         const event: any = {
             ...this.last_event,
-            location: `${this.location}, ${this.last_event.asset_name || ''}`,
+            location: `${this.location()}, ${this.last_event.asset_name || ''}`,
         };
-        this.outlook_link = generateMicrosoftCalendarLink(event);
-        this.google_link = generateGoogleCalendarLink(event);
-        this.ical_link = generateCalendarFileLink(event);
+        this.outlook_link.set(generateMicrosoftCalendarLink(event));
+        this.google_link.set(generateGoogleCalendarLink(event));
+        this.ical_link.set(generateCalendarFileLink(event));
+
+        this.level.set(this._level_pipe.transform(event.zones));
+        this.building.set(this._building_pipe.transform(event.zones));
+        console.log('Level:', this.level().display_name || this.level().name);
+        console.log(
+            'Building:',
+            this.building().display_name || this.building().name,
+        );
     }
 }
