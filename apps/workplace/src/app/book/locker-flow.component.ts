@@ -17,7 +17,7 @@ import { map, shareReplay } from 'rxjs/operators';
     template: `
         @if (!((assigned_space | async) && (has_booking | async))) {
             <div class="z-50 h-full w-full bg-base-100">
-                @switch (view) {
+                @switch (view()) {
                     @case ('success') {
                         <locker-flow-success> </locker-flow-success>
                     }
@@ -63,6 +63,8 @@ export class BookLockerFlowComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
 
+    public readonly view = this._state.view;
+
     private _lockers_banks = loadLockerBanks(
         this._org,
         combineLatest([this._org.active_building, this._org.active_region]),
@@ -94,9 +96,6 @@ export class BookLockerFlowComponent extends AsyncHandler implements OnInit {
         shareReplay(1),
     );
 
-    public get view() {
-        return this._state.view;
-    }
     public get last_success() {
         return this._state.last_success;
     }

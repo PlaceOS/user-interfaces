@@ -1,4 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
 import { nextValueFrom, notifyError, SettingsService } from '@placeos/common';
 
@@ -76,6 +77,7 @@ import { nextValueFrom, notifyError, SettingsService } from '@placeos/common';
 })
 export class LandingQuickBookComponent {
     private _settings = inject(SettingsService);
+    private _router = inject(Router);
     private _book_form = inject(BookingFormService);
 
     public readonly loading = signal('');
@@ -107,6 +109,7 @@ export class LandingQuickBookComponent {
         this.loading.set('');
         try {
             await this._book_form.confirmPost();
+            this._router.navigate(['/book', type, 'success']);
         } catch {}
         this._book_form.form.reset();
     }

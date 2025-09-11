@@ -1,4 +1,4 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Event, NavigationEnd, Router } from '@angular/router';
 import {
@@ -118,8 +118,6 @@ export class BookingFormService extends AsyncHandler {
     private _dialog = inject(MatDialog);
     private _payments = inject(PaymentsService);
     private _assets = inject(AssetStateService);
-
-    private _view = new BehaviorSubject<BookingFlowView>('form');
     private _options = new BehaviorSubject<BookingFlowOptions>({
         type: 'desk',
     });
@@ -135,6 +133,7 @@ export class BookingFormService extends AsyncHandler {
     public readonly loading = this._loading.asObservable();
     public readonly options = this._options.pipe(shareReplay(1));
     public readonly form = generateBookingForm();
+    public readonly view = signal<BookingFlowView>('form');
 
     public readonly resources: Observable<BookingAsset[]> = combineLatest([
         this._org.active_building,
@@ -322,10 +321,6 @@ export class BookingFormService extends AsyncHandler {
         }),
     );
 
-    public get view() {
-        return this._view.getValue();
-    }
-
     public get booking() {
         return this._booking.getValue();
     }
@@ -400,7 +395,7 @@ export class BookingFormService extends AsyncHandler {
     }
 
     public setView(value: BookingFlowView) {
-        this._view.next(value);
+        this.view.set(value);
     }
 
     public setOptions(value: Partial<BookingFlowOptions>) {

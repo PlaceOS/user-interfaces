@@ -9,7 +9,7 @@ import { AsyncHandler } from '@placeos/common';
         @if (!(deny_parking_access | async)) {
             @if (!(assigned_space | async) || !(has_booking | async)) {
                 <div class="z-50 h-full w-full bg-base-100">
-                    @switch (view) {
+                    @switch (view()) {
                         @case ('success') {
                             <parking-flow-success> </parking-flow-success>
                         }
@@ -76,10 +76,8 @@ export class NewParkingFlowComponent extends AsyncHandler implements OnInit {
     public readonly deny_parking_access = this._parking.deny_parking_access;
     public readonly assigned_space = this._parking.assigned_space;
     public readonly has_booking = this._parking.has_booking;
+    public readonly view = this._state.view;
 
-    public get view() {
-        return this._state.view;
-    }
     public get last_success() {
         return this._state.last_success;
     }

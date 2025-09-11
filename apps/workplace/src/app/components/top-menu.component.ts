@@ -187,7 +187,7 @@ export class TopMenuComponent
         const url = this._router.url;
         if (url.includes(this.default_page)) return 'home';
         if (url.includes('book/spaces')) return 'spaces';
-        if (url.includes('book/desks')) return 'desks';
+        if (url.includes('book/desk')) return 'desks';
         if (url.includes('book/locker')) return 'lockers';
         if (url.includes('book/parking')) return 'parking';
         if (url.includes('explore')) return 'explore';
@@ -221,7 +221,7 @@ export class TopMenuComponent
             },
             {
                 id: 'desks',
-                route: '/book/desks',
+                route: '/book/desk',
                 icon: 'desk',
                 name: i18n('APP.WORKPLACE.MENU_DESKS'),
             },

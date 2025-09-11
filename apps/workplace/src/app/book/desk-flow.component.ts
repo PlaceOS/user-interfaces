@@ -14,7 +14,7 @@ import { lastValueFrom, timer } from 'rxjs';
     selector: 'placeos-new-book-desk-flow',
     template: `
         <div class="z-50 h-full w-full bg-base-100">
-            @switch (view) {
+            @switch (view()) {
                 @case ('success') {
                     <desk-flow-success></desk-flow-success>
                 }
@@ -39,9 +39,8 @@ export class NewDeskFlowComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);
     private _route = inject(ActivatedRoute);
 
-    public get view() {
-        return this._state.view;
-    }
+    public readonly view = this._state.view;
+
     public get last_success() {
         return this._state.last_success;
     }
