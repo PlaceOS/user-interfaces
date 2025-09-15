@@ -25,6 +25,7 @@ interface UserLabelSettings {
             <button
                 icon
                 matRipple
+                mat-dialog-close
                 class="absolute right-2 top-2 border border-base-300 bg-base-100"
             >
                 <icon>close</icon>
