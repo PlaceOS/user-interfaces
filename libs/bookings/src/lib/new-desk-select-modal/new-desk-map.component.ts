@@ -5,6 +5,7 @@ import {
     inject,
     input,
     output,
+    signal,
 } from '@angular/core';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { map } from 'rxjs/operators';
@@ -112,6 +113,7 @@ export class NewDeskMapComponent extends AsyncHandler implements OnInit {
     public center = { x: 0.5, y: 0.5 };
     public level?: BuildingLevel;
     public coordinates = undefined;
+    public readonly statuses: Record<string, any> = {};
 
     private _change = new BehaviorSubject(0);
 
@@ -170,6 +172,7 @@ export class NewDeskMapComponent extends AsyncHandler implements OnInit {
                           map_id: desk.name,
                           name: desk.name || desk.map_id,
                           user: this._state.resourceUserName(desk.id),
+                          status: this.statuses[desk.id],
                       },
                       z_index: 20,
                   }));
@@ -184,6 +187,8 @@ export class NewDeskMapComponent extends AsyncHandler implements OnInit {
         map(([desks, free_desks]) =>
             desks.reduce((styles, desk) => {
                 const colours = this._settings.get('app.explore.colors') || {};
+                if (!(desk.id in this.statuses))
+                    this.statuses[desk.id] = signal('not-bookable');
                 const status =
                     this.active() === desk.id
                         ? 'active'
@@ -192,6 +197,7 @@ export class NewDeskMapComponent extends AsyncHandler implements OnInit {
                           : this._state.resourceUserName(desk.id)
                             ? 'busy'
                             : 'not-bookable';
+                this.statuses[desk.id].set(status);
                 styles[`#${desk.map_id || desk.id}`] = {
                     fill:
                         status === 'active'
@@ -207,10 +213,6 @@ export class NewDeskMapComponent extends AsyncHandler implements OnInit {
 
     public get use_region() {
         return !!this._settings.get('app.use_region');
-    }
-
-    constructor() {
-        super();
     }
 
     public ngOnInit(): void {
