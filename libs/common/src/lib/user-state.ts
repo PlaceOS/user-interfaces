@@ -2,6 +2,7 @@ import { showUser } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest, lastValueFrom } from 'rxjs';
 import { delay, map, retry } from 'rxjs/operators';
 
+import { signal } from '@angular/core';
 import { StaffUser } from 'libs/users/src/lib/user.class';
 import { replaceUser } from 'libs/users/src/lib/user.pipe';
 
@@ -14,6 +15,7 @@ const _current_user = new BehaviorSubject<StaffUser>(null);
 const _change = new BehaviorSubject(0);
 
 export const current_user = _current_user.asObservable();
+const user_signal = signal(new StaffUser());
 
 declare let jest;
 
@@ -27,7 +29,10 @@ setTimeout(() => {
             retry(10),
             map(([i]) => new StaffUser(i as any)),
         )
-        .subscribe((user) => _current_user.next(user));
+        .subscribe((user) => {
+            _current_user.next(user);
+            user_signal.set(user);
+        });
 }, 300);
 
 export function reloadUserData() {
@@ -36,10 +41,15 @@ export function reloadUserData() {
         const user = new StaffUser(p_user as any);
         replaceUser(user);
         _current_user.next(user);
+        user_signal.set(user);
     }, 300);
 }
 
 /** Get the current user details */
 export function currentUser() {
     return _current_user.getValue() || EMPTY_USER;
+}
+
+export function userSignal() {
+    return user_signal;
 }

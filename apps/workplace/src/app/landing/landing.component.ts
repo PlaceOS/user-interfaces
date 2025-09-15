@@ -1,27 +1,29 @@
-import { Component, inject } from '@angular/core';
-import { currentUser, SettingsService } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { AsyncHandler, SettingsService, userSignal } from '@placeos/common';
+import { Building, OrganisationService } from '@placeos/organisation';
 import { startOfMinute } from 'date-fns';
+import { settingSignal } from 'libs/common/src/lib/settings.service';
+import { debounceTime } from 'rxjs';
 
 @Component({
     selector: 'app-landing',
     template: `
-        @if (!hide_nav) {
+        @if (!hide_nav()) {
             <topbar class="z-10" />
         }
         <div class="flex h-1/2 flex-1 bg-base-200">
-            @if (!hide_landing_sidebar) {
+            @if (!hide_landing_sidebar()) {
                 <div
                     class="relative hidden h-full w-[18rem] flex-col overflow-hidden border-r border-base-300 bg-base-100 sm:flex"
                 >
                     <div class="flex items-center space-x-2 p-2">
-                        @if (!hide_colleagues) {
+                        @if (!hide_colleagues()) {
                             <button
                                 btn
                                 matRipple
                                 class="flex-1"
-                                [class.inverse]="tab !== 'people'"
-                                (click)="tab = 'people'"
+                                [class.inverse]="tab() !== 'people'"
+                                (click)="tab.set('people')"
                             >
                                 <div
                                     class="flex items-center space-x-2 capitalize"
@@ -40,8 +42,8 @@ import { startOfMinute } from 'date-fns';
                             btn
                             matRipple
                             class="flex-1"
-                            [class.inverse]="tab !== 'fav'"
-                            (click)="tab = 'fav'"
+                            [class.inverse]="tab() !== 'fav'"
+                            (click)="tab.set('fav')"
                         >
                             <div class="flex items-center space-x-2 capitalize">
                                 <icon>favorite</icon>
@@ -52,10 +54,10 @@ import { startOfMinute } from 'date-fns';
                         </button>
                     </div>
                     <div class="h-1/2 w-full flex-1">
-                        @if (tab === 'people' && !hide_colleagues) {
+                        @if (tab() === 'people' && !hide_colleagues()) {
                             <landing-colleagues></landing-colleagues>
                         }
-                        @if (tab === 'fav' || hide_colleagues) {
+                        @if (tab() === 'fav' || hide_colleagues()) {
                             <landing-favourites></landing-favourites>
                         }
                     </div>
@@ -69,18 +71,18 @@ import { startOfMinute } from 'date-fns';
                         <div class="font-medium sm:text-xl">
                             {{
                                 'APP.WORKPLACE.WELCOME_MESSAGE'
-                                    | translate: { name: user?.name }
+                                    | translate: { name: user()?.name }
                             }}
                         </div>
                         <div date class="text-sm sm:text-base">
-                            {{ date | date: 'fullDate' }}
+                            {{ date() | date: 'fullDate' }}
                         </div>
-                        @if (building?.address || building?.name) {
+                        @if (building()?.address || building()?.name) {
                             <div class="text-sm sm:text-base">
                                 {{
-                                    building.address ||
-                                        building.display_name ||
-                                        building.name
+                                    building()?.address ||
+                                        building()?.display_name ||
+                                        building()?.name
                                 }}
                             </div>
                         }
@@ -89,10 +91,10 @@ import { startOfMinute } from 'date-fns';
                         <img src="assets/img/landing.svg" />
                     </div>
                 </header>
-                @if (show_quick_links) {
+                @if (show_quick_links()) {
                     <landing-quick-links />
                 }
-                @if (show_quick_book) {
+                @if (show_quick_book()) {
                     <landing-quick-book />
                 }
                 <landing-availability />
@@ -102,7 +104,7 @@ import { startOfMinute } from 'date-fns';
                 <landing-upcoming />
             </div>
         </div>
-        @if (!hide_nav) {
+        @if (!hide_nav()) {
             <footer-menu />
         }
     `,
@@ -126,42 +128,35 @@ import { startOfMinute } from 'date-fns';
     ],
     standalone: false,
 })
-export class LandingComponent {
+export class LandingComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
 
-    public time: number;
-    public tab = 'people';
+    public readonly time = signal(0);
+    public readonly tab = signal('people');
+    public readonly hide_nav = signal(false);
+    public readonly user = userSignal();
+    public readonly building = signal(new Building());
+    public readonly hide_landing_sidebar = settingSignal<boolean>(
+        'hide_landing_sidebar',
+    );
+    public readonly hide_colleagues = settingSignal<boolean>('hide_colleagues');
+    public readonly show_quick_links =
+        settingSignal<boolean>('show_quick_links');
+    public readonly show_quick_book = settingSignal<boolean>('show_quick_book');
+    public readonly date = computed(() =>
+        startOfMinute(this.time() || Date.now()),
+    );
 
-    public get hide_nav() {
-        return localStorage.getItem('PlaceOS.hide_nav') === 'true';
-    }
-
-    public get date() {
-        return startOfMinute(this.time || Date.now());
-    }
-
-    public get user() {
-        return currentUser();
-    }
-
-    public get building() {
-        return this._org.building;
-    }
-
-    public get hide_landing_sidebar() {
-        return this._settings.get('app.hide_landing_sidebar');
-    }
-
-    public get hide_colleagues() {
-        return this._settings.get('app.hide_colleagues');
-    }
-
-    public get show_quick_links() {
-        return this._settings.get('app.show_quick_links');
-    }
-
-    public get show_quick_book() {
-        return this._settings.get('app.show_quick_book');
+    public ngOnInit() {
+        this.subscription(
+            'building',
+            this._org.active_building.pipe(debounceTime(300)).subscribe(() => {
+                this.hide_nav.set(
+                    localStorage.getItem('PlaceOS.hide_nav') === 'true',
+                );
+                this.building.set(this._org.building);
+            }),
+        );
     }
 }

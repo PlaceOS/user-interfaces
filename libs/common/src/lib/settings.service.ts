@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, type WritableSignal, inject, signal } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { showMetadata, updateMetadata, updateUser } from '@placeos/ts-client';
 import { format, isSameDay } from 'date-fns';
@@ -24,6 +24,22 @@ declare global {
         application: HashMap;
         setting: (string) => any;
     }
+}
+
+let _service: SettingsService;
+const _setting_signals: Record<string, WritableSignal<any>> = {};
+
+export function setting<T = any>(key: string): T | undefined {
+    return _service ? _service.get(key) : undefined;
+}
+
+export function settingSignal<T = any>(
+    key: string,
+): WritableSignal<T | undefined> {
+    if (!_setting_signals[key]) {
+        _setting_signals[key] = signal<T>(setting(`app.${key}`));
+    }
+    return _setting_signals[key];
 }
 
 @Injectable({
@@ -52,6 +68,9 @@ export class SettingsService extends AsyncHandler {
     public set overrides(value: HashMap[]) {
         this._overrides.next(value);
         this._applyCssVariables();
+        for (const key in _setting_signals) {
+            _setting_signals[key].set(this.get(`app.${key}`));
+        }
     }
 
     public get theme() {
@@ -139,6 +158,7 @@ export class SettingsService extends AsyncHandler {
             },
             1000,
         );
+        _service = this as any;
     }
 
     /** Whether settings service has initialised */
