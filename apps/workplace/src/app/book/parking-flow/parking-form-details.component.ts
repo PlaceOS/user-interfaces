@@ -111,7 +111,7 @@ import { addDays, endOfDay } from 'date-fns';
                         </label>
                         <host-select-field
                             name="host"
-                            formControlName="organiser"
+                            formControlName="user"
                         ></host-select-field>
                     </div>
                 }
