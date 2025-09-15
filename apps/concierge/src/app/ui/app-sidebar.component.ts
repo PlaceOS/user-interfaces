@@ -350,7 +350,13 @@ export class ApplicationSidebarComponent
                     filter((_) => !!_),
                     debounceTime(100),
                 )
-                .subscribe(() => this.updateFilteredLinks()),
+                .subscribe(() =>
+                    this.timeout(
+                        'update_links',
+                        () => this.updateFilteredLinks(),
+                        500,
+                    ),
+                ),
         );
         this.timeout('update_inview', () => this._moveActiveLinkIntoView(), 50);
         this.timeout('update_links', () => this.updateFilteredLinks(), 500);

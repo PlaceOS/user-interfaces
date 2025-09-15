@@ -65,7 +65,9 @@ export class RoomManagementService {
         map(([list, alerts]) => {
             for (const id in alerts) {
                 const [status, message] = alerts[id];
-                list.find((_) => _.id === id).alert = {
+                const item = list.find((_) => _.id === id);
+                if (!item) continue;
+                item.alert = {
                     status,
                     message,
                 };
