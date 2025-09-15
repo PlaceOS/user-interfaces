@@ -36,14 +36,14 @@ export interface DeskInfoData {
                 name="space-info"
                 [id]="map_id"
                 [class]="
-                    'pointer-events-none absolute left-0 top-0 w-64 rounded-b-lg rounded-tr-lg bg-base-100 p-1 shadow ' +
+                    'pointer-events-none absolute left-0 top-0 w-64 bg-base-100 p-1 shadow ' +
                     x_pos +
                     ' ' +
                     y_pos
                 "
             >
                 <div class="rounded-md border border-base-200 p-1">
-                    <div class="triangle absolute left-1 top-1"></div>
+                    <div class="triangle absolute"></div>
                     <div class="flex w-full items-center space-x-4">
                         <div class="flex flex-1 flex-col px-2 py-1">
                             <h4 map-id class="m-0 truncate font-medium">
@@ -97,13 +97,67 @@ export interface DeskInfoData {
     `,
     styles: [
         `
+            .top.left {
+                border-radius: 0 0.5rem 0.5rem 0.5rem;
+            }
+
+            .top.right {
+                border-radius: 0.5rem 0 0.5rem 0.5rem;
+            }
+
+            .bottom.left {
+                border-radius: 0.5rem 0.5rem 0.5rem 0;
+            }
+
+            .bottom.right {
+                border-radius: 0.5rem 0.5rem 0 0.5rem;
+            }
+
             .triangle {
                 width: 0px;
                 height: 0px;
                 border-style: solid;
-                border-width: 0.5rem 0.5rem 0 0;
-                border-color: currentColor transparent transparent transparent;
                 transform: rotate(0deg);
+            }
+
+            .top.left {
+                .triangle {
+                    top: 0.25rem;
+                    left: 0.25rem;
+                    border-width: 0.5rem 0.5rem 0 0;
+                    border-color: currentColor transparent transparent
+                        transparent;
+                }
+            }
+
+            .top.right {
+                .triangle {
+                    top: 0.25rem;
+                    right: 0.25rem;
+                    border-width: 0.5rem 0 0 0.5rem;
+                    border-color: currentColor transparent transparent
+                        transparent;
+                }
+            }
+
+            .bottom.left {
+                .triangle {
+                    bottom: 0.25rem;
+                    left: 0.25rem;
+                    border-width: 0 0.5rem 0.5rem 0;
+                    border-color: transparent transparent currentColor
+                        transparent;
+                }
+            }
+
+            .bottom.right {
+                .triangle {
+                    bottom: 0.25rem;
+                    right: 0.25rem;
+                    border-width: 0 0 0.5rem 0.5rem;
+                    border-color: transparent transparent currentColor
+                        transparent;
+                }
             }
 
             [status] {
@@ -139,7 +193,7 @@ export class ExploreDeskInfoComponent implements OnInit {
     public readonly user = this._details.user;
     public readonly start = this._details.start;
     public readonly end = this._details.end;
-    public readonly status = this._details.status || signal('');
+    public readonly status = signal('');
     public readonly department = this._details.department;
 
     public y_pos: 'top' | 'bottom';
@@ -159,6 +213,7 @@ export class ExploreDeskInfoComponent implements OnInit {
             this.y_pos = position.y >= 0.5 ? 'bottom' : 'top';
             this.x_pos = position.x >= 0.5 ? 'right' : 'left';
         }, 200);
+        this.status.set((this._details.status || '').trim());
     }
 
     public get available_until() {
