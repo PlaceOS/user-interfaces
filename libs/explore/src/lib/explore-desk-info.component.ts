@@ -187,13 +187,13 @@ export class ExploreDeskInfoComponent implements OnInit {
     private _element = inject<ElementRef<HTMLElement>>(ElementRef);
 
     /** Space to display details for */
+    public status = signal('');
     public readonly id = this._details.id;
     public readonly map_id = this._details.map_id;
     public readonly name = this._details.name;
     public readonly user = this._details.user;
     public readonly start = this._details.start;
     public readonly end = this._details.end;
-    public readonly status = signal('');
     public readonly department = this._details.department;
 
     public y_pos: 'top' | 'bottom';
@@ -213,7 +213,11 @@ export class ExploreDeskInfoComponent implements OnInit {
             this.y_pos = position.y >= 0.5 ? 'bottom' : 'top';
             this.x_pos = position.x >= 0.5 ? 'right' : 'left';
         }, 200);
-        this.status.set((this._details.status || '').trim());
+        if (typeof this._details.status === 'string') {
+            this.status.set((this._details.status || '').trim());
+        } else if (this._details.status != null) {
+            this.status = this._details.status;
+        }
     }
 
     public get available_until() {
