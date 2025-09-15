@@ -8,7 +8,7 @@ import { DesksStateService } from './desks-state.service';
     template: `
         <div class="h-full w-full overflow-auto pb-16">
             <simple-table
-                class="block min-w-[80rem] text-sm"
+                class="block min-w-[92rem] text-sm"
                 [data]="bookings"
                 [filter]="(filters | async)?.search"
                 [filter_on]="[
@@ -18,6 +18,7 @@ import { DesksStateService } from './desks-state.service';
                     'asset_id',
                     'status',
                     'group',
+                    'title',
                 ]"
                 [columns]="[
                     {
@@ -33,6 +34,7 @@ import { DesksStateService } from './desks-state.service';
                         content: period_template,
                         size: '9rem',
                     },
+                    { key: 'asset_name', name: 'RESOURCE.DESK' | translate },
                     {
                         key: 'user_email',
                         name: 'COMMON.PERSON' | translate,
@@ -44,11 +46,9 @@ import { DesksStateService } from './desks-state.service';
                         content: user_template,
                     },
                     {
-                        key: 'group',
-                        name: 'COMMON.GROUP' | translate,
-                        content: group_template,
+                        key: 'title',
+                        name: 'FORM.TITLE' | translate,
                     },
-                    { key: 'asset_name', name: 'RESOURCE.DESK' | translate },
                     {
                         key: 'approver',
                         name: 'APP.CONCIERGE.APPROVER' | translate,
@@ -145,7 +145,9 @@ import { DesksStateService } from './desks-state.service';
                         {{ user?.name || user?.email || email }}
                     </div>
                     @if (user?.name) {
-                        <div class="select-all text-xs opacity-30">
+                        <div
+                            class="max-w-48 select-all truncate text-xs opacity-30"
+                        >
                             {{ email }}
                         </div>
                     }
