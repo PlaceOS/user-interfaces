@@ -673,14 +673,14 @@ import { lastValueFrom } from 'rxjs';
                             (click)="toggleGroup('visitors')"
                         >
                             <icon>{{
-                                show_group().includes('visitors')
+                                shown_group() === 'visitors'
                                     ? 'chevron_left'
                                     : 'keyboard_arrow_down'
                             }}</icon>
                         </button>
                         <div
                             collapsible
-                            [class.open]="show_group().includes('visitors')"
+                            [class.open]="shown_group() === 'visitors'"
                         >
                             <div class="content px-4 pb-2 pt-4">
                                 <label for="hide-fields"
