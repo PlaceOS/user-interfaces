@@ -1,6 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { BehaviorSubject, combineLatest } from 'rxjs';
+import { BehaviorSubject, combineLatest, lastValueFrom } from 'rxjs';
 import { map, shareReplay, tap } from 'rxjs/operators';
 
 import {
@@ -42,7 +42,7 @@ const EMPTY = [];
             class="h-1/2 w-full flex-1 space-y-2 divide-y divide-base-200 overflow-auto pt-4"
         >
             @if (spaces?.length || (assets | async)?.length) {
-                @for (item of spaces; track item) {
+                @for (item of spaces; track item || $index) {
                     @let space = item | space | async;
                     @if (space?.id) {
                         <div
@@ -332,12 +332,11 @@ export class LandingFavouritesComponent extends AsyncHandler implements OnInit {
     }
 
     public async ngOnInit() {
-        this._room_alerts = await showMetadata(
-            this._org.organisation.id,
-            'room_alerts',
-        )
-            .pipe(map((v) => v.details as any))
-            .toPromise();
+        this._room_alerts = await lastValueFrom(
+            showMetadata(this._org.organisation.id, 'room_alerts').pipe(
+                map((v) => v.details as any),
+            ),
+        );
     }
 
     public removeFavourite(

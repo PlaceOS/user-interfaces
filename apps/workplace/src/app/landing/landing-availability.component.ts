@@ -1,20 +1,19 @@
 import { Component, inject } from '@angular/core';
-import { SettingsService } from '@placeos/common';
 import { ExploreSpacesService } from '@placeos/explore';
-import { OrganisationService } from '@placeos/organisation';
 import { Space } from '@placeos/spaces';
+import { settingSignal } from 'libs/common/src/lib/settings.service';
 import { LandingStateService } from './landing-state.service';
 
 @Component({
     selector: 'landing-availability',
     template: `
         <div class="py-2">
-            @if (!hide_rooms || !hide_spaces) {
+            @if (!hide_rooms() || !hide_spaces()) {
                 <div class="mb-2 px-4 font-medium sm:mb-4 sm:text-lg">
                     {{ 'APP.WORKPLACE.AVAILABLE_LIST_HEADER' | translate }}
                 </div>
             }
-            @if (!hide_spaces) {
+            @if (!hide_spaces()) {
                 <div
                     class="flex items-center space-x-2 px-4 text-sm sm:text-base"
                 >
@@ -23,10 +22,10 @@ import { LandingStateService } from './landing-state.service';
                     </div>
                 </div>
             }
-            @if (!hide_spaces) {
+            @if (!hide_spaces()) {
                 <div
                     class="mx-4 flex w-[calc(100%-2rem)] snap-x items-center space-x-2 overflow-auto py-2"
-                    [class.mb-4]="!hide_rooms"
+                    [class.mb-4]="!hide_rooms()"
                 >
                     @for (lvl of levels_free | async; track lvl) {
                         <button
@@ -64,9 +63,9 @@ import { LandingStateService } from './landing-state.service';
                                     <icon class="text-blue-500 text-lg"
                                         >place</icon
                                     >
+                                    @let building = lvl.parent_id | building;
                                     <span>{{
-                                        building(lvl.parent_id)?.display_name ||
-                                            building(lvl.parent_id)?.name
+                                        building?.display_name || building?.name
                                     }}</span>
                                 </div>
                             </div>
@@ -141,9 +140,9 @@ import { LandingStateService } from './landing-state.service';
                                     <icon class="text-blue-500 text-lg"
                                         >place</icon
                                     >
+                                    @let level = space.zones | level;
                                     <span>{{
-                                        level(space.zones)?.display_name ||
-                                            level(space.zones)?.name
+                                        level?.display_name || level?.name
                                     }}</span>
                                 </div>
                             </div>
@@ -173,33 +172,17 @@ import { LandingStateService } from './landing-state.service';
 })
 export class LandingAvailabilityComponent {
     private _state = inject(LandingStateService);
-    private _org = inject(OrganisationService);
-    private _settings = inject(SettingsService);
     private _explore = inject(ExploreSpacesService);
 
     public readonly space_list = this._state.free_space_list;
     public readonly loading_spaces = this._state.loading_spaces;
     public readonly levels_free = this._state.level_occupancy;
+    public readonly hide_spaces = settingSignal<boolean>('hide_landing_spaces');
+    public readonly hide_rooms = settingSignal<boolean>('hide_landing_rooms');
 
     public book = (s) => this._explore.bookSpace(s, true);
 
     public trackBySpaceId(index: number, space: Space) {
         return space.id;
-    }
-
-    public level(zones: string[]) {
-        return this._org.levelWithID(zones);
-    }
-
-    public building(id: string) {
-        return this._org.buildings.find((bld) => bld.id === id);
-    }
-
-    public get hide_spaces() {
-        return this._settings.get('app.hide_landing_spaces');
-    }
-
-    public get hide_rooms() {
-        return this._settings.get('app.hide_landing_rooms');
     }
 }

@@ -54,7 +54,7 @@ import { LandingStateService } from './landing-state.service';
                 @if ((upcoming_events | async)?.length) {
                     @for (
                         event of upcoming_events | async | slice: 0 : 5;
-                        track trackByFn($index, event)
+                        track event.id || $index
                     ) {
                         @switch (type(event)) {
                             @case ('event') {
@@ -117,10 +117,6 @@ export class LandingUpcomingComponent
     public ngOnInit() {
         // this._state.refreshUpcomingEvents();
         this.subscription('poll', this._state.pollUpcomingEvents());
-    }
-
-    public trackByFn(_: number, item: any) {
-        return item?.id;
     }
 
     public async edit(event: CalendarEvent) {

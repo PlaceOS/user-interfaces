@@ -1,5 +1,5 @@
-import { Component, inject } from '@angular/core';
-import { SettingsService } from '@placeos/common';
+import { Component } from '@angular/core';
+import { settingSignal } from 'libs/common/src/lib/settings.service';
 
 @Component({
     selector: 'landing-quick-links',
@@ -10,7 +10,7 @@ import { SettingsService } from '@placeos/common';
         <div
             class="mx-4 mb-4 flex w-[calc(100%-2rem)] snap-x space-x-2 overflow-auto"
         >
-            @if (features.includes('spaces')) {
+            @if (features().includes('spaces')) {
                 <a
                     matRipple
                     class="flex w-64 min-w-64 snap-start items-center space-x-4 rounded border border-base-200 bg-base-100 p-2 shadow"
@@ -29,7 +29,7 @@ import { SettingsService } from '@placeos/common';
                     </div>
                 </a>
             }
-            @if (features.includes('desks')) {
+            @if (features().includes('desks')) {
                 <a
                     matRipple
                     class="flex w-64 min-w-64 snap-start items-center space-x-4 rounded border border-base-200 bg-base-100 p-2 shadow"
@@ -48,7 +48,7 @@ import { SettingsService } from '@placeos/common';
                     </div>
                 </a>
             }
-            @if (features.includes('parking')) {
+            @if (features().includes('parking')) {
                 <a
                     matRipple
                     class="flex w-64 min-w-64 snap-start items-center space-x-4 rounded border border-base-200 bg-base-100 p-2 shadow"
@@ -67,7 +67,7 @@ import { SettingsService } from '@placeos/common';
                     </div>
                 </a>
             }
-            @if (features.includes('lockers')) {
+            @if (features().includes('lockers')) {
                 <a
                     matRipple
                     class="flex w-64 min-w-64 snap-start items-center space-x-4 rounded border border-base-200 bg-base-100 p-2 shadow"
@@ -92,9 +92,5 @@ import { SettingsService } from '@placeos/common';
     standalone: false,
 })
 export class LandingQuickLinksComponent {
-    private _settings = inject(SettingsService);
-
-    public get features() {
-        return this._settings.get('app.features') || [];
-    }
+    public readonly features = settingSignal<string[]>('features');
 }

@@ -102,6 +102,10 @@ export class SettingsService extends AsyncHandler {
             : this._subjects[name].getValue();
     }
 
+    public signal<T = any>(name: string): WritableSignal<T> {
+        return settingSignal<T>(name);
+    }
+
     /** Page title */
     public get title() {
         return this._title.getTitle();

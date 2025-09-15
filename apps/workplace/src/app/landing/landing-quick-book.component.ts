@@ -2,6 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
 import { nextValueFrom, notifyError, SettingsService } from '@placeos/common';
+import { settingSignal } from 'libs/common/src/lib/settings.service';
 
 @Component({
     selector: 'landing-quick-book',
@@ -12,7 +13,7 @@ import { nextValueFrom, notifyError, SettingsService } from '@placeos/common';
         <div
             class="mx-4 mb-4 flex w-[calc(100%-2rem)] snap-x space-x-2 overflow-auto"
         >
-            @if (features.includes('desks')) {
+            @if (features().includes('desks')) {
                 <button
                     matRipple
                     class="flex w-64 min-w-64 snap-start items-center space-x-4 rounded border border-base-200 bg-base-100 p-2 shadow"
@@ -41,7 +42,7 @@ import { nextValueFrom, notifyError, SettingsService } from '@placeos/common';
                     </div>
                 </button>
             }
-            @if (features.includes('parking')) {
+            @if (features().includes('parking')) {
                 <button
                     matRipple
                     class="flex w-64 min-w-64 snap-start items-center space-x-4 rounded border border-base-200 bg-base-100 p-2 shadow"
@@ -81,10 +82,7 @@ export class LandingQuickBookComponent {
     private _book_form = inject(BookingFormService);
 
     public readonly loading = signal('');
-
-    public get features() {
-        return this._settings.get('app.features') || [];
-    }
+    public readonly features = settingSignal<string[]>('features');
 
     public async book(type: string) {
         if (this.loading()) return;
