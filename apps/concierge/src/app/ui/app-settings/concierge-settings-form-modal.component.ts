@@ -86,6 +86,12 @@ import { lastValueFrom } from 'rxjs';
                                     Lockers
                                 </mat-option>
                                 <mat-option value="parking">Parking</mat-option>
+                                <mat-option value="parking-bookings"
+                                    >Parking Bookings</mat-option
+                                >
+                                <mat-option value="parking-manage"
+                                    >Parking Management</mat-option
+                                >
                                 <mat-option value="visitors">
                                     Visitors
                                 </mat-option>
@@ -960,7 +966,10 @@ import { lastValueFrom } from 'rxjs';
                         </div>
                     </section>
                 }
-                @if (form.value.features.includes('parking')) {
+                @if (
+                    form.value.features.includes('parking') ||
+                    form.value.features.includes('parking-bookings')
+                ) {
                     <section
                         parking
                         id="feature-parking"
@@ -1157,6 +1166,10 @@ import { lastValueFrom } from 'rxjs';
                                         name="Allow all day bookings"
                                         formControlName="allow_all_day"
                                     ></settings-toggle>
+                                    <settings-toggle
+                                        name="Disable reservations"
+                                        formControlName="disable_bookings"
+                                    ></settings-toggle>
                                 </div>
                             </div>
                         </div>
@@ -1299,6 +1312,7 @@ export class ConciergeSettingsFormModalComponent {
         }),
         parking: new FormGroup({
             allow_all_day: new FormControl(true),
+            disable_bookings: new FormControl(false),
             available_period: new FormControl(7),
             max_duration: new FormControl(480),
         }),
