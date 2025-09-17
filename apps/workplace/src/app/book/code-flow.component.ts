@@ -31,7 +31,7 @@ import {
 } from '@placeos/events';
 import { showSystem } from '@placeos/ts-client';
 import { addMinutes, endOfDay, getUnixTime } from 'date-fns';
-import QrScanner from 'qr-scanner';
+import decodeQR from 'qr/decode.js';
 
 import { OrganisationService } from '@placeos/organisation';
 import { lastValueFrom } from 'rxjs';
@@ -194,8 +194,10 @@ export class BookCodeFlowComponent
     public readonly loading = signal(false);
 
     public room_code: string;
-
-    private _qr_scanner;
+    /** Canvas for QR code processing */
+    private _canvas: HTMLCanvasElement;
+    /** Canvas context */
+    private _ctx: CanvasRenderingContext2D;
     /** Video element to emit camera feed */
     private readonly _video_el =
         viewChild<ElementRef<HTMLVideoElement>>('video');
@@ -225,6 +227,7 @@ export class BookCodeFlowComponent
     }
 
     private handleQrCode(result: string) {
+        if (this.loading()) return;
         const url = result;
         const hashindex = url.indexOf('/#/');
         // could just whole page redirect to url
@@ -345,12 +348,67 @@ export class BookCodeFlowComponent
             );
         navigator.mediaDevices
             .getUserMedia({ video: true })
-            .then((stream) => (video_el.srcObject = stream))
+            .then((stream) => {
+                video_el.srcObject = stream;
+                this._startQRScanning();
+            })
             .catch((e) => console.error('Unable to fetch media devices!', e));
-        this._qr_scanner = new QrScanner(this._video_el().nativeElement, (r) =>
-            this.handleQrCode(r),
-        );
-        this._qr_scanner.start();
+    }
+
+    private _startQRScanning() {
+        const video_el = this._video_el()?.nativeElement;
+        if (!video_el) return;
+
+        // Create canvas for image processing
+        if (!this._canvas) {
+            this._canvas = document.createElement('canvas');
+            const ctx = this._canvas.getContext('2d');
+            if (!ctx) {
+                console.error('Unable to get 2D context for QR scanning');
+                return;
+            }
+            this._ctx = ctx;
+        }
+
+        // Start scanning loop
+        this.interval('scan_frame', () => this._scanFrame());
+    }
+
+    private _scanFrame() {
+        const video_el = this._video_el()?.nativeElement;
+        if (!video_el || this.loading()) return;
+
+        if (video_el.videoWidth === 0 || video_el.videoHeight === 0) return;
+
+        // Set canvas size to video size
+        this._canvas.width = video_el.videoWidth;
+        this._canvas.height = video_el.videoHeight;
+
+        // Draw current video frame to canvas
+        this._ctx.drawImage(video_el, 0, 0);
+
+        try {
+            // Get image data
+            const imageData = this._ctx.getImageData(
+                0,
+                0,
+                this._canvas.width,
+                this._canvas.height,
+            );
+
+            // Create image object for qr library
+            const image = {
+                height: imageData.height,
+                width: imageData.width,
+                data: imageData.data,
+            };
+
+            // Try to decode QR code
+            const result = decodeQR(image);
+            if (result) this.handleQrCode(result);
+        } catch (error) {
+            // Ignore decoding errors - they're expected when no QR code is present
+        }
     }
 
     private _stopScanning() {
@@ -360,6 +418,6 @@ export class BookCodeFlowComponent
                 .getTracks()
                 .forEach((track) => track?.stop());
         }
-        this._qr_scanner?.stop();
+        this.clearInterval('scan_frame');
     }
 }
