@@ -12,3 +12,5 @@ export * from './lib/timezone-helpers';
 export * from './lib/uploads';
 export * from './lib/uploads.service';
 export * from './lib/user-idle-time.service';
+
+export * from './lib/calendar';

@@ -24,6 +24,7 @@ import { DateOptionsComponent } from './date-options.component';
 import { SearchbarComponent } from './searchbar.component';
 import { ViewEventDetailsComponent } from './view-event-details.component';
 
+import { SpacePipe } from '@placeos/events';
 import { AppSettingsModalComponent } from './app-settings-modal.component';
 import { BookingPanelSettingsModalComponent } from './app-settings/booking-panel-settings-modal.component';
 import { ConciergeSettingsFormModalComponent } from './app-settings/concierge-settings-form-modal.component';
@@ -80,6 +81,7 @@ const ANGULAR_MODULES: any[] = [FormsModule, ReactiveFormsModule];
         AssetsModule,
         RouterModule.forChild([]),
         UploadButtonComponent,
+        SpacePipe,
     ],
     exports: [
         ...COMPONENTS,
@@ -89,6 +91,7 @@ const ANGULAR_MODULES: any[] = [FormsModule, ReactiveFormsModule];
         ComponentsModule,
         AssetsModule,
         UploadButtonComponent,
+        SpacePipe,
     ],
 })
 export class UIModule {}

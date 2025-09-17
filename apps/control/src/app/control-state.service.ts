@@ -15,9 +15,10 @@ import {
 } from 'rxjs/operators';
 
 import { Router } from '@angular/router';
-import { Calendar, CalendarService } from '@placeos/calendar';
 import {
     AsyncHandler,
+    Calendar,
+    CalendarService,
     currentUser,
     HashMap,
     log,
