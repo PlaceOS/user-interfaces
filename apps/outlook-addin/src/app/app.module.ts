@@ -36,6 +36,7 @@ import { GlobalBannerComponent } from 'libs/components/src/lib/global-banner.com
 import { GlobalLoadingComponent } from 'libs/components/src/lib/global-loading.component';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { SpacePipe } from 'libs/events/src/lib/space.pipe';
 import { DateFieldComponent } from 'libs/form-fields/src/lib/date-field.component';
 import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
 import { HostSelectFieldComponent } from 'libs/form-fields/src/lib/host-select-field.component';
@@ -44,7 +45,6 @@ import { SpaceListFieldComponent } from 'libs/form-fields/src/lib/space-list-fie
 import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.component';
 import { UserListFieldComponent } from 'libs/form-fields/src/lib/user-list-field.component';
 import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-field.component';
-import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 
 const MAT_MODULES = [
     MatSnackBarModule,

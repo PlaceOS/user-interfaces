@@ -9,7 +9,6 @@ import { SharedBookingsModule } from '@placeos/bookings';
 import { ComponentsModule } from '@placeos/components';
 import { SharedEventsModule } from '@placeos/events';
 import { FormFieldsModule } from '@placeos/form-fields';
-import { SharedSpacesModule } from '@placeos/spaces';
 
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatChipsModule } from '@angular/material/chips';
@@ -75,7 +74,6 @@ const MATERIAL_MODULES: any[] = [
         FormFieldsModule,
         SharedEventsModule,
         SharedBookingsModule,
-        SharedSpacesModule,
         ...MATERIAL_MODULES,
     ],
     exports: [
@@ -84,7 +82,6 @@ const MATERIAL_MODULES: any[] = [
         FormFieldsModule,
         SharedEventsModule,
         SharedBookingsModule,
-        SharedSpacesModule,
         AssetsModule,
         ...MATERIAL_MODULES,
     ],

@@ -8,8 +8,8 @@ import {
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { currentUser, nextValueFrom, unique } from '@placeos/common';
-import { Calendar } from 'libs/calendar/src/lib/calendar.class';
-import { queryCalendars } from 'libs/calendar/src/lib/calendar.fn';
+import { Calendar } from 'libs/common/src/lib/calendar.class';
+import { queryCalendars } from 'libs/common/src/lib/calendar.fn';
 import { StaffUser, User } from 'libs/users/src/lib/user.class';
 import { combineLatest, of } from 'rxjs';
 import { catchError, map, shareReplay } from 'rxjs/operators';

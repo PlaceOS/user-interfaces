@@ -1,6 +1,6 @@
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
-import { SpacesService } from '@placeos/spaces';
+import { SpacesService } from '@placeos/events';
 import { MockComponent, MockDirective, MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 

@@ -4,7 +4,6 @@ import { FormsModule } from '@angular/forms';
 import { Route, RouterModule } from '@angular/router';
 import { EventsComponent } from './events.component';
 
-import { SharedSpacesModule } from '@placeos/spaces';
 import { UIModule } from '../ui/ui.module';
 import { EventManageComponent } from './event-manage.component';
 import { EventsListComponent } from './events-list.component';
@@ -42,7 +41,6 @@ const ROUTES: Route[] = [
         CommonModule,
         FormsModule,
         UIModule,
-        SharedSpacesModule,
         SharedBookingsModule,
         SharedEventsModule,
         FormFieldsModule,

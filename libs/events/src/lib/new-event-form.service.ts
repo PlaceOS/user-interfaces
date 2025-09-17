@@ -50,9 +50,9 @@ import {
     queryResourceAvailability,
     saveBooking,
 } from 'libs/bookings/src/lib/bookings.fn';
-import { Space } from 'libs/spaces/src/lib/space.class';
-import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
-import { requestSpacesForZone } from 'libs/spaces/src/lib/space.utilities';
+import { Space } from 'libs/events/src/lib/space.class';
+import { SpacePipe } from 'libs/events/src/lib/space.pipe';
+import { requestSpacesForZone } from 'libs/events/src/lib/space.utilities';
 
 import { AssetRequest } from 'libs/assets/src/lib/asset-request.class';
 import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';

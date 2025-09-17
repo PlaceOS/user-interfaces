@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { Booking } from '@placeos/bookings';
 import { MapPinComponent } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
-import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
+import { SpacePipe } from 'libs/events/src/lib/space.pipe';
 import { AssetManagerStateService } from './asset-manager-state.service';
 
 @Component({

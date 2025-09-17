@@ -1,7 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { nextValueFrom } from '@placeos/common';
-import { EventFormService } from '@placeos/events';
-import { Space } from '@placeos/spaces';
+import { EventFormService, Space } from '@placeos/events';
 import { BehaviorSubject, Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 

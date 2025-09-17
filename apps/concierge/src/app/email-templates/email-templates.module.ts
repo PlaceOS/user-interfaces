@@ -5,7 +5,6 @@ import { Route, RouterModule } from '@angular/router';
 
 import { SharedBookingsModule } from '@placeos/bookings';
 import { FormFieldsModule } from '@placeos/form-fields';
-import { SharedSpacesModule } from '@placeos/spaces';
 
 import { UIModule } from '../ui/ui.module';
 
@@ -34,7 +33,6 @@ const ROUTES: Route[] = [
         CommonModule,
         FormsModule,
         UIModule,
-        SharedSpacesModule,
         SharedBookingsModule,
         FormFieldsModule,
         RouterModule.forChild(ROUTES),

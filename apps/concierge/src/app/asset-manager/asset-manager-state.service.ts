@@ -33,8 +33,8 @@ import {
     AttachedResourceConfigModalData,
     AttachedResourceRuleset,
 } from '@placeos/components';
+import { SpacesService } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
-import { SpacesService } from '@placeos/spaces';
 import {
     PlaceMetadata,
     cleanObject,

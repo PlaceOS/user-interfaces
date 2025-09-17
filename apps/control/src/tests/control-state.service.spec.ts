@@ -1,7 +1,7 @@
 import { MatDialog } from '@angular/material/dialog';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
-import { CalendarService } from '@placeos/calendar';
-import { SpacesService } from '@placeos/spaces';
+import { CalendarService } from '@placeos/common';
+import { SpacesService } from '@placeos/events';
 import { of } from 'rxjs';
 import { ControlStateService } from '../app/control-state.service';
 

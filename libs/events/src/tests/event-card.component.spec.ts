@@ -6,7 +6,7 @@ import { OrganisationService } from '@placeos/organisation';
 import { set } from 'date-fns';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { StatusPillComponent } from 'libs/components/src/lib/status-pill.component';
-import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
+import { SpacePipe } from 'libs/events/src/lib/space.pipe';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { EventCardComponent } from '../lib/event-card.component';
 

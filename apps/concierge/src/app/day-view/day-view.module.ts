@@ -11,7 +11,6 @@ import { DayviewTimelineComponent } from './dayview-timeline.component';
 import { DayviewTopbarComponent } from './dayview-topbar.component';
 
 import { SharedCateringModule } from '@placeos/catering';
-import { SharedSpacesModule } from '@placeos/spaces';
 import { SharedUsersModule } from '@placeos/users';
 import { MeetingFormDetailsComponent } from 'apps/workplace/src/app/book/meeting-flow/meeting-form-details.component';
 import { BookingModalComponent } from './booking-modal.component';
@@ -52,7 +51,6 @@ const ROUTES: Route[] = [
         CommonModule,
         FormsModule,
         UIModule,
-        SharedSpacesModule,
         SharedUsersModule,
         SharedCateringModule,
         RouterModule.forChild(ROUTES),

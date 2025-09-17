@@ -1,7 +1,7 @@
 import { RoomConfiguration } from '@placeos/common';
 import { BuildingLevel } from 'libs/organisation/src/lib/level.class';
 
-import { CalendarAvailability } from 'libs/calendar/src/lib/calendar.interfaces';
+import { CalendarAvailability } from 'libs/common/src/lib/calendar.interfaces';
 
 export type ResourceResponseStatus =
     | 'needsAction'

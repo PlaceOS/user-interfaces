@@ -8,7 +8,7 @@ import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { MockModule, MockProvider } from 'ng-mocks';
 
 import { SettingsService } from '@placeos/common';
-import { SpacesService } from '@placeos/spaces';
+import { SpacesService } from '@placeos/events';
 import { of } from 'rxjs';
 import { BootstrapComponent } from '../app/bootstrap.component';
 

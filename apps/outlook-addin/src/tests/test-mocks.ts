@@ -1,5 +1,5 @@
 import { Validators } from '@angular/forms';
-import { Space } from '@placeos/spaces';
+import { Space } from '@placeos/events';
 
 export const mockForm = {
     id: 1,

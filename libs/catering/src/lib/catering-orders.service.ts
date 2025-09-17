@@ -35,8 +35,8 @@ import {
     showEventMetadata,
     updateEventMetadata,
 } from 'libs/events/src/lib/events.fn';
+import { SpacePipe } from 'libs/events/src/lib/space.pipe';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
-import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 
 import { newCalendarEventFromBooking } from 'libs/events/src/lib/utilities';
 import { CateringOrder } from './catering-order.class';

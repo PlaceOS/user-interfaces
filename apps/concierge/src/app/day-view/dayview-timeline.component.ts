@@ -10,8 +10,8 @@ import {
 } from 'rxjs/operators';
 
 import { AsyncHandler } from '@placeos/common';
+import { Space } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
-import { Space } from '@placeos/spaces';
 import { EventsStateService } from './events-state.service';
 
 const HOUR_BLOCKS = new Array(24).fill(0).map((_, idx) => {

@@ -7,7 +7,7 @@ import { map } from 'rxjs/operators';
 import { currentUser, notifySuccess, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 
-import { validateURL } from '@placeos/spaces';
+import { validateURL } from '@placeos/events';
 import { DEFAULT_SETTINGS } from 'apps/workplace/src/environments/settings';
 import { format } from 'date-fns';
 

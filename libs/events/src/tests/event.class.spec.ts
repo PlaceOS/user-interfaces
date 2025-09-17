@@ -1,4 +1,4 @@
-import { Space } from '@placeos/spaces';
+import { Space } from '@placeos/events';
 import { setInternalUserDomain, User } from '@placeos/users';
 import { add, getUnixTime, startOfDay, startOfHour, sub } from 'date-fns';
 import { CalendarEvent, setDefaultCreator } from '../lib/event.class';

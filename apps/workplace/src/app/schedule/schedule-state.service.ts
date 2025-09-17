@@ -23,9 +23,9 @@ import {
     CalendarEvent,
     newCalendarEventFromBooking,
     queryEvents,
+    requestSpacesForZone,
 } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
-import { requestSpacesForZone } from '@placeos/spaces';
 import { getModule } from '@placeos/ts-client';
 import {
     addMinutes,

@@ -34,9 +34,14 @@ import {
     notifySuccess,
     timePeriodsIntersect,
 } from '@placeos/common';
-import { CalendarEvent, declineEvent, queryEvents } from '@placeos/events';
+import {
+    CalendarEvent,
+    Space,
+    declineEvent,
+    queryEvents,
+    requestSpacesForZone,
+} from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
-import { Space, requestSpacesForZone } from '@placeos/spaces';
 
 import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
 import { EventBookModalComponent } from './event-book-modal.component';

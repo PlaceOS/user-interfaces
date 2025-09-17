@@ -2,8 +2,8 @@ import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
+import { Space } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
-import { Space } from '@placeos/spaces';
 import {
     MockComponent,
     MockDirective,
@@ -19,7 +19,7 @@ import { ImageCarouselComponent } from 'libs/components/src/lib/image-carousel.c
 import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
 import { StatusPillComponent } from 'libs/components/src/lib/status-pill.component';
 import { UserAvatarComponent } from 'libs/components/src/lib/user-avatar.component';
-import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
+import { SpacePipe } from 'libs/events/src/lib/space.pipe';
 import { EventDetailsModalComponent } from '../lib/event-details-modal.component';
 import { CalendarEvent } from '../lib/event.class';
 

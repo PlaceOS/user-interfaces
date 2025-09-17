@@ -6,7 +6,7 @@ import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { nextValueFrom, unique } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
-import { requestSpacesForZone } from 'libs/spaces/src/lib/space.utilities';
+import { requestSpacesForZone } from 'libs/events/src/lib/space.utilities';
 import { IconComponent } from './icon.component';
 import { TranslatePipe } from './translate.pipe';
 

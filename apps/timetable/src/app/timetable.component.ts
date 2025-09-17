@@ -5,8 +5,8 @@ import {
     firstTruthyValueFrom,
     SettingsService,
 } from '@placeos/common';
+import { Space, SpacesService } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
-import { Space, SpacesService } from '@placeos/spaces';
 import { getHours, getMinutes, startOfSecond } from 'date-fns';
 import { debounceTime, map } from 'rxjs/operators';
 

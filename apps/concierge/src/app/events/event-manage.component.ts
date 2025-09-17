@@ -16,6 +16,8 @@ import {
 import {
     CalendarEvent,
     EventFormService,
+    Space,
+    SpacePipe,
     showEvent,
     showEventMetadata,
 } from '@placeos/events';
@@ -24,7 +26,6 @@ import {
     BuildingLevel,
     OrganisationService,
 } from '@placeos/organisation';
-import { Space, SpacePipe } from '@placeos/spaces';
 import { StaffUser } from '@placeos/users';
 import { differenceInMinutes, format, startOfDay } from 'date-fns';
 import { lastValueFrom } from 'rxjs';

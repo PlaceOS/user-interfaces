@@ -5,7 +5,6 @@ import { Route, RouterModule } from '@angular/router';
 
 import { UIModule } from '../ui/ui.module';
 
-import { SharedSpacesModule } from '@placeos/spaces';
 import { SharedUsersModule } from '@placeos/users';
 
 import { MatChipsModule } from '@angular/material/chips';
@@ -33,7 +32,6 @@ const ROUTES: Route[] = [{ path: '', component: BuildingManagerComponent }];
         CommonModule,
         FormsModule,
         UIModule,
-        SharedSpacesModule,
         SharedUsersModule,
         MatChipsModule,
         RouterModule.forChild(ROUTES),

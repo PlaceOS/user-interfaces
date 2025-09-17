@@ -9,7 +9,7 @@ import { addMinutes, getUnixTime } from 'date-fns';
 import {
     queryCalendarAvailability,
     querySpaceFreeBusy,
-} from 'libs/calendar/src/lib/calendar.fn';
+} from 'libs/common/src/lib/calendar.fn';
 import { CalendarEvent } from './event.class';
 import { EventExtensionData } from './event.interfaces';
 

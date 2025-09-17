@@ -4,9 +4,12 @@ import { AttendeeListComponent } from './attendee-list.component';
 import { EventCardComponent } from './event-card.component';
 import { EventDetailsModalComponent } from './event-details-modal.component';
 import { EventLinkModalComponent } from './event-link-modal.component';
+import { SpaceSelectModalComponent } from './events';
 import { GroupEventCardComponent } from './group-event-card.component';
 import { GroupEventDetailsModalComponent } from './group-event-details-modal.component';
+import { NewSpaceSelectModalComponent } from './new-space-select-modal/new-space-select-modal.component';
 import { SetupBreakdownModalComponent } from './setup-breakdown-modal.component';
+import { SpacePipe } from './space.pipe';
 
 const STANDALONE_COMPONENTS = [
     EventDetailsModalComponent,
@@ -16,6 +19,10 @@ const STANDALONE_COMPONENTS = [
     SetupBreakdownModalComponent,
     GroupEventDetailsModalComponent,
     GroupEventCardComponent,
+
+    SpaceSelectModalComponent,
+    NewSpaceSelectModalComponent,
+    SpacePipe,
 ];
 
 @NgModule({

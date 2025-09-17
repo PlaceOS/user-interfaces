@@ -24,8 +24,8 @@ import {
 import { notifyError } from 'libs/common/src/lib/notifications';
 import { CalendarEvent } from 'libs/events/src/lib/event.class';
 import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
+import { Space } from 'libs/events/src/lib/space.class';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
-import { Space } from 'libs/spaces/src/lib/space.class';
 
 import { ExploreBookQrComponent } from './explore-book-qr.component';
 import { ExploreBookingModalComponent } from './explore-booking-modal.component';

@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { SettingsService, unique } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { PlaceMetadata, showMetadata } from '@placeos/ts-client';
-import { Space } from 'libs/spaces/src/lib/space.class';
+import { Space } from 'libs/events/src/lib/space.class';
 import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
 import {
     catchError,

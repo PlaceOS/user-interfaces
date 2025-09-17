@@ -25,7 +25,7 @@ import {
     setHours,
     startOfDay,
 } from 'date-fns';
-import { queryUserFreeBusy } from 'libs/calendar/src/lib/calendar.fn';
+import { queryUserFreeBusy } from 'libs/common/src/lib/calendar.fn';
 import { DurationPipe } from 'libs/components/src/lib/duration.pipe';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';

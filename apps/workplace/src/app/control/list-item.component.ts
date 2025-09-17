@@ -1,8 +1,8 @@
 import { Component, inject, input } from '@angular/core';
 
 import { SettingsService } from '@placeos/common';
+import { Space } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
-import { Space } from '@placeos/spaces';
 
 @Component({
     selector: 'a-control-space-list-item',

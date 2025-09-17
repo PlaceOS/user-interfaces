@@ -27,8 +27,8 @@ import {
     notifyWarn,
     unique,
 } from '@placeos/common';
+import { Space, generateSystemsFormFields } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
-import { Space, generateSystemsFormFields } from '@placeos/spaces';
 import { lastValueFrom } from 'rxjs';
 import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.component';
 

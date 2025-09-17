@@ -6,7 +6,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 
 import { generateQRCode } from 'libs/common/src/lib/qr-code';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
-import { Space } from 'libs/spaces/src/lib/space.class';
+import { Space } from 'libs/events/src/lib/space.class';
 
 const DEFAULT_PATH = `workplace/#/explore?space={{id}}`;
 

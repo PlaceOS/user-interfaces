@@ -2,8 +2,8 @@ import { Component, inject } from '@angular/core';
 import { filter, map, startWith } from 'rxjs/operators';
 
 import { AsyncHandler } from '@placeos/common';
+import { Space, SpacesService } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
-import { Space, SpacesService } from '@placeos/spaces';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 
 @Component({

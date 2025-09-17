@@ -16,13 +16,12 @@ import {
     i18n,
     notifyError,
 } from '@placeos/common';
-import { EventFormService } from '@placeos/events';
+import { EventFormService, Space } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
-import { Space } from '@placeos/spaces';
 
 import { AssetRequest } from 'libs/assets/src/lib/asset-request.class';
 import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
-import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
+import { SpacePipe } from 'libs/events/src/lib/space.pipe';
 
 @Component({
     selector: 'meeting-flow-confirm-modal',

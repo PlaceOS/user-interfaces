@@ -5,7 +5,7 @@ import { map } from 'rxjs/operators';
 import { toQueryString } from '@placeos/common';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 
-import { Space } from 'libs/spaces/src/lib/space.class';
+import { Space } from 'libs/events/src/lib/space.class';
 import { Calendar } from './calendar.class';
 import { CalendarAvailabilityQueryParams } from './calendar.interfaces';
 

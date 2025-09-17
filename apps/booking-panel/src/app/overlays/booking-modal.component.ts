@@ -10,7 +10,7 @@ import {
     i18n,
     notifyError,
 } from '@placeos/common';
-import { Space } from '@placeos/spaces';
+import { Space } from '@placeos/events';
 import { getModule } from '@placeos/ts-client';
 import { User } from '@placeos/users';
 import { lastValueFrom, of } from 'rxjs';

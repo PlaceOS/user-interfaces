@@ -21,7 +21,7 @@ import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.componen
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 
-import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
+import { SpacePipe } from 'libs/events/src/lib/space.pipe';
 
 @Component({
     selector: 'meeting-flow-confirm',
@@ -144,7 +144,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
           class="inverse w-full"
           *ngIf="loading | async"
           (click)="cancelPost()"
-        
+
           >
           Undo
         </button> -->

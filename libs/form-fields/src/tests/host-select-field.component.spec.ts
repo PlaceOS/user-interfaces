@@ -9,10 +9,10 @@ import { StaffUser } from 'libs/users/src/lib/user.class';
 import { HostSelectFieldComponent } from '../lib/host-select-field.component';
 
 jest.mock('@placeos/users');
-jest.mock('libs/calendar/src/lib/calendar.fn');
+jest.mock('libs/common/src/lib/calendar.fn');
 
 import * as user_mod from '@placeos/users';
-import * as cal_fns from 'libs/calendar/src/lib/calendar.fn';
+import * as cal_fns from 'libs/common/src/lib/calendar.fn';
 
 describe('HostSelectFieldComponent', () => {
     let spectator: Spectator<HostSelectFieldComponent>;

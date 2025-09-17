@@ -3,8 +3,7 @@ import {
     MAT_BOTTOM_SHEET_DATA,
     MatBottomSheetRef,
 } from '@angular/material/bottom-sheet';
-import { CalendarEvent, EventFormService } from '@placeos/events';
-import { Space } from '@placeos/spaces';
+import { CalendarEvent, EventFormService, Space } from '@placeos/events';
 import { User } from '@placeos/users';
 import { RoomConfirmService } from './room-confirm.service';
 

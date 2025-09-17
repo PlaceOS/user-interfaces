@@ -20,7 +20,6 @@ import { MatRadioModule } from '@angular/material/radio';
 import { AssetsModule } from '@placeos/assets';
 import { ComponentsModule } from '@placeos/components';
 import { FormFieldsModule } from '@placeos/form-fields';
-import { SharedSpacesModule } from '@placeos/spaces';
 import { DateOptionsComponent } from './date-options.component';
 import { SearchbarComponent } from './searchbar.component';
 import { ViewEventDetailsComponent } from './view-event-details.component';
@@ -78,7 +77,6 @@ const ANGULAR_MODULES: any[] = [FormsModule, ReactiveFormsModule];
         ...MAT_MODULES,
         ComponentsModule,
         FormFieldsModule,
-        SharedSpacesModule,
         AssetsModule,
         RouterModule.forChild([]),
         UploadButtonComponent,

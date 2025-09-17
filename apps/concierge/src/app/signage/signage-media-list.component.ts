@@ -7,7 +7,7 @@ import {
     SimpleChanges,
 } from '@angular/core';
 import { notifyError } from '@placeos/common';
-import { isValidUrl } from '@placeos/spaces';
+import { isValidUrl } from '@placeos/events';
 import { listSignagePlaylistMedia, SignageMedia } from '@placeos/ts-client';
 import { getUnixTime, startOfMinute } from 'date-fns';
 import { BehaviorSubject, combineLatest, lastValueFrom } from 'rxjs';

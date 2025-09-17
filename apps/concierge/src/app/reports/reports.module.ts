@@ -6,7 +6,6 @@ import { Route, RouterModule } from '@angular/router';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { UIModule } from '../ui/ui.module';
 
-import { SharedSpacesModule } from '@placeos/spaces';
 import { SharedUsersModule } from '@placeos/users';
 import { AssetReportDailyUsageComponent } from './assets/asset-report-daily-usage.component';
 import { AssetReportExpiredItemsComponent } from './assets/asset-report-expired-items.component';
@@ -125,7 +124,6 @@ const ROUTES: Route[] = [{ path: '', component: ReportsComponent, children }];
         CommonModule,
         FormsModule,
         UIModule,
-        SharedSpacesModule,
         SharedUsersModule,
         MatPaginatorModule,
         RouterModule.forChild(ROUTES),

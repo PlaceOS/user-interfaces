@@ -24,9 +24,8 @@ import {
     SettingsService,
     UserIdleTimeService,
 } from '@placeos/common';
-import { EventFormService } from '@placeos/events';
+import { EventFormService, Space } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
-import { Space } from '@placeos/spaces';
 import { FindAvailabilityModalComponent } from '@placeos/users';
 import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
 import { CateringOrderStateService } from 'libs/catering/src/lib/catering-order-modal/catering-order-state.service';

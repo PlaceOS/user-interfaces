@@ -9,14 +9,13 @@ import {
     FAV_PARKING_KEY,
 } from '@placeos/bookings';
 import { AsyncHandler, SettingsService } from '@placeos/common';
-import { EventFormService } from '@placeos/events';
+import { EventFormService, Space } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
-import { Space } from '@placeos/spaces';
 import { showMetadata } from '@placeos/ts-client';
 
 import { FAV_DESK_KEY } from 'libs/bookings/src/lib/desk-select-modal/desk-select-modal.component';
 import { FAV_LOCKER_KEY } from 'libs/bookings/src/lib/locker-select-modal/locker-select-modal.component';
-import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
+import { SpacePipe } from 'libs/events/src/lib/space.pipe';
 
 const EMPTY = [];
 

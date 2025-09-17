@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
+import { Space } from '@placeos/events';
 import { ExploreSpacesService } from '@placeos/explore';
-import { Space } from '@placeos/spaces';
 import { settingSignal } from 'libs/common/src/lib/settings.service';
 import { LandingStateService } from './landing-state.service';
 

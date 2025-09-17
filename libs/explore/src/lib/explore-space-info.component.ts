@@ -6,7 +6,7 @@ import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticat
 import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { CalendarEvent } from 'libs/events/src/lib/event.class';
-import { Space } from 'libs/spaces/src/lib/space.class';
+import { Space } from 'libs/events/src/lib/space.class';
 
 export interface SpaceInfoData {
     space: Space;

@@ -9,9 +9,9 @@ import { RouterModule } from '@angular/router';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { Space } from 'libs/events/src/lib/space.class';
+import { SpacePipe } from 'libs/events/src/lib/space.pipe';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
-import { Space } from 'libs/spaces/src/lib/space.class';
-import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 import { CalendarEvent } from './event.class';
 import { GroupEventDetailsModalComponent } from './group-event-details-modal.component';
 

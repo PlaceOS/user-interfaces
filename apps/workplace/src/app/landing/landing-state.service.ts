@@ -26,7 +26,6 @@ import {
     tap,
 } from 'rxjs/operators';
 
-import { CalendarService } from '@placeos/calendar';
 import {
     AsyncHandler,
     BookingRuleset,
@@ -37,10 +36,11 @@ import {
     SettingsService,
     unique,
 } from '@placeos/common';
+import { requestSpacesForZone } from '@placeos/events';
 import { BuildingLevel, OrganisationService } from '@placeos/organisation';
-import { requestSpacesForZone } from '@placeos/spaces';
 import { searchStaff, StaffUser, User } from '@placeos/users';
 import { isSameDay } from 'date-fns';
+import { CalendarService } from 'libs/common/src/lib/calendar.service';
 import { ScheduleStateService } from '../schedule/schedule-state.service';
 
 export interface LandingOptions {

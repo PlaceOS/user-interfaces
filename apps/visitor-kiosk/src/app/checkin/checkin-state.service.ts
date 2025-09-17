@@ -11,7 +11,7 @@ import {
     updateBooking,
     updateBookingInductionStatus,
 } from 'libs/bookings/src/lib/bookings.fn';
-import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
+import { SpacePipe } from 'libs/events/src/lib/space.pipe';
 import { showGuest } from 'libs/users/src/lib/guests.fn';
 import { GuestUser } from 'libs/users/src/lib/user.class';
 import { generateGuestForm } from 'libs/users/src/lib/user.utilities';

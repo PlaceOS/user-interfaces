@@ -2,9 +2,8 @@ import { Component, OnInit, inject } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { Router } from '@angular/router';
 import { AsyncHandler, HashMap, i18n, nextValueFrom } from '@placeos/common';
-import { EventFormService } from '@placeos/events';
+import { EventFormService, Space, SpacesService } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
-import { Space, SpacesService } from '@placeos/spaces';
 import { ViewAction, ViewerFeature, ViewerStyles } from '@placeos/svg-viewer';
 import { BehaviorSubject, Observable, combineLatest, of } from 'rxjs';
 import { filter, first, map, tap } from 'rxjs/operators';
@@ -89,14 +88,14 @@ import { RoomConfirmService } from './room-confirm.service';
                         <mat-chip class="text-gray-700 text-xs">
                           {{ form?.controls?.date?.value | date: 'dd MMMM yyyy' }}
                         </mat-chip>
-        
+
                         <div *ngIf="form?.controls.attendees.value.length > 0">
                           <mat-chip class="text-gray-700 text-xs">
                             {{ form?.controls?.attendees?.value.length }}
                             People
                           </mat-chip>
                         </div>
-        
+
                         <mat-chip class="text-gray-700 text-xs">
                           <span>{{ start_time$ | async }}</span>
                           -

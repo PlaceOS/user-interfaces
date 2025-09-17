@@ -7,13 +7,13 @@ import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 import { BehaviorSubject, of } from 'rxjs';
 
 import { SettingsService } from '@placeos/common';
+import { SpacesService } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
-import { SpacesService } from '@placeos/spaces';
 
 import { MapsPeopleService } from 'libs/common/src/lib/mapspeople.service';
 import { IndoorMapsComponent } from 'libs/components/src/lib/indoor-maps.component';
 import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
-import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
+import { SpacePipe } from 'libs/events/src/lib/space.pipe';
 import { ExploreDesksService } from '../lib/explore-desks.service';
 import { ExploreLockersService } from '../lib/explore-lockers.service';
 import { ExploreMapControlComponent } from '../lib/explore-map-control.component';

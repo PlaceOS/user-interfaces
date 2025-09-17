@@ -1,6 +1,6 @@
 import { MatDialog } from '@angular/material/dialog';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
-import { SpacesService } from '@placeos/spaces';
+import { SpacesService } from '@placeos/events';
 import {
     endOfDay,
     endOfMonth,

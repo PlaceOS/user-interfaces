@@ -46,11 +46,11 @@ import {
     queryResourceAvailability,
     saveBooking,
 } from 'libs/bookings/src/lib/bookings.fn';
+import { Space } from 'libs/events/src/lib/space.class';
+import { SpacePipe } from 'libs/events/src/lib/space.pipe';
+import { requestSpacesForZone } from 'libs/events/src/lib/space.utilities';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { PaymentsService } from 'libs/payments/src/lib/payments.service';
-import { Space } from 'libs/spaces/src/lib/space.class';
-import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
-import { requestSpacesForZone } from 'libs/spaces/src/lib/space.utilities';
 import { User } from 'libs/users/src/lib/user.class';
 
 import { CalendarEvent } from './event.class';

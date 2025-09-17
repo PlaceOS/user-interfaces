@@ -8,9 +8,8 @@ import {
     notifyError,
     SettingsService,
 } from '@placeos/common';
-import { EventFormService } from '@placeos/events';
+import { EventFormService, SpacePipe } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
-import { SpacePipe } from '@placeos/spaces';
 import { set } from 'date-fns';
 
 @Component({

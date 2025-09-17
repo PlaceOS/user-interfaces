@@ -35,8 +35,8 @@ import {
 } from '@placeos/common';
 import { CalendarEvent } from 'libs/events/src/lib/event.class';
 import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
-import { Space } from 'libs/spaces/src/lib/space.class';
-import { SpacesService } from 'libs/spaces/src/lib/spaces.service';
+import { Space } from 'libs/events/src/lib/space.class';
+import { SpacesService } from 'libs/events/src/lib/spaces.service';
 
 import {
     addMinutes,
@@ -47,7 +47,7 @@ import {
     startOfMinute,
 } from 'date-fns';
 import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
-import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
+import { SpacePipe } from 'libs/events/src/lib/space.pipe';
 import { openBookingModal } from './overlays/booking-modal.component';
 import { EmbeddedControlModalComponent } from './overlays/embedded-control-modal.component';
 

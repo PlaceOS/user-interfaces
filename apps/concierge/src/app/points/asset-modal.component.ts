@@ -2,7 +2,7 @@ import { Component, EventEmitter, Output, inject } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { AsyncHandler, DialogEvent } from '@placeos/common';
-import { SpacesService } from '@placeos/spaces';
+import { SpacesService } from '@placeos/events';
 import { addHours, startOfHour } from 'date-fns';
 import { combineLatest } from 'rxjs';
 import { map, shareReplay, tap } from 'rxjs/operators';

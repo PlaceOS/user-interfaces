@@ -19,7 +19,7 @@ import {
 import { lastValueFrom, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
-import { validateURL } from '@placeos/spaces';
+import { validateURL } from '@placeos/events';
 import * as yaml from 'js-yaml';
 
 @Component({

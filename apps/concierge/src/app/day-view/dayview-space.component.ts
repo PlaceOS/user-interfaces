@@ -2,8 +2,7 @@ import { Component, OnInit, inject, input } from '@angular/core';
 import { map } from 'rxjs/operators';
 
 import { AsyncHandler } from '@placeos/common';
-import { CalendarEvent } from '@placeos/events';
-import { Space } from '@placeos/spaces';
+import { CalendarEvent, Space } from '@placeos/events';
 import { EventsStateService } from './events-state.service';
 
 @Component({

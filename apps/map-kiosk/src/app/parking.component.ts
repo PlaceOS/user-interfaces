@@ -8,9 +8,9 @@ import {
     log,
     SettingsService,
 } from '@placeos/common';
+import { SpacesService } from '@placeos/events';
 import { ExploreParkingService, ExploreStateService } from '@placeos/explore';
 import { OrganisationService } from '@placeos/organisation';
-import { SpacesService } from '@placeos/spaces';
 import { Point } from '@placeos/svg-viewer';
 
 import { VirtualKeyboardComponent } from 'libs/components/src/lib/virtual-keyboard.component';

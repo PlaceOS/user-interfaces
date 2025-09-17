@@ -24,7 +24,7 @@ import {
 import { OrganisationService } from '@placeos/organisation';
 import { setInternalUserDomain } from 'libs/users/src/lib/user.utilities';
 
-import { SpacesService } from 'libs/spaces/src/lib/spaces.service';
+import { SpacesService } from 'libs/events/src/lib/spaces.service';
 
 import * as MOCKS from '@placeos/mocks';
 import { PlaceAuthority, token } from '@placeos/ts-client';

@@ -7,7 +7,7 @@ import { debounceTime, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 
-import { Space } from 'libs/spaces/src/lib/space.class';
+import { Space } from 'libs/events/src/lib/space.class';
 
 @Component({
     selector: '[app-bootstrap]',

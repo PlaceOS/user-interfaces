@@ -24,9 +24,9 @@ import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map
 import { MapPinComponent } from 'libs/components/src/lib/map-pin.component';
 import { MapRadiusComponent } from 'libs/components/src/lib/map-radius.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { SpacePipe } from 'libs/events/src/lib/space.pipe';
+import { SpacesService } from 'libs/events/src/lib/spaces.service';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
-import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
-import { SpacesService } from 'libs/spaces/src/lib/spaces.service';
 import { MapLocation } from 'libs/users/src/lib/location.class';
 import { showStaff } from 'libs/users/src/lib/staff.fn';
 import { User } from 'libs/users/src/lib/user.class';

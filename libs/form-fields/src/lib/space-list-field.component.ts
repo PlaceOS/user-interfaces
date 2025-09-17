@@ -20,8 +20,8 @@ import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { NewSpaceSelectModalComponent } from 'libs/spaces/src/lib/new-space-select-modal/new-space-select-modal.component';
-import { Space } from 'libs/spaces/src/lib/space.class';
+import { NewSpaceSelectModalComponent } from 'libs/events/src/lib/new-space-select-modal/new-space-select-modal.component';
+import { Space } from 'libs/events/src/lib/space.class';
 
 const EMPTY_FAVS: string[] = [];
 
