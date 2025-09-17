@@ -18,7 +18,7 @@ import { lastValueFrom } from 'rxjs';
         <fullscreen-modal-shell
             [heading]="'Concierge Settings - ' + zone.display_name || zone.name"
             [loading]="loading()"
-            (save)="save()"
+            (confirm)="save()"
         >
             <form [formGroup]="form" class="flex flex-col space-y-8 pb-4">
                 <section general class="space-y-2 rounded bg-base-100">
