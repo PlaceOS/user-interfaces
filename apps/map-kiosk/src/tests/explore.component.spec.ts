@@ -1,5 +1,10 @@
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
-import { SettingsService } from '@placeos/common';
+import {
+    Building,
+    OrganisationService,
+    Region,
+    SettingsService,
+} from '@placeos/common';
 import {
     ExploreDesksService,
     ExploreParkingService,
@@ -9,7 +14,6 @@ import {
     ExploreZonesService,
     ExploreZoomControlComponent,
 } from '@placeos/explore';
-import { Building, OrganisationService, Region } from '@placeos/organisation';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 import { BehaviorSubject, of } from 'rxjs';
 

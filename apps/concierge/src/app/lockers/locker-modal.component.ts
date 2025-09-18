@@ -7,8 +7,8 @@ import {
 } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Locker, LockerBank } from '@placeos/bookings';
-import { AsyncHandler, DialogEvent } from '@placeos/common';
-import { showStaff, User } from '@placeos/users';
+import { AsyncHandler, DialogEvent, User } from '@placeos/common';
+import { showStaff } from '@placeos/users';
 import {
     addChipItem,
     removeChipItem,

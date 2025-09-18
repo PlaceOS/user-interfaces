@@ -11,8 +11,8 @@ import {
     tap,
 } from 'rxjs/operators';
 
-import { AsyncHandler, SettingsService } from '@placeos/common';
-import { searchStaff, User } from '@placeos/users';
+import { AsyncHandler, SettingsService, User } from '@placeos/common';
+import { searchStaff } from '@placeos/users';
 
 const LETTERS = `ABCDEFGHIJKLMNOPQRSTUVWXYZ`.split('');
 

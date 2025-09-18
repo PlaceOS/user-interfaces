@@ -5,7 +5,7 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
-import { OrganisationService } from '@placeos/organisation';
+import { OrganisationService } from '@placeos/common';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { SpaceListFieldComponent } from '../lib/space-list-field.component';

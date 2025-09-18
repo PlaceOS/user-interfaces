@@ -10,9 +10,9 @@ import {
     getInvalidFields,
     i18n,
     notifyError,
+    OrganisationService,
     SettingsService,
 } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
 import { isBefore, startOfMinute } from 'date-fns';
 import { lastValueFrom } from 'rxjs';
 import { first } from 'rxjs/operators';

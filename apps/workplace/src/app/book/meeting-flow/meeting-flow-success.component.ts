@@ -6,10 +6,10 @@ import {
     i18n,
     nextValueFrom,
     notifyError,
+    OrganisationService,
     SettingsService,
 } from '@placeos/common';
 import { EventFormService, SpacePipe } from '@placeos/events';
-import { OrganisationService } from '@placeos/organisation';
 import { set } from 'date-fns';
 
 @Component({

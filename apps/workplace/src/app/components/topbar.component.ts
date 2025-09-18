@@ -1,7 +1,10 @@
 import { Component, inject } from '@angular/core';
-import { currentUser, SettingsService } from '@placeos/common';
+import {
+    currentUser,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
 import { UserControlsComponent } from '@placeos/components';
-import { OrganisationService } from '@placeos/organisation';
 
 const EMPTY = [];
 

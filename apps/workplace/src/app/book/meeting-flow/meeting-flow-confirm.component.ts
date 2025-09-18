@@ -5,9 +5,11 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { CateringItem } from '@placeos/catering';
 import {
     AsyncHandler,
+    CalendarEvent,
+    CateringItem,
+    OrganisationService,
     SettingsService,
     formatRecurrence,
     fromEventRecurrence,
@@ -15,12 +17,11 @@ import {
     i18n,
     notifyError,
 } from '@placeos/common';
-import { CalendarEvent, EventFormService } from '@placeos/events';
-import { OrganisationService } from '@placeos/organisation';
+import { EventFormService } from '@placeos/events';
+
 import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-
 import { SpacePipe } from 'libs/events/src/lib/space.pipe';
 
 @Component({

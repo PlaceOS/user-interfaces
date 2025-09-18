@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { Building } from '@placeos/organisation';
+import { Building } from '@placeos/common';
 
 @Component({
     selector: 'building-modal',

@@ -1,9 +1,116 @@
-import { BuildingLevel } from './level.class';
+import { BookingRuleDetails } from '../booking-rules';
+import { getItemWithKeys } from '../general';
+
+///////////////////////////////////////////////////////////////
+////////////////////   Organisation   /////////////////////////
+///////////////////////////////////////////////////////////////
+
+export interface OrganisationComplete extends Organisation {
+    settings?: Record<string, any>;
+}
+
+export class Organisation {
+    /** PlaceOS zone id of the building */
+    public readonly id: string;
+    /** Name of the building zone */
+    public readonly name: string;
+    /** Description for the Organisation */
+    public readonly description: string;
+    /** Tags for the Organisation */
+    public readonly tags: string[];
+    /** Count for the Organisation */
+    public readonly count: number;
+    /** Capacity for the Organisation */
+    public readonly capacity: number;
+    /** PlaceOS bindings for applications */
+    public readonly bindings: Record<string, string | Binding>;
+    /** Map of custom settings for the building */
+    private _settings: Record<string, any>;
+
+    constructor(raw_data: Partial<OrganisationComplete> = {}) {
+        this.id = raw_data.id || '';
+        this.name = raw_data.name || '';
+        this.description = raw_data.description || '';
+        this.tags = raw_data.tags || [];
+        this.count = raw_data.count || 0;
+        this.capacity = raw_data.capacity || 0;
+        this.bindings = raw_data.bindings || {};
+        this._settings = raw_data.settings || {};
+    }
+
+    /**
+     * Get a custom organisation setting
+     * @param key Name of the setting. i.e. nested items can be grabbed using `.` to seperate key names
+     */
+    public setting(key: string): any {
+        const keys = key.split('.');
+        const value = getItemWithKeys(keys, this._settings);
+        return value;
+    }
+}
+
+///////////////////////////////////////////////////////////////
+///////////////////   Building Level   ////////////////////////
+///////////////////////////////////////////////////////////////
+
+export class BuildingLevel {
+    /** ID of the building level zone */
+    public readonly id: string;
+    /** ID of the building zone associated with the level */
+    public readonly parent_id: string;
+    /** Name of the level */
+    public readonly name: string;
+    /** Display name */
+    public readonly display_name: string;
+    /** Capacity for the level */
+    public readonly capacity: number;
+    /** Number or letter representing the level */
+    public readonly code: string;
+    /** Number or letter representing the level */
+    public readonly number: string;
+    /** URL of the map associated with the level */
+    public readonly map_id: string;
+    /** URL of the map associated with the level */
+    public readonly tags: string[];
+    /** Settings overrides associated with the level */
+    public readonly settings: Record<string, any> = {};
+    /** List of image URLs for the level */
+    public readonly images: string[];
+    public readonly location: string;
+    /** List of points of interest for the level */
+    public readonly locations: readonly { id: string; name: string }[];
+
+    constructor(_data: Partial<BuildingLevel> = {}) {
+        this.id = _data.id || '';
+        this.parent_id = _data.parent_id || '';
+        this.name = _data.name || '';
+        this.display_name = _data.display_name || '';
+        this.map_id = _data.map_id || '';
+        this.capacity = _data.capacity || 0;
+        this.location = _data.location || '';
+        this.locations = _data.locations || [];
+        this.tags = _data.tags || [];
+        this.images = _data.images || [];
+        this.code = _data.code || '';
+        const parts = this.display_name.split(' ');
+        this.number = (
+            (parts.length >= 2
+                ? parts[parts.length - 1]
+                : this.display_name[0]
+            )?.toUpperCase() || ''
+        ).substring(0, 2);
+    }
+}
+
+///////////////////////////////////////////////////////////////
+//////////////////////   Building   ///////////////////////////
+///////////////////////////////////////////////////////////////
 
 interface Identity {
     id: string;
     name: string;
 }
+
 interface RoomConfiguration {
     id: string;
     name?: string;
@@ -34,17 +141,6 @@ export interface LevelFeature {
     id: string;
     level_id: string;
     name: string;
-}
-
-export interface BookingRuleDetails {
-    /** List of booking rules details for the building */
-    readonly rules: readonly string[];
-    /** Custom booking rules for the map */
-    readonly map_rules?: readonly string[];
-    /** Contact email address for the building */
-    readonly contact?: string;
-    /** Information string to display before the rule listings */
-    readonly info?: string;
 }
 
 export interface Binding {
@@ -251,5 +347,36 @@ export class Building {
      */
     public featuresForLevel(level_id: string): LevelFeature[] {
         return (this.searchables || []).filter((i) => i.level_id === level_id);
+    }
+}
+
+///////////////////////////////////////////////////////////////
+///////////////////////   Region   ////////////////////////////
+///////////////////////////////////////////////////////////////
+
+export class Region {
+    /** PlaceOS zone id of the building */
+    public readonly id: string;
+    /** Name of the building zone */
+    public readonly name: string;
+    /** Name to display */
+    public readonly display_name: string;
+    /** IANA timezone string for building */
+    public readonly timezone: string;
+    /** List of image URLs for the building */
+    public readonly images: string[];
+    /** PlaceOS bindings for applications */
+    public readonly bindings: Record<string, string>;
+    /** Address of the region */
+    public readonly address: string;
+
+    constructor(_data: Partial<Region>) {
+        this.id = _data.id || '';
+        this.name = _data.name || '';
+        this.display_name = _data.display_name || '';
+        this.timezone = _data.timezone || '';
+        this.images = _data.images || [];
+        this.bindings = _data.bindings || {};
+        this.address = _data.address || '';
     }
 }

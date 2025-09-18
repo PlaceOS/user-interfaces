@@ -16,7 +16,7 @@ import {
     DurationFieldComponent,
     TimeFieldComponent,
 } from '@placeos/form-fields';
-import { OrganisationService } from '@placeos/organisation';
+import { OrganisationService } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 import { BehaviorSubject, of } from 'rxjs';

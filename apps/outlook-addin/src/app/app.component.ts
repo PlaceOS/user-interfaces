@@ -8,6 +8,7 @@ import {
     firstTruthyValueFrom,
     LocaleService,
     log,
+    OrganisationService,
     setAppName,
     setNotifyOutlet,
     SettingsService,
@@ -15,9 +16,8 @@ import {
     setupCache,
     setupPlace,
 } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
 import { invalidateToken, isMock, setToken, token } from '@placeos/ts-client';
-import { setDefaultCreator } from 'libs/events/src/lib/event.class';
+import { setDefaultCreator } from '@placeos/common';
 import { setInternalUserDomain } from 'libs/users/src/lib/user.utilities';
 import { first } from 'rxjs/operators';
 

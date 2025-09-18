@@ -5,7 +5,7 @@ import { ActivatedRoute } from '@angular/router';
 import { AsyncHandler, SettingsService, VERSION } from '@placeos/common';
 import { ChangelogModalComponent } from 'libs/components/src/lib/changelog-modal.component';
 
-import { OrganisationService } from '@placeos/organisation';
+import { OrganisationService } from '@placeos/common';
 import { debounceTime, map } from 'rxjs/operators';
 import { ControlStateService } from '../control-state.service';
 

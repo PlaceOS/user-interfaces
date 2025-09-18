@@ -1,6 +1,6 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { firstTruthyValueFrom } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { OrganisationService } from '@placeos/common';
 import { token } from '@placeos/ts-client';
 
 import mqtt from 'mqtt';

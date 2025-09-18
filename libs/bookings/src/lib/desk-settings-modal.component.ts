@@ -10,7 +10,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSliderModule } from '@angular/material/slider';
 import { SettingsService, notifyError, notifySuccess } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { OrganisationService } from '@placeos/common';
 import { DeskHeightPresetsComponent } from 'libs/components/src/lib/desk-height-presets.component';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 

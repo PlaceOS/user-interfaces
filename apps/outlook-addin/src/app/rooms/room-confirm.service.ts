@@ -1,8 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { Router } from '@angular/router';
-import { HashMap } from '@placeos/common';
-import { EventFormService, Space, SpacesService } from '@placeos/events';
+import { HashMap, Space } from '@placeos/common';
+import { EventFormService, SpacesService } from '@placeos/events';
 import { SpacePipe } from 'libs/events/src/lib/space.pipe';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { RoomConfirmComponent } from './room-confirm.component';

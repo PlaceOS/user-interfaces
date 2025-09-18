@@ -10,6 +10,7 @@ import {
     LocaleService,
     log,
     notifySuccess,
+    OrganisationService,
     setAppName,
     setNotifyOutlet,
     SettingsService,
@@ -17,7 +18,6 @@ import {
     setupCache,
     setupPlace,
 } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
 
 import { GlobalBannerComponent } from 'libs/components/src/lib/global-banner.component';
 import { GlobalLoadingComponent } from 'libs/components/src/lib/global-loading.component';

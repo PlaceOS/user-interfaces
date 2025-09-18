@@ -1,7 +1,7 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { AsyncHandler, Deal, i18n, randomString } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { OrganisationService } from '@placeos/common';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
 import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
 import {

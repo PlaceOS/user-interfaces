@@ -1,9 +1,4 @@
 import {
-    LinkedBooking,
-    capitalizeFirstLetter,
-    removeEmptyFields,
-} from '@placeos/common';
-import {
     add,
     addHours,
     addMinutes,
@@ -16,8 +11,11 @@ import {
     roundToNearestMinutes,
     startOfDay,
 } from 'date-fns';
-import { AssetRequest } from 'libs/assets/src/lib/asset-request.class';
-import { User } from 'libs/users/src/lib/user.class';
+import { capitalizeFirstLetter, removeEmptyFields } from '../general';
+import { WeekOfMonth } from '../recurrence';
+import { LinkedBooking } from '../types';
+import { AssetRequest } from './asset-request.class';
+import { User } from './user.class';
 
 export type BookingType =
     | 'desk'
@@ -47,16 +45,6 @@ export enum RecurrenceDays {
     SATURDAY = 1 << 6,
 }
 
-export const DAYS_OF_WEEK_INDEX = [
-    RecurrenceDays.SUNDAY,
-    RecurrenceDays.MONDAY,
-    RecurrenceDays.TUESDAY,
-    RecurrenceDays.WEDNESDAY,
-    RecurrenceDays.THURSDAY,
-    RecurrenceDays.FRIDAY,
-    RecurrenceDays.SATURDAY,
-];
-
 export interface LinkedCalendarEvent {
     id?: string;
     date: number;
@@ -67,19 +55,6 @@ export interface LinkedCalendarEvent {
     event_id: string;
     host_email: string;
     ical_uid?: string;
-}
-
-export enum WeekOfMonth {
-    First = 1,
-    Second = 2,
-    Third = 3,
-    Fourth = 4,
-    Fifth = 5,
-    Last = -1,
-    SecondLast = -2,
-    ThirdLast = -3,
-    FourthLast = -4,
-    FifthLast = -5,
 }
 
 /** General purpose booking class */
@@ -394,7 +369,7 @@ export class Booking {
         const checked_out =
             (this.checked_out_at || this.extension_data.checked_out_at || 0) *
             1000;
-        let end_time = end.getTime();
+        const end_time = end.getTime();
         if (checked_out && Date.now() > checked_out) return true;
         return isAfter(start, new Date(end_time));
     }

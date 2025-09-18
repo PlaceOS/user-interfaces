@@ -4,9 +4,7 @@ import { querySystems } from '@placeos/ts-client';
 import { BehaviorSubject, of } from 'rxjs';
 import { debounceTime, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 
-import { AsyncHandler } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
-import { Space } from 'libs/events/src/lib/space.class';
+import { AsyncHandler, OrganisationService, Space } from '@placeos/common';
 
 const STORE_KEY = 'PLACEOS.CONTROL.system';
 

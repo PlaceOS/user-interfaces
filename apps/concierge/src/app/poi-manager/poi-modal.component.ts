@@ -7,15 +7,16 @@ import {
 } from '@angular/material/dialog';
 import {
     AsyncHandler,
+    Building,
     createShortURL,
     getInvalidFields,
     nextValueFrom,
     notifyError,
+    OrganisationService,
     randomString,
     SettingsService,
     updateShortURL,
 } from '@placeos/common';
-import { Building, OrganisationService } from '@placeos/organisation';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
 import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.component';
 import { PointOfInterest } from './poi-management.service';

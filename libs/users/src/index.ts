@@ -4,6 +4,5 @@ export * from './lib/location.class';
 export * from './lib/new-user-modal.component';
 export * from './lib/staff.fn';
 export * from './lib/user-form.component';
-export * from './lib/user.class';
 export * from './lib/user.utilities';
 export * from './lib/users.module';

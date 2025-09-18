@@ -8,7 +8,7 @@ import {
     i18n,
     unique,
 } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { OrganisationService } from '@placeos/common';
 import { debounceTime, filter } from 'rxjs/operators';
 
 @Component({

@@ -15,13 +15,13 @@ import {
     AsyncHandler,
     currentUser,
     log,
+    OrganisationService,
     setAppName,
     setNotifyOutlet,
     SettingsService,
     setupCache,
     setupPlace,
 } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
 import { setInternalUserDomain } from 'libs/users/src/lib/user.utilities';
 
 import { SpacesService } from 'libs/events/src/lib/spaces.service';

@@ -1,6 +1,9 @@
 import { Component, inject } from '@angular/core';
-import { SettingsService } from '@placeos/common';
-import { Building, OrganisationService } from '@placeos/organisation';
+import {
+    Building,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
 import { POIManagementService } from './poi-management.service';
 
 @Component({

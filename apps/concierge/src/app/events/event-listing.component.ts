@@ -1,7 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { SettingsService } from '@placeos/common';
-import { CalendarEvent } from '@placeos/events';
-import { User } from '@placeos/users';
+import { CalendarEvent, SettingsService, User } from '@placeos/common';
 import { EventStateService } from './event-state.service';
 
 @Component({

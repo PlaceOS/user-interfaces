@@ -9,7 +9,7 @@ import {
     notifyError,
     SettingsService,
 } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { OrganisationService } from '@placeos/common';
 import { endOfDay, format, getUnixTime, isSameDay, startOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import {

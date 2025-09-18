@@ -1,7 +1,7 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 import { Component, OnInit, inject } from '@angular/core';
-import { Booking, Locker } from '@placeos/bookings';
-import { AsyncHandler, i18n, notifySuccess } from '@placeos/common';
+import { Locker } from '@placeos/bookings';
+import { AsyncHandler, Booking, i18n, notifySuccess } from '@placeos/common';
 import { combineLatest } from 'rxjs';
 import { LockerStateService } from './locker-state.service';
 

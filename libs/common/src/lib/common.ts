@@ -12,7 +12,6 @@ export * from './formatting';
 export * from './general';
 export * from './notifications';
 export * from './placeos';
-export * from './room-configuration.interface';
 export * from './settings';
 export * from './spec-helpers';
 export * from './timezones';

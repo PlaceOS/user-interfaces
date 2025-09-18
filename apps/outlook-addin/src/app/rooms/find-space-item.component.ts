@@ -1,5 +1,5 @@
 import { Component, input, output } from '@angular/core';
-import { Space } from '@placeos/events';
+import { Space } from '@placeos/common';
 
 @Component({
     selector: 'find-space-item',

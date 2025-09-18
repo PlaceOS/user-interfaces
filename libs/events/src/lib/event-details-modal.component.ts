@@ -12,15 +12,21 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
+    Building,
+    BuildingLevel,
+    CalendarEvent,
+    CateringItem,
     formatRecurrence,
     fromEventRecurrence,
     getTimezoneOffsetString,
     i18n,
     notifyError,
     SettingsService,
+    Space,
 } from '@placeos/common';
 import { getModule } from '@placeos/ts-client';
-import { CateringItem } from 'libs/catering/src/lib/catering-item.class';
+
+import { OrganisationService } from '@placeos/common';
 import { BindingDirective } from 'libs/components/src/lib/binding.directive';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { ImageCarouselComponent } from 'libs/components/src/lib/image-carousel.component';
@@ -31,14 +37,9 @@ import { SanitizePipe } from 'libs/components/src/lib/sanitise.pipe';
 import { StatusPillComponent } from 'libs/components/src/lib/status-pill.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { UserAvatarComponent } from 'libs/components/src/lib/user-avatar.component';
-import { Space } from 'libs/events/src/lib/space.class';
 import { SpacePipe } from 'libs/events/src/lib/space.pipe';
-import { Building } from 'libs/organisation/src/lib/building.class';
-import { BuildingLevel } from 'libs/organisation/src/lib/level.class';
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { UserPipe } from 'libs/users/src/lib/user.pipe';
 import { AttendeeListComponent } from './attendee-list.component';
-import { CalendarEvent } from './event.class';
 import { getEventMetadata } from './events.fn';
 
 const EMPTY_ACTIONS = [];

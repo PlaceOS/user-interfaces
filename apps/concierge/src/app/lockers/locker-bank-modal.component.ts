@@ -3,8 +3,12 @@ import { Component, EventEmitter, Output, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { LockerBank } from '@placeos/bookings';
-import { DialogEvent, SettingsService, unique } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import {
+    DialogEvent,
+    OrganisationService,
+    SettingsService,
+    unique,
+} from '@placeos/common';
 import {
     addChipItem,
     removeChipItem,

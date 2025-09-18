@@ -2,7 +2,6 @@ import { Component, inject, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import {
-    Booking,
     BookingFormService,
     checkinBooking,
     checkinBookingInstance,
@@ -10,18 +9,15 @@ import {
 } from '@placeos/bookings';
 import {
     AsyncHandler,
+    Booking,
+    CalendarEvent,
     currentUser,
     i18n,
     notifyError,
     notifySuccess,
     SettingsService,
 } from '@placeos/common';
-import {
-    CalendarEvent,
-    EventFormService,
-    queryEvents,
-    removeEvent,
-} from '@placeos/events';
+import { EventFormService, queryEvents, removeEvent } from '@placeos/events';
 import { format, isSameDay, parse } from 'date-fns';
 import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
 import { combineLatest } from 'rxjs';

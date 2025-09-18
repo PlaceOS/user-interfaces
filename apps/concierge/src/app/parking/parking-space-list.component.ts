@@ -1,7 +1,6 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 import { Component, inject } from '@angular/core';
-import { Booking } from '@placeos/bookings';
-import { AsyncHandler, i18n, notifySuccess } from '@placeos/common';
+import { AsyncHandler, Booking, i18n, notifySuccess } from '@placeos/common';
 import { ParkingSpace } from '@placeos/explore';
 import { combineLatest } from 'rxjs';
 import { ParkingStateService } from './parking-state.service';

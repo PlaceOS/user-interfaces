@@ -7,7 +7,7 @@ import {
 import { authority, isOnline, token } from '@placeos/ts-client';
 
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
+import { OrganisationService } from '@placeos/common';
 import { TranslatePipe } from './translate.pipe';
 
 @Component({

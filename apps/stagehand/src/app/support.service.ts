@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { OrganisationService } from '@placeos/organisation';
+import { OrganisationService } from '@placeos/common';
 import { querySystems } from '@placeos/ts-client';
 import { catchError, first, map, of, shareReplay, switchMap } from 'rxjs';
 

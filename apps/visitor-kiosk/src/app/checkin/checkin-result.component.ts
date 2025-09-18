@@ -1,11 +1,15 @@
 import { DatePipe } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { Booking } from '@placeos/bookings';
-import { AsyncHandler, nextValueFrom, SettingsService } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import {
+    AsyncHandler,
+    Booking,
+    generateQRCode,
+    nextValueFrom,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
 import { roundToNearestMinutes, startOfMinute } from 'date-fns';
-import { generateQRCode } from 'libs/common/src/lib/qr-code';
 import { combineLatest, firstValueFrom } from 'rxjs';
 import { filter, first, map, startWith } from 'rxjs/operators';
 import { CheckinStateService } from './checkin-state.service';

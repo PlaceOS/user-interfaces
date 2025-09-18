@@ -3,11 +3,12 @@ import { ActivatedRoute } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
 import {
     AsyncHandler,
+    Desk,
     firstTruthyValueFrom,
     nextValueFrom,
     notifyInfo,
+    OrganisationService,
 } from '@placeos/common';
-import { Desk, OrganisationService } from '@placeos/organisation';
 import { lastValueFrom, timer } from 'rxjs';
 
 @Component({

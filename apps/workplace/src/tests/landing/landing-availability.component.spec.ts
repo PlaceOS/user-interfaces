@@ -1,7 +1,6 @@
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { SettingsService } from '@placeos/common';
+import { OrganisationService, SettingsService } from '@placeos/common';
 import { ExploreSpacesService } from '@placeos/explore';
-import { OrganisationService } from '@placeos/organisation';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { BehaviorSubject, of } from 'rxjs';

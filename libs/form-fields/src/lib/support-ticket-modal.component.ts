@@ -18,9 +18,9 @@ import {
     i18n,
     notifyError,
     notifySuccess,
+    OrganisationService,
     SettingsService,
 } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { FullscreenModalShellComponent } from '../../../components/src/lib/fullscreen-modal-shell.component';
 import { ImageListFieldComponent } from './image-list-field.component';

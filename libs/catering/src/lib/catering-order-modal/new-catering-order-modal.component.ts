@@ -1,11 +1,14 @@
 import { Component, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
-import { SettingsService } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import {
+    CateringItem,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
+
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { CateringItem } from '../catering-item.class';
 import { CateringItemDetailsComponent } from './catering-item-details.component';
 import { CateringItemFiltersComponent } from './catering-item-filters.component';
 import { CateringItemListComponent } from './catering-item-list.component';

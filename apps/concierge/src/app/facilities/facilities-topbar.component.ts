@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { first } from 'rxjs/operators';
 
 import { AsyncHandler, Identity } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { OrganisationService } from '@placeos/common';
 import { EventsStateService } from '../day-view/events-state.service';
 
 @Component({

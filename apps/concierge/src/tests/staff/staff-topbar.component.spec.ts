@@ -3,7 +3,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
-import { OrganisationService } from '@placeos/organisation';
+import { OrganisationService } from '@placeos/common';
 import { MockComponent } from 'ng-mocks';
 import { of } from 'rxjs';
 import { StaffStateService } from '../../app/staff/staff-state.service';

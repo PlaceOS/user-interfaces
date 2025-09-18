@@ -3,11 +3,12 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import {
     AsyncHandler,
+    OrganisationService,
+    Region,
     TIMEZONES_IANA,
     getInvalidFields,
     notifyError,
 } from '@placeos/common';
-import { OrganisationService, Region } from '@placeos/organisation';
 import { addZone, authority, updateZone } from '@placeos/ts-client';
 
 @Component({

@@ -1,15 +1,12 @@
 import { Component, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
-
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { isMobileSafari, SettingsService } from '@placeos/common';
+import { AssetGroup, isMobileSafari, SettingsService } from '@placeos/common';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-
 import { AssetStateService } from '../asset-state.service';
-import { AssetGroup } from '../asset.class';
 import { NewAssetDetailsComponent } from './new-asset-details.component';
 import { NewAssetFiltersDisplayComponent } from './new-asset-filters-display.component';
 import { NewAssetFiltersComponent } from './new-asset-filters.component';

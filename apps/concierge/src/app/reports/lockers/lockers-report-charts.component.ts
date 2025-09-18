@@ -11,10 +11,10 @@ import {
     AsyncHandler,
     flatten,
     nextValueFrom,
+    OrganisationService,
     SettingsService,
     unique,
 } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
 import { LineChart, PieChart } from 'chartist';
 import { format, parse } from 'date-fns';
 import { combineLatest } from 'rxjs';

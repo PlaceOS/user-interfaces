@@ -1,8 +1,11 @@
 import { Component, inject, input } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { SettingsService, formatDuration } from '@placeos/common';
+import {
+    OrganisationService,
+    SettingsService,
+    formatDuration,
+} from '@placeos/common';
 import { EventFormService } from '@placeos/events';
-import { OrganisationService } from '@placeos/organisation';
 import {
     addDays,
     addMinutes,

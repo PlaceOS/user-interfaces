@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { Booking, updateBooking } from '@placeos/bookings';
-import { i18n, notifyError, notifySuccess } from '@placeos/common';
+import { updateBooking } from '@placeos/bookings';
+import { Booking, i18n, notifyError, notifySuccess } from '@placeos/common';
 
 @Component({
     selector: 'visitor-notes-modal',

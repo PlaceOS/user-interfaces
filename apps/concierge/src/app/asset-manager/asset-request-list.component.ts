@@ -1,7 +1,10 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { Booking } from '@placeos/bookings';
-import { AsyncHandler, SettingsService } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import {
+    AsyncHandler,
+    Booking,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
 import { startOfDay } from 'date-fns';
 import { map } from 'rxjs/operators';
 import { AssetManagerStateService } from './asset-manager-state.service';

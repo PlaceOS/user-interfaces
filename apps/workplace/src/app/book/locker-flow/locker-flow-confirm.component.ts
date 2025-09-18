@@ -7,7 +7,7 @@ import {
     nextValueFrom,
     notifyError,
 } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { OrganisationService } from '@placeos/common';
 
 @Component({
     selector: 'locker-flow-confirm',

@@ -7,8 +7,7 @@ import {
 } from '@angular/core';
 import { addMinutes, differenceInMinutes, format, startOfDay } from 'date-fns';
 
-import { SettingsService } from '@placeos/common';
-import { CalendarEvent } from '@placeos/events';
+import { CalendarEvent, SettingsService } from '@placeos/common';
 import { EventsStateService } from './events-state.service';
 
 const DAY_IN_MINUTES = 24 * 60;

@@ -1,7 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { nextValueFrom, SettingsService } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import {
+    nextValueFrom,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { debounceTime, map, shareReplay } from 'rxjs/operators';
 import { IconComponent } from './icon.component';

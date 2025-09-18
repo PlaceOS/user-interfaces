@@ -1,8 +1,11 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 import { Component, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { nextValueFrom, notifySuccess } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import {
+    nextValueFrom,
+    notifySuccess,
+    OrganisationService,
+} from '@placeos/common';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
 import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
 import { BehaviorSubject, combineLatest } from 'rxjs';

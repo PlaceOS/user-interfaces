@@ -2,14 +2,17 @@ import { Component, inject, viewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
-    Asset,
-    AssetPurchaseOrder,
     deleteAsset,
     deleteAssetPurchaseOrder,
     removeAssetRequests,
 } from '@placeos/assets';
-import { AsyncHandler, unique } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import {
+    Asset,
+    AssetPurchaseOrder,
+    AsyncHandler,
+    OrganisationService,
+    unique,
+} from '@placeos/common';
 import { addMinutes } from 'date-fns';
 import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
 import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';

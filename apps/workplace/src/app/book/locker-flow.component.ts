@@ -6,8 +6,12 @@ import {
     loadLockers,
     queryBookings,
 } from '@placeos/bookings';
-import { AsyncHandler, currentUser, SettingsService } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import {
+    AsyncHandler,
+    currentUser,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
 import { addHours, endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { combineLatest } from 'rxjs';
 import { map, shareReplay } from 'rxjs/operators';

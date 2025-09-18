@@ -8,8 +8,12 @@ import {
 } from '@angular/core';
 import { ReportsStateService } from '../reports-state.service';
 
-import { AsyncHandler, nextValueFrom, SettingsService } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import {
+    AsyncHandler,
+    nextValueFrom,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
 import { LineChart, PieChart } from 'chartist';
 import { format } from 'date-fns';
 import { combineLatest } from 'rxjs';

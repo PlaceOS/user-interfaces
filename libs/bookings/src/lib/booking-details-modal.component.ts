@@ -1,11 +1,17 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
 import {
     MAT_DIALOG_DATA,
     MatDialog,
     MatDialogModule,
 } from '@angular/material/dialog';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
+    Booking,
     formatDuration,
     formatRecurrence,
     fromBookingRecurrence,
@@ -15,25 +21,18 @@ import {
     SettingsService,
 } from '@placeos/common';
 import { addMinutes, format } from 'date-fns';
+import { lastValueFrom } from 'rxjs';
 
-import { MapLocateModalComponent } from 'libs/components/src/lib/map-locate-modal.component';
-import { MapPinComponent } from 'libs/components/src/lib/map-pin.component';
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
-import { Booking } from './booking.class';
-import { checkinBooking, checkinBookingInstance } from './bookings.fn';
-
-import { CommonModule } from '@angular/common';
-import { MatRippleModule } from '@angular/material/core';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatTooltipModule } from '@angular/material/tooltip';
+import { OrganisationService } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { ImageCarouselComponent } from 'libs/components/src/lib/image-carousel.component';
 import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
+import { MapLocateModalComponent } from 'libs/components/src/lib/map-locate-modal.component';
+import { MapPinComponent } from 'libs/components/src/lib/map-pin.component';
 import { StatusPillComponent } from 'libs/components/src/lib/status-pill.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { UserPipe } from 'libs/users/src/lib/user.pipe';
-import { lastValueFrom } from 'rxjs';
+import { checkinBooking, checkinBookingInstance } from './bookings.fn';
 import { DeskSettingsModalComponent } from './desk-settings-modal.component';
 
 @Component({

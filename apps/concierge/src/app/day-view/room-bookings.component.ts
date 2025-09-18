@@ -4,9 +4,9 @@ import {
     AsyncHandler,
     i18n,
     nextValueFrom,
+    OrganisationService,
     SettingsService,
 } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
 import { combineLatest } from 'rxjs';
 import { debounceTime, filter, map } from 'rxjs/operators';
 import { EventsStateService } from './events-state.service';

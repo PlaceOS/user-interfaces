@@ -1,9 +1,15 @@
 import { Injectable } from '@angular/core';
-import { HashMap, i18n, notifyError, notifySuccess } from '@placeos/common';
+import {
+    Booking,
+    GuestUser,
+    HashMap,
+    i18n,
+    notifyError,
+    notifySuccess,
+} from '@placeos/common';
 import { addMinutes, getUnixTime, isSameDay } from 'date-fns';
 import { BehaviorSubject, lastValueFrom } from 'rxjs';
 
-import { Booking } from 'libs/bookings/src/lib/booking.class';
 import {
     checkinBooking,
     queryAllBookings,
@@ -13,7 +19,6 @@ import {
 } from 'libs/bookings/src/lib/bookings.fn';
 import { SpacePipe } from 'libs/events/src/lib/space.pipe';
 import { showGuest } from 'libs/users/src/lib/guests.fn';
-import { GuestUser } from 'libs/users/src/lib/user.class';
 import { generateGuestForm } from 'libs/users/src/lib/user.utilities';
 
 @Injectable({

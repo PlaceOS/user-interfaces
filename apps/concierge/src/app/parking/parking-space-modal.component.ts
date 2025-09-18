@@ -1,8 +1,8 @@
 import { Component, EventEmitter, inject, OnInit, Output } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { DialogEvent } from '@placeos/common';
-import { showStaff, User } from '@placeos/users';
+import { DialogEvent, User } from '@placeos/common';
+import { showStaff } from '@placeos/users';
 import { ParkingSpace } from './parking-state.service';
 
 @Component({

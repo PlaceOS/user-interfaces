@@ -4,10 +4,10 @@ import { querySystems } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import { debounceTime, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 
+import { OrganisationService } from '@placeos/common';
 import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 
-import { Space } from 'libs/events/src/lib/space.class';
+import { Space } from '@placeos/common';
 
 @Component({
     selector: '[app-bootstrap]',

@@ -6,12 +6,12 @@ import { debounceTime, map } from 'rxjs/operators';
 import {
     AsyncHandler,
     firstTruthyValueFrom,
+    OrganisationService,
     SettingsService,
 } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
 
 import { generateQRCode } from 'libs/common/src/lib/qr-code';
-import { CalendarEvent } from 'libs/events/src/lib/event.class';
+import { CalendarEvent } from '@placeos/common';
 import { PanelStateService } from './panel-state.service';
 
 @Component({

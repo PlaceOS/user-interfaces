@@ -1,6 +1,9 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { AsyncHandler, SettingsService } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import {
+    AsyncHandler,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
 
 @Component({
     selector: 'footer-menu',

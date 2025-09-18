@@ -2,8 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { Router, UrlTree } from '@angular/router';
 import { first } from 'rxjs/operators';
 
-import { SettingsService } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { OrganisationService, SettingsService } from '@placeos/common';
 
 export abstract class PLACEOS_APP_ACCESS {
     public readonly group: string;

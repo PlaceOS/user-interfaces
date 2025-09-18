@@ -1,7 +1,7 @@
-import { randomInt } from '@placeos/common';
-
 import { addDays, addMinutes, set, startOfDay, startOfMinute } from 'date-fns';
-import { Booking } from 'libs/bookings/src/lib/booking.class';
+
+import { randomInt } from '../general';
+import { Booking } from './booking.class';
 
 export type AssetStatus =
     | 'in_storage'

@@ -1,5 +1,6 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { searchStaff, StaffUser } from '@placeos/users';
+import { StaffUser } from '@placeos/common';
+import { searchStaff } from '@placeos/users';
 import { Observable, of } from 'rxjs';
 import { catchError, map, shareReplay } from 'rxjs/operators';
 

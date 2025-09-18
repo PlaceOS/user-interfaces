@@ -1,6 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { SettingsService } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { OrganisationService, SettingsService } from '@placeos/common';
 import { startOfMinute } from 'date-fns';
 import { debounceTime, map } from 'rxjs/operators';
 

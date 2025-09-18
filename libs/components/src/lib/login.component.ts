@@ -6,8 +6,7 @@ import {
     viewChild,
 } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { SettingsService } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { OrganisationService, SettingsService } from '@placeos/common';
 import { debounceTime, first, map } from 'rxjs/operators';
 
 @Component({

@@ -15,7 +15,7 @@ import {
     SettingsService,
 } from '@placeos/common';
 import { AvailableRoomsStateModalComponent } from '@placeos/components';
-import { OrganisationService } from '@placeos/organisation';
+import { OrganisationService } from '@placeos/common';
 import { combineLatest } from 'rxjs';
 
 @Component({

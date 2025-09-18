@@ -4,7 +4,7 @@ import { AsyncHandler, currentUser } from '@placeos/common';
 import { ChatService } from 'libs/components/src/lib/chat/chat.service';
 import { first, map, tap } from 'rxjs/operators';
 
-import { OrganisationService } from '@placeos/organisation';
+import { OrganisationService } from '@placeos/common';
 import * as tf from '@tensorflow/tfjs';
 
 declare let loadVosklet: any;

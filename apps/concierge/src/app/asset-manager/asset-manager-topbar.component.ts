@@ -4,10 +4,10 @@ import {
     AsyncHandler,
     nextValueFrom,
     notifySuccess,
+    OrganisationService,
     SettingsService,
 } from '@placeos/common';
 import { AvailableRoomsStateModalComponent } from '@placeos/components';
-import { OrganisationService } from '@placeos/organisation';
 import { AssetManagerStateService } from './asset-manager-state.service';
 
 @Component({

@@ -6,6 +6,7 @@ import {
 } from '@angular/material/dialog';
 import {
     SettingsService,
+    WorktimePreference,
     i18n,
     nextValueFrom,
     notifyError,
@@ -20,7 +21,6 @@ import {
     updateMetadata,
     updateSettings,
 } from '@placeos/ts-client';
-import { WorktimePreference } from '@placeos/users';
 import {
     set,
     setDay,
@@ -29,10 +29,12 @@ import {
     startOfDay,
     startOfMinute,
 } from 'date-fns';
-import * as yaml from 'js-yaml';
-import { WFHSettingsModalComponent } from 'libs/users/src/lib/wfh-settings-modal.component';
 import { lastValueFrom } from 'rxjs';
 import { map } from 'rxjs/operators';
+
+import { WFHSettingsModalComponent } from 'libs/users/src/lib/wfh-settings-modal.component';
+
+import * as yaml from 'js-yaml';
 
 @Component({
     selector: 'auto-release-modal',

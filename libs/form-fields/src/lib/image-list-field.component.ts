@@ -25,12 +25,14 @@ import {
     nextValueFrom,
     notifyInfo,
     unique,
+    UPLOAD_PERMISSIONS_MODAL,
     UploadsService,
 } from '@placeos/common';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { ImageViewerComponent } from 'libs/components/src/lib/image-viewer.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-permissions-modal.component';
 
 export interface UploadDetails {
     /** Unique ID for the upload */
@@ -217,6 +219,10 @@ export interface UploadDetails {
             provide: NG_VALUE_ACCESSOR,
             useExisting: forwardRef(() => ImageListFieldComponent),
             multi: true,
+        },
+        {
+            provide: UPLOAD_PERMISSIONS_MODAL,
+            useValue: UploadPermissionsModalComponent,
         },
     ],
     imports: [

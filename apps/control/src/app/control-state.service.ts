@@ -18,16 +18,16 @@ import { Router } from '@angular/router';
 import {
     AsyncHandler,
     Calendar,
-    CalendarService,
+    CalendarEvent,
     currentUser,
     HashMap,
     log,
     nextValueFrom,
+    Space,
 } from '@placeos/common';
 import { endOfDay, getUnixTime } from 'date-fns';
-import { CalendarEvent } from 'libs/events/src/lib/event.class';
+import { CalendarService } from 'libs/events/src/lib/calendar.service';
 import { queryEvents } from 'libs/events/src/lib/events.fn';
-import { Space } from 'libs/events/src/lib/space.class';
 import { SpacesService } from 'libs/events/src/lib/spaces.service';
 import { HelpModalComponent } from './ui/help-modal.component';
 import { SelectMeetingModalComponent } from './ui/select-meeting-modal.component';

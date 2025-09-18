@@ -12,8 +12,8 @@ import {
     SettingsService,
     nextValueFrom,
     notifyError,
+    scanForQRCode,
 } from '@placeos/common';
-import decodeQR from 'qr/decode.js';
 
 import { CheckinStateService } from './checkin-state.service';
 
@@ -145,13 +145,13 @@ export class CheckinQRScanComponent
                 .getTracks()
                 .forEach((track) => track?.stop());
         }
-        this._stopQRReader();
+        this.unsub('scan_for_qr_code');
     }
 
     public async checkQRCode(raw_text: string) {
         if (this.checking_code) return;
         this.timeout('check_qr_code', async () => {
-            this._stopQRReader();
+            this.unsub('scan_for_qr_code');
             this.checking_code = true;
             const chunks = raw_text.split(',');
             let [visit_block, system_id, event_id, host_email] = chunks;
@@ -225,86 +225,33 @@ export class CheckinQRScanComponent
 
     private setupQRReader() {
         this.timeout('setup_qr_reader', () => {
-            const _video_el = this._video_el();
-            if (!_video_el?.nativeElement) return this.setupQRReader();
-            if (
-                navigator.mediaDevices?.getUserMedia &&
-                !_video_el.nativeElement.srcObject
-            ) {
+            const _video_el = this._video_el()?.nativeElement;
+            if (!_video_el) return this.setupQRReader();
+            if (navigator.mediaDevices?.getUserMedia && !_video_el.srcObject) {
                 navigator.mediaDevices
                     .getUserMedia({ video: true })
                     .then((stream) => {
-                        this._video_el().nativeElement.srcObject = stream;
-                        this._startQRScanning();
+                        _video_el.srcObject = stream;
+                        this.subscription(
+                            'scan_for_qr_code',
+                            scanForQRCode(_video_el).subscribe({
+                                next: (qr_code) =>
+                                    qr_code ? this.checkQRCode(qr_code) : null,
+                                error: (error: any) =>
+                                    console.error(
+                                        'Error scanning QR code:',
+                                        error,
+                                    ),
+                            }),
+                        );
                     })
                     .catch((e) =>
                         console.error('Unable to fetch media devices!', e),
                     );
-            } else if (_video_el.nativeElement.srcObject) {
-                this._startQRScanning();
+            } else if (_video_el.srcObject) {
+                this.unsub('scan_for_qr_code');
             }
         });
-    }
-
-    private _startQRScanning() {
-        const _video_el = this._video_el();
-        if (!_video_el?.nativeElement) return;
-
-        // Create canvas for image processing
-        if (!this._canvas) {
-            this._canvas = document.createElement('canvas');
-            const ctx = this._canvas.getContext('2d');
-            if (!ctx) {
-                console.error('Unable to get 2D context for QR scanning');
-                return;
-            }
-            this._ctx = ctx;
-        }
-
-        // Start scanning loop
-        this.interval('scan_frame', () => this._scanFrame());
-    }
-
-    private _scanFrame() {
-        const _video_el = this._video_el();
-        if (!_video_el?.nativeElement || this.checking_code) return;
-
-        const video = _video_el.nativeElement;
-        if (video.videoWidth === 0 || video.videoHeight === 0) return;
-
-        // Set canvas size to video size
-        this._canvas.width = video.videoWidth;
-        this._canvas.height = video.videoHeight;
-
-        // Draw current video frame to canvas
-        this._ctx.drawImage(video, 0, 0);
-
-        try {
-            // Get image data
-            const imageData = this._ctx.getImageData(
-                0,
-                0,
-                this._canvas.width,
-                this._canvas.height,
-            );
-
-            // Create image object for qr library
-            const image = {
-                height: imageData.height,
-                width: imageData.width,
-                data: imageData.data,
-            };
-
-            // Try to decode QR code
-            const result = decodeQR(image);
-            if (result) this.checkQRCode(result);
-        } catch (error) {
-            // Ignore decoding errors - they're expected when no QR code is present
-        }
-    }
-
-    private _stopQRReader() {
-        this.clearInterval('scan_frame');
     }
 
     private handleError(message: any) {

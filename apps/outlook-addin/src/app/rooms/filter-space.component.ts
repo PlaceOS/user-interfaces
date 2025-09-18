@@ -4,8 +4,8 @@ import {
     MAT_BOTTOM_SHEET_DATA,
     MatBottomSheetRef,
 } from '@angular/material/bottom-sheet';
+import { OrganisationService } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
-import { OrganisationService } from '@placeos/organisation';
 import { Observable } from 'rxjs';
 import { FeaturesFilterService } from './features-filter.service';
 

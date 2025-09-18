@@ -1,6 +1,6 @@
 import { Pipe } from '@angular/core';
+import { StaffUser, User } from '@placeos/common';
 import { showUser } from '@placeos/ts-client';
-import { StaffUser, User } from '../../../users/src/lib/user.class';
 
 const USER_LIST: User[] = [];
 

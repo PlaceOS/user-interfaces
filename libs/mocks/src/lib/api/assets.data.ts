@@ -1,5 +1,5 @@
+import { Asset } from '@placeos/common';
 import { getUnixTime } from 'date-fns';
-import { Asset } from 'libs/assets/src/lib/asset.class';
 
 export const MOCK_CATEGORIES = [
     { id: '1', name: 'Technology' },

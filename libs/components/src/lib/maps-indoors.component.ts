@@ -13,6 +13,8 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
     AsyncHandler,
+    BuildingLevel,
+    MapService,
     MapsPeopleService,
     calculateDistance,
     i18n,
@@ -22,8 +24,7 @@ import {
     notifyWarn,
     randomString,
 } from '@placeos/common';
-import { BuildingLevel, OrganisationService } from '@placeos/organisation';
-import { MapService } from 'libs/common/src/lib/mapspeople.service';
+import { OrganisationService } from '@placeos/common';
 import { MapMetadata } from './interactive-map.component';
 
 declare let mapsindoors: any;

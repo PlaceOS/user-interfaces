@@ -1,6 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { AsyncHandler, flatten } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { AsyncHandler, flatten, OrganisationService } from '@placeos/common';
 import { showMetadata } from '@placeos/ts-client';
 import {
     catchError,

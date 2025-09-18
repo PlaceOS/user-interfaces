@@ -2,11 +2,12 @@ import { Component, OnInit, inject } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import {
     AsyncHandler,
+    BuildingLevel,
     MapsPeopleService,
+    OrganisationService,
     nextValueFrom,
     unique,
 } from '@placeos/common';
-import { BuildingLevel, OrganisationService } from '@placeos/organisation';
 import { Rect } from '@placeos/svg-viewer/dist/types';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import { debounceTime, map, shareReplay, switchMap, tap } from 'rxjs/operators';

@@ -14,8 +14,8 @@ jest.mock('@placeos/common');
 
 import * as booking_mod from '@placeos/bookings';
 import * as common_mod from '@placeos/common';
+import { OrganisationService } from '@placeos/common';
 import * as event_mod from '@placeos/events';
-import { OrganisationService } from '@placeos/organisation';
 
 describe('VisitorStateService', () => {
     let spectator: SpectatorService<VisitorsStateService>;

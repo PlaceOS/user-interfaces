@@ -1,9 +1,8 @@
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { SettingsService } from '@placeos/common';
+import { OrganisationService, SettingsService } from '@placeos/common';
 import { Space } from '@placeos/events';
-import { OrganisationService } from '@placeos/organisation';
 import {
     MockComponent,
     MockDirective,

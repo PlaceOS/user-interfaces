@@ -1,14 +1,15 @@
 import { Component, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
-
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { SettingsService } from '@placeos/common';
+import {
+    CateringItem,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
 
-import { OrganisationService } from '@placeos/organisation';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { CateringItem } from '../catering-item.class';
 import { CateringOrderStateService } from '../catering-order-modal/catering-order-state.service';
 import { NewCateringItemDetailsComponent } from './new-catering-item-details.component';
 import { NewCateringItemFiltersComponent } from './new-catering-item-filters.component';

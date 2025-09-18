@@ -1,8 +1,8 @@
 import { Component, OnInit, input } from '@angular/core';
-
 import { MatRippleModule } from '@angular/material/core';
+import { CateringItem } from '@placeos/common';
+
 import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { CateringItem } from './catering-item.class';
 
 const ACTIVE_ITEMS = new Set<string>();
 

@@ -19,27 +19,27 @@ import {
 
 import {
     AsyncHandler,
+    Booking,
+    CalendarEvent,
+    CateringOrder,
     currentUser,
     flatten,
     SettingsService,
     unique,
 } from '@placeos/common';
-import { Booking } from 'libs/bookings/src/lib/booking.class';
+
+import { OrganisationService } from '@placeos/common';
 import {
     queryBookings,
     updateBooking,
 } from 'libs/bookings/src/lib/bookings.fn';
-import { CalendarEvent } from 'libs/events/src/lib/event.class';
 import {
     queryEvents,
     showEventMetadata,
     updateEventMetadata,
 } from 'libs/events/src/lib/events.fn';
 import { SpacePipe } from 'libs/events/src/lib/space.pipe';
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
-
 import { newCalendarEventFromBooking } from 'libs/events/src/lib/utilities';
-import { CateringOrder } from './catering-order.class';
 import { CateringOrderStatus } from './catering.interfaces';
 
 export interface CateringOrderFilters {

@@ -3,7 +3,7 @@ import { debounceTime, map } from 'rxjs/operators';
 
 import { ActivatedRoute } from '@angular/router';
 import { AsyncHandler, SettingsService } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { OrganisationService } from '@placeos/common';
 import { ReportsStateService } from '../reports-state.service';
 
 @Component({

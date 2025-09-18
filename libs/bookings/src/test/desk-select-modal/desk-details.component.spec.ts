@@ -1,5 +1,5 @@
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { Desk } from '@placeos/organisation';
+import { Desk } from '@placeos/common';
 import { MockComponent } from 'ng-mocks';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';

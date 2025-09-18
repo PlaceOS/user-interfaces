@@ -4,18 +4,20 @@ import {
     MatDialog,
     MatDialogRef,
 } from '@angular/material/dialog';
-import { Booking, BookingFormService, Locker } from '@placeos/bookings';
+import { BookingFormService, Locker } from '@placeos/bookings';
 import {
     AsyncHandler,
+    Booking,
+    BuildingLevel,
     currentUser,
     getInvalidFields,
     i18n,
     notifyError,
     notifySuccess,
+    OrganisationService,
     SettingsService,
+    User,
 } from '@placeos/common';
-import { BuildingLevel, OrganisationService } from '@placeos/organisation';
-import { User } from '@placeos/users';
 import { addDays, endOfDay } from 'date-fns';
 import { combineLatest } from 'rxjs';
 

@@ -5,6 +5,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { StaffUser } from '@placeos/common';
 import { queryUsers } from '@placeos/ts-client';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
@@ -16,7 +17,6 @@ import {
     startWith,
     switchMap,
 } from 'rxjs/operators';
-import { StaffUser } from './user.class';
 
 @Component({
     selector: `select-user-modal`,

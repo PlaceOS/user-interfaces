@@ -2,8 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { first } from 'rxjs/operators';
 
-import { SettingsService } from '@placeos/common';
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
+import { OrganisationService, SettingsService } from '@placeos/common';
 
 @Component({
     selector: 'page-redirect',

@@ -1,7 +1,7 @@
 import { Component, input } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
-import { User } from '../user.class';
+import { User } from '@placeos/common';
 
 export interface AvailabilityBlock {
     date: number;

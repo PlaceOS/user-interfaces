@@ -1,4 +1,4 @@
-import { Building, BuildingLevel } from '@placeos/organisation';
+import { Building, BuildingLevel } from '@placeos/common';
 import { getUnixTime } from 'date-fns';
 import { MapLocation } from '../lib/location.class';
 

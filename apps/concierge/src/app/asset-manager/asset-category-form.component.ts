@@ -1,11 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import {
-    AssetCategory,
-    generateAssetCategoryForm,
-    saveAssetCategory,
-} from '@placeos/assets';
-import { i18n, notifyError } from '@placeos/common';
+import { generateAssetCategoryForm, saveAssetCategory } from '@placeos/assets';
+import { AssetCategory, i18n, notifyError } from '@placeos/common';
 import { map } from 'rxjs/operators';
 import { AssetManagerStateService } from './asset-manager-state.service';
 

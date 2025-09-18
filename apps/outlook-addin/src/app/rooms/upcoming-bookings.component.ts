@@ -1,6 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { AsyncHandler, currentUser } from '@placeos/common';
-import { CalendarEvent } from '@placeos/events';
+import { AsyncHandler, CalendarEvent, currentUser } from '@placeos/common';
 
 import { ScheduleStateService } from 'apps/workplace/src/app/schedule/schedule-state.service';
 import { startOfMinute } from 'date-fns';

@@ -1,8 +1,11 @@
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
-import { nextValueFrom, SettingsService } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import {
+    nextValueFrom,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { InviteVisitorModalComponent } from './invite-visitor-modal.component';

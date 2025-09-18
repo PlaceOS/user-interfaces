@@ -1,10 +1,8 @@
-import { Booking } from '@placeos/bookings';
-import { HashMap } from '@placeos/common';
-import { CalendarEvent } from '@placeos/events';
+import { Booking, CalendarEvent, HashMap } from '@placeos/common';
 
 export function generateReportForDeskBookings(
     bookings: Booking[],
-    util_period: number = 1,
+    util_period = 1,
     counts: HashMap<number> = {},
 ) {
     util_period = Math.max(1, util_period);
@@ -22,7 +20,7 @@ export function generateReportForDeskBookings(
 
 export function generateReportForBookings(
     bookings: CalendarEvent[],
-    util_period: number = 8,
+    util_period = 8,
     counts: HashMap<number> = {},
 ) {
     util_period = Math.max(1, util_period);

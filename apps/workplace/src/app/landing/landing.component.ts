@@ -1,8 +1,13 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { AsyncHandler, SettingsService, userSignal } from '@placeos/common';
-import { Building, OrganisationService } from '@placeos/organisation';
+import {
+    AsyncHandler,
+    Building,
+    settingSignal,
+    SettingsService,
+    userSignal,
+} from '@placeos/common';
+import { OrganisationService } from '@placeos/common';
 import { startOfMinute } from 'date-fns';
-import { settingSignal } from 'libs/common/src/lib/settings.service';
 import { debounceTime } from 'rxjs';
 
 @Component({

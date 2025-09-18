@@ -1,9 +1,15 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { Router } from '@angular/router';
-import { AsyncHandler, HashMap, i18n, nextValueFrom } from '@placeos/common';
-import { EventFormService, Space, SpacesService } from '@placeos/events';
-import { OrganisationService } from '@placeos/organisation';
+import {
+    AsyncHandler,
+    HashMap,
+    OrganisationService,
+    Space,
+    i18n,
+    nextValueFrom,
+} from '@placeos/common';
+import { EventFormService, SpacesService } from '@placeos/events';
 import { ViewAction, ViewerFeature, ViewerStyles } from '@placeos/svg-viewer';
 import { BehaviorSubject, Observable, combineLatest, of } from 'rxjs';
 import { filter, first, map, tap } from 'rxjs/operators';

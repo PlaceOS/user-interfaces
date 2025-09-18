@@ -6,8 +6,12 @@ import {
     output,
     viewChild,
 } from '@angular/core';
-import { AsyncHandler, i18n, SettingsService } from '@placeos/common';
-import { CalendarEvent } from '@placeos/events';
+import {
+    AsyncHandler,
+    CalendarEvent,
+    i18n,
+    SettingsService,
+} from '@placeos/common';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { EventsStateService } from './events-state.service';

@@ -7,15 +7,18 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
-import { DialogEvent, SettingsService } from '@placeos/common';
+import {
+    BuildingLevel,
+    Desk,
+    DialogEvent,
+    SettingsService,
+    User,
+} from '@placeos/common';
+
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { DateFieldComponent } from 'libs/form-fields/src/lib/date-field.component';
 import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-field.component';
-
-import { Desk } from 'libs/organisation/src/lib/desk.class';
-import { BuildingLevel } from 'libs/organisation/src/lib/level.class';
-import { User } from 'libs/users/src/lib/user.class';
 
 export interface DeskConfirmModalData {
     host: User;

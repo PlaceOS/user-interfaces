@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { flatten, notifySuccess } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { flatten, notifySuccess, OrganisationService } from '@placeos/common';
 import {
     queryAnswers,
     queryQuestions,

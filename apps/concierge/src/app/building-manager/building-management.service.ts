@@ -1,7 +1,12 @@
 import { Injectable, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { i18n, notifyError, notifySuccess } from '@placeos/common';
-import { Building, OrganisationService } from '@placeos/organisation';
+import {
+    Building,
+    OrganisationService,
+    i18n,
+    notifyError,
+    notifySuccess,
+} from '@placeos/common';
 import { PlaceZone, removeZone } from '@placeos/ts-client';
 import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
 import { BehaviorSubject, combineLatest } from 'rxjs';

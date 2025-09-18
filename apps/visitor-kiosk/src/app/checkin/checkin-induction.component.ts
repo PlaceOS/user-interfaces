@@ -1,12 +1,12 @@
 import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import {
+    OrganisationService,
     SettingsService,
     notifyError,
     notifyInfo,
     notifySuccess,
 } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
 import { first } from 'rxjs/operators';
 import { CheckinStateService } from './checkin-state.service';
 

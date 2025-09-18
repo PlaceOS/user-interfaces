@@ -2,7 +2,7 @@ import { Component, inject, model } from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { BookingFormService } from '@placeos/bookings';
 import { AsyncHandler, SettingsService, notifyError } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { OrganisationService } from '@placeos/common';
 
 @Component({
     selector: 'parking-flow-confirm',

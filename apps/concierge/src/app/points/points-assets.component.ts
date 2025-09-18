@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { OrganisationService } from '@placeos/organisation';
+import { OrganisationService } from '@placeos/common';
 import { PointsStateService } from './points-state.service';
 
 export interface CustomRate {

@@ -1,12 +1,11 @@
 import { Component, inject } from '@angular/core';
 import { BookingFormService } from '@placeos/bookings';
+import { OrganisationService, SettingsService } from '@placeos/common';
 import {
     generateCalendarFileLink,
     generateGoogleCalendarLink,
     generateMicrosoftCalendarLink,
-    SettingsService,
-} from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+} from 'libs/events/src/lib/calendar-links';
 
 @Component({
     selector: 'parking-flow-success',

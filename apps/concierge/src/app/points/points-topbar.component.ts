@@ -1,6 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { AsyncHandler } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { AsyncHandler, OrganisationService } from '@placeos/common';
 import { first } from 'rxjs/operators';
 
 @Component({

@@ -1,18 +1,19 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { BookingFormService } from '@placeos/bookings';
-import { firstTruthyValueFrom, SettingsService } from '@placeos/common';
 import {
     Building,
     BuildingLevel,
+    firstTruthyValueFrom,
     OrganisationService,
-} from '@placeos/organisation';
+    SettingsService,
+} from '@placeos/common';
+import { BuildingPipe } from 'libs/components/src/lib/building.pipe';
+import { LevelPipe } from 'libs/components/src/lib/level.pipe';
 import {
     generateCalendarFileLink,
     generateGoogleCalendarLink,
     generateMicrosoftCalendarLink,
-} from 'libs/common/src/lib/calendar-links';
-import { BuildingPipe } from 'libs/components/src/lib/building.pipe';
-import { LevelPipe } from 'libs/components/src/lib/level.pipe';
+} from 'libs/events/src/lib/calendar-links';
 
 @Component({
     selector: 'desk-flow-success',

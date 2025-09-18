@@ -4,7 +4,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SpectatorRouting, createRoutingFactory } from '@ngneat/spectator/jest';
-import { OrganisationService } from '@placeos/organisation';
+import { OrganisationService } from '@placeos/common';
 import { BehaviorSubject, of } from 'rxjs';
 
 import { MockProvider } from 'ng-mocks';

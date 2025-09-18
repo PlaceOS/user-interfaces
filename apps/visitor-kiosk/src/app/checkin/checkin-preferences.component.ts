@@ -1,18 +1,7 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { lastValueFrom, of } from 'rxjs';
-
-import {
-    AsyncHandler,
-    i18n,
-    log,
-    nextValueFrom,
-    notifyError,
-    notifySuccess,
-    SettingsService,
-} from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
 import { setToken, showMetadata } from '@placeos/ts-client';
+import { lastValueFrom, of } from 'rxjs';
 import {
     catchError,
     filter,
@@ -24,12 +13,20 @@ import {
 } from 'rxjs/operators';
 
 import {
+    AsyncHandler,
     Booking,
+    CateringItem,
+    CateringOrder,
+    i18n,
     LinkedCalendarEvent,
-} from 'libs/bookings/src/lib/booking.class';
+    log,
+    nextValueFrom,
+    notifyError,
+    notifySuccess,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
 import { saveBooking, updateBooking } from 'libs/bookings/src/lib/bookings.fn';
-import { CateringItem } from 'libs/catering/src/lib/catering-item.class';
-import { CateringOrder } from 'libs/catering/src/lib/catering-order.class';
 import {
     showEventMetadata,
     updateEventMetadata,

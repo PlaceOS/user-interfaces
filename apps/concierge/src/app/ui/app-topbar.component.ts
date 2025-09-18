@@ -1,7 +1,10 @@
 import { Component, inject } from '@angular/core';
-import { SettingsService, currentUser } from '@placeos/common';
+import {
+    OrganisationService,
+    SettingsService,
+    currentUser,
+} from '@placeos/common';
 import { UserControlsComponent } from '@placeos/components';
-import { OrganisationService } from '@placeos/organisation';
 
 @Component({
     selector: 'app-topbar',

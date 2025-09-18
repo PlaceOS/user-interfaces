@@ -1,6 +1,11 @@
 import { Component, inject } from '@angular/core';
-import { currentUser, i18n, notifyError, notifySuccess } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import {
+    currentUser,
+    i18n,
+    notifyError,
+    notifySuccess,
+    OrganisationService,
+} from '@placeos/common';
 import {
     EmailTemplate,
     EmailTemplatesFilters,

@@ -11,6 +11,7 @@ import {
     i18n,
     notifyError,
     unique,
+    User,
 } from '@placeos/common';
 import { getModule, showMetadata } from '@placeos/ts-client';
 import { differenceInDays, startOfDay } from 'date-fns';
@@ -37,7 +38,12 @@ import {
     tap,
 } from 'rxjs/operators';
 
-import { AssetRequest } from 'libs/assets/src/lib/asset-request.class';
+import {
+    AssetRequest,
+    CalendarEvent,
+    OrganisationService,
+    Space,
+} from '@placeos/common';
 import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
 import { validateAssetRequestsForResource } from 'libs/assets/src/lib/assets.fn';
 import { newBookingFromCalendarEvent } from 'libs/bookings/src/lib/booking.utilities';
@@ -46,14 +52,9 @@ import {
     queryResourceAvailability,
     saveBooking,
 } from 'libs/bookings/src/lib/bookings.fn';
-import { Space } from 'libs/events/src/lib/space.class';
 import { SpacePipe } from 'libs/events/src/lib/space.pipe';
 import { requestSpacesForZone } from 'libs/events/src/lib/space.utilities';
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { PaymentsService } from 'libs/payments/src/lib/payments.service';
-import { User } from 'libs/users/src/lib/user.class';
-
-import { CalendarEvent } from './event.class';
 import {
     querySpaceAvailability,
     removeEvent,

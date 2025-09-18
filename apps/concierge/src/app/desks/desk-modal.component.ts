@@ -5,9 +5,16 @@ import {
     MatDialog,
     MatDialogRef,
 } from '@angular/material/dialog';
-import { DialogEvent, notifyInfo, randomString, unique } from '@placeos/common';
-import { Desk, OrganisationService } from '@placeos/organisation';
-import { showStaff, User } from '@placeos/users';
+import {
+    Desk,
+    DialogEvent,
+    notifyInfo,
+    OrganisationService,
+    randomString,
+    unique,
+    User,
+} from '@placeos/common';
+import { showStaff } from '@placeos/users';
 import { lastValueFrom } from 'rxjs';
 import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.component';
 

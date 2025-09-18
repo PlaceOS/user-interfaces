@@ -1,6 +1,6 @@
 import { MatDialog } from '@angular/material/dialog';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
-import { Desk, OrganisationService } from '@placeos/organisation';
+import { Desk, OrganisationService } from '@placeos/common';
 
 import { DesksService } from '../lib/desk.service';
 

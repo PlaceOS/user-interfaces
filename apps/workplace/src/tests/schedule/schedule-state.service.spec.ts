@@ -2,8 +2,8 @@ import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
 import { MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
+import { OrganisationService } from '@placeos/common';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { ScheduleStateService } from '../../app/schedule/schedule-state.service';
 
 describe('ScheduleStateService', () => {

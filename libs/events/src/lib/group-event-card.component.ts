@@ -1,18 +1,16 @@
-import { Component, inject, input } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
-import { SettingsService } from '@placeos/common';
-
 import { CommonModule } from '@angular/common';
+import { Component, inject, input } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
+import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
+import { CalendarEvent, SettingsService, Space } from '@placeos/common';
+
+import { OrganisationService } from '@placeos/common';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { Space } from 'libs/events/src/lib/space.class';
 import { SpacePipe } from 'libs/events/src/lib/space.pipe';
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
-import { CalendarEvent } from './event.class';
 import { GroupEventDetailsModalComponent } from './group-event-details-modal.component';
 
 @Component({

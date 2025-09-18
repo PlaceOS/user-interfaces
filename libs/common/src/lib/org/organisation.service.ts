@@ -12,7 +12,7 @@ import {
     queryZones,
     showMetadata,
 } from '@placeos/ts-client';
-import { BehaviorSubject, combineLatest, of } from 'rxjs';
+import { BehaviorSubject, combineLatest, lastValueFrom, of } from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -22,15 +22,17 @@ import {
     shareReplay,
 } from 'rxjs/operators';
 
-import { notifyError } from 'libs/common/src/lib/notifications';
-import { RoomConfiguration } from 'libs/common/src/lib/room-configuration.interface';
-import { SettingsService } from 'libs/common/src/lib/settings.service';
-
-import { log, unique } from '@placeos/common';
-import { Building } from './building.class';
-import { BuildingLevel } from './level.class';
-import { Organisation } from './organisation.class';
-import { Region } from './region.class';
+import {
+    Building,
+    BuildingLevel,
+    Organisation,
+    Region,
+    SettingsService,
+    log,
+    mapLastValueFrom,
+    notifyError,
+    unique,
+} from '@placeos/common';
 
 import * as yaml from 'js-yaml';
 
@@ -357,8 +359,8 @@ export class OrganisationService {
             }
         }, 1000);
         if (window.debug) {
-            if (!window.application) window.application = {};
-            window.application.orgs = this;
+            if (!window.app) window.app = {};
+            window.app.org = this;
         }
         this._initialised.next(true);
     }
@@ -392,9 +394,11 @@ export class OrganisationService {
      * Load organisation data for application
      */
     public async loadOrganisation(): Promise<void> {
-        const org_list = await queryZones({ tags: 'org' })
-            .pipe(map((i) => i.data))
-            .toPromise();
+        const org_list = await mapLastValueFrom(
+            queryZones({ tags: 'org' }),
+            (i) => i.data,
+        );
+        console.log('Orgs:', org_list);
         if (org_list.length) {
             const auth = authority();
             const org =
@@ -404,11 +408,11 @@ export class OrganisationService {
 
             const load_metadata = !this._service.get('dont_load_metadata');
             const bindings: Record<string, any> = (
-                await (
+                await lastValueFrom(
                     load_metadata
                         ? showMetadata(org.id, 'bindings')
-                        : of({ details: {} })
-                ).toPromise()
+                        : of({ details: {} }),
+                )
             )?.details;
             this._organisation = new Organisation({ ...org, bindings });
         } else {
@@ -444,8 +448,8 @@ export class OrganisationService {
             ? showMetadata(region.id, 'bindings')
             : of(new PlaceMetadata());
         const [settings, bindings, buildings]: any = await Promise.all([
-            settings_request.pipe(map((_) => _?.details)).toPromise(),
-            bindings_request.pipe(map((_) => _?.details)).toPromise(),
+            mapLastValueFrom(settings_request, (_) => _?.details),
+            mapLastValueFrom(bindings_request, (_) => _?.details),
             this.loadBuildings(region.id),
         ]);
         this._buildings.next(
@@ -462,13 +466,13 @@ export class OrganisationService {
     public async loadBuildings(
         parent_id: string = this._organisation?.id,
     ): Promise<Building[]> {
-        const building_list = await queryZones({
-            tags: 'building',
-            parent_id,
-            limit: 500,
-        } as any)
-            .pipe(map((i) => i.data.map((_) => new Building(_))))
-            .toPromise();
+        const building_list = await lastValueFrom(
+            queryZones({
+                tags: 'building',
+                parent_id,
+                limit: 500,
+            } as any).pipe(map((i) => i.data.map((_) => new Building(_)))),
+        );
         return building_list;
     }
 
@@ -476,29 +480,29 @@ export class OrganisationService {
         if (!bld || this._loaded_data[bld.id]) return;
         const [settings, bindings, booking_rules, driver_settings]: any =
             await Promise.all([
-                showMetadata(bld.id, this.app_key)
-                    .pipe(
+                lastValueFrom(
+                    showMetadata(bld.id, this.app_key).pipe(
                         map((_) => _?.details),
                         catchError(() => of({})),
-                    )
-                    .toPromise(),
-                showMetadata(bld.id, 'bindings')
-                    .pipe(
+                    ),
+                ),
+                lastValueFrom(
+                    showMetadata(bld.id, 'bindings').pipe(
                         map((_) => _?.details),
                         catchError(() => of({})),
-                    )
-                    .toPromise(),
-                showMetadata(bld.id, 'booking_rules')
-                    .pipe(
+                    ),
+                ),
+                lastValueFrom(
+                    showMetadata(bld.id, 'booking_rules').pipe(
                         map((_) => _?.details),
                         catchError(() => of({})),
-                    )
-                    .toPromise(),
-                (this.app_key.includes('concierge')
-                    ? querySettings({ parent_id: bld.id })
-                    : of({ data: {} as any })
-                )
-                    .pipe(
+                    ),
+                ),
+                lastValueFrom(
+                    (this.app_key.includes('concierge')
+                        ? querySettings({ parent_id: bld.id })
+                        : of({ data: {} as any })
+                    ).pipe(
                         catchError(() => of({ data: {} as any })),
                         map((_) => {
                             try {
@@ -513,8 +517,8 @@ export class OrganisationService {
                                 return {};
                             }
                         }),
-                    )
-                    .toPromise(),
+                    ),
+                ),
             ]);
         this._building_settings[bld.id] = {
             ...(driver_settings || {}),
@@ -530,13 +534,13 @@ export class OrganisationService {
      * Load levels data for the buildings
      */
     public async loadLevels(): Promise<void> {
-        let level_list = await queryZones({
-            tags: 'level',
-            authority_id: authority().id,
-            limit: 2500,
-        } as any)
-            .pipe(map((i) => i.data))
-            .toPromise();
+        let level_list = await lastValueFrom(
+            queryZones({
+                tags: 'level',
+                authority_id: authority().id,
+                limit: 2500,
+            } as any).pipe(map((i) => i.data)),
+        );
         level_list = level_list.filter((_) => _.parent_id);
         if (!level_list?.length) {
             this._router.navigate(['/misconfigured']);
@@ -548,20 +552,17 @@ export class OrganisationService {
         this._levels.next(levels);
     }
 
-    public get available_room_configs(): RoomConfiguration[] {
-        return this.buildings
-            .map((m) => [...m.room_configurations])
-            .reduce((prev, curr) => prev.concat(curr), [])
-            .sort((a, b) => a.name.localeCompare(b.name));
-    }
-
     public async loadSettings() {
         if (!this._organisation) return;
         const app_settings = (
-            await showMetadata(this._organisation?.id, this.app_key).toPromise()
+            await lastValueFrom(
+                showMetadata(this._organisation?.id, this.app_key),
+            )
         )?.details;
         const global_settings = (
-            await showMetadata(this._organisation?.id, 'settings').toPromise()
+            await lastValueFrom(
+                showMetadata(this._organisation?.id, 'settings'),
+            )
         )?.details;
         this._settings = [global_settings, app_settings];
         this._service.overrides = [...this._settings];

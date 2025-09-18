@@ -1,6 +1,6 @@
 import { MatDialog } from '@angular/material/dialog';
 import { SpectatorService, createServiceFactory } from '@ngneat/spectator/jest';
-import { OrganisationService } from '@placeos/organisation';
+import { OrganisationService } from '@placeos/common';
 import { of } from 'rxjs';
 
 import { SettingsService } from '@placeos/common';

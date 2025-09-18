@@ -1,8 +1,11 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AsyncHandler, SettingsService } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import {
+    AsyncHandler,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
 import { combineLatest } from 'rxjs';
 import { first, map } from 'rxjs/operators';
 import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';

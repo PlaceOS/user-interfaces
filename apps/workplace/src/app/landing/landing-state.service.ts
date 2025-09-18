@@ -29,18 +29,21 @@ import {
 import {
     AsyncHandler,
     BookingRuleset,
+    BuildingLevel,
     currentUser,
     filterResourcesFromRules,
     firstTruthyValueFrom,
     HashMap,
+    OrganisationService,
     SettingsService,
+    StaffUser,
     unique,
+    User,
 } from '@placeos/common';
 import { requestSpacesForZone } from '@placeos/events';
-import { BuildingLevel, OrganisationService } from '@placeos/organisation';
-import { searchStaff, StaffUser, User } from '@placeos/users';
+import { searchStaff } from '@placeos/users';
 import { isSameDay } from 'date-fns';
-import { CalendarService } from 'libs/common/src/lib/calendar.service';
+import { CalendarService } from 'libs/events/src/lib/calendar.service';
 import { ScheduleStateService } from '../schedule/schedule-state.service';
 
 export interface LandingOptions {

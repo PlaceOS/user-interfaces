@@ -1,13 +1,11 @@
-import {
-    Identity,
-    LinkedBooking,
-    removeEmptyFields,
-    unique,
-} from '@placeos/common';
 import { PlaceSystem } from '@placeos/ts-client';
 import {
     add,
+    addDays,
     addMinutes,
+    addMonths,
+    addWeeks,
+    addYears,
     differenceInMinutes,
     endOfDay,
     format,
@@ -18,20 +16,21 @@ import {
     roundToNearestMinutes,
     startOfDay,
 } from 'date-fns';
-import { AssetRequest } from 'libs/assets/src/lib/asset-request.class';
-import { CateringOrder } from 'libs/catering/src/lib/catering-order.class';
-import { Space } from 'libs/events/src/lib/space.class';
-import { GuestUser, User } from 'libs/users/src/lib/user.class';
-import {
-    EventExtensionData,
-    FileDetails,
-    RecurrenceDetails,
-} from './event.interfaces';
-import { eventStatus, parseRecurrence } from './helpers';
+import { RecurrenceDetails } from '../formatting';
+import { removeEmptyFields, unique } from '../general';
+import { LinkedBooking } from '../types';
+import { AssetRequest } from './asset-request.class';
+import { CateringOrder } from './catering.class';
+import { Space } from './space.class';
+import { GuestUser, User } from './user.class';
 
-let _default_user: Identity = { id: 'default', name: 'Default User' };
+let _default_user = {
+    id: 'default',
+    name: 'Default User',
+    email: 'default@example.com',
+} as User;
 
-export function setDefaultCreator(user: Identity) {
+export function setDefaultCreator(user: User) {
     if (user) _default_user = user;
 }
 
@@ -44,10 +43,193 @@ const DAYS_OF_WEEK = [
     'friday',
     'saturday',
 ];
+export interface FileDetails {
+    /** Name of the file */
+    name: string;
+
+    /** Blob contents of the file */
+    blob: Blob;
+}
+
+export interface EventExtensionData {
+    /** Whether event is cleaned */
+    cleaned?: boolean;
+    /** Catering */
+    catering?: CateringOrder[];
+    /** List of assets assigned to event */
+    assets?: AssetRequest[];
+    /** Parking */
+    needs_parking?: boolean;
+    /** Configuration */
+    configuration?: any;
+    /** Notes */
+    notes?: EventNote[];
+    /** Catergorisation of external attendees in the event */
+    visitor_type?: string;
+    /** List of remote attendees */
+    remote?: string[];
+    /** URL to a meeting/call associated with the booking */
+    meeting_link: string;
+    /** URL to a meeting/call associated with the booking */
+    online_meeting_url: string;
+    /** URL to a meeting/call associated with the booking */
+    online_meeting_id: string;
+    /** URL to a meeting/call associated with the booking */
+    online_meeting_provider: string;
+    /** Email to override the host of the event with */
+    host_override: string;
+    /** Name of the organisational department of the host */
+    department: string;
+    event_type?: string;
+    /** Event category */
+    category?: string;
+    /** List of tags associated with the event */
+    tags?: string[];
+    system_id?: string;
+    event_id?: string;
+    /** Whether event is featured */
+    featured?: boolean;
+    /** Whether the event is in-person, online or both */
+    attendance_type?: 'ONLINE' | 'ONSITE' | 'ANY';
+    /** List of image URLs associated with the event */
+    images?: string[];
+    /** Whether the event is a shared group event */
+    shared_event?: boolean;
+    /** Access level of the event */
+    view_access: 'PRIVATE' | 'OPEN' | 'PUBLIC';
+}
+
+export interface EventListQueryParams {
+    /** Comma seperated list of zone ids to filter the events on */
+    zone_ids?: string;
+    /** Comma seperated list of systems ids to grab events from  */
+    system_ids?: string;
+    /** Comma seperated list of calendars to grab events from */
+    calendars?: string;
+    /** Minimum capacity required */
+    capacity?: number;
+    /** Comma seperated list of features to filter for */
+    features?: string;
+    /** Unix epoch start time in seconds */
+    period_start?: number;
+    /** Unix epoch end time in seconds */
+    period_end?: number;
+}
+
+export interface EventShowQueryParams {
+    /** Calendar that the event is associated with  */
+    calendar?: string;
+    /** System that the event is associated with  */
+    system_id?: string;
+}
+
+export interface EventDeleteQueryParams extends EventShowQueryParams {
+    /** Whether attendees should be notified of this action. Defaults to `true` */
+    notify?: boolean;
+}
+
+export interface EventNote {
+    /** Type of note */
+    type?: 'equipment' | 'catering' | 'description' | 'private' | 'other';
+    /** Name of the note's author */
+    author: string;
+    /** Contents of the note */
+    message: string;
+    /** Time the note was added to the event */
+    date: number;
+    /** Display value for the time */
+    time?: string;
+    /** ID of the space associated with the note */
+    space?: string;
+    /** ID of the catering order associated with the note */
+    order_id?: string;
+}
+
+export interface TimeBlock {
+    start: number;
+    end: number;
+}
+
+export interface TimePeriod extends Record<string, any> {
+    date: number;
+    duration: number;
+    setup_time?: number;
+    breakdown_time?: number;
+}
 
 type CalendarEventExtended = CalendarEvent & EventExtensionData;
 
 type Visibility = 'normal' | 'personal' | 'public' | 'private' | 'confidential';
+
+export function eventStatus(
+    details: Record<string, any>,
+): 'approved' | 'tentative' | 'declined' {
+    if (details.status === 'cancelled') return 'declined';
+    if (details.resources?.length) {
+        if (
+            details.resources.every(
+                (i) => i.response_status === 'accepted' || details.approved,
+            )
+        ) {
+            return 'approved';
+        } else if (
+            details.resources.some(
+                (i) =>
+                    i.response_status === 'tentative' ||
+                    i.response_status === 'needsAction',
+            )
+        ) {
+            return 'tentative';
+        }
+        return 'declined';
+    }
+    return 'approved';
+}
+
+export function parseRecurrence(data: RecurrenceDetails) {
+    const start = data.start || (data as any).range_start * 1000;
+    let end = data.end || (data as any).range_end;
+    if (data.occurrences > 1) {
+        switch (data.pattern) {
+            case 'daily':
+                end = addDays(
+                    start || Date.now(),
+                    (data.occurrences - 1) * data.interval,
+                ).valueOf();
+                break;
+            case 'weekly':
+                end = addWeeks(
+                    start || Date.now(),
+                    (data.occurrences - 1) * data.interval,
+                ).valueOf();
+                break;
+            case 'month_day':
+            case 'monthly':
+                end = addMonths(
+                    start || Date.now(),
+                    (data.occurrences - 1) * data.interval,
+                ).valueOf();
+                end = addDays(end, 7).valueOf();
+                break;
+            case 'yearly':
+                end = addYears(
+                    start || Date.now(),
+                    (data.occurrences - 1) * data.interval,
+                ).valueOf();
+                break;
+        }
+    }
+    return {
+        range_start: getUnixTime(startOfDay(start)),
+        range_end: getUnixTime(endOfDay(end)),
+        interval: data.interval,
+        pattern: data.pattern,
+        days_of_week:
+            data.days_of_week?.map((_) =>
+                typeof _ === 'number' ? DAYS_OF_WEEK[_] : _,
+            ) || [],
+    };
+}
 
 /** User's calendar event/booking */
 export class CalendarEvent {

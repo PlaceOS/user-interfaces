@@ -1,15 +1,20 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, InjectionToken, Type, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { BehaviorSubject } from 'rxjs';
 
-import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-permissions-modal.component';
+import { log } from './general';
 import { UploadDetails, UploadPermissions, uploadFile } from './uploads';
+
+export const UPLOAD_PERMISSIONS_MODAL = new InjectionToken<Type<any>>(
+    'UploadPermissionsModalComponent',
+);
 
 @Injectable({
     providedIn: 'root',
 })
 export class UploadsService {
     private _dialog = inject(MatDialog);
+    private _permissions_modal = inject(UPLOAD_PERMISSIONS_MODAL);
 
     private _upload_list = new BehaviorSubject<UploadDetails[]>([]);
 
@@ -31,8 +36,17 @@ export class UploadsService {
     }
 
     public uploadFileWithPermissions(file: File, default_public = true) {
+        if (!this._permissions_modal) {
+            log(
+                'UPLOAD',
+                'Permissions modal not initialized',
+                undefined,
+                'warn',
+            );
+            return this.uploadFile(file, default_public);
+        }
         return new Promise<string>((resolve, reject) => {
-            const ref = this._dialog.open(UploadPermissionsModalComponent, {
+            const ref = this._dialog.open(this._permissions_modal, {
                 data: { file, is_public: default_public },
             });
             ref.afterClosed().subscribe(async (details) => {

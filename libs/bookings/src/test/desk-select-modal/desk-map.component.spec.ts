@@ -3,8 +3,12 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { BookingFormService } from '@placeos/bookings';
-import { MapsPeopleService, SettingsService } from '@placeos/common';
-import { Desk, OrganisationService } from '@placeos/organisation';
+import {
+    Desk,
+    MapsPeopleService,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { IndoorMapsComponent } from 'libs/components/src/lib/indoor-maps.component';
 import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';

@@ -1,7 +1,11 @@
 import { inject, Injectable } from '@angular/core';
-import { currentUser, SettingsService, unique } from '@placeos/common';
+import {
+    currentUser,
+    OrganisationService,
+    SettingsService,
+    unique,
+} from '@placeos/common';
 import { queryEvents } from '@placeos/events';
-import { OrganisationService } from '@placeos/organisation';
 import { querySystemsWithEmails } from '@placeos/ts-client';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';

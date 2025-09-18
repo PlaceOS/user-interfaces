@@ -6,14 +6,13 @@ import {
     MatDialogModule,
     MatDialogRef,
 } from '@angular/material/dialog';
-import { SettingsService } from '@placeos/common';
+import { SettingsService, Space } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import {
     EventFormOptions,
     EventFormService,
 } from 'libs/events/src/lib/new-event-form.service';
-import { Space } from '../space.class';
 import { SpaceDetailsComponent } from './space-details.component';
 import { SpaceFiltersDisplayComponent } from './space-filters-display.component';
 import { SpaceFiltersComponent } from './space-filters.component';

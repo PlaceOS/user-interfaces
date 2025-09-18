@@ -11,7 +11,7 @@ import { FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { BookingFormService, Locker } from '@placeos/bookings';
 import { AsyncHandler, SettingsService } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { OrganisationService } from '@placeos/common';
 import { combineLatest } from 'rxjs';
 import { first } from 'rxjs/operators';
 

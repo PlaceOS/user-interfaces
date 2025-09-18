@@ -17,7 +17,7 @@ import {
     notifyError,
     notifySuccess,
 } from '@placeos/common';
-import { Building, OrganisationService } from '@placeos/organisation';
+import { Building, OrganisationService } from '@placeos/common';
 import { addZone, authority, updateZone } from '@placeos/ts-client';
 
 @Component({

@@ -11,9 +11,9 @@ import {
     notifySuccess,
     rulesForResource,
     SettingsService,
+    StaffUser,
 } from '@placeos/common';
 import { PlaceZone, showMetadata } from '@placeos/ts-client';
-import { StaffUser } from '@placeos/users';
 import {
     addDays,
     endOfDay,
@@ -34,10 +34,10 @@ import {
     switchMap,
 } from 'rxjs/operators';
 
+import { OrganisationService } from '@placeos/common';
 import { BookingFormService } from 'libs/bookings/src/lib/booking-form.service';
 import { queryBookings } from 'libs/bookings/src/lib/bookings.fn';
 import { ParkingService } from 'libs/bookings/src/lib/parking.service';
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { ExploreParkingInfoComponent } from './explore-parking-info.component';
 import { DEFAULT_COLOURS } from './explore-spaces.service';
 import { ExploreStateService } from './explore-state.service';

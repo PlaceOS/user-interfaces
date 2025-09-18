@@ -1,7 +1,10 @@
-import { RoomConfiguration } from '@placeos/common';
-import { BuildingLevel } from 'libs/organisation/src/lib/level.class';
+import { BuildingLevel } from './org.classes';
 
-import { CalendarAvailability } from 'libs/common/src/lib/calendar.interfaces';
+interface CalendarAvailability {
+    duration: number;
+    date: number;
+    status: string;
+}
 
 export type ResourceResponseStatus =
     | 'needsAction'
@@ -30,8 +33,6 @@ export class Space {
     public readonly bookable: boolean;
     /** List of zones the spaces is associated with */
     public readonly zones: string[];
-    /** List of available room configurations for this room */
-    public readonly configurations: readonly RoomConfiguration[];
     /** Image url */
     public readonly images: string[];
     /** Status of the resource */
@@ -57,7 +58,6 @@ export class Space {
         this.support_url = data.support_url || '';
         this.map_id = data.map_id || '';
         this.images = data.images || [];
-        this.configurations = data.configurations || [];
         this.features = data.features || [];
         this.response_status = data.response_status || 'tentative';
         this.level = data.level || new BuildingLevel();

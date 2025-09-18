@@ -9,8 +9,10 @@ import {
     MapsPeopleService,
     nextValueFrom,
     notifyError,
+    OrganisationService,
     SettingsService,
     unique,
+    User,
 } from '@placeos/common';
 import {
     ExploreDesksService,
@@ -19,7 +21,6 @@ import {
     ExploreStateService,
     ExploreZonesService,
 } from '@placeos/explore';
-import { OrganisationService } from '@placeos/organisation';
 import { Point } from '@placeos/svg-viewer';
 import { getModule } from '@placeos/ts-client';
 import { startOfMinute } from 'date-fns';
@@ -30,7 +31,6 @@ import { SpacePipe } from 'libs/events/src/lib/space.pipe';
 import { SpacesService } from 'libs/events/src/lib/spaces.service';
 import { MapLocation } from 'libs/users/src/lib/location.class';
 import { showStaff } from 'libs/users/src/lib/staff.fn';
-import { User } from 'libs/users/src/lib/user.class';
 import { combineLatest } from 'rxjs';
 import { first, map } from 'rxjs/operators';
 

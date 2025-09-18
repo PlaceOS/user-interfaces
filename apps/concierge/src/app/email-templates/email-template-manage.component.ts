@@ -9,7 +9,7 @@ import {
     nextValueFrom,
     notifySuccess,
 } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { OrganisationService } from '@placeos/common';
 import {
     EmailTemplate,
     EmailTemplatesStateService,

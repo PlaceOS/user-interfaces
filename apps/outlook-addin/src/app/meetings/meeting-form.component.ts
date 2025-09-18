@@ -3,11 +3,12 @@ import { MatDialog } from '@angular/material/dialog';
 import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
     AsyncHandler,
+    Building,
     currentUser,
+    OrganisationService,
     SettingsService,
 } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
-import { Building, OrganisationService } from '@placeos/organisation';
 import { FindAvailabilityModalComponent } from '@placeos/users';
 
 @Component({

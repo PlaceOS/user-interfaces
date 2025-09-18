@@ -1,6 +1,7 @@
 import { Component, EventEmitter, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { AssetCategory, deleteAssetCategory } from '@placeos/assets';
+import { deleteAssetCategory } from '@placeos/assets';
+import { AssetCategory } from '@placeos/common';
 import { Observable } from 'rxjs';
 
 @Component({

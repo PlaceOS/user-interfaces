@@ -17,12 +17,12 @@ import {
     ViewerStyles,
 } from '@placeos/svg-viewer';
 
+import { OrganisationService } from '@placeos/common';
 import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
 import { log } from 'libs/common/src/lib/general';
 import { MapsPeopleService } from 'libs/common/src/lib/mapspeople.service';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { ExploreStateService } from 'libs/explore/src/lib/explore-state.service';
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { CiscoMapComponent } from './cisco-map.component';
 import { IconComponent } from './icon.component';
 import { MapRendererComponent } from './map-renderer.component';

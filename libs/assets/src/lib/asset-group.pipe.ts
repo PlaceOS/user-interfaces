@@ -1,7 +1,7 @@
 import { Pipe } from '@angular/core';
 
+import { AssetGroup } from '@placeos/common';
 import { lastValueFrom } from 'rxjs';
-import { AssetGroup } from './asset.class';
 import { showAssetGroup } from './assets.fn';
 
 const ASSET_GROUP_LIST: AssetGroup[] = [];

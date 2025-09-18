@@ -6,20 +6,22 @@ import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { validateAssetRequestsForResource } from '@placeos/assets';
-import { CateringItem, CateringOrder } from '@placeos/catering';
 import {
+    AssetRequest,
     AsyncHandler,
+    CateringItem,
+    CateringOrder,
+    OrganisationService,
     SettingsService,
+    Space,
     formatRecurrence,
     fromEventRecurrence,
     getTimezoneOffsetString,
     i18n,
     notifyError,
 } from '@placeos/common';
-import { EventFormService, Space } from '@placeos/events';
-import { OrganisationService } from '@placeos/organisation';
+import { EventFormService } from '@placeos/events';
 
-import { AssetRequest } from 'libs/assets/src/lib/asset-request.class';
 import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
 import { SpacePipe } from 'libs/events/src/lib/space.pipe';
 

@@ -5,20 +5,17 @@ import {
     ReactiveFormsModule,
     Validators,
 } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
-
-import { randomInt } from 'libs/common/src/lib/general';
-import { DialogEvent } from 'libs/common/src/lib/types';
-
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatRippleModule } from '@angular/material/core';
+import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { CateringItem, DialogEvent, randomInt } from '@placeos/common';
+
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { CateringItem } from './catering-item.class';
 import { CateringOption } from './catering.interfaces';
 
 export interface CateringItemOptionModalData {

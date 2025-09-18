@@ -1,15 +1,15 @@
 import { inject, Injectable } from '@angular/core';
-import { searchStaff, StaffUser } from '@placeos/users';
+import { searchStaff } from '@placeos/users';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 
+import { checkinBooking, queryBookings, saveBooking } from '@placeos/bookings';
 import {
+    AsyncHandler,
     Booking,
-    checkinBooking,
-    queryBookings,
-    saveBooking,
-} from '@placeos/bookings';
-import { AsyncHandler, timePeriodsIntersect } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+    OrganisationService,
+    StaffUser,
+    timePeriodsIntersect,
+} from '@placeos/common';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { map, shareReplay, switchMap } from 'rxjs/operators';
 

@@ -1,9 +1,6 @@
+import { localToTimezone, toQueryString, unique, User } from '@placeos/common';
 import { PlaceSystem } from '@placeos/ts-client';
 import { addDays, addMinutes, format } from 'date-fns';
-import { User } from 'libs/users/src/lib/user.class';
-import { toQueryString } from './api';
-import { unique } from './general';
-import { localToTimezone } from './timezone-helpers';
 
 export interface CalEvent {
     id?: string;

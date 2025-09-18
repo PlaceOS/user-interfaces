@@ -16,7 +16,7 @@ import {
     log,
     notifyError,
 } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { OrganisationService } from '@placeos/common';
 import { ViewAction, ViewerStyles } from '@placeos/svg-viewer';
 import { MapService } from 'libs/common/src/lib/mapspeople.service';
 import { combineLatest } from 'rxjs';

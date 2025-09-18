@@ -3,6 +3,8 @@ import { Component, OnInit, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
     AsyncHandler,
+    CalendarEvent,
+    OrganisationService,
     SettingsService,
     getTimezoneDifferenceInHours,
     getTimezoneOffsetString,
@@ -10,12 +12,10 @@ import {
     notifySuccess,
 } from '@placeos/common';
 import {
-    CalendarEvent,
     EventDetailsModalComponent,
     SetupBreakdownModalComponent,
     declineEvent,
 } from '@placeos/events';
-import { OrganisationService } from '@placeos/organisation';
 import {
     addHours,
     differenceInMinutes,

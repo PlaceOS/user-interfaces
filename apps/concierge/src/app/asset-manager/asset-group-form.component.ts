@@ -2,12 +2,16 @@ import { Component, inject, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
-    AssetCategory,
     generateAssetGroupForm,
     saveAssetGroup,
     showAssetGroup,
 } from '@placeos/assets';
-import { AsyncHandler, notifyError, unique } from '@placeos/common';
+import {
+    AssetCategory,
+    AsyncHandler,
+    notifyError,
+    unique,
+} from '@placeos/common';
 import { BehaviorSubject, combineLatest, lastValueFrom } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { AssetManagerStateService } from './asset-manager-state.service';

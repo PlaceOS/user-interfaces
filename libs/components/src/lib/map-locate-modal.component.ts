@@ -2,9 +2,11 @@ import { Component, OnInit, inject, output } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ViewerFeature, ViewerStyles } from '@placeos/svg-viewer';
 
-import { AsyncHandler } from '@placeos/common';
-import { BuildingLevel } from 'libs/organisation/src/lib/level.class';
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
+import {
+    AsyncHandler,
+    BuildingLevel,
+    OrganisationService,
+} from '@placeos/common';
 import { MapPinComponent } from './map-pin.component';
 
 export interface Locatable {

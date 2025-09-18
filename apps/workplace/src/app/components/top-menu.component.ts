@@ -14,7 +14,7 @@ import {
     i18n,
     SettingsService,
 } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { OrganisationService } from '@placeos/common';
 
 @Component({
     selector: 'top-menu',

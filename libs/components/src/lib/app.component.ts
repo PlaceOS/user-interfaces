@@ -17,6 +17,7 @@ import {
 import { addHours } from 'date-fns';
 import { first } from 'rxjs/operators';
 
+import { OrganisationService } from '@placeos/common';
 import { hasNewVersion, setupCache } from 'libs/common/src/lib/application';
 import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
 import { requestScreenWakeLock } from 'libs/common/src/lib/fixed-device-helpers';
@@ -41,7 +42,6 @@ import {
 import { setupPlace } from 'libs/common/src/lib/placeos';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { current_user, currentUser } from 'libs/common/src/lib/user-state';
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { setInternalUserDomain } from 'libs/users/src/lib/user.utilities';
 
 import {

@@ -1,9 +1,9 @@
 import { Component, inject } from '@angular/core';
 import { filter, map, startWith } from 'rxjs/operators';
 
-import { AsyncHandler } from '@placeos/common';
-import { Space, SpacesService } from '@placeos/events';
-import { OrganisationService } from '@placeos/organisation';
+import { AsyncHandler, Space } from '@placeos/common';
+import { SpacesService } from '@placeos/events';
+import { OrganisationService } from '@placeos/common';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 
 @Component({

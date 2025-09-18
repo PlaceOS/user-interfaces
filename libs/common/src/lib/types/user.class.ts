@@ -1,8 +1,14 @@
-import { i18n } from '@placeos/common';
 import { format } from 'date-fns';
-import { Booking } from 'libs/bookings/src/lib/booking.class';
-import { randomString } from 'libs/common/src/lib/general';
-import { USER_DOMAIN } from './user.utilities';
+
+import { randomString } from '../general';
+import { i18n } from '../locale.service';
+import { Booking } from './booking.class';
+
+export let USER_DOMAIN = '@dev.place.tech';
+
+export function setInternalUserDomain(domain: string) {
+    USER_DOMAIN = domain;
+}
 
 export interface Attachment {
     id?: string;

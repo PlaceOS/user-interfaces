@@ -1,7 +1,11 @@
 import { Injectable, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { flatten, notifyError, notifySuccess } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import {
+    OrganisationService,
+    flatten,
+    notifyError,
+    notifySuccess,
+} from '@placeos/common';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
 import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
 import { ExplorePointOfInterestModalComponent } from 'libs/explore/src/lib/explore-poi-modal.component';

@@ -1,7 +1,10 @@
 import { Component, inject, input } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { AsyncHandler, SettingsService } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import {
+    AsyncHandler,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
 import { addDays, endOfDay } from 'date-fns';
 
 @Component({

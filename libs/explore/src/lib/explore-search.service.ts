@@ -26,11 +26,14 @@ import {
     tap,
 } from 'rxjs/operators';
 
-import { Desk } from '@placeos/organisation';
-import { Space } from 'libs/events/src/lib/space.class';
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
+import {
+    Desk,
+    OrganisationService,
+    Space,
+    StaffUser,
+    User,
+} from '@placeos/common';
 import { searchStaff } from 'libs/users/src/lib/staff.fn';
-import { StaffUser, User } from 'libs/users/src/lib/user.class';
 import { ExploreStateService } from './explore-state.service';
 
 export interface PointOfInterest {

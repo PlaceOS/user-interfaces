@@ -15,11 +15,11 @@ import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 
+import { OrganisationService } from '@placeos/common';
 import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
 import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
 import { DEFAULT_COLOURS } from 'libs/explore/src/lib/explore-spaces.service';
 import { BuildingLevel } from 'libs/organisation/src/lib/level.class';
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 
 import { Space } from '../space.class';
 import { SpaceLocationPinComponent } from './space-location-pin.component';

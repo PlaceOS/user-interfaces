@@ -1,3 +1,4 @@
+import { CommonModule, DatePipe } from '@angular/common';
 import {
     Component,
     inject,
@@ -7,10 +8,13 @@ import {
     signal,
     SimpleChanges,
 } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import {
     AsyncHandler,
+    CalendarEvent,
     formatRecurrence,
     fromEventRecurrence,
     getTimezoneOffsetString,
@@ -19,17 +23,13 @@ import {
 } from '@placeos/common';
 import { format, isSameDay } from 'date-fns';
 
-import { CommonModule, DatePipe } from '@angular/common';
-import { MatRippleModule } from '@angular/material/core';
-import { MatTooltipModule } from '@angular/material/tooltip';
+import { OrganisationService } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { StatusPillComponent } from 'libs/components/src/lib/status-pill.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { UserAvatarComponent } from 'libs/components/src/lib/user-avatar.component';
 import { SpacePipe } from 'libs/events/src/lib/space.pipe';
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { EventDetailsModalComponent } from './event-details-modal.component';
-import { CalendarEvent } from './event.class';
 import { GroupEventDetailsModalComponent } from './group-event-details-modal.component';
 
 @Component({

@@ -1,12 +1,12 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import {
+    OrganisationService,
     SettingsService,
     i18n,
     notifyError,
     notifySuccess,
 } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
 import { lastValueFrom } from 'rxjs';
 

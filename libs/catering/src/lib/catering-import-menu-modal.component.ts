@@ -2,10 +2,15 @@ import { Component, EventEmitter, Output } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { csvToJson, DialogEvent, downloadFile } from '@placeos/common';
+import {
+    CateringItem,
+    csvToJson,
+    DialogEvent,
+    downloadFile,
+} from '@placeos/common';
+
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { CateringItem } from './catering-item.class';
 
 interface ImportItem {
     id: string;

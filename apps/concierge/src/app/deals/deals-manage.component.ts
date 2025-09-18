@@ -23,7 +23,7 @@ import {
     notifySuccess,
 } from '@placeos/common';
 import { DateFieldComponent } from '@placeos/form-fields';
-import { OrganisationService } from '@placeos/organisation';
+import { OrganisationService } from '@placeos/common';
 import { addMonths } from 'date-fns';
 
 import { UploadButtonComponent } from '../ui/app-settings/upload-button.component';

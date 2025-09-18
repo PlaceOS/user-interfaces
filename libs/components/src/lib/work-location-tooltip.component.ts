@@ -1,8 +1,12 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { currentUser, i18n, reloadUserData } from '@placeos/common';
+import {
+    WorktimePreference,
+    currentUser,
+    i18n,
+    reloadUserData,
+} from '@placeos/common';
 import { updateUser } from '@placeos/ts-client';
-import { WorktimePreference } from '@placeos/users';
 import {
     addDays,
     format,

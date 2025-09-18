@@ -1,8 +1,7 @@
+import { StaffUser, toQueryString } from '@placeos/common';
 import { get } from '@placeos/ts-client';
-import { toQueryString } from 'libs/common/src/lib/api';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { StaffUser } from './user.class';
 
 const STAFF_ENDPOINT = '/api/staff/v1/people';
 

@@ -3,18 +3,18 @@ import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import {
     AsyncHandler,
+    CalendarEvent,
+    OrganisationService,
     SettingsService,
     i18n,
     notifyError,
     notifySuccess,
 } from '@placeos/common';
 import {
-    CalendarEvent,
     GroupEventDetailsModalComponent,
     queryEvents,
     removeEvent,
 } from '@placeos/events';
-import { OrganisationService } from '@placeos/organisation';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
 import { BehaviorSubject, combineLatest } from 'rxjs';

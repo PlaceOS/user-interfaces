@@ -3,9 +3,9 @@ import { SettingsService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 import { BehaviorSubject, of } from 'rxjs';
 
+import { OrganisationService } from '@placeos/common';
 import { CalendarService } from 'libs/common/src/lib/calendar.service';
 import { Organisation } from 'libs/organisation/src/lib/organisation.class';
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { LandingStateService } from '../../app/landing/landing-state.service';
 import { ScheduleStateService } from '../../app/schedule/schedule-state.service';
 

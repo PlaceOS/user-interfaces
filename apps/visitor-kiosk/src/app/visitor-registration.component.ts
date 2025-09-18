@@ -7,11 +7,11 @@ import {
     getInvalidFields,
     i18n,
     notifyError,
+    OrganisationService,
     SettingsService,
     unique,
+    User,
 } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
-import { User } from 'libs/users/src/lib/user.class';
 
 import { BookingFormService } from 'libs/bookings/src/lib/booking-form.service';
 import { CheckinStateService } from './checkin/checkin-state.service';

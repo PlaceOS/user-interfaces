@@ -6,8 +6,8 @@ import {
     firstTruthyValueFrom,
     i18n,
     Identity,
+    OrganisationService,
 } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
 import { PlaceSystem, querySystems } from '@placeos/ts-client';
 import { of } from 'rxjs';
 import {

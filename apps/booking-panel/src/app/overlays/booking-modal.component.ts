@@ -9,10 +9,10 @@ import {
     HashMap,
     i18n,
     notifyError,
+    Space,
+    User,
 } from '@placeos/common';
-import { Space } from '@placeos/events';
 import { getModule } from '@placeos/ts-client';
-import { User } from '@placeos/users';
 import { lastValueFrom, of } from 'rxjs';
 import { first, shareReplay, switchMap } from 'rxjs/operators';
 

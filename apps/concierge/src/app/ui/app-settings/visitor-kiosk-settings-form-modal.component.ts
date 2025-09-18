@@ -4,10 +4,10 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import {
     currentUser,
     notifySuccess,
+    OrganisationService,
     SettingsService,
     VERSION,
 } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
 import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
 import { map } from 'rxjs/operators';
 

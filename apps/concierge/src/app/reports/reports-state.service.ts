@@ -1,23 +1,21 @@
 import { formatDate } from '@angular/common';
 import { inject, Injectable } from '@angular/core';
-import { Booking, queryAllBookings } from '@placeos/bookings';
+import { queryAllBookings } from '@placeos/bookings';
 import {
+    Booking,
+    CalendarEvent,
     downloadFile,
     flatten,
     HashMap,
     i18n,
     jsonToCsv,
     notifyError,
+    OrganisationService,
     SettingsService,
     timePeriodsIntersect,
     unique,
 } from '@placeos/common';
-import {
-    CalendarEvent,
-    queryAllEvents,
-    requestSpacesForZone,
-} from '@placeos/events';
-import { OrganisationService } from '@placeos/organisation';
+import { queryAllEvents, requestSpacesForZone } from '@placeos/events';
 import { showMetadata } from '@placeos/ts-client';
 import {
     addDays,

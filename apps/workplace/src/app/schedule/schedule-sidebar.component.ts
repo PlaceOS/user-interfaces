@@ -1,6 +1,9 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { AsyncHandler, SettingsService } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import {
+    AsyncHandler,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
 import { isSameDay, startOfDay } from 'date-fns';
 import { debounceTime, filter, map } from 'rxjs/operators';
 import {

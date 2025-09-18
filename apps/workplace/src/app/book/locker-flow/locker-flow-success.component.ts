@@ -1,12 +1,11 @@
 import { Component, inject } from '@angular/core';
 import { BookingFormService } from '@placeos/bookings';
-import { SettingsService } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { OrganisationService, SettingsService } from '@placeos/common';
 import {
     generateCalendarFileLink,
     generateGoogleCalendarLink,
     generateMicrosoftCalendarLink,
-} from 'libs/common/src/lib/calendar-links';
+} from 'libs/events/src/lib/calendar-links';
 
 @Component({
     selector: 'locker-flow-success',

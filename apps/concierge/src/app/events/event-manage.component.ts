@@ -4,7 +4,13 @@ import { MatChipInputEvent } from '@angular/material/chips';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
     AsyncHandler,
+    Building,
+    BuildingLevel,
+    CalendarEvent,
+    OrganisationService,
     SettingsService,
+    Space,
+    StaffUser,
     TIMEZONES_IANA,
     currentUser,
     firstTruthyValueFrom,
@@ -14,19 +20,11 @@ import {
     unique,
 } from '@placeos/common';
 import {
-    CalendarEvent,
     EventFormService,
-    Space,
     SpacePipe,
     showEvent,
     showEventMetadata,
 } from '@placeos/events';
-import {
-    Building,
-    BuildingLevel,
-    OrganisationService,
-} from '@placeos/organisation';
-import { StaffUser } from '@placeos/users';
 import { differenceInMinutes, format, startOfDay } from 'date-fns';
 import { lastValueFrom } from 'rxjs';
 import { EventStateService } from './event-state.service';

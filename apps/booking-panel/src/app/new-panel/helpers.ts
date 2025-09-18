@@ -1,6 +1,6 @@
 import { addMinutes, differenceInSeconds, format } from 'date-fns';
 
-import { CalendarEvent } from 'libs/events/src/lib/event.class';
+import { CalendarEvent } from '@placeos/common';
 import { getNextFreeTimeSlot } from 'libs/events/src/lib/helpers';
 
 export function nextPeriod(next: CalendarEvent) {

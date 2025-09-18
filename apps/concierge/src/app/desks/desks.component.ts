@@ -3,6 +3,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import {
     AsyncHandler,
+    Desk,
+    OrganisationService,
     SettingsService,
     csvToJson,
     downloadFile,
@@ -12,7 +14,6 @@ import {
     notifyError,
     randomInt,
 } from '@placeos/common';
-import { Desk, OrganisationService } from '@placeos/organisation';
 
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';

@@ -1,9 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AsyncHandler } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { AsyncHandler, OrganisationService, Space } from '@placeos/common';
 import { querySystems } from '@placeos/ts-client';
-import { Space } from 'libs/events/src/lib/space.class';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import { debounceTime, map, shareReplay, switchMap } from 'rxjs/operators';
 

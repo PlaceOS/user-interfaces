@@ -5,9 +5,9 @@ import {
     AsyncHandler,
     firstTruthyValueFrom,
     nextValueFrom,
+    OrganisationService,
     SettingsService,
 } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
 
 import { MatDialog } from '@angular/material/dialog';
 import { lastValueFrom, timer } from 'rxjs';

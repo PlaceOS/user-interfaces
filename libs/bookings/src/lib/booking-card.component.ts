@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import {
     Component,
     OnChanges,
@@ -7,8 +8,10 @@ import {
     input,
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import {
+    Booking,
     SettingsService,
     currentUser,
     formatDuration,
@@ -19,16 +22,13 @@ import {
 import { addMinutes, format, isSameDay } from 'date-fns';
 import { map } from 'rxjs/operators';
 
-import { CommonModule } from '@angular/common';
-import { MatTooltipModule } from '@angular/material/tooltip';
+import { OrganisationService } from '@placeos/common';
 import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { StatusPillComponent } from 'libs/components/src/lib/status-pill.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { GroupEventDetailsModalComponent } from '../../../events/src/lib/group-event-details-modal.component';
 import { BookingDetailsModalComponent } from './booking-details-modal.component';
-import { Booking } from './booking.class';
 import { ParkingService } from './parking.service';
 
 @Component({

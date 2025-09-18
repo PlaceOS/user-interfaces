@@ -1,8 +1,12 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { currentUser, notifySuccess, SettingsService } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import {
+    currentUser,
+    notifySuccess,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
 import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
 import { map } from 'rxjs/operators';
 

@@ -1,7 +1,7 @@
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { OrganisationService } from '@placeos/common';
 import { SpacesService } from '@placeos/events';
-import { OrganisationService } from '@placeos/organisation';
 import { MockComponent } from 'ng-mocks';
 import { BehaviorSubject, of } from 'rxjs';
 

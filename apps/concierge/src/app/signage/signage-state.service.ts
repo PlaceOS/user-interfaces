@@ -1,13 +1,14 @@
 import { inject, Injectable } from '@angular/core';
 import {
     AsyncHandler,
+    Attachment,
     i18n,
     notifyError,
     notifySuccess,
+    OrganisationService,
     SettingsService,
     UploadsService,
 } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
 import {
     addSignageMedia,
     addSignagePlaylist,
@@ -27,7 +28,6 @@ import {
     updateSignagePlaylistMedia,
     updateSystem,
 } from '@placeos/ts-client';
-import { Attachment } from '@placeos/users';
 import {
     BehaviorSubject,
     combineLatest,

@@ -15,7 +15,7 @@ import {
     notifyInfo,
     randomInt,
 } from '@placeos/common';
-import { Desk, OrganisationService } from '@placeos/organisation';
+import { Desk, OrganisationService } from '@placeos/common';
 import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
 import { DeskBookModalComponent } from './desk-book-modal.component';
 import { DesksStateService } from './desks-state.service';

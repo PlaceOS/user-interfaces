@@ -4,13 +4,13 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { Router } from '@angular/router';
 import { SpectatorRouting, createRoutingFactory } from '@ngneat/spectator/jest';
-import { nextValueFrom } from '@placeos/common';
 import {
     Building,
     BuildingLevel,
     OrganisationService,
     Region,
-} from '@placeos/organisation';
+    nextValueFrom,
+} from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 import { BehaviorSubject, of } from 'rxjs';
 import { BootstrapComponent } from '../app/bootstrap.component';

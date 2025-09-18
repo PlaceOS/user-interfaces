@@ -5,9 +5,9 @@ import {
     i18n,
     notifySuccess,
     SettingsService,
+    User,
 } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
-import { User } from '@placeos/users';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { LandingStateService } from './landing-state.service';

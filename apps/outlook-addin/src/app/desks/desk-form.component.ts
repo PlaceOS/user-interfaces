@@ -1,7 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { BookingFormService } from '@placeos/bookings';
-import { AsyncHandler, SettingsService } from '@placeos/common';
-import { Desk } from '@placeos/organisation';
+import { AsyncHandler, Desk, SettingsService } from '@placeos/common';
 
 @Component({
     selector: 'desk-booking-form',

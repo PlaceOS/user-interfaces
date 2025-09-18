@@ -1,8 +1,13 @@
 import { Component, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { getInvalidFields, i18n, notifyError } from '@placeos/common';
-import { BuildingLevel, OrganisationService } from '@placeos/organisation';
+import {
+    BuildingLevel,
+    getInvalidFields,
+    i18n,
+    notifyError,
+    OrganisationService,
+} from '@placeos/common';
 import { addZone, authority, updateZone } from '@placeos/ts-client';
 
 @Component({

@@ -3,6 +3,8 @@ import { Component, ElementRef, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
     AsyncHandler,
+    Desk,
+    OrganisationService,
     SettingsService,
     csvToJson,
     i18n,
@@ -12,7 +14,6 @@ import {
     notifySuccess,
     randomInt,
 } from '@placeos/common';
-import { Desk, OrganisationService } from '@placeos/organisation';
 import { updateMetadata } from '@placeos/ts-client';
 import { generateQRCode } from 'libs/common/src/lib/qr-code';
 import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';

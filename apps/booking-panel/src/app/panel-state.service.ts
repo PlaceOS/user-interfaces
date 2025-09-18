@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { OrganisationService } from '@placeos/organisation';
+import { OrganisationService } from '@placeos/common';
 import {
     connectionState,
     getModule,
@@ -31,11 +31,11 @@ import {
     notifySuccess,
     notifyWarn,
     SettingsService,
+    Space,
     timePeriodsIntersect,
 } from '@placeos/common';
-import { CalendarEvent } from 'libs/events/src/lib/event.class';
+import { CalendarEvent } from '@placeos/common';
 import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
-import { Space } from 'libs/events/src/lib/space.class';
 import { SpacesService } from 'libs/events/src/lib/spaces.service';
 
 import {

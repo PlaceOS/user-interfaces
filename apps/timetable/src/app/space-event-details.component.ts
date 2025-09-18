@@ -1,5 +1,5 @@
 import { Component, computed, input } from '@angular/core';
-import { CalendarEvent } from '@placeos/events';
+import { CalendarEvent } from '@placeos/common';
 import { getHours, getMinutes } from 'date-fns';
 
 @Component({

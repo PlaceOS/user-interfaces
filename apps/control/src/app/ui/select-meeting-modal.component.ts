@@ -3,7 +3,7 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { i18n, notifySuccess } from '@placeos/common';
 import { format } from 'date-fns';
 import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
-import { CalendarEvent } from 'libs/events/src/lib/event.class';
+import { CalendarEvent } from '@placeos/common';
 import { ControlStateService } from '../control-state.service';
 
 @Component({

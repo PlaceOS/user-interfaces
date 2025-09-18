@@ -5,7 +5,7 @@ import {
     ExploreStateService,
     ExploreZonesService,
 } from '@placeos/explore';
-import { OrganisationService } from '@placeos/organisation';
+import { OrganisationService } from '@placeos/common';
 
 @Component({
     selector: 'explore-map-stack',

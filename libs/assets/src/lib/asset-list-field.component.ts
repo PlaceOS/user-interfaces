@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import {
     Component,
     SimpleChanges,
@@ -6,23 +7,23 @@ import {
     input,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { SettingsService } from 'libs/common/src/lib/settings.service';
-
-import { CommonModule } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
+    AssetItem,
+    AssetRequest,
+    SettingsService,
     i18n,
     notifyError,
     randomInt,
     randomString,
 } from '@placeos/common';
 import { endOfDay, startOfDay } from 'date-fns';
+
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { AssetItem, AssetRequest } from './asset-request.class';
 import { AssetStateService } from './asset-state.service';
 import { NewAssetSelectModalComponent } from './new-asset-select-modal/new-asset-select-modal.component';
 

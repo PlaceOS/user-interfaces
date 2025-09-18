@@ -6,6 +6,7 @@ import {
 } from '@angular/material/dialog';
 import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
+    CalendarEvent,
     DialogEvent,
     SettingsService,
     currentUser,
@@ -13,11 +14,12 @@ import {
     notifyError,
     notifySuccess,
 } from '@placeos/common';
-import { CalendarEvent, EventFormService } from '@placeos/events';
+import { EventFormService } from '@placeos/events';
 import { FindAvailabilityModalComponent } from '@placeos/users';
-import { CateringOrderStateService } from 'libs/catering/src/lib/catering-order-modal/catering-order-state.service';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
+
+import { CateringOrderStateService } from 'libs/catering/src/lib/catering-order-modal/catering-order-state.service';
 
 @Component({
     selector: 'event-book-modal',

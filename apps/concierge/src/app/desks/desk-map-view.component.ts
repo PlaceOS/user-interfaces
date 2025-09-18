@@ -1,8 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { ExploreDesksService, ExploreStateService } from '@placeos/explore';
 
-import { AsyncHandler } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { AsyncHandler, OrganisationService } from '@placeos/common';
 import { DesksStateService } from './desks-state.service';
 
 @Component({

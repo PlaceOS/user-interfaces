@@ -4,8 +4,12 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
 import { map } from 'rxjs/operators';
 
-import { currentUser, notifySuccess, SettingsService } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import {
+    currentUser,
+    notifySuccess,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
 
 import { validateURL } from '@placeos/events';
 import { DEFAULT_SETTINGS } from 'apps/workplace/src/environments/settings';

@@ -1,8 +1,12 @@
 import { differenceInMinutes } from 'date-fns';
 
-import { Space } from 'libs/events/src/lib/space.class';
+import { Space } from './space.class';
 
-import { CalendarAvailability } from './calendar.interfaces';
+export interface CalendarAvailability {
+    duration: number;
+    date: number;
+    status: string;
+}
 
 export class Calendar {
     /** ID of the calendar */

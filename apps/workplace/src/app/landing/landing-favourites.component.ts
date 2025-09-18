@@ -3,14 +3,15 @@ import { Router } from '@angular/router';
 import { BehaviorSubject, combineLatest, lastValueFrom } from 'rxjs';
 import { map, shareReplay, tap } from 'rxjs/operators';
 
+import { BookingFormService, FAV_PARKING_KEY } from '@placeos/bookings';
 import {
-    BookingFormService,
+    AsyncHandler,
     BookingType,
-    FAV_PARKING_KEY,
-} from '@placeos/bookings';
-import { AsyncHandler, SettingsService } from '@placeos/common';
-import { EventFormService, Space } from '@placeos/events';
-import { OrganisationService } from '@placeos/organisation';
+    OrganisationService,
+    SettingsService,
+    Space,
+} from '@placeos/common';
+import { EventFormService } from '@placeos/events';
 import { showMetadata } from '@placeos/ts-client';
 
 import { FAV_DESK_KEY } from 'libs/bookings/src/lib/desk-select-modal/desk-select-modal.component';

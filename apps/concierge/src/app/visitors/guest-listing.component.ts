@@ -2,21 +2,22 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { showMetadata } from '@placeos/ts-client';
 import { lastValueFrom } from 'rxjs';
 
-import { Booking, saveBooking } from '@placeos/bookings';
+import { MatDialog } from '@angular/material/dialog';
+import { saveBooking } from '@placeos/bookings';
 import {
     AsyncHandler,
+    Booking,
+    generateQRCode,
     getTimezoneOffsetString,
     i18n,
     notifyError,
     notifySuccess,
+    OrganisationService,
     SettingsService,
+    User,
 } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
-import { User } from '@placeos/users';
-import { UserLabelModalComponent } from 'libs/users/src/lib/user-label-modal.component';
 
-import { MatDialog } from '@angular/material/dialog';
-import { generateQRCode } from 'libs/common/src/lib/qr-code';
+import { UserLabelModalComponent } from 'libs/users/src/lib/user-label-modal.component';
 import { ParkingStateService } from '../parking/parking-state.service';
 import { VisitorsStateService } from './visitors-state.service';
 

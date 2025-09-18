@@ -5,7 +5,7 @@ import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
 import { EventFormService, generateEventForm } from '@placeos/events';
 import { UserListFieldComponent } from '@placeos/form-fields';
-import { OrganisationService } from '@placeos/organisation';
+import { OrganisationService } from '@placeos/common';
 import { MeetingFlowFormComponent } from 'apps/workplace/src/app/book/meeting-flow/meeting-flow-form.component';
 import { MeetingFormDetailsComponent } from 'apps/workplace/src/app/book/meeting-flow/meeting-form-details.component';
 import { AssetListFieldComponent } from 'libs/assets/src/lib/asset-list-field.component';

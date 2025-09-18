@@ -6,11 +6,11 @@ import {
     AsyncHandler,
     firstTruthyValueFrom,
     log,
+    OrganisationService,
     SettingsService,
 } from '@placeos/common';
 import { SpacesService } from '@placeos/events';
 import { ExploreParkingService, ExploreStateService } from '@placeos/explore';
-import { OrganisationService } from '@placeos/organisation';
 import { Point } from '@placeos/svg-viewer';
 
 import { VirtualKeyboardComponent } from 'libs/components/src/lib/virtual-keyboard.component';

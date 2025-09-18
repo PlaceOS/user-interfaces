@@ -1,9 +1,11 @@
 import { Component, inject, input } from '@angular/core';
 import { addMinutes, format } from 'date-fns';
 
-import { SettingsService } from '@placeos/common';
-import { CalendarEvent } from '@placeos/events';
-import { OrganisationService } from '@placeos/organisation';
+import {
+    CalendarEvent,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
 import { EventsStateService } from '../day-view/events-state.service';
 
 @Component({

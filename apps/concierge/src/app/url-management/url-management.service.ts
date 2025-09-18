@@ -5,10 +5,10 @@ import {
     i18n,
     notifyError,
     notifySuccess,
+    OrganisationService,
     queryShortURLs,
     ShortURL,
 } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
 import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { debounceTime, shareReplay, switchMap } from 'rxjs/operators';

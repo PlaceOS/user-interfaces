@@ -1,13 +1,15 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { AsyncHandler, Identity, SettingsService } from '@placeos/common';
 import {
+    AsyncHandler,
     Building,
     BuildingLevel,
+    Identity,
     OrganisationService,
     Region,
-} from '@placeos/organisation';
+    SettingsService,
+} from '@placeos/common';
 import { first } from 'rxjs/operators';
 
 import { VirtualKeyboardComponent } from 'libs/components/src/lib/virtual-keyboard.component';

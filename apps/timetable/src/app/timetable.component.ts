@@ -3,10 +3,11 @@ import { ActivatedRoute } from '@angular/router';
 import {
     AsyncHandler,
     firstTruthyValueFrom,
+    OrganisationService,
     SettingsService,
+    Space,
 } from '@placeos/common';
-import { Space, SpacesService } from '@placeos/events';
-import { OrganisationService } from '@placeos/organisation';
+import { SpacesService } from '@placeos/events';
 import { getHours, getMinutes, startOfSecond } from 'date-fns';
 import { debounceTime, map } from 'rxjs/operators';
 

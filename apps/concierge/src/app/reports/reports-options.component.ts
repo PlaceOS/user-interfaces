@@ -2,8 +2,12 @@ import { Component, inject, input, output } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { first, map } from 'rxjs/operators';
 
-import { AsyncHandler, Identity, SettingsService } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import {
+    AsyncHandler,
+    Identity,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
 import { endOfDay, startOfDay } from 'date-fns';
 import { combineLatest } from 'rxjs';
 

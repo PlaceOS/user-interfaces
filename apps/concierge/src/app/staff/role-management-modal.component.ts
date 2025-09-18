@@ -1,7 +1,6 @@
 import { Component, inject, viewChild } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
-import { nextValueFrom } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { nextValueFrom, OrganisationService } from '@placeos/common';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
 import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
 import { BehaviorSubject, combineLatest } from 'rxjs';

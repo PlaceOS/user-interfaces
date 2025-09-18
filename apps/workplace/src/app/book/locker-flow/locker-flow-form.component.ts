@@ -6,13 +6,13 @@ import {
 import { Router } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
 import {
+    OrganisationService,
     firstTruthyValueFrom,
     getInvalidFields,
     i18n,
     nextValueFrom,
     notifyError,
 } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
 import { isBefore, startOfMinute } from 'date-fns';
 import { first } from 'rxjs/operators';
 import { BookLockerFlowConfirmComponent } from './locker-flow-confirm.component';

@@ -3,12 +3,13 @@ import { addMinutes, endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { BehaviorSubject } from 'rxjs';
 import { first, shareReplay, tap } from 'rxjs/operators';
 
-import { Calendar } from './calendar.class';
-
-import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
-import { SettingsService } from 'libs/common/src/lib/settings.service';
-import { CalendarEvent } from 'libs/events/src/lib/event.class';
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
+import {
+    AsyncHandler,
+    Calendar,
+    CalendarEvent,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
 import {
     queryCalendarAvailability,
     queryCalendars,

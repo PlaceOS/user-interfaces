@@ -8,7 +8,7 @@ import {
     notifySuccess,
     randomString,
 } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { OrganisationService } from '@placeos/common';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
 import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
 import { BehaviorSubject, Observable, combineLatest, of } from 'rxjs';

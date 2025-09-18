@@ -2,8 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 
-import { CateringItem } from '@placeos/catering';
-import { AsyncHandler } from '@placeos/common';
+import { AsyncHandler, CateringItem } from '@placeos/common';
 
 @Component({
     selector: 'view-catering-modal',

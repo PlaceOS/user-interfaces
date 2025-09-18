@@ -1,7 +1,11 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { firstTruthyValueFrom, SettingsService, unique } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import {
+    firstTruthyValueFrom,
+    OrganisationService,
+    SettingsService,
+    unique,
+} from '@placeos/common';
 import { BehaviorSubject, combineLatest, map } from 'rxjs';
 import { DealsService } from './deals.service';
 

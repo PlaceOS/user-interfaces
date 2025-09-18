@@ -4,8 +4,7 @@ import { endOfDay, getUnixTime, isBefore, set, startOfDay } from 'date-fns';
 import { BehaviorSubject } from 'rxjs';
 import { debounceTime, switchMap } from 'rxjs/operators';
 
-import { AsyncHandler, DialogEvent } from '@placeos/common';
-import { StaffUser } from '@placeos/users';
+import { AsyncHandler, DialogEvent, StaffUser } from '@placeos/common';
 import { ITimelineEventGroup } from '../../components/event-timeline/event-timeline.component';
 
 import { queryEvents } from '@placeos/events';

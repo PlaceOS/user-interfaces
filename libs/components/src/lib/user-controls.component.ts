@@ -1,7 +1,20 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-
+import {
+    currentUser,
+    hasNewVersion,
+    i18n,
+    LocaleService,
+    SettingsService,
+    VERSION,
+    WorktimePreference,
+} from '@placeos/common';
 import { logout } from '@placeos/ts-client';
+import { format, set, startOfMinute } from 'date-fns';
+
+import { OrganisationService } from '@placeos/common';
+import { SupportTicketModalComponent } from 'libs/form-fields/src/lib/support-ticket-modal.component';
+import { WFHSettingsModalComponent } from 'libs/users/src/lib/wfh-settings-modal.component';
 import { AccessibilityTooltipComponent } from './accessibility-tooltip.component';
 import { BuildingSelectComponent } from './building-select.component';
 import { ChangelogModalComponent } from './changelog-modal.component';
@@ -9,17 +22,6 @@ import { HelpTooltipComponent } from './help-tooltip.component';
 import { LanguageSelectComponent } from './language-tooltip.component';
 import { RegionSelectComponent } from './region-select.component';
 import { WorkLocationTooltipComponent } from './work-location-tooltip.component';
-
-import { WorktimePreference } from '@placeos/users';
-import { format, set, startOfMinute } from 'date-fns';
-import { hasNewVersion } from 'libs/common/src/lib/application';
-import { i18n, LocaleService } from 'libs/common/src/lib/locale.service';
-import { SettingsService } from 'libs/common/src/lib/settings.service';
-import { currentUser } from 'libs/common/src/lib/user-state';
-import { VERSION } from 'libs/common/src/lib/version';
-import { SupportTicketModalComponent } from 'libs/form-fields/src/lib/support-ticket-modal.component';
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
-import { WFHSettingsModalComponent } from 'libs/users/src/lib/wfh-settings-modal.component';
 
 export interface AppLocale {
     id: string;

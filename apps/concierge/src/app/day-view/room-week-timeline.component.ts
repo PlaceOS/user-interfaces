@@ -3,17 +3,17 @@ import { Component, inject, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
     AsyncHandler,
+    CalendarEvent,
     getTimezoneOffsetInMinutes,
     getTimezoneOffsetString,
     i18n,
+    OrganisationService,
     SettingsService,
 } from '@placeos/common';
 import {
-    CalendarEvent,
     EventDetailsModalComponent,
     SetupBreakdownModalComponent,
 } from '@placeos/events';
-import { OrganisationService } from '@placeos/organisation';
 import {
     addDays,
     isSameDay,

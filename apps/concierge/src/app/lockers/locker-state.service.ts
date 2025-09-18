@@ -1,5 +1,35 @@
 import { inject, Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import {
+    approveBooking,
+    checkinBooking,
+    loadLockerBanks,
+    loadLockers,
+    Locker,
+    LockerBank,
+    queryBookings,
+    queryPagedBookings,
+    rejectBooking,
+    removeBooking,
+    saveBooking,
+} from '@placeos/bookings';
+import {
+    AsyncHandler,
+    Booking,
+    i18n,
+    nextValueFrom,
+    notifyError,
+    notifyInfo,
+    notifySuccess,
+    OrganisationService,
+    randomInt,
+    RecurrenceDays,
+    SettingsService,
+    StaffUser,
+    unique,
+    User,
+} from '@placeos/common';
+import { QueryResponse, updateMetadata } from '@placeos/ts-client';
 import { addHours, endOfDay, getUnixTime, set, startOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest, Observable, of, Subject } from 'rxjs';
 import {
@@ -13,37 +43,6 @@ import {
     tap,
 } from 'rxjs/operators';
 
-import {
-    approveBooking,
-    Booking,
-    checkinBooking,
-    loadLockerBanks,
-    loadLockers,
-    Locker,
-    LockerBank,
-    queryBookings,
-    queryPagedBookings,
-    RecurrenceDays,
-    rejectBooking,
-    removeBooking,
-    saveBooking,
-} from '@placeos/bookings';
-import {
-    AsyncHandler,
-    i18n,
-    nextValueFrom,
-    notifyError,
-    notifyInfo,
-    notifySuccess,
-    randomInt,
-    SettingsService,
-    unique,
-} from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
-
-import { QueryResponse, updateMetadata } from '@placeos/ts-client';
-import { StaffUser } from '@placeos/users';
-import { User } from '@sentry/angular';
 import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
 import { SelectUserModalComponent } from 'libs/users/src/lib/select-user-modal.component';
 import { LockerBankModalComponent } from './locker-bank-modal.component';

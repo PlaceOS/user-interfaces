@@ -1,20 +1,20 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
-    AssetGroup,
     addAssetsInBulk,
     generateAssetForm,
     showAsset,
     showAssetGroup,
 } from '@placeos/assets';
 import {
+    AssetGroup,
     AsyncHandler,
+    OrganisationService,
     getInvalidFields,
     i18n,
     notifyError,
     notifySuccess,
 } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
 import { AssetManagerStateService } from './asset-manager-state.service';
 
 @Component({

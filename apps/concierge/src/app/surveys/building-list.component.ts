@@ -1,6 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { flatten } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { flatten, OrganisationService } from '@placeos/common';
 import { combineLatest } from 'rxjs';
 import { map, shareReplay, startWith } from 'rxjs/operators';
 import { NewSurveyService } from './new-survey.service';

@@ -1,12 +1,10 @@
 import { Pipe, PipeTransform } from '@angular/core';
+import { firstTruthyValueFrom, Space } from '@placeos/common';
 import { querySystemsWithEmails, showSystem } from '@placeos/ts-client';
+import { lastValueFrom } from 'rxjs';
 import { first } from 'rxjs/operators';
 
-import { firstTruthyValueFrom } from '@placeos/common';
-
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
-import { lastValueFrom } from 'rxjs';
-import { Space } from './space.class';
+import { OrganisationService } from '@placeos/common';
 
 const SPACE_LIST: Space[] = [];
 const ATTEMPT_COUNT: Record<string, number> = {};

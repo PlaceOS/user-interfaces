@@ -2,8 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { first } from 'rxjs/operators';
 
-import { AsyncHandler } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { AsyncHandler, OrganisationService } from '@placeos/common';
 import { StaffStateService } from './staff-state.service';
 
 @Component({

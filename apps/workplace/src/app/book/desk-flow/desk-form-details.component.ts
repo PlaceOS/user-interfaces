@@ -11,10 +11,11 @@ import { BookingFormService } from '@placeos/bookings';
 import {
     AsyncHandler,
     BookingRecurrence,
+    Desk,
     SettingsService,
 } from '@placeos/common';
 import { RecurrenceDetails } from '@placeos/events';
-import { Desk, OrganisationService } from '@placeos/organisation';
+import { OrganisationService } from '@placeos/common';
 import { addDays, endOfDay, set } from 'date-fns';
 
 @Component({

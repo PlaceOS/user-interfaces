@@ -3,7 +3,7 @@ import {
     MAT_BOTTOM_SHEET_DATA,
     MatBottomSheetRef,
 } from '@angular/material/bottom-sheet';
-import { Space } from '@placeos/events';
+import { Space } from '@placeos/common';
 
 @Component({
     selector: 'placeos-room-details',

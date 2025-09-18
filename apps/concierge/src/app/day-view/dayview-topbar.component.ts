@@ -2,8 +2,12 @@ import { Component, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { first } from 'rxjs/operators';
 
-import { AsyncHandler, Identity, SettingsService } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import {
+    AsyncHandler,
+    Identity,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
 import { BookingUIOptions, EventsStateService } from './events-state.service';
 
 @Component({

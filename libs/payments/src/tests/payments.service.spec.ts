@@ -1,6 +1,6 @@
 import { MatDialog } from '@angular/material/dialog';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
-import { OrganisationService } from '@placeos/organisation';
+import { OrganisationService } from '@placeos/common';
 import { PaymentsService } from '../lib/payments.service';
 
 describe('PaymentsService', () => {

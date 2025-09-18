@@ -1,6 +1,5 @@
 import { Component, inject, input } from '@angular/core';
-import { i18n, notifyError } from '@placeos/common';
-import { StaffUser } from '@placeos/users';
+import { i18n, notifyError, StaffUser } from '@placeos/common';
 
 import { StaffStateService } from './staff-state.service';
 

@@ -3,9 +3,10 @@ import {
     downloadFile,
     jsonToCsv,
     nextValueFrom,
+    Space,
     unique,
 } from '@placeos/common';
-import { Space, SpacePipe } from '@placeos/events';
+import { SpacePipe } from '@placeos/events';
 import { differenceInDays } from 'date-fns';
 import { combineLatest } from 'rxjs';
 import { debounceTime, map, switchMap } from 'rxjs/operators';

@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { OrganisationService } from '@placeos/organisation';
+import { AssetGroup, OrganisationService } from '@placeos/common';
 import { PlaceMetadata, showMetadata } from '@placeos/ts-client';
 import {
     addMinutes,
@@ -21,7 +21,6 @@ import {
     tap,
 } from 'rxjs/operators';
 import { updateAssetGroupList } from './asset-group.pipe';
-import { AssetGroup } from './asset.class';
 import { assetAvailable, getAssetRulesForZone } from './asset.utilities';
 import {
     queryAssetCategories,

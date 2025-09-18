@@ -1,6 +1,5 @@
 import { Component, input, signal } from '@angular/core';
-import { AsyncHandler } from '@placeos/common';
-import { Space } from '@placeos/events';
+import { AsyncHandler, Space } from '@placeos/common';
 
 @Component({
     selector: 'space-timetable',

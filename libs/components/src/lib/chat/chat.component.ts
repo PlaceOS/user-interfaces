@@ -8,8 +8,12 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
-import { AsyncHandler, SettingsService, current_user } from '@placeos/common';
-import { StaffUser } from '@placeos/users';
+import {
+    AsyncHandler,
+    SettingsService,
+    User,
+    current_user,
+} from '@placeos/common';
 import { map } from 'rxjs/operators';
 import { IconComponent } from '../icon.component';
 import { TranslatePipe } from '../translate.pipe';
@@ -233,7 +237,7 @@ export class ChatComponent extends AsyncHandler implements OnInit {
     public show = false;
     public show_info = false;
     public message = '';
-    public user: StaffUser;
+    public user: User;
     public show_time: Record<string, boolean> = {};
     public offset = 0;
     public height = 56;

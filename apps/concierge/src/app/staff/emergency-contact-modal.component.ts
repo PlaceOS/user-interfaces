@@ -6,9 +6,9 @@ import {
     nextValueFrom,
     notifyError,
     notifySuccess,
+    OrganisationService,
     randomString,
 } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
 import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
 import { BehaviorSubject, combineLatest } from 'rxjs';

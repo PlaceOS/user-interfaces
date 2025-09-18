@@ -1,6 +1,10 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { AsyncHandler, i18n, SettingsService } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import {
+    AsyncHandler,
+    i18n,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
 import { isTrusted } from '@placeos/ts-client';
 import { combineLatest } from 'rxjs';
 import { debounceTime, map } from 'rxjs/operators';

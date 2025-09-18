@@ -1,8 +1,12 @@
 import { inject, Injectable } from '@angular/core';
-import { SettingsService, unique } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import {
+    CateringItem,
+    OrganisationService,
+    SettingsService,
+    Space,
+    unique,
+} from '@placeos/common';
 import { PlaceMetadata, showMetadata } from '@placeos/ts-client';
-import { Space } from 'libs/events/src/lib/space.class';
 import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
 import {
     catchError,
@@ -13,7 +17,6 @@ import {
     switchMap,
     tap,
 } from 'rxjs/operators';
-import { CateringItem } from '../catering-item.class';
 import { CateringSettings } from '../catering-state.service';
 import { cateringItemAvailable, getCateringRulesForZone } from '../utilities';
 

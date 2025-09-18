@@ -8,7 +8,7 @@ import {
     nextValueFrom,
     SettingsService,
 } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { OrganisationService } from '@placeos/common';
 
 import { MatDialog } from '@angular/material/dialog';
 import { lastValueFrom, timer } from 'rxjs';

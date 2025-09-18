@@ -1,6 +1,9 @@
 import { Component, inject } from '@angular/core';
-import { formatDuration, SettingsService } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import {
+    formatDuration,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
 import { debounceTime, map } from 'rxjs/operators';
 import { ContactTracingStateService } from './contact-tracing-state.service';
 

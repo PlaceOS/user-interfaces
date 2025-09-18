@@ -1,9 +1,10 @@
 import { Component, SimpleChanges, input, output } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
+import { AssetGroup } from '@placeos/common';
+
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { ImageCarouselComponent } from 'libs/components/src/lib/image-carousel.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { AssetGroup } from '../asset.class';
 
 @Component({
     selector: 'asset-details',

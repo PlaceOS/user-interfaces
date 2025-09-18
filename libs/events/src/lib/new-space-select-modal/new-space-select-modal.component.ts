@@ -7,13 +7,11 @@ import {
 } from '@angular/material/dialog';
 
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { isMobileSafari, SettingsService } from '@placeos/common';
+import { isMobileSafari, SettingsService, Space } from '@placeos/common';
+import { EventFormOptions, EventFormService } from '@placeos/events';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-
-import { EventFormOptions, EventFormService } from '@placeos/events';
-import { Space } from '../space.class';
 import { NewSpaceDetailsComponent } from './new-space-details.component';
 import { NewSpaceFiltersDisplayComponent } from './new-space-filters-display.component';
 import { NewSpaceFiltersComponent } from './new-space-filters.component';

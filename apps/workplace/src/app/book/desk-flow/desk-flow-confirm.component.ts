@@ -3,7 +3,10 @@ import { Component, inject, model } from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { BookingFormService } from '@placeos/bookings';
 import {
+    AssetRequest,
     AsyncHandler,
+    Desk,
+    OrganisationService,
     SettingsService,
     formatRecurrence,
     fromBookingRecurrence,
@@ -12,9 +15,7 @@ import {
     nextValueFrom,
     notifyError,
 } from '@placeos/common';
-import { Desk, OrganisationService } from '@placeos/organisation';
 import { addMinutes, endOfDay } from 'date-fns';
-import { AssetRequest } from 'libs/assets/src/lib/asset-request.class';
 import { map } from 'rxjs/operators';
 
 @Component({

@@ -1,6 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { CalendarEvent, EventFormService } from '@placeos/events';
+import { CalendarEvent } from '@placeos/common';
+import { EventFormService } from '@placeos/events';
 import { Observable, of } from 'rxjs';
 
 @Component({

@@ -1,8 +1,7 @@
 import { Component, EventEmitter, OnInit, Output, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { AsyncHandler, DialogEvent } from '@placeos/common';
-import { User } from '@placeos/users';
+import { AsyncHandler, DialogEvent, User } from '@placeos/common';
 import { ParkingUser } from './parking-state.service';
 
 @Component({

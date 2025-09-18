@@ -11,29 +11,29 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
-    Booking,
     BookingFormService,
-    BookingType,
     checkinBooking,
     queryBookings,
 } from '@placeos/bookings';
 import {
     AsyncHandler,
+    Booking,
+    BookingType,
+    CalendarEvent,
     currentUser,
     firstTruthyValueFrom,
     notifyError,
+    scanForQRCode,
 } from '@placeos/common';
 import {
-    CalendarEvent,
     checkinEventGuest,
     EventFormService,
     queryEvents,
 } from '@placeos/events';
 import { showSystem } from '@placeos/ts-client';
 import { addMinutes, endOfDay, getUnixTime } from 'date-fns';
-import decodeQR from 'qr/decode.js';
 
-import { OrganisationService } from '@placeos/organisation';
+import { OrganisationService } from '@placeos/common';
 import { lastValueFrom } from 'rxjs';
 
 @Component({
@@ -203,7 +203,7 @@ export class BookCodeFlowComponent
         viewChild<ElementRef<HTMLVideoElement>>('video');
 
     public ngOnDestroy() {
-        this._stopScanning();
+        this.unsub('scan_for_qr_code');
     }
 
     public async ngOnInit() {
@@ -247,7 +247,7 @@ export class BookCodeFlowComponent
         type: BookingType = 'desk',
     ) {
         this.loading.set(true);
-        this._stopScanning();
+        this.unsub('scan_for_qr_code');
         let bookings = await lastValueFrom(
             queryBookings({
                 period_start: getUnixTime(Date.now()),
@@ -307,7 +307,7 @@ export class BookCodeFlowComponent
     private async _checkinEvent(space_id: string, email?: string) {
         if (!email) email = currentUser().email;
         this.loading.set(true);
-        this._stopScanning();
+        this.unsub('scan_for_qr_code');
         const bookings = await lastValueFrom(
             queryEvents({
                 period_start: getUnixTime(Date.now()),
@@ -350,74 +350,16 @@ export class BookCodeFlowComponent
             .getUserMedia({ video: true })
             .then((stream) => {
                 video_el.srcObject = stream;
-                this._startQRScanning();
+                this.subscription(
+                    'scan_for_qr_code',
+                    scanForQRCode(video_el).subscribe({
+                        next: (qr_code) =>
+                            qr_code ? this.handleQrCode(qr_code) : null,
+                        error: (error: any) =>
+                            console.error('Error scanning QR code:', error),
+                    }),
+                );
             })
             .catch((e) => console.error('Unable to fetch media devices!', e));
-    }
-
-    private _startQRScanning() {
-        const video_el = this._video_el()?.nativeElement;
-        if (!video_el) return;
-
-        // Create canvas for image processing
-        if (!this._canvas) {
-            this._canvas = document.createElement('canvas');
-            const ctx = this._canvas.getContext('2d');
-            if (!ctx) {
-                console.error('Unable to get 2D context for QR scanning');
-                return;
-            }
-            this._ctx = ctx;
-        }
-
-        // Start scanning loop
-        this.interval('scan_frame', () => this._scanFrame());
-    }
-
-    private _scanFrame() {
-        const video_el = this._video_el()?.nativeElement;
-        if (!video_el || this.loading()) return;
-
-        if (video_el.videoWidth === 0 || video_el.videoHeight === 0) return;
-
-        // Set canvas size to video size
-        this._canvas.width = video_el.videoWidth;
-        this._canvas.height = video_el.videoHeight;
-
-        // Draw current video frame to canvas
-        this._ctx.drawImage(video_el, 0, 0);
-
-        try {
-            // Get image data
-            const imageData = this._ctx.getImageData(
-                0,
-                0,
-                this._canvas.width,
-                this._canvas.height,
-            );
-
-            // Create image object for qr library
-            const image = {
-                height: imageData.height,
-                width: imageData.width,
-                data: imageData.data,
-            };
-
-            // Try to decode QR code
-            const result = decodeQR(image);
-            if (result) this.handleQrCode(result);
-        } catch (error) {
-            // Ignore decoding errors - they're expected when no QR code is present
-        }
-    }
-
-    private _stopScanning() {
-        const video_el = this._video_el()?.nativeElement;
-        if (video_el?.srcObject) {
-            (video_el?.srcObject as MediaStream)
-                .getTracks()
-                .forEach((track) => track?.stop());
-        }
-        this.clearInterval('scan_frame');
     }
 }

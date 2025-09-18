@@ -3,9 +3,9 @@ import {
     downloadFile,
     jsonToCsv,
     nextValueFrom,
+    OrganisationService,
     SettingsService,
 } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
 import { differenceInDays } from 'date-fns';
 import { combineLatest } from 'rxjs';
 import { map, shareReplay } from 'rxjs/operators';

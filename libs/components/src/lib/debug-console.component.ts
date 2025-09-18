@@ -2,8 +2,7 @@ import { Component, OnInit, inject, model } from '@angular/core';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { first, map } from 'rxjs/operators';
 
-import { SettingsService } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { OrganisationService, SettingsService } from '@placeos/common';
 import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
 import { HotkeysService } from 'libs/common/src/lib/hotkeys.service';
 import {

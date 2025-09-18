@@ -1,7 +1,10 @@
 import { Component, inject } from '@angular/core';
-import { getTimezoneOffsetString, SettingsService } from '@placeos/common';
-import { CalendarEvent } from '@placeos/events';
-import { OrganisationService } from '@placeos/organisation';
+import {
+    CalendarEvent,
+    getTimezoneOffsetString,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 

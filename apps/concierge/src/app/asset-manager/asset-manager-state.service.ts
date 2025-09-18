@@ -1,10 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
-    Asset,
-    AssetCategory,
-    AssetGroup,
-    AssetPurchaseOrder,
     deleteAssetGroup,
     generateAssetForm,
     getGroupsWithAssets,
@@ -14,14 +10,20 @@ import {
     showGroupFull,
 } from '@placeos/assets';
 import {
-    Booking,
     approveBooking,
     queryBookings,
     rejectBooking,
     updateBooking,
 } from '@placeos/bookings';
 import {
+    Asset,
+    AssetCategory,
+    AssetGroup,
+    AssetPurchaseOrder,
+    AssetRequest,
     AsyncHandler,
+    Booking,
+    OrganisationService,
     SettingsService,
     flatten,
     nextValueFrom,
@@ -34,7 +36,6 @@ import {
     AttachedResourceRuleset,
 } from '@placeos/components';
 import { SpacesService } from '@placeos/events';
-import { OrganisationService } from '@placeos/organisation';
 import {
     PlaceMetadata,
     cleanObject,
@@ -42,7 +43,6 @@ import {
     updateMetadata,
 } from '@placeos/ts-client';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
-import { AssetRequest } from 'libs/assets/src/lib/asset-request.class';
 import { BehaviorSubject, Observable, combineLatest, of } from 'rxjs';
 import {
     catchError,

@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { nextValueFrom } from '@placeos/common';
 import { ExploreStateService } from '@placeos/explore';
-import { OrganisationService } from '@placeos/organisation';
+import { OrganisationService } from '@placeos/common';
 import { first } from 'rxjs/operators';
 
 @Component({

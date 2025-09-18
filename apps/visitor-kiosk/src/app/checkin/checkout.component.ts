@@ -1,7 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { i18n, notifySuccess } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { OrganisationService, i18n, notifySuccess } from '@placeos/common';
 import { first } from 'rxjs/operators';
 import { CheckinStateService } from './checkin-state.service';
 
