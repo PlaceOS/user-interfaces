@@ -6,10 +6,9 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
 import { SettingsService } from '@placeos/common';
 
+import { IconComponent, SimpleTableComponent } from '@placeos/components';
 import { CateringReportOrdersComponent } from 'apps/concierge/src/app/reports/catering/catering-report-orders.component';
 import { CateringReportStateService } from 'apps/concierge/src/app/reports/catering/catering-report-state.service';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { SimpleTableComponent } from 'libs/components/src/lib/simple-table.component';
 
 describe('CateringReportOrdersComponent', () => {
     let spectator: Spectator<CateringReportOrdersComponent>;

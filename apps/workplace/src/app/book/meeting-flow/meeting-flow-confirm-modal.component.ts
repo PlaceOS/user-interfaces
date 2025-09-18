@@ -22,8 +22,8 @@ import {
 } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
 
-import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
-import { SpacePipe } from 'libs/events/src/lib/space.pipe';
+import { openConfirmModal } from '@placeos/components';
+import { SpacePipe } from '@placeos/events';
 
 @Component({
     selector: 'meeting-flow-confirm-modal',

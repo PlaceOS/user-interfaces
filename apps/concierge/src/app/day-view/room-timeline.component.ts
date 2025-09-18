@@ -11,6 +11,7 @@ import {
     notifyError,
     notifySuccess,
 } from '@placeos/common';
+import { openConfirmModal } from '@placeos/components';
 import {
     EventDetailsModalComponent,
     SetupBreakdownModalComponent,
@@ -25,7 +26,6 @@ import {
     startOfDay,
     startOfMinute,
 } from 'date-fns';
-import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
 import { combineLatest } from 'rxjs';
 import { debounceTime, map, shareReplay, startWith } from 'rxjs/operators';
 import { EventsStateService } from './events-state.service';

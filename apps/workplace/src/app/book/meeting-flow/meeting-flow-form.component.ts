@@ -12,6 +12,8 @@ import {
 } from '@angular/material/bottom-sheet';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
+import { AssetStateService } from '@placeos/assets';
+import { CateringOrderStateService } from '@placeos/catering';
 import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
     AsyncHandler,
@@ -21,16 +23,14 @@ import {
     nextValueFrom,
     notifyError,
     notifyWarn,
+    OrganisationService,
     SettingsService,
     Space,
     UserIdleTimeService,
 } from '@placeos/common';
+import { openConfirmModal } from '@placeos/components';
 import { EventFormService } from '@placeos/events';
-import { OrganisationService } from '@placeos/common';
 import { FindAvailabilityModalComponent } from '@placeos/users';
-import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
-import { CateringOrderStateService } from 'libs/catering/src/lib/catering-order-modal/catering-order-state.service';
-import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import { debounceTime, first, map, switchMap, tap } from 'rxjs/operators';
 import { MeetingFlowConfirmModalComponent } from './meeting-flow-confirm-modal.component';

@@ -11,15 +11,12 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { Router } from '@angular/router';
 import { ServiceWorkerModule } from '@angular/service-worker';
 
-import { AppComponent } from 'libs/components/src/lib/app.component';
-
 import { environment } from '../environments/environment';
 import { AppRoutingModule } from './app-routing.module';
 import { SharedOverlaysModule } from './overlays/overlays.module';
 
 import * as Sentry from '@sentry/angular';
 
-import { SharedBookingsModule } from '@placeos/bookings';
 import { SharedComponentModule } from './components/shared.module';
 
 import { registerLocaleData } from '@angular/common';
@@ -29,7 +26,9 @@ import localeFr from '@angular/common/locales/fr';
 import localeIt from '@angular/common/locales/it';
 import localeJa from '@angular/common/locales/ja';
 import localeZh from '@angular/common/locales/zh';
+
 import { LocaleService } from '@placeos/common';
+import { AppComponent } from './app.component';
 
 @NgModule({
     declarations: [AppComponent],
@@ -45,7 +44,6 @@ import { LocaleService } from '@placeos/common';
         MatSnackBarModule,
         SharedOverlaysModule,
         SharedComponentModule,
-        SharedBookingsModule,
     ],
     providers: [
         provideZonelessChangeDetection(),

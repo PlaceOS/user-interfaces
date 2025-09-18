@@ -15,11 +15,12 @@ import { ActivatedRoute, RouterModule } from '@angular/router';
 
 import {
     AsyncHandler,
+    Building,
     nextValueFrom,
     notifyError,
     notifySuccess,
+    OrganisationService,
 } from '@placeos/common';
-import { Building, OrganisationService } from '@placeos/common';
 
 import {
     CdkDragDrop,
@@ -37,9 +38,11 @@ import {
 } from '@placeos/ts-client';
 import { first, lastValueFrom } from 'rxjs';
 
-import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { SurveyOutletComponent } from 'libs/components/src/lib/survey-outlet.component';
-import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import {
+    IconComponent,
+    SurveyOutletComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import {
     NewSurveyService,
     QuestionTypeMap,

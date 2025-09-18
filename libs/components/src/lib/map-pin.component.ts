@@ -64,7 +64,6 @@ export interface MapPinData {
             }
         `,
     ],
-    standalone: false,
 })
 export class MapPinComponent implements OnInit {
     private _details = inject<MapPinData>(MAP_FEATURE_DATA);

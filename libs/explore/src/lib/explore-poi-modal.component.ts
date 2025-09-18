@@ -11,7 +11,7 @@ import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 
-export interface PointOfInterest {
+export interface POI {
     id: string;
     name: string;
     level_id: string;
@@ -128,7 +128,7 @@ export interface PointOfInterest {
     ],
 })
 export class ExplorePointOfInterestModalComponent {
-    public readonly item: PointOfInterest = inject(MAT_DIALOG_DATA);
+    public readonly item: POI = inject(MAT_DIALOG_DATA);
     public readonly playing = signal(false);
 
     private _media_el =

@@ -1,7 +1,10 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { AuthorisedUserGuard, RedirectComponent } from '@placeos/components';
-import { UnauthorisedComponent } from 'libs/components/src/lib/unauthorised.component';
+import {
+    AuthorisedUserGuard,
+    RedirectComponent,
+    UnauthorisedComponent,
+} from '@placeos/components';
 
 const routes: Routes = [
     { path: '-', component: RedirectComponent },

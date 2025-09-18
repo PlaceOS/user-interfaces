@@ -9,19 +9,24 @@ import {
     input,
     viewChild,
 } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
 import {
     AsyncHandler,
     MapsPeopleService,
+    OrganisationService,
     i18n,
     log,
     notifyError,
 } from '@placeos/common';
-import { OrganisationService } from '@placeos/common';
 import { ViewAction, ViewerStyles } from '@placeos/svg-viewer';
 import { MapService } from 'libs/common/src/lib/mapspeople.service';
 import { combineLatest } from 'rxjs';
 import { filter, first, map } from 'rxjs/operators';
 import { ExploreStateService } from '../../../explore/src/lib/explore-state.service';
+import { IconComponent } from './icon.component';
 
 declare let mapsindoors: any;
 declare let google: any;
@@ -192,7 +197,13 @@ function degreesToRadians(degrees: number): number {
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        MatProgressSpinnerModule,
+        MatRippleModule,
+        IconComponent,
+        MatFormFieldModule,
+        MatSelectModule,
+    ],
 })
 export class IndoorMapsComponent
     extends AsyncHandler

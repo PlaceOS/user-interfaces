@@ -32,7 +32,7 @@ import {
 import { lastValueFrom } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { WFHSettingsModalComponent } from 'libs/users/src/lib/wfh-settings-modal.component';
+import { WFHSettingsModalComponent } from '@placeos/users';
 
 import * as yaml from 'js-yaml';
 

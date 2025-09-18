@@ -13,10 +13,10 @@ import { EventFormService } from '@placeos/events';
 import {
     DateFieldComponent,
     DurationFieldComponent,
+    HostSelectFieldComponent,
     TimeFieldComponent,
 } from '@placeos/form-fields';
 import { MeetingFormDetailsComponent } from 'apps/workplace/src/app/book/meeting-flow/meeting-form-details.component';
-import { HostSelectFieldComponent } from 'libs/form-fields/src/lib/host-select-field.component';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
 describe('MeetingFormDetailsComponent', () => {

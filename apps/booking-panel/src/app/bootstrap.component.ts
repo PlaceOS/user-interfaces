@@ -4,8 +4,7 @@ import { querySystems } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import { debounceTime, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 
-import { OrganisationService } from '@placeos/common';
-import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
+import { AsyncHandler, OrganisationService } from '@placeos/common';
 
 import { Space } from '@placeos/common';
 

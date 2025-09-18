@@ -6,9 +6,9 @@ import {
     notifyError,
     notifySuccess,
 } from '@placeos/common';
+import { openConfirmModal } from '@placeos/components';
+import { ExplorePointOfInterestModalComponent } from '@placeos/explore';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
-import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
-import { ExplorePointOfInterestModalComponent } from 'libs/explore/src/lib/explore-poi-modal.component';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import { catchError, map, shareReplay, switchMap } from 'rxjs/operators';
 import { POIModalComponent } from './poi-modal.component';

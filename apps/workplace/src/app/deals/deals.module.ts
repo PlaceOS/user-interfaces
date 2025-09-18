@@ -3,8 +3,7 @@ import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Route, RouterModule } from '@angular/router';
 
-import { FormFieldsModule } from '@placeos/form-fields';
-
+import { FormFieldsModule } from 'libs/form-fields/src/lib/form-fields.module';
 import { SharedComponentModule } from '../components/shared.module';
 import { DealDetailsModalComponent } from './deal-details-modal.component';
 import { DealsComponent } from './deals.component';

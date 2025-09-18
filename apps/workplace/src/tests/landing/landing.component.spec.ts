@@ -1,7 +1,6 @@
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { SettingsService } from '@placeos/common';
-import { OrganisationService } from '@placeos/common';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { OrganisationService, SettingsService } from '@placeos/common';
+import { IconComponent } from '@placeos/components';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { FooterMenuComponent } from '../../app/components/footer-menu.component';
 import { TopbarComponent } from '../../app/components/topbar.component';

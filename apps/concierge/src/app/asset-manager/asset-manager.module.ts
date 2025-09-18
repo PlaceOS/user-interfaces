@@ -6,7 +6,7 @@ import { Route, RouterModule } from '@angular/router';
 import { UIModule } from '../ui/ui.module';
 
 import { MatTabsModule } from '@angular/material/tabs';
-import { ComponentsModule } from '@placeos/components';
+import { ComponentsModule } from 'libs/components/src/lib/components.module';
 import { AssetBulkFormComponent } from './asset-bulk-form.component';
 import { AssetCategoryFormComponent } from './asset-category-form.component';
 import { AssetCategoryManagementModalComponent } from './asset-category-management-modal.component';

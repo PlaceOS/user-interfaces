@@ -1,6 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { SettingsService } from '@placeos/common';
-import { generateQRCode } from 'libs/common/src/lib/qr-code';
+import { generateQRCode, SettingsService } from '@placeos/common';
 import {
     POIManagementService,
     PointOfInterest,

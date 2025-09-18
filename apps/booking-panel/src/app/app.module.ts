@@ -17,7 +17,6 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { AppRoutingModule } from './app-routing.module';
 
-import { AppComponent } from 'libs/components/src/lib/app.component';
 import { environment } from '../environments/environment';
 import { SharedOverlaysModule } from './overlays/overlays.module';
 
@@ -28,13 +27,15 @@ import { AppCheckinModule } from './checkin/checkin.module';
 import { EventPanelComponent } from './event-panel.component';
 import { AppPanelViewModule } from './new-panel/panel-view.module';
 
-import { LocaleService } from 'libs/common/src/lib/locale.service';
-import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
-import { GlobalBannerComponent } from 'libs/components/src/lib/global-banner.component';
-import { GlobalLoadingComponent } from 'libs/components/src/lib/global-loading.component';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { SafePipe } from 'libs/components/src/lib/safe.pipe';
-import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { LocaleService } from '@placeos/common';
+import {
+    AuthenticatedImageDirective,
+    GlobalBannerComponent,
+    GlobalLoadingComponent,
+    IconComponent,
+    SafePipe,
+    TranslatePipe,
+} from '@placeos/components';
 
 import { registerLocaleData } from '@angular/common';
 import localeAr from '@angular/common/locales/ar';
@@ -44,7 +45,8 @@ import localeIt from '@angular/common/locales/it';
 import localeJa from '@angular/common/locales/ja';
 import localeZh from '@angular/common/locales/zh';
 import { MatDialogModule } from '@angular/material/dialog';
-import { SanitizePipe } from 'libs/components/src/lib/sanitise.pipe';
+import { SanitizePipe } from '@placeos/components';
+import { AppComponent } from './app.component';
 
 const MAT_MODULES: any[] = [
     MatFormFieldModule,

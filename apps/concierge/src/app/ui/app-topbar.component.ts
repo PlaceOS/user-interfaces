@@ -1,10 +1,18 @@
 import { Component, inject } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
+import { RouterModule } from '@angular/router';
 import {
     OrganisationService,
     SettingsService,
     currentUser,
 } from '@placeos/common';
-import { UserControlsComponent } from '@placeos/components';
+import {
+    AuthenticatedImageDirective,
+    IconComponent,
+    UserControlsComponent,
+} from '@placeos/components';
+import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
+import { UserAvatarComponent } from 'libs/components/src/lib/user-avatar.component';
 
 @Component({
     selector: 'app-topbar',
@@ -51,7 +59,14 @@ import { UserControlsComponent } from '@placeos/components';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        RouterModule,
+        UserAvatarComponent,
+        CustomTooltipComponent,
+        MatRippleModule,
+        AuthenticatedImageDirective,
+        IconComponent,
+    ],
 })
 export class ApplicationTopbarComponent {
     private _settings = inject(SettingsService);

@@ -42,7 +42,7 @@ import {
     tap,
 } from 'rxjs/operators';
 
-import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
+import { openConfirmModal } from '@placeos/components';
 import { EventBookModalComponent } from './event-book-modal.component';
 
 export type BookingType =

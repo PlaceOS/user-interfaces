@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 
-import { SurveyOutletComponent } from 'libs/components/src/lib/survey-outlet.component';
+import { SurveyOutletComponent } from '@placeos/components';
 
 @Component({
     selector: 'app-survey',

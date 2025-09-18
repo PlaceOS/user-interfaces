@@ -15,6 +15,12 @@ import {
     User,
 } from '@placeos/common';
 import {
+    MapPinComponent,
+    MapRadiusComponent,
+    VirtualKeyboardComponent,
+} from '@placeos/components';
+import { SpacePipe, SpacesService } from '@placeos/events';
+import {
     ExploreDesksService,
     ExploreParkingService,
     ExploreSpacesService,
@@ -23,14 +29,8 @@ import {
 } from '@placeos/explore';
 import { Point } from '@placeos/svg-viewer';
 import { getModule } from '@placeos/ts-client';
+import { MapLocation, showStaff } from '@placeos/users';
 import { startOfMinute } from 'date-fns';
-import { MapPinComponent } from 'libs/components/src/lib/map-pin.component';
-import { MapRadiusComponent } from 'libs/components/src/lib/map-radius.component';
-import { VirtualKeyboardComponent } from 'libs/components/src/lib/virtual-keyboard.component';
-import { SpacePipe } from 'libs/events/src/lib/space.pipe';
-import { SpacesService } from 'libs/events/src/lib/spaces.service';
-import { MapLocation } from 'libs/users/src/lib/location.class';
-import { showStaff } from 'libs/users/src/lib/staff.fn';
 import { combineLatest } from 'rxjs';
 import { first, map } from 'rxjs/operators';
 

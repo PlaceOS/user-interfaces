@@ -6,8 +6,8 @@ import {
     notifySuccess,
     OrganisationService,
 } from '@placeos/common';
+import { openConfirmModal } from '@placeos/components';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
-import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { filter, map, shareReplay, switchMap } from 'rxjs/operators';
 import { EmergencyContactModalComponent } from './emergency-contact-modal.component';

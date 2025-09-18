@@ -10,9 +10,9 @@ import { DayviewSpaceComponent } from './dayview-space.component';
 import { DayviewTimelineComponent } from './dayview-timeline.component';
 import { DayviewTopbarComponent } from './dayview-topbar.component';
 
-import { SharedCateringModule } from '@placeos/catering';
-import { SharedUsersModule } from '@placeos/users';
 import { MeetingFormDetailsComponent } from 'apps/workplace/src/app/book/meeting-flow/meeting-form-details.component';
+import { SharedCateringModule } from 'libs/catering/src/lib/catering.module';
+import { SharedUsersModule } from 'libs/users/src/lib/users.module';
 import { BookingModalComponent } from './booking-modal.component';
 import { DayViewComponent } from './day-view.component';
 import { EventBookModalComponent } from './event-book-modal.component';

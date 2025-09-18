@@ -9,7 +9,7 @@ jest.mock('@placeos/common');
 
 import { FormsModule } from '@angular/forms';
 import * as common_mod from '@placeos/common';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { IconComponent } from '@placeos/components';
 import { MockComponent } from 'ng-mocks';
 
 describe('CheckinCovidComponent', () => {

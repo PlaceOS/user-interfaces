@@ -15,7 +15,11 @@ import {
     timePeriodsIntersect,
     unique,
 } from '@placeos/common';
-import { queryAllEvents, requestSpacesForZone } from '@placeos/events';
+import {
+    queryAllEvents,
+    requestSpacesForZone,
+    SpacePipe,
+} from '@placeos/events';
 import { showMetadata } from '@placeos/ts-client';
 import {
     addDays,
@@ -26,7 +30,6 @@ import {
     setDay,
     startOfDay,
 } from 'date-fns';
-import { SpacePipe } from 'libs/events/src/lib/space.pipe';
 import {
     BehaviorSubject,
     combineLatest,

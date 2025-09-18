@@ -9,7 +9,7 @@ import {
     OrganisationService,
     Region,
 } from '@placeos/common';
-import { VirtualKeyboardComponent } from 'libs/components/src/lib/virtual-keyboard.component';
+import { VirtualKeyboardComponent } from '@placeos/components';
 import { first } from 'rxjs/operators';
 
 @Component({

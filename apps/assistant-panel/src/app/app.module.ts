@@ -20,16 +20,18 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 import * as Sentry from '@sentry/angular';
 
-import { AppComponent } from 'libs/components/src/lib/app.component';
 import { environment } from '../environments/environment';
 import { routes } from './app.routes';
 
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { GlobalBannerComponent } from 'libs/components/src/lib/global-banner.component';
-import { GlobalLoadingComponent } from 'libs/components/src/lib/global-loading.component';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import {
+    GlobalBannerComponent,
+    GlobalLoadingComponent,
+    IconComponent,
+    TranslatePipe,
+} from '@placeos/components';
 
+import { AppComponent } from './app.component';
 import { BootstrapComponent } from './bootstrap.component';
 import { PanelViewComponent } from './panel-view.component';
 

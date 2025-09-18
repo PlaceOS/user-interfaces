@@ -9,13 +9,14 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { Router, RouterModule } from '@angular/router';
 import { ServiceWorkerModule } from '@angular/service-worker';
 
-import { AppComponent } from 'libs/components/src/lib/app.component';
-import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
-import { BindingDirective } from 'libs/components/src/lib/binding.directive';
-import { ChatComponent } from 'libs/components/src/lib/chat/chat.component';
-import { GlobalBannerComponent } from 'libs/components/src/lib/global-banner.component';
-import { GlobalLoadingComponent } from 'libs/components/src/lib/global-loading.component';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
+import {
+    AuthenticatedImageDirective,
+    BindingDirective,
+    ChatComponent,
+    GlobalBannerComponent,
+    GlobalLoadingComponent,
+    IconComponent,
+} from '@placeos/components';
 
 import { environment } from '../environments/environment';
 import { SpaceEventDetailsComponent } from './space-event-details.component';
@@ -23,6 +24,7 @@ import { SpaceTimetableComponent } from './space-timetable.component';
 import { AppTimetableComponent } from './timetable.component';
 
 import * as Sentry from '@sentry/angular';
+import { AppComponent } from './app.component';
 
 const STANDALONE_COMPONENTS = [
     BindingDirective,

@@ -35,14 +35,16 @@ import { VoiceAssistantComponent } from './voice-assistant.component';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSelectModule } from '@angular/material/select';
-import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
-import { BindingDirective } from 'libs/components/src/lib/binding.directive';
-import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { SafePipe } from 'libs/components/src/lib/safe.pipe';
-import { SanitizePipe } from 'libs/components/src/lib/sanitise.pipe';
-import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
-import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import {
+    AuthenticatedImageDirective,
+    BindingDirective,
+    CustomTooltipComponent,
+    IconComponent,
+    SafePipe,
+    SanitizePipe,
+    SettingsToggleComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { LightingLevelsTooltipComponent } from './lighting-levels-tooltip.component';
 
 const COMPONENTS: Type<any>[] = [

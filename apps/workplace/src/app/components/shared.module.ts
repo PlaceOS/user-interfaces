@@ -4,12 +4,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { RouterModule } from '@angular/router';
 
-import { AssetsModule } from '@placeos/assets';
-import { SharedBookingsModule } from '@placeos/bookings';
-import { ComponentsModule } from '@placeos/components';
-import { SharedEventsModule } from '@placeos/events';
-import { FormFieldsModule } from '@placeos/form-fields';
-
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatRippleModule } from '@angular/material/core';
@@ -26,6 +20,12 @@ import { MatSliderModule } from '@angular/material/slider';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
+
+import { AssetsModule } from 'libs/assets/src/lib/assets.module';
+import { SharedBookingsModule } from 'libs/bookings/src/lib/bookings.module';
+import { ComponentsModule } from 'libs/components/src/lib/components.module';
+import { SharedEventsModule } from 'libs/events/src/lib/events.module';
+import { FormFieldsModule } from 'libs/form-fields/src/lib/form-fields.module';
 
 import { EventTimelineComponent } from './event-timeline/event-timeline.component';
 import { FooterMenuComponent } from './footer-menu.component';

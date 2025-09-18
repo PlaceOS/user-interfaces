@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { startOfMinute } from 'date-fns';
 
-import { generateQRCode } from 'libs/common/src/lib/qr-code';
+import { generateQRCode } from '@placeos/common';
 
 import { PanelStateService } from '../panel-state.service';
 

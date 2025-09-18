@@ -1,10 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { AsyncHandler, nextValueFrom } from '@placeos/common';
+import { VideoCallDetails, VideoLayout } from '@placeos/mocks';
 import { getModule } from '@placeos/ts-client';
-import {
-    VideoCallDetails,
-    VideoLayout,
-} from 'libs/mocks/src/lib/realtime/video-conference';
 import { Observable } from 'rxjs';
 import {
     distinctUntilChanged,

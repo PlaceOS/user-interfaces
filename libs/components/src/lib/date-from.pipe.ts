@@ -3,7 +3,6 @@ import { differenceInMinutes, format } from 'date-fns';
 
 @Pipe({
     name: 'dateFrom',
-    standalone: false,
 })
 export class DateFromPipe implements PipeTransform {
     public transform(date: number): string {

@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { SettingsService } from '@placeos/common';
 import { DesksStateService } from './desks-state.service';
 
-import { generateQRCode } from 'libs/common/src/lib/qr-code';
+import { generateQRCode } from '@placeos/common';
 import { map } from 'rxjs/operators';
 
 @Component({

@@ -23,11 +23,13 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import {
+    AuthenticatedImageDirective,
+    GlobalBannerComponent,
+    IconComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import * as Sentry from '@sentry/angular';
-import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
-import { GlobalBannerComponent } from 'libs/components/src/lib/global-banner.component';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 
 const ROUTES: Route[] = [
     { path: '', component: EnrolmentComponent },

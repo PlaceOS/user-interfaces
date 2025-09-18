@@ -1,6 +1,9 @@
 import { Component, inject } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
 import { ApplicationLink, SettingsService } from '@placeos/common';
 import { CustomTooltipData } from './custom-tooltip.component';
+import { IconComponent } from './icon.component';
+import { TranslatePipe } from './translate.pipe';
 
 @Component({
     selector: 'help-tooltip',
@@ -35,7 +38,7 @@ import { CustomTooltipData } from './custom-tooltip.component';
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [MatRippleModule, TranslatePipe, IconComponent],
 })
 export class HelpTooltipComponent {
     private _data = inject(CustomTooltipData);

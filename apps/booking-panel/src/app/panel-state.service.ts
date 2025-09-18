@@ -24,6 +24,7 @@ import {
 
 import {
     AsyncHandler,
+    CalendarEvent,
     currentUser,
     log,
     nextValueFrom,
@@ -34,10 +35,10 @@ import {
     Space,
     timePeriodsIntersect,
 } from '@placeos/common';
-import { CalendarEvent } from '@placeos/common';
-import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
-import { SpacesService } from 'libs/events/src/lib/spaces.service';
+import { EventFormService, SpacesService } from '@placeos/events';
 
+import { openConfirmModal } from '@placeos/components';
+import { SpacePipe } from '@placeos/events';
 import {
     addMinutes,
     differenceInMinutes,
@@ -46,8 +47,6 @@ import {
     isBefore,
     startOfMinute,
 } from 'date-fns';
-import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
-import { SpacePipe } from 'libs/events/src/lib/space.pipe';
 import { openBookingModal } from './overlays/booking-modal.component';
 import { EmbeddedControlModalComponent } from './overlays/embedded-control-modal.component';
 

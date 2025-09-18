@@ -5,8 +5,7 @@ import { MockComponent } from 'ng-mocks';
 import { ActionIconComponent } from '@placeos/components';
 import { StaffUser } from '@placeos/users';
 
-import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { UserAvatarComponent } from 'libs/components/src/lib/user-avatar.component';
+import { IconComponent, UserAvatarComponent } from '@placeos/components';
 import { StaffDetailsComponent } from '../../app/staff/staff-details.component';
 import { StaffStateService } from '../../app/staff/staff-state.service';
 

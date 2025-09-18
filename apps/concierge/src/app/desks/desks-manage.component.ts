@@ -7,6 +7,7 @@ import {
     OrganisationService,
     SettingsService,
     csvToJson,
+    generateQRCode,
     i18n,
     loadTextFileFromInputEvent,
     nextValueFrom,
@@ -14,9 +15,8 @@ import {
     notifySuccess,
     randomInt,
 } from '@placeos/common';
+import { openConfirmModal } from '@placeos/components';
 import { updateMetadata } from '@placeos/ts-client';
-import { generateQRCode } from 'libs/common/src/lib/qr-code';
-import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
 import { DesksStateService } from './desks-state.service';
 
 const QR_CODES = {};

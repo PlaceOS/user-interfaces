@@ -5,9 +5,9 @@ import { BehaviorSubject } from 'rxjs';
 
 import { Router } from '@angular/router';
 import { SettingsService } from '@placeos/common';
+import { SimpleTableComponent } from '@placeos/components';
 import { CateringReportItemsComponent } from 'apps/concierge/src/app/reports/catering/catering-report-items.component';
 import { CateringReportStateService } from 'apps/concierge/src/app/reports/catering/catering-report-state.service';
-import { SimpleTableComponent } from 'libs/components/src/lib/simple-table.component';
 
 describe('CateringReportItemsComponent', () => {
     let spectator: Spectator<CateringReportItemsComponent>;

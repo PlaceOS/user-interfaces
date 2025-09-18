@@ -20,12 +20,12 @@ import {
 import { CateringSettings } from '../catering-state.service';
 import { cateringItemAvailable, getCateringRulesForZone } from '../utilities';
 
-export interface CateringOrderOptions {
+export interface CateringOrderSelectOptions {
     // Affects backend requests
     zone?: string;
 }
 
-export interface CateringOrderFilters {
+export interface CateringOrderSelectFilters {
     // Affects frontend filtering
     date?: number;
     duration?: number;
@@ -44,8 +44,8 @@ export class CateringOrderStateService {
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
 
-    private _options = new BehaviorSubject<CateringOrderOptions>({});
-    private _filters = new BehaviorSubject<CateringOrderFilters>({
+    private _options = new BehaviorSubject<CateringOrderSelectOptions>({});
+    private _filters = new BehaviorSubject<CateringOrderSelectFilters>({
         search: '',
         tags: [],
         categories: [],
@@ -177,11 +177,11 @@ export class CateringOrderStateService {
         return this._org.currency_code;
     }
 
-    public setOptions(opts: Partial<CateringOrderOptions>) {
+    public setOptions(opts: Partial<CateringOrderSelectOptions>) {
         this._options.next({ ...this._options.getValue(), ...opts });
     }
 
-    public setFilters(opts: Partial<CateringOrderFilters>) {
+    public setFilters(opts: Partial<CateringOrderSelectFilters>) {
         this._filters.next({ ...this._filters.getValue(), ...opts });
     }
 

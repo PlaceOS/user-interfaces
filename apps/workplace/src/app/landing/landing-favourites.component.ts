@@ -14,9 +14,8 @@ import {
 import { EventFormService } from '@placeos/events';
 import { showMetadata } from '@placeos/ts-client';
 
-import { FAV_DESK_KEY } from 'libs/bookings/src/lib/desk-select-modal/desk-select-modal.component';
-import { FAV_LOCKER_KEY } from 'libs/bookings/src/lib/locker-select-modal/locker-select-modal.component';
-import { SpacePipe } from 'libs/events/src/lib/space.pipe';
+import { FAV_DESK_KEY, FAV_LOCKER_KEY } from '@placeos/bookings';
+import { SpacePipe } from '@placeos/events';
 
 const EMPTY = [];
 

@@ -18,7 +18,7 @@ import {
     switchMap,
 } from 'rxjs/operators';
 
-import { VirtualKeyboardComponent } from 'libs/components/src/lib/virtual-keyboard.component';
+import { VirtualKeyboardComponent } from '@placeos/components';
 
 const STORE_PREFIX = 'PlaceOS.SIGNAGE';
 const STORE_DISPLAY_KEY = `${STORE_PREFIX}.display`;

@@ -17,7 +17,7 @@ import {
     User,
 } from '@placeos/common';
 
-import { UserLabelModalComponent } from 'libs/users/src/lib/user-label-modal.component';
+import { UserLabelModalComponent } from '@placeos/users';
 import { ParkingStateService } from '../parking/parking-state.service';
 import { VisitorsStateService } from './visitors-state.service';
 

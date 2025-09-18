@@ -6,13 +6,15 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { Route, RouterModule } from '@angular/router';
 import { SharedExploreModule } from '@placeos/explore';
 
+import {
+    AuthenticatedImageDirective,
+    CustomTooltipComponent,
+    IconComponent,
+    InteractiveMapComponent,
+} from '@placeos/components';
 import { AccessibilityControlsComponent } from 'apps/map-kiosk/src/app/accessibility-controls.component';
 import { ExploreLevelSelectComponent } from 'apps/map-kiosk/src/app/explore-level-select.component';
 import { ExploreComponent } from 'apps/map-kiosk/src/app/explore.component';
-import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
-import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
 
 const ROUTES: Route[] = [
     { path: '', component: ExploreComponent },

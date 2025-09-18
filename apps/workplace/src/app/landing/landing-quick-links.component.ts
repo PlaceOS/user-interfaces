@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { settingSignal } from 'libs/common/src/lib/settings.service';
+import { settingSignal } from '@placeos/common';
 
 @Component({
     selector: 'landing-quick-links',

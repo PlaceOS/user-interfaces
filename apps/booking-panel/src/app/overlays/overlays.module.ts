@@ -10,11 +10,11 @@ import { EmbeddedControlModalComponent } from './embedded-control-modal.componen
 
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { SafePipe } from 'libs/components/src/lib/safe.pipe';
-import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
-import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-field.component';
+import { IconComponent, SafePipe, TranslatePipe } from '@placeos/components';
+import {
+    DurationFieldComponent,
+    UserSearchFieldComponent,
+} from '@placeos/form-fields';
 
 const OVERLAYS: Type<any>[] = [
     EmbeddedControlModalComponent,

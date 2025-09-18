@@ -10,13 +10,13 @@ import {
     notifyError,
     notifySuccess,
 } from '@placeos/common';
+import { openConfirmModal } from '@placeos/components';
 import {
     GroupEventDetailsModalComponent,
     queryEvents,
     removeEvent,
 } from '@placeos/events';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
-import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import {
     debounceTime,

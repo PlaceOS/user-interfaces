@@ -5,8 +5,7 @@ import { MockComponent, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 
 import { SettingsService } from '@placeos/common';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { SimpleTableComponent } from 'libs/components/src/lib/simple-table.component';
+import { IconComponent, SimpleTableComponent } from '@placeos/components';
 import { DeskBookingsComponent } from '../../app/desks/desk-bookings.component';
 import { DesksStateService } from '../../app/desks/desks-state.service';
 

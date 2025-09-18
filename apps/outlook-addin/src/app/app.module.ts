@@ -28,23 +28,27 @@ import { NotFoundComponent } from './not-found.component';
 import { BookModule } from './rooms/book.module';
 
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { AssetListFieldComponent } from '@placeos/assets';
+import { DeskListFieldComponent } from '@placeos/bookings';
+import { CateringListFieldComponent } from '@placeos/catering';
+import {
+    GlobalBannerComponent,
+    GlobalLoadingComponent,
+    IconComponent,
+    TranslatePipe,
+} from '@placeos/components';
+import { SpacePipe } from '@placeos/events';
+import {
+    DateFieldComponent,
+    DurationFieldComponent,
+    HostSelectFieldComponent,
+    RichTextInputComponent,
+    SpaceListFieldComponent,
+    TimeFieldComponent,
+    UserListFieldComponent,
+    UserSearchFieldComponent,
+} from '@placeos/form-fields';
 import { MeetingFlowConfirmComponent } from 'apps/workplace/src/app/book/meeting-flow/meeting-flow-confirm.component';
-import { AssetListFieldComponent } from 'libs/assets/src/lib/asset-list-field.component';
-import { DeskListFieldComponent } from 'libs/bookings/src/lib/desk-list-field.component';
-import { CateringListFieldComponent } from 'libs/catering/src/lib/catering-list-field.component';
-import { GlobalBannerComponent } from 'libs/components/src/lib/global-banner.component';
-import { GlobalLoadingComponent } from 'libs/components/src/lib/global-loading.component';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { SpacePipe } from 'libs/events/src/lib/space.pipe';
-import { DateFieldComponent } from 'libs/form-fields/src/lib/date-field.component';
-import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
-import { HostSelectFieldComponent } from 'libs/form-fields/src/lib/host-select-field.component';
-import { RichTextInputComponent } from 'libs/form-fields/src/lib/rich-text-input.component';
-import { SpaceListFieldComponent } from 'libs/form-fields/src/lib/space-list-field.component';
-import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.component';
-import { UserListFieldComponent } from 'libs/form-fields/src/lib/user-list-field.component';
-import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-field.component';
 
 const MAT_MODULES = [
     MatSnackBarModule,

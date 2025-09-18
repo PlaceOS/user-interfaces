@@ -15,11 +15,11 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 
 import * as Sentry from '@sentry/angular';
 
-import { AppComponent } from 'libs/components/src/lib/app.component';
 import { environment } from '../environments/environment';
 import { AlertsComponent } from './alerts.component';
 import { AnalyticsComponent } from './analytics.component';
 import { AppRoutingModule } from './app-routing.module';
+import { AppComponent } from './app.component';
 import { RemoteSupportComponent } from './remote-support.component';
 import { UiModule } from './ui/ui.module';
 

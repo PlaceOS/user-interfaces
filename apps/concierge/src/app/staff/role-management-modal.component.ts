@@ -1,8 +1,8 @@
 import { Component, inject, viewChild } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { nextValueFrom, OrganisationService } from '@placeos/common';
+import { CustomTooltipComponent } from '@placeos/components';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
-import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { filter, map, shareReplay, switchMap } from 'rxjs/operators';
 

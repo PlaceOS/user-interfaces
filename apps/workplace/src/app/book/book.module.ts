@@ -4,9 +4,9 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import { Route, RouterModule } from '@angular/router';
 
-import { SharedBookingsModule } from '@placeos/bookings';
-import { SharedCateringModule } from '@placeos/catering';
-import { SharedExploreModule } from '@placeos/explore';
+import { SharedBookingsModule } from 'libs/bookings/src/lib/bookings.module';
+import { SharedCateringModule } from 'libs/catering/src/lib/catering.module';
+import { SharedExploreModule } from 'libs/explore/src/lib/explore.module';
 
 import { SharedComponentModule } from '../components/shared.module';
 import { BookComponent } from './book.component';

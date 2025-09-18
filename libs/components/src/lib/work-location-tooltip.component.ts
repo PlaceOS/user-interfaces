@@ -1,5 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import {
     WorktimePreference,
     currentUser,
@@ -17,7 +17,13 @@ import {
     startOfMinute,
 } from 'date-fns';
 
+import { CommonModule } from '@angular/common';
+import { MatRippleModule } from '@angular/material/core';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { WFHSettingsModalComponent } from 'libs/users/src/lib/wfh-settings-modal.component';
+import { IconComponent } from './icon.component';
+import { TranslatePipe } from './translate.pipe';
 
 @Component({
     selector: 'work-location-tooltip',
@@ -141,7 +147,15 @@ import { WFHSettingsModalComponent } from 'libs/users/src/lib/wfh-settings-modal
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatDialogModule,
+        MatMenuModule,
+        MatRippleModule,
+        MatTooltipModule,
+        TranslatePipe,
+        IconComponent,
+    ],
 })
 export class WorkLocationTooltipComponent implements OnInit {
     private _dialog = inject(MatDialog);

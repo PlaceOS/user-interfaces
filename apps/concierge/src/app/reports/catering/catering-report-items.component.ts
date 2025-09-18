@@ -1,6 +1,5 @@
 import { Component, inject, input } from '@angular/core';
-import { CateringOption } from '@placeos/catering';
-import { OrganisationService } from '@placeos/common';
+import { CateringOption, OrganisationService } from '@placeos/common';
 import { CateringReportStateService } from './catering-report-state.service';
 
 @Component({

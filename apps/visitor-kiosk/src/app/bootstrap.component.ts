@@ -12,7 +12,7 @@ import {
 } from '@placeos/common';
 import { first } from 'rxjs/operators';
 
-import { VirtualKeyboardComponent } from 'libs/components/src/lib/virtual-keyboard.component';
+import { VirtualKeyboardComponent } from '@placeos/components';
 
 @Component({
     selector: '[bootstrap]',

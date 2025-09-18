@@ -7,13 +7,12 @@ import {
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
-import { BuildingPipe } from 'libs/components/src/lib/building.pipe';
-import { LevelPipe } from 'libs/components/src/lib/level.pipe';
+import { BuildingPipe, LevelPipe } from '@placeos/components';
 import {
     generateCalendarFileLink,
     generateGoogleCalendarLink,
     generateMicrosoftCalendarLink,
-} from 'libs/events/src/lib/calendar-links';
+} from '@placeos/events';
 
 @Component({
     selector: 'desk-flow-success',

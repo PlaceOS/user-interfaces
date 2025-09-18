@@ -13,7 +13,7 @@ import {
     User,
 } from '@placeos/common';
 
-import { BookingFormService } from 'libs/bookings/src/lib/booking-form.service';
+import { BookingFormService } from '@placeos/bookings';
 import { CheckinStateService } from './checkin/checkin-state.service';
 
 @Component({

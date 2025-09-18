@@ -40,10 +40,9 @@ import {
     unique,
     User,
 } from '@placeos/common';
-import { requestSpacesForZone } from '@placeos/events';
+import { CalendarService, requestSpacesForZone } from '@placeos/events';
 import { searchStaff } from '@placeos/users';
 import { isSameDay } from 'date-fns';
-import { CalendarService } from 'libs/events/src/lib/calendar.service';
 import { ScheduleStateService } from '../schedule/schedule-state.service';
 
 export interface LandingOptions {

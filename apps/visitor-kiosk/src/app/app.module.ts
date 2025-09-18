@@ -27,8 +27,6 @@ import localeIt from '@angular/common/locales/it';
 import localeJa from '@angular/common/locales/ja';
 import localeZh from '@angular/common/locales/zh';
 
-import { AppComponent } from '../../../../libs/components/src/lib/app.component';
-
 import { environment } from '../environments/environment';
 import { AppRoutingModule } from './app-routing.module';
 import { BootstrapComponent } from './bootstrap.component';
@@ -37,15 +35,17 @@ import { WelcomeComponent } from './welcome.component';
 
 import * as Sentry from '@sentry/angular';
 
-import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
-import { GlobalBannerComponent } from 'libs/components/src/lib/global-banner.component';
-import { GlobalLoadingComponent } from 'libs/components/src/lib/global-loading.component';
-import { SanitizePipe } from 'libs/components/src/lib/sanitise.pipe';
-import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-field.component';
+import {
+    AuthenticatedImageDirective,
+    GlobalBannerComponent,
+    GlobalLoadingComponent,
+    SanitizePipe,
+} from '@placeos/components';
+import { UserSearchFieldComponent } from '@placeos/form-fields';
+import { AppComponent } from './app.component';
 import { TopbarHeaderComponent } from './components/topbar-header.component';
 
 const MAT_MODULES = [

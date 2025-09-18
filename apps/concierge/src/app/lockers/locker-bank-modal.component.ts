@@ -9,10 +9,7 @@ import {
     SettingsService,
     unique,
 } from '@placeos/common';
-import {
-    addChipItem,
-    removeChipItem,
-} from 'libs/form-fields/src/lib/item-list-field.component';
+import { addChipItem, removeChipItem } from '@placeos/form-fields';
 import { map } from 'rxjs/operators';
 
 @Component({

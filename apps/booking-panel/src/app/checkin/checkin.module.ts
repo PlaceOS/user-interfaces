@@ -4,9 +4,7 @@ import { NgModule } from '@angular/core';
 import { CheckinTimetableComponent } from './checkin-timetable.component';
 import { CheckinViewComponent } from './checkin-view.component';
 
-import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { SafePipe } from 'libs/components/src/lib/safe.pipe';
-import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { IconComponent, SafePipe, TranslatePipe } from '@placeos/components';
 
 const COMPONENTS = [CheckinViewComponent, CheckinTimetableComponent];
 

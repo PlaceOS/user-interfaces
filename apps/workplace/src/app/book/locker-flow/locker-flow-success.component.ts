@@ -5,7 +5,7 @@ import {
     generateCalendarFileLink,
     generateGoogleCalendarLink,
     generateMicrosoftCalendarLink,
-} from 'libs/events/src/lib/calendar-links';
+} from '@placeos/events';
 
 @Component({
     selector: 'locker-flow-success',

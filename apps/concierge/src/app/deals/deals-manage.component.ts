@@ -21,16 +21,15 @@ import {
     nextValueFrom,
     notifyError,
     notifySuccess,
+    OrganisationService,
 } from '@placeos/common';
 import { DateFieldComponent } from '@placeos/form-fields';
-import { OrganisationService } from '@placeos/common';
 import { addMonths } from 'date-fns';
 
 import { UploadButtonComponent } from '../ui/app-settings/upload-button.component';
 import { DealsService } from './deals.service';
 
-import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 
 @Component({
     selector: `deals-manage`,

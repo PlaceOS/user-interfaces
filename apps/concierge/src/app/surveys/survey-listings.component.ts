@@ -1,7 +1,14 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
 
+import { CommonModule } from '@angular/common';
+import { MatMenuModule } from '@angular/material/menu';
+import {
+    IconComponent,
+    SimpleTableComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { Survey } from '@placeos/ts-client';
 import { NewSurveyService } from './new-survey.service';
 
@@ -148,7 +155,14 @@ import { NewSurveyService } from './new-survey.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatMenuModule,
+        RouterModule,
+        SimpleTableComponent,
+        TranslatePipe,
+        IconComponent,
+    ],
 })
 export class SurveyListingsComponent extends AsyncHandler implements OnInit {
     private _route = inject(ActivatedRoute);

@@ -25,10 +25,10 @@ import {
     unique,
     User,
 } from '@placeos/common';
+import { openConfirmModal } from '@placeos/components';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
+import { UserPipe } from '@placeos/users';
 import { addHours, endOfDay, getUnixTime, set, startOfDay } from 'date-fns';
-import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
-import { UserPipe } from 'libs/users/src/lib/user.pipe';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import {
     debounceTime,

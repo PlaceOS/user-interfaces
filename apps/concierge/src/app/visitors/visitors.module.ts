@@ -5,8 +5,9 @@ import { Route, RouterModule } from '@angular/router';
 
 import { UIModule } from '../ui/ui.module';
 
-import { SharedBookingsModule } from '@placeos/bookings';
-import { UserLabelComponent } from 'libs/users/src/lib/user-label.component';
+import { MatDialogModule } from '@angular/material/dialog';
+import { UserLabelComponent } from '@placeos/users';
+import { SharedBookingsModule } from 'libs/bookings/src/lib/bookings.module';
 import { GuestListingComponent } from './guest-listing.component';
 import { InviteVisitorModalComponent } from './invite-visitor-modal.component';
 import { VisitorInductionModalComponent } from './visitor-induction-modal.component';
@@ -31,6 +32,7 @@ const ROUTES: Route[] = [{ path: '', component: VisitorsComponent }];
         UIModule,
         SharedBookingsModule,
         UserLabelComponent,
+        MatDialogModule,
         RouterModule.forChild(ROUTES),
     ],
 })

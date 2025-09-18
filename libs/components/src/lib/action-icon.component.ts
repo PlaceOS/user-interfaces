@@ -1,5 +1,9 @@
+import { CommonModule } from '@angular/common';
 import { Component, input } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ApplicationIcon } from 'libs/common/src/lib/types';
+import { IconComponent } from './icon.component';
 
 @Component({
     selector: 'action-icon',
@@ -53,7 +57,12 @@ import { ApplicationIcon } from 'libs/common/src/lib/types';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatRippleModule,
+        MatProgressSpinnerModule,
+        IconComponent,
+    ],
 })
 export class ActionIconComponent {
     /** Icon to display */

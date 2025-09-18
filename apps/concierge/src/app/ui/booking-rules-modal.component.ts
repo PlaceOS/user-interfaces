@@ -2,15 +2,15 @@ import { Component, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import {
     BookingRuleset,
+    OrganisationService,
     i18n,
     nextValueFrom,
     notifyError,
     notifySuccess,
     randomString,
 } from '@placeos/common';
-import { OrganisationService } from '@placeos/common';
+import { openConfirmModal } from '@placeos/components';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
-import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
 import { BehaviorSubject, Observable, combineLatest, of } from 'rxjs';
 import {
     catchError,

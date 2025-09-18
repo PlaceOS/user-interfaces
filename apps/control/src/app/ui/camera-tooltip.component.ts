@@ -1,7 +1,7 @@
 import { Component, OnInit, Renderer2, inject } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
+import { CustomTooltipData } from '@placeos/components';
 import { getModule } from '@placeos/ts-client';
-import { CustomTooltipData } from 'libs/components/src/lib/custom-tooltip.component';
 import { combineLatest } from 'rxjs';
 
 import { ControlStateService, RoomInput } from '../control-state.service';

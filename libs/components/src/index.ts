@@ -1,10 +1,16 @@
-export * from './lib/components.module';
-
 export * from './lib/action-icon.component';
 export * from './lib/attached-resource-config-modal.component';
+export * from './lib/authenticated-image.directive';
 export * from './lib/available-rooms-state-modal.component';
 export * from './lib/changelog-modal.component';
+export * from './lib/chat/chat.component';
+export * from './lib/confirm-modal.component';
+export * from './lib/custom-tooltip.component';
 export * from './lib/fixed.pipe';
+export * from './lib/global-banner.component';
+export * from './lib/global-loading.component';
+export * from './lib/icon.component';
+export * from './lib/interactive-map.component';
 export * from './lib/login.component';
 export * from './lib/map-locate-modal.component';
 export * from './lib/map-pin.component';
@@ -12,9 +18,28 @@ export * from './lib/map-radius.component';
 export * from './lib/maps-indoors.component';
 export * from './lib/misconfigured.component';
 export * from './lib/popout-menu.component';
+export * from './lib/printable.component';
 export * from './lib/redirect.component';
+export * from './lib/settings-toggle.component';
+export * from './lib/simple-table.component';
 export * from './lib/status-overlay.component';
+export * from './lib/survey-outlet.component';
+export * from './lib/translate.pipe';
+export * from './lib/unauthorised.component';
+export * from './lib/user-avatar.component';
 export * from './lib/user-controls.component';
+export * from './lib/virtual-keyboard.component';
+
+export * from './lib/chat/chat.service';
+
+export * from './lib/building.pipe';
+export * from './lib/level.pipe';
+export * from './lib/media-duration.pipe';
+export * from './lib/safe.pipe';
+export * from './lib/sanitise.pipe';
+export * from './lib/zone.pipe';
 
 export * from './lib/authorised-admin.guard';
 export * from './lib/authorised-user.guard';
+
+export * from './lib/binding.directive';

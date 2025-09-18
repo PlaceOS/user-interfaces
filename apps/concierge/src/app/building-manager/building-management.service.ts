@@ -7,8 +7,8 @@ import {
     notifyError,
     notifySuccess,
 } from '@placeos/common';
+import { openConfirmModal } from '@placeos/components';
 import { PlaceZone, removeZone } from '@placeos/ts-client';
-import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { AppSettingsModalComponent } from '../ui/app-settings-modal.component';

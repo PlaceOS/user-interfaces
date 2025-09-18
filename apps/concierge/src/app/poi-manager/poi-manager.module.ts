@@ -5,7 +5,7 @@ import { Route, RouterModule } from '@angular/router';
 
 import { UIModule } from '../ui/ui.module';
 
-import { SharedUsersModule } from '@placeos/users';
+import { SharedUsersModule } from 'libs/users/src/lib/users.module';
 
 import { MatChipsModule } from '@angular/material/chips';
 import { MapShowElementComponent } from './map-show-element.component';

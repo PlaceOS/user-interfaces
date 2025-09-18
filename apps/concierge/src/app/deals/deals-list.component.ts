@@ -8,11 +8,13 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import { Deal, unique } from '@placeos/common';
+import {
+    AuthenticatedImageDirective,
+    IconComponent,
+    SimpleTableComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { addMonths, endOfMonth, startOfDay } from 'date-fns';
-import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { SimpleTableComponent } from 'libs/components/src/lib/simple-table.component';
-import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { BehaviorSubject, combineLatest, map } from 'rxjs';
 import { DealsService } from './deals.service';
 

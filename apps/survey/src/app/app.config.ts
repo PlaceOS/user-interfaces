@@ -7,7 +7,7 @@ import {
 import { provideRouter, Route, withHashLocation } from '@angular/router';
 import { provideServiceWorker } from '@angular/service-worker';
 
-import { LocaleService } from 'libs/common/src/lib/locale.service';
+import { LocaleService } from '@placeos/common';
 import { environment } from '../environments/environment';
 import { NotFoundComponent } from './not-found.component';
 import { SurveyComponent } from './survey.component';

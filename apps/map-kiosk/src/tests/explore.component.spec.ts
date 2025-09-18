@@ -21,11 +21,12 @@ import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { SpacesService } from '@placeos/events';
-import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
-import { SpacePipe } from 'libs/events/src/lib/space.pipe';
+import {
+    CustomTooltipComponent,
+    IconComponent,
+    InteractiveMapComponent,
+} from '@placeos/components';
+import { SpacePipe, SpacesService } from '@placeos/events';
 import { AccessibilityControlsComponent } from '../app/accessibility-controls.component';
 import { ExploreLevelSelectComponent } from '../app/explore-level-select.component';
 import { ExploreComponent } from '../app/explore.component';

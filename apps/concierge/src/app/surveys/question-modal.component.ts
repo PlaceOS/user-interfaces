@@ -7,13 +7,12 @@ import {
     MatDialogRef,
 } from '@angular/material/dialog';
 import { notifySuccess } from '@placeos/common';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import {
     addQuestion,
     SurveyQuestion,
     updateQuestion,
 } from '@placeos/ts-client';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { lastValueFrom } from 'rxjs';
 import { QuestionComponent } from './question.component';
 

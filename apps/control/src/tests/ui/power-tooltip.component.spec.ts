@@ -1,8 +1,7 @@
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { ControlStateService } from '../../app/control-state.service';
 
-import { CustomTooltipData } from 'libs/components/src/lib/custom-tooltip.component';
-import { SanitizePipe } from 'libs/components/src/lib/sanitise.pipe';
+import { CustomTooltipData, SanitizePipe } from '@placeos/components';
 import { MockPipe, MockProvider } from 'ng-mocks';
 import { PowerTooltipComponent } from '../../app/ui/power-tooltip.component';
 

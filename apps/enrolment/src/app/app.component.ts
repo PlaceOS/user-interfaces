@@ -22,9 +22,9 @@ import {
     setupCache,
     setupPlace,
 } from '@placeos/common';
-import { setInternalUserDomain } from 'libs/users/src/lib/user.utilities';
+import { setInternalUserDomain } from '@placeos/users';
 
-import { SpacesService } from 'libs/events/src/lib/spaces.service';
+import { SpacesService } from '@placeos/events';
 
 import * as MOCKS from '@placeos/mocks';
 import { PlaceAuthority, token } from '@placeos/ts-client';

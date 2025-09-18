@@ -20,7 +20,7 @@ jest.mock('@placeos/events', () => ({
     checkinEventGuest: jest.fn(),
     showEvent: jest.fn(),
 }));
-jest.mock('libs/bookings/src/lib/bookings.fn', () => ({
+jest.mock('@placeos/bookings', () => ({
     queryAllBookings: jest.fn(),
     showBooking: jest.fn(),
     updateBooking: jest.fn(() => of({})),
@@ -30,15 +30,15 @@ jest.mock('@placeos/users', () => ({
     listGuestMeetings: jest.fn(),
     generateGuestForm: jest.fn(),
 }));
-jest.mock('libs/users/src/lib/guests.fn', () => ({
+jest.mock('@placeos/users', () => ({
     showGuest: jest.fn(),
 }));
 
+import * as booking_mod from '@placeos/bookings';
 import * as events_mod from '@placeos/events';
 import * as placeos from '@placeos/ts-client';
+import * as guest_mod from '@placeos/users';
 import * as users_mod from '@placeos/users';
-import * as booking_mod from 'libs/bookings/src/lib/bookings.fn';
-import * as guest_mod from 'libs/users/src/lib/guests.fn';
 
 describe('CheckinStateService', () => {
     let spectator: SpectatorService<CheckinStateService>;

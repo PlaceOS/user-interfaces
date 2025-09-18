@@ -8,11 +8,8 @@ import {
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Locker, LockerBank } from '@placeos/bookings';
 import { AsyncHandler, DialogEvent, User } from '@placeos/common';
+import { addChipItem, removeChipItem } from '@placeos/form-fields';
 import { showStaff } from '@placeos/users';
-import {
-    addChipItem,
-    removeChipItem,
-} from 'libs/form-fields/src/lib/item-list-field.component';
 
 type Box = [number, number, number, number];
 

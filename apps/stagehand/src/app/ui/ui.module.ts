@@ -11,15 +11,17 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 
-import { BindingDirective } from 'libs/components/src/lib/binding.directive';
-import { BuildingPipe } from 'libs/components/src/lib/building.pipe';
-import { GlobalBannerComponent } from 'libs/components/src/lib/global-banner.component';
-import { GlobalLoadingComponent } from 'libs/components/src/lib/global-loading.component';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { LevelPipe } from 'libs/components/src/lib/level.pipe';
-import { SimpleTableComponent } from 'libs/components/src/lib/simple-table.component';
-import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { DateRangeFieldComponent } from 'libs/form-fields/src/lib/date-range-field.component';
+import {
+    BindingDirective,
+    BuildingPipe,
+    GlobalBannerComponent,
+    GlobalLoadingComponent,
+    IconComponent,
+    LevelPipe,
+    SimpleTableComponent,
+    TranslatePipe,
+} from '@placeos/components';
+import { DateRangeFieldComponent } from '@placeos/form-fields';
 
 import { SidebarComponent } from './sidebar.component';
 

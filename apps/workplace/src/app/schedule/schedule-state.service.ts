@@ -21,6 +21,7 @@ import {
     SettingsService,
     unique,
 } from '@placeos/common';
+import { openConfirmModal } from '@placeos/components';
 import {
     newCalendarEventFromBooking,
     queryEvents,
@@ -44,7 +45,6 @@ import {
     startOfMinute,
     startOfWeek,
 } from 'date-fns';
-import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
 import {
     BehaviorSubject,
     combineLatest,

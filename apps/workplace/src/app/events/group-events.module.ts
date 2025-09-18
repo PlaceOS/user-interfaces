@@ -3,9 +3,9 @@ import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Route, RouterModule } from '@angular/router';
 
-import { FormFieldsModule } from '@placeos/form-fields';
+import { SharedBookingsModule } from 'libs/bookings/src/lib/bookings.module';
+import { FormFieldsModule } from 'libs/form-fields/src/lib/form-fields.module';
 
-import { SharedBookingsModule } from '@placeos/bookings';
 import { SharedComponentModule } from '../components/shared.module';
 import { GroupEventsFiltersListComponent } from './group-events-filters-list.component';
 import { GroupEventsSidebarComponent } from './group-events-sidebar.component';

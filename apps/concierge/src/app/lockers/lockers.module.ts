@@ -15,8 +15,8 @@ import { MatInputModule } from '@angular/material/input';
 import { LockerBookingsComponent } from './locker-bookings.component';
 import { LockersTopbarComponent } from './locker-topbar.component';
 
-import { SharedBookingsModule } from '@placeos/bookings';
-import { FormFieldsModule } from '@placeos/form-fields';
+import { SharedBookingsModule } from 'libs/bookings/src/lib/bookings.module';
+import { FormFieldsModule } from 'libs/form-fields/src/lib/form-fields.module';
 import { LockerBankModalComponent } from './locker-bank-modal.component';
 import { LockerBookingModalComponent } from './locker-booking-modal.component';
 import { LockerListComponent } from './locker-list.component';

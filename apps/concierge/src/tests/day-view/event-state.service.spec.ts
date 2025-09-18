@@ -18,10 +18,12 @@ jest.mock('@placeos/events');
 import * as events_mod from '@placeos/events';
 import { MockProvider } from 'ng-mocks';
 
-import { nextValueFrom, OrganisationService } from '@placeos/common';
-import { SettingsService } from 'libs/common/src/lib/settings.service';
-import { Building } from 'libs/organisation/src/lib/building.class';
-import { Region } from 'libs/organisation/src/lib/region.class';
+import {
+    nextValueFrom,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
+import { Building, Region } from '@placeos/organisation';
 
 describe('EventsStateService', () => {
     let spectator: SpectatorService<EventsStateService>;

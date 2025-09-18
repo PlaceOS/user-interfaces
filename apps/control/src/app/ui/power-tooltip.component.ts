@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { CustomTooltipData } from 'libs/components/src/lib/custom-tooltip.component';
+import { CustomTooltipData } from '@placeos/components';
 
 import { ControlStateService } from '../control-state.service';
 

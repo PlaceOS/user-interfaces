@@ -10,8 +10,7 @@ import {
     SettingsService,
 } from '@placeos/common';
 
-import { generateQRCode } from 'libs/common/src/lib/qr-code';
-import { CalendarEvent } from '@placeos/common';
+import { CalendarEvent, generateQRCode } from '@placeos/common';
 import { PanelStateService } from './panel-state.service';
 
 @Component({

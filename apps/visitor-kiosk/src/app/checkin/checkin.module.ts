@@ -24,13 +24,15 @@ import { CheckinResultsComponent } from './checkin-result.component';
 import { CheckinComponent } from './checkin.component';
 import { CheckoutComponent } from './checkout.component';
 
-import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { LevelPipe } from 'libs/components/src/lib/level.pipe';
-import { PrintableComponent } from 'libs/components/src/lib/printable.component';
-import { SanitizePipe } from 'libs/components/src/lib/sanitise.pipe';
-import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { UserAvatarComponent } from 'libs/components/src/lib/user-avatar.component';
-import { UserLabelComponent } from 'libs/users/src/lib/user-label.component';
+import {
+    IconComponent,
+    LevelPipe,
+    PrintableComponent,
+    SanitizePipe,
+    TranslatePipe,
+    UserAvatarComponent,
+} from '@placeos/components';
+import { UserLabelComponent } from '@placeos/users';
 
 const ROUTES: Route[] = [
     {

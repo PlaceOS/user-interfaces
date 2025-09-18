@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { MAP_FEATURE_DATA } from 'libs/common/src/lib/types';
+import { MAP_FEATURE_DATA } from '@placeos/common';
 
 @Component({
     selector: 'map-show-element',

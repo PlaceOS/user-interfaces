@@ -6,7 +6,7 @@ import { Route, RouterModule } from '@angular/router';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { UIModule } from '../ui/ui.module';
 
-import { SharedUsersModule } from '@placeos/users';
+import { SharedUsersModule } from 'libs/users/src/lib/users.module';
 import { AssetReportDailyUsageComponent } from './assets/asset-report-daily-usage.component';
 import { AssetReportExpiredItemsComponent } from './assets/asset-report-expired-items.component';
 import { AssetReportOverallComponent } from './assets/asset-report-overall.component';

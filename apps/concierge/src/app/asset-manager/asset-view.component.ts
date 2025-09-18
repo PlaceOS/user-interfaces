@@ -13,9 +13,8 @@ import {
     OrganisationService,
     unique,
 } from '@placeos/common';
+import { CustomTooltipComponent, openConfirmModal } from '@placeos/components';
 import { addMinutes } from 'date-fns';
-import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
-import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
 import { combineLatest } from 'rxjs';
 import { first, map } from 'rxjs/operators';
 import { AssetLocationModalComponent } from './asset-location-modal.component';

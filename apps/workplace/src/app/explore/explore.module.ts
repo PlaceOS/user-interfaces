@@ -7,7 +7,7 @@ import { ExploreComponent } from './explore.component';
 
 import { SharedExploreModule } from '@placeos/explore';
 
-import { MAP_FEATURE_DATA } from 'libs/common/src/lib/types';
+import { MAP_FEATURE_DATA } from '@placeos/common';
 import { SharedComponentModule } from '../components/shared.module';
 
 const ROUTES: Route[] = [

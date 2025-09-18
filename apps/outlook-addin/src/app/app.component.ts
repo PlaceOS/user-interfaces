@@ -10,6 +10,7 @@ import {
     log,
     OrganisationService,
     setAppName,
+    setDefaultCreator,
     setNotifyOutlet,
     SettingsService,
     setTranslationService,
@@ -17,8 +18,7 @@ import {
     setupPlace,
 } from '@placeos/common';
 import { invalidateToken, isMock, setToken, token } from '@placeos/ts-client';
-import { setDefaultCreator } from '@placeos/common';
-import { setInternalUserDomain } from 'libs/users/src/lib/user.utilities';
+import { setInternalUserDomain } from '@placeos/users';
 import { first } from 'rxjs/operators';
 
 declare let Office: any;

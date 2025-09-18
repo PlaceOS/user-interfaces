@@ -3,9 +3,8 @@ import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { subMinutes } from 'date-fns';
 import { MockComponent, MockDirective } from 'ng-mocks';
 
+import { BindingDirective, IconComponent } from '@placeos/components';
 import { setMockBookingStartDatetime } from '@placeos/events';
-import { BindingDirective } from 'libs/components/src/lib/binding.directive';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { BookingPanelSelectComponent } from '../app/panel-select.component';
 import { BookingPanelComponent } from '../app/panel/panel.component';
 

@@ -32,7 +32,7 @@ import {
     notifyError,
     notifySuccess,
 } from '@placeos/common';
-import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
+import { openConfirmModal } from '@placeos/components';
 import { VisitorInductionModalComponent } from './visitor-induction-modal.component';
 import { VisitorNotesModalComponent } from './visitor-notes-modal.component';
 

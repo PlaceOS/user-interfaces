@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { flatten, notifySuccess, OrganisationService } from '@placeos/common';
+import { openConfirmModal } from '@placeos/components';
 import {
     queryAnswers,
     queryQuestions,
@@ -12,7 +13,6 @@ import {
     SurveyAnswer,
     SurveyQuestion,
 } from '@placeos/ts-client';
-import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
 import {
     BehaviorSubject,
     combineLatest,

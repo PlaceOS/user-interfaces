@@ -16,10 +16,9 @@ import {
     showBooking,
     updateBooking,
     updateBookingInductionStatus,
-} from 'libs/bookings/src/lib/bookings.fn';
-import { SpacePipe } from 'libs/events/src/lib/space.pipe';
-import { showGuest } from 'libs/users/src/lib/guests.fn';
-import { generateGuestForm } from 'libs/users/src/lib/user.utilities';
+} from '@placeos/bookings';
+import { SpacePipe } from '@placeos/events';
+import { generateGuestForm, showGuest } from '@placeos/users';
 
 @Injectable({
     providedIn: 'root',

@@ -1,7 +1,7 @@
 import { Component, ElementRef, inject, viewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AsyncHandler, currentUser } from '@placeos/common';
-import { ChatService } from 'libs/components/src/lib/chat/chat.service';
+import { ChatService } from '@placeos/components';
 import { first, map, tap } from 'rxjs/operators';
 
 import { OrganisationService } from '@placeos/common';

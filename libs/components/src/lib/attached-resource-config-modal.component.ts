@@ -1,8 +1,16 @@
 import { Component, EventEmitter, Output, inject } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { AsyncHandler } from '@placeos/common';
 
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatSelectModule } from '@angular/material/select';
 import { DialogEvent, Identity } from 'libs/common/src/lib/types';
+import { IconComponent } from './icon.component';
+import { SettingsToggleComponent } from './settings-toggle.component';
+import { TranslatePipe } from './translate.pipe';
 
 export type AttachedResourceRule =
     | ['after_hour' | 'before_hour' | 'is_before' | 'within_hours', number]
@@ -237,7 +245,16 @@ export interface AttachedResourceConfigModalData {
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        MatRippleModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatSelectModule,
+        MatMenuModule,
+        SettingsToggleComponent,
+        TranslatePipe,
+        IconComponent,
+    ],
 })
 export class AttachedResourceConfigModalComponent extends AsyncHandler {
     private _data = inject<AttachedResourceConfigModalData>(MAT_DIALOG_DATA);

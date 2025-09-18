@@ -8,7 +8,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 
 import { UIModule } from '../ui/ui.module';
 
-import { SharedCateringModule } from '@placeos/catering';
+import { SharedCateringModule } from 'libs/catering/src/lib/catering.module';
 import { CateringTopbarComponent } from './catering-topbar.component';
 import { CateringComponent } from './catering.component';
 

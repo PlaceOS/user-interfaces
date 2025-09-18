@@ -8,7 +8,7 @@ import { OrganisationService, SettingsService } from '@placeos/common';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { BehaviorSubject, of } from 'rxjs';
 
-import { ItemListFieldComponent } from 'libs/form-fields/src/lib/item-list-field.component';
+import { ItemListFieldComponent } from '@placeos/form-fields';
 import { DesksManageComponent } from '../../app/desks/desks-manage.component';
 import { DesksStateService } from '../../app/desks/desks-state.service';
 
@@ -16,8 +16,7 @@ jest.mock('@placeos/ts-client');
 jest.mock('@placeos/common');
 
 import { MatDialog } from '@angular/material/dialog';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { SimpleTableComponent } from 'libs/components/src/lib/simple-table.component';
+import { IconComponent, SimpleTableComponent } from '@placeos/components';
 
 describe('DesksManageComponent', () => {
     let spectator: Spectator<DesksManageComponent>;

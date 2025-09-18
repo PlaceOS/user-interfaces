@@ -1,14 +1,17 @@
 import { Component, ElementRef, OnInit, inject, signal } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
+import { RouterModule } from '@angular/router';
 import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
     AsyncHandler,
+    OrganisationService,
     SettingsService,
     currentUser,
     firstTruthyValueFrom,
     i18n,
     unique,
 } from '@placeos/common';
-import { OrganisationService } from '@placeos/common';
+import { IconComponent } from '@placeos/components';
 import { debounceTime, filter } from 'rxjs/operators';
 
 @Component({
@@ -90,7 +93,7 @@ import { debounceTime, filter } from 'rxjs/operators';
         `,
     ],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
-    standalone: false,
+    imports: [RouterModule, MatRippleModule, IconComponent],
 })
 export class ApplicationSidebarComponent
     extends AsyncHandler

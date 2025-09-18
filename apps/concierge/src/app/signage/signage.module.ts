@@ -2,10 +2,10 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
 import { NgModule, Type } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { MatTabsModule } from '@angular/material/tabs';
 import { Route, RouterModule } from '@angular/router';
 
-import { MatTabsModule } from '@angular/material/tabs';
-import { ComponentsModule } from '@placeos/components';
+import { ComponentsModule } from 'libs/components/src/lib/components.module';
 import { UIModule } from '../ui/ui.module';
 import { SearchOverlayComponent } from './search-overlay.component';
 import { SignageApprovePlaylistModalComponent } from './signage-approve-playlist-modal.component';

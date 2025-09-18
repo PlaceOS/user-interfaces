@@ -43,8 +43,8 @@ import {
     tap,
 } from 'rxjs/operators';
 
-import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
-import { SelectUserModalComponent } from 'libs/users/src/lib/select-user-modal.component';
+import { openConfirmModal } from '@placeos/components';
+import { SelectUserModalComponent } from '@placeos/users';
 import { LockerBankModalComponent } from './locker-bank-modal.component';
 import { LockerBookingModalComponent } from './locker-booking-modal.component';
 import { LockerModalComponent } from './locker-modal.component';

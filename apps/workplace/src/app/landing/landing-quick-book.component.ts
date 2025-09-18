@@ -1,8 +1,12 @@
 import { Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
-import { nextValueFrom, notifyError, SettingsService } from '@placeos/common';
-import { settingSignal } from 'libs/common/src/lib/settings.service';
+import {
+    nextValueFrom,
+    notifyError,
+    settingSignal,
+    SettingsService,
+} from '@placeos/common';
 
 @Component({
     selector: 'landing-quick-book',

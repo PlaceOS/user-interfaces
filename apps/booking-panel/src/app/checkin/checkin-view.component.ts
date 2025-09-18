@@ -5,7 +5,7 @@ import { startOfMinute } from 'date-fns';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { getNextFreeTimeSlot } from 'libs/events/src/lib/helpers';
+import { getNextFreeTimeSlot } from '@placeos/events';
 import { currentPeriod, nextPeriod } from '../new-panel/helpers';
 import { PanelStateService } from '../panel-state.service';
 

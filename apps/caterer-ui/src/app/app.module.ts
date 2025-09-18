@@ -15,26 +15,28 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 
-import { SharedCateringModule } from '@placeos/catering';
+import { SharedCateringModule } from 'libs/catering/src/lib/catering.module';
 
-import { AppComponent } from '../../../../libs/components/src/lib/app.component';
 import { environment } from '../environments/environment';
 import { AppRoutingModule } from './app-routing.module';
 import { CateringTopbarComponent } from './catering-topbar.component';
 import { CateringComponent } from './catering.component';
 
-import { GlobalBannerComponent } from 'libs/components/src/lib/global-banner.component';
-import { GlobalLoadingComponent } from 'libs/components/src/lib/global-loading.component';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { SafePipe } from 'libs/components/src/lib/safe.pipe';
-import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import {
+    GlobalBannerComponent,
+    GlobalLoadingComponent,
+    IconComponent,
+    SafePipe,
+    TranslatePipe,
+} from '@placeos/components';
 
 import * as Sentry from '@sentry/angular';
 
-import { AvailableRoomsStateModalComponent } from 'libs/components/src/lib/available-rooms-state-modal.component';
+import { AvailableRoomsStateModalComponent } from '@placeos/components';
 
 import { MatInputModule } from '@angular/material/input';
 import { DateOptionsComponent } from 'apps/concierge/src/app/ui/date-options.component';
+import { AppComponent } from './app.component';
 
 const STANDALONE_COMPONENTS = [
     GlobalBannerComponent,

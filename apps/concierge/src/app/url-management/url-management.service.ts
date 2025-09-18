@@ -9,7 +9,7 @@ import {
     queryShortURLs,
     ShortURL,
 } from '@placeos/common';
-import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
+import { openConfirmModal } from '@placeos/components';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { debounceTime, shareReplay, switchMap } from 'rxjs/operators';
 import { ShortUrlModalComponent } from './url-modal.component';

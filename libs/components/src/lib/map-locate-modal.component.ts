@@ -1,13 +1,18 @@
 import { Component, OnInit, inject, output } from '@angular/core';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { ViewerFeature, ViewerStyles } from '@placeos/svg-viewer';
 
+import { MatRippleModule } from '@angular/material/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
     AsyncHandler,
     BuildingLevel,
     OrganisationService,
 } from '@placeos/common';
+import { IconComponent } from './icon.component';
+import { InteractiveMapComponent } from './interactive-map.component';
 import { MapPinComponent } from './map-pin.component';
+import { TranslatePipe } from './translate.pipe';
 
 export interface Locatable {
     id: string;
@@ -68,7 +73,14 @@ export interface Locatable {
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        MatRippleModule,
+        MatDialogModule,
+        MatProgressSpinnerModule,
+        TranslatePipe,
+        IconComponent,
+        InteractiveMapComponent,
+    ],
 })
 export class MapLocateModalComponent extends AsyncHandler implements OnInit {
     private _data = inject<{

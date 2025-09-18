@@ -13,7 +13,7 @@ import { SpacesService } from '@placeos/events';
 import { ExploreParkingService, ExploreStateService } from '@placeos/explore';
 import { Point } from '@placeos/svg-viewer';
 
-import { VirtualKeyboardComponent } from 'libs/components/src/lib/virtual-keyboard.component';
+import { VirtualKeyboardComponent } from '@placeos/components';
 import { combineLatest, map } from 'rxjs';
 
 @Component({

@@ -17,10 +17,10 @@ import { DeskMapViewComponent } from './desk-map-view.component';
 import { DesksManageComponent } from './desks-manage.component';
 import { DesksTopbarComponent } from './desks-topbar.component';
 
-import { SharedBookingsModule } from '@placeos/bookings';
-import { FormFieldsModule } from '@placeos/form-fields';
+import { UserPipe } from '@placeos/users';
 import { NewDeskFormDetailsComponent } from 'apps/workplace/src/app/book/desk-flow/desk-form-details.component';
-import { UserPipe } from 'libs/users/src/lib/user.pipe';
+import { SharedBookingsModule } from 'libs/bookings/src/lib/bookings.module';
+import { FormFieldsModule } from 'libs/form-fields/src/lib/form-fields.module';
 import { DeskBookModalComponent } from './desk-book-modal.component';
 import { DeskModalComponent } from './desk-modal.component';
 import { DeskQrCodeModalComponent } from './desk-qr-code-modal.component';

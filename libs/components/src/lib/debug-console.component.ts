@@ -2,6 +2,8 @@ import { Component, OnInit, inject, model } from '@angular/core';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { first, map } from 'rxjs/operators';
 
+import { ScrollingModule } from '@angular/cdk/scrolling';
+import { MatRippleModule } from '@angular/material/core';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
 import { HotkeysService } from 'libs/common/src/lib/hotkeys.service';
@@ -171,7 +173,7 @@ const URL_STARTS = [
         }
     `,
     styles: [``],
-    standalone: false,
+    imports: [ScrollingModule, MatRippleModule],
 })
 export class DebugConsoleComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);

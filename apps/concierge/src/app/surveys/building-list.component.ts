@@ -1,5 +1,12 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
+import { RouterModule } from '@angular/router';
 import { flatten, OrganisationService } from '@placeos/common';
+import {
+    AuthenticatedImageDirective,
+    IconComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { combineLatest } from 'rxjs';
 import { map, shareReplay, startWith } from 'rxjs/operators';
 import { NewSurveyService } from './new-survey.service';
@@ -111,7 +118,13 @@ import { NewSurveyService } from './new-survey.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        AuthenticatedImageDirective,
+        CommonModule,
+        TranslatePipe,
+        RouterModule,
+        IconComponent,
+    ],
 })
 export class BuildingListComponent {
     private _org = inject(OrganisationService);

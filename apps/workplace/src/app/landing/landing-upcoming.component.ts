@@ -16,9 +16,9 @@ import {
     notifySuccess,
     SettingsService,
 } from '@placeos/common';
+import { openConfirmModal } from '@placeos/components';
 import { EventFormService, queryEvents, removeEvent } from '@placeos/events';
 import { format } from 'date-fns';
-import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
 import { lastValueFrom } from 'rxjs';
 import { LandingStateService } from './landing-state.service';
 

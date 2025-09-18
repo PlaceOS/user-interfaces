@@ -12,14 +12,14 @@ import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
-import { MatRadioModule } from '@angular/material/radio';
-import { AssetsModule } from '@placeos/assets';
-import { ComponentsModule } from '@placeos/components';
-import { FormFieldsModule } from '@placeos/form-fields';
+import { AssetsModule } from 'libs/assets/src/lib/assets.module';
+import { ComponentsModule } from 'libs/components/src/lib/components.module';
+import { FormFieldsModule } from 'libs/form-fields/src/lib/form-fields.module';
 import { DateOptionsComponent } from './date-options.component';
 import { SearchbarComponent } from './searchbar.component';
 import { ViewEventDetailsComponent } from './view-event-details.component';
@@ -41,8 +41,6 @@ const COMPONENTS: Type<any>[] = [
     DateOptionsComponent,
     SearchbarComponent,
     ViewEventDetailsComponent,
-    ApplicationTopbarComponent,
-    ApplicationSidebarComponent,
     BookingRulesModalComponent,
 
     BookingPanelSettingsModalComponent,
@@ -70,6 +68,11 @@ const MAT_MODULES: any[] = [
 
 const ANGULAR_MODULES: any[] = [FormsModule, ReactiveFormsModule];
 
+const STANDALONE_COMPONENTS = [
+    ApplicationTopbarComponent,
+    ApplicationSidebarComponent,
+];
+
 @NgModule({
     declarations: [...COMPONENTS],
     imports: [
@@ -82,11 +85,13 @@ const ANGULAR_MODULES: any[] = [FormsModule, ReactiveFormsModule];
         RouterModule.forChild([]),
         UploadButtonComponent,
         SpacePipe,
+        ...STANDALONE_COMPONENTS,
     ],
     exports: [
         ...COMPONENTS,
         ...MAT_MODULES,
         ...ANGULAR_MODULES,
+        ...STANDALONE_COMPONENTS,
         FormFieldsModule,
         ComponentsModule,
         AssetsModule,

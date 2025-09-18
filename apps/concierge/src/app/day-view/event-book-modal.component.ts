@@ -19,7 +19,7 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 
-import { CateringOrderStateService } from 'libs/catering/src/lib/catering-order-modal/catering-order-state.service';
+import { CateringOrderStateService } from '@placeos/catering';
 
 @Component({
     selector: 'event-book-modal',

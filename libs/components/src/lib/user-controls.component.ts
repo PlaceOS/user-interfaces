@@ -1,5 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import {
     currentUser,
     hasNewVersion,
@@ -12,15 +12,22 @@ import {
 import { logout } from '@placeos/ts-client';
 import { format, set, startOfMinute } from 'date-fns';
 
+import { CommonModule } from '@angular/common';
+import { MatRippleModule } from '@angular/material/core';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { OrganisationService } from '@placeos/common';
 import { SupportTicketModalComponent } from 'libs/form-fields/src/lib/support-ticket-modal.component';
 import { WFHSettingsModalComponent } from 'libs/users/src/lib/wfh-settings-modal.component';
 import { AccessibilityTooltipComponent } from './accessibility-tooltip.component';
 import { BuildingSelectComponent } from './building-select.component';
 import { ChangelogModalComponent } from './changelog-modal.component';
+import { CustomTooltipComponent } from './custom-tooltip.component';
 import { HelpTooltipComponent } from './help-tooltip.component';
+import { IconComponent } from './icon.component';
 import { LanguageSelectComponent } from './language-tooltip.component';
 import { RegionSelectComponent } from './region-select.component';
+import { TranslatePipe } from './translate.pipe';
+import { UserAvatarComponent } from './user-avatar.component';
 import { WorkLocationTooltipComponent } from './work-location-tooltip.component';
 
 export interface AppLocale {
@@ -369,7 +376,16 @@ export interface AppLocale {
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatDialogModule,
+        MatRippleModule,
+        TranslatePipe,
+        IconComponent,
+        CustomTooltipComponent,
+        MatTooltipModule,
+        UserAvatarComponent,
+    ],
 })
 export class UserControlsComponent implements OnInit {
     private _settings = inject(SettingsService);

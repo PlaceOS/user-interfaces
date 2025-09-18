@@ -4,7 +4,7 @@ import { AlertsComponent } from './alerts.component';
 import { AnalyticsComponent } from './analytics.component';
 import { RemoteSupportComponent } from './remote-support.component';
 
-import { UnauthorisedComponent } from 'libs/components/src/lib/unauthorised.component';
+import { UnauthorisedComponent } from '@placeos/components';
 
 const routes: Routes = [
     {

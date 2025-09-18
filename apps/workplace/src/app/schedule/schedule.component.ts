@@ -17,9 +17,9 @@ import {
     notifySuccess,
     SettingsService,
 } from '@placeos/common';
+import { openConfirmModal } from '@placeos/components';
 import { EventFormService, queryEvents, removeEvent } from '@placeos/events';
 import { format, isSameDay, parse } from 'date-fns';
-import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 import {

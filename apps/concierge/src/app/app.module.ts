@@ -20,7 +20,6 @@ import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { MAT_CHIPS_DEFAULT_OPTIONS } from '@angular/material/chips';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 
-import { AppComponent } from '../../../../libs/components/src/lib/app.component';
 import { environment } from '../environments/environment';
 import { AppRoutingModule } from './app-routing.module';
 import { UIModule } from './ui/ui.module';
@@ -35,6 +34,7 @@ import localeIt from '@angular/common/locales/it';
 import localeJa from '@angular/common/locales/ja';
 import localeZh from '@angular/common/locales/zh';
 import { LocaleService } from '@placeos/common';
+import { AppComponent } from './app.component';
 
 @NgModule({
     declarations: [AppComponent],

@@ -1,8 +1,17 @@
 import { Clipboard } from '@angular/cdk/clipboard';
-import { Component, inject, OnInit } from '@angular/core';
+import { inject } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SwUpdate } from '@angular/service-worker';
+import {
+    Amazon,
+    Azure,
+    Google,
+    initialiseUploadService,
+    OpenStack,
+} from '@placeos/cloud-uploads';
+
+import { setCustomHeaders } from '@placeos/svg-viewer';
 import {
     apiKey,
     clientId,
@@ -14,47 +23,12 @@ import {
     setAPI_Key,
     token,
 } from '@placeos/ts-client';
+import * as Sentry from '@sentry/angular';
 import { addHours } from 'date-fns';
+import { lastValueFrom } from 'rxjs';
 import { first } from 'rxjs/operators';
 
-import { OrganisationService } from '@placeos/common';
-import { hasNewVersion, setupCache } from 'libs/common/src/lib/application';
-import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
-import { requestScreenWakeLock } from 'libs/common/src/lib/fixed-device-helpers';
-import {
-    firstTruthyValueFrom,
-    isMobileSafari,
-    log,
-    nextValueFrom,
-    setAppName,
-} from 'libs/common/src/lib/general';
-import { GoogleAnalyticsService } from 'libs/common/src/lib/google-analytics.service';
-import { HotkeysService } from 'libs/common/src/lib/hotkeys.service';
-import {
-    LocaleService,
-    setTranslationService,
-} from 'libs/common/src/lib/locale.service';
-import { MapsPeopleService } from 'libs/common/src/lib/mapspeople.service';
-import {
-    notifySuccess,
-    setNotifyOutlet,
-} from 'libs/common/src/lib/notifications';
-import { setupPlace } from 'libs/common/src/lib/placeos';
-import { SettingsService } from 'libs/common/src/lib/settings.service';
-import { current_user, currentUser } from 'libs/common/src/lib/user-state';
 import { setInternalUserDomain } from 'libs/users/src/lib/user.utilities';
-
-import {
-    Amazon,
-    Azure,
-    Google,
-    initialiseUploadService,
-    OpenStack,
-} from '@placeos/cloud-uploads';
-import { MOCKS } from '@placeos/mocks';
-import { setCustomHeaders } from '@placeos/svg-viewer';
-import * as Sentry from '@sentry/angular';
-import { lastValueFrom } from 'rxjs';
 
 const START_QUERY = location.search;
 
@@ -89,45 +63,37 @@ export function initSentry(dsn: string, sample_rate = 0.1) {
     });
 }
 
-@Component({
-    selector: 'app-root',
-    template: `
-        <global-banner />
-        <div class="relative h-1/2 w-full flex-1">
-            <router-outlet></router-outlet>
-        </div>
-        @if (has_chat) {
-            <global-chat />
-        }
-        <global-loading />
-        <!-- <debug-console *ngIf="debug"></debug-console> -->
-    `,
-    styles: [
-        `
-            :host {
-                display: flex;
-                flex-direction: column;
-                height: 100%;
-                width: 100%;
-            }
-        `,
-    ],
-    standalone: false,
+import { Injectable } from '@angular/core';
+import { hasNewVersion, setupCache } from './application';
+import { AsyncHandler } from './async-handler.class';
+import { requestScreenWakeLock } from './fixed-device-helpers';
+import {
+    firstTruthyValueFrom,
+    isMobileSafari,
+    log,
+    nextValueFrom,
+    setAppName,
+} from './general';
+import { GoogleAnalyticsService } from './google-analytics.service';
+import { HotkeysService } from './hotkeys.service';
+import { LocaleService, setTranslationService } from './locale.service';
+import { MapsPeopleService } from './mapspeople.service';
+import { notifySuccess, setNotifyOutlet } from './notifications';
+import { OrganisationService } from './org/organisation.service';
+import { setupPlace } from './placeos';
+import { SettingsService } from './settings.service';
+import { current_user, currentUser } from './user-state';
+
+let _mocks = false;
+
+export function setMocks(value: boolean) {
+    _mocks = value;
+}
+
+@Injectable({
+    providedIn: 'root',
 })
-export class AppComponent extends AsyncHandler implements OnInit {
-    private _zone = '';
-    private _region = '';
-
-    public get debug() {
-        return (
-            window.debug && this._settings.get('app.allow_debugging') === true
-        );
-    }
-
-    public get has_chat() {
-        return this._settings.get('app.chat.enabled');
-    }
-
+export class PlaceOS_Service extends AsyncHandler {
     private _analytics = inject(GoogleAnalyticsService, { optional: true });
     private _locale = inject(LocaleService, { optional: true });
     private _settings = inject(SettingsService);
@@ -141,9 +107,26 @@ export class AppComponent extends AsyncHandler implements OnInit {
     private _maps = inject(MapsPeopleService);
     private _tracing = inject(Sentry.TraceService);
 
-    public async ngOnInit() {
-        log('APP', 'MOCKS:', MOCKS);
-        if (MOCKS) {
+    private _zone = '';
+    private _region = '';
+
+    public get debug() {
+        return (
+            window.debug && this._settings.get('app.allow_debugging') === true
+        );
+    }
+
+    public get has_chat() {
+        return this._settings.get('app.chat.enabled');
+    }
+
+    public set mocks(value: boolean) {
+        _mocks = value;
+    }
+
+    public async init() {
+        log('APP', 'MOCKS:', _mocks);
+        if (_mocks) {
             this._hotkey.listen(['Control', 'Alt', 'Shift', 'KeyM'], () => {
                 localStorage.setItem(
                     'mock',
@@ -203,7 +186,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
         const settings = this._settings.get('composer') || {};
         settings.mock =
             !!this._settings.get('mock') ||
-            (MOCKS && location.origin.includes('demo.place.tech'));
+            (_mocks && location.origin.includes('demo.place.tech'));
         /** Add query parameters if removed due to hash routing */
         if (START_QUERY) {
             const query = convertPairStringToMap(START_QUERY.substring(1));

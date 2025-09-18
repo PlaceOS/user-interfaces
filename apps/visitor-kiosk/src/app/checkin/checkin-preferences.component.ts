@@ -12,6 +12,7 @@ import {
     switchMap,
 } from 'rxjs/operators';
 
+import { saveBooking, updateBooking } from '@placeos/bookings';
 import {
     AsyncHandler,
     Booking,
@@ -26,11 +27,7 @@ import {
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
-import { saveBooking, updateBooking } from 'libs/bookings/src/lib/bookings.fn';
-import {
-    showEventMetadata,
-    updateEventMetadata,
-} from 'libs/events/src/lib/events.fn';
+import { showEventMetadata, updateEventMetadata } from '@placeos/events';
 import { CheckinStateService } from './checkin-state.service';
 
 @Component({

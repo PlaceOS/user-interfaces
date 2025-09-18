@@ -15,10 +15,12 @@ import { MatInputModule } from '@angular/material/input';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
 
-import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
-import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { CounterComponent } from 'libs/form-fields/src/lib/counter.component';
+import {
+    IconComponent,
+    SettingsToggleComponent,
+    TranslatePipe,
+} from '@placeos/components';
+import { CounterComponent } from '@placeos/form-fields';
 
 import { MatRippleModule } from '@angular/material/core';
 import { SurveyQuestion } from '@placeos/ts-client';

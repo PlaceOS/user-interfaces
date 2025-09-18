@@ -7,13 +7,12 @@ import {
     MatDialogRef,
 } from '@angular/material/dialog';
 import { i18n, nextValueFrom, notifySuccess } from '@placeos/common';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import {
     approveSignagePlaylist,
     listSignagePlaylistMediaRevisions,
     updateSignagePlaylistMedia,
 } from '@placeos/ts-client';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import {
     BehaviorSubject,
     combineLatest,

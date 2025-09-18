@@ -113,42 +113,6 @@ const MAT_MODULES = [
     MatSlideToggleModule,
 ];
 
-const COMPONENTS = [
-    ActionIconComponent,
-    PopoutMenuComponent,
-
-    MapPinComponent,
-    MapRadiusComponent,
-    MapPolygonComponent,
-    MapCanvasComponent,
-    IndoorMapsComponent,
-    StatusOverlayComponent,
-    MapLocateModalComponent,
-    RedirectComponent,
-    DebugConsoleComponent,
-    JsonDisplayComponent,
-    ImageViewerComponent,
-    WorkLocationTooltipComponent,
-
-    FixedPipe,
-    DateFromPipe,
-    ThumbnailPipe,
-
-    UserControlsComponent,
-    BuildingSelectComponent,
-    RegionSelectComponent,
-    HelpTooltipComponent,
-    AccessibilityTooltipComponent,
-    LanguageSelectComponent,
-    AttachedResourceConfigModalComponent,
-
-    LoginComponent,
-
-    MisconfiguredComponent,
-];
-
-const DIRECTIVES = [LimitInputDirective];
-
 const STANDALONE_COMPONENTS = [
     IconComponent,
     ConfirmModalComponent,
@@ -186,16 +150,43 @@ const STANDALONE_COMPONENTS = [
     LevelPipe,
     BuildingPipe,
     ZonePipe,
+    ActionIconComponent,
+    PopoutMenuComponent,
+
+    MapPinComponent,
+    MapRadiusComponent,
+    MapPolygonComponent,
+    MapCanvasComponent,
+    IndoorMapsComponent,
+    StatusOverlayComponent,
+    MapLocateModalComponent,
+    RedirectComponent,
+    DebugConsoleComponent,
+    JsonDisplayComponent,
+    ImageViewerComponent,
+    WorkLocationTooltipComponent,
+    LimitInputDirective,
+
+    FixedPipe,
+    DateFromPipe,
+    ThumbnailPipe,
+
+    UserControlsComponent,
+    BuildingSelectComponent,
+    RegionSelectComponent,
+    HelpTooltipComponent,
+    AccessibilityTooltipComponent,
+    LanguageSelectComponent,
+    AttachedResourceConfigModalComponent,
+
+    LoginComponent,
+
+    MisconfiguredComponent,
 ];
 
 @NgModule({
-    declarations: [...COMPONENTS, ...DIRECTIVES],
-    exports: [
-        ...COMPONENTS,
-        ...DIRECTIVES,
-        ...MAT_MODULES,
-        ...STANDALONE_COMPONENTS,
-    ],
+    declarations: [],
+    exports: [...MAT_MODULES, ...STANDALONE_COMPONENTS],
     imports: [
         CommonModule,
         FormsModule,

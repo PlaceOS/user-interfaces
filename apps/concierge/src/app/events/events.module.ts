@@ -8,9 +8,9 @@ import { UIModule } from '../ui/ui.module';
 import { EventManageComponent } from './event-manage.component';
 import { EventsListComponent } from './events-list.component';
 
-import { SharedBookingsModule } from '@placeos/bookings';
-import { SharedEventsModule } from '@placeos/events';
-import { FormFieldsModule } from '@placeos/form-fields';
+import { SharedBookingsModule } from 'libs/bookings/src/lib/bookings.module';
+import { SharedEventsModule } from 'libs/events/src/lib/events.module';
+import { FormFieldsModule } from 'libs/form-fields/src/lib/form-fields.module';
 import { EventCalendarComponent } from './event-calendar.component';
 import { EventListingComponent } from './event-listing.component';
 import { EventMonthViewComponent } from './event-month-view.component';

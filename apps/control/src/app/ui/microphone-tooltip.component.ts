@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
-import { CustomTooltipData } from 'libs/components/src/lib/custom-tooltip.component';
+import { CustomTooltipData } from '@placeos/components';
 
 import { getModule } from '@placeos/ts-client';
 import { ControlStateService } from '../control-state.service';

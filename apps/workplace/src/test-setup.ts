@@ -5,8 +5,8 @@ setupZoneTestEnv();
 import { defineGlobalsInjections } from '@ngneat/spectator';
 import { MockPipe } from 'ng-mocks';
 
-import { setNotifyOutlet } from 'libs/common/src/lib/notifications';
-import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { setNotifyOutlet } from '@placeos/common';
+import { TranslatePipe } from '@placeos/components';
 import { TextDecoder, TextEncoder } from 'util';
 
 global.TextEncoder = TextEncoder;

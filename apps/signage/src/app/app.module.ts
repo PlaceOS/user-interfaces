@@ -15,20 +15,22 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 
-import { AppComponent } from 'libs/components/src/lib/app.component';
 import { environment } from '../environments/environment';
 import { AppRoutingModule } from './app-routing.module';
 import { BootstrapComponent } from './bootstrap.component';
 
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { LocaleService } from '@placeos/common';
+import {
+    GlobalBannerComponent,
+    GlobalLoadingComponent,
+    IconComponent,
+    MediaDurationPipe,
+    TranslatePipe,
+} from '@placeos/components';
 import * as Sentry from '@sentry/angular';
-import { GlobalBannerComponent } from 'libs/components/src/lib/global-banner.component';
-import { GlobalLoadingComponent } from 'libs/components/src/lib/global-loading.component';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { MediaDurationPipe } from 'libs/components/src/lib/media-duration.pipe';
-import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 
+import { AppComponent } from './app.component';
 import { MediaControlsComponent } from './media-controls.component';
 import { MediaPlayerComponent } from './media-player.component';
 import { PlaylistDisplayComponent } from './playlist-display.component';

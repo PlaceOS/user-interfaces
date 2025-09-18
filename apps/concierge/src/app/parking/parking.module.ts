@@ -4,10 +4,11 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTabsModule } from '@angular/material/tabs';
 import { Route, RouterModule } from '@angular/router';
-import { FormFieldsModule } from '@placeos/form-fields';
 import { UIModule } from '../ui/ui.module';
 
-import { SharedBookingsModule } from '@placeos/bookings';
+import { SharedBookingsModule } from 'libs/bookings/src/lib/bookings.module';
+import { FormFieldsModule } from 'libs/form-fields/src/lib/form-fields.module';
+
 import { ParkingBookingModalComponent } from './parking-booking-modal.component';
 import { ParkingBookingsListComponent } from './parking-bookings-list.component';
 import { ParkingMapComponent } from './parking-map.component';
