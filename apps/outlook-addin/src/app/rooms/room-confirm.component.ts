@@ -1,9 +1,12 @@
+import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import {
     MAT_BOTTOM_SHEET_DATA,
     MatBottomSheetRef,
 } from '@angular/material/bottom-sheet';
+import { MatRippleModule } from '@angular/material/core';
 import { CalendarEvent, Space, User } from '@placeos/common';
+import { IconComponent } from '@placeos/components';
 import { EventFormService } from '@placeos/events';
 import { RoomConfirmService } from './room-confirm.service';
 
@@ -138,7 +141,7 @@ import { RoomConfirmService } from './room-confirm.service';
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [CommonModule, MatRippleModule, IconComponent],
 })
 export class RoomConfirmComponent implements OnInit {
     data = inject(MAT_BOTTOM_SHEET_DATA);

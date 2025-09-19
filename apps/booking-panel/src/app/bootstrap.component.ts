@@ -6,7 +6,15 @@ import { debounceTime, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 
 import { AsyncHandler, OrganisationService } from '@placeos/common';
 
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatRippleModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Space } from '@placeos/common';
+import { TranslatePipe } from '@placeos/components';
 
 @Component({
     selector: '[app-bootstrap]',
@@ -120,7 +128,16 @@ import { Space } from '@placeos/common';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatRippleModule,
+        TranslatePipe,
+        MatProgressSpinnerModule,
+        MatAutocompleteModule,
+        MatFormFieldModule,
+        MatInputModule,
+        FormsModule,
+    ],
 })
 export class BootstrapComponent extends AsyncHandler implements OnInit {
     private route = inject(ActivatedRoute);

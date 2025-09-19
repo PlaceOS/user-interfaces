@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { setToken, showMetadata } from '@placeos/ts-client';
 import { lastValueFrom, of } from 'rxjs';
 import {
@@ -12,6 +12,11 @@ import {
     switchMap,
 } from 'rxjs/operators';
 
+import { CommonModule } from '@angular/common';
+import { MatRippleModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
 import { saveBooking, updateBooking } from '@placeos/bookings';
 import {
     AsyncHandler,
@@ -27,6 +32,7 @@ import {
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { showEventMetadata, updateEventMetadata } from '@placeos/events';
 import { CheckinStateService } from './checkin-state.service';
 
@@ -112,7 +118,16 @@ import { CheckinStateService } from './checkin-state.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        IconComponent,
+        MatProgressSpinnerModule,
+        MatRippleModule,
+        RouterModule,
+        MatFormFieldModule,
+        MatSelectModule,
+    ],
 })
 export class CheckinPreferencesComponent
     extends AsyncHandler

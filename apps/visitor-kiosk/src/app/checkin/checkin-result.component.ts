@@ -1,5 +1,6 @@
-import { DatePipe } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
 import { Router } from '@angular/router';
 import {
     AsyncHandler,
@@ -9,6 +10,8 @@ import {
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
+import { SanitizePipe, TranslatePipe } from '@placeos/components';
+import { UserLabelComponent } from '@placeos/users';
 import { roundToNearestMinutes, startOfMinute } from 'date-fns';
 import { combineLatest, firstValueFrom } from 'rxjs';
 import { filter, first, map, startWith } from 'rxjs/operators';
@@ -95,7 +98,13 @@ const DEFAULT_TEMPLATE = `
         `,
     ],
     providers: [DatePipe],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatRippleModule,
+        TranslatePipe,
+        UserLabelComponent,
+        SanitizePipe,
+    ],
 })
 export class CheckinResultsComponent extends AsyncHandler implements OnInit {
     private readonly _org = inject(OrganisationService);

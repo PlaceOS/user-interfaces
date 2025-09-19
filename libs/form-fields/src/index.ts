@@ -1,5 +1,6 @@
 export * from './lib/action-field.component';
 export * from './lib/counter.component';
+export * from './lib/date-calendar.component';
 export * from './lib/date-field.component';
 export * from './lib/date-range-field.component';
 export * from './lib/duration-field.component';
@@ -10,5 +11,7 @@ export * from './lib/recurrence-field.component';
 export * from './lib/rich-text-input.component';
 export * from './lib/space-list-field.component';
 export * from './lib/time-field.component';
+export * from './lib/upload-file-field.component';
+export * from './lib/upload-list-field.component';
 export * from './lib/user-list-field.component';
 export * from './lib/user-search-field.component';

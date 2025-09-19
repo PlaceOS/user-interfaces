@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import {
@@ -18,7 +18,13 @@ import {
     switchMap,
 } from 'rxjs/operators';
 
-import { VirtualKeyboardComponent } from '@placeos/components';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
+import { TranslatePipe, VirtualKeyboardComponent } from '@placeos/components';
 
 const STORE_PREFIX = 'PlaceOS.SIGNAGE';
 const STORE_DISPLAY_KEY = `${STORE_PREFIX}.display`;
@@ -37,7 +43,7 @@ const STORE_BUILDING_KEY = `${STORE_PREFIX}.building`;
                 >
                     {{ 'APP.SIGNAGE.BOOTSTRAP_TITLE' | translate }}
                 </header>
-                @if (!loading) {
+                @if (!loading()) {
                     <main class="px-4 py-2">
                         <!-- <label for="building">{{'APP.SIGNAGE.BOOTSTRAP_BUILDING' | translate}}</label>
                             <mat-form-field appearance="outline">
@@ -113,7 +119,7 @@ const STORE_BUILDING_KEY = `${STORE_PREFIX}.building`;
                 } @else {
                     <div class="m-auto flex flex-col items-center p-8">
                         <mat-spinner [diameter]="32"></mat-spinner>
-                        <p>{{ loading }}</p>
+                        <p>{{ loading() }}</p>
                     </div>
                 }
             </div>
@@ -130,7 +136,15 @@ const STORE_BUILDING_KEY = `${STORE_PREFIX}.building`;
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        MatRippleModule,
+        MatProgressSpinnerModule,
+        MatFormFieldModule,
+        MatSelectModule,
+        FormsModule,
+    ],
 })
 export class BootstrapComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);
@@ -138,7 +152,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
     private _router = inject(Router);
 
     /** Loading state of the bootstrap */
-    public loading = '';
+    public readonly loading = signal('');
     /** Actively selected building */
     public readonly active_building = this._org.active_building;
     /** Actively selected display */
@@ -207,23 +221,23 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
      * Store bootstrapped values and navigate to the main page
      */
     public async bootstrapKiosk() {
-        this.loading = i18n('APP.SIGNAGE.BOOTSTRAP_LOADING');
+        this.loading.set(i18n('APP.SIGNAGE.BOOTSTRAP_LOADING'));
         const bld = await firstTruthyValueFrom(this.active_building);
         if (!bld?.id || !this.active_display || !localStorage) {
-            this.loading = '';
+            this.loading.set('');
             return;
         }
         localStorage.setItem(STORE_BUILDING_KEY, bld.id);
         localStorage.setItem(STORE_DISPLAY_KEY, this.active_display);
         this._router.navigate(['/signage', this.active_display]);
-        this.loading = '';
+        this.loading.set('');
     }
 
     /**
      * Check for any existing bootstrapped values
      */
     private checkBootstrap() {
-        this.loading = i18n('APP.SIGNAGE.BOOTSTRAP_LOADING_CHECK');
+        this.loading.set(i18n('APP.SIGNAGE.BOOTSTRAP_LOADING_CHECK'));
         const bld_id = localStorage?.getItem(STORE_BUILDING_KEY);
         const display_id = localStorage?.getItem(STORE_DISPLAY_KEY);
 
@@ -232,6 +246,6 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
         }
         VirtualKeyboardComponent.enabled =
             localStorage.getItem('OSK.enabled') === 'true';
-        this.loading = '';
+        this.loading.set('');
     }
 }

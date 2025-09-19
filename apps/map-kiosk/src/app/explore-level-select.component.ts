@@ -1,7 +1,8 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { nextValueFrom } from '@placeos/common';
+import { MatRippleModule } from '@angular/material/core';
+import { nextValueFrom, OrganisationService } from '@placeos/common';
 import { ExploreStateService } from '@placeos/explore';
-import { OrganisationService } from '@placeos/common';
 import { first } from 'rxjs/operators';
 
 @Component({
@@ -37,7 +38,7 @@ import { first } from 'rxjs/operators';
             }
         `,
     ],
-    standalone: false,
+    imports: [MatRippleModule, CommonModule],
 })
 export class ExploreLevelSelectComponent {
     private _org = inject(OrganisationService);

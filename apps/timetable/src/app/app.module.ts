@@ -10,12 +10,8 @@ import { Router, RouterModule } from '@angular/router';
 import { ServiceWorkerModule } from '@angular/service-worker';
 
 import {
-    AuthenticatedImageDirective,
-    BindingDirective,
-    ChatComponent,
     GlobalBannerComponent,
     GlobalLoadingComponent,
-    IconComponent,
 } from '@placeos/components';
 
 import { environment } from '../environments/environment';
@@ -26,26 +22,17 @@ import { AppTimetableComponent } from './timetable.component';
 import * as Sentry from '@sentry/angular';
 import { AppComponent } from './app.component';
 
-const STANDALONE_COMPONENTS = [
-    BindingDirective,
-    AuthenticatedImageDirective,
-    GlobalLoadingComponent,
-    GlobalBannerComponent,
-    ChatComponent,
-    IconComponent,
-];
+const STANDALONE_COMPONENTS = [GlobalLoadingComponent, GlobalBannerComponent];
 
 @NgModule({
-    declarations: [
-        AppComponent,
-        AppTimetableComponent,
-        SpaceTimetableComponent,
-        SpaceEventDetailsComponent,
-    ],
+    declarations: [AppComponent],
     imports: [
         BrowserModule,
         BrowserAnimationsModule,
         MatSnackBarModule,
+        AppTimetableComponent,
+        SpaceTimetableComponent,
+        SpaceEventDetailsComponent,
         ...STANDALONE_COMPONENTS,
         RouterModule.forRoot(
             [

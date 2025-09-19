@@ -10,7 +10,15 @@ import {
     SettingsService,
 } from '@placeos/common';
 
+import { CommonModule } from '@angular/common';
+import { MatRippleModule } from '@angular/material/core';
 import { CalendarEvent, generateQRCode } from '@placeos/common';
+import {
+    AuthenticatedImageDirective,
+    SafePipe,
+    SanitizePipe,
+    TranslatePipe,
+} from '@placeos/components';
 import { PanelStateService } from './panel-state.service';
 
 @Component({
@@ -123,7 +131,7 @@ import { PanelStateService } from './panel-state.service';
                         [class.w-56]="show_qr"
                     >
                         <div qr-checkin class="z-50 w-56 p-3">
-                            <img class="w-full" [src]="qr_code" />
+                            <img auth class="w-full" [source]="qr_code" />
                         </div>
                     </div>
                 </div>
@@ -142,7 +150,14 @@ import { PanelStateService } from './panel-state.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatRippleModule,
+        AuthenticatedImageDirective,
+        TranslatePipe,
+        SanitizePipe,
+        SafePipe,
+    ],
 })
 export class EventPanelComponent extends AsyncHandler implements OnInit {
     private _settings = inject(SettingsService);

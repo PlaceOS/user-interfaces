@@ -1,5 +1,12 @@
+import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatRippleModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
 import { Router } from '@angular/router';
 import {
     AsyncHandler,
@@ -9,12 +16,14 @@ import {
     i18n,
     nextValueFrom,
 } from '@placeos/common';
+import { IconComponent, InteractiveMapComponent } from '@placeos/components';
 import { EventFormService, SpacesService } from '@placeos/events';
 import { ViewAction, ViewerFeature, ViewerStyles } from '@placeos/svg-viewer';
 import { BehaviorSubject, Observable, combineLatest, of } from 'rxjs';
 import { filter, first, map, tap } from 'rxjs/operators';
 import { FeaturesFilterService } from './features-filter.service';
 import { FilterSpaceComponent } from './filter-space.component';
+import { FindSpaceItemComponent } from './find-space-item.component';
 import { Locatable, MapService, MapsList } from './map.service';
 import { RoomConfirmService } from './room-confirm.service';
 
@@ -326,7 +335,19 @@ import { RoomConfirmService } from './room-confirm.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatRippleModule,
+        MatProgressSpinnerModule,
+        InteractiveMapComponent,
+        MatFormFieldModule,
+        MatSelectModule,
+        FindSpaceItemComponent,
+        MatButtonToggleModule,
+        FormsModule,
+        ReactiveFormsModule,
+        IconComponent,
+    ],
 })
 export class FindSpaceComponent extends AsyncHandler implements OnInit {
     private _bottomSheet = inject(MatBottomSheet);

@@ -10,10 +10,15 @@ import {
     SimpleChanges,
     viewChild,
 } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
 import { AsyncHandler, shuffleArrayWithFirstItem } from '@placeos/common';
+import { IconComponent } from '@placeos/components';
 import { MediaAnimation } from '@placeos/ts-client';
+import { MediaControlsComponent } from './media-controls.component';
 import { validateMedia } from './media-helpers';
+import { PlaylistDisplayComponent } from './playlist-display.component';
 import { MediaEvent } from './signage.service';
+import { TimeControlsComponent } from './time-controls.component';
 import { MediaPlayerItem, MediaPlayerState } from './types';
 
 @Component({
@@ -128,7 +133,13 @@ import { MediaPlayerItem, MediaPlayerState } from './types';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        MatRippleModule,
+        PlaylistDisplayComponent,
+        IconComponent,
+        MediaControlsComponent,
+        TimeControlsComponent,
+    ],
 })
 export class MediaPlayerComponent
     extends AsyncHandler
@@ -364,26 +375,25 @@ export class MediaPlayerComponent
             this.setPlaylistItem(0);
         }
         const item = this.active_item;
-        if (Date.now() > this._item_start + item.duration) {
+        if (Date.now() > this._item_start + item?.duration) {
             this.nextItem();
         }
     }
 
     private setPlaylistItem(index: number) {
+        if (!this._hasValidPlaylist()) {
+            return this.timeout(
+                'check_for_valid_item',
+                () => this.setPlaylistItem(index),
+                1000,
+            );
+        }
         const old_index = this.index();
         this.index.set(index);
         this.indexChange.emit(index);
         const item = this.active_item;
 
         const old_item = this._item_playlist[old_index];
-        console.log(
-            'Set Playlist Item',
-            old_item?.id,
-            item?.id,
-            this._item_playlist.length,
-            this.progress(),
-            this._isLastValidPlaylistItem(old_index),
-        );
         if (this._isLastValidPlaylistItem(old_index) && old_item?.playlist) {
             this.event.emit({
                 type: 'playlist_count',
@@ -597,5 +607,9 @@ export class MediaPlayerComponent
         }
         if (next_index === idx) return true;
         return item.playlist !== next_item.playlist;
+    }
+
+    private _hasValidPlaylist() {
+        return this.playlist().some((item) => this.isValidMedia(item));
     }
 }

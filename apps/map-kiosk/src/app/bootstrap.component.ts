@@ -1,4 +1,10 @@
+import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import {
@@ -9,7 +15,11 @@ import {
     OrganisationService,
     Region,
 } from '@placeos/common';
-import { VirtualKeyboardComponent } from '@placeos/components';
+import {
+    SettingsToggleComponent,
+    TranslatePipe,
+    VirtualKeyboardComponent,
+} from '@placeos/components';
 import { first } from 'rxjs/operators';
 
 @Component({
@@ -299,7 +309,16 @@ import { first } from 'rxjs/operators';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        MatRippleModule,
+        MatProgressSpinnerModule,
+        MatFormFieldModule,
+        MatSelectModule,
+        SettingsToggleComponent,
+        CommonModule,
+        FormsModule,
+        TranslatePipe,
+    ],
 })
 export class BootstrapComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);

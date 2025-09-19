@@ -3,14 +3,16 @@ import {
     Component,
     ElementRef,
     forwardRef,
+    inject,
     input,
     OnChanges,
     SimpleChanges,
     viewChild,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { AsyncHandler, uploadFile } from '@placeos/common';
-import Quill from 'quill';
+import { AsyncHandler, UploadsService } from '@placeos/common';
+
+import SunEditor from 'suneditor';
 
 @Component({
     selector: 'rich-text-input',
@@ -26,6 +28,7 @@ import Quill from 'quill';
                 position: relative;
                 min-height: 8rem;
                 margin-bottom: 4rem;
+                z-index: 10;
             }
         `,
     ],
@@ -42,6 +45,7 @@ export class RichTextInputComponent
     extends AsyncHandler
     implements ControlValueAccessor, OnChanges, AfterViewInit
 {
+    private _uploads = inject(UploadsService);
     public readonly placeholder = input('');
     public readonly readonly = input(false);
     public readonly images_allowed = input(false);
@@ -51,15 +55,10 @@ export class RichTextInputComponent
     private readonly _editor_el =
         viewChild<ElementRef<HTMLDivElement>>('editor');
 
-    private _editor: Quill;
-    private _updateFn = () => this.setValue(this._editor.root.innerHTML);
-
-    private _onChange: (
-        _: string,
-    ) => void; /** Form control on change handler */
-    private _onTouch: (
-        _: string,
-    ) => void; /** Form control on touched handler */
+    private _editor: any;
+    private _updateFn = (v) => this.setValue(v);
+    private _onChange: (_: string) => void;
+    private _onTouch: (_: string) => void;
 
     public readonly registerOnChange = (fn: (_: string) => void) =>
         (this._onChange = fn);
@@ -82,9 +81,7 @@ export class RichTextInputComponent
      */
     public setValue(new_value: string): void {
         /* istanbul ignore else */
-        if (this._onChange) {
-            this._onChange(new_value);
-        }
+        if (this._onChange) this._onChange(new_value);
     }
 
     /**
@@ -103,9 +100,9 @@ export class RichTextInputComponent
     }
 
     private _initialiseEditor() {
-        const _editor_el = this._editor_el();
-        const _container_el = this._container_el();
-        if (!_editor_el?.nativeElement || !_container_el?.nativeElement) {
+        const _editor_el = this._editor_el()?.nativeElement;
+        const _container_el = this._container_el()?.nativeElement;
+        if (!_editor_el || !_container_el) {
             return this.timeout('init', () => this._initialiseEditor());
         }
         const toolbarOptions = [
@@ -122,24 +119,15 @@ export class RichTextInputComponent
         }
         if (this._editor) {
             this.unsub('changes');
-            _editor_el.nativeElement.innerHTML = '';
+            _editor_el.innerHTML = '';
             delete this._editor;
         }
-        this._editor = new Quill(_editor_el.nativeElement, {
-            bounds: _container_el.nativeElement,
+        this._editor = SunEditor.create(_editor_el, {
             placeholder: this.placeholder(),
-            modules: {
-                toolbar: {
-                    container: toolbarOptions,
-                    handlers: {
-                        image: () => this._embedAttachment(),
-                    },
-                },
-            },
-            readOnly: this.readonly(),
-            theme: 'snow',
+            height: '100%',
+            width: '100%',
         });
-        this._editor.on('text-change', this._updateFn);
+        this._editor.onChange(this._updateFn);
         this.subscription('changes', () =>
             this._editor.off('text-change', this._updateFn),
         );
@@ -158,8 +146,8 @@ export class RichTextInputComponent
 
         file_input.onchange = () => {
             const file = file_input.files[0];
-            uploadFile(file, true).subscribe(({ link, progress }) => {
-                if (!link || progress !== 100) return;
+            this._uploads.uploadFile(file, true).then((link) => {
+                if (!link) return;
                 this._editor.insertEmbed(index, 'image', link);
             });
         };
@@ -177,8 +165,8 @@ export class RichTextInputComponent
 
         file_input.onchange = () => {
             const file = file_input.files[0];
-            uploadFile(file, true).subscribe(({ link, progress }) => {
-                if (!link || progress !== 100) return;
+            this._uploads.uploadFile(file, true).then((link) => {
+                if (!link) return;
                 const is_image = file.type.startsWith('image/');
                 if (is_image) {
                     this._editor.insertEmbed(index, 'image', link);

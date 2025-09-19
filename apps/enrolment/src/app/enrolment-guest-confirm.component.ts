@@ -1,5 +1,14 @@
 import { Component, inject } from '@angular/core';
+import { ReactiveFormsModule } from '@angular/forms';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { SettingsService } from '@placeos/common';
+import { TranslatePipe } from '@placeos/components';
+import {
+    UploadFileFieldComponent,
+    UploadListFieldComponent,
+} from '@placeos/form-fields';
 import { EnrolmentStateService } from './enrolment-state.service';
 
 @Component({
@@ -84,7 +93,15 @@ import { EnrolmentStateService } from './enrolment-state.service';
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        ReactiveFormsModule,
+        TranslatePipe,
+        MatCheckboxModule,
+        UploadFileFieldComponent,
+        UploadListFieldComponent,
+        MatFormFieldModule,
+        MatInputModule,
+    ],
 })
 export class EnrolmentGuestConfirmComponent {
     private _state = inject(EnrolmentStateService);

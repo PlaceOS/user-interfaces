@@ -1,4 +1,8 @@
 import { Component } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { RouterModule } from '@angular/router';
+import { IconComponent } from '@placeos/components';
 
 let compact_state = false;
 
@@ -133,7 +137,7 @@ let compact_state = false;
             }
         `,
     ],
-    standalone: false,
+    imports: [IconComponent, RouterModule, MatRippleModule, MatTooltipModule],
 })
 export class SidebarComponent {
     public get is_compact() {

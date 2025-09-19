@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import { Component, computed, input } from '@angular/core';
 import { CalendarEvent } from '@placeos/common';
 import { getHours, getMinutes } from 'date-fns';
@@ -27,7 +28,7 @@ import { getHours, getMinutes } from 'date-fns';
         }
     `,
     styles: [``],
-    standalone: false,
+    imports: [CommonModule],
 })
 export class SpaceEventDetailsComponent {
     public readonly event = input<CalendarEvent>(null);

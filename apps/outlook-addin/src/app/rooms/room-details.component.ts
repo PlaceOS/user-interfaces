@@ -3,7 +3,12 @@ import {
     MAT_BOTTOM_SHEET_DATA,
     MatBottomSheetRef,
 } from '@angular/material/bottom-sheet';
+import { MatRippleModule } from '@angular/material/core';
 import { Space } from '@placeos/common';
+import {
+    AuthenticatedImageDirective,
+    IconComponent,
+} from '@placeos/components';
 
 @Component({
     selector: 'placeos-room-details',
@@ -155,7 +160,7 @@ import { Space } from '@placeos/common';
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [MatRippleModule, IconComponent, AuthenticatedImageDirective],
 })
 export class RoomDetailsComponent implements OnInit {
     data = inject(MAT_BOTTOM_SHEET_DATA);

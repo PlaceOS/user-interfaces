@@ -3,70 +3,38 @@ import {
     NgModule,
     provideZonelessChangeDetection,
 } from '@angular/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { Router } from '@angular/router';
 import { ServiceWorkerModule } from '@angular/service-worker';
 
-import { MatRippleModule } from '@angular/material/core';
-import { MatDialogModule } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
-
-import { SharedCateringModule } from 'libs/catering/src/lib/catering.module';
-
 import { environment } from '../environments/environment';
-import { AppRoutingModule } from './app-routing.module';
 import { CateringTopbarComponent } from './catering-topbar.component';
 import { CateringComponent } from './catering.component';
 
 import {
     GlobalBannerComponent,
     GlobalLoadingComponent,
-    IconComponent,
-    SafePipe,
-    TranslatePipe,
 } from '@placeos/components';
 
 import * as Sentry from '@sentry/angular';
 
-import { AvailableRoomsStateModalComponent } from '@placeos/components';
-
-import { MatInputModule } from '@angular/material/input';
-import { DateOptionsComponent } from 'apps/concierge/src/app/ui/date-options.component';
+import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 
 const STANDALONE_COMPONENTS = [
     GlobalBannerComponent,
     GlobalLoadingComponent,
-    IconComponent,
-    TranslatePipe,
-    SafePipe,
-    AvailableRoomsStateModalComponent,
+    CateringComponent,
+    CateringTopbarComponent,
 ];
 
 @NgModule({
-    declarations: [
-        AppComponent,
-        CateringComponent,
-        CateringTopbarComponent,
-        DateOptionsComponent,
-    ],
+    declarations: [AppComponent],
     imports: [
         BrowserModule,
         BrowserAnimationsModule,
-        FormsModule,
-        ReactiveFormsModule,
         AppRoutingModule,
-        MatSnackBarModule,
-        MatDialogModule,
-        MatRippleModule,
-        MatFormFieldModule,
-        MatSelectModule,
-        MatInputModule,
-        SharedCateringModule,
         ...STANDALONE_COMPONENTS,
         ServiceWorkerModule.register('ngsw-worker.js', {
             enabled: environment.production,

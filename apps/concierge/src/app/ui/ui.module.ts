@@ -38,7 +38,6 @@ import { SelectMapItemModalComponent } from './select-map-item-modal.component';
 
 const COMPONENTS: Type<any>[] = [
     AppSettingsModalComponent,
-    DateOptionsComponent,
     SearchbarComponent,
     ViewEventDetailsComponent,
     BookingRulesModalComponent,
@@ -71,6 +70,7 @@ const ANGULAR_MODULES: any[] = [FormsModule, ReactiveFormsModule];
 const STANDALONE_COMPONENTS = [
     ApplicationTopbarComponent,
     ApplicationSidebarComponent,
+    DateOptionsComponent,
 ];
 
 @NgModule({

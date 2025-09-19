@@ -16,19 +16,7 @@ import { EnrolmentEventDetailsComponent } from './enrolment-event-details.compon
 import { EnrolmentGuestConfirmComponent } from './enrolment-guest-confirm.component';
 import { EnrolmentComponent } from './enrolment.component';
 
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSelectModule } from '@angular/material/select';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
-import {
-    AuthenticatedImageDirective,
-    GlobalBannerComponent,
-    IconComponent,
-    TranslatePipe,
-} from '@placeos/components';
+import { GlobalBannerComponent } from '@placeos/components';
 import * as Sentry from '@sentry/angular';
 
 const ROUTES: Route[] = [
@@ -39,34 +27,17 @@ const ROUTES: Route[] = [
 
 const STANADALONE_COMPONENTS = [
     GlobalBannerComponent,
-    IconComponent,
-    TranslatePipe,
-    AuthenticatedImageDirective,
-];
-
-const MAT_MODULES = [
-    MatSnackBarModule,
-    MatCheckboxModule,
-    MatProgressSpinnerModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
+    EnrolmentComponent,
+    EnrolmentEventDetailsComponent,
+    EnrolmentGuestConfirmComponent,
+    EnrolmentErrorComponent,
 ];
 
 @NgModule({
-    declarations: [
-        AppComponent,
-        EnrolmentComponent,
-        EnrolmentEventDetailsComponent,
-        EnrolmentGuestConfirmComponent,
-        EnrolmentErrorComponent,
-    ],
+    declarations: [AppComponent],
     imports: [
         BrowserModule,
         BrowserAnimationsModule,
-        FormsModule,
-        ReactiveFormsModule,
-        ...MAT_MODULES,
         ...STANADALONE_COMPONENTS,
         RouterModule.forRoot(ROUTES, {
             initialNavigation: 'enabledBlocking',

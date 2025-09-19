@@ -1,5 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { PlaceOS_Service } from '@placeos/common';
+import { PlaceOS_Service, UploadsService } from '@placeos/common';
 
 @Component({
     selector: 'app-root',
@@ -28,12 +28,14 @@ import { PlaceOS_Service } from '@placeos/common';
 })
 export class AppComponent implements OnInit {
     private _placeos = inject(PlaceOS_Service);
+    private _uploads = inject(UploadsService);
 
     public get has_chat(): boolean {
         return this._placeos.has_chat;
     }
 
-    public ngOnInit(): void {
-        this._placeos.init();
+    public async ngOnInit() {
+        await this._placeos.init();
+        if (this._placeos.has_uploads) this._uploads.init();
     }
 }

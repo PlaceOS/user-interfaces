@@ -1,11 +1,22 @@
 import { Component, OnInit, inject } from '@angular/core';
 
+import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {
     MAT_BOTTOM_SHEET_DATA,
     MatBottomSheetRef,
 } from '@angular/material/bottom-sheet';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatRippleModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
 import { OrganisationService } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
+import {
+    DateFieldComponent,
+    DurationFieldComponent,
+    TimeFieldComponent,
+} from '@placeos/form-fields';
 import { Observable } from 'rxjs';
 import { FeaturesFilterService } from './features-filter.service';
 
@@ -185,7 +196,18 @@ import { FeaturesFilterService } from './features-filter.service';
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatRippleModule,
+        MatCheckboxModule,
+        FormsModule,
+        ReactiveFormsModule,
+        DateFieldComponent,
+        TimeFieldComponent,
+        DurationFieldComponent,
+        MatFormFieldModule,
+        MatSelectModule,
+    ],
 })
 export class FilterSpaceComponent implements OnInit {
     data = inject<{

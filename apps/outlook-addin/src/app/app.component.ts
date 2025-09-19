@@ -16,6 +16,7 @@ import {
     setTranslationService,
     setupCache,
     setupPlace,
+    UploadsService,
 } from '@placeos/common';
 import { invalidateToken, isMock, setToken, token } from '@placeos/ts-client';
 import { setInternalUserDomain } from '@placeos/users';
@@ -39,6 +40,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
     private _cache = inject(SwUpdate);
     private _snackbar = inject(MatSnackBar);
     private _locales = inject(LocaleService);
+    private _uploads = inject(UploadsService);
 
     title = 'outlook-addin';
 
@@ -84,6 +86,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
                 await this._authenticateGraphAPI();
             }
         }
+        if (this._settings.get('app.has_uploads')) this._uploads.init();
     }
 
     private async _initialiseAuth(local = true) {

@@ -1,6 +1,10 @@
 import { Component, inject } from '@angular/core';
-import { Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
+import { MatRadioModule } from '@angular/material/radio';
+import { Router, RouterModule } from '@angular/router';
 import { notifyError } from '@placeos/common';
+import { IconComponent } from '@placeos/components';
 import { CheckinStateService } from './checkin-state.service';
 
 @Component({
@@ -79,7 +83,13 @@ import { CheckinStateService } from './checkin-state.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        MatRadioModule,
+        MatRippleModule,
+        IconComponent,
+        RouterModule,
+        FormsModule,
+    ],
 })
 export class CheckinCovidComponent {
     private _router = inject(Router);

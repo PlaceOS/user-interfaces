@@ -1,5 +1,10 @@
+import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { BookingCardComponent } from '@placeos/bookings';
 import { AsyncHandler, CalendarEvent, currentUser } from '@placeos/common';
+import { TranslatePipe } from '@placeos/components';
+import { EventCardComponent } from '@placeos/events';
 
 import { ScheduleStateService } from 'apps/workplace/src/app/schedule/schedule-state.service';
 import { startOfMinute } from 'date-fns';
@@ -57,7 +62,13 @@ import { startOfMinute } from 'date-fns';
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        MatProgressSpinnerModule,
+        EventCardComponent,
+        BookingCardComponent,
+    ],
 })
 export class UpcomingBookingsComponent extends AsyncHandler implements OnInit {
     private _schedule = inject(ScheduleStateService);

@@ -6,7 +6,7 @@ import {
     inject,
     viewChild,
 } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import {
     AsyncHandler,
     SettingsService,
@@ -15,6 +15,12 @@ import {
     scanForQRCode,
 } from '@placeos/common';
 
+import { FormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { CheckinStateService } from './checkin-state.service';
 
 @Component({
@@ -101,7 +107,16 @@ import { CheckinStateService } from './checkin-state.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        TranslatePipe,
+        IconComponent,
+        MatProgressSpinnerModule,
+        RouterModule,
+        MatRippleModule,
+        MatFormFieldModule,
+        MatInputModule,
+        FormsModule,
+    ],
 })
 export class CheckinQRScanComponent
     extends AsyncHandler

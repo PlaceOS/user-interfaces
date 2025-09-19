@@ -1,6 +1,8 @@
+import { CommonModule } from '@angular/common';
 import { Component, HostListener, inject, OnInit } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
     AsyncHandler,
@@ -15,6 +17,10 @@ import {
     User,
 } from '@placeos/common';
 import {
+    AuthenticatedImageDirective,
+    CustomTooltipComponent,
+    IconComponent,
+    InteractiveMapComponent,
     MapPinComponent,
     MapRadiusComponent,
     VirtualKeyboardComponent,
@@ -33,6 +39,7 @@ import { MapLocation, showStaff } from '@placeos/users';
 import { startOfMinute } from 'date-fns';
 import { combineLatest } from 'rxjs';
 import { first, map } from 'rxjs/operators';
+import { AccessibilityControlsComponent } from './accessibility-controls.component';
 
 @Component({
     selector: '[app-explore]',
@@ -267,7 +274,16 @@ import { first, map } from 'rxjs/operators';
         SpacePipe,
     ],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
-    standalone: false,
+    imports: [
+        CommonModule,
+        AccessibilityControlsComponent,
+        MatRippleModule,
+        IconComponent,
+        InteractiveMapComponent,
+        AuthenticatedImageDirective,
+        CustomTooltipComponent,
+        RouterModule,
+    ],
 })
 export class ExploreComponent extends AsyncHandler implements OnInit {
     private _state = inject(ExploreStateService);
@@ -286,9 +302,9 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
 
     /** Number of seconds after a user action to reset the kiosk state */
     public reset_delay = 180;
-    public show_levels: boolean = true;
-    public show_legend: boolean = false;
-    public show_accessibility: boolean = false;
+    public show_levels = true;
+    public show_legend = false;
+    public show_accessibility = false;
     public legend = [
         { id: 'free', name: 'Space Available', color: '#43a047' },
         { id: 'busy', name: 'Space In Use', color: '#e53935' },

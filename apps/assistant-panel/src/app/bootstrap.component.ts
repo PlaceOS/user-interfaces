@@ -1,6 +1,13 @@
+import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatRippleModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AsyncHandler, OrganisationService, Space } from '@placeos/common';
+import { TranslatePipe } from '@placeos/components';
 import { querySystems } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import { debounceTime, map, shareReplay, switchMap } from 'rxjs/operators';
@@ -114,7 +121,15 @@ const SYS_ID_KEY = 'PLACEOS.ASSISTANT.system';
         </div>
     `,
     styles: [],
-    standalone: false,
+    imports: [
+        MatAutocompleteModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatProgressSpinnerModule,
+        MatRippleModule,
+        CommonModule,
+        TranslatePipe,
+    ],
 })
 export class BootstrapComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);

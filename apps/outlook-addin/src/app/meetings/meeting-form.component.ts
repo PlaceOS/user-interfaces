@@ -1,5 +1,14 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { AssetListFieldComponent } from '@placeos/assets';
+import { CateringListFieldComponent } from '@placeos/catering';
 import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
     AsyncHandler,
@@ -8,14 +17,27 @@ import {
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
+import { IconComponent } from '@placeos/components';
 import { EventFormService } from '@placeos/events';
+import {
+    DateFieldComponent,
+    DurationFieldComponent,
+    HostSelectFieldComponent,
+    RichTextInputComponent,
+    SpaceListFieldComponent,
+    TimeFieldComponent,
+    UserListFieldComponent,
+} from '@placeos/form-fields';
 import { FindAvailabilityModalComponent } from '@placeos/users';
 
 @Component({
     selector: 'meeting-booking-form',
     template: `
         @if (form) {
-            <div class="space-y-2 divide-y divide-base-200" [formGroup]="form">
+            <div
+                class="z-0 space-y-2 divide-y divide-base-200"
+                [formGroup]="form"
+            >
                 <section class="p-4">
                     <h3 class="flex items-center space-x-2">
                         <div
@@ -324,7 +346,26 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
     `,
     styles: [``],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatRippleModule,
+        FormsModule,
+        ReactiveFormsModule,
+        RichTextInputComponent,
+        AssetListFieldComponent,
+        CateringListFieldComponent,
+        SpaceListFieldComponent,
+        IconComponent,
+        UserListFieldComponent,
+        DateFieldComponent,
+        TimeFieldComponent,
+        DurationFieldComponent,
+        MatFormFieldModule,
+        MatInputModule,
+        MatSelectModule,
+        MatCheckboxModule,
+        HostSelectFieldComponent,
+    ],
 })
 export class MeetingBookingFormComponent extends AsyncHandler {
     private _service = inject(EventFormService);

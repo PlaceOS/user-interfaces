@@ -1,4 +1,6 @@
+import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
 import { Router } from '@angular/router';
 import { CalendarEvent } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
@@ -50,7 +52,7 @@ import { Observable, of } from 'rxjs';
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [CommonModule, MatRippleModule],
 })
 export class BookingConfirmedComponent implements OnInit {
     private _state = inject(EventFormService);

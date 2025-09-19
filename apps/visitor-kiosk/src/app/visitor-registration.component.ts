@@ -1,6 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router, RouterModule } from '@angular/router';
 import { startOfMinute } from 'date-fns';
 
 import {
@@ -13,7 +13,14 @@ import {
     User,
 } from '@placeos/common';
 
+import { CommonModule } from '@angular/common';
+import { MatRippleModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { BookingFormService } from '@placeos/bookings';
+import { IconComponent, TranslatePipe } from '@placeos/components';
+import { UserSearchFieldComponent } from '@placeos/form-fields';
 import { CheckinStateService } from './checkin/checkin-state.service';
 
 @Component({
@@ -166,7 +173,18 @@ import { CheckinStateService } from './checkin/checkin-state.service';
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        IconComponent,
+        MatRippleModule,
+        MatProgressSpinnerModule,
+        MatFormFieldModule,
+        MatInputModule,
+        ReactiveFormsModule,
+        UserSearchFieldComponent,
+        RouterModule,
+    ],
 })
 export class VisitorRegistrationComponent implements OnInit {
     private _settings = inject(SettingsService);

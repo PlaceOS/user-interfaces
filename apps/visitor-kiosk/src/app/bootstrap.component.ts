@@ -12,7 +12,12 @@ import {
 } from '@placeos/common';
 import { first } from 'rxjs/operators';
 
-import { VirtualKeyboardComponent } from '@placeos/components';
+import { CommonModule } from '@angular/common';
+import { MatRippleModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
+import { TranslatePipe, VirtualKeyboardComponent } from '@placeos/components';
 
 @Component({
     selector: '[bootstrap]',
@@ -339,7 +344,14 @@ import { VirtualKeyboardComponent } from '@placeos/components';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatRippleModule,
+        TranslatePipe,
+        MatProgressSpinnerModule,
+        MatFormFieldModule,
+        MatSelectModule,
+    ],
 })
 export class BootstrapComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);

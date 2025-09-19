@@ -1,19 +1,10 @@
 import { Clipboard } from '@angular/cdk/clipboard';
-import { inject } from '@angular/core';
+import { inject, signal } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SwUpdate } from '@angular/service-worker';
-import {
-    Amazon,
-    Azure,
-    Google,
-    initialiseUploadService,
-    OpenStack,
-} from '@placeos/cloud-uploads';
 
-import { setCustomHeaders } from '@placeos/svg-viewer';
 import {
-    apiKey,
     clientId,
     convertPairStringToMap,
     invalidateToken,
@@ -36,6 +27,16 @@ declare global {
     interface Window {
         pasteToken: (t: string) => void;
     }
+}
+
+const LOADING_MESSAGE = signal('Loading...');
+
+export function getLoadingMessage() {
+    return LOADING_MESSAGE;
+}
+
+export function setLoadingMessage(message: string) {
+    LOADING_MESSAGE.set(message);
 }
 
 export function initSentry(dsn: string, sample_rate = 0.1) {
@@ -69,7 +70,6 @@ import { AsyncHandler } from './async-handler.class';
 import { requestScreenWakeLock } from './fixed-device-helpers';
 import {
     firstTruthyValueFrom,
-    isMobileSafari,
     log,
     nextValueFrom,
     setAppName,
@@ -84,9 +84,9 @@ import { setupPlace } from './placeos';
 import { SettingsService } from './settings.service';
 import { current_user, currentUser } from './user-state';
 
-let _mocks = false;
+let _mocks: (() => void) | null = null;
 
-export function setMocks(value: boolean) {
+export function setMocks(value: () => void) {
     _mocks = value;
 }
 
@@ -120,13 +120,19 @@ export class PlaceOS_Service extends AsyncHandler {
         return this._settings.get('app.chat.enabled');
     }
 
-    public set mocks(value: boolean) {
+    public get has_uploads() {
+        return this._settings.get('app.has_uploads') || false;
+    }
+
+    public set mocks(value: () => void) {
         _mocks = value;
     }
 
     public async init() {
         log('APP', 'MOCKS:', _mocks);
         if (_mocks) {
+            setLoadingMessage('Initializing mocks...');
+            _mocks();
             this._hotkey.listen(['Control', 'Alt', 'Shift', 'KeyM'], () => {
                 localStorage.setItem(
                     'mock',
@@ -159,6 +165,7 @@ export class PlaceOS_Service extends AsyncHandler {
                 .then((tkn) => this._pasteToken(tkn));
         });
         window.pasteToken = (t) => this._pasteToken(t);
+        setLoadingMessage('Checking params...');
         this._route.queryParamMap.subscribe((params) => {
             if (params.has('hide_nav'))
                 localStorage.setItem('PlaceOS.hide_nav', 'true');
@@ -178,6 +185,7 @@ export class PlaceOS_Service extends AsyncHandler {
             }
             if (this._region || this._zone) this._setZones();
         });
+        setLoadingMessage('Initializing settings...');
         setNotifyOutlet(this._snackbar);
         setTranslationService(this._locale);
         /** Wait for settings to initialise */
@@ -195,6 +203,7 @@ export class PlaceOS_Service extends AsyncHandler {
                 queryParams: query,
             });
         }
+        setLoadingMessage('Authenticating...');
         /** Wait for authentication details to load */
         await setupPlace(settings).catch((_) => console.error(_));
         await lastValueFrom(this._org.initialised.pipe(first((_) => _)));
@@ -216,8 +225,6 @@ export class PlaceOS_Service extends AsyncHandler {
         this._initAnalytics();
         initSentry(this._settings.get('app.sentry_dsn'));
         try {
-            this._setSafariHeaders();
-            this._initUploads();
             this._initFixedDevice();
         } catch {
             log(
@@ -239,12 +246,14 @@ export class PlaceOS_Service extends AsyncHandler {
     private _initAnalytics() {
         const tracking_id = this._settings.get('app.analytics.tracking_id');
         if (!tracking_id) return;
+        setLoadingMessage('Initializing analytics...');
         this._analytics.init(tracking_id);
         this._analytics.load(tracking_id);
         this._analytics.setUser(currentUser().id);
     }
 
     private _initLocale() {
+        setLoadingMessage('Loading locale...');
         try {
             let locale = localStorage.getItem('PLACEOS.locale');
             const locales = this._settings.get('app.locales') || [];
@@ -288,6 +297,7 @@ export class PlaceOS_Service extends AsyncHandler {
 
     private _checkReload() {
         if (!hasNewVersion()) return;
+        setLoadingMessage('Checking for updates...');
 
         location.reload();
         this.timeout(
@@ -296,39 +306,9 @@ export class PlaceOS_Service extends AsyncHandler {
         );
     }
 
-    private _setSafariHeaders() {
-        if (isMobileSafari()) return;
-        const tkn = token();
-        setCustomHeaders(
-            tkn === 'x-api-key'
-                ? { 'x-api-key': apiKey() }
-                : { Authorization: `Bearer ${tkn}` },
-        );
-    }
-
-    private _initUploads(tries = 1) {
-        if (!this._settings.get('app.has_uploads')) return;
-        this.timeout('init_uploads', () => {
-            try {
-                initialiseUploadService({
-                    auto_start: true,
-                    token: token(),
-                    endpoint: '/api/engine/v2/uploads',
-                    worker_url: 'assets/md5_worker.js',
-                    providers: [Amazon, Azure, Google, OpenStack] as any,
-                });
-            } catch (e) {
-                this.timeout(
-                    'init_uploads',
-                    () => this._initUploads((tries += 1)),
-                    1000 * tries,
-                );
-            }
-        });
-    }
-
     private async _initFixedDevice() {
         if (!isFixedDevice()) return;
+        setLoadingMessage('Initializing as fixed device...');
         this.interval(
             'auto-update-version',
             () => this._checkReload(),

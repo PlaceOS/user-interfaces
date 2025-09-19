@@ -3,10 +3,12 @@ import {
     MatBottomSheet,
     MatBottomSheetRef,
 } from '@angular/material/bottom-sheet';
+import { MatRippleModule } from '@angular/material/core';
 import { Router } from '@angular/router';
 import { currentUser, getInvalidFields, notifyError } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
 import { MeetingFlowConfirmComponent } from 'apps/workplace/src/app/book/meeting-flow/meeting-flow-confirm.component';
+import { MeetingBookingFormComponent } from './meeting-form.component';
 
 @Component({
     selector: 'meeting-booking',
@@ -22,7 +24,7 @@ import { MeetingFlowConfirmComponent } from 'apps/workplace/src/app/book/meeting
                 </header>
                 <meeting-booking-form></meeting-booking-form>
                 <div
-                    class="sticky bottom-0 flex flex-col items-center space-y-2 border-t border-base-200 bg-base-100 px-4 py-2 sm:flex-row sm:space-x-2 sm:space-y-0"
+                    class="sticky bottom-0 z-20 flex flex-col items-center space-y-2 border-t border-base-200 bg-base-100 px-4 py-2 sm:flex-row sm:space-x-2 sm:space-y-0"
                 >
                     <button
                         btn
@@ -45,7 +47,7 @@ import { MeetingFlowConfirmComponent } from 'apps/workplace/src/app/book/meeting
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [MatRippleModule, MeetingBookingFormComponent],
 })
 export class MeetingBookingComponent {
     private _service = inject(EventFormService);

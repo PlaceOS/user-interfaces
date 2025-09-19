@@ -1,5 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { first, map } from 'rxjs/operators';
 
 import { MatDialog } from '@angular/material/dialog';
@@ -11,8 +11,19 @@ import {
 import { AsyncHandler, nextValueFrom, SettingsService } from '@placeos/common';
 import { combineLatest } from 'rxjs';
 
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import { OrganisationService } from '@placeos/common';
-import { AvailableRoomsStateModalComponent } from '@placeos/components';
+import {
+    AvailableRoomsStateModalComponent,
+    IconComponent,
+    TranslatePipe,
+} from '@placeos/components';
+import { DateOptionsComponent } from 'apps/concierge/src/app/ui/date-options.component';
 
 @Component({
     selector: 'catering-topbar',
@@ -166,7 +177,18 @@ import { AvailableRoomsStateModalComponent } from '@placeos/components';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        DateOptionsComponent,
+        MatRippleModule,
+        IconComponent,
+        TranslatePipe,
+        MatFormFieldModule,
+        MatSelectModule,
+        FormsModule,
+        MatInputModule,
+        RouterModule,
+    ],
 })
 export class CateringTopbarComponent extends AsyncHandler implements OnInit {
     private _orders = inject(CateringOrdersService);

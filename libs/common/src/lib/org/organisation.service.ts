@@ -1,14 +1,12 @@
 import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import {
-    EncryptionLevel,
     PlaceMetadata,
     PlaceZone,
     authority,
     getModule,
     isMock,
     onlineState,
-    querySettings,
     queryZones,
     showMetadata,
 } from '@placeos/ts-client';
@@ -22,19 +20,15 @@ import {
     shareReplay,
 } from 'rxjs/operators';
 
+import { log, mapLastValueFrom, unique } from '../general';
+import { notifyError } from '../notifications';
+import { SettingsService } from '../settings.service';
 import {
     Building,
     BuildingLevel,
     Organisation,
     Region,
-    SettingsService,
-    log,
-    mapLastValueFrom,
-    notifyError,
-    unique,
-} from '@placeos/common';
-
-import * as yaml from 'js-yaml';
+} from '../types/org.classes';
 
 @Injectable({
     providedIn: 'root',
@@ -425,16 +419,16 @@ export class OrganisationService {
      * Load region data for the organisation
      */
     public async loadRegions(): Promise<void> {
-        const list = await queryZones({
-            tags: 'region',
-            parent_id: this._organisation?.id || '',
-            limit: 500,
-        } as any)
-            .pipe(
+        const list = await lastValueFrom(
+            queryZones({
+                tags: 'region',
+                parent_id: this._organisation?.id || '',
+                limit: 500,
+            } as any).pipe(
                 map((i) => i.data.map((_) => new Region(_))),
                 catchError(() => of([])),
-            )
-            .toPromise();
+            ),
+        );
         this._regions.next(list);
     }
 
@@ -498,27 +492,27 @@ export class OrganisationService {
                         catchError(() => of({})),
                     ),
                 ),
-                lastValueFrom(
-                    (this.app_key.includes('concierge')
-                        ? querySettings({ parent_id: bld.id })
-                        : of({ data: {} as any })
-                    ).pipe(
-                        catchError(() => of({ data: {} as any })),
-                        map((_) => {
-                            try {
-                                return yaml.load(
-                                    _?.data.find(
-                                        (_) =>
-                                            _.encryption_level ===
-                                            EncryptionLevel.None,
-                                    ) || { settings_string: '' },
-                                );
-                            } catch {
-                                return {};
-                            }
-                        }),
-                    ),
-                ),
+                // lastValueFrom(
+                //     (this.app_key.includes('concierge')
+                //         ? querySettings({ parent_id: bld.id })
+                //         : of({ data: {} as any })
+                //     ).pipe(
+                //         catchError(() => of({ data: {} as any })),
+                //         map((_) => {
+                //             try {
+                //                 return parseYAML(
+                //                     _?.data.find(
+                //                         (_) =>
+                //                             _.encryption_level ===
+                //                             EncryptionLevel.None,
+                //                     ) || { settings_string: '' },
+                //                 );
+                //             } catch {
+                //                 return {};
+                //             }
+                //         }),
+                //     ),
+                // ),
             ]);
         this._building_settings[bld.id] = {
             ...(driver_settings || {}),

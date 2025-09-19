@@ -1,5 +1,7 @@
 import { Component, input, output } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
 import { Space } from '@placeos/common';
+import { IconComponent } from '@placeos/components';
 
 @Component({
     selector: 'find-space-item',
@@ -25,7 +27,7 @@ import { Space } from '@placeos/common';
         </button>
     `,
     styles: [``],
-    standalone: false,
+    imports: [MatRippleModule, IconComponent],
 })
 export class FindSpaceItemComponent {
     public readonly space = input<Space>(undefined);

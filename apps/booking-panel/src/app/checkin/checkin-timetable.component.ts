@@ -90,7 +90,7 @@ interface EventBlock {
             }
         `,
     ],
-    standalone: false,
+    imports: [],
 })
 export class CheckinTimetableComponent
     extends AsyncHandler

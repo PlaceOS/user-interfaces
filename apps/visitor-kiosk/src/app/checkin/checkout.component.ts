@@ -1,6 +1,9 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { Router } from '@angular/router';
+import { MatRippleModule } from '@angular/material/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { Router, RouterModule } from '@angular/router';
 import { OrganisationService, i18n, notifySuccess } from '@placeos/common';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { first } from 'rxjs/operators';
 import { CheckinStateService } from './checkin-state.service';
 
@@ -49,7 +52,13 @@ import { CheckinStateService } from './checkin-state.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        MatRippleModule,
+        TranslatePipe,
+        IconComponent,
+        MatProgressSpinnerModule,
+        RouterModule,
+    ],
 })
 export class CheckoutComponent implements OnInit {
     private _state = inject(CheckinStateService);
