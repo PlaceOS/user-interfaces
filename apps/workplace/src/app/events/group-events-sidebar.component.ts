@@ -1,5 +1,13 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatRippleModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
 import { AsyncHandler, nextValueFrom, SettingsService } from '@placeos/common';
+import { TranslatePipe } from '@placeos/components';
+import { DateCalendarComponent } from '@placeos/form-fields';
 import {
     addDays,
     addMonths,
@@ -93,7 +101,16 @@ import { GroupEventsStateService } from './group-events-state.service';
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        FormsModule,
+        MatCheckboxModule,
+        MatRippleModule,
+        DateCalendarComponent,
+        MatFormFieldModule,
+        MatSelectModule,
+        TranslatePipe,
+    ],
 })
 export class GroupEventsSidebarComponent
     extends AsyncHandler

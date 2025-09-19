@@ -10,6 +10,8 @@ import {
     OrganisationService,
 } from '@placeos/common';
 import { lastValueFrom, timer } from 'rxjs';
+import { NewDeskFlowFormComponent } from './desk-flow/desk-flow-form.component';
+import { NewDeskFlowSuccessComponent } from './desk-flow/desk-flow-success.component';
 
 @Component({
     selector: 'placeos-new-book-desk-flow',
@@ -33,7 +35,7 @@ import { lastValueFrom, timer } from 'rxjs';
             }
         `,
     ],
-    standalone: false,
+    imports: [NewDeskFlowSuccessComponent, NewDeskFlowFormComponent],
 })
 export class NewDeskFlowComponent extends AsyncHandler implements OnInit {
     private _state = inject(BookingFormService);

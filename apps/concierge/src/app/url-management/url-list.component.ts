@@ -1,5 +1,13 @@
 import { Component, inject } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
+import { MatMenuModule } from '@angular/material/menu';
 import { SettingsService, ShortURL, getShortUrlQRCode } from '@placeos/common';
+import {
+    CustomTooltipComponent,
+    IconComponent,
+    SimpleTableComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { UrlManagementService } from './url-management.service';
 
 @Component({
@@ -123,7 +131,14 @@ import { UrlManagementService } from './url-management.service';
         </ng-template>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        SimpleTableComponent,
+        MatMenuModule,
+        IconComponent,
+        TranslatePipe,
+        MatRippleModule,
+        CustomTooltipComponent,
+    ],
 })
 export class UrlListComponent {
     private _manager = inject(UrlManagementService);

@@ -1,5 +1,8 @@
 import { Component, inject } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
+import { RouterModule } from '@angular/router';
 import { SettingsService } from '@placeos/common';
+import { IconComponent } from '@placeos/components';
 
 const DEFAULT_FEATURES = ['desks', 'spaces', 'catering', 'contact-tracing'];
 
@@ -104,7 +107,7 @@ const DEFAULT_FEATURES = ['desks', 'spaces', 'catering', 'contact-tracing'];
             }
         `,
     ],
-    standalone: false,
+    imports: [RouterModule, IconComponent, MatRippleModule],
 })
 export class ReportsMenuComponent {
     private _settings = inject(SettingsService);

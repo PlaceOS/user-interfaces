@@ -1,7 +1,13 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { Router } from '@angular/router';
+import { MatRippleModule } from '@angular/material/core';
+import { MatTabsModule } from '@angular/material/tabs';
+import { Router, RouterModule } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
+import { TranslatePipe } from '@placeos/components';
+import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
+import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
 import { PointsStateService } from './points-state.service';
+import { PointsTopbarComponent } from './points-topbar.component';
 
 @Component({
     selector: 'placeos-new-points',
@@ -57,7 +63,15 @@ import { PointsStateService } from './points-state.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        MatTabsModule,
+        RouterModule,
+        ApplicationTopbarComponent,
+        ApplicationSidebarComponent,
+        PointsTopbarComponent,
+        MatRippleModule,
+        TranslatePipe,
+    ],
 })
 export class PointsComponent extends AsyncHandler implements OnInit {
     private _state = inject(PointsStateService);

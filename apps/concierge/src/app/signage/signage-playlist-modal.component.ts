@@ -6,9 +6,28 @@ import {
     signal,
     viewChild,
 } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import {
+    FormControl,
+    FormGroup,
+    FormsModule,
+    ReactiveFormsModule,
+    Validators,
+} from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { MatSliderModule } from '@angular/material/slider';
 import { notifyError, padLength } from '@placeos/common';
+import {
+    MediaDurationPipe,
+    SettingsToggleComponent,
+    TranslatePipe,
+} from '@placeos/components';
+import {
+    DateFieldComponent,
+    DurationFieldComponent,
+    TimeFieldComponent,
+} from '@placeos/form-fields';
 import { MediaAnimation, SignagePlaylist } from '@placeos/ts-client';
 import {
     addDays,
@@ -18,6 +37,8 @@ import {
     set,
     startOfDay,
 } from 'date-fns';
+import { FullscreenModalShellComponent } from 'libs/components/src/lib/fullscreen-modal-shell.component';
+import { CronInputFieldComponent } from 'libs/form-fields/src/lib/cron-input-field.component';
 import { BehaviorSubject } from 'rxjs';
 import { SignageStateService } from './signage-state.service';
 
@@ -350,7 +371,21 @@ import { SignageStateService } from './signage-state.service';
         </fullscreen-modal-shell>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        FullscreenModalShellComponent,
+        SettingsToggleComponent,
+        DurationFieldComponent,
+        ReactiveFormsModule,
+        CronInputFieldComponent,
+        TranslatePipe,
+        TimeFieldComponent,
+        DateFieldComponent,
+        MatFormFieldModule,
+        MatSelectModule,
+        FormsModule,
+        MediaDurationPipe,
+        MatSliderModule,
+    ],
 })
 export class SignagePlaylistModalComponent implements OnInit {
     private _data = inject<SignagePlaylist>(MAT_DIALOG_DATA) ?? ({} as any);

@@ -1,7 +1,17 @@
 import { Component, EventEmitter, inject, OnInit, Output } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MatRippleModule } from '@angular/material/core';
+import {
+    MAT_DIALOG_DATA,
+    MatDialogModule,
+    MatDialogRef,
+} from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { DialogEvent, User } from '@placeos/common';
+import { IconComponent, TranslatePipe } from '@placeos/components';
+import { UserSearchFieldComponent } from '@placeos/form-fields';
 import { showStaff } from '@placeos/users';
 import { ParkingSpace } from './parking-state.service';
 
@@ -117,7 +127,16 @@ import { ParkingSpace } from './parking-state.service';
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        MatDialogModule,
+        TranslatePipe,
+        MatRippleModule,
+        MatProgressSpinnerModule,
+        MatFormFieldModule,
+        MatInputModule,
+        IconComponent,
+        UserSearchFieldComponent,
+    ],
 })
 export class ParkingSpaceModalComponent implements OnInit {
     private _data = inject<ParkingSpace>(MAT_DIALOG_DATA);

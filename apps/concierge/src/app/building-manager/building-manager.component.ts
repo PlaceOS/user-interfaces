@@ -1,4 +1,9 @@
 import { Component, inject } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
+import { TranslatePipe } from '@placeos/components';
+import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
+import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
+import { BuildingListComponent } from './building-list.component';
 import { BuildingManagementService } from './building-management.service';
 
 @Component({
@@ -47,7 +52,13 @@ import { BuildingManagementService } from './building-management.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        BuildingListComponent,
+        ApplicationTopbarComponent,
+        ApplicationSidebarComponent,
+        MatRippleModule,
+        TranslatePipe,
+    ],
 })
 export class BuildingManagerComponent {
     private _state = inject(BuildingManagementService);

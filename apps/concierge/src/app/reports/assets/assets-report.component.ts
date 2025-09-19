@@ -1,10 +1,24 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { ActivatedRoute } from '@angular/router';
+import {
+    AsyncHandler,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
+import {
+    AuthenticatedImageDirective,
+    TranslatePipe,
+} from '@placeos/components';
 import { debounceTime, map } from 'rxjs/operators';
 
-import { AsyncHandler, SettingsService } from '@placeos/common';
-
-import { ActivatedRoute } from '@angular/router';
-import { OrganisationService } from '@placeos/common';
+import { ReportsOptionsComponent } from '../reports-options.component';
+import { AssetReportDailyUsageComponent } from './asset-report-daily-usage.component';
+import { AssetReportExpiredItemsComponent } from './asset-report-expired-items.component';
+import { AssetReportOverallComponent } from './asset-report-overall.component';
+import { AssetReportProductUsageComponent } from './asset-report-product-usage.component';
+import { AssetReportUsersComponent } from './asset-report-users.component';
 import { AssetsReportService } from './assets-report.service';
 
 @Component({
@@ -74,7 +88,18 @@ import { AssetsReportService } from './assets-report.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        MatProgressSpinnerModule,
+        AuthenticatedImageDirective,
+        ReportsOptionsComponent,
+        AssetReportDailyUsageComponent,
+        AssetReportExpiredItemsComponent,
+        AssetReportOverallComponent,
+        AssetReportProductUsageComponent,
+        AssetReportUsersComponent,
+    ],
 })
 export class AssetsReportComponent extends AsyncHandler {
     private _state = inject(AssetsReportService);

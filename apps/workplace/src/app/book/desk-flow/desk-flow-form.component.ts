@@ -13,10 +13,12 @@ import {
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
+import { TranslatePipe } from '@placeos/components';
 import { isBefore, startOfMinute } from 'date-fns';
 import { lastValueFrom } from 'rxjs';
 import { first } from 'rxjs/operators';
 import { NewDeskFlowConfirmComponent } from './desk-flow-confirm.component';
+import { NewDeskFormDetailsComponent } from './desk-form-details.component';
 
 @Component({
     selector: 'desk-flow-form',
@@ -53,7 +55,7 @@ import { NewDeskFlowConfirmComponent } from './desk-flow-confirm.component';
             </div>
         </div>
     `,
-    standalone: false,
+    imports: [TranslatePipe, NewDeskFormDetailsComponent],
 })
 export class NewDeskFlowFormComponent implements OnInit {
     private _state = inject(BookingFormService);

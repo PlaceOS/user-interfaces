@@ -1,7 +1,9 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import {
+    BookingCardComponent,
     BookingFormService,
     checkinBooking,
     removeBooking,
@@ -16,8 +18,13 @@ import {
     notifySuccess,
     SettingsService,
 } from '@placeos/common';
-import { openConfirmModal } from '@placeos/components';
-import { EventFormService, queryEvents, removeEvent } from '@placeos/events';
+import { openConfirmModal, TranslatePipe } from '@placeos/components';
+import {
+    EventCardComponent,
+    EventFormService,
+    queryEvents,
+    removeEvent,
+} from '@placeos/events';
 import { format } from 'date-fns';
 import { lastValueFrom } from 'rxjs';
 import { LandingStateService } from './landing-state.service';
@@ -86,7 +93,13 @@ import { LandingStateService } from './landing-state.service';
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        RouterModule,
+        EventCardComponent,
+        BookingCardComponent,
+        TranslatePipe,
+    ],
 })
 export class LandingUpcomingComponent
     extends AsyncHandler

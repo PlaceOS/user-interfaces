@@ -1,7 +1,16 @@
 import { Component, inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { FormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
+import {
+    MAT_DIALOG_DATA,
+    MatDialogModule,
+    MatDialogRef,
+} from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { updateBooking } from '@placeos/bookings';
 import { Booking, i18n, notifyError, notifySuccess } from '@placeos/common';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 
 @Component({
     selector: 'visitor-notes-modal',
@@ -57,7 +66,15 @@ import { Booking, i18n, notifyError, notifySuccess } from '@placeos/common';
         }
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        MatDialogModule,
+        MatRippleModule,
+        TranslatePipe,
+        MatFormFieldModule,
+        MatInputModule,
+        IconComponent,
+        FormsModule,
+    ],
 })
 export class VisitorNotesModalComponent {
     private _data = inject<{

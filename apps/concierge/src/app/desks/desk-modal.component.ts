@@ -1,10 +1,20 @@
 import { Component, EventEmitter, inject, OnInit, Output } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import {
+    FormControl,
+    FormGroup,
+    ReactiveFormsModule,
+    Validators,
+} from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
 import {
     MAT_DIALOG_DATA,
     MatDialog,
+    MatDialogModule,
     MatDialogRef,
 } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
     Desk,
     DialogEvent,
@@ -14,6 +24,7 @@ import {
     unique,
     User,
 } from '@placeos/common';
+import { TranslatePipe } from '@placeos/components';
 import { showStaff } from '@placeos/users';
 import { lastValueFrom } from 'rxjs';
 import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.component';
@@ -214,7 +225,15 @@ const CHARS = '0123456789ABCDEF';
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        MatDialogModule,
+        MatRippleModule,
+        TranslatePipe,
+        MatFormFieldModule,
+        MatInputModule,
+        ReactiveFormsModule,
+        MatProgressSpinnerModule,
+    ],
 })
 export class DeskModalComponent implements OnInit {
     private _data = inject<{

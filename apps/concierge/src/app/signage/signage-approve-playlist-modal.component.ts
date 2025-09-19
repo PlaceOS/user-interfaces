@@ -6,6 +6,7 @@ import {
     MatDialogModule,
     MatDialogRef,
 } from '@angular/material/dialog';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { i18n, nextValueFrom, notifySuccess } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import {
@@ -150,6 +151,7 @@ import { SignageStateService } from './signage-state.service';
         TranslatePipe,
         MatRippleModule,
         MatDialogModule,
+        MatProgressSpinnerModule,
     ],
 })
 export class SignageApprovePlaylistModalComponent implements OnInit {

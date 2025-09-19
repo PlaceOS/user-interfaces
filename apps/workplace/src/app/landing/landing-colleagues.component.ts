@@ -1,4 +1,9 @@
+import { CommonModule } from '@angular/common';
 import { Component, ElementRef, inject, viewChild } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router } from '@angular/router';
 import {
     AsyncHandler,
@@ -7,6 +12,11 @@ import {
     SettingsService,
     User,
 } from '@placeos/common';
+import {
+    IconComponent,
+    TranslatePipe,
+    UserAvatarComponent,
+} from '@placeos/components';
 import { EventFormService } from '@placeos/events';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -217,7 +227,16 @@ import { LandingStateService } from './landing-state.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        IconComponent,
+        MatRippleModule,
+        MatProgressSpinnerModule,
+        UserAvatarComponent,
+        FormsModule,
+        MatMenuModule,
+    ],
 })
 export class LandingColleaguesComponent extends AsyncHandler {
     private _state = inject(LandingStateService);

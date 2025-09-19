@@ -1,7 +1,15 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject, viewChild } from '@angular/core';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MatRippleModule } from '@angular/material/core';
+import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { nextValueFrom, OrganisationService } from '@placeos/common';
-import { CustomTooltipComponent } from '@placeos/components';
+import {
+    CustomTooltipComponent,
+    IconComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { filter, map, shareReplay, switchMap } from 'rxjs/operators';
@@ -81,7 +89,16 @@ import { filter, map, shareReplay, switchMap } from 'rxjs/operators';
         </ng-template>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatDialogModule,
+        MatRippleModule,
+        MatFormFieldModule,
+        MatInputModule,
+        TranslatePipe,
+        IconComponent,
+        CustomTooltipComponent,
+    ],
 })
 export class RoleManagementModalComponent {
     private _org = inject(OrganisationService);

@@ -1,13 +1,28 @@
 import { Component, OnDestroy, inject } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import {
+    FormControl,
+    FormGroup,
+    ReactiveFormsModule,
+    Validators,
+} from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatSliderModule } from '@angular/material/slider';
 import { i18n, notifyError, notifySuccess } from '@placeos/common';
+import {
+    AuthenticatedImageDirective,
+    TranslatePipe,
+} from '@placeos/components';
+import { DateFieldComponent } from '@placeos/form-fields';
 import {
     MediaAnimation,
     SignageMedia,
     updateSignageMedia,
 } from '@placeos/ts-client';
 import { addYears, endOfDay, getUnixTime, startOfDay } from 'date-fns';
+import { FullscreenModalShellComponent } from 'libs/components/src/lib/fullscreen-modal-shell.component';
 import { lastValueFrom } from 'rxjs';
 
 @Component({
@@ -203,7 +218,17 @@ import { lastValueFrom } from 'rxjs';
         </fullscreen-modal-shell>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        FullscreenModalShellComponent,
+        ReactiveFormsModule,
+        DateFieldComponent,
+        TranslatePipe,
+        MatFormFieldModule,
+        MatInputModule,
+        MatSelectModule,
+        MatSliderModule,
+        AuthenticatedImageDirective,
+    ],
 })
 export class SignageMediaModalComponent implements OnDestroy {
     private _data = inject<{

@@ -1,4 +1,9 @@
 import { Component, inject } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
+import { TranslatePipe } from '@placeos/components';
+import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
+import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
+import { LevelListComponent } from './level-list.component';
 import { LevelManagementService } from './level-management.service';
 
 @Component({
@@ -47,7 +52,13 @@ import { LevelManagementService } from './level-management.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        ApplicationTopbarComponent,
+        ApplicationSidebarComponent,
+        MatRippleModule,
+        TranslatePipe,
+        LevelListComponent,
+    ],
 })
 export class LevelManagerComponent {
     private _manager = inject(LevelManagementService);

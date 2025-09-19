@@ -3,12 +3,27 @@ import {
     AbstractControl,
     FormControl,
     FormGroup,
+    FormsModule,
     Validators,
 } from '@angular/forms';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Locker, LockerBank } from '@placeos/bookings';
 import { AsyncHandler, DialogEvent, User } from '@placeos/common';
-import { addChipItem, removeChipItem } from '@placeos/form-fields';
+import {
+    IconComponent,
+    SettingsToggleComponent,
+    TranslatePipe,
+} from '@placeos/components';
+import {
+    addChipItem,
+    CounterComponent,
+    removeChipItem,
+} from '@placeos/form-fields';
 import { showStaff } from '@placeos/users';
 
 type Box = [number, number, number, number];
@@ -259,7 +274,18 @@ function validateNoOverlap(box: Box, check_boxes: Box[]): boolean {
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        TranslatePipe,
+        IconComponent,
+        MatRippleModule,
+        MatProgressSpinnerModule,
+        MatFormFieldModule,
+        MatChipsModule,
+        MatInputModule,
+        CounterComponent,
+        FormsModule,
+        SettingsToggleComponent,
+    ],
 })
 export class LockerModalComponent extends AsyncHandler implements OnInit {
     private _data = inject<{

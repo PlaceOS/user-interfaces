@@ -1,5 +1,6 @@
-import { DatePipe } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
     AsyncHandler,
@@ -10,6 +11,7 @@ import {
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
+import { TranslatePipe } from '@placeos/components';
 import {
     EventDetailsModalComponent,
     SetupBreakdownModalComponent,
@@ -24,7 +26,9 @@ import {
 } from 'date-fns';
 import { combineLatest, lastValueFrom } from 'rxjs';
 import { map, shareReplay, startWith } from 'rxjs/operators';
+import { DateOptionsComponent } from '../ui/date-options.component';
 import { EventsStateService } from './events-state.service';
+import { RoomBookingSearchComponent } from './room-booking-search.component';
 
 @Component({
     selector: 'room-week-bookings-timeline',
@@ -188,7 +192,13 @@ import { EventsStateService } from './events-state.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatRippleModule,
+        RoomBookingSearchComponent,
+        DateOptionsComponent,
+        TranslatePipe,
+    ],
 })
 export class RoomWeekBookingsTimelineComponent
     extends AsyncHandler

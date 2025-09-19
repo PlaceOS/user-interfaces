@@ -2,7 +2,11 @@ import { Component, inject } from '@angular/core';
 import { SettingsService } from '@placeos/common';
 import { DesksStateService } from './desks-state.service';
 
+import { CommonModule } from '@angular/common';
+import { MatRippleModule } from '@angular/material/core';
+import { MatDialogModule } from '@angular/material/dialog';
 import { generateQRCode } from '@placeos/common';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { map } from 'rxjs/operators';
 
 @Component({
@@ -45,7 +49,13 @@ import { map } from 'rxjs/operators';
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatDialogModule,
+        MatRippleModule,
+        TranslatePipe,
+        IconComponent,
+    ],
 })
 export class DeskQrCodeModalComponent {
     private _settings = inject(SettingsService);

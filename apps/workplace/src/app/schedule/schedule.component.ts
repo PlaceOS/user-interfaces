@@ -1,7 +1,14 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatSelectModule } from '@angular/material/select';
 import { Router } from '@angular/router';
 import {
+    BookingCardComponent,
     BookingFormService,
     checkinBooking,
     checkinBookingInstance,
@@ -17,11 +24,21 @@ import {
     notifySuccess,
     SettingsService,
 } from '@placeos/common';
-import { openConfirmModal } from '@placeos/components';
-import { EventFormService, queryEvents, removeEvent } from '@placeos/events';
+import { openConfirmModal, TranslatePipe } from '@placeos/components';
+import {
+    EventCardComponent,
+    EventFormService,
+    queryEvents,
+    removeEvent,
+} from '@placeos/events';
 import { format, isSameDay, parse } from 'date-fns';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { FooterMenuComponent } from '../components/footer-menu.component';
+import { TopbarComponent } from '../components/topbar.component';
+import { ScheduleFiltersComponent } from './schedule-filters.component';
+import { ScheduleMobileCalendarComponent } from './schedule-mobile-calendar.component';
+import { ScheduleSidebarComponent } from './schedule-sidebar.component';
 import {
     ScheduleOptions,
     ScheduleStateService,
@@ -168,7 +185,22 @@ import {
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        FormsModule,
+        MatRippleModule,
+        MatProgressBarModule,
+        MatFormFieldModule,
+        MatSelectModule,
+        TranslatePipe,
+        FooterMenuComponent,
+        BookingCardComponent,
+        EventCardComponent,
+        ScheduleFiltersComponent,
+        ScheduleMobileCalendarComponent,
+        ScheduleSidebarComponent,
+        TopbarComponent,
+    ],
 })
 export class ScheduleComponent extends AsyncHandler implements OnInit {
     private _state = inject(ScheduleStateService);

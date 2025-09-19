@@ -1,7 +1,15 @@
+import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MatRippleModule } from '@angular/material/core';
+import {
+    MAT_DIALOG_DATA,
+    MatDialogModule,
+    MatDialogRef,
+} from '@angular/material/dialog';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { deleteAssetCategory } from '@placeos/assets';
 import { AssetCategory } from '@placeos/common';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { Observable } from 'rxjs';
 
 @Component({
@@ -66,7 +74,14 @@ import { Observable } from 'rxjs';
         </button>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatRippleModule,
+        TranslatePipe,
+        IconComponent,
+        MatTooltipModule,
+        MatDialogModule,
+    ],
 })
 export class AssetCategoryManagementModalComponent {
     private _data = inject<{

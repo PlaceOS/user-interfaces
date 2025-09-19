@@ -1,12 +1,22 @@
 import { Component, inject } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
+import {
+    MAT_DIALOG_DATA,
+    MatDialogModule,
+    MatDialogRef,
+} from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
 import {
     i18n,
     notifyError,
     notifySuccess,
     OrganisationService,
 } from '@placeos/common';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { PlaceSystem, showMetadata, updateMetadata } from '@placeos/ts-client';
 
 @Component({
@@ -68,14 +78,24 @@ import { PlaceSystem, showMetadata, updateMetadata } from '@placeos/ts-client';
         }
         @if (!loading) {
             <footer class="flex justify-end border-t border-base-200 p-2">
-                <button btn class="w-32" (click)="save()">
+                <button btn matRipple class="w-32" (click)="save()">
                     {{ 'COMMON.SAVE' | translate }}
                 </button>
             </footer>
         }
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        MatDialogModule,
+        MatRippleModule,
+        MatProgressSpinnerModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatSelectModule,
+        ReactiveFormsModule,
+        TranslatePipe,
+        IconComponent,
+    ],
 })
 export class RoomAlertModalComponent {
     private _data = inject<{

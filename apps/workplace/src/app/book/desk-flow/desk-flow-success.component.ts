@@ -1,4 +1,7 @@
+import { CommonModule } from '@angular/common';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
+import { RouterModule } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
 import {
     Building,
@@ -7,7 +10,12 @@ import {
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
-import { BuildingPipe, LevelPipe } from '@placeos/components';
+import {
+    BuildingPipe,
+    IconComponent,
+    LevelPipe,
+    TranslatePipe,
+} from '@placeos/components';
 import {
     generateCalendarFileLink,
     generateGoogleCalendarLink,
@@ -159,7 +167,13 @@ import {
         </div>
     `,
     providers: [LevelPipe, BuildingPipe],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        IconComponent,
+        MatRippleModule,
+        RouterModule,
+    ],
 })
 export class NewDeskFlowSuccessComponent implements OnInit {
     private _org = inject(OrganisationService);

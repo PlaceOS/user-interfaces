@@ -2,7 +2,13 @@ import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { first, map } from 'rxjs/operators';
 
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     CateringOrdersService,
     CateringStateService,
@@ -12,11 +18,17 @@ import {
     AsyncHandler,
     nextValueFrom,
     notifySuccess,
+    OrganisationService,
     SettingsService,
 } from '@placeos/common';
-import { AvailableRoomsStateModalComponent } from '@placeos/components';
-import { OrganisationService } from '@placeos/common';
+import {
+    AvailableRoomsStateModalComponent,
+    IconComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { combineLatest } from 'rxjs';
+import { DateOptionsComponent } from '../ui/date-options.component';
+import { SearchbarComponent } from '../ui/searchbar.component';
 
 @Component({
     selector: 'catering-topbar',
@@ -162,7 +174,18 @@ import { combineLatest } from 'rxjs';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        DateOptionsComponent,
+        MatRippleModule,
+        IconComponent,
+        MatTooltipModule,
+        MatFormFieldModule,
+        MatSelectModule,
+        FormsModule,
+        SearchbarComponent,
+        TranslatePipe,
+    ],
 })
 export class CateringTopbarComponent extends AsyncHandler implements OnInit {
     private _orders = inject(CateringOrdersService);

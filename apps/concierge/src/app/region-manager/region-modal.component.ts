@@ -1,6 +1,15 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import {
+    FormControl,
+    FormGroup,
+    ReactiveFormsModule,
+    Validators,
+} from '@angular/forms';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import {
     AsyncHandler,
     OrganisationService,
@@ -9,7 +18,9 @@ import {
     getInvalidFields,
     notifyError,
 } from '@placeos/common';
+import { TranslatePipe } from '@placeos/components';
 import { addZone, authority, updateZone } from '@placeos/ts-client';
+import { FullscreenModalShellComponent } from 'libs/components/src/lib/fullscreen-modal-shell.component';
 
 @Component({
     selector: 'region-modal',
@@ -72,7 +83,15 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
         </fullscreen-modal-shell>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        FullscreenModalShellComponent,
+        MatAutocompleteModule,
+        MatFormFieldModule,
+        MatInputModule,
+        TranslatePipe,
+        ReactiveFormsModule,
+    ],
 })
 export class RegionModalComponent extends AsyncHandler {
     private _org = inject(OrganisationService);

@@ -47,7 +47,7 @@ import { SignageStateService } from './signage-state.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [],
 })
 export class SignageTopbarComponent extends AsyncHandler implements OnInit {
     private _state = inject(SignageStateService);

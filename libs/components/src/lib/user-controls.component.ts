@@ -14,6 +14,7 @@ import { format, set, startOfMinute } from 'date-fns';
 
 import { CommonModule } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { OrganisationService } from '@placeos/common';
 import { SupportTicketModalComponent } from 'libs/form-fields/src/lib/support-ticket-modal.component';
@@ -385,6 +386,7 @@ export interface AppLocale {
         CustomTooltipComponent,
         MatTooltipModule,
         UserAvatarComponent,
+        MatMenuModule,
     ],
 })
 export class UserControlsComponent implements OnInit {

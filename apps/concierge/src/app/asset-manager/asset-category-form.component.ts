@@ -1,7 +1,13 @@
 import { Component, inject } from '@angular/core';
+import { ReactiveFormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
 import { generateAssetCategoryForm, saveAssetCategory } from '@placeos/assets';
 import { AssetCategory, i18n, notifyError } from '@placeos/common';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { map } from 'rxjs/operators';
 import { AssetManagerStateService } from './asset-manager-state.service';
 
@@ -90,7 +96,16 @@ import { AssetManagerStateService } from './asset-manager-state.service';
         }
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        MatFormFieldModule,
+        MatProgressSpinnerModule,
+        TranslatePipe,
+        MatFormFieldModule,
+        MatSelectModule,
+        ReactiveFormsModule,
+        MatInputModule,
+        IconComponent,
+    ],
 })
 export class AssetCategoryFormComponent {
     private _state = inject(AssetManagerStateService);

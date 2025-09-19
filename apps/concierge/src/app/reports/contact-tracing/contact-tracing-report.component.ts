@@ -1,10 +1,19 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
     formatDuration,
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
+import {
+    AuthenticatedImageDirective,
+    SimpleTableComponent,
+    TranslatePipe,
+} from '@placeos/components';
+import { UserPipe } from '@placeos/users';
 import { debounceTime, map } from 'rxjs/operators';
+import { ContactTracingOptionsComponent } from './contact-tracing-options.component';
 import { ContactTracingStateService } from './contact-tracing-state.service';
 
 @Component({
@@ -132,7 +141,15 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        ContactTracingOptionsComponent,
+        MatProgressSpinnerModule,
+        UserPipe,
+        SimpleTableComponent,
+        AuthenticatedImageDirective,
+        TranslatePipe,
+    ],
 })
 export class ContactTracingReportComponent {
     private _state = inject(ContactTracingStateService);

@@ -1,15 +1,7 @@
-import { CommonModule } from '@angular/common';
-import { NgModule, Type } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { NgModule } from '@angular/core';
 import { Route, RouterModule } from '@angular/router';
 
-import { UIModule } from '../ui/ui.module';
-import { EmergencyContactModalComponent } from './emergency-contact-modal.component';
 import { EmergencyContactsComponent } from './emergency-contacts.component';
-import { RoleManagementModalComponent } from './role-management-modal.component';
-import { StaffDetailsComponent } from './staff-details.component';
-import { StaffListingComponent } from './staff-listing.component';
-import { StaffTopbarComponent } from './staff-topbar.component';
 import { StaffComponent } from './staff.component';
 
 const ROUTES: Route[] = [
@@ -17,22 +9,11 @@ const ROUTES: Route[] = [
     { path: 'emergency-contacts', component: EmergencyContactsComponent },
 ];
 
-export const COMPONENTS: Type<any>[] = [
-    StaffComponent,
-    StaffTopbarComponent,
-    StaffListingComponent,
-    StaffDetailsComponent,
-    EmergencyContactsComponent,
-    EmergencyContactModalComponent,
-    RoleManagementModalComponent,
-];
-
 @NgModule({
-    declarations: [...COMPONENTS],
+    declarations: [],
     imports: [
-        CommonModule,
-        FormsModule,
-        UIModule,
+        StaffComponent,
+        EmergencyContactsComponent,
         RouterModule.forChild(ROUTES),
     ],
 })

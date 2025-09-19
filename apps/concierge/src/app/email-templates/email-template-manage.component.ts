@@ -1,15 +1,29 @@
 import { Clipboard } from '@angular/cdk/clipboard';
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import {
+    FormControl,
+    FormGroup,
+    ReactiveFormsModule,
+    Validators,
+} from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import {
     AsyncHandler,
     extractTextFromHTML,
     i18n,
     nextValueFrom,
     notifySuccess,
+    OrganisationService,
 } from '@placeos/common';
-import { OrganisationService } from '@placeos/common';
+import { IconComponent, TranslatePipe } from '@placeos/components';
+import { RichTextInputComponent } from '@placeos/form-fields';
 import {
     EmailTemplate,
     EmailTemplatesStateService,
@@ -281,7 +295,20 @@ import {
         </ng-template>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        RouterModule,
+        MatProgressSpinnerModule,
+        TranslatePipe,
+        ReactiveFormsModule,
+        RichTextInputComponent,
+        MatFormFieldModule,
+        MatInputModule,
+        MatSelectModule,
+        MatMenuModule,
+        MatTooltipModule,
+        IconComponent,
+    ],
 })
 export class EmailTemplateManageComponent extends AsyncHandler {
     private _org = inject(OrganisationService);

@@ -27,13 +27,9 @@ export class StaffStateService extends AsyncHandler {
 
     private _onsite: Record<string, boolean> = {};
     private _events: Record<string, Booking> = {};
-
     private _filters = new BehaviorSubject<StaffFilters>({});
-
     private _search = new BehaviorSubject<string>('');
-
     private _loading = new BehaviorSubject<boolean>(false);
-
     private _users = new BehaviorSubject<StaffUser[]>([]);
 
     public readonly loading = this._loading.asObservable();

@@ -1,21 +1,30 @@
 import { Clipboard } from '@angular/cdk/clipboard';
+import { CommonModule } from '@angular/common';
 import { Component, ElementRef, inject } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     AsyncHandler,
-    Desk,
-    OrganisationService,
-    SettingsService,
     csvToJson,
+    Desk,
     generateQRCode,
     i18n,
     loadTextFileFromInputEvent,
     nextValueFrom,
     notifyError,
     notifySuccess,
+    OrganisationService,
     randomInt,
+    SettingsService,
 } from '@placeos/common';
-import { openConfirmModal } from '@placeos/components';
+import {
+    IconComponent,
+    openConfirmModal,
+    SimpleTableComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { updateMetadata } from '@placeos/ts-client';
 import { DesksStateService } from './desks-state.service';
 
@@ -230,7 +239,15 @@ const QR_CODES = {};
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        SimpleTableComponent,
+        TranslatePipe,
+        MatProgressSpinnerModule,
+        MatRippleModule,
+        IconComponent,
+        MatTooltipModule,
+    ],
 })
 export class DesksManageComponent extends AsyncHandler {
     private _state = inject(DesksStateService);

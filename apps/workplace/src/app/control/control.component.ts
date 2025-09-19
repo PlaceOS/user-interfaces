@@ -1,5 +1,8 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { SettingsService } from '@placeos/common';
+import { FooterMenuComponent } from '../components/footer-menu.component';
+import { TopbarComponent } from '../components/topbar.component';
+import { ControlSpaceListComponent } from './space-list.component';
 
 @Component({
     selector: '[app-control]',
@@ -25,7 +28,7 @@ import { SettingsService } from '@placeos/common';
             }
         `,
     ],
-    standalone: false,
+    imports: [TopbarComponent, FooterMenuComponent, ControlSpaceListComponent],
 })
 export class ControlComponent implements OnInit {
     private _settings = inject(SettingsService);

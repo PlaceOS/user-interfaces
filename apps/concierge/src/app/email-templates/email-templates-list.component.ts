@@ -1,4 +1,7 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
+import { MatMenuModule } from '@angular/material/menu';
+import { RouterModule } from '@angular/router';
 import {
     currentUser,
     i18n,
@@ -6,6 +9,11 @@ import {
     notifySuccess,
     OrganisationService,
 } from '@placeos/common';
+import {
+    IconComponent,
+    SimpleTableComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import {
     EmailTemplate,
     EmailTemplatesFilters,
@@ -161,7 +169,14 @@ import {
         </div>
     </div>`,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        IconComponent,
+        SimpleTableComponent,
+        RouterModule,
+        MatMenuModule,
+    ],
 })
 export class EmailTemplatesListComponent {
     private _state = inject(EmailTemplatesStateService);

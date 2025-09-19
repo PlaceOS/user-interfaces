@@ -1,7 +1,9 @@
 import { Component, inject, signal } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { MatRippleModule } from '@angular/material/core';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
 import { AsyncHandler } from '@placeos/common';
+import { TranslatePipe } from '@placeos/components';
 
 const VALID_TYPES = ['not_started', 'wrong_resource', 'other'];
 
@@ -74,7 +76,7 @@ const VALID_TYPES = ['not_started', 'wrong_resource', 'other'];
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [MatRippleModule, TranslatePipe, RouterModule],
 })
 export class CodeFlowErrorComponent extends AsyncHandler {
     private _route = inject(ActivatedRoute);

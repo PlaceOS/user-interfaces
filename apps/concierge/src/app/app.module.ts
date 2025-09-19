@@ -34,6 +34,10 @@ import localeIt from '@angular/common/locales/it';
 import localeJa from '@angular/common/locales/ja';
 import localeZh from '@angular/common/locales/zh';
 import { LocaleService } from '@placeos/common';
+import {
+    GlobalBannerComponent,
+    GlobalLoadingComponent,
+} from '@placeos/components';
 import { AppComponent } from './app.component';
 
 @NgModule({
@@ -45,6 +49,8 @@ import { AppComponent } from './app.component';
         MatSnackBarModule,
         BrowserAnimationsModule,
         UIModule,
+        GlobalLoadingComponent,
+        GlobalBannerComponent,
         ServiceWorkerModule.register('ngsw-worker.js', {
             enabled: environment.production,
         }),

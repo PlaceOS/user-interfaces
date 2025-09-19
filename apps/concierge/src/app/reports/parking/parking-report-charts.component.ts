@@ -7,6 +7,7 @@ import {
     SettingsService,
     unique,
 } from '@placeos/common';
+import { TranslatePipe } from '@placeos/components';
 import { LineChart, PieChart } from 'chartist';
 import { format, parse } from 'date-fns';
 import { combineLatest } from 'rxjs';
@@ -56,7 +57,7 @@ import { ParkingReportService } from './parking-report.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [TranslatePipe],
 })
 export class ParkingReportChartsComponent extends AsyncHandler {
     private _state = inject(ParkingReportService);

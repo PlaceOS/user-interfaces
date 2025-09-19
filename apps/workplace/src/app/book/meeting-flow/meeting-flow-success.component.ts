@@ -1,5 +1,6 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { BookingFormService, findNearbyFeature } from '@placeos/bookings';
 import {
     currentUser,
@@ -9,6 +10,7 @@ import {
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
+import { TranslatePipe } from '@placeos/components';
 import { EventFormService, SpacePipe } from '@placeos/events';
 import { set } from 'date-fns';
 
@@ -95,7 +97,7 @@ import { set } from 'date-fns';
         }
     `,
     styles: [``],
-    standalone: false,
+    imports: [CommonModule, RouterModule, TranslatePipe],
 })
 export class MeetingFlowSuccessComponent implements OnInit {
     private _event_form = inject(EventFormService);

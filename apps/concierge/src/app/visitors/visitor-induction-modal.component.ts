@@ -1,4 +1,8 @@
 import { Component, inject } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatRippleModule } from '@angular/material/core';
+import { MatDialogModule } from '@angular/material/dialog';
 import { SettingsService } from '@placeos/common';
 
 @Component({
@@ -40,7 +44,7 @@ import { SettingsService } from '@placeos/common';
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [MatDialogModule, MatRippleModule, MatCheckboxModule, FormsModule],
 })
 export class VisitorInductionModalComponent {
     private _settings = inject(SettingsService);

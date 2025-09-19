@@ -1,11 +1,21 @@
+import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute } from '@angular/router';
 import {
     AsyncHandler,
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
+import {
+    AuthenticatedImageDirective,
+    TranslatePipe,
+} from '@placeos/components';
 import { debounceTime, map } from 'rxjs/operators';
+import { ReportsOptionsComponent } from '../reports-options.component';
+import { VisitorReportDailyUsageComponent } from './visitor-report-daily-usage.component';
+import { VisitorReportListComponent } from './visitor-report-list.component';
+import { VisitorReportOverallComponent } from './visitor-report-overall.component';
 import { VisitorsReportService } from './visitors-report.service';
 
 @Component({
@@ -71,7 +81,16 @@ import { VisitorsReportService } from './visitors-report.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        ReportsOptionsComponent,
+        AuthenticatedImageDirective,
+        MatProgressSpinnerModule,
+        VisitorReportOverallComponent,
+        VisitorReportDailyUsageComponent,
+        VisitorReportListComponent,
+        TranslatePipe,
+    ],
 })
 export class VisitorsReportComponent extends AsyncHandler implements OnInit {
     private _state = inject(VisitorsReportService);

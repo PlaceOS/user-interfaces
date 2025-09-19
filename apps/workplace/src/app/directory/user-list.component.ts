@@ -11,8 +11,20 @@ import {
     tap,
 } from 'rxjs/operators';
 
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AsyncHandler, SettingsService, User } from '@placeos/common';
+import {
+    IconComponent,
+    SafePipe,
+    UserAvatarComponent,
+} from '@placeos/components';
 import { searchStaff } from '@placeos/users';
+import { FooterMenuComponent } from '../components/footer-menu.component';
+import { TopbarComponent } from '../components/topbar.component';
 
 const LETTERS = `ABCDEFGHIJKLMNOPQRSTUVWXYZ`.split('');
 
@@ -156,7 +168,18 @@ const LETTERS = `ABCDEFGHIJKLMNOPQRSTUVWXYZ`.split('');
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        IconComponent,
+        FooterMenuComponent,
+        TopbarComponent,
+        SafePipe,
+        UserAvatarComponent,
+        MatFormFieldModule,
+        MatProgressSpinnerModule,
+        MatInputModule,
+        FormsModule,
+    ],
 })
 export class DirectoryUserListComponent extends AsyncHandler {
     private _settings = inject(SettingsService);

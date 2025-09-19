@@ -33,6 +33,10 @@ import {
 import { showSystem } from '@placeos/ts-client';
 import { addMinutes, endOfDay, getUnixTime } from 'date-fns';
 
+import { FormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { OrganisationService } from '@placeos/common';
 import { lastValueFrom } from 'rxjs';
 
@@ -177,7 +181,12 @@ import { lastValueFrom } from 'rxjs';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        MatInputModule,
+        MatRippleModule,
+        MatProgressSpinnerModule,
+        FormsModule,
+    ],
 })
 export class BookCodeFlowComponent
     extends AsyncHandler

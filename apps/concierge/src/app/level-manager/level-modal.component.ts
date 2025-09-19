@@ -1,6 +1,15 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import {
+    FormControl,
+    FormGroup,
+    ReactiveFormsModule,
+    Validators,
+} from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import {
     BuildingLevel,
     getInvalidFields,
@@ -8,7 +17,9 @@ import {
     notifyError,
     OrganisationService,
 } from '@placeos/common';
+import { SettingsToggleComponent, TranslatePipe } from '@placeos/components';
 import { addZone, authority, updateZone } from '@placeos/ts-client';
+import { FullscreenModalShellComponent } from 'libs/components/src/lib/fullscreen-modal-shell.component';
 
 @Component({
     selector: 'level-modal',
@@ -115,7 +126,16 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
         </fullscreen-modal-shell>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        FullscreenModalShellComponent,
+        MatFormFieldModule,
+        MatInputModule,
+        ReactiveFormsModule,
+        SettingsToggleComponent,
+        MatSelectModule,
+        TranslatePipe,
+    ],
 })
 export class LevelModalComponent {
     private _org = inject(OrganisationService);

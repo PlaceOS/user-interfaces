@@ -1,6 +1,11 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject, viewChild } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
-import { ActivatedRoute, Router } from '@angular/router';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import {
     deleteAsset,
     deleteAssetPurchaseOrder,
@@ -13,7 +18,13 @@ import {
     OrganisationService,
     unique,
 } from '@placeos/common';
-import { CustomTooltipComponent, openConfirmModal } from '@placeos/components';
+import {
+    CustomTooltipComponent,
+    ImageCarouselComponent,
+    openConfirmModal,
+    SimpleTableComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { addMinutes } from 'date-fns';
 import { combineLatest } from 'rxjs';
 import { first, map } from 'rxjs/operators';
@@ -485,7 +496,17 @@ import { AssetManagerStateService } from './asset-manager-state.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        RouterModule,
+        MatProgressSpinnerModule,
+        TranslatePipe,
+        MatRippleModule,
+        SimpleTableComponent,
+        MatTabsModule,
+        MatTooltipModule,
+        ImageCarouselComponent,
+    ],
 })
 export class AssetViewComponent extends AsyncHandler {
     private _route = inject(ActivatedRoute);

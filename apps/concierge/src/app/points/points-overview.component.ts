@@ -1,4 +1,8 @@
 import { Component, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { TranslatePipe } from '@placeos/components';
+import { CounterComponent } from '@placeos/form-fields';
 
 @Component({
     selector: 'points-overview',
@@ -89,7 +93,7 @@ import { Component, OnInit } from '@angular/core';
             }
         `,
     ],
-    standalone: false,
+    imports: [CounterComponent, FormsModule, TranslatePipe, MatTooltipModule],
 })
 export class PointsOverviewComponent implements OnInit {
     public points = {

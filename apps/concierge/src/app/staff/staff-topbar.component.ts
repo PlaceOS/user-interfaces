@@ -2,7 +2,14 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { first } from 'rxjs/operators';
 
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { AsyncHandler, OrganisationService } from '@placeos/common';
+import { TranslatePipe } from '@placeos/components';
+import { SearchbarComponent } from '../ui/searchbar.component';
 import { StaffStateService } from './staff-state.service';
 
 @Component({
@@ -48,7 +55,15 @@ import { StaffStateService } from './staff-state.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatSlideToggleModule,
+        SearchbarComponent,
+        MatFormFieldModule,
+        MatSelectModule,
+        FormsModule,
+        TranslatePipe,
+    ],
 })
 export class StaffTopbarComponent extends AsyncHandler implements OnInit {
     private _state = inject(StaffStateService);

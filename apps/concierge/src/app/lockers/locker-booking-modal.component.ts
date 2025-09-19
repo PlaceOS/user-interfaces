@@ -1,10 +1,18 @@
 import { Component, inject, OnInit } from '@angular/core';
+import { ReactiveFormsModule } from '@angular/forms';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import {
     MAT_DIALOG_DATA,
     MatDialog,
     MatDialogRef,
 } from '@angular/material/dialog';
-import { BookingFormService, Locker } from '@placeos/bookings';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import {
+    BookingFormService,
+    Locker,
+    LockerListFieldComponent,
+} from '@placeos/bookings';
 import {
     AsyncHandler,
     Booking,
@@ -18,7 +26,15 @@ import {
     SettingsService,
     User,
 } from '@placeos/common';
+import { TranslatePipe } from '@placeos/components';
+import {
+    DateFieldComponent,
+    DurationFieldComponent,
+    TimeFieldComponent,
+    UserSearchFieldComponent,
+} from '@placeos/form-fields';
 import { addDays, endOfDay } from 'date-fns';
+import { FullscreenModalShellComponent } from 'libs/components/src/lib/fullscreen-modal-shell.component';
 import { combineLatest } from 'rxjs';
 
 @Component({
@@ -143,7 +159,19 @@ import { combineLatest } from 'rxjs';
         </fullscreen-modal-shell>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        FullscreenModalShellComponent,
+        LockerListFieldComponent,
+        DurationFieldComponent,
+        TimeFieldComponent,
+        MatCheckboxModule,
+        DateFieldComponent,
+        MatFormFieldModule,
+        MatInputModule,
+        UserSearchFieldComponent,
+        TranslatePipe,
+        ReactiveFormsModule,
+    ],
 })
 export class LockerBookingModalComponent
     extends AsyncHandler

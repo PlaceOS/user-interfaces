@@ -23,13 +23,187 @@ import {
 
 import { AsyncHandler, formatDuration } from '@placeos/common';
 
-import { ITimelineEventGroup } from '../event-timeline/event-timeline.component';
+import { ITimelineEventGroup } from './event-timeline.component';
 
 @Component({
     selector: 'vertical-timeline',
-    templateUrl: './vertical-timeline.component.html',
-    styleUrls: ['./vertical-timeline.component.scss'],
-    standalone: false,
+    template: `
+        <div
+            class="timeline"
+            (window:mouseup)="resetMove()"
+            (window:touchend)="resetMove()"
+        >
+            <div
+                class="content"
+                (mousemove)="move($event)"
+                (touchmove)="move($event)"
+            >
+                <div class="timeblocks">
+                    @for (item of blocks; track item) {
+                        <div class="blk">
+                            @if (item.hour) {
+                                <div class="text">{{ item.display }}</div>
+                            }
+                        </div>
+                    }
+                </div>
+                <div class="eventblocks" #block>
+                    @for (item of blocks; track item) {
+                        <div
+                            class="blk"
+                            [class.shown-block]="item.show"
+                            [class.hour]="item.hour"
+                            [class.disabled]="item.disabled"
+                            [class.unavailable]="item.unavailable"
+                        ></div>
+                    }
+                    <div
+                        class="selected-time"
+                        #time
+                        [style.top]="active_start * 100 + '%'"
+                        [style.height]="active_length * 100 + '%'"
+                    >
+                        <div
+                            class="inner"
+                            (mousedown)="setMove('top')"
+                            (touchstart)="setMove('top')"
+                        >
+                            {{ display }}
+                        </div>
+                        <div
+                            class="handle top"
+                            (mousedown)="setMove('top')"
+                            (touchstart)="setMove('top')"
+                        ></div>
+                        <div
+                            class="handle bottom"
+                            (mousedown)="setMove('bottom')"
+                            (touchstart)="setMove('bottom')"
+                        ></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `,
+    styles: [
+        `
+            .timeline {
+                position: relative;
+                width: 100%;
+                padding: 1em;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                overflow: auto;
+
+                .content {
+                    display: flex;
+                    margin: auto;
+                    width: 100%;
+                }
+            }
+
+            .timeblocks,
+            .eventblocks {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-direction: column;
+            }
+
+            .timeblocks {
+                width: 3em;
+            }
+
+            .eventblocks {
+                position: relative;
+                flex: 1;
+                border: 1px solid #ccc;
+                width: 50%;
+                overflow: hidden;
+                .blk {
+                    position: relative;
+                }
+            }
+
+            .blk {
+                position: relative;
+                min-height: 0.3em;
+                flex: 1;
+                width: 100%;
+                &.shown-block {
+                    border-top: 1px dashed #ccc;
+                    &.hour {
+                        border-top: 1px solid #ccc;
+                    }
+                    &:first-child {
+                        border: none;
+                    }
+                }
+
+                .text {
+                    position: absolute;
+                    top: 0;
+                    right: 0.5em;
+                    transform: translateY(-50%);
+                }
+
+                &.unavailable {
+                    background-color: rgba(var(--error), 0.1);
+                    pointer-events: none;
+                }
+
+                &.disabled {
+                    background-color: rgba(#000, 0.05);
+                    pointer-events: none;
+                }
+            }
+
+            .selected-time {
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                border: 2px solid var(--s);
+                background-color: var(--s);
+                color: #fff;
+                z-index: 100;
+                touch-action: none;
+                transition:
+                    top 100ms,
+                    height 100ms;
+
+                .inner {
+                    height: 100%;
+                    width: 100%;
+                    padding: 0.25em 1em;
+                }
+
+                .handle {
+                    position: absolute;
+                    height: 1em;
+                    width: 1em;
+                    border-radius: 100%;
+                    background-color: var(--s);
+                    box-shadow:
+                        0 1px 3px 0 rgba(#000, 0.2),
+                        0 1px 1px 0 rgba(#000, 0.14),
+                        0 2px 1px -1px rgba(#000, 0.12);
+                    &.top {
+                        top: 0;
+                        right: 1em;
+                        transform: translateY(-50%);
+                    }
+                    &.bottom {
+                        bottom: 0;
+                        left: 1em;
+                        transform: translateY(50%);
+                    }
+                }
+            }
+        `,
+    ],
+    imports: [],
 })
 export class VerticalTimelineComponent
     extends AsyncHandler

@@ -1,4 +1,7 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject, input } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     downloadFile,
     jsonToCsv,
@@ -6,6 +9,7 @@ import {
     Space,
     unique,
 } from '@placeos/common';
+import { SimpleTableComponent, TranslatePipe } from '@placeos/components';
 import { SpacePipe } from '@placeos/events';
 import { differenceInDays } from 'date-fns';
 import { combineLatest } from 'rxjs';
@@ -100,7 +104,13 @@ import { ReportsStateService } from '../reports-state.service';
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        SimpleTableComponent,
+        TranslatePipe,
+        MatRippleModule,
+        MatTooltipModule,
+    ],
 })
 export class ReportSpacesSpaceListingComponent {
     private _reports = inject(ReportsStateService);

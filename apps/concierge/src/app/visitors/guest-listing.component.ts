@@ -17,6 +17,17 @@ import {
     User,
 } from '@placeos/common';
 
+import { CommonModule } from '@angular/common';
+import { MatRippleModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import {
+    IconComponent,
+    SimpleTableComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { UserLabelModalComponent } from '@placeos/users';
 import { ParkingStateService } from '../parking/parking-state.service';
 import { VisitorsStateService } from './visitors-state.service';
@@ -647,7 +658,17 @@ import { VisitorsStateService } from './visitors-state.service';
         <div class="h-8 w-full"></div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatRippleModule,
+        MatTooltipModule,
+        MatMenuModule,
+        MatFormFieldModule,
+        MatInputModule,
+        TranslatePipe,
+        IconComponent,
+        SimpleTableComponent,
+    ],
 })
 export class GuestListingComponent extends AsyncHandler implements OnInit {
     private _state = inject(VisitorsStateService);

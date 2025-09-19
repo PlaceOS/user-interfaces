@@ -1,4 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
 import {
@@ -7,6 +9,7 @@ import {
     settingSignal,
     SettingsService,
 } from '@placeos/common';
+import { TranslatePipe } from '@placeos/components';
 
 @Component({
     selector: 'landing-quick-book',
@@ -78,7 +81,7 @@ import {
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [TranslatePipe, MatRippleModule, MatProgressSpinnerModule],
 })
 export class LandingQuickBookComponent {
     private _settings = inject(SettingsService);

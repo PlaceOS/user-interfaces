@@ -1,6 +1,13 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject, input } from '@angular/core';
-import { SettingsService } from '@placeos/common';
-import { OrganisationService } from '@placeos/common';
+import { MatRippleModule } from '@angular/material/core';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { OrganisationService, SettingsService } from '@placeos/common';
+import {
+    IconComponent,
+    SimpleTableComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { CateringReportStateService } from './catering-report-state.service';
 
 @Component({
@@ -19,7 +26,8 @@ import { CateringReportStateService } from './catering-report-state.service';
                     }}
                 </h2>
                 <button
-                    matRipple-icon
+                    icon
+                    matRipple
                     (click)="download()"
                     class="print:hidden"
                     [matTooltip]="
@@ -69,7 +77,14 @@ import { CateringReportStateService } from './catering-report-state.service';
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        SimpleTableComponent,
+        MatTooltipModule,
+        MatRippleModule,
+        IconComponent,
+    ],
 })
 export class CateringReportOrdersComponent {
     private _report = inject(CateringReportStateService);

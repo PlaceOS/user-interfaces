@@ -1,5 +1,12 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
 import { OrganisationService } from '@placeos/common';
+import {
+    IconComponent,
+    SimpleTableComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { PointsStateService } from './points-state.service';
 
 export interface CustomRate {
@@ -102,7 +109,13 @@ export interface PointAsset {
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        SimpleTableComponent,
+        MatRippleModule,
+        IconComponent,
+        TranslatePipe,
+    ],
 })
 export class PointsAssetsComponent {
     private _state = inject(PointsStateService);

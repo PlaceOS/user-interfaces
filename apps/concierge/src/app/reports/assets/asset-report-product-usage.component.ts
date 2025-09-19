@@ -1,5 +1,12 @@
 import { Component, inject, input } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { downloadFile, jsonToCsv, nextValueFrom } from '@placeos/common';
+import {
+    IconComponent,
+    SimpleTableComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { map } from 'rxjs/operators';
 import { AssetsReportService } from './assets-report.service';
 
@@ -58,7 +65,13 @@ import { AssetsReportService } from './assets-report.service';
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        SimpleTableComponent,
+        TranslatePipe,
+        IconComponent,
+        MatRippleModule,
+        MatTooltipModule,
+    ],
 })
 export class AssetReportProductUsageComponent {
     private _state = inject(AssetsReportService);

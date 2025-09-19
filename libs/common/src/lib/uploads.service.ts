@@ -57,7 +57,9 @@ export const UPLOAD_PERMISSIONS_MODAL = new InjectionToken<Type<any>>(
 })
 export class UploadsService extends AsyncHandler {
     private _dialog = inject(MatDialog);
-    private _permissions_modal = inject(UPLOAD_PERMISSIONS_MODAL);
+    private _permissions_modal = inject(UPLOAD_PERMISSIONS_MODAL, {
+        optional: true,
+    });
 
     private _upload_list = new BehaviorSubject<UploadDetails[]>([]);
 
@@ -154,6 +156,14 @@ export class UploadsService extends AsyncHandler {
                 complete: () => this._updateUploadHistory(),
             });
         });
+    }
+
+    public uploadFileWithProgress(
+        file: File,
+        pub = true,
+        permissions: UploadPermissions = 'none',
+    ): Observable<UploadDetails> {
+        return this._uploadFile(file, pub, permissions);
     }
 
     private _updateUploadHistory() {

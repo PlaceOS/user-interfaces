@@ -1,6 +1,10 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import {
+    MAT_DIALOG_DATA,
+    MatDialogModule,
+    MatDialogRef,
+} from '@angular/material/dialog';
 import {
     currentUser,
     notifySuccess,
@@ -11,8 +15,15 @@ import {
 import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
 import { map } from 'rxjs/operators';
 
+import { MatRippleModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
+import { IconComponent, SettingsToggleComponent } from '@placeos/components';
 import { DEFAULT_SETTINGS } from 'apps/visitor-kiosk/src/environments/settings';
 import { lastValueFrom } from 'rxjs';
+import { UploadButtonComponent } from './upload-button.component';
 
 @Component({
     selector: 'visitor-kiosk-settings-form-modal',
@@ -482,7 +493,17 @@ import { lastValueFrom } from 'rxjs';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        MatDialogModule,
+        MatRippleModule,
+        IconComponent,
+        MatProgressSpinnerModule,
+        SettingsToggleComponent,
+        MatFormFieldModule,
+        MatSelectModule,
+        MatInputModule,
+        UploadButtonComponent,
+    ],
 })
 export class VisitorKioskSettingsFormModalComponent {
     private _data = inject<{

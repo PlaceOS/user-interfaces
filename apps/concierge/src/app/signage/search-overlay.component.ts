@@ -5,6 +5,9 @@ import {
     input,
     output,
 } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { BehaviorSubject } from 'rxjs';
 
 @Component({
@@ -82,7 +85,7 @@ import { BehaviorSubject } from 'rxjs';
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [FormsModule, IconComponent, MatRippleModule, TranslatePipe],
 })
 export class SearchOverlayComponent<T extends {} = any> {
     public readonly item_list = input<T[]>([]);

@@ -1,4 +1,7 @@
 import { Component } from '@angular/core';
+import { RouterModule } from '@angular/router';
+import { FooterMenuComponent } from '../components/footer-menu.component';
+import { TopbarComponent } from '../components/topbar.component';
 
 @Component({
     selector: 'placeos-book',
@@ -25,7 +28,7 @@ import { Component } from '@angular/core';
             }
         `,
     ],
-    standalone: false,
+    imports: [RouterModule, FooterMenuComponent, TopbarComponent],
 })
 export class BookComponent {
     public get hide_nav() {

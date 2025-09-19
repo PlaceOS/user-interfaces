@@ -1,32 +1,12 @@
-import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { Route, RouterModule } from '@angular/router';
 
-import { UIModule } from '../ui/ui.module';
-
-import { SharedUsersModule } from 'libs/users/src/lib/users.module';
-
-import { MatChipsModule } from '@angular/material/chips';
-import { RegionListComponent } from './region-list.component';
 import { RegionManagerComponent } from './region-manager.component';
-import { RegionModalComponent } from './region-modal.component';
 
 const ROUTES: Route[] = [{ path: '', component: RegionManagerComponent }];
 
 @NgModule({
-    declarations: [
-        RegionManagerComponent,
-        RegionListComponent,
-        RegionModalComponent,
-    ],
-    imports: [
-        CommonModule,
-        FormsModule,
-        UIModule,
-        SharedUsersModule,
-        MatChipsModule,
-        RouterModule.forChild(ROUTES),
-    ],
+    declarations: [],
+    imports: [RegionManagerComponent, RouterModule.forChild(ROUTES)],
 })
 export class RegionManagerModule {}

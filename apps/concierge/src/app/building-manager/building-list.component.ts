@@ -4,6 +4,12 @@ import { MatDialog } from '@angular/material/dialog';
 import { i18n, notifySuccess } from '@placeos/common';
 import { BuildingManagementService } from './building-management.service';
 
+import { MatMenuModule } from '@angular/material/menu';
+import {
+    AuthenticatedImageDirective,
+    SimpleTableComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { BookingPanelSettingsModalComponent } from '../ui/app-settings/booking-panel-settings-modal.component';
 import { ConciergeSettingsFormModalComponent } from '../ui/app-settings/concierge-settings-form-modal.component';
 import { VisitorKioskSettingsFormModalComponent } from '../ui/app-settings/visitor-kiosk-settings-form-modal.component';
@@ -239,7 +245,12 @@ import { WorkplaceSettingsFormModalComponent } from '../ui/app-settings/workplac
         </ng-template>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        SimpleTableComponent,
+        AuthenticatedImageDirective,
+        MatMenuModule,
+        TranslatePipe,
+    ],
 })
 export class BuildingListComponent {
     private _manager = inject(BuildingManagementService);

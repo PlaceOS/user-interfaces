@@ -1,6 +1,10 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
+import { RouterModule } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
 import { OrganisationService, SettingsService } from '@placeos/common';
+import { SafePipe, SanitizePipe, TranslatePipe } from '@placeos/components';
 import {
     generateCalendarFileLink,
     generateGoogleCalendarLink,
@@ -99,7 +103,14 @@ import {
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        RouterModule,
+        TranslatePipe,
+        MatRippleModule,
+        SafePipe,
+        SanitizePipe,
+    ],
 })
 export class ParkingFlowSuccessComponent {
     private _state = inject(BookingFormService);

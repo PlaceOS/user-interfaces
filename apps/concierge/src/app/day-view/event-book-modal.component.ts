@@ -19,7 +19,26 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 
-import { CateringOrderStateService } from '@placeos/catering';
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { AssetListFieldComponent } from '@placeos/assets';
+import {
+    CateringListFieldComponent,
+    CateringOrderStateService,
+} from '@placeos/catering';
+import {
+    FullscreenModalShellComponent,
+    IconComponent,
+    TranslatePipe,
+} from '@placeos/components';
+import {
+    RichTextInputComponent,
+    SpaceListFieldComponent,
+} from '@placeos/form-fields';
+
+import { MeetingFormDetailsComponent } from 'apps/workplace/src/app/book/meeting-flow/meeting-form-details.component';
 
 @Component({
     selector: 'event-book-modal',
@@ -371,7 +390,20 @@ import { CateringOrderStateService } from '@placeos/catering';
     `,
     styles: [``],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
-    standalone: false,
+    imports: [
+        CommonModule,
+        FullscreenModalShellComponent,
+        RichTextInputComponent,
+        SpaceListFieldComponent,
+        AssetListFieldComponent,
+        CateringListFieldComponent,
+        MatFormFieldModule,
+        MatInputModule,
+        TranslatePipe,
+        IconComponent,
+        ReactiveFormsModule,
+        MeetingFormDetailsComponent,
+    ],
 })
 export class EventBookModalComponent implements OnInit {
     private _data = inject<{

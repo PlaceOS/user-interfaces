@@ -1,6 +1,12 @@
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 
+import { CommonModule } from '@angular/common';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
+import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
+import { StaffListingComponent } from './staff-listing.component';
 import { StaffStateService } from './staff-state.service';
+import { StaffTopbarComponent } from './staff-topbar.component';
 
 @Component({
     selector: '[app-new-staff]',
@@ -31,7 +37,14 @@ import { StaffStateService } from './staff-state.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatProgressBarModule,
+        ApplicationTopbarComponent,
+        ApplicationSidebarComponent,
+        StaffTopbarComponent,
+        StaffListingComponent,
+    ],
 })
 export class StaffComponent implements OnInit, OnDestroy {
     private _state = inject(StaffStateService);

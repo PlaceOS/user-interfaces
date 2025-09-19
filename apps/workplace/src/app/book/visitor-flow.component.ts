@@ -1,5 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { InviteVisitorFormComponent } from '@placeos/bookings';
 
 @Component({
     selector: 'placeos-book-space-flow',
@@ -21,7 +22,7 @@ import { Router } from '@angular/router';
             }
         `,
     ],
-    standalone: false,
+    imports: [InviteVisitorFormComponent],
 })
 export class VisitorFlowComponent {
     private _router = inject(Router);

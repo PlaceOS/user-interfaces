@@ -1,10 +1,18 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject, input } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     downloadFile,
     jsonToCsv,
     nextValueFrom,
     unique,
 } from '@placeos/common';
+import {
+    IconComponent,
+    SimpleTableComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { map } from 'rxjs/operators';
 import { VisitorsReportService } from './visitors-report.service';
 
@@ -71,7 +79,14 @@ import { VisitorsReportService } from './visitors-report.service';
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        SimpleTableComponent,
+        TranslatePipe,
+        IconComponent,
+        MatTooltipModule,
+        MatRippleModule,
+    ],
 })
 export class VisitorReportDailyUsageComponent {
     private _state = inject(VisitorsReportService);

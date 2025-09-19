@@ -1,5 +1,14 @@
 import { Component, inject } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
+import { MatMenuModule } from '@angular/material/menu';
 import { generateQRCode, SettingsService } from '@placeos/common';
+import {
+    IconComponent,
+    LevelPipe,
+    PrintableComponent,
+    SimpleTableComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import {
     POIManagementService,
     PointOfInterest,
@@ -111,7 +120,7 @@ import {
                         </button>
                     </div>
                 </ng-template>
-                <button btn icon matRipple [matMenuTriggerFor]="menu">
+                <button icon matRipple [matMenuTriggerFor]="menu">
                     <icon>more_vert</icon>
                 </button>
                 <mat-menu #menu="matMenu">
@@ -144,7 +153,15 @@ import {
         </ng-template>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        SimpleTableComponent,
+        MatMenuModule,
+        TranslatePipe,
+        IconComponent,
+        MatRippleModule,
+        PrintableComponent,
+        LevelPipe,
+    ],
 })
 export class POIListComponent {
     private _manager = inject(POIManagementService);

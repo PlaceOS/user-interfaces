@@ -1,7 +1,15 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { ExploreDesksService, ExploreStateService } from '@placeos/explore';
+import {
+    ExploreDesksService,
+    ExploreStateService,
+    ExploreZoomControlComponent,
+} from '@placeos/explore';
 
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { AsyncHandler, OrganisationService } from '@placeos/common';
+import { InteractiveMapComponent } from '@placeos/components';
+import { UserSearchFieldComponent } from '@placeos/form-fields';
 import { DesksStateService } from './desks-state.service';
 
 @Component({
@@ -52,7 +60,13 @@ import { DesksStateService } from './desks-state.service';
         `,
     ],
     providers: [ExploreDesksService],
-    standalone: false,
+    imports: [
+        CommonModule,
+        InteractiveMapComponent,
+        ExploreZoomControlComponent,
+        UserSearchFieldComponent,
+        FormsModule,
+    ],
 })
 export class DeskMapViewComponent extends AsyncHandler implements OnInit {
     private _state = inject(ExploreStateService);

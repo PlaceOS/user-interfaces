@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { IconComponent } from '@placeos/components';
 
 @Component({
     selector: 'facilities-status',
@@ -61,7 +62,7 @@ import { Component } from '@angular/core';
             }
         `,
     ],
-    standalone: false,
+    imports: [IconComponent],
 })
 export class FacilitiesStatusComponent {
     public feedback: string;

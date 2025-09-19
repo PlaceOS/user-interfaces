@@ -1,7 +1,12 @@
+import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { NavigationEnd, Router } from '@angular/router';
+import { MatTabsModule } from '@angular/material/tabs';
+import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
+import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
+import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
 import { ParkingStateService } from './parking-state.service';
+import { ParkingTopbarComponent } from './parking-topbar.component';
 
 @Component({
     selector: 'app-parking',
@@ -111,7 +116,14 @@ import { ParkingStateService } from './parking-state.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        ApplicationTopbarComponent,
+        ApplicationSidebarComponent,
+        MatTabsModule,
+        RouterModule,
+        ParkingTopbarComponent,
+    ],
 })
 export class ParkingComponent extends AsyncHandler implements OnInit {
     private _state = inject(ParkingStateService);

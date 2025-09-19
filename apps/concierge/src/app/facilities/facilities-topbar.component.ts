@@ -2,9 +2,14 @@ import { Component, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { first } from 'rxjs/operators';
 
-import { AsyncHandler, Identity } from '@placeos/common';
-import { OrganisationService } from '@placeos/common';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { AsyncHandler, Identity, OrganisationService } from '@placeos/common';
+import { TranslatePipe } from '@placeos/components';
 import { EventsStateService } from '../day-view/events-state.service';
+import { SearchbarComponent } from '../ui/searchbar.component';
 
 @Component({
     selector: 'facilities-topbar',
@@ -59,7 +64,14 @@ import { EventsStateService } from '../day-view/events-state.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatFormFieldModule,
+        MatSelectModule,
+        SearchbarComponent,
+        FormsModule,
+        TranslatePipe,
+    ],
 })
 export class FacilitiesTopbarComponent extends AsyncHandler {
     private _state = inject(EventsStateService);

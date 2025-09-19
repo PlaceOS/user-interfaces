@@ -4,20 +4,11 @@ import {
     NgModule,
     provideZonelessChangeDetection,
 } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { Router } from '@angular/router';
 import { ServiceWorkerModule } from '@angular/service-worker';
-
-import { environment } from '../environments/environment';
-import { AppRoutingModule } from './app-routing.module';
-import { SharedOverlaysModule } from './overlays/overlays.module';
-
-import * as Sentry from '@sentry/angular';
-
-import { SharedComponentModule } from './components/shared.module';
 
 import { registerLocaleData } from '@angular/common';
 import localeAr from '@angular/common/locales/ar';
@@ -28,6 +19,13 @@ import localeJa from '@angular/common/locales/ja';
 import localeZh from '@angular/common/locales/zh';
 
 import { LocaleService } from '@placeos/common';
+
+import { environment } from '../environments/environment';
+import { AppRoutingModule } from './app-routing.module';
+import { SharedComponentModule } from './components/shared.module';
+
+import * as Sentry from '@sentry/angular';
+
 import { AppComponent } from './app.component';
 
 @NgModule({
@@ -37,12 +35,10 @@ import { AppComponent } from './app.component';
         BrowserModule,
         BrowserAnimationsModule,
         AppRoutingModule,
+        MatSnackBarModule,
         ServiceWorkerModule.register('ngsw-worker.js', {
             enabled: environment.production,
         }),
-        FormsModule,
-        MatSnackBarModule,
-        SharedOverlaysModule,
         SharedComponentModule,
     ],
     providers: [

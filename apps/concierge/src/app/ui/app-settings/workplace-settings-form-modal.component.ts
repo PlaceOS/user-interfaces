@@ -1,6 +1,16 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import {
+    FormControl,
+    FormGroup,
+    FormsModule,
+    ReactiveFormsModule,
+    Validators,
+} from '@angular/forms';
+import {
+    MAT_DIALOG_DATA,
+    MatDialogModule,
+    MatDialogRef,
+} from '@angular/material/dialog';
 import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
 import { map } from 'rxjs/operators';
 
@@ -15,8 +25,15 @@ import { validateURL } from '@placeos/events';
 import { DEFAULT_SETTINGS } from 'apps/workplace/src/environments/settings';
 import { format } from 'date-fns';
 
+import { MatRippleModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import { VERSION } from '@placeos/common';
+import { IconComponent, SettingsToggleComponent } from '@placeos/components';
+import { FullscreenModalShellComponent } from 'libs/components/src/lib/fullscreen-modal-shell.component';
 import { lastValueFrom } from 'rxjs';
+import { UploadButtonComponent } from './upload-button.component';
 
 @Component({
     selector: 'workplace-settings-form-modal',
@@ -1696,7 +1713,19 @@ import { lastValueFrom } from 'rxjs';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        MatDialogModule,
+        FullscreenModalShellComponent,
+        SettingsToggleComponent,
+        ReactiveFormsModule,
+        MatRippleModule,
+        IconComponent,
+        MatSelectModule,
+        MatFormFieldModule,
+        MatInputModule,
+        FormsModule,
+        UploadButtonComponent,
+    ],
 })
 export class WorkplaceSettingsFormModalComponent implements OnInit {
     private _data = inject<{

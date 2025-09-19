@@ -1,7 +1,12 @@
 import { Component, OnInit, inject } from '@angular/core';
 
-import { NavigationEnd, Router } from '@angular/router';
+import { MatRippleModule } from '@angular/material/core';
+import { MatTabsModule } from '@angular/material/tabs';
+import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { AsyncHandler, i18n } from '@placeos/common';
+import { TranslatePipe } from '@placeos/components';
+import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
+import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
 import { SignageStateService } from './signage-state.service';
 
 @Component({
@@ -69,7 +74,14 @@ import { SignageStateService } from './signage-state.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        ApplicationTopbarComponent,
+        ApplicationSidebarComponent,
+        TranslatePipe,
+        MatRippleModule,
+        MatTabsModule,
+        RouterModule,
+    ],
 })
 export class SignageComponent extends AsyncHandler implements OnInit {
     private _state = inject(SignageStateService);

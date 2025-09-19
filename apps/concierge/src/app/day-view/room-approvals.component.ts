@@ -8,6 +8,17 @@ import {
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import {
+    AuthenticatedImageDirective,
+    BuildingPipe,
+    IconComponent,
+    LevelPipe,
+    TranslatePipe,
+} from '@placeos/components';
 import { EventsStateService } from './events-state.service';
 
 @Component({
@@ -222,7 +233,17 @@ import { EventsStateService } from './events-state.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        IconComponent,
+        BuildingPipe,
+        LevelPipe,
+        FormsModule,
+        MatProgressSpinnerModule,
+        AuthenticatedImageDirective,
+        MatTooltipModule,
+    ],
 })
 export class RoomBookingsApprovalsComponent {
     private _state = inject(EventsStateService);

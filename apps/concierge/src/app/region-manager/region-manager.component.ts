@@ -1,10 +1,17 @@
 import { Component, inject } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { OrganisationService } from '@placeos/common';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { BookingPanelSettingsModalComponent } from '../ui/app-settings/booking-panel-settings-modal.component';
 import { ConciergeSettingsFormModalComponent } from '../ui/app-settings/concierge-settings-form-modal.component';
 import { VisitorKioskSettingsFormModalComponent } from '../ui/app-settings/visitor-kiosk-settings-form-modal.component';
 import { WorkplaceSettingsFormModalComponent } from '../ui/app-settings/workplace-settings-form-modal.component';
+import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
+import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
+import { RegionListComponent } from './region-list.component';
 import { RegionManagementService } from './region-management.service';
 
 @Component({
@@ -121,7 +128,16 @@ import { RegionManagementService } from './region-management.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        ApplicationTopbarComponent,
+        ApplicationSidebarComponent,
+        MatMenuModule,
+        IconComponent,
+        MatRippleModule,
+        MatTooltipModule,
+        TranslatePipe,
+        RegionListComponent,
+    ],
 })
 export class RegionManagerComponent {
     private readonly _state = inject(RegionManagementService);

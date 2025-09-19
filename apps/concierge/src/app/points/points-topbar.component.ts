@@ -1,6 +1,7 @@
-import { Component, inject } from '@angular/core';
-import { AsyncHandler, OrganisationService } from '@placeos/common';
-import { first } from 'rxjs/operators';
+import { Component } from '@angular/core';
+import { AsyncHandler } from '@placeos/common';
+import { TranslatePipe } from '@placeos/components';
+import { DateOptionsComponent } from '../ui/date-options.component';
 
 @Component({
     selector: 'points-topbar',
@@ -25,12 +26,6 @@ import { first } from 'rxjs/operators';
             }
         `,
     ],
-    standalone: false,
+    imports: [DateOptionsComponent, TranslatePipe],
 })
-export class PointsTopbarComponent extends AsyncHandler {
-    private _org = inject(OrganisationService);
-
-    public async ngOnInit() {
-        await this._org.initialised.pipe(first((_) => _)).toPromise();
-    }
-}
+export class PointsTopbarComponent extends AsyncHandler {}

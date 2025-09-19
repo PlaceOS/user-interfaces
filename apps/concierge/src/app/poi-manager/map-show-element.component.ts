@@ -17,7 +17,7 @@ import { MAP_FEATURE_DATA } from '@placeos/common';
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [],
 })
 export class MapShowElementComponent {
     private _data = inject<{

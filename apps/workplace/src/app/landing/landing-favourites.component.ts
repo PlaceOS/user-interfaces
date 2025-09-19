@@ -14,7 +14,15 @@ import {
 import { EventFormService } from '@placeos/events';
 import { showMetadata } from '@placeos/ts-client';
 
+import { CommonModule } from '@angular/common';
+import { MatRippleModule } from '@angular/material/core';
+import { MatMenuModule } from '@angular/material/menu';
 import { FAV_DESK_KEY, FAV_LOCKER_KEY } from '@placeos/bookings';
+import {
+    AuthenticatedImageDirective,
+    IconComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { SpacePipe } from '@placeos/events';
 
 const EMPTY = [];
@@ -272,7 +280,14 @@ const EMPTY = [];
         `,
     ],
     providers: [SpacePipe],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        IconComponent,
+        MatRippleModule,
+        MatMenuModule,
+        AuthenticatedImageDirective,
+    ],
 })
 export class LandingFavouritesComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);

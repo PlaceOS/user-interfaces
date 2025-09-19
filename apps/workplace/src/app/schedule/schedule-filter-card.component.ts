@@ -1,6 +1,11 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatRippleModule } from '@angular/material/core';
 import { SettingsService } from '@placeos/common';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { ScheduleStateService } from './schedule-state.service';
 
 @Component({
@@ -214,7 +219,14 @@ import { ScheduleStateService } from './schedule-state.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        IconComponent,
+        MatCheckboxModule,
+        FormsModule,
+        MatRippleModule,
+    ],
 })
 export class ScheduleFilterCardComponent {
     private _state = inject(ScheduleStateService);

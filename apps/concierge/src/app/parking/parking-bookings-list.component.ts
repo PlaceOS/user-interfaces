@@ -1,5 +1,15 @@
+import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { AsyncHandler, SettingsService } from '@placeos/common';
+import {
+    IconComponent,
+    SimpleTableComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { combineLatest, map } from 'rxjs';
 import { ParkingStateService } from './parking-state.service';
 
@@ -221,7 +231,17 @@ import { ParkingStateService } from './parking-state.service';
         <div class="h-20 w-full"></div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatProgressBarModule,
+        SimpleTableComponent,
+        TranslatePipe,
+        MatRippleModule,
+        IconComponent,
+        MatMenuModule,
+        MatTooltipModule,
+        IconComponent,
+    ],
 })
 export class ParkingBookingsListComponent
     extends AsyncHandler

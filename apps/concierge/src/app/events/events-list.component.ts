@@ -1,6 +1,12 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AsyncHandler, nextValueFrom, SettingsService } from '@placeos/common';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import {
     addDays,
     addMonths,
@@ -12,6 +18,8 @@ import {
     subMonths,
 } from 'date-fns';
 import { distinctUntilChanged, map } from 'rxjs/operators';
+import { EventCalendarComponent } from './event-calendar.component';
+import { EventListingComponent } from './event-listing.component';
 import { EventStateService } from './event-state.service';
 
 @Component({
@@ -116,7 +124,18 @@ import { EventStateService } from './event-state.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        IconComponent,
+        TranslatePipe,
+        MatFormFieldModule,
+        MatSelectModule,
+        EventCalendarComponent,
+        EventListingComponent,
+        MatRippleModule,
+        RouterModule,
+        FormsModule,
+    ],
 })
 export class EventsListComponent extends AsyncHandler implements OnInit {
     private _settings = inject(SettingsService);

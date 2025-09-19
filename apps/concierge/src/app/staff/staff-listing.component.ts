@@ -2,6 +2,9 @@ import { Component, ElementRef, inject, viewChild } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
 import { map } from 'rxjs/operators';
 
+import { CommonModule } from '@angular/common';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { StaffDetailsComponent } from './staff-details.component';
 import { StaffStateService } from './staff-state.service';
 
 const CHARS = '#abcdefghijklmnopqrstuvwxyz'.split('');
@@ -101,7 +104,7 @@ const CHARS = '#abcdefghijklmnopqrstuvwxyz'.split('');
             }
         `,
     ],
-    standalone: false,
+    imports: [CommonModule, MatProgressBarModule, StaffDetailsComponent],
 })
 export class StaffListingComponent extends AsyncHandler {
     private _state = inject(StaffStateService);

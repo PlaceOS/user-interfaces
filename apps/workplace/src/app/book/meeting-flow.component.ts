@@ -2,6 +2,9 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
+import { MeetingFlowConfirmComponent } from './meeting-flow/meeting-flow-confirm.component';
+import { MeetingFlowFormComponent } from './meeting-flow/meeting-flow-form.component';
+import { MeetingFlowSuccessComponent } from './meeting-flow/meeting-flow-success.component';
 
 @Component({
     selector: 'placeos-book-meeting-flow',
@@ -28,7 +31,11 @@ import { EventFormService } from '@placeos/events';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        MeetingFlowSuccessComponent,
+        MeetingFlowConfirmComponent,
+        MeetingFlowFormComponent,
+    ],
 })
 export class BookMeetingFlowComponent extends AsyncHandler implements OnInit {
     private _state = inject(EventFormService);

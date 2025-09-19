@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import {
     Component,
     OnChanges,
@@ -6,16 +7,26 @@ import {
     input,
     output,
 } from '@angular/core';
-import { FormGroup } from '@angular/forms';
-import { BookingFormService } from '@placeos/bookings';
+import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { AssetListFieldComponent } from '@placeos/assets';
+import { BookingFormService, DeskListFieldComponent } from '@placeos/bookings';
 import {
     AsyncHandler,
     BookingRecurrence,
     Desk,
+    OrganisationService,
     SettingsService,
 } from '@placeos/common';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { RecurrenceDetails } from '@placeos/events';
-import { OrganisationService } from '@placeos/common';
+import {
+    DateFieldComponent,
+    DurationFieldComponent,
+    RecurrenceFieldComponent,
+    TimeFieldComponent,
+    UserListFieldComponent,
+} from '@placeos/form-fields';
 import { addDays, endOfDay, set } from 'date-fns';
 
 @Component({
@@ -289,7 +300,21 @@ import { addDays, endOfDay, set } from 'date-fns';
             </div>
         }
     `,
-    standalone: false,
+    imports: [
+        CommonModule,
+        IconComponent,
+        TranslatePipe,
+        AssetListFieldComponent,
+        DeskListFieldComponent,
+        UserListFieldComponent,
+        MatCheckboxModule,
+        RecurrenceFieldComponent,
+        DurationFieldComponent,
+        TimeFieldComponent,
+        DateFieldComponent,
+        FormsModule,
+        ReactiveFormsModule,
+    ],
 })
 export class NewDeskFormDetailsComponent
     extends AsyncHandler

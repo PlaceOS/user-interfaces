@@ -1,7 +1,13 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
+import { GroupEventCardComponent } from '@placeos/events';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { FooterMenuComponent } from '../components/footer-menu.component';
+import { TopbarComponent } from '../components/topbar.component';
+import { GroupEventsFiltersListComponent } from './group-events-filters-list.component';
+import { GroupEventsSidebarComponent } from './group-events-sidebar.component';
 import { GroupEventsStateService } from './group-events-state.service';
 
 @Component({
@@ -72,7 +78,14 @@ import { GroupEventsStateService } from './group-events-state.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TopbarComponent,
+        FooterMenuComponent,
+        GroupEventCardComponent,
+        GroupEventsFiltersListComponent,
+        GroupEventsSidebarComponent,
+    ],
 })
 export class GroupEventsComponent extends AsyncHandler {
     private _state = inject(GroupEventsStateService);

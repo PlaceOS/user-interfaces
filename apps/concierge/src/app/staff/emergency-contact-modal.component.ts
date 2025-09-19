@@ -1,6 +1,20 @@
 import { Component, inject, signal, viewChild } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import {
+    FormControl,
+    FormGroup,
+    FormsModule,
+    ReactiveFormsModule,
+} from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
+import {
+    MAT_DIALOG_DATA,
+    MatDialogModule,
+    MatDialogRef,
+} from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
 import {
     i18n,
     nextValueFrom,
@@ -9,7 +23,12 @@ import {
     OrganisationService,
     randomString,
 } from '@placeos/common';
-import { CustomTooltipComponent } from '@placeos/components';
+import {
+    CustomTooltipComponent,
+    IconComponent,
+    TranslatePipe,
+} from '@placeos/components';
+import { UserSearchFieldComponent } from '@placeos/form-fields';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { filter, map, shareReplay, switchMap } from 'rxjs/operators';
@@ -169,7 +188,20 @@ import { EmergencyContact } from './emergency-contacts.component';
         </ng-template>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        MatDialogModule,
+        IconComponent,
+        TranslatePipe,
+        MatFormFieldModule,
+        MatInputModule,
+        MatSelectModule,
+        MatRippleModule,
+        FormsModule,
+        ReactiveFormsModule,
+        MatProgressSpinnerModule,
+        CustomTooltipComponent,
+        UserSearchFieldComponent,
+    ],
 })
 export class EmergencyContactModalComponent {
     private _data = inject<EmergencyContact | undefined>(MAT_DIALOG_DATA);

@@ -1,10 +1,19 @@
 import { Component, inject } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
+import { RouterModule } from '@angular/router';
 import {
     currentUser,
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
-import { UserControlsComponent } from '@placeos/components';
+import {
+    AuthenticatedImageDirective,
+    CustomTooltipComponent,
+    IconComponent,
+    UserControlsComponent,
+} from '@placeos/components';
+import { GlobalSearchComponent } from './global-search.component';
+import { TopMenuComponent } from './top-menu.component';
 
 const EMPTY = [];
 
@@ -61,7 +70,15 @@ const EMPTY = [];
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        IconComponent,
+        MatRippleModule,
+        CustomTooltipComponent,
+        GlobalSearchComponent,
+        TopMenuComponent,
+        AuthenticatedImageDirective,
+        RouterModule,
+    ],
 })
 export class TopbarComponent {
     private _settings = inject(SettingsService);

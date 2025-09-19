@@ -14,6 +14,7 @@ import {
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
+import { TranslatePipe } from '@placeos/components';
 import { LineChart, PieChart } from 'chartist';
 import { format } from 'date-fns';
 import { combineLatest } from 'rxjs';
@@ -61,7 +62,7 @@ import { combineLatest } from 'rxjs';
             }
         `,
     ],
-    standalone: false,
+    imports: [TranslatePipe],
 })
 export class ReportDesksChartsComponent
     extends AsyncHandler

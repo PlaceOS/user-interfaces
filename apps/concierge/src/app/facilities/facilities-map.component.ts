@@ -1,7 +1,12 @@
 import { Component, inject } from '@angular/core';
 
+import { CommonModule } from '@angular/common';
 import { AsyncHandler } from '@placeos/common';
-import { ExploreStateService } from '@placeos/explore';
+import { InteractiveMapComponent } from '@placeos/components';
+import {
+    ExploreStateService,
+    ExploreZoomControlComponent,
+} from '@placeos/explore';
 import { EventsStateService } from '../day-view/events-state.service';
 
 @Component({
@@ -26,7 +31,11 @@ import { EventsStateService } from '../day-view/events-state.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        InteractiveMapComponent,
+        ExploreZoomControlComponent,
+    ],
 })
 export class FacilitiesMapComponent extends AsyncHandler {
     private _explore = inject(ExploreStateService);

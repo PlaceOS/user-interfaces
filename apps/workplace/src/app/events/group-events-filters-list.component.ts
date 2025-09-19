@@ -1,5 +1,8 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
 import { nextValueFrom } from '@placeos/common';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { differenceInDays, endOfDay, startOfDay } from 'date-fns';
 import { map } from 'rxjs/operators';
 import { GroupEventsStateService } from './group-events-state.service';
@@ -46,7 +49,7 @@ import { GroupEventsStateService } from './group-events-state.service';
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [CommonModule, MatRippleModule, TranslatePipe, IconComponent],
 })
 export class GroupEventsFiltersListComponent {
     private _state = inject(GroupEventsStateService);

@@ -1,7 +1,22 @@
 import { Component, EventEmitter, OnInit, Output, inject } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import {
+    FormControl,
+    FormGroup,
+    ReactiveFormsModule,
+    Validators,
+} from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { AsyncHandler, DialogEvent, User } from '@placeos/common';
+import {
+    IconComponent,
+    SettingsToggleComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { ParkingUser } from './parking-state.service';
 
 @Component({
@@ -152,7 +167,17 @@ import { ParkingUser } from './parking-state.service';
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        IconComponent,
+        TranslatePipe,
+        MatProgressSpinnerModule,
+        MatRippleModule,
+        SettingsToggleComponent,
+        MatFormFieldModule,
+        MatInputModule,
+        ReactiveFormsModule,
+        MatTooltipModule,
+    ],
 })
 export class ParkingUserModalComponent extends AsyncHandler implements OnInit {
     private _data = inject<ParkingUser>(MAT_DIALOG_DATA);

@@ -1,14 +1,9 @@
-import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { Route, RouterModule } from '@angular/router';
 
 import { ExploreComponent } from './explore.component';
 
-import { SharedExploreModule } from '@placeos/explore';
-
 import { MAP_FEATURE_DATA } from '@placeos/common';
-import { SharedComponentModule } from '../components/shared.module';
 
 const ROUTES: Route[] = [
     { path: '', component: ExploreComponent },
@@ -16,14 +11,8 @@ const ROUTES: Route[] = [
 ];
 
 @NgModule({
-    declarations: [ExploreComponent],
-    imports: [
-        CommonModule,
-        RouterModule.forChild(ROUTES),
-        SharedComponentModule,
-        SharedExploreModule,
-        FormsModule,
-    ],
+    declarations: [],
+    imports: [ExploreComponent, RouterModule.forChild(ROUTES)],
     providers: [{ provide: MAP_FEATURE_DATA, useValue: {} }],
 })
 export class ExploreModule {}

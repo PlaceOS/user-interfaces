@@ -1,4 +1,12 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { RouterModule } from '@angular/router';
+import {
+    AuthenticatedImageDirective,
+    TranslatePipe,
+} from '@placeos/components';
 import { AssetManagerStateService } from './asset-manager-state.service';
 
 @Component({
@@ -186,7 +194,14 @@ import { AssetManagerStateService } from './asset-manager-state.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatProgressBarModule,
+        MatRippleModule,
+        RouterModule,
+        TranslatePipe,
+        AuthenticatedImageDirective,
+    ],
 })
 export class AssetItemListComponent {
     private _state = inject(AssetManagerStateService);

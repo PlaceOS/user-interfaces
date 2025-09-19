@@ -1,5 +1,10 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { RouterModule } from '@angular/router';
 import { settingSignal, Space } from '@placeos/common';
+import { BuildingPipe, LevelPipe, TranslatePipe } from '@placeos/components';
+import { SpacePipe } from '@placeos/events';
 import { ExploreSpacesService } from '@placeos/explore';
 import { LandingStateService } from './landing-state.service';
 
@@ -167,7 +172,15 @@ import { LandingStateService } from './landing-state.service';
         `,
     ],
     providers: [ExploreSpacesService],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        LevelPipe,
+        BuildingPipe,
+        SpacePipe,
+        MatProgressSpinnerModule,
+        RouterModule,
+    ],
 })
 export class LandingAvailabilityComponent {
     private _state = inject(LandingStateService);

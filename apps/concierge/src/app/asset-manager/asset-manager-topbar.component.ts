@@ -1,5 +1,13 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject, input } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { RouterModule } from '@angular/router';
 import {
     AsyncHandler,
     nextValueFrom,
@@ -7,7 +15,11 @@ import {
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
-import { AvailableRoomsStateModalComponent } from '@placeos/components';
+import {
+    AvailableRoomsStateModalComponent,
+    IconComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { AssetManagerStateService } from './asset-manager-state.service';
 
 @Component({
@@ -155,7 +167,18 @@ import { AssetManagerStateService } from './asset-manager-state.service';
         }
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatFormFieldModule,
+        TranslatePipe,
+        FormsModule,
+        MatSelectModule,
+        IconComponent,
+        MatRippleModule,
+        MatTooltipModule,
+        RouterModule,
+        MatInputModule,
+    ],
 })
 export class AssetManagerTopbarComponent extends AsyncHandler {
     private _state = inject(AssetManagerStateService);

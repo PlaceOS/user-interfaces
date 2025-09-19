@@ -3,6 +3,7 @@ import {
     MatBottomSheet,
     MatBottomSheetRef,
 } from '@angular/material/bottom-sheet';
+import { MatRippleModule } from '@angular/material/core';
 import { Router } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
 import {
@@ -13,9 +14,11 @@ import {
     nextValueFrom,
     notifyError,
 } from '@placeos/common';
+import { TranslatePipe } from '@placeos/components';
 import { isBefore, startOfMinute } from 'date-fns';
 import { first } from 'rxjs/operators';
 import { BookLockerFlowConfirmComponent } from './locker-flow-confirm.component';
+import { LockerFormDetailsComponent } from './locker-form-details.component';
 
 @Component({
     selector: 'locker-flow-form',
@@ -51,7 +54,7 @@ import { BookLockerFlowConfirmComponent } from './locker-flow-confirm.component'
             </div>
         </div>
     `,
-    standalone: false,
+    imports: [MatRippleModule, TranslatePipe, LockerFormDetailsComponent],
 })
 export class BookLockerFlowFormComponent implements OnInit {
     private _state = inject(BookingFormService);

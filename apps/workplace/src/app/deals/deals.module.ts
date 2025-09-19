@@ -1,22 +1,15 @@
-import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { Route, RouterModule } from '@angular/router';
 
-import { FormFieldsModule } from 'libs/form-fields/src/lib/form-fields.module';
-import { SharedComponentModule } from '../components/shared.module';
 import { DealDetailsModalComponent } from './deal-details-modal.component';
 import { DealsComponent } from './deals.component';
 
 const ROUTES: Route[] = [{ path: '', component: DealsComponent }];
 
 @NgModule({
-    declarations: [DealsComponent],
+    declarations: [],
     imports: [
-        CommonModule,
-        FormsModule,
-        FormFieldsModule,
-        SharedComponentModule,
+        DealsComponent,
         DealDetailsModalComponent,
         RouterModule.forChild(ROUTES),
     ],

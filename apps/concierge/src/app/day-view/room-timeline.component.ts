@@ -1,6 +1,8 @@
-import { DatePipe } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     AsyncHandler,
     CalendarEvent,
@@ -11,7 +13,7 @@ import {
     notifyError,
     notifySuccess,
 } from '@placeos/common';
-import { openConfirmModal } from '@placeos/components';
+import { TranslatePipe, openConfirmModal } from '@placeos/components';
 import {
     EventDetailsModalComponent,
     SetupBreakdownModalComponent,
@@ -28,7 +30,9 @@ import {
 } from 'date-fns';
 import { combineLatest } from 'rxjs';
 import { debounceTime, map, shareReplay, startWith } from 'rxjs/operators';
+import { DateOptionsComponent } from '../ui/date-options.component';
 import { EventsStateService } from './events-state.service';
+import { RoomBookingSearchComponent } from './room-booking-search.component';
 
 @Component({
     selector: 'room-bookings-timeline',
@@ -239,7 +243,14 @@ import { EventsStateService } from './events-state.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        DateOptionsComponent,
+        TranslatePipe,
+        RoomBookingSearchComponent,
+        MatRippleModule,
+        MatTooltipModule,
+    ],
 })
 export class RoomBookingsTimelineComponent
     extends AsyncHandler

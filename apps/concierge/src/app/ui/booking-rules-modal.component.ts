@@ -1,5 +1,12 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
+import { MatRippleModule } from '@angular/material/core';
+import {
+    MAT_DIALOG_DATA,
+    MatDialog,
+    MatDialogModule,
+} from '@angular/material/dialog';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     BookingRuleset,
     OrganisationService,
@@ -9,8 +16,16 @@ import {
     notifySuccess,
     randomString,
 } from '@placeos/common';
-import { openConfirmModal } from '@placeos/components';
+import {
+    IconComponent,
+    LevelPipe,
+    SimpleTableComponent,
+    TranslatePipe,
+    openConfirmModal,
+} from '@placeos/components';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
+import { FullscreenModalShellComponent } from 'libs/components/src/lib/fullscreen-modal-shell.component';
+import { BookingRulesFormComponent } from 'libs/form-fields/src/lib/booking-rules-form.component';
 import { BehaviorSubject, Observable, combineLatest, of } from 'rxjs';
 import {
     catchError,
@@ -226,7 +241,18 @@ import {
         </fullscreen-modal-shell>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        MatDialogModule,
+        CommonModule,
+        MatRippleModule,
+        IconComponent,
+        TranslatePipe,
+        MatTooltipModule,
+        LevelPipe,
+        SimpleTableComponent,
+        BookingRulesFormComponent,
+        FullscreenModalShellComponent,
+    ],
 })
 export class BookingRulesModalComponent {
     private _data = inject<{

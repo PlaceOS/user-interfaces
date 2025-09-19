@@ -1,12 +1,16 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import {
+    MAT_DIALOG_DATA,
+    MatDialogModule,
+    MatDialogRef,
+} from '@angular/material/dialog';
 import {
     AsyncHandler,
     getInvalidFields,
     notifyError,
     notifySuccess,
-    uploadFile,
+    UploadsService,
 } from '@placeos/common';
 import {
     addSettings,
@@ -19,8 +23,14 @@ import {
 import { lastValueFrom, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
+import { MatRippleModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { IconComponent, SettingsToggleComponent } from '@placeos/components';
 import { validateURL } from '@placeos/events';
-import * as yaml from 'js-yaml';
+import { DurationFieldComponent } from '@placeos/form-fields';
+import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
 
 @Component({
     selector: `booking-panel-settings-modal`,
@@ -277,12 +287,23 @@ don't detect presence in room after a period of time"
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        MatRippleModule,
+        IconComponent,
+        MatProgressSpinnerModule,
+        MatFormFieldModule,
+        MatInputModule,
+        SettingsToggleComponent,
+        DurationFieldComponent,
+        MatDialogModule,
+        ReactiveFormsModule,
+    ],
 })
 export class BookingPanelSettingsModalComponent
     extends AsyncHandler
     implements OnInit
 {
+    private _uploads = inject(UploadsService);
     private _data = inject<{
         zone: PlaceZone;
     }>(MAT_DIALOG_DATA);
@@ -352,7 +373,7 @@ export class BookingPanelSettingsModalComponent
         }
         this.loading.set('Processing found panel settings...');
         const setting_value =
-            yaml.load(unencrypted_settings.settings_string) || {};
+            parseYaml(unencrypted_settings.settings_string) || {};
         this.form.patchValue(setting_value);
         this.loading.set('');
     }
@@ -368,19 +389,19 @@ export class BookingPanelSettingsModalComponent
         if (!file.type.includes('image')) {
             return notifyError('File is not an image');
         }
-        uploadFile(file).subscribe(
-            (s) => {
+        this._uploads.uploadFileWithProgress(file).subscribe({
+            next: (s) => {
                 this.uploading.set(s.progress);
                 if (s.link) {
                     this.uploading.set(0);
                     field.setValue(s.link);
                 }
             },
-            () => {
+            error: () => {
                 notifyError('Failed to upload image. Try again later');
                 this.uploading.set(0);
             },
-        );
+        });
     }
 
     public async save() {
@@ -407,7 +428,7 @@ export class BookingPanelSettingsModalComponent
                 encryption_level: EncryptionLevel.None,
             });
         const setting_value =
-            yaml.load(unencrypted_settings.settings_string) || {};
+            parseYaml(unencrypted_settings.settings_string) || {};
         const new_settings_blob = {
             ...setting_value,
             ...form_value,
@@ -421,7 +442,7 @@ export class BookingPanelSettingsModalComponent
         const new_setting = {
             ...unencrypted_settings,
             parent_id: this._data.zone.id,
-            settings_string: yaml.dump(new_settings_blob),
+            settings_string: stringifyYaml(new_settings_blob),
         };
         this.loading.set('Saving changes to booking panel settings...');
         const update = unencrypted_settings.id

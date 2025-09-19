@@ -1,14 +1,6 @@
-import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import { Route, RouterModule } from '@angular/router';
 
-import { SharedBookingsModule } from 'libs/bookings/src/lib/bookings.module';
-import { SharedCateringModule } from 'libs/catering/src/lib/catering.module';
-import { SharedExploreModule } from 'libs/explore/src/lib/explore.module';
-
-import { SharedComponentModule } from '../components/shared.module';
 import { BookComponent } from './book.component';
 import { CodeFlowErrorComponent } from './code-flow-error.component';
 import { CodeFlowSuccessComponent } from './code-flow-success.component';
@@ -62,51 +54,41 @@ const ROUTES: Route[] = [
     { path: '*', redirectTo: 'spaces/form' },
 ];
 
-const STANDALONE_COMPONENTS = [MeetingFlowConfirmComponent];
+const STANDALONE_COMPONENTS = [
+    BookComponent,
+    BookCodeFlowComponent,
+    CodeFlowSuccessComponent,
+    CodeFlowErrorComponent,
+    FlowSuccessComponent,
+    BookMeetingFlowComponent,
+    MeetingFlowFormComponent,
+    MeetingFormDetailsComponent,
+    MeetingFlowConfirmModalComponent,
+    MeetingFlowSuccessComponent,
+    MeetingFlowConfirmComponent,
+
+    NewDeskFlowFormComponent,
+    NewDeskFormDetailsComponent,
+    NewDeskFlowComponent,
+    NewDeskFlowConfirmComponent,
+    NewDeskFlowSuccessComponent,
+    VisitorFlowComponent,
+
+    NewParkingFlowComponent,
+    ParkingFlowFormComponent,
+    NewParkingFlowConfirmComponent,
+    ParkingFlowSuccessComponent,
+    ParkingFormDetailsComponent,
+
+    BookLockerFlowComponent,
+    BookLockerFlowFormComponent,
+    BookLockerFlowConfirmComponent,
+    BookLockerFlowSuccessComponent,
+    LockerFormDetailsComponent,
+];
 
 @NgModule({
-    declarations: [
-        BookComponent,
-        BookCodeFlowComponent,
-        CodeFlowSuccessComponent,
-        CodeFlowErrorComponent,
-        FlowSuccessComponent,
-        BookMeetingFlowComponent,
-        MeetingFlowFormComponent,
-        MeetingFormDetailsComponent,
-        MeetingFlowConfirmModalComponent,
-        MeetingFlowSuccessComponent,
-
-        NewDeskFlowFormComponent,
-        NewDeskFormDetailsComponent,
-        NewDeskFlowComponent,
-        NewDeskFlowConfirmComponent,
-        NewDeskFlowSuccessComponent,
-        VisitorFlowComponent,
-
-        NewParkingFlowComponent,
-        ParkingFlowFormComponent,
-        NewParkingFlowConfirmComponent,
-        ParkingFlowSuccessComponent,
-        ParkingFormDetailsComponent,
-
-        BookLockerFlowComponent,
-        BookLockerFlowFormComponent,
-        BookLockerFlowConfirmComponent,
-        BookLockerFlowSuccessComponent,
-        LockerFormDetailsComponent,
-    ],
-    imports: [
-        CommonModule,
-        SharedComponentModule,
-        FormsModule,
-        SharedCateringModule,
-        SharedExploreModule,
-        ReactiveFormsModule,
-        MatBottomSheetModule,
-        SharedBookingsModule,
-        RouterModule.forChild(ROUTES),
-        ...STANDALONE_COMPONENTS,
-    ],
+    declarations: [],
+    imports: [RouterModule.forChild(ROUTES), ...STANDALONE_COMPONENTS],
 })
 export class BookModule {}

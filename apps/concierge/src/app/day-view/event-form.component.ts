@@ -1,8 +1,24 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject, input } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { CateringOrderStateService } from '@placeos/catering';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { AssetListFieldComponent } from '@placeos/assets';
+import {
+    CateringListFieldComponent,
+    CateringOrderStateService,
+} from '@placeos/catering';
 import { SettingsService } from '@placeos/common';
+import {
+    DateFieldComponent,
+    DurationFieldComponent,
+    SpaceListFieldComponent,
+    TimeFieldComponent,
+    UserListFieldComponent,
+    UserSearchFieldComponent,
+} from '@placeos/form-fields';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 
@@ -212,7 +228,20 @@ import { map, tap } from 'rxjs/operators';
         }
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatFormFieldModule,
+        MatInputModule,
+        DateFieldComponent,
+        TimeFieldComponent,
+        DurationFieldComponent,
+        MatSelectModule,
+        UserListFieldComponent,
+        UserSearchFieldComponent,
+        SpaceListFieldComponent,
+        AssetListFieldComponent,
+        CateringListFieldComponent,
+    ],
 })
 export class EventFormComponent {
     private _dialog = inject(MatDialog);

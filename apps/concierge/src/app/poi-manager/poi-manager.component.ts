@@ -1,9 +1,18 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
 import {
     Building,
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
+import { TranslatePipe } from '@placeos/components';
+import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
+import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
+import { POIListComponent } from './poi-list.component';
 import { POIManagementService } from './poi-management.service';
 
 @Component({
@@ -74,7 +83,17 @@ import { POIManagementService } from './poi-management.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        ApplicationTopbarComponent,
+        ApplicationSidebarComponent,
+        TranslatePipe,
+        MatRippleModule,
+        MatFormFieldModule,
+        MatSelectModule,
+        FormsModule,
+        POIListComponent,
+    ],
 })
 export class POIManagerComponent {
     private _org = inject(OrganisationService);

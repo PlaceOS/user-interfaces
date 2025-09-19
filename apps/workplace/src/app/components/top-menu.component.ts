@@ -7,14 +7,17 @@ import {
     signal,
     viewChild,
 } from '@angular/core';
-import { Router } from '@angular/router';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { Router, RouterModule } from '@angular/router';
 import {
     AsyncHandler,
     currentUser,
     i18n,
+    OrganisationService,
     SettingsService,
 } from '@placeos/common';
-import { OrganisationService } from '@placeos/common';
+import { IconComponent } from '@placeos/components';
 
 @Component({
     selector: 'top-menu',
@@ -127,7 +130,7 @@ import { OrganisationService } from '@placeos/common';
             }
         `,
     ],
-    standalone: false,
+    imports: [MatMenuModule, IconComponent, RouterModule, MatTooltipModule],
 })
 export class TopMenuComponent
     extends AsyncHandler

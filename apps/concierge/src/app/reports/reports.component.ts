@@ -1,5 +1,8 @@
 import { Component, inject } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
+import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
+import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
+import { ReportsMenuComponent } from './reports-menu.component';
 
 @Component({
     selector: '[app-new-reports]',
@@ -36,7 +39,12 @@ import { Router } from '@angular/router';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        ApplicationTopbarComponent,
+        ApplicationSidebarComponent,
+        RouterModule,
+        ReportsMenuComponent,
+    ],
 })
 export class ReportsComponent {
     private _router = inject(Router);

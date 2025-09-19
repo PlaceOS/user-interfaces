@@ -1,7 +1,12 @@
+import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { BookingFormService, ParkingService } from '@placeos/bookings';
 import { AsyncHandler } from '@placeos/common';
+import { TranslatePipe } from '@placeos/components';
+import { NewParkingFlowConfirmComponent } from './parking-flow/parking-flow-confirm.component';
+import { ParkingFlowFormComponent } from './parking-flow/parking-flow-form.component';
+import { ParkingFlowSuccessComponent } from './parking-flow/parking-flow-success.component';
 
 @Component({
     selector: 'placeos-parking-flow',
@@ -66,7 +71,14 @@ import { AsyncHandler } from '@placeos/common';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        RouterModule,
+        TranslatePipe,
+        ParkingFlowSuccessComponent,
+        NewParkingFlowConfirmComponent,
+        ParkingFlowFormComponent,
+    ],
 })
 export class NewParkingFlowComponent extends AsyncHandler implements OnInit {
     private _state = inject(BookingFormService);

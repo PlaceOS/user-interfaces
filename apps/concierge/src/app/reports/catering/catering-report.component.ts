@@ -1,12 +1,22 @@
+import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute } from '@angular/router';
 import {
     AsyncHandler,
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
+import {
+    AuthenticatedImageDirective,
+    TranslatePipe,
+} from '@placeos/components';
 import { debounceTime, map } from 'rxjs/operators';
+import { ReportsOptionsComponent } from '../reports-options.component';
 import { ReportsStateService } from '../reports-state.service';
+import { CateringReportItemsComponent } from './catering-report-items.component';
+import { CateringReportOrdersComponent } from './catering-report-orders.component';
+import { CateringReportOverallComponent } from './catering-report-overall.component';
 
 @Component({
     selector: 'catering-report',
@@ -75,7 +85,16 @@ import { ReportsStateService } from '../reports-state.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        MatProgressSpinnerModule,
+        ReportsOptionsComponent,
+        CateringReportItemsComponent,
+        CateringReportOrdersComponent,
+        CateringReportOverallComponent,
+        AuthenticatedImageDirective,
+    ],
 })
 export class CateringReportComponent extends AsyncHandler implements OnInit {
     private _state = inject(ReportsStateService);

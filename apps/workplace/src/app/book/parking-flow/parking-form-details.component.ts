@@ -1,10 +1,22 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject, input } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import {
     AsyncHandler,
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
+import { TranslatePipe } from '@placeos/components';
+import {
+    DateFieldComponent,
+    DurationFieldComponent,
+    HostSelectFieldComponent,
+    TimeFieldComponent,
+} from '@placeos/form-fields';
 import { addDays, endOfDay } from 'date-fns';
 
 @Component({
@@ -144,7 +156,19 @@ import { addDays, endOfDay } from 'date-fns';
         }
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        MatFormFieldModule,
+        MatInputModule,
+        TranslatePipe,
+        HostSelectFieldComponent,
+        DurationFieldComponent,
+        TimeFieldComponent,
+        MatCheckboxModule,
+        DateFieldComponent,
+        MatSelectModule,
+    ],
 })
 export class ParkingFormDetailsComponent extends AsyncHandler {
     private _settings = inject(SettingsService);

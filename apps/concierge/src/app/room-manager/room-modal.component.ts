@@ -1,6 +1,6 @@
 import { COMMA, ENTER, SPACE } from '@angular/cdk/keycodes';
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { MatChipInputEvent } from '@angular/material/chips';
+import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 import {
     EncryptionLevel,
     addSystem,
@@ -11,12 +11,17 @@ import {
 } from '@placeos/ts-client';
 import { map } from 'rxjs/operators';
 
-import { FormControl, FormGroup } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import {
     MAT_DIALOG_DATA,
     MatDialog,
     MatDialogRef,
 } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     AsyncHandler,
     OrganisationService,
@@ -29,7 +34,14 @@ import {
     notifyWarn,
     unique,
 } from '@placeos/common';
+import { SettingsToggleComponent, TranslatePipe } from '@placeos/components';
 import { generateSystemsFormFields } from '@placeos/events';
+import {
+    CounterComponent,
+    DurationFieldComponent,
+    ImageListFieldComponent,
+} from '@placeos/form-fields';
+import { FullscreenModalShellComponent } from 'libs/components/src/lib/fullscreen-modal-shell.component';
 import { lastValueFrom } from 'rxjs';
 import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.component';
 
@@ -392,7 +404,21 @@ import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.compone
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        FullscreenModalShellComponent,
+        ImageListFieldComponent,
+        ReactiveFormsModule,
+        MatAutocompleteModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatChipsModule,
+        CounterComponent,
+        SettingsToggleComponent,
+        MatSelectModule,
+        DurationFieldComponent,
+        TranslatePipe,
+        MatTooltipModule,
+    ],
 })
 export class RoomModalComponent extends AsyncHandler implements OnInit {
     private _data = inject<{

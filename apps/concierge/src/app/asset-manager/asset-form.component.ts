@@ -1,4 +1,9 @@
+import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
     generateAssetForm,
@@ -14,6 +19,8 @@ import {
     notifyError,
     notifySuccess,
 } from '@placeos/common';
+import { TranslatePipe } from '@placeos/components';
+import { FullscreenModalShellComponent } from 'libs/components/src/lib/fullscreen-modal-shell.component';
 import { AssetManagerStateService } from './asset-manager-state.service';
 
 @Component({
@@ -149,7 +156,16 @@ import { AssetManagerStateService } from './asset-manager-state.service';
         </fullscreen-modal-shell>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        FullscreenModalShellComponent,
+        MatFormFieldModule,
+        MatInputModule,
+        MatSelectModule,
+        TranslatePipe,
+        CommonModule,
+        FormsModule,
+        ReactiveFormsModule,
+    ],
 })
 export class AssetFormComponent extends AsyncHandler implements OnInit {
     private _state = inject(AssetManagerStateService);

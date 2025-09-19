@@ -1,8 +1,16 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject, model } from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
+import { MatRippleModule } from '@angular/material/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { BookingFormService } from '@placeos/bookings';
-import { AsyncHandler, SettingsService, notifyError } from '@placeos/common';
-import { OrganisationService } from '@placeos/common';
+import {
+    AsyncHandler,
+    OrganisationService,
+    SettingsService,
+    notifyError,
+} from '@placeos/common';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 
 @Component({
     selector: 'parking-flow-confirm',
@@ -107,7 +115,13 @@ import { OrganisationService } from '@placeos/common';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatRippleModule,
+        IconComponent,
+        TranslatePipe,
+        MatProgressSpinnerModule,
+    ],
 })
 export class NewParkingFlowConfirmComponent extends AsyncHandler {
     private _state = inject(BookingFormService);

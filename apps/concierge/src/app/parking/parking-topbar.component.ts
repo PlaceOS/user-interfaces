@@ -6,13 +6,26 @@ import {
     AsyncHandler,
     firstTruthyValueFrom,
     nextValueFrom,
+    OrganisationService,
     SettingsService,
 } from '@placeos/common';
-import { OrganisationService } from '@placeos/common';
 
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import {
+    BuildingPipe,
+    IconComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { lastValueFrom, timer } from 'rxjs';
 import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
+import { DateOptionsComponent } from '../ui/date-options.component';
+import { SearchbarComponent } from '../ui/searchbar.component';
 import { ParkingStateService } from './parking-state.service';
 
 @Component({
@@ -193,7 +206,20 @@ import { ParkingStateService } from './parking-state.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        FormsModule,
+        DateOptionsComponent,
+        MatTooltipModule,
+        MatRippleModule,
+        IconComponent,
+        BuildingPipe,
+        MatFormFieldModule,
+        MatSelectModule,
+        FormsModule,
+        SearchbarComponent,
+        TranslatePipe,
+    ],
 })
 export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
     private _state = inject(ParkingStateService);

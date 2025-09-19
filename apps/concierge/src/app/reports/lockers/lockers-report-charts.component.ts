@@ -15,6 +15,7 @@ import {
     SettingsService,
     unique,
 } from '@placeos/common';
+import { TranslatePipe } from '@placeos/components';
 import { LineChart, PieChart } from 'chartist';
 import { format, parse } from 'date-fns';
 import { combineLatest } from 'rxjs';
@@ -64,7 +65,7 @@ import { LockersReportService } from './lockers-report.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [TranslatePipe],
 })
 export class LockersReportChartsComponent
     extends AsyncHandler

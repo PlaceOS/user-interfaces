@@ -10,6 +10,13 @@ import { differenceInDays } from 'date-fns';
 import { combineLatest } from 'rxjs';
 import { map, shareReplay } from 'rxjs/operators';
 
+import { MatRippleModule } from '@angular/material/core';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import {
+    IconComponent,
+    SimpleTableComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { ReportsStateService } from '../reports-state.service';
 
 @Component({
@@ -79,7 +86,13 @@ import { ReportsStateService } from '../reports-state.service';
             </div>
         </div>
     `,
-    standalone: false,
+    imports: [
+        SimpleTableComponent,
+        TranslatePipe,
+        IconComponent,
+        MatRippleModule,
+        MatTooltipModule,
+    ],
 })
 export class ReportDesksLevelListComponent {
     private _state = inject(ReportsStateService);

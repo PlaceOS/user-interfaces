@@ -1,10 +1,16 @@
 import { Component, inject } from '@angular/core';
 import { filter, map, startWith } from 'rxjs/operators';
 
-import { AsyncHandler, Space } from '@placeos/common';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { AsyncHandler, OrganisationService, Space } from '@placeos/common';
+import { IconComponent } from '@placeos/components';
 import { SpacesService } from '@placeos/events';
-import { OrganisationService } from '@placeos/common';
 import { BehaviorSubject, combineLatest } from 'rxjs';
+import { ControlSpaceListItemComponent } from './list-item.component';
 
 @Component({
     selector: 'a-control-space-list',
@@ -66,7 +72,15 @@ import { BehaviorSubject, combineLatest } from 'rxjs';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        FormsModule,
+        MatFormFieldModule,
+        MatInputModule,
+        IconComponent,
+        ControlSpaceListItemComponent,
+        MatProgressSpinnerModule,
+    ],
 })
 export class ControlSpaceListComponent extends AsyncHandler {
     private _spaces = inject(SpacesService);

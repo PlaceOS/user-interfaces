@@ -4,10 +4,6 @@ import { SurveyOutletComponent } from '@placeos/components';
 
 import { BuildingListComponent } from './building-list.component';
 
-import { NewSurveyWidgetComponent } from './new-survey-widget.component';
-import { QuestionModalComponent } from './question-modal.component';
-import { QuestionComponent } from './question.component';
-import { QuestionPipe } from './question.pipe';
 import { SurveyBuilderComponent } from './survey-builder.component';
 import { SurveyListingsComponent } from './survey-listings.component';
 import { SurveyResponsesComponent } from './survey-responses.component';
@@ -33,21 +29,15 @@ const routes: Route[] = [
     { path: '**', pathMatch: 'full', redirectTo: '' },
 ];
 
-const STANDALONE_COMPONENTS = [
-    SurveyComponent,
-    SurveyResponsesComponent,
-    QuestionPipe,
-    SurveyOutletComponent,
-    SurveyBuilderComponent,
-    NewSurveyWidgetComponent,
-    QuestionComponent,
-    QuestionModalComponent,
-    BuildingListComponent,
-    SurveyListingsComponent,
-];
-
 @NgModule({
     declarations: [],
-    imports: [RouterModule.forChild(routes), ...STANDALONE_COMPONENTS],
+    imports: [
+        SurveyComponent,
+        BuildingListComponent,
+        SurveyListingsComponent,
+        SurveyBuilderComponent,
+        SurveyResponsesComponent,
+        RouterModule.forChild(routes),
+    ],
 })
 export class SurveysModule {}

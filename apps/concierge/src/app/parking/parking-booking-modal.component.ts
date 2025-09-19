@@ -1,6 +1,9 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { Validators } from '@angular/forms';
+import { ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { BookingFormService, ParkingSpace } from '@placeos/bookings';
 import {
     AsyncHandler,
@@ -14,7 +17,15 @@ import {
     SettingsService,
     User,
 } from '@placeos/common';
+import { TranslatePipe } from '@placeos/components';
+import {
+    DateFieldComponent,
+    DurationFieldComponent,
+    TimeFieldComponent,
+    UserSearchFieldComponent,
+} from '@placeos/form-fields';
 import { addDays, endOfDay } from 'date-fns';
+import { FullscreenModalShellComponent } from 'libs/components/src/lib/fullscreen-modal-shell.component';
 
 @Component({
     selector: 'parking-booking-modal',
@@ -152,7 +163,19 @@ import { addDays, endOfDay } from 'date-fns';
         </fullscreen-modal-shell>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        FullscreenModalShellComponent,
+        ReactiveFormsModule,
+        MatFormFieldModule,
+        MatInputModule,
+        DurationFieldComponent,
+        TimeFieldComponent,
+        MatCheckboxModule,
+        DateFieldComponent,
+        MatInputModule,
+        TranslatePipe,
+        UserSearchFieldComponent,
+    ],
 })
 export class ParkingBookingModalComponent
     extends AsyncHandler

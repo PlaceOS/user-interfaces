@@ -1,6 +1,9 @@
 import { Component, inject, input } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
+import { RouterModule } from '@angular/router';
 
 import { OrganisationService, SettingsService, Space } from '@placeos/common';
+import { IconComponent } from '@placeos/components';
 
 @Component({
     selector: 'a-control-space-list-item',
@@ -51,7 +54,7 @@ import { OrganisationService, SettingsService, Space } from '@placeos/common';
         }
     `,
     styles: [``],
-    standalone: false,
+    imports: [MatRippleModule, RouterModule, IconComponent],
 })
 export class ControlSpaceListItemComponent {
     private _settings = inject(SettingsService);

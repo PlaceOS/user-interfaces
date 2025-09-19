@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import {
     Component,
     OnChanges,
@@ -8,16 +9,26 @@ import {
     model,
     output,
 } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import {
+    FormControl,
+    FormGroup,
+    ReactiveFormsModule,
+    Validators,
+} from '@angular/forms';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import {
     AsyncHandler,
+    Building,
+    OrganisationService,
     TIMEZONES_IANA,
     getInvalidFields,
     i18n,
     notifyError,
     notifySuccess,
 } from '@placeos/common';
-import { Building, OrganisationService } from '@placeos/common';
 import { addZone, authority, updateZone } from '@placeos/ts-client';
 
 @Component({
@@ -107,7 +118,14 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
         }
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatAutocompleteModule,
+        ReactiveFormsModule,
+        MatSelectModule,
+    ],
 })
 export class BuildingFormComponent
     extends AsyncHandler

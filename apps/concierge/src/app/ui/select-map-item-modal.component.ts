@@ -1,5 +1,10 @@
+import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { FormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
+import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
 import {
     AsyncHandler,
     BuildingLevel,
@@ -8,6 +13,11 @@ import {
     nextValueFrom,
     unique,
 } from '@placeos/common';
+import {
+    IconComponent,
+    InteractiveMapComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { Rect } from '@placeos/svg-viewer/dist/types';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import { debounceTime, map, shareReplay, switchMap, tap } from 'rxjs/operators';
@@ -234,7 +244,17 @@ declare let mapsindoors: any;
         </main>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        MatDialogModule,
+        MatRippleModule,
+        IconComponent,
+        TranslatePipe,
+        CommonModule,
+        MatFormFieldModule,
+        MatSelectModule,
+        InteractiveMapComponent,
+        FormsModule,
+    ],
 })
 export class SelectMapItemModalComponent
     extends AsyncHandler

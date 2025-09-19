@@ -1,4 +1,4 @@
-import { DatePipe } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { Component, OnInit, inject, input } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { addMinutes, endOfDay, startOfDay } from 'date-fns';
@@ -22,7 +22,14 @@ import {
 } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
 
-import { openConfirmModal } from '@placeos/components';
+import { MatRippleModule } from '@angular/material/core';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import {
+    IconComponent,
+    SanitizePipe,
+    TranslatePipe,
+    openConfirmModal,
+} from '@placeos/components';
 import { SpacePipe } from '@placeos/events';
 
 @Component({
@@ -452,7 +459,14 @@ import { SpacePipe } from '@placeos/events';
     `,
     styles: [``],
     providers: [SpacePipe],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        IconComponent,
+        MatRippleModule,
+        SanitizePipe,
+        MatTooltipModule,
+    ],
 })
 export class MeetingFlowConfirmModalComponent
     extends AsyncHandler

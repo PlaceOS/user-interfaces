@@ -1,5 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { InviteVisitorFormComponent } from '@placeos/bookings';
 
 @Component({
     selector: 'invite-visitor-modal',
@@ -12,7 +13,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
         </main>
     `,
     styles: [``],
-    standalone: false,
+    imports: [InviteVisitorFormComponent],
 })
 export class InviteVisitorModalComponent {
     private _data = inject<{

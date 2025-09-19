@@ -1,5 +1,8 @@
 import { Component } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
+import { RouterModule } from '@angular/router';
 import { settingSignal } from '@placeos/common';
+import { TranslatePipe } from '@placeos/components';
 
 @Component({
     selector: 'landing-quick-links',
@@ -89,7 +92,7 @@ import { settingSignal } from '@placeos/common';
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [TranslatePipe, MatRippleModule, RouterModule],
 })
 export class LandingQuickLinksComponent {
     public readonly features = settingSignal<string[]>('features');

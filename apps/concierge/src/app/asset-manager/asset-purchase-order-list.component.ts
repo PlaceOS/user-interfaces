@@ -1,5 +1,7 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { SimpleTableComponent, TranslatePipe } from '@placeos/components';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { AssetManagerStateService } from './asset-manager-state.service';
@@ -81,7 +83,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [CommonModule, SimpleTableComponent, TranslatePipe],
 })
 export class AssetPurchaseOrderListComponent {
     private _state = inject(AssetManagerStateService);

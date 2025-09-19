@@ -1,5 +1,10 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
+import { ReactiveFormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
     generateAssetGroupForm,
@@ -12,6 +17,9 @@ import {
     notifyError,
     unique,
 } from '@placeos/common';
+import { IconComponent, TranslatePipe } from '@placeos/components';
+import { ImageListFieldComponent } from '@placeos/form-fields';
+import { FullscreenModalShellComponent } from 'libs/components/src/lib/fullscreen-modal-shell.component';
 import { BehaviorSubject, combineLatest, lastValueFrom } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { AssetManagerStateService } from './asset-manager-state.service';
@@ -136,7 +144,17 @@ import { AssetManagerStateService } from './asset-manager-state.service';
         </fullscreen-modal-shell>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        FullscreenModalShellComponent,
+        ImageListFieldComponent,
+        MatFormFieldModule,
+        ReactiveFormsModule,
+        MatInputModule,
+        MatSelectModule,
+        TranslatePipe,
+        IconComponent,
+    ],
 })
 export class AssetGroupFormComponent extends AsyncHandler implements OnInit {
     private _state = inject(AssetManagerStateService);

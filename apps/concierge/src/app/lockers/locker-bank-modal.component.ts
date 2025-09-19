@@ -1,7 +1,22 @@
 import { COMMA, ENTER, SPACE } from '@angular/cdk/keycodes';
-import { Component, EventEmitter, Output, inject } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { Component, EventEmitter, inject, Output } from '@angular/core';
+import {
+    FormControl,
+    FormGroup,
+    FormsModule,
+    ReactiveFormsModule,
+    Validators,
+} from '@angular/forms';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatRippleModule } from '@angular/material/core';
+import {
+    MAT_DIALOG_DATA,
+    MatDialogModule,
+    MatDialogRef,
+} from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
 import { LockerBank } from '@placeos/bookings';
 import {
     DialogEvent,
@@ -9,7 +24,12 @@ import {
     SettingsService,
     unique,
 } from '@placeos/common';
-import { addChipItem, removeChipItem } from '@placeos/form-fields';
+import { IconComponent, TranslatePipe } from '@placeos/components';
+import {
+    addChipItem,
+    CounterComponent,
+    removeChipItem,
+} from '@placeos/form-fields';
 import { map } from 'rxjs/operators';
 
 @Component({
@@ -172,7 +192,19 @@ import { map } from 'rxjs/operators';
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        MatDialogModule,
+        MatProgressSpinnerModule,
+        MatFormFieldModule,
+        MatRippleModule,
+        MatChipsModule,
+        IconComponent,
+        CounterComponent,
+        MatSelectModule,
+        FormsModule,
+        ReactiveFormsModule,
+        TranslatePipe,
+    ],
 })
 export class LockerBankModalComponent {
     private _data = inject<LockerBank>(MAT_DIALOG_DATA);

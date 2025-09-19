@@ -8,7 +8,14 @@ import {
     notifySuccess,
     SettingsService,
 } from '@placeos/common';
+import {
+    FullscreenModalShellComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { BehaviorSubject } from 'rxjs';
+
+import { CommonModule } from '@angular/common';
+import { NewDeskFormDetailsComponent } from 'apps/workplace/src/app/book/desk-flow/desk-form-details.component';
 
 @Component({
     selector: 'desk-book-modal',
@@ -31,7 +38,12 @@ import { BehaviorSubject } from 'rxjs';
         </fullscreen-modal-shell>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        FullscreenModalShellComponent,
+        NewDeskFormDetailsComponent,
+        TranslatePipe,
+    ],
 })
 export class DeskBookModalComponent {
     private _booking_form = inject(BookingFormService);

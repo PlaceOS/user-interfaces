@@ -1,11 +1,19 @@
 import { Component, inject, input } from '@angular/core';
 import { addMinutes, format } from 'date-fns';
 
+import { CommonModule } from '@angular/common';
+import { MatRippleModule } from '@angular/material/core';
 import {
     CalendarEvent,
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
+import {
+    IconComponent,
+    SanitizePipe,
+    UserAvatarComponent,
+} from '@placeos/components';
+import { SpacePipe } from '@placeos/events';
 import { EventsStateService } from '../day-view/events-state.service';
 
 @Component({
@@ -140,7 +148,14 @@ import { EventsStateService } from '../day-view/events-state.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatRippleModule,
+        IconComponent,
+        SpacePipe,
+        UserAvatarComponent,
+        SanitizePipe,
+    ],
 })
 export class ViewEventDetailsComponent {
     private _state = inject(EventsStateService);

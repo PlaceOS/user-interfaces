@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import {
     Component,
     OnChanges,
@@ -7,11 +8,27 @@ import {
     input,
     output,
 } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialog } from '@angular/material/dialog';
-import { BookingFormService, Locker } from '@placeos/bookings';
-import { AsyncHandler, SettingsService } from '@placeos/common';
-import { OrganisationService } from '@placeos/common';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import {
+    BookingFormService,
+    Locker,
+    LockerListFieldComponent,
+} from '@placeos/bookings';
+import {
+    AsyncHandler,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
+import { TranslatePipe } from '@placeos/components';
+import {
+    DateFieldComponent,
+    DurationFieldComponent,
+    TimeFieldComponent,
+} from '@placeos/form-fields';
 import { combineLatest } from 'rxjs';
 import { first } from 'rxjs/operators';
 
@@ -142,7 +159,19 @@ import { first } from 'rxjs/operators';
             </div>
         }
     `,
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        LockerListFieldComponent,
+        DurationFieldComponent,
+        TimeFieldComponent,
+        DateFieldComponent,
+        MatCheckboxModule,
+        MatFormFieldModule,
+        MatSelectModule,
+        ReactiveFormsModule,
+        FormsModule,
+    ],
 })
 export class LockerFormDetailsComponent
     extends AsyncHandler

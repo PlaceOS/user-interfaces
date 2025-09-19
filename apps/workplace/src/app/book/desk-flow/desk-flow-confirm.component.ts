@@ -1,6 +1,8 @@
-import { DatePipe } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { Component, inject, model } from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
+import { MatRippleModule } from '@angular/material/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { BookingFormService } from '@placeos/bookings';
 import {
     AssetRequest,
@@ -15,6 +17,7 @@ import {
     nextValueFrom,
     notifyError,
 } from '@placeos/common';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { addMinutes, endOfDay } from 'date-fns';
 import { map } from 'rxjs/operators';
 
@@ -215,7 +218,13 @@ import { map } from 'rxjs/operators';
         </footer>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        IconComponent,
+        MatRippleModule,
+        MatProgressSpinnerModule,
+    ],
 })
 export class NewDeskFlowConfirmComponent extends AsyncHandler {
     private _state = inject(BookingFormService);
