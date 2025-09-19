@@ -77,12 +77,21 @@ import { EventsStateService } from './events-state.service';
                     <div
                         class="relative w-full rounded border border-base-300 p-2"
                     >
+                        @if (event.recurring_event_id) {
+                            <div
+                                class="absolute right-2 top-3 text-2xl"
+                                matTooltip="Recurring Series"
+                                matTooltipPosition="left"
+                            >
+                                <icon>event_repeat</icon>
+                            </div>
+                        }
                         @let space =
                             (event.resources.length
                                 ? (event.resources[0]?.email | space | async)
                                 : (event.mailbox | space | async)) ||
                             event.system;
-                        <h3>{{ event.title }}</h3>
+                        <h3 class="font-medium">{{ event.title }}</h3>
                         <p class="mb-2 text-xs opacity-30">
                             {{ event.date | date: 'mediumDate' : tz }}
                             {{ event.date | date: time_format : tz }}
@@ -111,12 +120,20 @@ import { EventsStateService } from './events-state.service';
                             >
                                 <icon class="text-xl">place</icon>
                             </div>
-                            <div class="flex-1 text-xs">
-                                {{
-                                    space?.display_name ||
-                                        space?.name ||
-                                        'No Location'
-                                }}
+                            @let bld = space?.zones | building;
+                            @let lvl = space?.zones | level;
+                            <div class="flex-1">
+                                <div class="text-sm">
+                                    {{
+                                        space?.display_name ||
+                                            space?.name ||
+                                            'No Location'
+                                    }}
+                                </div>
+                                <div class="text-xs opacity-50">
+                                    {{ bld?.display_name || bld?.name }},
+                                    {{ lvl?.display_name || lvl?.name }}
+                                </div>
                             </div>
                         </div>
                         <div class="mb-2 flex items-center space-x-2">
@@ -125,7 +142,7 @@ import { EventsStateService } from './events-state.service';
                             >
                                 <icon class="text-xl">person</icon>
                             </div>
-                            <div class="flex-1 text-xs">
+                            <div class="flex-1 text-sm">
                                 {{ event.organiser?.name || event.host }}
                             </div>
                         </div>
