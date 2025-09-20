@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import {
     PlaceMetadata,
@@ -36,6 +36,11 @@ import {
 export class OrganisationService {
     private _service = inject(SettingsService);
     private _router = inject(Router);
+
+    public readonly building_signal = signal<Building>(new Building());
+    public readonly regions_signal = signal<Region[]>([]);
+    public readonly buildings_signal = signal<Building[]>([]);
+    public readonly levels_signal = signal<BuildingLevel[]>([]);
 
     /** Subject which stores the initialised state of the object */
     protected readonly _initialised = new BehaviorSubject<boolean>(false);
@@ -167,6 +172,7 @@ export class OrganisationService {
     public setBuilding(bld: Building, save = false) {
         if (!(bld instanceof Object)) return;
         this._active_building.next(bld);
+        this.building_signal.set(bld);
         if (!this._service.get('dont_load_metadata')) {
             this.loadBuildingData(bld).then(() =>
                 this._updateSettingOverrides(),
@@ -280,6 +286,7 @@ export class OrganisationService {
                 .filter((_) => _.id !== region.id);
             regions.push(region);
             this._regions.next(regions);
+            this.regions_signal.set(regions);
         } else if (zone.tags.includes('building')) {
             const bld = new Building(zone);
             let buildings = this._buildings
@@ -290,6 +297,7 @@ export class OrganisationService {
                 (a.name || '').localeCompare(b.name || ''),
             );
             this._buildings.next(buildings);
+            this.buildings_signal.set(buildings);
         } else if (zone.tags.includes('level')) {
             const lvl = new BuildingLevel(zone);
             let levels = this._levels.getValue().filter((_) => _.id !== lvl.id);
@@ -298,6 +306,7 @@ export class OrganisationService {
                 (a.name || '').localeCompare(b.name || ''),
             );
             this._levels.next(levels);
+            this.levels_signal.set(levels);
         } else {
             console.warn(
                 'Unable to add zone as it is missing the required tag.',
@@ -312,17 +321,20 @@ export class OrganisationService {
                 .getValue()
                 .filter((_) => _.id !== zone.id);
             this._regions.next(regions);
+            this.regions_signal.set(regions);
         } else if (zone.tags.includes('building')) {
             const buildings = this._buildings
 
                 .getValue()
                 .filter((_) => _.id !== zone.id);
             this._buildings.next(buildings);
+            this.buildings_signal.set(buildings);
         } else if (zone.tags.includes('level')) {
             const levels = this._levels
                 .getValue()
                 .filter((_) => _.id !== zone.id);
             this._levels.next(levels);
+            this.levels_signal.set(levels);
         } else {
             console.warn(
                 'Unable to remove zone as it is missing the required tag.',
@@ -366,12 +378,15 @@ export class OrganisationService {
         await this.loadOrganisation();
         await this.loadRegions();
         if (!this._regions.getValue().length) {
-            this._buildings.next(await this.loadBuildings());
+            const list = await this.loadBuildings();
+            this._buildings.next(list);
+            this.buildings_signal.set(list);
         } else {
             for (const region of this._regions.getValue()) {
                 const blds = await this.loadBuildings(region.id);
                 if (blds.length) {
                     this._buildings.next(blds);
+                    this.buildings_signal.set(blds);
                     break;
                 }
             }
@@ -430,6 +445,7 @@ export class OrganisationService {
             ),
         );
         this._regions.next(list);
+        this.regions_signal.set(list);
     }
 
     public async loadRegionData(region: Region): Promise<void> {
@@ -544,6 +560,7 @@ export class OrganisationService {
             (a.name || '').localeCompare(b.name || ''),
         );
         this._levels.next(levels);
+        this.levels_signal.set(levels);
     }
 
     public async loadSettings() {

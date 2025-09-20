@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, viewChild } from '@angular/core';
+import { Component, inject, signal, viewChild } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -27,7 +27,7 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { addMinutes } from 'date-fns';
-import { combineLatest } from 'rxjs';
+import { combineLatest, lastValueFrom } from 'rxjs';
 import { first, map } from 'rxjs/operators';
 import { AssetLocationModalComponent } from './asset-location-modal.component';
 import { AssetManagerStateService } from './asset-manager-state.service';
@@ -35,7 +35,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
 @Component({
     selector: 'asset-view',
     template: `
-        @if (!loading && (item | async)) {
+        @if (!loading() && (item | async)) {
             <div class="flex h-full w-full flex-col">
                 <div
                     class="flex w-full space-x-2 bg-base-100 pb-4 pl-4 pr-8 pt-8"
@@ -431,7 +431,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
             </div>
         } @else {
             <div
-                class="flex h-full w-full flex-col items-center justify-center"
+                class="flex h-full w-full flex-col items-center justify-center space-y-2"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <p>{{ 'APP.CONCIERGE.ASSETS_ITEM_LOADING' | translate }}</p>
@@ -448,7 +448,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
             </div>
         </ng-template>
         <ng-template #delete_tooltip>
-            @if (!deleting) {
+            @if (!deleting()) {
                 <div class="my-2 w-[18rem] rounded bg-base-100 p-4 text-center">
                     <p>
                         {{ 'APP.CONCIERGE.ASSETS_ITEM_DELETE_MSG' | translate }}
@@ -477,7 +477,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 </div>
             } @else {
                 <div
-                    class="l my-2 flex h-36 w-64 flex-col items-center justify-center space-y-2 rounded bg-base-100 p-4"
+                    class="my-2 flex h-36 w-64 flex-col items-center justify-center space-y-2 rounded bg-base-100 p-4"
                 >
                     <mat-spinner [diameter]="32"></mat-spinner>
                     <p>
@@ -517,8 +517,8 @@ export class AssetViewComponent extends AsyncHandler {
     private _dialog = inject(MatDialog);
     private _org = inject(OrganisationService);
 
-    public loading = false;
-    public deleting = false;
+    public readonly loading = signal(false);
+    public readonly deleting = signal(false);
     public readonly item = this._state.active_product;
     public readonly asset_list = combineLatest([
         this.item,
@@ -548,9 +548,9 @@ export class AssetViewComponent extends AsyncHandler {
     public readonly _tooltip_el = viewChild(CustomTooltipComponent);
 
     public async deleteAsset() {
-        this.deleting = true;
+        this.deleting.set(true);
         await this._state.deleteActiveProduct();
-        this.deleting = false;
+        this.deleting.set(false);
         this._router.navigate([this._state.base_route, 'list', 'items']);
         this.closeTooltip();
     }
@@ -572,7 +572,7 @@ export class AssetViewComponent extends AsyncHandler {
     }
 
     public ngOnInit() {
-        this.loading = true;
+        this.loading.set(true);
         this.subscription(
             'route.params',
             this._route.paramMap.subscribe((params) => {
@@ -588,7 +588,7 @@ export class AssetViewComponent extends AsyncHandler {
         );
         this._state.active_product.pipe(first((_) => !!_)).subscribe(() => {
             this.clearTimeout('no_asset');
-            this.loading = false;
+            this.loading.set(false);
         });
     }
 
@@ -604,9 +604,11 @@ export class AssetViewComponent extends AsyncHandler {
         );
         if (resp.reason !== 'done') return;
         resp.loading('Deleting asset...');
-        await deleteAsset(asset.id).toPromise();
+        await lastValueFrom(deleteAsset(asset.id));
         await removeAssetRequests(asset.id);
-        const item = await this._state.active_product.pipe(first()).toPromise();
+        const item = await lastValueFrom(
+            this._state.active_product.pipe(first()),
+        );
         this._state.setOptions({ active_item: '' });
         setTimeout(
             () => this._state.setOptions({ active_item: item.id }),
@@ -627,8 +629,10 @@ export class AssetViewComponent extends AsyncHandler {
         );
         if (resp.reason !== 'done') return;
         resp.loading('Deleting purchase order...');
-        await deleteAssetPurchaseOrder(asset.id).toPromise();
-        const item = await this._state.active_product.pipe(first()).toPromise();
+        await lastValueFrom(deleteAssetPurchaseOrder(asset.id));
+        const item = await lastValueFrom(
+            this._state.active_product.pipe(first()),
+        );
         this._state.setOptions({ active_item: '' });
         setTimeout(
             () => this._state.setOptions({ active_item: item.id }),

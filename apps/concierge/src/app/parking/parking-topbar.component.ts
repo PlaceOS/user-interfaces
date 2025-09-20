@@ -1,5 +1,10 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
+import {
+    ActivatedRoute,
+    NavigationEnd,
+    Router,
+    RouterModule,
+} from '@angular/router';
 import { debounceTime } from 'rxjs/operators';
 
 import {
@@ -219,6 +224,7 @@ import { ParkingStateService } from './parking-state.service';
         FormsModule,
         SearchbarComponent,
         TranslatePipe,
+        RouterModule,
     ],
 })
 export class ParkingTopbarComponent extends AsyncHandler implements OnInit {

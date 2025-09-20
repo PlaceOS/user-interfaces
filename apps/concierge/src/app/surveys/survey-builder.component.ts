@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import {
     FormControl,
     FormGroup,
@@ -43,14 +43,10 @@ import {
     SurveyOutletComponent,
     TranslatePipe,
 } from '@placeos/components';
-import {
-    NewSurveyService,
-    QuestionTypeMap,
-    QuestionTypeOptions,
-    TriggerOptions,
-} from './new-survey.service';
+import { NewSurveyService } from './new-survey.service';
 import { QuestionComponent } from './question.component';
 import { QuestionPipe } from './question.pipe';
+import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
 
 @Component({
     selector: 'survey-builder',
@@ -535,6 +531,10 @@ import { QuestionPipe } from './question.pipe';
     ],
 })
 export class SurveyBuilderComponent extends AsyncHandler implements OnInit {
+    private _org = inject(OrganisationService);
+    private _service = inject(NewSurveyService);
+    private _route = inject(ActivatedRoute);
+
     public view: 'builder' | 'preview' = 'builder';
     public active_page = 0;
     public loading = false;
@@ -567,15 +567,6 @@ export class SurveyBuilderComponent extends AsyncHandler implements OnInit {
             question_order: new FormControl([]),
         }),
     ];
-
-    constructor(
-        private _org: OrganisationService,
-        private _service: NewSurveyService,
-        private _route: ActivatedRoute,
-        private _cdr: ChangeDetectorRef,
-    ) {
-        super();
-    }
 
     public ngOnInit(): void {
         this.subscription(

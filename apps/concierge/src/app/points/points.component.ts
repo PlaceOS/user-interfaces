@@ -24,24 +24,33 @@ import { PointsTopbarComponent } from './points-topbar.component';
                     }
                 </points-topbar>
                 <div class="mb-4 px-8">
-                    <nav mat-tab-nav-bar [tabPanel]="tabPanel">
-                        <a
-                            mat-tab-link
-                            [routerLink]="['/points-management', 'overview']"
-                            [active]="page === 'overview'"
-                        >
-                            {{
-                                'APP.CONCIERGE.POINTS_TAB_OVERVIEW' | translate
-                            }}
-                        </a>
-                        <a
-                            mat-tab-link
-                            [routerLink]="['/points-management', 'assets']"
-                            [active]="page === 'assets'"
-                        >
-                            {{ 'APP.CONCIERGE.POINTS_TAB_ASSETS' | translate }}
-                        </a>
-                    </nav>
+                    <div class="overflow-hidden rounded bg-base-200">
+                        <nav mat-tab-nav-bar [tabPanel]="tabPanel">
+                            <a
+                                mat-tab-link
+                                [routerLink]="[
+                                    '/points-management',
+                                    'overview',
+                                ]"
+                                [active]="page === 'overview'"
+                            >
+                                {{
+                                    'APP.CONCIERGE.POINTS_TAB_OVERVIEW'
+                                        | translate
+                                }}
+                            </a>
+                            <a
+                                mat-tab-link
+                                [routerLink]="['/points-management', 'assets']"
+                                [active]="page === 'assets'"
+                            >
+                                {{
+                                    'APP.CONCIERGE.POINTS_TAB_ASSETS'
+                                        | translate
+                                }}
+                            </a>
+                        </nav>
+                    </div>
                 </div>
                 <mat-tab-nav-panel
                     class="h-1/2 w-full flex-1 overflow-auto px-8"

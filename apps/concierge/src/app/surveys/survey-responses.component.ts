@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute, RouterModule } from '@angular/router';
@@ -173,6 +173,10 @@ import { NewSurveyService } from './new-survey.service';
     ],
 })
 export class SurveyResponsesComponent extends AsyncHandler implements OnInit {
+    private _settings = inject(SettingsService);
+    private _route = inject(ActivatedRoute);
+    private _service = inject(NewSurveyService);
+
     public readonly options$ = new BehaviorSubject<any>({});
     public readonly loading$ = new BehaviorSubject('');
 
@@ -235,14 +239,6 @@ export class SurveyResponsesComponent extends AsyncHandler implements OnInit {
 
     public get week_start() {
         return this._settings.get('app.week_start');
-    }
-
-    constructor(
-        private _settings: SettingsService,
-        private _route: ActivatedRoute,
-        private _service: NewSurveyService,
-    ) {
-        super();
     }
 
     public ngOnInit() {

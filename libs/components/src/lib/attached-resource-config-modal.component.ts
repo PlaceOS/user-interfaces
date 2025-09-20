@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Output, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { AsyncHandler } from '@placeos/common';
 
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -246,6 +246,7 @@ export interface AttachedResourceConfigModalData {
         `,
     ],
     imports: [
+        MatDialogModule,
         MatRippleModule,
         MatFormFieldModule,
         MatInputModule,

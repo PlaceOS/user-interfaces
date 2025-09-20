@@ -9,11 +9,7 @@ import { SurveyListingsComponent } from './survey-listings.component';
 import { SurveyResponsesComponent } from './survey-responses.component';
 import { SurveyComponent } from './survey.component';
 
-// //SurveyJS styling
-// StylesManager.applyTheme('modern');
-
 const routes: Route[] = [
-    { path: 'run/:id', component: SurveyOutletComponent },
     {
         path: '',
         component: SurveyComponent,
@@ -26,6 +22,7 @@ const routes: Route[] = [
             { path: '**', pathMatch: 'full', redirectTo: '' },
         ],
     },
+    { path: 'run/:id', component: SurveyOutletComponent },
     { path: '**', pathMatch: 'full', redirectTo: '' },
 ];
 

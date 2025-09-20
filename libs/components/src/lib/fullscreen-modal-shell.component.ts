@@ -10,7 +10,7 @@ import { TranslatePipe } from './translate.pipe';
     selector: 'fullscreen-modal-shell,[fs-modal-shell]',
     template: `
         <div
-            class="flex h-screen w-screen flex-col items-center overflow-auto bg-base-200"
+            class="fixed inset-0 flex flex-col items-center overflow-auto bg-base-200"
         >
             <div
                 class="fixed top-0 mx-auto h-screen w-[40rem] max-w-full border-x border-base-300 bg-base-100"

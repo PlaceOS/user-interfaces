@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, input } from '@angular/core';
 import { SurveyAnswer, SurveyQuestion } from '@placeos/ts-client';
-import { QuestionType } from './new-survey.service';
+import { QuestionType } from './types';
 
 @Component({
     selector: 'new-survey-widget',

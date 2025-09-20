@@ -16,9 +16,9 @@ import { StaffStateService } from './staff-state.service';
     selector: 'staff-topbar',
     template: `
         <div
-            class="flex h-20 items-center space-x-2 border-b border-base-200 bg-base-100 px-4"
+            class="flex items-center space-x-4 border-b border-base-200 bg-base-100 p-4"
         >
-            <mat-form-field appearance="outline">
+            <mat-form-field appearance="outline" class="no-subscript w-48">
                 <mat-select
                     multiple
                     [(ngModel)]="zones"

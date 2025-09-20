@@ -218,11 +218,11 @@ export class AssetManagerStateService extends AsyncHandler {
         this._org.active_building,
         this._change,
     ]).pipe(
-        filter(([{ active_item }]) => !!active_item),
+        filter(([{ active_item }, bld]) => !!active_item && !!bld),
         map(([options, t]) => [options.active_item, t] as any),
         distinctUntilChanged(),
-        switchMap(([active_item]) =>
-            showGroupFull(active_item, { zone_id: this._org.building.id }),
+        switchMap(([active_item, bld]) =>
+            showGroupFull(active_item, { zone_id: bld.id }),
         ),
         shareReplay(1),
     );

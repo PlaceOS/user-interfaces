@@ -1,14 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { TranslatePipe } from '@placeos/components';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { CounterComponent } from '@placeos/form-fields';
 
 @Component({
     selector: 'points-overview',
     template: `
         <h2
-            class="w-full rounded bg-secondary px-4 py-3 text-lg font-medium text-white shadow"
+            class="mb-4 w-full rounded border border-base-300 px-4 py-3 text-lg font-medium"
         >
             {{ 'APP.CONCIERGE.POINTS_OVERVIEW_HEADER' | translate }}
         </h2>
@@ -93,7 +93,13 @@ import { CounterComponent } from '@placeos/form-fields';
             }
         `,
     ],
-    imports: [CounterComponent, FormsModule, TranslatePipe, MatTooltipModule],
+    imports: [
+        CounterComponent,
+        FormsModule,
+        TranslatePipe,
+        MatTooltipModule,
+        IconComponent,
+    ],
 })
 export class PointsOverviewComponent implements OnInit {
     public points = {

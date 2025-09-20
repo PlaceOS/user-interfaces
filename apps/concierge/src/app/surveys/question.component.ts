@@ -10,21 +10,20 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
-
 import {
     IconComponent,
     SettingsToggleComponent,
     TranslatePipe,
 } from '@placeos/components';
 import { CounterComponent } from '@placeos/form-fields';
-
-import { MatRippleModule } from '@angular/material/core';
 import { SurveyQuestion } from '@placeos/ts-client';
-import { QuestionType, QuestionTypeOptions } from './new-survey.service';
+
+import { QuestionType, QuestionTypeOptions } from './types';
 
 @Component({
     selector: 'placeos-question',
