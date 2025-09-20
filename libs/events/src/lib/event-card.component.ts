@@ -141,7 +141,7 @@ import { GroupEventDetailsModalComponent } from './group-event-details-modal.com
                                               : 5);
                                 track user.id || user.email
                             ) {
-                                <div class="h-10 w-6">
+                                <div class="z-10 h-10 w-6">
                                     <a-user-avatar
                                         [user]="user"
                                     ></a-user-avatar>

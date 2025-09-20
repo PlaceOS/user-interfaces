@@ -10,17 +10,18 @@ export function registerMockEvents() {
         callback: (_) => {
             let events = MOCK_EVENTS;
             if (!_.query_params.zone_ids) {
+                // Live API returns user events when no zone_ids are provided
                 events = events.filter(
                     (event) =>
                         !!event.attendees.find(
                             (user) => user.email === ACTIVE_USER.email,
                         ),
                 );
-            } else if (_.query_params.user_ids) {
+            } else if (_.query_params.zone_ids) {
                 events = events.filter(
                     (event) =>
                         !!event.system.zones.find((zone) =>
-                            _.query_params.zone_ids.includes(zone.id),
+                            _.query_params.zone_ids.includes(zone),
                         ),
                 );
             }

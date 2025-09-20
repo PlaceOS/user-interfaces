@@ -226,10 +226,7 @@ const getRelevantAttendees = (category: string, space: any) => {
         }
     }
 
-    // Ensure active user is in some events, but not all
-    if (predictableRandomInt(4) === 0) {
-        attendees.unshift(ACTIVE_USER);
-    }
+    // Active user should not be in phase 1 events
 
     return unique(attendees, 'email') || [];
 };
@@ -368,13 +365,18 @@ export const MOCK_EVENTS = (() => {
                 setHours(setMinutes(dayStart, minuteOffset), hourOffset),
             );
 
-            // Select a host from available staff
-            const host = MOCK_STAFF[spaceIndex % MOCK_STAFF.length];
+            // Select a host from available staff (excluding ACTIVE_USER)
+            const availableStaff = MOCK_STAFF.filter(
+                (s) => s.email !== ACTIVE_USER.email,
+            );
+            const host = availableStaff[spaceIndex % availableStaff.length];
 
-            // Get colleagues from same department
+            // Get colleagues from same department (excluding ACTIVE_USER)
             const colleagues = MOCK_STAFF.filter(
                 (s) =>
-                    s.department === host.department && s.email !== host.email,
+                    s.department === host.department &&
+                    s.email !== host.email &&
+                    s.email !== ACTIVE_USER.email,
             ).slice(0, predictableRandomInt(3) + 1);
 
             const meetingContent = getRandomMeetingContent();
@@ -435,105 +437,121 @@ export const MOCK_EVENTS = (() => {
         }
     });
 
-    // PHASE 2: Ensure most users have 1-3 events per day (but only on some days to control volume)
+    // PHASE 2: Ensure most users have 1-3 events per day (limit ACTIVE_USER to 1 attendee slot per day)
+    const activeUserDailyCount = new Map<number, number>(); // Track ACTIVE_USER attendee count per day
+
     MOCK_STAFF.forEach((user, userIndex) => {
+        // Skip the active user - they get their own events in phase 3
+        if (user.email === ACTIVE_USER.email) {
+            return;
+        }
+
         for (let day = 0; day < totalDays; day++) {
-            // Only 60% of users get additional events on any given day to control total volume
-            if (predictableRandomInt(10) < 6) {
-                const eventsPerDay = predictableRandomInt(2) + 1; // 1-2 additional events per day
+            const eventsPerDay = predictableRandomInt(3) + 1; // 1-3 events per day
 
-                for (let eventNum = 0; eventNum < eventsPerDay; eventNum++) {
-                    const dayStart = setHours(
-                        addDays(startOfDay(Date.now()), day + dayOffset),
-                        10, // Start later to avoid conflicts with space events
-                    );
+            for (let eventNum = 0; eventNum < eventsPerDay; eventNum++) {
+                const dayStart = setHours(
+                    addDays(startOfDay(Date.now()), day + dayOffset),
+                    8,
+                );
 
-                    // Spread user events throughout business hours (10 AM to 4 PM)
-                    const hourOffset = 10 + eventNum * 3 + (userIndex % 2); // Stagger times
-                    const eventTime = getUnixTime(
-                        setHours(dayStart, Math.min(hourOffset, 16)),
-                    );
+                // Spread user events throughout business hours (8 AM to 5 PM)
+                const hourOffset = 8 + eventNum * 3 + (userIndex % 3); // Stagger times
+                const eventTime = getUnixTime(
+                    setHours(dayStart, Math.min(hourOffset, 17)),
+                );
 
-                    // Use different spaces for variety, avoiding recently used spaces
-                    const space =
-                        MOCK_SPACES[
-                            (userIndex * 3 + day + eventNum * 7) %
-                                MOCK_SPACES.length
-                        ];
+                // Use different spaces for variety
+                const space =
+                    MOCK_SPACES[
+                        (userIndex + day + eventNum) % MOCK_SPACES.length
+                    ];
 
-                    // Get colleagues from same department
-                    const colleagues = MOCK_STAFF.filter(
-                        (s) =>
-                            s.department === user.department &&
-                            s.email !== user.email,
-                    ).slice(0, predictableRandomInt(3) + 1);
+                // Get colleagues from same department
+                let colleagues = MOCK_STAFF.filter(
+                    (s) =>
+                        s.department === user.department &&
+                        s.email !== user.email &&
+                        s.email !== ACTIVE_USER.email, // Exclude active user from random colleagues
+                ).slice(0, predictableRandomInt(4) + 1);
 
-                    const meetingContent = getRandomMeetingContent();
-                    const meetingInfo = generateMeetingUrl();
+                // Check if we can add ACTIVE_USER as attendee (max 1 per day)
+                const currentDayCount = activeUserDailyCount.get(day) || 0;
+                const shouldIncludeActiveUser =
+                    user.department === ACTIVE_USER.department &&
+                    currentDayCount === 0 &&
+                    predictableRandomInt(5) === 0; // 20% chance
 
-                    const attendees = [user, ...colleagues].map(
-                        (attendee, idx) => ({
-                            ...attendee,
-                            organizer: idx === 0,
-                            checked_in: predictableRandomInt(99999) % 3 === 0,
-                            response_status:
-                                idx === 0
-                                    ? 'accepted'
-                                    : predictableRandomInt(99999) % 2 === 0
-                                      ? 'accepted'
-                                      : 'tentative',
-                        }),
-                    );
-
-                    const event_start = eventTime;
-                    const event_end = getUnixTime(
-                        addMinutes(new Date(event_start * 1000), 60),
-                    );
-
-                    events.push({
-                        id: `user-daily-${userIndex}-${day}-${eventNum}`,
-                        status: randomStatus(),
-                        host: user.email,
-                        calendar: `calendar-${user.department?.toLowerCase() || 'general'}`,
-                        creator: user.email,
-                        attendees,
-                        title: meetingContent.title,
-                        body: meetingContent.body,
-                        private: predictableRandomInt(4) === 0,
-                        event_start,
-                        event_end,
-                        timezone: 'Australia/Sydney',
-                        all_day: false,
-                        location: space?.name || 'TBD',
-                        recurring: predictableRandomInt(10) === 0,
-                        recurrence: {},
-                        attachments: {},
-                        system: space,
-                        meeting_url: meetingInfo.url,
-                        meeting_id: meetingInfo.id,
-                        meeting_provider: meetingInfo.provider,
-                        extension_data: {
-                            category: meetingContent.category,
-                            catering: [],
-                            setup: 0,
-                            breakdown: 0,
-                            cost_center:
-                                user.department
-                                    ?.toLowerCase()
-                                    .replace(/\s+/g, '-') || 'general',
-                            priority: 'normal',
-                            estimated_attendees: attendees.length,
-                            actual_attendees: attendees.length,
-                        },
-                    });
+                if (shouldIncludeActiveUser) {
+                    colleagues = [...colleagues, ACTIVE_USER as any];
+                    activeUserDailyCount.set(day, currentDayCount + 1);
                 }
+
+                const meetingContent = getRandomMeetingContent();
+                const meetingInfo = generateMeetingUrl();
+
+                const attendees = [user, ...colleagues].map(
+                    (attendee, idx) => ({
+                        ...attendee,
+                        organizer: idx === 0,
+                        checked_in: predictableRandomInt(99999) % 3 === 0,
+                        response_status:
+                            idx === 0
+                                ? 'accepted'
+                                : predictableRandomInt(99999) % 2 === 0
+                                  ? 'accepted'
+                                  : 'tentative',
+                    }),
+                );
+
+                const event_start = eventTime;
+                const event_end = getUnixTime(
+                    addMinutes(new Date(event_start * 1000), 60),
+                );
+
+                events.push({
+                    id: `user-daily-${userIndex}-${day}-${eventNum}`,
+                    status: randomStatus(),
+                    host: user.email,
+                    calendar: `calendar-${user.department?.toLowerCase() || 'general'}`,
+                    creator: user.email,
+                    attendees,
+                    title: meetingContent.title,
+                    body: meetingContent.body,
+                    private: predictableRandomInt(4) === 0,
+                    event_start,
+                    event_end,
+                    timezone: 'Australia/Sydney',
+                    all_day: false,
+                    location: space?.name || 'TBD',
+                    recurring: predictableRandomInt(10) === 0,
+                    recurrence: {},
+                    attachments: {},
+                    system: space,
+                    meeting_url: meetingInfo.url,
+                    meeting_id: meetingInfo.id,
+                    meeting_provider: meetingInfo.provider,
+                    extension_data: {
+                        category: meetingContent.category,
+                        catering: [],
+                        setup: 0,
+                        breakdown: 0,
+                        cost_center:
+                            user.department
+                                ?.toLowerCase()
+                                .replace(/\s+/g, '-') || 'general',
+                        priority: 'normal',
+                        estimated_attendees: attendees.length,
+                        actual_attendees: attendees.length,
+                    },
+                });
             }
         }
     });
 
-    // PHASE 3: Ensure active user has 1-2 events per day with high visibility
+    // PHASE 3: Ensure active user has 1-3 events per day with high visibility
     for (let day = 0; day < totalDays; day++) {
-        const eventsPerDay = predictableRandomInt(2) + 1; // 1-2 events per day
+        const eventsPerDay = predictableRandomInt(3) + 1; // 1-3 events per day
 
         for (let eventNum = 0; eventNum < eventsPerDay; eventNum++) {
             const dayStart = setHours(
