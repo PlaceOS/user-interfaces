@@ -1,4 +1,6 @@
 import { Component, input, output } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
+import { TranslatePipe } from '@placeos/components';
 
 @Component({
     selector: 'dialpad',
@@ -49,7 +51,7 @@ import { Component, input, output } from '@angular/core';
             }
         `,
     ],
-    standalone: false,
+    imports: [MatRippleModule, TranslatePipe],
 })
 export class DialpadComponent {
     public readonly backspace = input(true);

@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import {
     Component,
     OnChanges,
@@ -5,7 +6,9 @@ import {
     inject,
     input,
 } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
 import { AsyncHandler, nextValueFrom } from '@placeos/common';
+import { TranslatePipe } from '@placeos/components';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ControlStateService, RoomOutput } from '../control-state.service';
@@ -62,7 +65,7 @@ const STATUS = {};
             }
         `,
     ],
-    standalone: false,
+    imports: [CommonModule, TranslatePipe, MatRippleModule],
 })
 export class DeviceOutputListItemComponent
     extends AsyncHandler

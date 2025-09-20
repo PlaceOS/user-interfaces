@@ -1,4 +1,7 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
+import { TranslatePipe } from '@placeos/components';
 import { map } from 'rxjs/operators';
 import { ControlStateService } from '../control-state.service';
 
@@ -27,7 +30,7 @@ import { ControlStateService } from '../control-state.service';
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [CommonModule, TranslatePipe, MatRippleModule],
 })
 export class JoinRoomTooltipComponent {
     private _state = inject(ControlStateService);

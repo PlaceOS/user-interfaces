@@ -1,4 +1,9 @@
+import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject, input } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
 import { Router } from '@angular/router';
 import {
     AsyncHandler,
@@ -6,6 +11,7 @@ import {
     nextValueFrom,
     notifyError,
 } from '@placeos/common';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { getModule } from '@placeos/ts-client';
 import { filter } from 'rxjs/operators';
 import { ControlStateService } from '../control-state.service';
@@ -216,7 +222,15 @@ import { VideoCallStateService } from './video-call-state.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatProgressSpinnerModule,
+        TranslatePipe,
+        MatRippleModule,
+        IconComponent,
+        MatFormFieldModule,
+        MatSelectModule,
+    ],
 })
 export class VideoCallPageComponent extends AsyncHandler implements OnInit {
     private _state = inject(VideoCallStateService);

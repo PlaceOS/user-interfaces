@@ -3,9 +3,14 @@ import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 
 import { AsyncHandler, VERSION } from '@placeos/common';
-import { ChangelogModalComponent } from '@placeos/components';
+import { ChangelogModalComponent, TranslatePipe } from '@placeos/components';
 
+import { CommonModule } from '@angular/common';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ControlStateService } from './control-state.service';
+import { ControlPageViewComponent } from './page-view.component';
+import { ControlStatusBarComponent } from './status-bar.component';
+import { TopbarHeaderComponent } from './topbar-header.component';
 
 @Component({
     selector: 'app-control-main-view',
@@ -76,7 +81,14 @@ import { ControlStateService } from './control-state.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TopbarHeaderComponent,
+        ControlPageViewComponent,
+        ControlStatusBarComponent,
+        MatProgressSpinnerModule,
+        TranslatePipe,
+    ],
 })
 export class ControlMainViewComponent extends AsyncHandler implements OnInit {
     private _route = inject(ActivatedRoute);

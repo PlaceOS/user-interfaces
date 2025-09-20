@@ -1,7 +1,13 @@
 import { Component, inject } from '@angular/core';
-import { CustomTooltipData } from '@placeos/components';
+import {
+    CustomTooltipData,
+    IconComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { getModule } from '@placeos/ts-client';
 
+import { CommonModule } from '@angular/common';
+import { MatRippleModule } from '@angular/material/core';
 import { ControlStateService } from '../control-state.service';
 
 @Component({
@@ -41,7 +47,7 @@ import { ControlStateService } from '../control-state.service';
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [CommonModule, TranslatePipe, IconComponent, MatRippleModule],
 })
 export class LightingSceneTooltipComponent {
     private _state = inject(ControlStateService);

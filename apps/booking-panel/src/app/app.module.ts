@@ -12,7 +12,6 @@ import { ServiceWorkerModule } from '@angular/service-worker';
 import { AppRoutingModule } from './app-routing.module';
 
 import { environment } from '../environments/environment';
-import { SharedOverlaysModule } from './overlays/overlays.module';
 
 import * as Sentry from '@sentry/angular';
 import { BootstrapComponent } from './bootstrap.component';
@@ -32,13 +31,8 @@ import localeIt from '@angular/common/locales/it';
 import localeJa from '@angular/common/locales/ja';
 import localeZh from '@angular/common/locales/zh';
 import { AppComponent } from './app.component';
-
-const STANDALONE_COMPONENTS = [
-    GlobalBannerComponent,
-    GlobalLoadingComponent,
-    BootstrapComponent,
-    EventPanelComponent,
-];
+import { CheckinViewComponent } from './checkin/checkin-view.component';
+import { PanelViewComponent } from './new-panel/panel-view.component';
 
 @NgModule({
     declarations: [AppComponent],
@@ -47,8 +41,14 @@ const STANDALONE_COMPONENTS = [
         BrowserModule,
         BrowserAnimationsModule,
         AppRoutingModule,
-        SharedOverlaysModule,
-        ...STANDALONE_COMPONENTS,
+        GlobalBannerComponent,
+        GlobalLoadingComponent,
+
+        BootstrapComponent,
+        EventPanelComponent,
+        CheckinViewComponent,
+        PanelViewComponent,
+
         ServiceWorkerModule.register('ngsw-worker.js', {
             enabled: environment.production,
         }),

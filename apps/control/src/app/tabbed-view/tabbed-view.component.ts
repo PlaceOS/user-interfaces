@@ -3,11 +3,22 @@ import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 
 import { AsyncHandler, SettingsService, VERSION } from '@placeos/common';
-import { ChangelogModalComponent } from '@placeos/components';
+import {
+    AuthenticatedImageDirective,
+    ChangelogModalComponent,
+    IconComponent,
+    TranslatePipe,
+} from '@placeos/components';
 
+import { CommonModule } from '@angular/common';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { OrganisationService } from '@placeos/common';
 import { debounceTime, map } from 'rxjs/operators';
 import { ControlStateService } from '../control-state.service';
+import { ControlStatusBarComponent } from '../status-bar.component';
+import { TopbarHeaderComponent } from '../topbar-header.component';
+import { VoiceAssistantComponent } from '../ui/voice-assistant.component';
+import { TabOutletComponent } from './tab-outlet.component';
 
 @Component({
     selector: 'app-control-tabbed-view',
@@ -105,7 +116,17 @@ import { ControlStateService } from '../control-state.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TopbarHeaderComponent,
+        TabOutletComponent,
+        ControlStatusBarComponent,
+        MatProgressSpinnerModule,
+        TranslatePipe,
+        IconComponent,
+        AuthenticatedImageDirective,
+        VoiceAssistantComponent,
+    ],
 })
 export class ControlTabbedViewComponent extends AsyncHandler implements OnInit {
     private _route = inject(ActivatedRoute);

@@ -1,5 +1,9 @@
 import { Component, inject } from '@angular/core';
-import { CustomTooltipData } from '@placeos/components';
+import {
+    CustomTooltipData,
+    SanitizePipe,
+    TranslatePipe,
+} from '@placeos/components';
 
 import { ControlStateService } from '../control-state.service';
 
@@ -34,7 +38,7 @@ import { ControlStateService } from '../control-state.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [TranslatePipe, SanitizePipe],
 })
 export class HelpTooltipComponent {
     private _state = inject(ControlStateService);

@@ -1,5 +1,10 @@
 import { Component, inject, input } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
 import { AsyncHandler } from '@placeos/common';
+import {
+    AuthenticatedImageDirective,
+    BindingDirective,
+} from '@placeos/components';
 import { getModule } from '@placeos/ts-client';
 import { ControlStateService } from '../control-state.service';
 
@@ -35,7 +40,8 @@ import { ControlStateService } from '../control-state.service';
                     >
                         @if (item?.icon) {
                             <img
-                                [src]="item.icon"
+                                auth
+                                [source]="item.icon"
                                 class="max-h-[3.5rem] max-w-[3.5rem]"
                             />
                         }
@@ -45,7 +51,7 @@ import { ControlStateService } from '../control-state.service';
             </div>
         }
     `,
-    standalone: false,
+    imports: [BindingDirective, MatRippleModule, AuthenticatedImageDirective],
 })
 export class TVControlsComponent extends AsyncHandler {
     private _state = inject(ControlStateService);

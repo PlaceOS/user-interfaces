@@ -1,6 +1,10 @@
 import { Component, inject } from '@angular/core';
-import { CustomTooltipData } from '@placeos/components';
+import { CustomTooltipData, TranslatePipe } from '@placeos/components';
 
+import { CommonModule } from '@angular/common';
+import { MatRippleModule } from '@angular/material/core';
+import { RouterModule } from '@angular/router';
+import { VideoCallDialViewComponent } from '../video-call/video-call-dial-view.component';
 import { VideoCallStateService } from '../video-call/video-call-state.service';
 
 @Component({
@@ -42,7 +46,13 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
         }
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        RouterModule,
+        TranslatePipe,
+        MatRippleModule,
+        VideoCallDialViewComponent,
+    ],
 })
 export class VideoConferenceTooltipComponent {
     private _vc_state = inject(VideoCallStateService);

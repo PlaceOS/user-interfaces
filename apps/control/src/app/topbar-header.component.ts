@@ -1,10 +1,17 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
+import { MatMenuModule } from '@angular/material/menu';
 import {
     AsyncHandler,
     i18n,
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
+import {
+    AuthenticatedImageDirective,
+    CustomTooltipComponent,
+    IconComponent,
+} from '@placeos/components';
 import { isTrusted } from '@placeos/ts-client';
 import { combineLatest } from 'rxjs';
 import { debounceTime, map } from 'rxjs/operators';
@@ -127,7 +134,13 @@ enum TOOLTIP {
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatMenuModule,
+        CustomTooltipComponent,
+        IconComponent,
+        AuthenticatedImageDirective,
+    ],
 })
 export class TopbarHeaderComponent extends AsyncHandler implements OnInit {
     private _settings = inject(SettingsService);

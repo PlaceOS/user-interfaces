@@ -3,8 +3,18 @@ import { AsyncHandler } from '@placeos/common';
 import { getModule } from '@placeos/ts-client';
 import { combineLatest } from 'rxjs';
 
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { ControlStateService, RoomInput } from '../control-state.service';
-import { JoystickPan, JoystickTilt } from './joystick.component';
+import {
+    JoystickComponent,
+    JoystickPan,
+    JoystickTilt,
+} from './joystick.component';
 
 export enum ZoomDirection {
     In = 'in',
@@ -86,7 +96,16 @@ export enum ZoomDirection {
         }
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        IconComponent,
+        MatRippleModule,
+        JoystickComponent,
+        MatFormFieldModule,
+        MatSelectModule,
+        FormsModule,
+    ],
 })
 export class CameraControlsComponent extends AsyncHandler implements OnInit {
     private _state = inject(ControlStateService);
