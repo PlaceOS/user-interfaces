@@ -3,9 +3,7 @@ import { registerMockEndpoint } from '@placeos/ts-client';
 
 import { MOCK_BOOKINGS } from './bookings.data';
 
-export const BOOKING_MOCKS = registerMocks();
-
-function registerMocks() {
+export function registerMockBookings() {
     registerMockEndpoint({
         path: '/api/staff/v1/bookings',
         metadata: {},

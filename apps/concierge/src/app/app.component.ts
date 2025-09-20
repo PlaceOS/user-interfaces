@@ -1,5 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { PlaceOS_Service, UploadsService } from '@placeos/common';
+import { PlaceOS_Service, setMocks, UploadsService } from '@placeos/common';
+import { mocksInit } from '@placeos/mocks';
 
 @Component({
     selector: 'app-root',
@@ -35,6 +36,7 @@ export class AppComponent implements OnInit {
     }
 
     public async ngOnInit() {
+        setMocks(mocksInit);
         await this._placeos.init();
         if (this._placeos.has_uploads) this._uploads.init();
     }

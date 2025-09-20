@@ -37,9 +37,7 @@ const MOCK_METADATA = {
 export const PARKING_SPACES = {};
 export const LOCKERS = {};
 
-export const ZONE_MOCKS = registerMocks();
-
-function registerMocks() {
+export function registerMockZones() {
     registerMockEndpoint({
         path: '/api/engine/v2/zones',
         metadata: {},

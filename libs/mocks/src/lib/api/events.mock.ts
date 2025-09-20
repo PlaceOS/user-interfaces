@@ -3,9 +3,7 @@ import { mockSystem, registerMockEndpoint } from '@placeos/ts-client';
 import { MOCK_EVENTS } from './events.data';
 import { ACTIVE_USER, MOCK_STAFF } from './users.data';
 
-export const EVENT_MOCKS = registerMocks();
-
-function registerMocks() {
+export function registerMockEvents() {
     registerMockEndpoint({
         path: '/api/staff/v1/events',
         metadata: {},

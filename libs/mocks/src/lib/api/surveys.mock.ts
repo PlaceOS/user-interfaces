@@ -3,8 +3,6 @@ import { registerMockEndpoint } from '@placeos/ts-client';
 import { getUnixTime } from 'date-fns';
 import { MOCK_BUILDINGS } from './zone.data';
 
-export const SURVEY_MOCKS = registerMocks();
-
 const MOCK_SURVEYS = new Array(20).fill(0).map(() => createMockSurvey());
 const MOCK_SURVEY_QUESTIONS = new Array(20)
     .fill(0)
@@ -61,7 +59,7 @@ function createMockSurveyQuestion() {
     };
 }
 
-function registerMocks() {
+export function registerMockSurveys() {
     registerMockEndpoint({
         path: '/api/staff/v1/surveys',
         metadata: {},

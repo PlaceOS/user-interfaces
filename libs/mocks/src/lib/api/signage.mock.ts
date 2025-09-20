@@ -1,9 +1,7 @@
 import { registerMockEndpoint } from '@placeos/ts-client';
 import { MOCK_ZONES } from './zone.data';
 
-export const EVENT_MOCKS = registerMocks();
-
-function registerMocks() {
+export function registerMockSignage() {
     MOCK_ZONES.push({
         id: 'zone-sign01',
         tags: ['signage'],

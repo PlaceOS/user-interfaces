@@ -1,5 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { PlaceOS_Service } from '@placeos/common';
+import { PlaceOS_Service, setMocks } from '@placeos/common';
+import { mocksInit } from '@placeos/mocks';
 
 @Component({
     selector: 'app-root',
@@ -27,6 +28,7 @@ export class AppComponent implements OnInit {
     private _placeos = inject(PlaceOS_Service);
 
     public ngOnInit(): void {
+        setMocks(mocksInit);
         this._placeos.init();
     }
 }
