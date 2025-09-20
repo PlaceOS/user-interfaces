@@ -6,6 +6,7 @@ import {
     MOCK_BUILDINGS,
     MOCK_LEVELS,
     MOCK_ORGS,
+    MOCK_REGIONS,
     MOCK_ZONES,
 } from './zone.data';
 
@@ -46,7 +47,7 @@ export function registerMockZones() {
             if (request.query_params.tags === 'org') {
                 return MOCK_ORGS;
             } else if (request.query_params.tags === 'region') {
-                return [];
+                return MOCK_REGIONS;
             } else if (request.query_params.tags === 'building') {
                 return MOCK_BUILDINGS;
             } else if (request.query_params.tags === 'level') {
