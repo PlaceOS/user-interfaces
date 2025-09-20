@@ -6,7 +6,7 @@ import { defineGlobalsInjections } from '@ngneat/spectator';
 import { MockPipe } from 'ng-mocks';
 import { TextDecoder, TextEncoder } from 'util';
 
-import { TranslatePipe } from '../../components/src/lib/translate.pipe';
+import { TranslatePipe } from '@placeos/components';
 import { setNotifyOutlet } from './lib/notifications';
 
 global.TextEncoder = TextEncoder;

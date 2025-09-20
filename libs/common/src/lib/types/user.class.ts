@@ -1,6 +1,6 @@
 import { format } from 'date-fns';
 
-import { randomString } from '../general';
+import { randomString, unique } from '../general';
 import { i18n } from '../locale.service';
 import { Booking } from './booking.class';
 
@@ -111,7 +111,7 @@ export class User {
         if (data.sys_admin) groups.push('placeos_admin');
         if (data.support) groups.push('placeos_support');
         if (data.department) groups.push(data.department);
-        this.groups = groups;
+        this.groups = unique(groups);
         this.extension_data = data.extension_data || {};
         this.extension_data.assistance_required =
             data.assistance_required || this.extension_data.assistance_required;

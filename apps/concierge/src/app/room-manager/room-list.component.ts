@@ -4,6 +4,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { i18n, notifySuccess, SettingsService } from '@placeos/common';
 import {
     IconComponent,
+    LevelPipe,
     SanitizePipe,
     SimpleTableComponent,
     TranslatePipe,
@@ -181,6 +182,7 @@ import { RoomManagementService } from './room-management.service';
         MatMenuModule,
         SanitizePipe,
         TranslatePipe,
+        LevelPipe,
     ],
 })
 export class RoomListComponent {

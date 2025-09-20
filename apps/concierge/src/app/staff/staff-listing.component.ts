@@ -4,6 +4,7 @@ import { map } from 'rxjs/operators';
 
 import { CommonModule } from '@angular/common';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { TranslatePipe } from '@placeos/components';
 import { StaffDetailsComponent } from './staff-details.component';
 import { StaffStateService } from './staff-state.service';
 
@@ -104,7 +105,12 @@ const CHARS = '#abcdefghijklmnopqrstuvwxyz'.split('');
             }
         `,
     ],
-    imports: [CommonModule, MatProgressBarModule, StaffDetailsComponent],
+    imports: [
+        CommonModule,
+        MatProgressBarModule,
+        StaffDetailsComponent,
+        TranslatePipe,
+    ],
 })
 export class StaffListingComponent extends AsyncHandler {
     private _state = inject(StaffStateService);

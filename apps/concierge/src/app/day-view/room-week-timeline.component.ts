@@ -16,6 +16,7 @@ import {
     EventDetailsModalComponent,
     SetupBreakdownModalComponent,
 } from '@placeos/events';
+import { UserPipe } from '@placeos/users';
 import {
     addDays,
     isSameDay,
@@ -198,6 +199,7 @@ import { RoomBookingSearchComponent } from './room-booking-search.component';
         RoomBookingSearchComponent,
         DateOptionsComponent,
         TranslatePipe,
+        UserPipe,
     ],
 })
 export class RoomWeekBookingsTimelineComponent

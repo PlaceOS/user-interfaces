@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { showUser } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest, lastValueFrom, timer } from 'rxjs';
-import { map, retry } from 'rxjs/operators';
+import { map, retry, tap } from 'rxjs/operators';
 import { StaffUser } from './types/user.class';
 
 const EMPTY_USER = {
@@ -35,6 +35,7 @@ setTimeout(() => {
                 },
             }),
             map(([i]) => new StaffUser(i)),
+            tap((u) => user_signal.set(u)),
         )
         .subscribe((user) => _current_user.next(user));
 }, 300);

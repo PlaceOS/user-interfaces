@@ -1,5 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 
+import { CommonModule } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTabsModule } from '@angular/material/tabs';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
@@ -75,6 +76,7 @@ import { SignageStateService } from './signage-state.service';
         `,
     ],
     imports: [
+        CommonModule,
         ApplicationTopbarComponent,
         ApplicationSidebarComponent,
         TranslatePipe,

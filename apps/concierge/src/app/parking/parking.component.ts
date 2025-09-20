@@ -3,6 +3,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { MatTabsModule } from '@angular/material/tabs';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
+import { TranslatePipe } from '@placeos/components';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
 import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
 import { ParkingStateService } from './parking-state.service';
@@ -123,6 +124,7 @@ import { ParkingTopbarComponent } from './parking-topbar.component';
         MatTabsModule,
         RouterModule,
         ParkingTopbarComponent,
+        TranslatePipe,
     ],
 })
 export class ParkingComponent extends AsyncHandler implements OnInit {

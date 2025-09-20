@@ -7,6 +7,7 @@ import { BuildingManagementService } from './building-management.service';
 import { MatMenuModule } from '@angular/material/menu';
 import {
     AuthenticatedImageDirective,
+    IconComponent,
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
@@ -250,6 +251,7 @@ import { WorkplaceSettingsFormModalComponent } from '../ui/app-settings/workplac
         AuthenticatedImageDirective,
         MatMenuModule,
         TranslatePipe,
+        IconComponent,
     ],
 })
 export class BuildingListComponent {

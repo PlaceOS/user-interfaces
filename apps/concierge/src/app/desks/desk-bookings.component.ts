@@ -10,6 +10,7 @@ import {
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
+import { UserPipe } from '@placeos/users';
 import { DesksStateService } from './desks-state.service';
 
 @Component({
@@ -318,6 +319,7 @@ import { DesksStateService } from './desks-state.service';
         IconComponent,
         MatTooltipModule,
         SimpleTableComponent,
+        UserPipe,
     ],
 })
 export class DeskBookingsComponent {

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { flatten, notifySuccess, OrganisationService } from '@placeos/common';
 import { openConfirmModal } from '@placeos/components';
@@ -86,6 +86,9 @@ export interface QuestionFilters {
     providedIn: 'root',
 })
 export class NewSurveyService {
+    private _org = inject(OrganisationService);
+    private _dialog = inject(MatDialog);
+
     private _survey_id = new BehaviorSubject<string>('');
     private _bld_id = new BehaviorSubject<string>('');
     private _change = new BehaviorSubject(0);
@@ -180,11 +183,6 @@ export class NewSurveyService {
     );
 
     public readonly loading$ = this._loading.asObservable();
-
-    constructor(
-        private _org: OrganisationService,
-        private _dialog: MatDialog,
-    ) {}
 
     public get building() {
         return this._org.buildings.find(

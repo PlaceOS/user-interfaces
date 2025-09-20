@@ -20,6 +20,7 @@ import {
 } from '@placeos/common';
 import {
     CustomTooltipComponent,
+    IconComponent,
     ImageCarouselComponent,
     openConfirmModal,
     SimpleTableComponent,
@@ -506,6 +507,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
         MatTabsModule,
         MatTooltipModule,
         ImageCarouselComponent,
+        IconComponent,
     ],
 })
 export class AssetViewComponent extends AsyncHandler {

@@ -33,6 +33,7 @@ const routes: Route[] = [
     declarations: [],
     imports: [
         SurveyComponent,
+        SurveyOutletComponent,
         BuildingListComponent,
         SurveyListingsComponent,
         SurveyBuilderComponent,

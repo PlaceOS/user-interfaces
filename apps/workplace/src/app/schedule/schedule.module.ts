@@ -1,9 +1,5 @@
 import { NgModule } from '@angular/core';
 import { Route, RouterModule } from '@angular/router';
-import { ScheduleFilterCardComponent } from './schedule-filter-card.component';
-import { ScheduleFiltersComponent } from './schedule-filters.component';
-import { ScheduleMobileCalendarComponent } from './schedule-mobile-calendar.component';
-import { ScheduleSidebarComponent } from './schedule-sidebar.component';
 import { ScheduleComponent } from './schedule.component';
 
 const ROUTES: Route[] = [
@@ -11,13 +7,7 @@ const ROUTES: Route[] = [
     { path: '**', redirectTo: '' },
 ];
 
-const COMPONENTS = [
-    ScheduleComponent,
-    ScheduleSidebarComponent,
-    ScheduleFiltersComponent,
-    ScheduleFilterCardComponent,
-    ScheduleMobileCalendarComponent,
-];
+const COMPONENTS = [ScheduleComponent];
 
 @NgModule({
     declarations: [],
