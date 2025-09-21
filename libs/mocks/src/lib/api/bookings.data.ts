@@ -169,7 +169,6 @@ export const MOCK_BOOKINGS = (() => {
                 },
             );
         }
-        console.log('Selected users:', selectedUsers);
         // Generate bookings for selected users
         selectedUsers.forEach((user) => {
             const userDayBookings = [];

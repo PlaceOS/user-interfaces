@@ -15,7 +15,7 @@ export class RoomConfirmService {
     private router = inject(Router);
     private _state = inject(EventFormService);
     private _spaces = inject(SpacesService);
-    private _space_pipe = inject(SpacePipe);
+    private _space_pipe = new SpacePipe();
 
     space: Space;
     public book_space: HashMap<boolean> = {};

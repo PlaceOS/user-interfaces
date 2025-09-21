@@ -22,6 +22,7 @@ import { MeetingBookingSuccessComponent } from './meetings/meeting-success.compo
 import { NotFoundComponent } from './not-found.component';
 import { BookModule } from './rooms/book.module';
 
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import {
     GlobalBannerComponent,
     GlobalLoadingComponent,
@@ -52,6 +53,7 @@ const STANDALONE_COMPONENTS = [
         BrowserAnimationsModule,
         AppRoutingModule,
         BookModule,
+        MatSnackBarModule,
         ...STANDALONE_COMPONENTS,
         ServiceWorkerModule.register('ngsw-worker.js', {
             enabled: environment.production,

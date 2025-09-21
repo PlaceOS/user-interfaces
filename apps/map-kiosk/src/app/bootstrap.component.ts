@@ -17,7 +17,6 @@ import {
 } from '@placeos/common';
 import {
     SettingsToggleComponent,
-    TranslatePipe,
     VirtualKeyboardComponent,
 } from '@placeos/components';
 import { first } from 'rxjs/operators';
@@ -317,7 +316,6 @@ import { first } from 'rxjs/operators';
         SettingsToggleComponent,
         CommonModule,
         FormsModule,
-        TranslatePipe,
     ],
 })
 export class BootstrapComponent extends AsyncHandler implements OnInit {

@@ -1,5 +1,5 @@
 import { Component, inject, input } from '@angular/core';
-import { FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -228,15 +228,17 @@ import {
                         </label>
                         <mat-form-field appearance="outline">
                             <mat-select formControlName="visibility">
-                                <mat-option
-                                    *ngFor="let option of visibility_options"
-                                    [value]="option.value"
-                                >
-                                    {{
-                                        'COMMON.VISIBILITY_' + option.label
-                                            | translate
-                                    }}
-                                </mat-option>
+                                @for (
+                                    option of visibility_options;
+                                    track option.value
+                                ) {
+                                    <mat-option [value]="option.value">
+                                        {{
+                                            'COMMON.VISIBILITY_' + option.label
+                                                | translate
+                                        }}
+                                    </mat-option>
+                                }
                             </mat-select>
                         </mat-form-field>
                     </div>
@@ -259,6 +261,7 @@ import {
         MatFormFieldModule,
         MatInputModule,
         ReactiveFormsModule,
+        FormsModule,
     ],
 })
 export class MeetingFormDetailsComponent {

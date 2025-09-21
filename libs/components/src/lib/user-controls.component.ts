@@ -23,6 +23,7 @@ import { AccessibilityTooltipComponent } from './accessibility-tooltip.component
 import { BuildingSelectComponent } from './building-select.component';
 import { ChangelogModalComponent } from './changelog-modal.component';
 import { CustomTooltipComponent } from './custom-tooltip.component';
+import { DeskHeightPresetsComponent } from './desk-height-presets.component';
 import { HelpTooltipComponent } from './help-tooltip.component';
 import { IconComponent } from './icon.component';
 import { LanguageSelectComponent } from './language-tooltip.component';
@@ -387,6 +388,7 @@ export interface AppLocale {
         MatTooltipModule,
         UserAvatarComponent,
         MatMenuModule,
+        DeskHeightPresetsComponent,
     ],
 })
 export class UserControlsComponent implements OnInit {

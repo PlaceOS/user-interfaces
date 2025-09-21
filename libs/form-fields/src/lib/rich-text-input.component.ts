@@ -146,10 +146,16 @@ export class RichTextInputComponent
             },
             action: () => this._embedAttachment(),
         };
-
+        const box =
+            this._container_el()?.nativeElement.getBoundingClientRect() || {
+                top: 0,
+                left: 0,
+                width: 0,
+                height: 0,
+            };
         this._editor = SunEditor.create(_editor_el, {
             placeholder: this.placeholder(),
-            height: '256',
+            height: `${box.height}`,
             plugins: [
                 font,
                 fontSize,

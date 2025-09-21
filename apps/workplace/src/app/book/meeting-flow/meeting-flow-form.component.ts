@@ -501,6 +501,7 @@ import { MeetingFormDetailsComponent } from './meeting-form-details.component';
         SpaceListFieldComponent,
         UserListFieldComponent,
         MeetingFormDetailsComponent,
+        UserListFieldComponent,
     ],
 })
 export class MeetingFlowFormComponent extends AsyncHandler implements OnInit {

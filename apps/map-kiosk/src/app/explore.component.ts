@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, HostListener, inject, OnInit } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
+import { MatMenuModule } from '@angular/material/menu';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
@@ -283,6 +284,7 @@ import { AccessibilityControlsComponent } from './accessibility-controls.compone
         AuthenticatedImageDirective,
         CustomTooltipComponent,
         RouterModule,
+        MatMenuModule,
     ],
 })
 export class ExploreComponent extends AsyncHandler implements OnInit {

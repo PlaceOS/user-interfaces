@@ -1,22 +1,24 @@
 import { Component, input, output } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { Space } from '@placeos/common';
-import { IconComponent } from '@placeos/components';
+import { BuildingPipe, IconComponent, LevelPipe } from '@placeos/components';
 
 @Component({
     selector: 'find-space-item',
     template: `
+        @let level = space()?.zones | level;
+        @let bld = space()?.zones | building;
+
         <button
             mat-ripple
-            class="mx-auto my-2 flex w-[375px] max-w-[calc(100%-2rem)] flex-col space-y-4 rounded bg-base-100 p-4 shadow"
-            [class.bg-primary]="selected()"
-            [class.text-white]="selected()"
+            class="mx-auto flex w-full flex-col space-y-2 rounded-lg border border-base-300 bg-base-100 p-4 hover:border-info"
+            [class.bg-base-200]="selected()"
             (click)="toggleSelected()"
         >
             <div class="flex w-full flex-row items-center space-x-2">
                 <icon class="text-lg">meeting_room</icon>
                 <div>
-                    {{ space()?.level?.display_name || space()?.level?.name }},
+                    {{ level?.display_name || level?.name }},
                     {{ space()?.display_name || space()?.name }}
                 </div>
             </div>
@@ -26,8 +28,14 @@ import { IconComponent } from '@placeos/components';
             </div>
         </button>
     `,
-    styles: [``],
-    imports: [MatRippleModule, IconComponent],
+    styles: [
+        `
+            :host {
+                padding: 0 0.5rem;
+            }
+        `,
+    ],
+    imports: [MatRippleModule, IconComponent, LevelPipe, BuildingPipe],
 })
 export class FindSpaceItemComponent {
     public readonly space = input<Space>(undefined);

@@ -36,6 +36,7 @@ import {
 import {
     RichTextInputComponent,
     SpaceListFieldComponent,
+    UserListFieldComponent,
 } from '@placeos/form-fields';
 
 import { MeetingFormDetailsComponent } from 'apps/workplace/src/app/book/meeting-flow/meeting-form-details.component';
@@ -403,6 +404,7 @@ import { MeetingFormDetailsComponent } from 'apps/workplace/src/app/book/meeting
         IconComponent,
         ReactiveFormsModule,
         MeetingFormDetailsComponent,
+        UserListFieldComponent,
     ],
 })
 export class EventBookModalComponent implements OnInit {

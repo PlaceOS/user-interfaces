@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { NativeDateModule } from '@angular/material/core';
 import { Route, RouterModule } from '@angular/router';
 
+import { SpacePipe } from '@placeos/events';
 import { BookingConfirmedComponent } from './booking-confirmed.component';
 import { FilterSpaceComponent } from './filter-space.component';
 import { FindSpaceItemComponent } from './find-space-item.component';
@@ -29,6 +30,7 @@ const STANDALONE_COMPONENTS = [
     RoomTileComponent,
     RoomDetailsComponent,
     UpcomingBookingsComponent,
+    SpacePipe,
 ];
 
 @NgModule({

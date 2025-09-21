@@ -32,7 +32,7 @@ export class AppComponent implements OnInit {
     private _uploads = inject(UploadsService);
 
     public get has_chat(): boolean {
-        return this._placeos.has_chat;
+        return !!this._placeos.has_chat;
     }
 
     public async ngOnInit() {

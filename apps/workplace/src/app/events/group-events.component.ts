@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
+import { TranslatePipe } from '@placeos/components';
 import { GroupEventCardComponent } from '@placeos/events';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -85,6 +86,7 @@ import { GroupEventsStateService } from './group-events-state.service';
         GroupEventCardComponent,
         GroupEventsFiltersListComponent,
         GroupEventsSidebarComponent,
+        TranslatePipe,
     ],
 })
 export class GroupEventsComponent extends AsyncHandler {

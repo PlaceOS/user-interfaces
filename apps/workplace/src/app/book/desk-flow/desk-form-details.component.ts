@@ -9,6 +9,8 @@ import {
 } from '@angular/core';
 import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { AssetListFieldComponent } from '@placeos/assets';
 import { BookingFormService, DeskListFieldComponent } from '@placeos/bookings';
 import {
@@ -314,6 +316,8 @@ import { addDays, endOfDay, set } from 'date-fns';
         DateFieldComponent,
         FormsModule,
         ReactiveFormsModule,
+        MatFormFieldModule,
+        MatInputModule,
     ],
 })
 export class NewDeskFormDetailsComponent
