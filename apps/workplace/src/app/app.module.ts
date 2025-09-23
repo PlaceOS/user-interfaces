@@ -22,7 +22,6 @@ import { LocaleService } from '@placeos/common';
 
 import { environment } from '../environments/environment';
 import { AppRoutingModule } from './app-routing.module';
-import { SharedComponentModule } from './components/shared.module';
 
 import * as Sentry from '@sentry/angular';
 
@@ -39,7 +38,6 @@ import { AppComponent } from './app.component';
         ServiceWorkerModule.register('ngsw-worker.js', {
             enabled: environment.production,
         }),
-        SharedComponentModule,
     ],
     providers: [
         provideZonelessChangeDetection(),

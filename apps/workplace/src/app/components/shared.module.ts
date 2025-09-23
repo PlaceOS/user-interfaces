@@ -10,8 +10,6 @@ import { VerticalTimelineComponent } from './vertical-timeline.component';
 import { ViewAttendeesModalComponent } from './view-attendees-modal.component';
 import { ViewCateringModalComponent } from './view-catering-modal.component';
 
-import { ComponentsModule } from 'libs/components/src/lib/components.module';
-
 const COMPONENTS: Type<any>[] = [
     TopbarComponent,
     GlobalSearchComponent,
@@ -27,6 +25,6 @@ const COMPONENTS: Type<any>[] = [
 @NgModule({
     declarations: [],
     imports: [...COMPONENTS],
-    exports: [...COMPONENTS, ComponentsModule],
+    exports: [...COMPONENTS],
 })
 export class SharedComponentModule {}
