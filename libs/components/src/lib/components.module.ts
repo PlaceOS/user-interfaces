@@ -131,7 +131,6 @@ const COMPONENTS = [
     WorkLocationTooltipComponent,
 
     FixedPipe,
-    DateFromPipe,
     ThumbnailPipe,
 
     UserControlsComponent,
@@ -186,6 +185,7 @@ const STANDALONE_COMPONENTS = [
     LevelPipe,
     BuildingPipe,
     ZonePipe,
+    DateFromPipe,
 ];
 
 @NgModule({
