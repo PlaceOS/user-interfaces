@@ -4,6 +4,7 @@ import {
     ElementRef,
     OnInit,
     inject,
+    signal,
     viewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -15,14 +16,16 @@ import {
     current_user,
 } from '@placeos/common';
 import { map } from 'rxjs/operators';
+import { DateFromPipe } from '../date-from.pipe';
 import { IconComponent } from '../icon.component';
+import { SanitizePipe } from '../sanitise.pipe';
 import { TranslatePipe } from '../translate.pipe';
 import { ChatService } from './chat.service';
 
 @Component({
     selector: 'global-chat',
     template: `
-        @if (can_show) {
+        @if (can_show()) {
             <div class="absolute bottom-0 right-0 p-2">
                 <button
                     icon
@@ -32,7 +35,7 @@ import { ChatService } from './chat.service';
                 >
                     <icon>chat</icon>
                 </button>
-                @if (show) {
+                @if (show()) {
                     <div
                         class="absolute bottom-2 right-2 w-[40rem] max-w-[calc(100vw-1rem)] overflow-hidden rounded-xl border border-base-300 bg-base-200 shadow"
                     >
@@ -57,7 +60,7 @@ import { ChatService } from './chat.service';
                                 <p class="text-center text-xl">
                                     {{
                                         'APP.WORKPLACE.CHAT_HELLO'
-                                            | translate: { name: user.name }
+                                            | translate: { name: user().name }
                                     }}
                                     <br />
                                     {{
@@ -75,22 +78,22 @@ import { ChatService } from './chat.service';
                             @for (message of messages | async; track message) {
                                 <div
                                     class="m-2 flex flex-col"
-                                    [class.pr-4]="message.user_id !== user.id"
-                                    [class.pl-4]="message.user_id === user.id"
+                                    [class.pr-4]="message.user_id !== user().id"
+                                    [class.pl-4]="message.user_id === user().id"
                                     [class.items-left]="
-                                        message.user_id !== user.id
+                                        message.user_id !== user().id
                                     "
                                     [class.items-end]="
-                                        message.user_id === user.id
+                                        message.user_id === user().id
                                     "
                                     (click)="
-                                        show_time[message.id] =
-                                            !show_time[message.id]
+                                        show_time()[message.id] =
+                                            !show_time()[message.id]
                                     "
                                     [class.waiting-margin]="waiting | async"
                                 >
                                     <div class="flex items-center space-x-2">
-                                        @if (message.user_id !== user.id) {
+                                        @if (message.user_id !== user().id) {
                                             <div
                                                 class="px-2 py-1 text-sm text-base-content opacity-60"
                                             >
@@ -104,7 +107,7 @@ import { ChatService } from './chat.service';
                                             class="px-2 py-1 text-xs text-base-content opacity-40"
                                         >
                                             {{
-                                                message.timestamp + offset
+                                                message.timestamp + offset()
                                                     | dateFrom
                                             }}
                                         </div>
@@ -120,7 +123,7 @@ import { ChatService } from './chat.service';
                                 <div class="p-4">
                                     <button
                                         class="block w-full rounded border-base-300 bg-info p-2 text-info-content"
-                                        (click)="show_info = !show_info"
+                                        (click)="show_info.set(!show_info)"
                                     >
                                         <div
                                             class="flex items-center space-x-2"
@@ -162,7 +165,7 @@ import { ChatService } from './chat.service';
                         @if (waiting | async) {
                             <div
                                 class="absolute right-2 flex items-center justify-center space-x-2 rounded-2xl border border-neutral bg-base-100 p-1"
-                                [style.bottom]="height + 8 + 'px'"
+                                [style.bottom]="height() + 8 + 'px'"
                             >
                                 <div
                                     class="h-2 w-2 animate-bounce rounded-full bg-neutral"
@@ -188,7 +191,7 @@ import { ChatService } from './chat.service';
                                         | translate
                                 "
                                 class="w-1/2 flex-1 resize-none overflow-hidden p-4 focus:outline-none"
-                                [style.height]="height + 'px'"
+                                [style.height]="height() + 'px'"
                                 [(ngModel)]="message"
                                 (ngModelChange)="resizeInput()"
                                 (keyup.enter)="sendMessage()"
@@ -196,7 +199,7 @@ import { ChatService } from './chat.service';
                             <button
                                 icon
                                 matRipple
-                                [disabled]="!message"
+                                [disabled]="!message()"
                                 class="mt-2"
                                 (click)="sendMessage()"
                             >
@@ -228,19 +231,22 @@ import { ChatService } from './chat.service';
         MatRippleModule,
         FormsModule,
         IconComponent,
+        DateFromPipe,
+        SanitizePipe,
     ],
 })
 export class ChatComponent extends AsyncHandler implements OnInit {
     private _settings = inject(SettingsService);
     private _chat = inject(ChatService);
 
-    public show = false;
-    public show_info = false;
-    public message = '';
-    public user: User;
-    public show_time: Record<string, boolean> = {};
-    public offset = 0;
-    public height = 56;
+    public readonly show = signal(false);
+    public readonly show_info = signal(false);
+    public readonly message = signal('');
+    public readonly user = signal<User>(new User());
+    public readonly show_time = signal<Record<string, boolean>>({});
+    public readonly offset = signal(0);
+    public readonly height = signal(56);
+    public readonly can_show = this._settings.signal('chat.enabled');
 
     public readonly icons = {
         list_function_schemas: 'help',
@@ -252,13 +258,10 @@ export class ChatComponent extends AsyncHandler implements OnInit {
     public readonly progress = this._chat.progress;
     public readonly waiting = this._chat.messages.pipe(
         map(
-            (_) => _.length !== 0 && _[_.length - 1]?.user_id === this.user?.id,
+            (_) =>
+                _.length !== 0 && _[_.length - 1]?.user_id === this.user().id,
         ),
     );
-
-    public get can_show() {
-        return this._settings.get('app.chat.enabled');
-    }
 
     private readonly _input_el =
         viewChild<ElementRef<HTMLTextAreaElement>>('input');
@@ -266,18 +269,14 @@ export class ChatComponent extends AsyncHandler implements OnInit {
         viewChild<ElementRef<HTMLDivElement>>('container');
 
     public toggleChat() {
-        this.show = !this.show;
-        if (!this.show) this._chat.close();
-    }
-
-    constructor() {
-        super();
+        this.show.update((s) => !s);
+        if (!this.show()) this._chat.close();
     }
 
     public ngOnInit(): void {
         this.subscription(
             'current_user',
-            current_user.subscribe((user) => (this.user = user)),
+            current_user.subscribe((user) => this.user.set(user)),
         );
         this.subscription(
             'hint',
@@ -290,19 +289,19 @@ export class ChatComponent extends AsyncHandler implements OnInit {
         this.subscription(
             'progress',
             this.progress.subscribe((i) =>
-                i ? this.scrollToBottom() : (this.show_info = false),
+                i ? this.scrollToBottom() : this.show_info.set(false),
             ),
         );
         this.interval(
             'offset',
-            () => (this.offset = this.offset ? 0 : 1),
+            () => this.offset.set(this.offset ? 0 : 1),
             20 * 1000,
         );
     }
 
     public resizeInput() {
         const el = this._input_el().nativeElement;
-        this.height = Math.max(el.scrollHeight, 56);
+        this.height.set(Math.max(el.scrollHeight, 56));
     }
 
     public sendMessage() {
@@ -311,9 +310,9 @@ export class ChatComponent extends AsyncHandler implements OnInit {
             this._chat.startChat();
             return this.timeout('send', () => this.sendMessage(), 100);
         }
-        this._chat.sendMessage(this.message);
-        this.message = '';
-        this.height = 56;
+        this._chat.sendMessage(this.message());
+        this.message.set('');
+        this.height.set(56);
         setTimeout(() => this._input_el().nativeElement.focus(), 100);
     }
 
