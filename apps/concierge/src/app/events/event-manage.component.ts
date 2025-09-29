@@ -1,12 +1,15 @@
 import { COMMA, ENTER, SPACE } from '@angular/cdk/keycodes';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { MatChipInputEvent } from '@angular/material/chips';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
+import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import {
     AsyncHandler,
     Building,
@@ -24,7 +27,11 @@ import {
     notifyError,
     unique,
 } from '@placeos/common';
-import { IconComponent, TranslatePipe } from '@placeos/components';
+import {
+    IconComponent,
+    SettingsToggleComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import {
     EventFormService,
     SpacePipe,
@@ -32,8 +39,11 @@ import {
     showEventMetadata,
 } from '@placeos/events';
 import {
+    DateFieldComponent,
     ImageListFieldComponent,
     RichTextInputComponent,
+    TimeFieldComponent,
+    UserSearchFieldComponent,
 } from '@placeos/form-fields';
 import { differenceInMinutes, format, startOfDay } from 'date-fns';
 import { lastValueFrom } from 'rxjs';
@@ -478,14 +488,24 @@ const EMPTY = [];
     styles: [``],
     imports: [
         CommonModule,
-        MatProgressSpinnerModule,
+        IconComponent,
         TranslatePipe,
+        MatRippleModule,
+        MatProgressSpinnerModule,
         ImageListFieldComponent,
         RichTextInputComponent,
         MatFormFieldModule,
         MatSelectModule,
+        MatInputModule,
+        MatChipsModule,
+        MatAutocompleteModule,
         FormsModule,
-        IconComponent,
+        ReactiveFormsModule,
+        SettingsToggleComponent,
+        DateFieldComponent,
+        TimeFieldComponent,
+        UserSearchFieldComponent,
+        RouterModule,
     ],
 })
 export class EventManageComponent extends AsyncHandler implements OnInit {

@@ -29,6 +29,7 @@ import {
     notifyError,
     notifySuccess,
 } from '@placeos/common';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { addZone, authority, updateZone } from '@placeos/ts-client';
 
 @Component({
@@ -120,11 +121,13 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
     styles: [``],
     imports: [
         CommonModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatAutocompleteModule,
+        TranslatePipe,
+        IconComponent,
         ReactiveFormsModule,
+        MatFormFieldModule,
+        MatAutocompleteModule,
         MatSelectModule,
+        MatInputModule,
     ],
 })
 export class BuildingFormComponent

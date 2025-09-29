@@ -28,6 +28,7 @@ import {
     RecurrenceFieldComponent,
     TimeFieldComponent,
     UserListFieldComponent,
+    UserSearchFieldComponent,
 } from '@placeos/form-fields';
 import { addDays, endOfDay, set } from 'date-fns';
 
@@ -318,6 +319,7 @@ import { addDays, endOfDay, set } from 'date-fns';
         ReactiveFormsModule,
         MatFormFieldModule,
         MatInputModule,
+        UserSearchFieldComponent,
     ],
 })
 export class NewDeskFormDetailsComponent

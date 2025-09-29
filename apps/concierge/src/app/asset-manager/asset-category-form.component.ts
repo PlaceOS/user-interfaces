@@ -1,6 +1,11 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import {
+    MAT_DIALOG_DATA,
+    MatDialogModule,
+    MatDialogRef,
+} from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -97,14 +102,16 @@ import { AssetManagerStateService } from './asset-manager-state.service';
     `,
     styles: [``],
     imports: [
+        CommonModule,
+        IconComponent,
+        TranslatePipe,
+        MatDialogModule,
         MatFormFieldModule,
         MatProgressSpinnerModule,
-        TranslatePipe,
         MatFormFieldModule,
         MatSelectModule,
         ReactiveFormsModule,
         MatInputModule,
-        IconComponent,
     ],
 })
 export class AssetCategoryFormComponent {

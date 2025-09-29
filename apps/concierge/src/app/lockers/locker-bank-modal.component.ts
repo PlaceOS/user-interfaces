@@ -1,4 +1,5 @@
 import { COMMA, ENTER, SPACE } from '@angular/cdk/keycodes';
+import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, inject, Output } from '@angular/core';
 import {
     FormControl,
@@ -15,6 +16,7 @@ import {
     MatDialogRef,
 } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { LockerBank } from '@placeos/bookings';
@@ -193,17 +195,19 @@ import { map } from 'rxjs/operators';
     `,
     styles: [``],
     imports: [
+        CommonModule,
+        TranslatePipe,
+        IconComponent,
+        MatRippleModule,
         MatDialogModule,
         MatProgressSpinnerModule,
         MatFormFieldModule,
-        MatRippleModule,
-        MatChipsModule,
-        IconComponent,
-        CounterComponent,
         MatSelectModule,
+        MatInputModule,
+        MatChipsModule,
+        CounterComponent,
         FormsModule,
         ReactiveFormsModule,
-        TranslatePipe,
     ],
 })
 export class LockerBankModalComponent {

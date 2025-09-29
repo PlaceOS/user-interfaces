@@ -18,7 +18,7 @@ import {
     getInvalidFields,
     notifyError,
 } from '@placeos/common';
-import { TranslatePipe } from '@placeos/components';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { addZone, authority, updateZone } from '@placeos/ts-client';
 import { FullscreenModalShellComponent } from 'libs/components/src/lib/fullscreen-modal-shell.component';
 
@@ -90,6 +90,7 @@ import { FullscreenModalShellComponent } from 'libs/components/src/lib/fullscree
         MatFormFieldModule,
         MatInputModule,
         TranslatePipe,
+        IconComponent,
         ReactiveFormsModule,
     ],
 })

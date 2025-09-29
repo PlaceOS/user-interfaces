@@ -10,6 +10,7 @@ import {
     OrganisationService,
 } from '@placeos/common';
 import {
+    BuildingPipe,
     IconComponent,
     SimpleTableComponent,
     TranslatePipe,
@@ -176,6 +177,7 @@ import {
         SimpleTableComponent,
         RouterModule,
         MatMenuModule,
+        BuildingPipe,
     ],
 })
 export class EmailTemplatesListComponent {

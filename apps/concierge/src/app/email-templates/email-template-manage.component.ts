@@ -32,9 +32,12 @@ import {
 @Component({
     selector: 'email-template-manage',
     template: `
-        <div class="absolute inset-0 overflow-auto bg-base-100">
+        <div class="absolute inset-0 overflow-auto bg-base-200">
+            <div
+                class="absolute left-1/2 top-0 h-full w-[41rem] max-w-full -translate-x-1/2 border-x border-base-300 bg-base-100"
+            ></div>
             <header
-                class="sticky top-0 z-10 mx-auto my-2 flex w-full max-w-[40rem] items-center justify-between rounded border-none bg-base-200 px-4 py-2"
+                class="sticky top-0 z-20 mx-auto my-2 flex w-full max-w-[40rem] items-center justify-between rounded border-none bg-base-200 px-4 py-2"
             >
                 <h2 class="text-xl font-medium">
                     {{
@@ -51,7 +54,7 @@ import {
                 }
             </header>
             <form
-                class="z-0 mx-auto my-2 w-full max-w-[40rem] overflow-visible p-4"
+                class="relative z-10 mx-auto w-full max-w-[40rem] overflow-visible p-2"
                 [formGroup]="form"
             >
                 <div class="flex items-center space-x-4">
@@ -81,31 +84,13 @@ import {
                             }}</mat-error>
                         </mat-form-field>
                     </div>
-                    <!-- <div class="flex-1 space-y-2 w-1/4">
-              <label for="category">{{'COMMON.CATEGORY' | translate}}</label>
-              <mat-form-field appearance="outline" class="w-full">
-                <mat-select
-                  name="category"
-                  placeholder="Select Category"
-                  formControlName="category"
-                  >
-                  <mat-option value="internal">
-                    Internal
-                  </mat-option>
-                  <mat-option value="external">
-                    External
-                  </mat-option>
-                </mat-select>
-                <mat-error>A category is required</mat-error>
-              </mat-form-field>
-            </div> -->
                     <div class="w-1/4 flex-1 space-y-2 pb-6">
                         <label for="trigger">
                             {{ 'COMMON.TRIGGER' | translate }}
                         </label>
                         <button
-                            duration-field
-                            class="flex h-12 w-full items-center justify-between rounded border border-neutral px-2"
+                            class="inverse flex h-12 w-full items-center justify-between rounded border border-base-300 px-2"
+                            btn
                             matRipple
                             [matMenuTriggerFor]="trigger_menu"
                             (click)="form.controls.trigger.markAsTouched()"
@@ -275,7 +260,7 @@ import {
             </form>
             @if (!loading) {
                 <footer
-                    class="fixed bottom-0 left-1/2 z-10 mx-auto my-2 flex w-full max-w-[640px] -translate-x-1/2 items-center justify-end rounded border-none bg-base-200 px-4 py-2"
+                    class="fixed bottom-0 left-1/2 z-20 mx-auto my-2 flex w-full max-w-[640px] -translate-x-1/2 items-center justify-end rounded border-none bg-base-200 px-4 py-2"
                 >
                     <button btn matRipple class="w-40" (click)="save()">
                         {{ 'APP.CONCIERGE.EMAIL_TEMPLATES_SAVE' | translate }}

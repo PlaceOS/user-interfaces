@@ -100,6 +100,7 @@ import { first } from 'rxjs/operators';
                                     {{ 'FORM.TIME_START' | translate
                                     }}<span>*</span>
                                 </label>
+                                {{}}
                                 <a-time-field
                                     name="start-time"
                                     [ngModel]="form().getRawValue().date"
@@ -161,16 +162,16 @@ import { first } from 'rxjs/operators';
     `,
     imports: [
         CommonModule,
+        FormsModule,
+        ReactiveFormsModule,
         TranslatePipe,
         LockerListFieldComponent,
-        DurationFieldComponent,
-        TimeFieldComponent,
         DateFieldComponent,
-        MatCheckboxModule,
+        TimeFieldComponent,
+        DurationFieldComponent,
         MatFormFieldModule,
+        MatCheckboxModule,
         MatSelectModule,
-        ReactiveFormsModule,
-        FormsModule,
     ],
 })
 export class LockerFormDetailsComponent

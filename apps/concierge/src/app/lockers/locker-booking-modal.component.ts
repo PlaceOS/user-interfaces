@@ -1,5 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import {
     MAT_DIALOG_DATA,
@@ -160,6 +160,7 @@ import { combineLatest } from 'rxjs';
     `,
     styles: [``],
     imports: [
+        TranslatePipe,
         FullscreenModalShellComponent,
         LockerListFieldComponent,
         DurationFieldComponent,
@@ -169,8 +170,8 @@ import { combineLatest } from 'rxjs';
         MatFormFieldModule,
         MatInputModule,
         UserSearchFieldComponent,
-        TranslatePipe,
         ReactiveFormsModule,
+        FormsModule,
     ],
 })
 export class LockerBookingModalComponent

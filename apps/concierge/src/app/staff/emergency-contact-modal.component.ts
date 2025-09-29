@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject, signal, viewChild } from '@angular/core';
 import {
     FormControl,
@@ -189,9 +190,10 @@ import { EmergencyContact } from './emergency-contacts.component';
     `,
     styles: [``],
     imports: [
-        MatDialogModule,
-        IconComponent,
+        CommonModule,
         TranslatePipe,
+        IconComponent,
+        MatDialogModule,
         MatFormFieldModule,
         MatInputModule,
         MatSelectModule,

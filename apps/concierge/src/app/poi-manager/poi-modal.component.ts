@@ -28,7 +28,11 @@ import {
     SettingsService,
     updateShortURL,
 } from '@placeos/common';
-import { SettingsToggleComponent, TranslatePipe } from '@placeos/components';
+import {
+    IconComponent,
+    SettingsToggleComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
 import { FullscreenModalShellComponent } from 'libs/components/src/lib/fullscreen-modal-shell.component';
 import { ImageFieldComponent } from 'libs/form-fields/src/lib/image-field.component';
@@ -270,9 +274,10 @@ import { PointOfInterest } from './poi-management.service';
     styles: [``],
     imports: [
         CommonModule,
+        TranslatePipe,
+        IconComponent,
         FullscreenModalShellComponent,
         ReactiveFormsModule,
-        TranslatePipe,
         ImageFieldComponent,
         MatRippleModule,
         MatFormFieldModule,

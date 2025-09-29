@@ -15,6 +15,7 @@ import {
 } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSliderModule } from '@angular/material/slider';
 import { notifyError, padLength } from '@placeos/common';
@@ -372,19 +373,20 @@ import { SignageStateService } from './signage-state.service';
     `,
     styles: [``],
     imports: [
+        TranslatePipe,
         FullscreenModalShellComponent,
         SettingsToggleComponent,
         DurationFieldComponent,
         ReactiveFormsModule,
         CronInputFieldComponent,
-        TranslatePipe,
         TimeFieldComponent,
         DateFieldComponent,
         MatFormFieldModule,
         MatSelectModule,
+        MatInputModule,
+        MatSliderModule,
         FormsModule,
         MediaDurationPipe,
-        MatSliderModule,
     ],
 })
 export class SignagePlaylistModalComponent implements OnInit {

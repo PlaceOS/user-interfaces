@@ -15,6 +15,7 @@ import {
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     Desk,
     DialogEvent,
@@ -24,8 +25,14 @@ import {
     unique,
     User,
 } from '@placeos/common';
-import { TranslatePipe } from '@placeos/components';
+import {
+    IconComponent,
+    SettingsToggleComponent,
+    TranslatePipe,
+} from '@placeos/components';
+import { UserSearchFieldComponent } from '@placeos/form-fields';
 import { showStaff } from '@placeos/users';
+import { ItemListFieldComponent } from 'libs/form-fields/src/lib/item-list-field.component';
 import { lastValueFrom } from 'rxjs';
 import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.component';
 
@@ -74,7 +81,7 @@ const CHARS = '0123456789ABCDEF';
                             }}</mat-error>
                         </mat-form-field>
                     </div>
-                    <div class="flex space-x-4">
+                    <div class="flex space-x-2">
                         <div class="w-1/3 flex-1">
                             <label for="name">
                                 {{ 'APP.CONCIERGE.DESKS_NAME' | translate }}
@@ -227,12 +234,17 @@ const CHARS = '0123456789ABCDEF';
     styles: [``],
     imports: [
         MatDialogModule,
-        MatRippleModule,
         TranslatePipe,
+        IconComponent,
+        MatRippleModule,
         MatFormFieldModule,
         MatInputModule,
         ReactiveFormsModule,
         MatProgressSpinnerModule,
+        ItemListFieldComponent,
+        SettingsToggleComponent,
+        UserSearchFieldComponent,
+        MatTooltipModule,
     ],
 })
 export class DeskModalComponent implements OnInit {

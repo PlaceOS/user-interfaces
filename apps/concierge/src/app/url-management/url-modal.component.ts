@@ -74,11 +74,12 @@ import { FullscreenModalShellComponent } from 'libs/components/src/lib/fullscree
                         <rich-text-input
                             name="description"
                             formControlName="description"
+                            placeholder="URL description..."
                         ></rich-text-input>
                     </div>
                 }
                 @if (form.controls.enabled) {
-                    <div class="item-center flex space-x-4 pb-4">
+                    <div class="item-center flex space-x-4 py-4">
                         <settings-toggle
                             class="flex-1"
                             [name]="'APP.CONCIERGE.URLS_ENABLED' | translate"

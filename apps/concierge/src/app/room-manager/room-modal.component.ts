@@ -11,6 +11,7 @@ import {
 } from '@placeos/ts-client';
 import { map } from 'rxjs/operators';
 
+import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import {
@@ -34,7 +35,11 @@ import {
     notifyWarn,
     unique,
 } from '@placeos/common';
-import { SettingsToggleComponent, TranslatePipe } from '@placeos/components';
+import {
+    IconComponent,
+    SettingsToggleComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { generateSystemsFormFields } from '@placeos/events';
 import {
     CounterComponent,
@@ -405,6 +410,9 @@ import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.compone
         `,
     ],
     imports: [
+        CommonModule,
+        TranslatePipe,
+        IconComponent,
         FullscreenModalShellComponent,
         ImageListFieldComponent,
         ReactiveFormsModule,
@@ -416,7 +424,6 @@ import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.compone
         SettingsToggleComponent,
         MatSelectModule,
         DurationFieldComponent,
-        TranslatePipe,
         MatTooltipModule,
     ],
 })

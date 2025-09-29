@@ -6,7 +6,7 @@ import { CommonModule } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialogModule } from '@angular/material/dialog';
 import { generateQRCode } from '@placeos/common';
-import { IconComponent, TranslatePipe } from '@placeos/components';
+import { IconComponent, SafePipe, TranslatePipe } from '@placeos/components';
 import { map } from 'rxjs/operators';
 
 @Component({
@@ -55,6 +55,7 @@ import { map } from 'rxjs/operators';
         MatRippleModule,
         TranslatePipe,
         IconComponent,
+        SafePipe,
     ],
 })
 export class DeskQrCodeModalComponent {
