@@ -266,7 +266,8 @@
         "VISIBILITY_PERSONAL": "Personal",
         "VISIBILITY_PUBLIC": "Public",
         "VISIBILITY_PRIVATE": "Private",
-        "VISIBILITY_CONFIDENTIAL": "Confidential"
+        "VISIBILITY_CONFIDENTIAL": "Confidential",
+        "ITEM_PRICE": "Price"
     },
     "LANGUAGE": {
         "ENGLISH": "English",

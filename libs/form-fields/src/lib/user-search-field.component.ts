@@ -41,7 +41,11 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
     selector: 'a-user-search-field',
     template: `
         <div class="flex w-full space-x-2">
-            <mat-form-field appearance="outline" class="w-1/2 flex-1">
+            <mat-form-field
+                appearance="outline"
+                class="w-1/2 flex-1"
+                [class.no-subscript]="!error()"
+            >
                 <icon
                     matPrefix
                     class="block flex w-6 items-center justify-center text-2xl"

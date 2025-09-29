@@ -3,7 +3,11 @@ import { downloadFile, jsonToCsv, nextValueFrom } from '@placeos/common';
 import { format } from 'date-fns';
 
 import { CommonModule } from '@angular/common';
-import { SimpleTableComponent, TranslatePipe } from '@placeos/components';
+import {
+    IconComponent,
+    SimpleTableComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { ReportsStateService } from '../reports-state.service';
 
 @Component({
@@ -72,7 +76,7 @@ import { ReportsStateService } from '../reports-state.service';
             </div>
         </div>
     `,
-    imports: [CommonModule, TranslatePipe, SimpleTableComponent],
+    imports: [CommonModule, TranslatePipe, IconComponent, SimpleTableComponent],
 })
 export class ReportSpacesOverallListComponent {
     private _state = inject(ReportsStateService);

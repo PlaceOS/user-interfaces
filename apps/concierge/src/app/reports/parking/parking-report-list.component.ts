@@ -1,7 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, input } from '@angular/core';
 import { downloadFile, i18n, jsonToCsv, nextValueFrom } from '@placeos/common';
-import { SimpleTableComponent, TranslatePipe } from '@placeos/components';
+import {
+    IconComponent,
+    SimpleTableComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { format } from 'date-fns';
 import { DurationPipe } from 'libs/components/src/lib/duration.pipe';
 import { map } from 'rxjs/operators';
@@ -82,7 +86,13 @@ import { ParkingReportService } from './parking-report.service';
         </div>
     `,
     styles: [``],
-    imports: [CommonModule, SimpleTableComponent, DurationPipe, TranslatePipe],
+    imports: [
+        CommonModule,
+        SimpleTableComponent,
+        DurationPipe,
+        TranslatePipe,
+        IconComponent,
+    ],
 })
 export class ParkingReportListComponent {
     private _state = inject(ParkingReportService);

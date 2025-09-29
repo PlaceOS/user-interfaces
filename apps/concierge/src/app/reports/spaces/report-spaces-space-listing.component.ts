@@ -9,7 +9,11 @@ import {
     Space,
     unique,
 } from '@placeos/common';
-import { SimpleTableComponent, TranslatePipe } from '@placeos/components';
+import {
+    IconComponent,
+    SimpleTableComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { SpacePipe } from '@placeos/events';
 import { differenceInDays } from 'date-fns';
 import { combineLatest } from 'rxjs';
@@ -108,6 +112,7 @@ import { ReportsStateService } from '../reports-state.service';
         CommonModule,
         SimpleTableComponent,
         TranslatePipe,
+        IconComponent,
         MatRippleModule,
         MatTooltipModule,
     ],
