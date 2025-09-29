@@ -22,7 +22,6 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { environment } from '../environments/environment';
 import { AppRoutingModule } from './app-routing.module';
-import { UIModule } from './ui/ui.module';
 
 import * as Sentry from '@sentry/angular';
 
@@ -48,7 +47,6 @@ import { AppComponent } from './app.component';
         AppRoutingModule,
         MatSnackBarModule,
         BrowserAnimationsModule,
-        UIModule,
         GlobalLoadingComponent,
         GlobalBannerComponent,
         ServiceWorkerModule.register('ngsw-worker.js', {

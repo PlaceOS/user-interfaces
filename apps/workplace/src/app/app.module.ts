@@ -25,6 +25,10 @@ import { AppRoutingModule } from './app-routing.module';
 
 import * as Sentry from '@sentry/angular';
 
+import {
+    GlobalBannerComponent,
+    GlobalLoadingComponent,
+} from '@placeos/components';
 import { AppComponent } from './app.component';
 
 @NgModule({
@@ -35,6 +39,8 @@ import { AppComponent } from './app.component';
         BrowserAnimationsModule,
         AppRoutingModule,
         MatSnackBarModule,
+        GlobalLoadingComponent,
+        GlobalBannerComponent,
         ServiceWorkerModule.register('ngsw-worker.js', {
             enabled: environment.production,
         }),

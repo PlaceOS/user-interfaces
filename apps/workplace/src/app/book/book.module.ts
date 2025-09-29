@@ -6,27 +6,9 @@ import { CodeFlowErrorComponent } from './code-flow-error.component';
 import { CodeFlowSuccessComponent } from './code-flow-success.component';
 import { BookCodeFlowComponent } from './code-flow.component';
 import { NewDeskFlowComponent } from './desk-flow.component';
-import { NewDeskFlowConfirmComponent } from './desk-flow/desk-flow-confirm.component';
-import { NewDeskFlowFormComponent } from './desk-flow/desk-flow-form.component';
-import { NewDeskFlowSuccessComponent } from './desk-flow/desk-flow-success.component';
-import { NewDeskFormDetailsComponent } from './desk-flow/desk-form-details.component';
-import { FlowSuccessComponent } from './flow-success.component';
 import { BookLockerFlowComponent } from './locker-flow.component';
-import { BookLockerFlowConfirmComponent } from './locker-flow/locker-flow-confirm.component';
-import { BookLockerFlowFormComponent } from './locker-flow/locker-flow-form.component';
-import { BookLockerFlowSuccessComponent } from './locker-flow/locker-flow-success.component';
-import { LockerFormDetailsComponent } from './locker-flow/locker-form-details.component';
 import { BookMeetingFlowComponent } from './meeting-flow.component';
-import { MeetingFlowConfirmModalComponent } from './meeting-flow/meeting-flow-confirm-modal.component';
-import { MeetingFlowConfirmComponent } from './meeting-flow/meeting-flow-confirm.component';
-import { MeetingFlowFormComponent } from './meeting-flow/meeting-flow-form.component';
-import { MeetingFlowSuccessComponent } from './meeting-flow/meeting-flow-success.component';
-import { MeetingFormDetailsComponent } from './meeting-flow/meeting-form-details.component';
 import { NewParkingFlowComponent } from './parking-flow.component';
-import { NewParkingFlowConfirmComponent } from './parking-flow/parking-flow-confirm.component';
-import { ParkingFlowFormComponent } from './parking-flow/parking-flow-form.component';
-import { ParkingFlowSuccessComponent } from './parking-flow/parking-flow-success.component';
-import { ParkingFormDetailsComponent } from './parking-flow/parking-form-details.component';
 import { VisitorFlowComponent } from './visitor-flow.component';
 
 const ROUTES: Route[] = [
@@ -56,35 +38,15 @@ const ROUTES: Route[] = [
 
 const STANDALONE_COMPONENTS = [
     BookComponent,
-    BookCodeFlowComponent,
     CodeFlowSuccessComponent,
     CodeFlowErrorComponent,
-    FlowSuccessComponent,
+
+    BookCodeFlowComponent,
     BookMeetingFlowComponent,
-    MeetingFlowFormComponent,
-    MeetingFormDetailsComponent,
-    MeetingFlowConfirmModalComponent,
-    MeetingFlowSuccessComponent,
-    MeetingFlowConfirmComponent,
-
-    NewDeskFlowFormComponent,
-    NewDeskFormDetailsComponent,
     NewDeskFlowComponent,
-    NewDeskFlowConfirmComponent,
-    NewDeskFlowSuccessComponent,
     VisitorFlowComponent,
-
     NewParkingFlowComponent,
-    ParkingFlowFormComponent,
-    NewParkingFlowConfirmComponent,
-    ParkingFlowSuccessComponent,
-    ParkingFormDetailsComponent,
-
     BookLockerFlowComponent,
-    BookLockerFlowFormComponent,
-    BookLockerFlowConfirmComponent,
-    BookLockerFlowSuccessComponent,
-    LockerFormDetailsComponent,
 ];
 
 @NgModule({

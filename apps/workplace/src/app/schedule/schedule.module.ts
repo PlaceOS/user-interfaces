@@ -7,10 +7,8 @@ const ROUTES: Route[] = [
     { path: '**', redirectTo: '' },
 ];
 
-const COMPONENTS = [ScheduleComponent];
-
 @NgModule({
     declarations: [],
-    imports: [...COMPONENTS, RouterModule.forChild(ROUTES)],
+    imports: [ScheduleComponent, RouterModule.forChild(ROUTES)],
 })
 export class AppScheduleModule {}

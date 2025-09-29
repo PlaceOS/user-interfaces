@@ -19,6 +19,7 @@ import {
     LevelPipe,
     TranslatePipe,
 } from '@placeos/components';
+import { SpacePipe } from '@placeos/events';
 import { EventsStateService } from './events-state.service';
 
 @Component({
@@ -57,7 +58,7 @@ import { EventsStateService } from './events-state.service';
                     }}
                 </h3>
             </div>
-            <div class="relative -mt-px border-b border-base-200">
+            <div class="relative -mt-px border-b border-base-300">
                 <input
                     type="text"
                     [placeholder]="'COMMON.SEARCH' | translate"
@@ -71,7 +72,7 @@ import { EventsStateService } from './events-state.service';
                     search
                 </icon>
             </div>
-            <div class="flex-1 space-y-2 overflow-auto p-3">
+            <div class="flex-1 space-y-2 overflow-auto bg-base-200 p-3">
                 @if (!(filtered_pending | async)?.length) {
                     <div
                         class="flex h-full w-full flex-col items-center justify-center space-y-2"
@@ -86,7 +87,7 @@ import { EventsStateService } from './events-state.service';
                 }
                 @for (event of filtered_pending | async; track event) {
                     <div
-                        class="relative w-full rounded border border-base-300 p-2"
+                        class="relative w-full rounded-lg border border-base-300 bg-base-100 p-2"
                     >
                         @if (event.recurring_event_id) {
                             <div
@@ -161,7 +162,7 @@ import { EventsStateService } from './events-state.service';
                             <button
                                 btn
                                 matRipple
-                                class="flex flex-1 items-center space-x-2 border-success bg-success-light text-black"
+                                class="flex min-w-0 flex-1 items-center space-x-2 border-success bg-success-light text-black"
                                 [disabled]="status[event.id] === 'accept'"
                                 (click)="approve(event)"
                             >
@@ -178,7 +179,7 @@ import { EventsStateService } from './events-state.service';
                             <button
                                 btn
                                 matRipple
-                                class="flex flex-1 items-center space-x-2 border-error bg-error-light text-black"
+                                class="flex min-w-0 flex-1 items-center space-x-2 border-error bg-error-light text-black"
                                 [disabled]="status[event.id] === 'decline'"
                                 (click)="reject(event)"
                             >
@@ -239,6 +240,7 @@ import { EventsStateService } from './events-state.service';
         IconComponent,
         BuildingPipe,
         LevelPipe,
+        SpacePipe,
         FormsModule,
         MatProgressSpinnerModule,
         AuthenticatedImageDirective,
