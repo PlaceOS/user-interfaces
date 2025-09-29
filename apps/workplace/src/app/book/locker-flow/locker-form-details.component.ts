@@ -100,7 +100,6 @@ import { first } from 'rxjs/operators';
                                     {{ 'FORM.TIME_START' | translate
                                     }}<span>*</span>
                                 </label>
-                                {{}}
                                 <a-time-field
                                     name="start-time"
                                     [ngModel]="form().getRawValue().date"
@@ -146,7 +145,7 @@ import { first } from 'rxjs/operators';
                             <div
                                 class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
                             >
-                                {{ (options | async)?.group ? 3 : 2 }}
+                                {{ (options | async)?.group ? '3' : '2' }}
                             </div>
                             <div class="text-xl">
                                 {{ 'RESOURCE.LOCKER' | translate }}
@@ -162,9 +161,9 @@ import { first } from 'rxjs/operators';
     `,
     imports: [
         CommonModule,
+        TranslatePipe,
         FormsModule,
         ReactiveFormsModule,
-        TranslatePipe,
         LockerListFieldComponent,
         DateFieldComponent,
         TimeFieldComponent,
