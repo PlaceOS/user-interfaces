@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { getTimezoneOffsetString, SettingsService } from '@placeos/common';
 import { CalendarEvent } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
@@ -12,7 +12,7 @@ import { EventsStateService } from './events-state.service';
     template: `
         <div
             class="flex h-full w-[20rem] flex-col overflow-hidden border-l border-base-200"
-            [style.width]="show ? '' : '0px'"
+            [style.width]="show() ? '' : '0px'"
         >
             <div
                 class="relative flex items-center justify-center space-x-2 border-b border-base-200 p-2"
@@ -26,7 +26,7 @@ import { EventsStateService } from './events-state.service';
                         'APP.CONCIERGE.ROOMS_PENDING_HIDE' | translate
                     "
                     matTooltipPosition="left"
-                    (click)="show = !show"
+                    (click)="setShow(!show())"
                 >
                     <icon>chevron_right</icon>
                 </button>
@@ -148,12 +148,12 @@ import { EventsStateService } from './events-state.service';
                                 btn
                                 matRipple
                                 class="flex flex-1 items-center space-x-2 border-success bg-success-light text-black"
-                                [disabled]="status[event.id] === 'accept'"
+                                [disabled]="status()[event.id] === 'accept'"
                                 (click)="approve(event)"
                             >
                                 <div class="ml-2">
                                     {{
-                                        (status[event.id] === 'accept'
+                                        (status()[event.id] === 'accept'
                                             ? 'COMMON.APPROVED'
                                             : 'COMMON.APPROVE'
                                         ) | translate
@@ -165,12 +165,12 @@ import { EventsStateService } from './events-state.service';
                                 btn
                                 matRipple
                                 class="flex flex-1 items-center space-x-2 border-error bg-error-light text-black"
-                                [disabled]="status[event.id] === 'decline'"
+                                [disabled]="status()[event.id] === 'decline'"
                                 (click)="reject(event)"
                             >
                                 <div class="ml-2">
                                     {{
-                                        (status[event.id] === 'decline'
+                                        (status()[event.id] === 'decline'
                                             ? 'COMMON.DECLINED'
                                             : 'COMMON.DECLINE'
                                         ) | translate
@@ -178,11 +178,59 @@ import { EventsStateService } from './events-state.service';
                                 </div>
                                 <icon class="text-2xl text-error">close</icon>
                             </button>
+                            @if (event.recurring_event_id) {
+                                <button
+                                    icon
+                                    matRipple
+                                    class="h-12 w-12 rounded-md border border-base-300 bg-base-200"
+                                    [matMenuTriggerFor]="menu"
+                                >
+                                    <icon>more_vert</icon>
+                                </button>
+                                <mat-menu #menu="matMenu">
+                                    <button
+                                        mat-menu-item
+                                        (click)="approveSeries(event)"
+                                    >
+                                        <div
+                                            class="flex items-center space-x-2 pr-4"
+                                        >
+                                            <icon class="text-2xl text-success"
+                                                >done</icon
+                                            >
+                                            <div>
+                                                {{
+                                                    'APP.CONCIERGE.ROOMS_APPROVE_SERIES'
+                                                        | translate
+                                                }}
+                                            </div>
+                                        </div>
+                                    </button>
+                                    <button
+                                        mat-menu-item
+                                        (click)="rejectSeries(event)"
+                                    >
+                                        <div
+                                            class="flex items-center space-x-2 pr-4"
+                                        >
+                                            <icon class="text-2xl text-error"
+                                                >close</icon
+                                            >
+                                            <div>
+                                                {{
+                                                    'APP.CONCIERGE.ROOMS_REJECT_SERIES'
+                                                        | translate
+                                                }}
+                                            </div>
+                                        </div>
+                                    </button>
+                                </mat-menu>
+                            }
                         </div>
                     </div>
                 }
             </div>
-            @if (loading) {
+            @if (loading()) {
                 <div
                     class="absolute bottom-0 left-0 right-0 top-14 flex flex-col items-center justify-center space-y-2 p-2"
                 >
@@ -196,13 +244,13 @@ import { EventsStateService } from './events-state.service';
                 </div>
             }
         </div>
-        @if (!show) {
+        @if (!show()) {
             <button
                 btn
                 icon
                 matRipple
                 class="absolute -left-8 top-3 bg-warning text-warning-content shadow"
-                (click)="show = !show"
+                (click)="setShow(!show())"
                 [matTooltip]="'APP.CONCIERGE.ROOMS_PENDING_SHOW' | translate"
                 matTooltipPosition="left"
             >
@@ -221,14 +269,16 @@ import { EventsStateService } from './events-state.service';
     ],
     standalone: false,
 })
-export class RoomBookingsApprovalsComponent {
+export class RoomBookingsApprovalsComponent implements OnInit {
     private _state = inject(EventsStateService);
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
 
-    private _show = true;
-    public loading = false;
-    public status: Record<string, 'accept' | 'decline' | undefined> = {};
+    public readonly show = signal(true);
+    public readonly loading = signal(false);
+    public readonly status = signal<
+        Record<string, 'accept' | 'decline' | undefined>
+    >({});
     public readonly search = new BehaviorSubject('');
 
     public readonly pending = this._state.pending;
@@ -270,39 +320,76 @@ export class RoomBookingsApprovalsComponent {
         ),
     );
 
-    public set show(value: boolean) {
-        this._show = value;
+    public setShow(value: boolean) {
+        this.show.set(value);
         sessionStorage.setItem(
             'PlaceOS.Concierge.show_room_approvals',
             `${value}`,
         );
     }
 
-    public get show() {
-        return this._show;
-    }
-
     public ngOnInit() {
-        this._show =
+        this.show.set(
             sessionStorage.getItem('PlaceOS.Concierge.show_room_approvals') !==
-            'false';
+                'false',
+        );
     }
 
     public async approve(event: CalendarEvent) {
         const mod = this._org.module('approvals', 'RoomBookingApproval');
         if (!mod) return;
-        this.loading = true;
+        this.loading.set(true);
         await mod.execute('accept_event', [event.mailbox, event.id]).catch();
-        this.loading = false;
-        this.status[event.id] = 'accept';
+        this.loading.set(false);
+        this.status.update((s) => {
+            s[event.id] = 'accept';
+            return s;
+        });
+    }
+
+    public async approveSeries(event: CalendarEvent) {
+        const mod = this._org.module('approvals', 'RoomBookingApproval');
+        if (!mod) return;
+        this.loading.set(true);
+        await mod
+            .execute('accept_event_series', [
+                event.mailbox,
+                event.recurring_event_id || event.id,
+            ])
+            .catch();
+        this.loading.set(false);
+        this.status.update((s) => {
+            s[event.id] = 'accept';
+            return s;
+        });
     }
 
     public async reject(event: CalendarEvent) {
         const mod = this._org.module('approvals', 'RoomBookingApproval');
         if (!mod) return;
-        this.loading = true;
+        this.loading.set(true);
         await mod.execute('decline_event', [event.mailbox, event.id]).catch();
-        this.loading = false;
-        this.status[event.id] = 'decline';
+        this.loading.set(false);
+        this.status.update((s) => {
+            s[event.id] = 'decline';
+            return s;
+        });
+    }
+
+    public async rejectSeries(event: CalendarEvent) {
+        const mod = this._org.module('approvals', 'RoomBookingApproval');
+        if (!mod) return;
+        this.loading.set(true);
+        await mod
+            .execute('decline_event_series', [
+                event.mailbox,
+                event.recurring_event_id || event.id,
+            ])
+            .catch();
+        this.loading.set(false);
+        this.status.update((s) => {
+            s[event.id] = 'decline';
+            return s;
+        });
     }
 }
