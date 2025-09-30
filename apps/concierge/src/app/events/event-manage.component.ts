@@ -564,6 +564,10 @@ export class EventManageComponent extends AsyncHandler {
     }
 
     public async save() {
+        this.form.patchValue({
+            host_entity: '[MANAGEMENT]',
+            visitor_entity: '[MANAGEMENT]',
+        });
         this.form.markAllAsTouched();
         if (!this.form.valid) {
             return notifyError(
