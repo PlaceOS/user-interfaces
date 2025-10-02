@@ -8,6 +8,7 @@ import {
     notifySuccess,
     SettingsService,
 } from '@placeos/common';
+import { CustomTooltipData } from './custom-tooltip.component';
 import { TranslatePipe } from './translate.pipe';
 
 @Component({
@@ -43,6 +44,7 @@ import { TranslatePipe } from './translate.pipe';
 })
 export class UserParkingTooltipComponent implements OnInit {
     private _settings = inject(SettingsService);
+    private _tooltip = inject(CustomTooltipData, { optional: true });
 
     public readonly plate_number = signal('');
 
@@ -56,5 +58,6 @@ export class UserParkingTooltipComponent implements OnInit {
             this._settings.saveUserSetting('plate_number', this.plate_number());
         }
         notifySuccess(i18n('COMMON.PARKING_SETTINGS_SAVE'));
+        this._tooltip?.close();
     }
 }
