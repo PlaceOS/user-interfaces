@@ -20,6 +20,7 @@ import { VERSION } from 'libs/common/src/lib/version';
 import { SupportTicketModalComponent } from 'libs/form-fields/src/lib/support-ticket-modal.component';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { WFHSettingsModalComponent } from 'libs/users/src/lib/wfh-settings-modal.component';
+import { UserParkingTooltipComponent } from './user-parking-tooltip.component';
 
 export interface AppLocale {
     id: string;
@@ -31,7 +32,7 @@ export interface AppLocale {
     selector: 'user-controls',
     template: `
         <div
-            class="relative mt-1 flex flex-col divide-y divide-base-200 rounded bg-base-100 shadow"
+            class="relative mt-1 flex max-h-[90vh] flex-col divide-y divide-base-200 overflow-auto rounded border border-base-300 bg-base-100 shadow"
         >
             <div avatar class="flex w-[18rem] flex-col items-center p-2">
                 <a-user-avatar
@@ -270,6 +271,34 @@ export interface AppLocale {
             <ng-template #desk_height_tooltip>
                 <desk-height-presets></desk-height-presets>
             </ng-template>
+
+            @if (features.includes('parking')) {
+                <div
+                    customTooltip
+                    [content]="parking_tooltip"
+                    [class.!border-b]="!locales?.length"
+                >
+                    <button
+                        btn
+                        matRipple
+                        class="clear h-[3.5rem] w-full text-left"
+                    >
+                        <div class="flex w-full items-center space-x-2">
+                            <div
+                                class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
+                            >
+                                <icon>parking_sign</icon>
+                            </div>
+                            <div class="flex-1">
+                                {{ 'COMMON.CONTROLS_PARKING' | translate }}
+                            </div>
+                            <icon class="text-2xl opacity-60">
+                                chevron_right
+                            </icon>
+                        </div>
+                    </button>
+                </div>
+            }
             @if (locales?.length > 1) {
                 <div
                     customTooltip
@@ -385,6 +414,7 @@ export class UserControlsComponent implements OnInit {
     public readonly accessibility_tooltip = AccessibilityTooltipComponent;
     public readonly language_tooltip = LanguageSelectComponent;
     public readonly work_location_tooltip = WorkLocationTooltipComponent;
+    public readonly parking_tooltip = UserParkingTooltipComponent;
     public pref_locations = [];
     public work_prefs: WorktimePreference[] = [];
     public overrides: Record<string, WorktimePreference> = {};

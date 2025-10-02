@@ -136,6 +136,7 @@
         "CONTROLS_WORK_LOCATION": "Work Location",
         "CONTROLS_ACCESSIBILITY": "Display & Accessibility",
         "CONTROLS_DESKS": "Desk Settings",
+        "CONTROLS_PARKING": "Parking Settings",
         "CONTROLS_SUPPORT": "Raise a support ticket",
         "CONTROLS_SIGN_OUT": "Sign Out",
         "CONTROLS_NEW_VERSION": "New Version",
@@ -266,7 +267,8 @@
         "VISIBILITY_PERSONAL": "Personal",
         "VISIBILITY_PUBLIC": "Public",
         "VISIBILITY_PRIVATE": "Private",
-        "VISIBILITY_CONFIDENTIAL": "Confidential"
+        "VISIBILITY_CONFIDENTIAL": "Confidential",
+        "PARKING_SETTINGS_SAVE": "Successfully saved parking settings"
     },
     "LANGUAGE": {
         "ENGLISH": "English",

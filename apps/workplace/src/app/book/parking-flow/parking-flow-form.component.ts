@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { Router } from '@angular/router';
 import { BookingFormService, ParkingService } from '@placeos/bookings';
@@ -135,7 +135,7 @@ import { NewParkingFlowConfirmComponent } from './parking-flow-confirm.component
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
     standalone: false,
 })
-export class ParkingFlowFormComponent extends AsyncHandler {
+export class ParkingFlowFormComponent extends AsyncHandler implements OnInit {
     private _state = inject(BookingFormService);
     private _settings = inject(SettingsService);
     private _router = inject(Router);
@@ -156,7 +156,12 @@ export class ParkingFlowFormComponent extends AsyncHandler {
         this.form.patchValue({ user: currentUser() });
         const user = await nextValueFrom(this._parking.user_details);
         if (user?.email && !this.form.value.plate_number) {
-            this.form.patchValue({ plate_number: user.plate_number });
+            this.form.patchValue({
+                plate_number:
+                    this._settings.get('plate_number') ||
+                    user.plate_number ||
+                    '',
+            });
         }
     }
 
