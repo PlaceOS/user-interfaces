@@ -2081,6 +2081,18 @@
             "CHECKOUT_MSG": "You are currently checked in to the building. Would you like to check out?",
             "CHECKOUT_LOADING": "Checking out guest...",
             "CHECKOUT_SUCCESS": "Successfully checked out guest."
+        },
+        "STAGEHAND": {
+            "DASHBOARD_HEADER": "Alert Dashboards",
+            "DASHBOARD_ADD": "Add Dashboard",
+            "DASHBOARD_EDIT": "Edit Dashboard",
+            "DASHBOARD_NEW": "New Dashboard",
+            "DASHBOARD_REMOVE": "Remove Dashboard",
+            "DASHBOARD_REMOVE_HEADER": "Remove Dashboard",
+            "DASHBOARD_REMOVE_CONTENT": "Are you sure you want to remove the dashboard \"{{ name }}\"?",
+            "DASHBOARD_REMOVE_SUCCESS": "Successfully removed dashboard",
+            "DASHBOARD_MANAGE_ALERTS": "Manage Alerts",
+            "DASHBOARD_ALERTS_HEADER": "Dashboard Alerts"
         }
     }
 }

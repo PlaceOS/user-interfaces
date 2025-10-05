@@ -5,6 +5,12 @@ import { AnalyticsComponent } from './analytics.component';
 import { RemoteSupportComponent } from './remote-support.component';
 
 import { UnauthorisedComponent } from 'libs/components/src/lib/unauthorised.component';
+import { DashboardAlertListComponent } from './dashboards/dashboard-alert-list.component';
+import { DashboardAlertManageComponent } from './dashboards/dashboard-alert-manage.component';
+import { DashboardListComponent } from './dashboards/dashboard-list.component';
+import { DashboardManageComponent } from './dashboards/dashboard-mange.component';
+import { DashboardViewComponent } from './dashboards/dashboard-view.component';
+import { DashboardsComponent } from './dashboards/dashboards.component';
 
 const routes: Routes = [
     {
@@ -14,6 +20,22 @@ const routes: Routes = [
     { path: 'alerts', component: AlertsComponent },
     { path: 'remote-support', component: RemoteSupportComponent },
     { path: 'analytics', component: AnalyticsComponent },
+    {
+        path: 'dashboards',
+        component: DashboardsComponent,
+        children: [
+            { path: 'list', component: DashboardListComponent },
+            { path: ':id/alerts', component: DashboardAlertListComponent },
+            {
+                path: ':id/alerts/:alert_id',
+                component: DashboardAlertManageComponent,
+            },
+            { path: 'manage', component: DashboardManageComponent },
+            { path: 'manage/:id', component: DashboardManageComponent },
+            { path: 'view/:id', component: DashboardViewComponent },
+            { path: '**', redirectTo: 'list' },
+        ],
+    },
     { path: '**', redirectTo: 'alerts' },
 ];
 

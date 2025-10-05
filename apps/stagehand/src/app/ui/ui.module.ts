@@ -33,7 +33,7 @@ const MATERIAL_MODULES = [
     MatProgressSpinnerModule,
 ];
 
-const COMPONENTS = [SidebarComponent];
+const COMPONENTS = [];
 const STANDALONE_COMPONENTS = [
     GlobalLoadingComponent,
     GlobalBannerComponent,
@@ -44,6 +44,7 @@ const STANDALONE_COMPONENTS = [
     BindingDirective,
     LevelPipe,
     BuildingPipe,
+    SidebarComponent,
 ];
 
 @NgModule({
