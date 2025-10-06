@@ -1,8 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
-import { RouterModule } from '@angular/router';
+import { NavigationEnd, Router, RouterModule } from '@angular/router';
+import { AsyncHandler } from '@placeos/common';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { SidebarComponent } from '../ui/sidebar.component';
+import { DashboardsService } from './dashboards.service';
 
 @Component({
     selector: `stagehand-dashboards`,
@@ -11,13 +14,34 @@ import { SidebarComponent } from '../ui/sidebar.component';
             <sidebar />
             <div class="flex w-1/2 flex-1 flex-col">
                 <header
-                    class="flex h-[4.5rem] w-full items-center justify-between border-base-400 bg-base-100 p-4"
+                    class="flex h-[4.5rem] w-full items-center space-x-2 border-base-400 bg-base-100 p-4"
                 >
+                    @if (page() === 'alerts') {
+                        <a icon matRipple [routerLink]="['/dashboards']">
+                            <icon>arrow_back</icon>
+                        </a>
+                    }
                     <h1 class="text-2xl font-bold">
-                        {{ 'APP.STAGEHAND.DASHBOARD_HEADER' | translate }}
+                        {{
+                            (page() === 'alerts'
+                                ? 'APP.STAGEHAND.DASHBOARD_ALERTS_HEADER'
+                                : 'APP.STAGEHAND.DASHBOARD_HEADER'
+                            ) | translate
+                        }}
                     </h1>
-                    <a btn matRipple [routerLink]="['/dashboards', 'manage']">{{
-                        'APP.STAGEHAND.DASHBOARD_ADD' | translate
+                    @if (page() === 'alerts') {
+                        <div
+                            class="rounded bg-base-200 px-2 py-1 text-sm font-medium"
+                        >
+                            {{ dashboard()?.name }}
+                        </div>
+                    }
+                    <div class="w-px flex-1"></div>
+                    <a btn matRipple class="w-40" [routerLink]="new_route()">{{
+                        (page() === 'alerts'
+                            ? 'APP.STAGEHAND.DASHBOARD_ALERTS_ADD'
+                            : 'APP.STAGEHAND.DASHBOARD_ADD'
+                        ) | translate
                     }}</a>
                 </header>
                 <main class="w-full flex-1 overflow-auto">
@@ -27,6 +51,48 @@ import { SidebarComponent } from '../ui/sidebar.component';
         </div>
     `,
     styles: [],
-    imports: [SidebarComponent, MatRippleModule, RouterModule, TranslatePipe],
+    imports: [
+        SidebarComponent,
+        MatRippleModule,
+        RouterModule,
+        TranslatePipe,
+        IconComponent,
+    ],
 })
-export class DashboardsComponent {}
+export class DashboardsComponent extends AsyncHandler implements OnInit {
+    private _router = inject(Router);
+    private _service = inject(DashboardsService);
+
+    public readonly page = signal('');
+    public readonly new_route = computed(() =>
+        this.page() === 'alerts'
+            ? ['/dashboards', this.dashboard()?.id, 'alerts', 'manage']
+            : ['/dashboards', 'manage'],
+    );
+    public readonly dashboard = this._service.dashboard;
+
+    public ngOnInit() {
+        this.subscription(
+            'router.events',
+            this._router.events.subscribe((e) => {
+                if (e instanceof NavigationEnd) this._updatePage();
+            }),
+        );
+        this._updatePage();
+    }
+
+    private _updatePage() {
+        this.timeout(
+            'page',
+            () => {
+                console.log('Route:', this._router.url);
+                this.page.set(
+                    this._router.url.includes('/alerts')
+                        ? 'alerts'
+                        : 'dashboards',
+                );
+            },
+            300,
+        );
+    }
+}

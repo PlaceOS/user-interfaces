@@ -27,7 +27,11 @@ const routes: Routes = [
             { path: 'list', component: DashboardListComponent },
             { path: ':id/alerts', component: DashboardAlertListComponent },
             {
-                path: ':id/alerts/:alert_id',
+                path: ':id/alerts/manage',
+                component: DashboardAlertManageComponent,
+            },
+            {
+                path: ':id/alerts/manage/:alert_id',
                 component: DashboardAlertManageComponent,
             },
             { path: 'manage', component: DashboardManageComponent },

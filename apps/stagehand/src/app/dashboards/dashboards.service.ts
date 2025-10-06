@@ -6,6 +6,7 @@ import {
     PlaceAlert,
     PlaceAlertDashboard,
     queryAlertDashboards,
+    removeAlert,
     removeAlertDashboard,
     showAlert,
     showAlertDashboard,
@@ -33,10 +34,14 @@ export class DashboardsService {
     }
 
     public async setDashboard(id: string) {
+        if (!id) {
+            this.dashboard.set(null);
+            this.alerts_list.set([]);
+            return;
+        }
         this.loading.update((l) => [...l, 'DASHBOARD']);
         const dashboard = await lastValueFrom(showAlertDashboard(id));
         this.dashboard.set(dashboard);
-        this.alerts_list.set([]);
         this._loadDashboardAlerts();
         this.loading.update((l) => l.filter((i) => i !== 'DASHBOARD'));
     }
@@ -62,8 +67,30 @@ export class DashboardsService {
             this._dialog,
         );
         if (result.reason !== 'done') return;
-        await removeAlertDashboard(dashboard.id);
+        result.loading('Removing dashboard...');
+        await lastValueFrom(removeAlertDashboard(dashboard.id));
+        result.close();
         notifySuccess(i18n('APP.STAGEHAND.DASHBOARD_REMOVE_SUCCESS'));
+        this.loadDashboards();
+    }
+
+    public async removeDashboardAlert(alert: PlaceAlert) {
+        const result = await openConfirmModal(
+            {
+                title: i18n('APP.STAGEHAND.DASHBOARD_ALERTS_REMOVE_HEADER'),
+                content: i18n('APP.STAGEHAND.DASHBOARD_ALERTS_REMOVE_CONTENT', {
+                    name: alert.name,
+                }),
+                icon: { content: 'delete' },
+            },
+            this._dialog,
+        );
+        if (result.reason !== 'done') return;
+        result.loading('Removing dashboard alert...');
+        await lastValueFrom(removeAlert(alert.id));
+        result.close();
+        notifySuccess(i18n('APP.STAGEHAND.DASHBOARD_ALERTS_REMOVE_SUCCESS'));
+        this._loadDashboardAlerts();
     }
 
     private async _loadDashboardAlerts() {
