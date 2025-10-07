@@ -78882,15 +78882,15 @@ var DEFAULT_SETTINGS = {
 // libs/common/src/lib/version.ts
 var VERSION8 = {
   "dirty": false,
-  "raw": "0d53714",
-  "hash": "0d53714",
+  "raw": "e80d833",
+  "hash": "e80d833",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "0d53714",
+  "suffix": "e80d833",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1759227334827
+  "time": 1759851154191
 };
 
 // libs/users/src/lib/user.utilities.ts
@@ -137670,6 +137670,8 @@ var _ExploreBookingModalComponent = class _ExploreBookingModalComponent {
   ngOnInit() {
     this._event_form.newForm();
     this.form.patchValue({
+      host_entity: "[AD-HOC]",
+      visitor_entity: "[AD-HOC]",
       resources: [this._data.space],
       host: currentUser2().email,
       organiser: currentUser2()
