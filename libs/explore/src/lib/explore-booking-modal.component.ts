@@ -162,6 +162,8 @@ export class ExploreBookingModalComponent implements OnInit {
     public ngOnInit() {
         this._event_form.newForm();
         this.form.patchValue({
+            host_entity: '[AD-HOC]',
+            visitor_entity: '[AD-HOC]',
             resources: [this._data.space],
             host: currentUser().email,
             organiser: currentUser(),
