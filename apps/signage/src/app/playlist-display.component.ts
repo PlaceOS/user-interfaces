@@ -49,7 +49,7 @@ import { MediaPlayerItem } from './types';
                                 [class.!bg-error]="!is_valid"
                                 [class.!text-error-content]="!is_valid"
                                 [matTooltip]="validateMedia(item)"
-                                matTooltipPosition="right"
+                                matTooltipPosition="left"
                             >
                                 <div
                                     class="relative flex h-7 w-7 items-center justify-center"
