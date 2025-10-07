@@ -24,7 +24,7 @@ export const FAV_DESK_KEY = 'favourite_desks';
     selector: 'new-desk-select-modal',
     template: `
         <div
-            class="flex h-screen w-screen flex-col space-y-2 overflow-hidden bg-base-100 p-2 sm:h-auto sm:w-auto"
+            class="mb-12 flex h-[calc(100vh-3rem)] w-screen flex-col space-y-2 overflow-hidden bg-base-100 p-2 sm:m-0 sm:h-auto sm:w-auto"
             [style.height]="is_safari ? 'calc(100vh - 80px)' : ''"
         >
             <header
