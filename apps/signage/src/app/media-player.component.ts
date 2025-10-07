@@ -377,6 +377,7 @@ export class MediaPlayerComponent
                 5000,
             );
         }
+        this.clearTimeout('retry_set_item');
         const old_index = this.index();
         this.index.set(index);
         this.indexChange.emit(index);
