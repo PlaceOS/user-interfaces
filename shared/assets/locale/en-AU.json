@@ -982,7 +982,7 @@
             "MENU_REPORT_VISITORS": "Visitor Bookings",
             "TIMEZONE_DIFF": "Timezone of the building is displayed and is different from your local timezone.",
             "ROOM_BOOKINGS": "Room Bookings",
-            "SETUP_BREAKDOWN": "Setup / Breakdown",
+            "SETUP_BREAKDOWN": "Setup & Breakdown",
             "NEW_BOOKING": "New Booking",
             "BOOKING_REMOVE_TITLE": "Delete booking",
             "BOOKING_REMOVE_MSG": "Delete the booking for {{ name }} at {{ time }}?",
