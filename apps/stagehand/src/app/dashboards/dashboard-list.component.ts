@@ -92,6 +92,20 @@ import { DashboardsService } from './dashboards.service';
                         </a>
                         <a
                             mat-menu-item
+                            [routerLink]="['/dashboards', 'view', dashboard.id]"
+                        >
+                            <div class="flex items-center space-x-2 pr-4">
+                                <icon class="text-xl">visibility</icon>
+                                <div>
+                                    {{
+                                        'APP.STAGEHAND.DASHBOARD_VIEW'
+                                            | translate
+                                    }}
+                                </div>
+                            </div>
+                        </a>
+                        <a
+                            mat-menu-item
                             [routerLink]="[
                                 '/dashboards',
                                 'manage',

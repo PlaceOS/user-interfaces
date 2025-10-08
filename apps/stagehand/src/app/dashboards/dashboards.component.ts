@@ -1,5 +1,6 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -16,8 +17,16 @@ import { DashboardsService } from './dashboards.service';
                 <header
                     class="flex h-[4.5rem] w-full items-center space-x-2 border-base-400 bg-base-100 p-4"
                 >
-                    @if (page() === 'alerts') {
-                        <a icon matRipple [routerLink]="['/dashboards']">
+                    @if (page() === 'alerts' || page() === 'view') {
+                        <a
+                            icon
+                            matRipple
+                            [routerLink]="['/dashboards']"
+                            [matTooltip]="
+                                'APP.STAGEHAND.DASHBOARD_BACK' | translate
+                            "
+                            matTooltipPosition="right"
+                        >
                             <icon>arrow_back</icon>
                         </a>
                     }
@@ -25,7 +34,9 @@ import { DashboardsService } from './dashboards.service';
                         {{
                             (page() === 'alerts'
                                 ? 'APP.STAGEHAND.DASHBOARD_ALERTS_HEADER'
-                                : 'APP.STAGEHAND.DASHBOARD_HEADER'
+                                : page() === 'view'
+                                  ? dashboard()?.name
+                                  : 'APP.STAGEHAND.DASHBOARD_HEADER'
                             ) | translate
                         }}
                     </h1>
@@ -37,12 +48,20 @@ import { DashboardsService } from './dashboards.service';
                         </div>
                     }
                     <div class="w-px flex-1"></div>
-                    <a btn matRipple class="w-40" [routerLink]="new_route()">{{
-                        (page() === 'alerts'
-                            ? 'APP.STAGEHAND.DASHBOARD_ALERTS_ADD'
-                            : 'APP.STAGEHAND.DASHBOARD_ADD'
-                        ) | translate
-                    }}</a>
+                    @if (page() !== 'view') {
+                        <a
+                            btn
+                            matRipple
+                            class="w-40"
+                            [routerLink]="new_route()"
+                            >{{
+                                (page() === 'alerts'
+                                    ? 'APP.STAGEHAND.DASHBOARD_ALERTS_ADD'
+                                    : 'APP.STAGEHAND.DASHBOARD_ADD'
+                                ) | translate
+                            }}</a
+                        >
+                    }
                 </header>
                 <main class="w-full flex-1 overflow-auto">
                     <router-outlet />
@@ -57,6 +76,7 @@ import { DashboardsService } from './dashboards.service';
         RouterModule,
         TranslatePipe,
         IconComponent,
+        MatTooltipModule,
     ],
 })
 export class DashboardsComponent extends AsyncHandler implements OnInit {
@@ -89,10 +109,12 @@ export class DashboardsComponent extends AsyncHandler implements OnInit {
                 this.page.set(
                     this._router.url.includes('/alerts')
                         ? 'alerts'
-                        : 'dashboards',
+                        : this._router.url.includes('/view')
+                          ? 'view'
+                          : 'dashboards',
                 );
             },
-            300,
+            50,
         );
     }
 }

@@ -2092,6 +2092,8 @@
             "DASHBOARD_ADD": "Add Dashboard",
             "DASHBOARD_EDIT": "Edit Dashboard",
             "DASHBOARD_NEW": "New Dashboard",
+            "DASHBOARD_VIEW": "View Dashboard",
+            "DASHBOARD_BACK": "Back to Dashboards",
             "DASHBOARD_REMOVE": "Remove Dashboard",
             "DASHBOARD_REMOVE_HEADER": "Remove Dashboard",
             "DASHBOARD_REMOVE_CONTENT": "Are you sure you want to remove the dashboard \"{{ name }}\"?",
