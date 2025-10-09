@@ -353,7 +353,8 @@ import { SignageStateService } from './signage-state.service';
     standalone: false,
 })
 export class SignagePlaylistModalComponent implements OnInit {
-    private _data = inject<SignagePlaylist>(MAT_DIALOG_DATA) ?? ({} as any);
+    private _data: SignagePlaylist =
+        inject(MAT_DIALOG_DATA) ?? new SignagePlaylist({});
     private _state = inject(SignageStateService);
     private _dialog_ref =
         inject<MatDialogRef<SignagePlaylistModalComponent>>(MatDialogRef);
@@ -371,25 +372,19 @@ export class SignagePlaylistModalComponent implements OnInit {
         id: new FormControl(this.playlist.id || ''),
         name: new FormControl(this.playlist.name || '', [Validators.required]),
         description: new FormControl(this.playlist.description || ''),
-        default_animation: new FormControl<MediaAnimation>(
-            this.playlist.default_animation || MediaAnimation.Cut,
-        ),
-        orientation: new FormControl(
-            this.playlist.orientation || 'unspecified',
-        ),
-        enabled: new FormControl(this.playlist.enabled),
-        random: new FormControl(this.playlist.random),
-        default_duration: new FormControl(
-            Math.max(this.playlist.default_duration || 15 * 1000, 5000),
-        ),
-        valid_from: new FormControl(this.playlist.valid_from * 1000),
-        valid_until: new FormControl(this.playlist.valid_until * 1000),
-        play_hours: new FormControl(this.playlist.play_hours || '00:00-00:00'),
+        default_animation: new FormControl<MediaAnimation>(MediaAnimation.Cut),
+        orientation: new FormControl('unspecified'),
+        enabled: new FormControl(true),
+        random: new FormControl(false),
+        default_duration: new FormControl(15 * 1000),
+        valid_from: new FormControl(0),
+        valid_until: new FormControl(0),
+        play_hours: new FormControl('00:00-00:00'),
         play_duration: new FormControl(0),
         play_from: new FormControl(0),
         play_until: new FormControl(0),
         play_once: new FormControl(false),
-        play_at: new FormControl(this.playlist.play_at * 1000 || Date.now()),
+        play_at: new FormControl(Date.now()),
         play_cron: new FormControl('* * * * *'),
     });
 
@@ -401,7 +396,7 @@ export class SignagePlaylistModalComponent implements OnInit {
             ...this.playlist,
             valid_from: this.playlist.valid_from * 1000,
             valid_until: this.playlist.valid_until * 1000,
-        });
+        } as any);
         const { play_hours, play_at, play_cron } = this.form.value;
         let [from, to] = (play_hours || '').split('-');
         if (!from) from = '00:00';
@@ -435,6 +430,8 @@ export class SignagePlaylistModalComponent implements OnInit {
                     ? 'between'
                     : '',
         );
+        if (!this.form.value.orientation)
+            this.form.patchValue({ orientation: 'unspecified' });
     }
 
     public async savePlaylist() {
