@@ -39,6 +39,7 @@ function stringToTopic(topic: string): StateTopic {
         bld_id,
         lvl_id,
         area_id,
+        _b,
         sys_id,
         dev_id,
         mod_id,
@@ -65,7 +66,7 @@ export class AlertsService {
     private _broker: mqtt.MqttClient;
 
     public readonly system_state = signal({});
-    public readonly alerts = signal([] as Alert[]);
+    public readonly alerts = signal<Alert[]>([]);
 
     constructor() {
         this.init();
@@ -88,9 +89,14 @@ export class AlertsService {
         this._broker.on('message', (t, msg) => {
             const data = JSON.parse(msg.toString());
             const topic = stringToTopic(t);
+            console.log('MQTT:', topic, data);
             if (topic.state_key === 'connected') {
                 this.system_state.update((old) => {
-                    const sys = old[topic.system_id];
+                    const sys = old[topic.system_id] || {
+                        connected: [],
+                        disconnected: [],
+                    };
+                    console.log('System:', sys);
                     const mod = `${topic.module_name}_${topic.module_index}`;
                     sys.connected = sys.connected.filter((_) => _ !== mod);
                     sys.disconnected = sys.disconnected.filter(
@@ -111,7 +117,7 @@ export class AlertsService {
                                       type: 'control',
                                       subject: 'Disconnected',
                                       location: topic.system_id,
-                                      body: `Module "${topic.module_name}${topic.module_index}" is disconnected`,
+                                      body: `Module "${topic.module_name}_${topic.module_index}" is disconnected`,
                                       timestamp: data.timestamp,
                                       status: 'open',
                                   },

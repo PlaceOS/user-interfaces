@@ -64,15 +64,13 @@ import { BookingUIOptions, EventsStateService } from './events-state.service';
                 </mat-select>
             </mat-form-field>
             @if (allow_setup_breakdown) {
-                <mat-slide-toggle
-                    class="m-2"
+                <settings-toggle
                     [ngModel]="(ui_options | async)?.show_overflow"
                     (ngModelChange)="updateUIOptions({ show_overflow: $event })"
+                    >Setup / Breakdown</settings-toggle
                 >
-                    <div class="text-xs">Setup / Breakdown</div>
-                </mat-slide-toggle>
             }
-            <div class="w-0 flex-1"></div>
+            <div class="w-px flex-1"></div>
             <!-- <searchbar class="mr-2"></searchbar> -->
             <date-options (dateChange)="setDate($event)"></date-options>
         </div>

@@ -24,7 +24,7 @@ export const FAV_DESK_KEY = 'favourite_spaces';
     selector: 'new-space-select-modal',
     template: `
         <div
-            class="flex h-screen w-screen flex-col space-y-2 overflow-hidden bg-base-100 p-2 sm:h-auto sm:w-auto"
+            class="mb-10 flex h-[calc(100vh-2.5rem)] max-h-[calc(100vh-2.5rem)] w-screen flex-col space-y-2 overflow-hidden bg-base-100 p-2 sm:m-0 sm:h-auto sm:w-auto"
             [style.height]="is_safari ? 'calc(100vh - 80px)' : ''"
         >
             <header
@@ -66,7 +66,7 @@ export const FAV_DESK_KEY = 'favourite_spaces';
                 </button>
             </header>
             <main
-                class="relative flex h-1/2 flex-1 sm:h-[65vh] sm:flex-none sm:space-x-2"
+                class="relative flex h-1/2 max-h-[calc(100vh-7rem)] flex-1 sm:h-[65vh] sm:flex-none sm:space-x-2"
             >
                 <div
                     filters
@@ -109,7 +109,7 @@ export const FAV_DESK_KEY = 'favourite_spaces';
                     } @else {
                         <new-space-map
                             map
-                            class="h-full w-full"
+                            class="h-full min-h-[60vh] w-full"
                             [is_displayed]="!!displayed()"
                             [active]="displayed()?.id"
                             (onSelect)="displayed.set($event)"

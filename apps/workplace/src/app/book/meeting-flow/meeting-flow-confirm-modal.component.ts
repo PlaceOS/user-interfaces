@@ -435,7 +435,7 @@ import { SpacePipe } from '@placeos/events';
             }
             @if (requires_approval) {
                 <div
-                    class="mt-2 rounded !border-none bg-warning px-2 py-1 text-center text-sm text-warning-content"
+                    class="col-span-2 mt-2 rounded !border-none bg-warning px-2 py-1 text-center text-sm text-warning-content"
                 >
                     {{ 'CALENDAR_EVENT.APPROVAL_REQUIRED_MSG' | translate }}
                 </div>

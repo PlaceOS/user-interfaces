@@ -381,13 +381,14 @@ export class MediaPlayerComponent
     }
 
     private setPlaylistItem(index: number) {
-        if (!this._hasValidPlaylist()) {
+        if (!this._hasValidPlaylistItem()) {
             return this.timeout(
-                'check_for_valid_item',
+                'retry_set_item',
                 () => this.setPlaylistItem(index),
-                1000,
+                5000,
             );
         }
+        this.clearTimeout('retry_set_item');
         const old_index = this.index();
         this.index.set(index);
         this.indexChange.emit(index);
@@ -591,6 +592,10 @@ export class MediaPlayerComponent
                 ref_id: this.playlist()[0]?.playlist,
             });
         }
+    }
+
+    private _hasValidPlaylistItem() {
+        return this.playlist().some((item) => this.isValidMedia(item));
     }
 
     private _isLastValidPlaylistItem(idx: number) {

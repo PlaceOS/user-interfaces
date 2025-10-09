@@ -53,7 +53,7 @@ const EMPTY = [];
                     <icon class="text-2xl">add</icon>
                 </button>
             </div>
-            <div class="flex w-full items-center">
+            <div class="flex w-full items-center space-x-2">
                 <mat-form-field appearance="outline" class="no-subscript w-52">
                     <mat-select
                         [ngModel]="zones | async"
@@ -82,36 +82,61 @@ const EMPTY = [];
                     </mat-select>
                 </mat-form-field>
                 @if (allow_setup_breakdown) {
-                    @if (!use_region) {
-                        <div class="ml-8 mr-4 h-full border-l"></div>
-                    }
-                    <mat-slide-toggle
-                        class="m-2"
+                    <settings-toggle
                         [ngModel]="(ui_options | async)?.show_overflow"
                         (ngModelChange)="
                             updateUIOptions({ show_overflow: $event })
                         "
+                        >{{
+                            'APP.CONCIERGE.SETUP_BREAKDOWN' | translate
+                        }}</settings-toggle
                     >
-                        <div class="text-xs">
-                            {{ 'APP.CONCIERGE.SETUP_BREAKDOWN' | translate }}
-                        </div>
-                    </mat-slide-toggle>
                 }
-                <div class="ml-8 mr-4 h-full border-l"></div>
-                <div
-                    class="flex max-w-[calc(100%-16rem)] flex-1 items-center space-x-2"
-                >
-                    <button
-                        btn
-                        matRipple
-                        class="inverse"
-                        [matMenuTriggerFor]="menu"
+                <div class="flex flex-1 justify-end pr-2">
+                    <div
+                        class="flex max-w-[32rem] flex-1 items-center rounded-full border border-base-300"
                     >
-                        <icon>filter_list</icon>
-                        <div class="mx-2">
-                            {{ 'COMMON.FILTERS' | translate }}
+                        <div
+                            class="flex w-px flex-1 items-center space-x-1 overflow-x-auto rounded-full px-1"
+                        >
+                            @for (type of types; track type.id) {
+                                @if (!type_list.includes(type.id)) {
+                                    <div
+                                        class="flex items-center rounded-full border border-base-300"
+                                    >
+                                        <div
+                                            class="m-2 h-4 w-4 rounded-full"
+                                            [style.background-color]="
+                                                type.color
+                                            "
+                                        ></div>
+                                        <div class="truncate text-sm">
+                                            {{ type.name }}
+                                        </div>
+                                        <button
+                                            icon
+                                            matRipple
+                                            class="text-base-300 hover:text-base-content"
+                                            (click)="setFilter(type.id, true)"
+                                        >
+                                            <icon class="text-xl">close</icon>
+                                        </button>
+                                    </div>
+                                }
+                            }
                         </div>
-                    </button>
+                        <button
+                            btn
+                            matRipple
+                            class="inverse bg-base-100"
+                            [matMenuTriggerFor]="menu"
+                        >
+                            <icon>filter_list</icon>
+                            <div class="mx-2">
+                                {{ 'COMMON.FILTERS' | translate }}
+                            </div>
+                        </button>
+                    </div>
                     <mat-menu #menu="matMenu" class="">
                         <div
                             class="flex w-48 flex-col space-y-2 overflow-hidden"
@@ -128,32 +153,6 @@ const EMPTY = [];
                             }
                         </div>
                     </mat-menu>
-                    <div
-                        class="flex w-px flex-1 items-center space-x-2 overflow-x-auto px-2"
-                    >
-                        @for (type of types; track type.id) {
-                            @if (!type_list.includes(type.id)) {
-                                <div
-                                    class="flex items-center rounded-3xl border border-base-200"
-                                >
-                                    <div
-                                        class="m-2 h-4 w-4 rounded-full"
-                                        [style.background-color]="type.color"
-                                    ></div>
-                                    <div class="truncate">
-                                        {{ type.name }}
-                                    </div>
-                                    <button
-                                        icon
-                                        matRipple
-                                        (click)="setFilter(type.id, true)"
-                                    >
-                                        <icon class="text-xl">close</icon>
-                                    </button>
-                                </div>
-                            }
-                        }
-                    </div>
                 </div>
             </div>
             <div class="mt-4 flex h-px w-full flex-1 border-t border-base-200">

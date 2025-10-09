@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { startOfMinute } from 'date-fns';
 import { debounceTime, map } from 'rxjs/operators';
@@ -29,7 +29,7 @@ import { PanelStateService } from './panel-state.service';
                 <h1 class="text-3xl font-medium">{{ space_name | async }}</h1>
                 <div class="flex items-center space-x-4 portrait:hidden">
                     <p class="text-2xl">
-                        {{ time | date: 'shortTime' }}
+                        {{ time() | date: 'shortTime' }}
                     </p>
                     <img
                         auth
@@ -175,10 +175,7 @@ export class EventPanelComponent extends AsyncHandler implements OnInit {
     public readonly space_name = this._state.space.pipe(
         map((_) => _?.display_name || _?.name || ''),
     );
-
-    public get time() {
-        return startOfMinute(Date.now());
-    }
+    public readonly time = signal(Date.now());
 
     public get text_color() {
         return this._settings.get('app.text_color') || '#FFFFFF';
@@ -238,6 +235,11 @@ export class EventPanelComponent extends AsyncHandler implements OnInit {
                     true,
                 ),
             1000,
+        );
+        this.interval(
+            'time',
+            () => this.time.set(startOfMinute(Date.now()).valueOf()),
+            5 * 1000,
         );
         this._state.current.subscribe();
         this._state.settings.subscribe(({ custom_qr_url, custom_qr_color }) => {

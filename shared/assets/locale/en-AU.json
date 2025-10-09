@@ -136,6 +136,7 @@
         "CONTROLS_WORK_LOCATION": "Work Location",
         "CONTROLS_ACCESSIBILITY": "Display & Accessibility",
         "CONTROLS_DESKS": "Desk Settings",
+        "CONTROLS_PARKING": "Parking Settings",
         "CONTROLS_SUPPORT": "Raise a support ticket",
         "CONTROLS_SIGN_OUT": "Sign Out",
         "CONTROLS_NEW_VERSION": "New Version",
@@ -267,7 +268,8 @@
         "VISIBILITY_PUBLIC": "Public",
         "VISIBILITY_PRIVATE": "Private",
         "VISIBILITY_CONFIDENTIAL": "Confidential",
-        "ITEM_PRICE": "Price"
+        "ITEM_PRICE": "Price",
+        "PARKING_SETTINGS_SAVE": "Successfully saved parking settings"
     },
     "LANGUAGE": {
         "ENGLISH": "English",
@@ -981,7 +983,7 @@
             "MENU_REPORT_VISITORS": "Visitor Bookings",
             "TIMEZONE_DIFF": "Timezone of the building is displayed and is different from your local timezone.",
             "ROOM_BOOKINGS": "Room Bookings",
-            "SETUP_BREAKDOWN": "Setup / Breakdown",
+            "SETUP_BREAKDOWN": "Setup & Breakdown",
             "NEW_BOOKING": "New Booking",
             "BOOKING_REMOVE_TITLE": "Delete booking",
             "BOOKING_REMOVE_MSG": "Delete the booking for {{ name }} at {{ time }}?",
@@ -1158,6 +1160,8 @@
             "ROOMS_REMOVE_LOADING": "Removing room...",
             "ROOMS_REMOVE_SUCCESS": "Successfully removed room",
             "ROOMS_REMOVE_ERROR": "Failed to remove room. Error: {{ error }}",
+            "ROOMS_APPROVE_SERIES": "Approve Series",
+            "ROOMS_REJECT_SERIES": "Reject Series",
             "APP_SETTINGS": "Application Settings",
             "APP_SETTINGS_WORKPLACE": "Workplace Settings",
             "APP_SETTINGS_CONCIERGE": "Concierge Settings",

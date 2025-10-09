@@ -6,6 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSelectModule } from '@angular/material/select';
+import { settingSignal } from '@placeos/common';
 import {
     BindingDirective,
     IconComponent,
@@ -132,7 +133,9 @@ function contains(str: string, substr: string) {
                                 },
                                 {
                                     key: 'event',
-                                    name: 'Next Class',
+                                    name: is_eduction()
+                                        ? 'Next Class'
+                                        : 'Next Event',
                                     content: event_template,
                                 },
                                 {
@@ -368,6 +371,8 @@ function contains(str: string, substr: string) {
 export class RemoteSupportComponent {
     private readonly _alerts = inject(AlertsService);
     private readonly _support = inject(SupportService);
+
+    public readonly is_eduction = settingSignal('educational_environment');
 
     public readonly alerts = this._alerts.alerts;
     public readonly critical_alerts = computed(
