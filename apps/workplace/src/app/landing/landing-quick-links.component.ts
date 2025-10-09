@@ -95,5 +95,5 @@ import { TranslatePipe } from '@placeos/components';
     imports: [TranslatePipe, MatRippleModule, RouterModule],
 })
 export class LandingQuickLinksComponent {
-    public readonly features = settingSignal<string[]>('features');
+    public readonly features = settingSignal<string[]>('features', []);
 }

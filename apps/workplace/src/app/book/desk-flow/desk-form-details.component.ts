@@ -1,11 +1,12 @@
 import { CommonModule } from '@angular/common';
 import {
     Component,
-    OnChanges,
-    SimpleChanges,
+    computed,
     inject,
     input,
+    OnChanges,
     output,
+    SimpleChanges,
 } from '@angular/core';
 import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -18,6 +19,7 @@ import {
     BookingRecurrence,
     Desk,
     OrganisationService,
+    settingSignal,
     SettingsService,
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
@@ -131,7 +133,7 @@ import { addDays, endOfDay, set } from 'date-fns';
                             <a-date-field
                                 name="date"
                                 formControlName="date"
-                                [to]="end_date"
+                                [to]="end_date()"
                                 [timezone]="timezone"
                             >
                                 {{ 'FORM.DATE_REQUIRED' | translate }}
@@ -195,7 +197,7 @@ import { addDays, endOfDay, set } from 'date-fns';
                                 [ngModel]="form().value"
                                 (ngModelChange)="onRecurrenceChange($event)"
                                 [ngModelOptions]="{ standalone: true }"
-                                [available_days]="available_days"
+                                [available_days]="available_days()"
                             ></recurrence-field>
                             @if (form().value.id) {
                                 <mat-checkbox formControlName="update_master">
@@ -421,13 +423,14 @@ export class NewDeskFormDetailsComponent
             : '';
     }
 
-    public get available_days() {
-        return this._settings.get('app.desks.available_period') || 90;
-    }
+    public readonly available_days = settingSignal(
+        'desks.available_period',
+        90,
+    );
 
-    public get end_date() {
-        return endOfDay(addDays(Date.now(), this.available_days)).valueOf();
-    }
+    public readonly end_date = computed(() => {
+        return endOfDay(addDays(Date.now(), this.available_days())).valueOf();
+    });
 
     public get use_24hr() {
         return this._settings.get('app.use_24_hour_time');

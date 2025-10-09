@@ -4,7 +4,11 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { BookingFormService, ParkingSpace } from '@placeos/bookings';
+import {
+    BookingFormService,
+    ParkingSpace,
+    ParkingSpaceListFieldComponent,
+} from '@placeos/bookings';
 import {
     AsyncHandler,
     Booking,
@@ -175,6 +179,7 @@ import { FullscreenModalShellComponent } from 'libs/components/src/lib/fullscree
         MatInputModule,
         TranslatePipe,
         UserSearchFieldComponent,
+        ParkingSpaceListFieldComponent,
     ],
 })
 export class ParkingBookingModalComponent

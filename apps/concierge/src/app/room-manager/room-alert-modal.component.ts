@@ -22,22 +22,24 @@ import { PlaceSystem, showMetadata, updateMetadata } from '@placeos/ts-client';
 @Component({
     selector: 'room-alert-modal',
     template: `
-        <header class="space-x-4">
-            <h2>
+        <header
+            class="sticky top-0 z-10 mx-auto my-2 flex h-14 w-[calc(100%-1rem)] items-center justify-between rounded border-none bg-base-200 p-2"
+        >
+            <h2 class="px-2 text-xl font-medium capitalize">
                 {{
                     'APP.CONCIERGE.ROOMS_ALERT_HEADER'
                         | translate: { name: room.display_name || room.name }
                 }}
             </h2>
             @if (!loading) {
-                <button btn icon mat-dialog-close>
+                <button icon matRipple mat-dialog-close>
                     <icon>close</icon>
                 </button>
             }
         </header>
         @if (!loading) {
             <main
-                class="flex max-h-[65vh] min-w-[24rem] flex-col overflow-y-auto overflow-x-hidden p-4"
+                class="flex max-h-[65vh] min-w-[28rem] flex-col overflow-y-auto overflow-x-hidden p-4"
                 [formGroup]="form"
             >
                 <label for="status">{{ 'COMMON.STATUS' | translate }}</label>

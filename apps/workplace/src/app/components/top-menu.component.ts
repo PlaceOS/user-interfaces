@@ -88,7 +88,7 @@ import { IconComponent } from '@placeos/components';
                             >
                                 {{ route.icon }}
                             </icon>
-                            <div class="truncate">{{ route.name }}</div>
+                            <div class="truncate pr-4">{{ route.name }}</div>
                         </div>
                     </a>
                 }

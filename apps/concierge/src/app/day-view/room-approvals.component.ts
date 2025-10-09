@@ -10,6 +10,7 @@ import { map } from 'rxjs/operators';
 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
@@ -293,6 +294,7 @@ import { EventsStateService } from './events-state.service';
         MatProgressSpinnerModule,
         AuthenticatedImageDirective,
         MatTooltipModule,
+        MatMenuModule,
     ],
 })
 export class RoomBookingsApprovalsComponent implements OnInit {

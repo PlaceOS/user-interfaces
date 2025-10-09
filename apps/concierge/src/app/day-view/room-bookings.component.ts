@@ -6,7 +6,6 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSelectModule } from '@angular/material/select';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
     AsyncHandler,
@@ -15,7 +14,11 @@ import {
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
-import { IconComponent, TranslatePipe } from '@placeos/components';
+import {
+    IconComponent,
+    SettingsToggleComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { combineLatest } from 'rxjs';
 import { debounceTime, filter, map } from 'rxjs/operators';
 import { EventsStateService } from './events-state.service';
@@ -180,10 +183,10 @@ const EMPTY = [];
         MatRippleModule,
         MatCheckboxModule,
         FormsModule,
-        MatSlideToggleModule,
         RoomBookingsTimelineComponent,
         RoomWeekBookingsTimelineComponent,
         RoomBookingsApprovalsComponent,
+        SettingsToggleComponent,
     ],
 })
 export class RoomBookingsComponent extends AsyncHandler implements OnInit {

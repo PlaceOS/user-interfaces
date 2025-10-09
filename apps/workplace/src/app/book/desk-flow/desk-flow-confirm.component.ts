@@ -34,7 +34,7 @@ import { map } from 'rxjs/operators';
                 @if (loading | async) {
                     <mat-spinner diameter="32"></mat-spinner>
                 }
-                @if (show_close()) {
+                @if (show_close() && !(loading | async)) {
                     <button
                         icon
                         name="close-desk-confirm"

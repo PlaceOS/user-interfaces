@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import {
     FormControl,
     FormGroup,
@@ -156,24 +156,24 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                 <button
                     matRipple
                     class="flex h-10 flex-1 items-center justify-center rounded hover:bg-base-300"
-                    [class.bg-secondary]="view === 'builder'"
-                    [class.text-secondary-content]="view === 'builder'"
-                    (click)="view = 'builder'"
+                    [class.bg-secondary]="view() === 'builder'"
+                    [class.text-secondary-content]="view() === 'builder'"
+                    (click)="view.set('builder')"
                 >
                     {{ 'APP.CONCIERGE.SURVEY_BUILDER' | translate }}
                 </button>
                 <button
                     matRipple
                     class="flex h-10 flex-1 items-center justify-center rounded hover:bg-base-300"
-                    [class.bg-secondary]="view === 'preview'"
-                    [class.text-secondary-content]="view === 'preview'"
-                    (click)="view = 'preview'"
+                    [class.bg-secondary]="view() === 'preview'"
+                    [class.text-secondary-content]="view() === 'preview'"
+                    (click)="view.set('preview')"
                 >
                     {{ 'COMMON.PREVIEW' | translate }}
                 </button>
             </div>
         </div>
-        @if (this.view === 'builder') {
+        @if (view() === 'builder') {
             <div
                 builder
                 class="flex h-px w-full flex-1 space-x-2 bg-base-200 px-8 py-2"
@@ -181,14 +181,14 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                 <div
                     pages
                     class="sticky top-0 h-full w-1/2 flex-1 space-y-2 overflow-auto"
-                    [formGroup]="page_forms[active_page]"
+                    [formGroup]="active_page_form()"
                 >
                     <div class="flex items-center space-x-2">
                         <div
                             class="relative h-[calc(3rem+2px)] flex-1 overflow-hidden rounded border border-base-300 bg-base-100"
                         >
                             <mat-tab-group
-                                [selectedIndex]="active_page"
+                                [selectedIndex]="active_page()"
                                 (selectedTabChange)="onPageChange($event)"
                             >
                                 @for (
@@ -245,7 +245,7 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                         (cdkDropListDropped)="drop($event)"
                         class="space-y-2"
                     >
-                        @let page = page_forms[active_page].value;
+                        @let page = active_page_form()?.value;
                         @if (page?.question_order.length > 0) {
                             @for (
                                 q_id of page.question_order;
@@ -353,7 +353,7 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                                 >
                                 <input
                                     matInput
-                                    [ngModel]="search_text"
+                                    [(ngModel)]="search_text"
                                     (ngModelChange)="onSearchChange($event)"
                                     placeholder="Search..."
                                 />
@@ -489,7 +489,7 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                 ></survey-outlet>
             </div>
         }
-        @if (loading) {
+        @if (loading()) {
             <div
                 class="absolute inset-0 flex flex-col items-center justify-center space-y-2"
             >
@@ -535,11 +535,14 @@ export class SurveyBuilderComponent extends AsyncHandler implements OnInit {
     private _service = inject(NewSurveyService);
     private _route = inject(ActivatedRoute);
 
-    public view: 'builder' | 'preview' = 'builder';
-    public active_page = 0;
-    public loading = false;
-    public selected_type = '';
-    public search_text = '';
+    public readonly view = signal<'builder' | 'preview'>('builder');
+    public readonly active_page = signal(0);
+    public readonly active_page_form = computed(
+        () => this.page_forms[this.active_page()],
+    );
+    public readonly loading = signal(false);
+    public readonly selected_type = signal('');
+    public readonly search_text = signal('');
     public readonly questions = signal([]);
 
     public readonly buildings$ = this._org.building_list;
@@ -622,7 +625,7 @@ export class SurveyBuilderComponent extends AsyncHandler implements OnInit {
 
     public onPageChange(event: MatTabChangeEvent) {
         const index = event.index;
-        this.active_page = index;
+        this.active_page.set(index);
     }
 
     public addPage() {
@@ -660,21 +663,21 @@ export class SurveyBuilderComponent extends AsyncHandler implements OnInit {
 
     public removePage() {
         const pages = this.form.value.pages;
-        const page_form = this.page_forms[this.active_page];
-        pages.splice(this.active_page, 1);
-        if (this.active_page >= pages.length) {
+        const page_form = this.page_forms[this.active_page()];
+        pages.splice(this.active_page(), 1);
+        if (this.active_page() >= pages.length) {
             page_form.patchValue({
                 title: '',
                 description: '',
                 question_order: [],
             });
-            this.active_page = pages.length - 1;
+            this.active_page.set(pages.length - 1);
         }
         this.form.patchValue({ pages });
     }
 
     public removePageQuestion(idx: number) {
-        const page_form = this.page_forms[this.active_page];
+        const page_form = this.page_forms[this.active_page()];
         const order = page_form.get('question_order').value;
         order.splice(idx, 1);
         page_form.patchValue({ question_order: order });
@@ -683,25 +686,25 @@ export class SurveyBuilderComponent extends AsyncHandler implements OnInit {
     public async drop(event: CdkDragDrop<SurveyQuestion[]>) {
         if (event.previousContainer === event.container) {
             const order =
-                this.page_forms[this.active_page].get('question_order').value;
+                this.page_forms[this.active_page()].get('question_order').value;
             moveItemInArray(order, event.previousIndex, event.currentIndex);
-            this.page_forms[this.active_page].patchValue({
+            this.page_forms[this.active_page()].patchValue({
                 question_order: order,
             });
         } else {
             const questions = await nextValueFrom(this.questions$);
             const q_id = questions[event.previousIndex].id;
             const order =
-                this.page_forms[this.active_page].get('question_order').value;
+                this.page_forms[this.active_page()].get('question_order').value;
             order.splice(event.currentIndex, 0, q_id);
-            this.page_forms[this.active_page].patchValue({
+            this.page_forms[this.active_page()].patchValue({
                 question_order: order,
             });
         }
     }
 
     public onSearchChange(search_text: string) {
-        this.search_text = search_text;
+        this.search_text.set(search_text);
         this._service.setQuestionFilters({
             search_text,
             type: this.selected_type as any,
@@ -709,17 +712,17 @@ export class SurveyBuilderComponent extends AsyncHandler implements OnInit {
     }
 
     public onTypeChange(type: any) {
-        this.selected_type = type;
+        this.selected_type.set(type);
         this._service.setQuestionFilters({
             type,
-            search_text: this.search_text,
+            search_text: this.search_text(),
         });
     }
 
     public async saveSurvey() {
         this.form.markAllAsTouched();
         if (!this.form.valid) return;
-        this.loading = true;
+        this.loading.set(true);
         const page_count = this.form.value.pages?.length || 0;
         const pages = [];
         for (let i = 0; i < page_count; i++) {
@@ -736,6 +739,6 @@ export class SurveyBuilderComponent extends AsyncHandler implements OnInit {
             throw error;
         });
         notifySuccess('Successfully saved survey details.');
-        this.loading = false;
+        this.loading.set(false);
     }
 }

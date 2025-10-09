@@ -23,9 +23,11 @@ import {
 import { EventFormService } from '@placeos/events';
 
 import { MatRippleModule } from '@angular/material/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     IconComponent,
+    LevelPipe,
     SanitizePipe,
     TranslatePipe,
     openConfirmModal,
@@ -466,6 +468,9 @@ import { SpacePipe } from '@placeos/events';
         MatRippleModule,
         SanitizePipe,
         MatTooltipModule,
+        SpacePipe,
+        LevelPipe,
+        MatProgressSpinnerModule,
     ],
 })
 export class MeetingFlowConfirmModalComponent

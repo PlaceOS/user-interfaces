@@ -20,8 +20,11 @@ import {
     SettingsService,
 } from '@placeos/common';
 import {
+    CustomTooltipComponent,
     IconComponent,
     openConfirmModal,
+    PrintableComponent,
+    SafePipe,
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
@@ -178,20 +181,22 @@ const QR_CODES = {};
                     </button>
                     <ng-template #qr_menu>
                         <div class="rounded bg-base-100 py-2 shadow">
-                            <div class="" printable>
-                                <a
-                                    [href]="row.qr_link | safe: 'url'"
-                                    target="_blank"
-                                    ref="noopener noreferrer"
-                                    class="mx-4 my-2 block rounded-lg border border-base-200 bg-base-100 p-2"
-                                >
-                                    <img class="w-48" [src]="row.qr_code" />
-                                </a>
-                                <div
-                                    class="mx-4 mt-2 w-[calc(100%-2rem)] rounded bg-base-200 p-2 text-center font-mono text-sm"
-                                >
-                                    {{ row.name || row.id }}
-                                </div>
+                            <div class="" printable [content]="print_content">
+                                <ng-template #print_content>
+                                    <a
+                                        [href]="row.qr_link | safe: 'url'"
+                                        target="_blank"
+                                        ref="noopener noreferrer"
+                                        class="mx-4 my-2 block rounded-lg border border-base-200 bg-base-100 p-2"
+                                    >
+                                        <img class="w-48" [src]="row.qr_code" />
+                                    </a>
+                                    <div
+                                        class="mx-4 mt-2 w-[calc(100%-2rem)] rounded bg-base-200 p-2 text-center font-mono text-sm"
+                                    >
+                                        {{ row.name || row.id }}
+                                    </div>
+                                </ng-template>
                             </div>
                             <button
                                 btn
@@ -247,6 +252,9 @@ const QR_CODES = {};
         MatRippleModule,
         IconComponent,
         MatTooltipModule,
+        CustomTooltipComponent,
+        PrintableComponent,
+        SafePipe,
     ],
 })
 export class DesksManageComponent extends AsyncHandler {

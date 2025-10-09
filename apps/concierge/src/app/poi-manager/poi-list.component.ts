@@ -1,11 +1,14 @@
-import { Component, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
-import { generateQRCode, SettingsService } from '@placeos/common';
+import { AsyncHandler, generateQRCode, SettingsService } from '@placeos/common';
 import {
+    CustomTooltipComponent,
     IconComponent,
     LevelPipe,
     PrintableComponent,
+    SafePipe,
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
@@ -13,6 +16,11 @@ import {
     POIManagementService,
     PointOfInterest,
 } from './poi-management.service';
+
+interface QR_Codes {
+    public: { link: string; image: string };
+    private: { link: string; image: string };
+}
 
 @Component({
     selector: 'poi-list',
@@ -76,6 +84,7 @@ import {
                         matRipple
                         customTooltip
                         [content]="qr_menu"
+                        [data]="{ qr: qr_codes()[row.id]?.private, item: row }"
                         (click)="loadQrCode(row)"
                     >
                         <icon>qr_code</icon>
@@ -87,28 +96,34 @@ import {
                         matRipple
                         customTooltip
                         [disabled]="!row.short_link_id"
+                        [data]="{ qr: qr_codes()[row.id]?.public, item: row }"
                         [content]="qr_menu"
                         (click)="loadPublicQrCode(row)"
                     >
                         <icon>qr_code</icon>
                     </button>
                 </div>
-                <ng-template #qr_menu>
+                <ng-template #qr_menu let-qr="qr" let-item="item">
                     <div class="rounded bg-base-100 py-2 shadow">
-                        <div class="" printable>
-                            <a
-                                [href]="row.qr_link | safe: 'url'"
-                                target="_blank"
-                                ref="noopener noreferrer"
-                                class="mx-4 my-2 block rounded-lg border border-base-200 bg-base-100 p-2"
-                            >
-                                <img class="w-48" [src]="row.qr_code" />
-                            </a>
-                            <div
-                                class="mx-4 mt-2 w-[calc(100%-2rem)] rounded bg-base-200 p-2 text-center font-mono text-sm"
-                            >
-                                {{ row.name || row.id }}
-                            </div>
+                        <div class="" printable [content]="print_content">
+                            <ng-template #print_content>
+                                <a
+                                    [href]="qr?.link | safe: 'url'"
+                                    target="_blank"
+                                    ref="noopener noreferrer"
+                                    class="mx-4 my-2 block rounded-lg border border-base-200 bg-base-100 p-2"
+                                >
+                                    <img
+                                        class="mx-auto w-48"
+                                        [src]="qr?.image | safe: 'resource'"
+                                    />
+                                </a>
+                                <div
+                                    class="mx-4 mt-2 w-[calc(100%-2rem)] rounded bg-base-200 p-2 text-center font-mono text-sm"
+                                >
+                                    {{ item.name || item.id }}
+                                </div>
+                            </ng-template>
                         </div>
                         <button
                             btn
@@ -154,6 +169,7 @@ import {
     `,
     styles: [``],
     imports: [
+        CommonModule,
         SimpleTableComponent,
         MatMenuModule,
         TranslatePipe,
@@ -161,13 +177,16 @@ import {
         MatRippleModule,
         PrintableComponent,
         LevelPipe,
+        CustomTooltipComponent,
+        SafePipe,
     ],
 })
-export class POIListComponent {
+export class POIListComponent extends AsyncHandler implements OnInit {
     private _manager = inject(POIManagementService);
     private _settings = inject(SettingsService);
 
     public readonly features = this._manager.filtered_features;
+    public readonly qr_codes = signal<Record<string, QR_Codes>>({});
 
     public readonly edit = (region) =>
         this._manager.editPointOfInterest(region);
@@ -181,6 +200,26 @@ export class POIListComponent {
         return `${window.location.origin}${path}`;
     }
 
+    public ngOnInit() {
+        this.subscription(
+            'featrues',
+            this.features.subscribe(async (l) => {
+                for (const item of l) {
+                    if (this.qr_codes()[item.id]) continue;
+                    const qr_private = await this.loadQrCode(item);
+                    const qr_public = await this.loadQrCode(item);
+                    this.qr_codes.update((m) => {
+                        m[item.id] = {
+                            private: qr_private,
+                            public: qr_public,
+                        };
+                        return m;
+                    });
+                }
+            }),
+        );
+    }
+
     public loadQrCode(item: PointOfInterest) {
         const location =
             typeof item.location === 'string'
@@ -189,14 +228,12 @@ export class POIListComponent {
         const link = `${this.kiosk_url}/#/explore?level=${encodeURIComponent(
             item.level_id,
         )}&locate=${encodeURIComponent(location)}`;
-        item.qr_link = link;
-        item.qr_code = generateQRCode(link);
+        return { link, image: generateQRCode(link) };
     }
 
     public loadPublicQrCode(item: PointOfInterest) {
         const link = `${location.origin}/r/${item.short_link_id.split('-')[1]}`;
-        item.qr_link = link;
-        item.qr_code = generateQRCode(link);
+        return { link, image: generateQRCode(link) };
     }
 
     public print() {

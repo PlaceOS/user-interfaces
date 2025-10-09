@@ -25,6 +25,7 @@ import {
     switchMap,
     tap,
 } from 'rxjs';
+import { QuestionModalComponent } from './question-modal.component';
 // import { QuestionModalComponent } from './question-modal.component';
 // import { updateQuestionMap } from './question.pipe';
 
@@ -198,12 +199,12 @@ export class NewSurveyService {
     }
 
     public editQuestion(question = new SurveyQuestion({ type: 'text' })) {
-        // const ref = this._dialog.open(QuestionModalComponent, {
-        //     data: question,
-        // });
-        // ref.afterClosed().subscribe((result) => {
-        //     if (result) this._change.next(Date.now());
-        // });
+        const ref = this._dialog.open(QuestionModalComponent, {
+            data: question,
+        });
+        ref.afterClosed().subscribe((result) => {
+            if (result) this._change.next(Date.now());
+        });
     }
 
     public async removeQuestion(question: SurveyQuestion, confirm = true) {

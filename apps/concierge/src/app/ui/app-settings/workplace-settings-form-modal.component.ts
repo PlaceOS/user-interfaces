@@ -39,7 +39,10 @@ import { UploadButtonComponent } from './upload-button.component';
     selector: 'workplace-settings-form-modal',
     template: `
         <fullscreen-modal-shell
-            [heading]="'Workplace Settings - ' + zone.display_name || zone.name"
+            [heading]="
+                'Workplace Settings - ' +
+                (zone.display_name || zone.name || 'Organisation')
+            "
             [loading]="loading()"
             (confirm)="save()"
         >

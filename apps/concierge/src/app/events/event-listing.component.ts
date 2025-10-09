@@ -7,7 +7,9 @@ import { RouterModule } from '@angular/router';
 import { CalendarEvent, SettingsService, User } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
+    BuildingPipe,
     IconComponent,
+    LevelPipe,
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
@@ -312,6 +314,8 @@ import { EventStateService } from './event-state.service';
         AttendeeListComponent,
         MatProgressBarModule,
         AuthenticatedImageDirective,
+        LevelPipe,
+        BuildingPipe,
     ],
 })
 export class EventListingComponent {

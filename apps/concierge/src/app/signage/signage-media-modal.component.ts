@@ -13,6 +13,7 @@ import { MatSliderModule } from '@angular/material/slider';
 import { i18n, notifyError, notifySuccess } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
+    MediaDurationPipe,
     TranslatePipe,
 } from '@placeos/components';
 import { DateFieldComponent } from '@placeos/form-fields';
@@ -228,6 +229,7 @@ import { lastValueFrom } from 'rxjs';
         MatSelectModule,
         MatSliderModule,
         AuthenticatedImageDirective,
+        MediaDurationPipe,
     ],
 })
 export class SignageMediaModalComponent implements OnDestroy {

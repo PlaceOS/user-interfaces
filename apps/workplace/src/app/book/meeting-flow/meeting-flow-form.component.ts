@@ -32,6 +32,7 @@ import {
     notifyError,
     notifyWarn,
     OrganisationService,
+    settingSignal,
     SettingsService,
     Space,
     UserIdleTimeService,
@@ -161,7 +162,7 @@ import { MeetingFormDetailsComponent } from './meeting-form-details.component';
                                         class="mt-4"
                                         formControlName="attendees"
                                         [time]="form.value.date"
-                                        [guests]="allow_externals"
+                                        [guests]="allow_externals()"
                                     ></a-user-list-field>
                                 </div>
                             </section>
@@ -564,9 +565,7 @@ export class MeetingFlowFormComponent extends AsyncHandler implements OnInit {
         return !!this._settings.get('app.events.hide_attendees');
     }
 
-    public get allow_externals() {
-        return this._settings.get('app.events.allow_externals');
-    }
+    public allow_externals = settingSignal('events.allow_externals');
 
     public get strict_capacity_check() {
         return this._settings.get('app.events.strict_capacity_check');

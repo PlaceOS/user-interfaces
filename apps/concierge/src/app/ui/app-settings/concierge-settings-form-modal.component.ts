@@ -27,7 +27,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { VERSION } from '@placeos/common';
-import { IconComponent, SettingsToggleComponent } from '@placeos/components';
+import {
+    IconComponent,
+    SettingsToggleComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { FullscreenModalShellComponent } from 'libs/components/src/lib/fullscreen-modal-shell.component';
 import { lastValueFrom } from 'rxjs';
 import { UploadButtonComponent } from './upload-button.component';
@@ -36,7 +40,10 @@ import { UploadButtonComponent } from './upload-button.component';
     selector: 'concierge-settings-form-modal',
     template: `
         <fullscreen-modal-shell
-            [heading]="'Concierge Settings - ' + zone.display_name || zone.name"
+            [heading]="
+                'Concierge Settings - ' +
+                (zone.display_name || zone.name || 'Organisation')
+            "
             [loading]="loading()"
             (confirm)="save()"
         >
@@ -1268,6 +1275,7 @@ import { UploadButtonComponent } from './upload-button.component';
         ReactiveFormsModule,
         MatRippleModule,
         IconComponent,
+        TranslatePipe,
         MatSelectModule,
         MatFormFieldModule,
         MatInputModule,

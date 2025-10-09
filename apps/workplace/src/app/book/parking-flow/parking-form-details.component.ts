@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, input } from '@angular/core';
-import { FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -159,15 +159,16 @@ import { addDays, endOfDay } from 'date-fns';
     imports: [
         CommonModule,
         ReactiveFormsModule,
+        FormsModule,
         MatFormFieldModule,
         MatInputModule,
+        MatSelectModule,
+        MatCheckboxModule,
         TranslatePipe,
         HostSelectFieldComponent,
         DurationFieldComponent,
         TimeFieldComponent,
-        MatCheckboxModule,
         DateFieldComponent,
-        MatSelectModule,
     ],
 })
 export class ParkingFormDetailsComponent extends AsyncHandler {

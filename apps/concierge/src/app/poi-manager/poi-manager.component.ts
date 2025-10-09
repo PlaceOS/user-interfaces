@@ -18,8 +18,8 @@ import { POIManagementService } from './poi-management.service';
 @Component({
     selector: '[app-poi-manager]',
     template: `
-        <app-topbar />
-        <div class="flex h-px flex-1">
+        <app-topbar class="print:hidden" />
+        <div class="flex h-px flex-1 print:hidden">
             <app-sidebar></app-sidebar>
             <main class="flex h-full w-1/2 flex-1 flex-col">
                 <header

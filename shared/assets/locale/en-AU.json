@@ -916,6 +916,7 @@
             "PARKING_NEW_HEADER": "New Parking Reservation",
             "PARKING_EDIT_HEADER": "Edit Parking Reservation",
             "PARKING_ASSIGNED": "You are already assigned a parking space \"{{ name }}\"",
+            "PARKING_SUCCESS_HEADER": "Parking space reserved",
             "PARKING_SUCCESS_MSG": "Your parking space reservation for \"{{ name }}\" has been successfully booked for the {{ date }} at {{ time }}",
             "PARKING_CONFIRM_TITLE": "Confirm Parking Reservation",
             "DESK_ASSIGNED": "You are already assigned a desk \"{{ name }}\"",

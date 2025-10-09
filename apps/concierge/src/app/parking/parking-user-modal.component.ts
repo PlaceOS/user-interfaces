@@ -2,6 +2,7 @@ import { Component, EventEmitter, OnInit, Output, inject } from '@angular/core';
 import {
     FormControl,
     FormGroup,
+    FormsModule,
     ReactiveFormsModule,
     Validators,
 } from '@angular/forms';
@@ -17,6 +18,7 @@ import {
     SettingsToggleComponent,
     TranslatePipe,
 } from '@placeos/components';
+import { UserSearchFieldComponent } from '@placeos/form-fields';
 import { ParkingUser } from './parking-state.service';
 
 @Component({
@@ -176,7 +178,9 @@ import { ParkingUser } from './parking-state.service';
         MatFormFieldModule,
         MatInputModule,
         ReactiveFormsModule,
+        FormsModule,
         MatTooltipModule,
+        UserSearchFieldComponent,
     ],
 })
 export class ParkingUserModalComponent extends AsyncHandler implements OnInit {

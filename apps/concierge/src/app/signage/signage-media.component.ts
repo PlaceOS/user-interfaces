@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 
 import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
@@ -132,7 +132,7 @@ import { SignageStateService } from './signage-state.service';
                         />
                     }
                 </div>
-                @if (show_dropzone) {
+                @if (show_dropzone()) {
                     <div
                         class="absolute inset-0"
                         (dragleave)="hideOverlay($event)"
@@ -201,7 +201,7 @@ export class SignageMediaComponent extends AsyncHandler implements OnInit {
         ),
     );
     public selected_playlist = '';
-    public show_dropzone = false;
+    public readonly show_dropzone = signal(false);
 
     public readonly addPlaylist = async () => {
         const result = await this._state.editPlaylist();
@@ -218,15 +218,15 @@ export class SignageMediaComponent extends AsyncHandler implements OnInit {
 
     public onEnter(e) {
         this.clearTimeout('hide_overlay');
-        this.show_dropzone = e?.dataTransfer?.types.includes('Files');
+        this.show_dropzone.set(e?.dataTransfer?.types.includes('Files'));
     }
 
     public hideOverlay(e) {
-        if (!this.show_dropzone) return;
+        if (!this.show_dropzone()) return;
         if (!(e.target instanceof HTMLInputElement)) {
             e.preventDefault();
         }
-        this.timeout('hide_overlay', () => (this.show_dropzone = false));
+        this.timeout('hide_overlay', () => this.show_dropzone.set(false));
     }
 
     public ngOnInit() {

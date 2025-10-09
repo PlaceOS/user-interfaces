@@ -195,12 +195,12 @@ import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.compone
                                 'APP.CONCIERGE.ROOMS_DEFAULT_SETUP' | translate
                             }}
                             <icon
-                                class="ml-2"
+                                class="ml-2 text-base"
                                 [matTooltip]="
                                     'APP.CONCIERGE.ROOMS_SETUP_INFO' | translate
                                 "
                             >
-                                info_outline
+                                info
                             </icon>
                         </label>
                         <a-duration-field
@@ -216,13 +216,13 @@ import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.compone
                                     | translate
                             }}
                             <icon
-                                class="ml-2"
+                                class="ml-2 text-base"
                                 [matTooltip]="
                                     'APP.CONCIERGE.ROOMS_BREAKDOWN_INFO'
                                         | translate
                                 "
                             >
-                                info_outline
+                                info
                             </icon>
                         </label>
                         <a-duration-field

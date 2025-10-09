@@ -14,6 +14,8 @@ import {
     BuildingPipe,
     IconComponent,
     LevelPipe,
+    SafePipe,
+    SanitizePipe,
     TranslatePipe,
 } from '@placeos/components';
 import {
@@ -173,6 +175,8 @@ import {
         IconComponent,
         MatRippleModule,
         RouterModule,
+        SanitizePipe,
+        SafePipe,
     ],
 })
 export class NewDeskFlowSuccessComponent implements OnInit {
