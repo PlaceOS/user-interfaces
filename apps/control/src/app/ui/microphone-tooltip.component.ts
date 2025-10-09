@@ -3,6 +3,7 @@ import { AsyncHandler } from '@placeos/common';
 import {
     BindingDirective,
     CustomTooltipData,
+    IconComponent,
     SettingsToggleComponent,
     TranslatePipe,
 } from '@placeos/components';
@@ -235,6 +236,7 @@ import { ControlStateService } from '../control-state.service';
         FormsModule,
         MatRippleModule,
         SettingsToggleComponent,
+        IconComponent,
     ],
 })
 export class MicrophoneTooltipComponent extends AsyncHandler {

@@ -1,6 +1,9 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component, OnInit, inject, input } from '@angular/core';
-import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
+import { Component, OnInit, inject, model } from '@angular/core';
+import {
+    MatBottomSheetModule,
+    MatBottomSheetRef,
+} from '@angular/material/bottom-sheet';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
@@ -180,6 +183,7 @@ import { SpacePipe } from '@placeos/events';
         TranslatePipe,
         IconComponent,
         MatChipsModule,
+        MatBottomSheetModule,
     ],
 })
 export class MeetingFlowConfirmComponent
@@ -193,7 +197,7 @@ export class MeetingFlowConfirmComponent
     private _dialog = inject(MatDialog);
     private _settings = inject(SettingsService);
 
-    public readonly show_close = input(false);
+    public readonly show_close = model(false);
 
     private _date: DatePipe = new DatePipe('en');
 

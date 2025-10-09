@@ -5,6 +5,7 @@ import { BehaviorSubject, of } from 'rxjs';
 import { debounceTime, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -81,6 +82,7 @@ const STORE_KEY = 'PLACEOS.CONTROL.system';
                         </mat-option>
                     }
                 </mat-autocomplete>
+                {{ system_id$ | async }}
                 <button
                     btn
                     matRipple
@@ -135,6 +137,7 @@ const STORE_KEY = 'PLACEOS.CONTROL.system';
         MatAutocompleteModule,
         MatFormFieldModule,
         MatInputModule,
+        FormsModule,
     ],
 })
 export class BootstrapComponent extends AsyncHandler implements OnInit {

@@ -72,7 +72,7 @@ export class MeetingBookingComponent {
                 )}]`,
             );
         this.sheet_ref = this._bottom_sheet.open(MeetingFlowConfirmComponent);
-        this.sheet_ref.instance.show_close = true;
+        this.sheet_ref.instance.show_close.set(true);
         this.sheet_ref.afterDismissed().subscribe((value) => {
             if (value) {
                 this._router.navigate(['/book', 'meeting', 'success']);

@@ -760,7 +760,7 @@ export class MeetingFlowFormComponent extends AsyncHandler implements OnInit {
             this.dialog_ref = this._dialog.open(
                 MeetingFlowConfirmModalComponent,
             );
-            this.dialog_ref.componentInstance.show_close = true;
+            this.dialog_ref.componentInstance.show_close.set(true);
             this.dialog_ref.afterClosed().subscribe((value) => {
                 if (value) {
                     this.unsubWith('idle');
@@ -772,7 +772,7 @@ export class MeetingFlowFormComponent extends AsyncHandler implements OnInit {
             this.sheet_ref = this._bottom_sheet.open(
                 MeetingFlowConfirmComponent,
             );
-            this.sheet_ref.instance.show_close = true;
+            this.sheet_ref.instance.show_close.set(true);
             this.sheet_ref.afterDismissed().subscribe((value) => {
                 if (value) {
                     this.unsubWith('idle');

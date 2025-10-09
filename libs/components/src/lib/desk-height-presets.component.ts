@@ -1,4 +1,4 @@
-import { Component, inject, input, output } from '@angular/core';
+import { Component, inject, model, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatSliderModule } from '@angular/material/slider';
@@ -84,7 +84,7 @@ import { TranslatePipe } from './translate.pipe';
 export class DeskHeightPresetsComponent {
     private _settings = inject(SettingsService);
 
-    public readonly show_close = input(false);
+    public readonly show_close = model(false);
     public readonly close = output<void>();
     public not_set = false;
     public desk_sitting_height = 71;

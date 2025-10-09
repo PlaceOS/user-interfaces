@@ -111,7 +111,7 @@ import { PanelStateService } from './panel-state.service';
                     [source]="(logo | async)?.src || (logo | async)"
                 />
                 <p class="text-2xl">
-                    {{ time | date: 'shortTime' }}
+                    {{ time() | date: 'shortTime' }}
                 </p>
             </footer>
             @if (!hide_qr && checkin) {

@@ -1,5 +1,5 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component, OnInit, inject, input } from '@angular/core';
+import { Component, OnInit, inject, model } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { addMinutes, endOfDay, startOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest } from 'rxjs';
@@ -486,7 +486,7 @@ export class MeetingFlowConfirmModalComponent
     private _dialog = inject(MatDialog);
     private _settings = inject(SettingsService);
 
-    public readonly show_close = input(false);
+    public readonly show_close = model(false);
 
     private _loading = new BehaviorSubject(false);
 

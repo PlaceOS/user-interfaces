@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { AsyncHandler, nextValueFrom } from '@placeos/common';
-import { TranslatePipe } from '@placeos/components';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ControlStateService, RoomOutput } from '../control-state.service';
@@ -19,7 +19,7 @@ const STATUS = {};
 @Component({
     selector: 'device-output-list-item',
     template: `
-        @if (item() || true) {
+        @if (item()) {
             <div
                 class="relative m-2 h-40 w-full flex-1 rounded border bg-base-100 p-2 shadow"
                 [class.border-base-200]="!active()"
@@ -38,7 +38,11 @@ const STATUS = {};
                     >
                         {{ item()?.name || 'Display' }}
                     </div>
-                    <icon class="text-5xl">
+                    <icon
+                        class="text-5xl"
+                        [class.opacity-30]="!source"
+                        [class.text-base-content]="!source"
+                    >
                         {{
                             source?.icon ||
                                 icons[source?.type] ||
@@ -46,8 +50,9 @@ const STATUS = {};
                         }}
                     </icon>
                     <span
-                        class="text-sm text-white"
-                        [class.opacity-60]="!source"
+                        class="text-sm"
+                        [class.opacity-30]="!source"
+                        [class.text-base-content]="!source"
                     >
                         {{
                             source?.name ||
@@ -65,7 +70,7 @@ const STATUS = {};
             }
         `,
     ],
-    imports: [CommonModule, TranslatePipe, MatRippleModule],
+    imports: [CommonModule, TranslatePipe, MatRippleModule, IconComponent],
 })
 export class DeviceOutputListItemComponent
     extends AsyncHandler

@@ -10,7 +10,11 @@ import {
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
-import { SanitizePipe, TranslatePipe } from '@placeos/components';
+import {
+    PrintableComponent,
+    SanitizePipe,
+    TranslatePipe,
+} from '@placeos/components';
 import { UserLabelComponent } from '@placeos/users';
 import { roundToNearestMinutes, startOfMinute } from 'date-fns';
 import { combineLatest, firstValueFrom } from 'rxjs';
@@ -107,6 +111,7 @@ const DEFAULT_TEMPLATE = `
         TranslatePipe,
         UserLabelComponent,
         SanitizePipe,
+        PrintableComponent,
     ],
 })
 export class CheckinResultsComponent extends AsyncHandler implements OnInit {
