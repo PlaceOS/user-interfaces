@@ -46,25 +46,28 @@ const DEFAULT_TEMPLATE = `
                     [innerHTML]="result_template | async | sanitize: 'html'"
                 ></div>
                 @if (printing()) {
-                    <div printable class="print-only">
-                        <user-label
-                            [user]="{
-                                name: ev?.asset_name || ev?.description,
-                                email: ev?.asset_id,
-                                photo: photo | async,
-                                title: ev?.title,
-                                host: ev?.user_name || ev.user_email,
-                                zones: ev?.zones,
-                                date: ev?.date || date,
-                                extra_details:
-                                    ev?.extension_data?.extra_details,
-                                pass_number: ev?.extension_data?.pass_number,
-                                qr_code: qr_code,
-                            }"
-                            [width]="label_size().width"
-                            [height]="label_size().height"
-                            [style.font-size]="label_size().scale + 'mm'"
-                        />
+                    <div printable class="print-only" [content]="print_content">
+                        <ng-template #print_content>
+                            <user-label
+                                [user]="{
+                                    name: ev?.asset_name || ev?.description,
+                                    email: ev?.asset_id,
+                                    photo: photo | async,
+                                    title: ev?.title,
+                                    host: ev?.user_name || ev.user_email,
+                                    zones: ev?.zones,
+                                    date: ev?.date || date,
+                                    extra_details:
+                                        ev?.extension_data?.extra_details,
+                                    pass_number:
+                                        ev?.extension_data?.pass_number,
+                                    qr_code: qr_code,
+                                }"
+                                [width]="label_size().width"
+                                [height]="label_size().height"
+                                [style.font-size]="label_size().scale + 'mm'"
+                            />
+                        </ng-template>
                     </div>
                 }
                 <div class="flex items-center space-x-2">
