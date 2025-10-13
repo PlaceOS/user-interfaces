@@ -70,7 +70,7 @@ export const FAV_DESK_KEY = 'favourite_desks';
             >
                 <div
                     class="h-full w-full overflow-y-auto overflow-x-hidden rounded border border-base-300 shadow sm:block sm:w-[20rem]"
-                    [class.hidden]="!show_filters"
+                    [class.hidden]="!show_filters()"
                 >
                     <new-desk-filters
                         [hide_levels]="view() !== 'list'"
@@ -79,7 +79,7 @@ export const FAV_DESK_KEY = 'favourite_desks';
                 <div
                     list
                     class="h-full w-full min-w-[20rem] overflow-auto rounded border border-base-300 bg-base-200 sm:w-[20rem] lg:block"
-                    [class.hidden]="show_filters || displayed()"
+                    [class.hidden]="show_filters() || displayed()"
                     [class.sm:hidden]="displayed()"
                     [class.md:block]="!displayed()"
                     [class.p-2]="view() === 'list'"
@@ -116,7 +116,7 @@ export const FAV_DESK_KEY = 'favourite_desks';
                 </div>
                 <div
                     class="relative h-full w-full overflow-auto rounded border border-base-300 shadow sm:w-[20rem]"
-                    [class.hidden]="show_filters || !displayed()"
+                    [class.hidden]="show_filters() || !displayed()"
                     [class.sm:hidden]="!displayed()"
                     [class.md:block]="displayed()"
                     [class.lg:block]="view() === 'list'"
@@ -149,10 +149,10 @@ export const FAV_DESK_KEY = 'favourite_desks';
                         icon
                         matRipple
                         class="absolute right-2 top-3 z-20 border border-base-200 bg-base-100 sm:hidden"
-                        (click)="show_filters = !show_filters"
+                        (click)="show_filters.set(!show_filters())"
                     >
                         <icon>{{
-                            show_filters ? 'close' : 'filter_list'
+                            show_filters() ? 'close' : 'filter_list'
                         }}</icon>
                     </button>
                 }
