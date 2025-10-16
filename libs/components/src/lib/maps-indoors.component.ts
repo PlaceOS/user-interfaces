@@ -16,6 +16,7 @@ import {
     BuildingLevel,
     MapService,
     MapsPeopleService,
+    OrganisationService,
     calculateDistance,
     i18n,
     log,
@@ -24,7 +25,6 @@ import {
     notifyWarn,
     randomString,
 } from '@placeos/common';
-import { OrganisationService } from '@placeos/common';
 import { MapMetadata } from './interactive-map.component';
 
 declare let mapsindoors: any;

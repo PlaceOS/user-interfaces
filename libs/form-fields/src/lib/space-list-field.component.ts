@@ -15,8 +15,7 @@ import { MatRadioModule } from '@angular/material/radio';
 import { BehaviorSubject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 
-import { SettingsService, Space } from '@placeos/common';
-import { OrganisationService } from '@placeos/common';
+import { OrganisationService, SettingsService, Space } from '@placeos/common';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';

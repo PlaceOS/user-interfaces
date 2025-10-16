@@ -1,12 +1,12 @@
 import { Injectable, inject } from '@angular/core';
 import {
     AsyncHandler,
+    OrganisationService,
     SettingsService,
     currentUser,
     log,
     randomString,
 } from '@placeos/common';
-import { OrganisationService } from '@placeos/common';
 import { apiKey, getModule, token } from '@placeos/ts-client';
 import { BehaviorSubject, Observable, combineLatest } from 'rxjs';
 import { filter, map, shareReplay, switchMap } from 'rxjs/operators';

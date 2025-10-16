@@ -7,8 +7,12 @@ import {
     output,
     viewChild,
 } from '@angular/core';
-import { AsyncHandler, BuildingLevel, SettingsService } from '@placeos/common';
-import { OrganisationService } from '@placeos/common';
+import {
+    AsyncHandler,
+    BuildingLevel,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
 import { MapMetadata } from './interactive-map.component';
 
 declare class SpacesRichMap {}

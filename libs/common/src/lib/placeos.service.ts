@@ -1,9 +1,8 @@
 import { Clipboard } from '@angular/cdk/clipboard';
-import { inject, signal } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SwUpdate } from '@angular/service-worker';
-
 import {
     clientId,
     convertPairStringToMap,
@@ -19,7 +18,25 @@ import { addHours } from 'date-fns';
 import { lastValueFrom } from 'rxjs';
 import { first } from 'rxjs/operators';
 
-import { setInternalUserDomain } from 'libs/users/src/lib/user.utilities';
+import { hasNewVersion, setupCache } from './application';
+import { AsyncHandler } from './async-handler.class';
+import { requestScreenWakeLock } from './fixed-device-helpers';
+import {
+    firstTruthyValueFrom,
+    log,
+    nextValueFrom,
+    setAppName,
+} from './general';
+import { GoogleAnalyticsService } from './google-analytics.service';
+import { HotkeysService } from './hotkeys.service';
+import { LocaleService, setTranslationService } from './locale.service';
+import { MapsPeopleService } from './mapspeople.service';
+import { notifySuccess, setNotifyOutlet } from './notifications';
+import { OrganisationService } from './org/organisation.service';
+import { setupPlace } from './placeos';
+import { SettingsService } from './settings.service';
+import { setInternalUserDomain } from './types/user.class';
+import { current_user, currentUser } from './user-state';
 
 const START_QUERY = location.search;
 
@@ -63,26 +80,6 @@ export function initSentry(dsn: string, sample_rate = 0.1) {
         replaysOnErrorSampleRate: 1.0, // If you're not already sampling the entire session, change the sample rate to 100% when sampling sessions where errors occur.
     });
 }
-
-import { Injectable } from '@angular/core';
-import { hasNewVersion, setupCache } from './application';
-import { AsyncHandler } from './async-handler.class';
-import { requestScreenWakeLock } from './fixed-device-helpers';
-import {
-    firstTruthyValueFrom,
-    log,
-    nextValueFrom,
-    setAppName,
-} from './general';
-import { GoogleAnalyticsService } from './google-analytics.service';
-import { HotkeysService } from './hotkeys.service';
-import { LocaleService, setTranslationService } from './locale.service';
-import { MapsPeopleService } from './mapspeople.service';
-import { notifySuccess, setNotifyOutlet } from './notifications';
-import { OrganisationService } from './org/organisation.service';
-import { setupPlace } from './placeos';
-import { SettingsService } from './settings.service';
-import { current_user, currentUser } from './user-state';
 
 let _mocks: (() => void) | null = null;
 
