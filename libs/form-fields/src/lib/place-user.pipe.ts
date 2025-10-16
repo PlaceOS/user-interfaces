@@ -4,7 +4,7 @@ import { showUser } from '@placeos/ts-client';
 
 const USER_LIST: User[] = [];
 
-const EMPTY_USER = new StaffUser();
+const EMPTY_USER: StaffUser = {} as any;
 
 @Pipe({
     name: 'placeuser',

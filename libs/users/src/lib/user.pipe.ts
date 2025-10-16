@@ -7,7 +7,7 @@ import { showStaff } from './staff.fn';
 
 const USER_LIST: User[] = [];
 
-const EMPTY_USER = {} as User;
+const EMPTY_USER: User = {} as any;
 
 export function addUser(user: User): void {
     USER_LIST.push(user);
