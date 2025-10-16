@@ -24,7 +24,6 @@ import { CustomTooltipData } from './custom-tooltip.component';
             }
         `,
     ],
-    standalone: false,
 })
 export class JsonDisplayComponent {
     public readonly json = input<Object>(undefined);

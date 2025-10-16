@@ -1,4 +1,7 @@
 import { Component } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
+import { RouterModule } from '@angular/router';
+import { TranslatePipe } from '@placeos/components';
 
 @Component({
     selector: 'code-flow-success',
@@ -32,6 +35,6 @@ import { Component } from '@angular/core';
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [MatRippleModule, TranslatePipe, RouterModule],
 })
 export class CodeFlowSuccessComponent {}

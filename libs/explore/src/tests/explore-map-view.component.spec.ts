@@ -6,9 +6,8 @@ import { SpectatorRouting, createRoutingFactory } from '@ngneat/spectator/jest';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 import { BehaviorSubject, of } from 'rxjs';
 
-import { SettingsService } from '@placeos/common';
+import { OrganisationService, SettingsService } from '@placeos/common';
 import { SpacesService } from '@placeos/events';
-import { OrganisationService } from '@placeos/organisation';
 
 import { MapsPeopleService } from 'libs/common/src/lib/mapspeople.service';
 import { IndoorMapsComponent } from 'libs/components/src/lib/indoor-maps.component';

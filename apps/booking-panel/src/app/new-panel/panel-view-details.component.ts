@@ -1,8 +1,10 @@
 import { Component, inject } from '@angular/core';
 import { startOfMinute } from 'date-fns';
 
-import { generateQRCode } from 'libs/common/src/lib/qr-code';
+import { generateQRCode } from '@placeos/common';
 
+import { CommonModule } from '@angular/common';
+import { TranslatePipe } from '@placeos/components';
 import { PanelStateService } from '../panel-state.service';
 
 @Component({
@@ -83,7 +85,7 @@ import { PanelStateService } from '../panel-state.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [CommonModule, TranslatePipe],
 })
 export class PanelViewDetailsComponent {
     private _state = inject(PanelStateService);

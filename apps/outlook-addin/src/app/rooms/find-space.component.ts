@@ -1,20 +1,171 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject, signal } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatRippleModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
-import { AsyncHandler, HashMap, i18n, nextValueFrom } from '@placeos/common';
-import { EventFormService, Space, SpacesService } from '@placeos/events';
-import { OrganisationService } from '@placeos/organisation';
+import {
+    AsyncHandler,
+    HashMap,
+    OrganisationService,
+    Space,
+    i18n,
+    nextValueFrom,
+} from '@placeos/common';
+import {
+    IconComponent,
+    InteractiveMapComponent,
+    TranslatePipe,
+} from '@placeos/components';
+import { EventFormService, SpacesService } from '@placeos/events';
 import { ViewAction, ViewerFeature, ViewerStyles } from '@placeos/svg-viewer';
 import { BehaviorSubject, Observable, combineLatest, of } from 'rxjs';
 import { filter, first, map, tap } from 'rxjs/operators';
 import { FeaturesFilterService } from './features-filter.service';
 import { FilterSpaceComponent } from './filter-space.component';
+import { FindSpaceItemComponent } from './find-space-item.component';
 import { Locatable, MapService, MapsList } from './map.service';
 import { RoomConfirmService } from './room-confirm.service';
 
 @Component({
     selector: 'find-space',
     template: `
+        <div class="fixed inset-0 z-10 flex flex-col bg-base-200">
+            <div
+                class="mx-auto flex h-full w-[32rem] max-w-full flex-col border-x border-base-300 bg-base-100"
+            >
+                <header class="space-y-2 p-2">
+                    <div
+                        class="flex items-center justify-between rounded bg-base-200 p-2"
+                    >
+                        <h2 class="px-2 text-xl font-medium">Find Space</h2>
+                        <button icon matRipple (click)="closeModal()">
+                            <icon>close</icon>
+                        </button>
+                    </div>
+                    <div
+                        class="flex items-center justify-between rounded-lg border border-base-200 p-1"
+                    >
+                        <button
+                            btn
+                            matRipple
+                            class="w-40"
+                            (click)="openFilter()"
+                        >
+                            Filters
+                            @if ((selected_features$ | async)?.length) {
+                                <span>
+                                    ({{ (selected_features$ | async).length }}
+                                    applied)
+                                </span>
+                            }
+                        </button>
+                        <div
+                            class="mx-1 flex divide-x divide-secondary rounded border border-secondary"
+                        >
+                            <button
+                                icon
+                                matRipple
+                                class="rounded-l rounded-r-none"
+                                [class.bg-base-100]="view() !== 'list'"
+                                [class.bg-secondary]="view() === 'list'"
+                                [class.text-secondary-content]="
+                                    view() === 'list'
+                                "
+                                [matTooltip]="'COMMON.LIST' | translate"
+                                (click)="view.set('list')"
+                            >
+                                <icon>list</icon>
+                            </button>
+                            <button
+                                icon
+                                matRipple
+                                class="rounded-l-none rounded-r"
+                                [class.bg-base-100]="view() !== 'map'"
+                                [class.bg-secondary]="view() === 'map'"
+                                [class.text-secondary-content]="
+                                    view() === 'map'
+                                "
+                                [matTooltip]="'COMMON.MAP' | translate"
+                                (click)="view.set('map')"
+                            >
+                                <icon>map</icon>
+                            </button>
+                        </div>
+                    </div>
+                </header>
+                <main class="flex h-1/2 w-full flex-1 flex-col">
+                    @if (!(loading | async)) {
+                        @if ((spaces$ | async)?.length > 0) {
+                            @if (view() === 'list') {
+                                <div class="flex flex-col space-y-2">
+                                    @for (
+                                        space of spaces$ | async;
+                                        track space
+                                    ) {
+                                        <find-space-item
+                                            [space]="space"
+                                            [selected]="book_space[space.id]"
+                                            (selectedChange)="
+                                                handleBookEvent(space, $event)
+                                            "
+                                        >
+                                        </find-space-item>
+                                    }
+                                </div>
+                            } @else {
+                                <mat-form-field
+                                    appearance="outline"
+                                    class="ml-auto mr-2 flex text-sm"
+                                >
+                                    <mat-select
+                                        [(ngModel)]="selected_level"
+                                        (ngModelChange)="
+                                            updateSelectedLevel($event)
+                                        "
+                                    >
+                                        <mat-option
+                                            [value]="maps_list$ | async"
+                                        >
+                                            {{ 'COMMON.LEVEL_ALL' | translate }}
+                                        </mat-option>
+                                        @for (
+                                            map of maps_list$ | async;
+                                            track map
+                                        ) {
+                                            <mat-option [value]="map">{{
+                                                map.level
+                                            }}</mat-option>
+                                        }
+                                    </mat-select>
+                                </mat-form-field>
+                            }
+                        } @else {
+                            <div class="h-1/2 w-full flex-1 px-2 pb-2">
+                                <div
+                                    class="flex h-full w-full items-center justify-center rounded bg-base-200 opacity-30"
+                                >
+                                    <p class="">No spaces</p>
+                                </div>
+                            </div>
+                        }
+                    } @else {
+                        <div
+                            class="flex h-full w-full flex-1 items-center justify-center"
+                        >
+                            <mat-spinner [diameter]="32"></mat-spinner>
+                            <p>{{ loading | async }}</p>
+                        </div>
+                    }
+                </main>
+            </div>
+        </div>
+
         <div
             class="z-0 flex h-full w-full flex-1 flex-col overflow-auto bg-base-200"
         >
@@ -55,31 +206,37 @@ import { RoomConfirmService } from './room-confirm.service';
                                 }
                             </button>
                         </div>
-
-                        <div class="flex w-4/12">
-                            <mat-button-toggle-group
-                                aria-label="Map or list view"
-                                [(ngModel)]="space_view"
-                                (change)="resetSpace()"
-                                class="ml-auto mr-0 flex w-full border-none"
+                        <div
+                            class="flex divide-x divide-secondary rounded border border-secondary"
+                        >
+                            <button
+                                icon
+                                matRipple
+                                class="rounded-l rounded-r-none"
+                                [class.bg-base-100]="view() !== 'list'"
+                                [class.bg-secondary]="view() === 'list'"
+                                [class.text-secondary-content]="
+                                    view() === 'list'
+                                "
+                                [matTooltip]="'COMMON.LIST' | translate"
+                                (click)="view.set('list')"
                             >
-                                <mat-button-toggle
-                                    value="mapView"
-                                    class="flex w-1/2 items-center justify-center rounded bg-base-200"
-                                    ><span
-                                        class="flex text-[0.875rem] leading-9"
-                                        >Map</span
-                                    ></mat-button-toggle
-                                >
-                                <mat-button-toggle
-                                    value="listView"
-                                    class="flex w-1/2 items-center justify-center rounded bg-base-200 text-sm"
-                                    ><span
-                                        class="flex text-[0.875rem] leading-9"
-                                        >List</span
-                                    ></mat-button-toggle
-                                >
-                            </mat-button-toggle-group>
+                                <icon>list</icon>
+                            </button>
+                            <button
+                                icon
+                                matRipple
+                                class="rounded-l-none rounded-r"
+                                [class.bg-base-100]="view() !== 'map'"
+                                [class.bg-secondary]="view() === 'map'"
+                                [class.text-secondary-content]="
+                                    view() === 'map'
+                                "
+                                [matTooltip]="'COMMON.MAP' | translate"
+                                (click)="view.set('map')"
+                            >
+                                <icon>map</icon>
+                            </button>
                         </div>
                     </div>
 
@@ -117,7 +274,7 @@ import { RoomConfirmService } from './room-confirm.service';
                     <div class="w-full flex-1 bg-base-200">
                         @if (!(loading | async)) {
                             @if ((spaces$ | async)?.length > 0) {
-                                @if (space_view == 'listView') {
+                                @if (view() == 'list') {
                                     <div>
                                         @for (
                                             space of spaces$ | async;
@@ -141,7 +298,7 @@ import { RoomConfirmService } from './room-confirm.service';
                                     </div>
                                 }
                                 @if (
-                                    space_view == 'mapView' &&
+                                    view() == 'map' &&
                                     (map_features$ | async)?.length > 0
                                 ) {
                                     <div class="h-full text-center">
@@ -320,7 +477,21 @@ import { RoomConfirmService } from './room-confirm.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatRippleModule,
+        MatProgressSpinnerModule,
+        InteractiveMapComponent,
+        MatFormFieldModule,
+        MatSelectModule,
+        FindSpaceItemComponent,
+        MatButtonToggleModule,
+        FormsModule,
+        ReactiveFormsModule,
+        IconComponent,
+        TranslatePipe,
+        MatTooltipModule,
+    ],
 })
 export class FindSpaceComponent extends AsyncHandler implements OnInit {
     private _bottomSheet = inject(MatBottomSheet);
@@ -339,7 +510,7 @@ export class FindSpaceComponent extends AsyncHandler implements OnInit {
     filtered_spaces: Space[] = [];
     show_room_details$: Observable<boolean> = of(false);
     selected_space: Space;
-    space_view?: string;
+    public readonly view = signal<'list' | 'map'>('list');
     locatable_spaces$: Observable<Locatable[]>;
     maps_list$: Observable<MapsList[]>;
     map_features$: Observable<ViewerFeature[]>;
@@ -393,7 +564,7 @@ export class FindSpaceComponent extends AsyncHandler implements OnInit {
     public readonly setOptions = (o) => this._state.setOptions(o);
 
     public async ngOnInit() {
-        this.space_view = 'listView';
+        this.view.set('list');
 
         this.selected_features$ =
             this._featuresFilterService.selected_features$;
@@ -432,7 +603,7 @@ export class FindSpaceComponent extends AsyncHandler implements OnInit {
         this.map_actions$ = this._mapService.map_actions$;
     }
 
-    public handleBookEvent(space: Space, book: boolean = true) {
+    public handleBookEvent(space: Space, book = true) {
         this.book_space[space.id] = book;
         this._roomConfirmService.book_space = this.book_space;
         this._roomConfirmService.handleBookEvent(space, book);

@@ -3,7 +3,13 @@ import { ActivatedRoute } from '@angular/router';
 
 import { AsyncHandler } from '@placeos/common';
 
+import { CommonModule } from '@angular/common';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { TranslatePipe } from '@placeos/components';
 import { ControlStateService } from '../control-state.service';
+import { ControlStatusBarComponent } from '../status-bar.component';
+import { TopbarHeaderComponent } from '../topbar-header.component';
+import { VideoCallPageComponent } from './video-call-page.component';
 
 @Component({
     selector: 'app-control-main-view',
@@ -63,7 +69,14 @@ import { ControlStateService } from '../control-state.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TopbarHeaderComponent,
+        VideoCallPageComponent,
+        ControlStatusBarComponent,
+        MatProgressSpinnerModule,
+        TranslatePipe,
+    ],
 })
 export class ControlVideoCallViewComponent
     extends AsyncHandler

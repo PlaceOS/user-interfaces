@@ -1,8 +1,14 @@
 import { Component, inject, input, output } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute, Router } from '@angular/router';
 import { nextValueFrom } from '@placeos/common';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { getModule } from '@placeos/ts-client';
 import { ControlStateService } from '../control-state.service';
+import { DialpadComponent } from '../ui/dialpad.component';
 import { VideoCallStateService } from './video-call-state.service';
 
 @Component({
@@ -77,7 +83,15 @@ import { VideoCallStateService } from './video-call-state.service';
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        MatFormFieldModule,
+        MatInputModule,
+        MatProgressSpinnerModule,
+        TranslatePipe,
+        IconComponent,
+        MatRippleModule,
+        DialpadComponent,
+    ],
 })
 export class VideoCallDialViewComponent {
     private _control = inject(ControlStateService);

@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import {
     Component,
     ElementRef,
@@ -5,7 +6,11 @@ import {
     signal,
     viewChild,
 } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { RouterModule } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 
 import { ExploreSearchService } from '@placeos/explore';
 
@@ -129,7 +134,14 @@ import { ExploreSearchService } from '@placeos/explore';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        RouterModule,
+        TranslatePipe,
+        IconComponent,
+        FormsModule,
+        MatProgressSpinnerModule,
+    ],
 })
 export class GlobalSearchComponent extends AsyncHandler {
     private _service = inject(ExploreSearchService);

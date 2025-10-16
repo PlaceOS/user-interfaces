@@ -1,19 +1,31 @@
-import { Component, inject, input } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
-import { SettingsService } from '@placeos/common';
-
 import { CommonModule } from '@angular/common';
+import {
+    Component,
+    computed,
+    inject,
+    input,
+    OnInit,
+    signal,
+} from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
+import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
-import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { Space } from 'libs/events/src/lib/space.class';
-import { SpacePipe } from 'libs/events/src/lib/space.pipe';
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
-import { CalendarEvent } from './event.class';
+import {
+    CalendarEvent,
+    settingSignal,
+    SettingsService,
+    Space,
+} from '@placeos/common';
+
+import { OrganisationService } from '@placeos/common';
+import {
+    AuthenticatedImageDirective,
+    IconComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { GroupEventDetailsModalComponent } from './group-event-details-modal.component';
+import { SpacePipe } from './space.pipe';
 
 @Component({
     selector: 'group-event-card',
@@ -49,8 +61,8 @@ import { GroupEventDetailsModalComponent } from './group-event-details-modal.com
                     <div
                         class="mb-2 h-[4.5rem] flex-1 overflow-hidden text-left text-xs opacity-60"
                     >
-                        <p class="line-clamp-4">{{ raw_description }}</p>
-                        @if (!raw_description.trim()) {
+                        <p class="line-clamp-4">{{ raw_description() }}</p>
+                        @if (!raw_description().trim()) {
                             <p class="opacity-30">
                                 {{
                                     'CALENDAR_EVENT.GROUP_NO_DESCRIPTION'
@@ -61,12 +73,12 @@ import { GroupEventDetailsModalComponent } from './group-event-details-modal.com
                     </div>
                     <div class="flex items-center space-x-2 text-sm">
                         <icon class="text-info">place</icon>
-                        @if (is_onsite && has_space) {
+                        @if (is_onsite() && has_space()) {
                             <div>
-                                {{ space.display_name || space.name || '' }}
+                                {{ space().display_name || space().name || '' }}
                             </div>
                         }
-                        @if (is_onsite && !has_space) {
+                        @if (is_onsite() && !has_space()) {
                             <div class="opacity-30">
                                 {{
                                     'CALENDAR_EVENT.GROUP_UNCONFIRMED'
@@ -74,7 +86,7 @@ import { GroupEventDetailsModalComponent } from './group-event-details-modal.com
                                 }}
                             </div>
                         }
-                        @if (!is_onsite) {
+                        @if (!is_onsite()) {
                             <div class="opacity-30">
                                 {{ 'CALENDAR_EVENT.GROUP_REMOTE' | translate }}
                             </div>
@@ -156,12 +168,16 @@ import { GroupEventDetailsModalComponent } from './group-event-details-modal.com
                         </div>
                         <div class="flex items-center space-x-2 text-sm">
                             <icon class="text-info">place</icon>
-                            @if (is_onsite && has_space) {
+                            @if (is_onsite() && has_space()) {
                                 <div>
-                                    {{ space.display_name || space.name || '' }}
+                                    {{
+                                        space().display_name ||
+                                            space().name ||
+                                            ''
+                                    }}
                                 </div>
                             }
-                            @if (is_onsite && !has_space) {
+                            @if (is_onsite() && !has_space()) {
                                 <div class="opacity-30">
                                     {{
                                         'CALENDAR_EVENT.GROUP_UNCONFIRMED'
@@ -169,7 +185,7 @@ import { GroupEventDetailsModalComponent } from './group-event-details-modal.com
                                     }}
                                 </div>
                             }
-                            @if (!is_onsite) {
+                            @if (!is_onsite()) {
                                 <div class="opacity-30">
                                     {{
                                         'CALENDAR_EVENT.GROUP_REMOTE'
@@ -185,7 +201,8 @@ import { GroupEventDetailsModalComponent } from './group-event-details-modal.com
                                     'CALENDAR_EVENT.GROUP_ATTENDING'
                                         | translate
                                             : {
-                                                  count: attendees || '0',
+                                                  count:
+                                                      attendee_count() || '0',
                                               }
                                 }}
                             </div>
@@ -219,57 +236,49 @@ import { GroupEventDetailsModalComponent } from './group-event-details-modal.com
         AuthenticatedImageDirective,
     ],
 })
-export class GroupEventCardComponent {
+export class GroupEventCardComponent implements OnInit {
     private _settings = inject(SettingsService);
     private _dialog = inject(MatDialog);
     private _org = inject(OrganisationService);
 
     public readonly event = input<CalendarEvent>(undefined);
     public readonly featured = input<boolean>(undefined);
-    public space: Space;
-    public raw_description = '';
+
+    public readonly space = signal<Space>(new Space());
+    public readonly raw_description = signal('');
+    public readonly is_onsite = computed(
+        () => this.event()?.extension_data.attendance_type !== 'ONLINE',
+    );
+    public readonly has_space = computed(() => !!this.space()?.id);
+    public readonly is_online = computed(
+        () =>
+            !this.is_onsite ||
+            this.event()?.extension_data.attendance_type === 'ANY',
+    );
+    public readonly group_event_calendar = settingSignal(
+        'group_events_calendar',
+    );
+    public readonly attendee_count = computed(
+        () =>
+            this.event()?.attendees?.filter(
+                (user) => user.email !== this.group_event_calendar(),
+            )?.length || 0,
+    );
 
     public get time_format(): string {
         return this._settings.time_format;
-    }
-
-    public get is_onsite() {
-        return this.event()?.extension_data.attendance_type !== 'ONLINE';
-    }
-
-    public get has_space() {
-        return !!this.space?.id;
-    }
-
-    public get is_online() {
-        return (
-            !this.is_onsite ||
-            this.event()?.extension_data.attendance_type === 'ANY'
-        );
-    }
-
-    public get attendees() {
-        return (
-            this.event()?.attendees?.filter(
-                (user) => user.email !== this.group_event_calendar,
-            )?.length || 0
-        );
-    }
-
-    public get group_event_calendar() {
-        return this._settings.get('app.group_events_calendar');
     }
 
     public async ngOnInit() {
         const space_pipe = new SpacePipe();
         space_pipe.org = this._org;
         const resource = this.event().resources.find(
-            (_) => _.email !== this.group_event_calendar,
+            (_) => _.email !== this.group_event_calendar(),
         );
-        this.space = await space_pipe.transform(
-            resource?.id || resource?.email,
+        this.space.set(
+            await space_pipe.transform(resource?.id || resource?.email),
         );
-        this.raw_description = this.removeHtmlTags(this.event().body);
+        this.raw_description.set(this.removeHtmlTags(this.event().body));
     }
 
     public removeHtmlTags(html: string) {

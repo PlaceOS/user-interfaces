@@ -5,8 +5,11 @@ import {
     Validators,
 } from '@angular/forms';
 import {
+    Booking,
+    CalendarEvent,
     LOCAL_TIMEZONE,
     SettingsService,
+    User,
     currentUser,
     timePeriodsIntersect,
     unique,
@@ -26,9 +29,6 @@ import {
     startOfMinute,
 } from 'date-fns';
 
-import { Booking } from 'libs/bookings/src/lib/booking.class';
-import { User } from 'libs/users/src/lib/user.class';
-import { CalendarEvent } from './event.class';
 import { getNextFreeTimeSlot } from './helpers';
 import { endInFuture } from './validators';
 
@@ -55,7 +55,7 @@ export function generateEventForm(
             [Validators.required],
         ),
         organiser: new FormControl(
-            event.organiser || new User({ email: event.host || '' }),
+            event.organiser || ({ email: event.host || '' } as User),
         ),
         creator: new FormControl(event.creator || currentUser()?.email),
         calendar: new FormControl(event.calendar),

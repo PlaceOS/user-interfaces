@@ -6,9 +6,7 @@ import { MOCK_SPACES } from './spaces.data';
 import { predictableRandomInt, timePeriodsIntersect } from '@placeos/common';
 import { ACTIVE_USER, MOCK_STAFF } from './users.data';
 
-export const CALENDAR_MOCKS = registerMocks();
-
-function registerMocks() {
+export function registerMockCalendars() {
     registerMockEndpoint({
         path: '/api/staff/v1/calendars',
         metadata: {},

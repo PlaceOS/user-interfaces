@@ -1,10 +1,24 @@
 import { COMMA, ENTER, SPACE } from '@angular/cdk/keycodes';
+import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { MatChipInputEvent } from '@angular/material/chips';
-import { ActivatedRoute, Router } from '@angular/router';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
+import { MatRippleModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import {
     AsyncHandler,
+    Building,
+    BuildingLevel,
+    CalendarEvent,
+    OrganisationService,
     SettingsService,
+    Space,
+    StaffUser,
     TIMEZONES_IANA,
     currentUser,
     firstTruthyValueFrom,
@@ -14,19 +28,23 @@ import {
     unique,
 } from '@placeos/common';
 import {
-    CalendarEvent,
+    IconComponent,
+    SettingsToggleComponent,
+    TranslatePipe,
+} from '@placeos/components';
+import {
     EventFormService,
-    Space,
     SpacePipe,
     showEvent,
     showEventMetadata,
 } from '@placeos/events';
 import {
-    Building,
-    BuildingLevel,
-    OrganisationService,
-} from '@placeos/organisation';
-import { StaffUser } from '@placeos/users';
+    DateFieldComponent,
+    ImageListFieldComponent,
+    RichTextInputComponent,
+    TimeFieldComponent,
+    UserSearchFieldComponent,
+} from '@placeos/form-fields';
 import { differenceInMinutes, format, startOfDay } from 'date-fns';
 import { lastValueFrom } from 'rxjs';
 import { EventStateService } from './event-state.service';
@@ -67,395 +85,364 @@ const EMPTY = [];
                         <label for="title"
                             >{{ 'FORM.TITLE' | translate }}<span>*</span></label
                         >
-                        <ng-container>
-                            <mat-form-field appearance="outline" class="w-full">
+                        <mat-form-field appearance="outline" class="w-full">
+                            <input
+                                matInput
+                                name="title"
+                                formControlName="title"
+                                placeholder="e.g. Team Meeting"
+                            />
+                            <mat-error>
+                                {{ 'FORM.TITLE_ERROR' | translate }}
+                            </mat-error>
+                        </mat-form-field>
+                        <label for="host"
+                            >{{ 'FORM.HOST' | translate }}<span>*</span></label
+                        >
+                        <div class="pb-4">
+                            <a-user-search-field
+                                name="host"
+                                formControlName="organiser"
+                            ></a-user-search-field>
+                        </div>
+                        <label for="tags">{{
+                            'COMMON.TAGS' | translate
+                        }}</label>
+                        <mat-form-field
+                            appearance="outline"
+                            class="no-subscript"
+                        >
+                            <mat-chip-grid #chipList aria-label="Event Tags">
+                                @for (tag of tag_list; track tag) {
+                                    <mat-chip-row
+                                        [selectable]="true"
+                                        [removable]="true"
+                                        (removed)="removeTag(tag)"
+                                    >
+                                        {{ tag }}
+                                        <icon matChipRemove>close</icon>
+                                    </mat-chip-row>
+                                }
                                 <input
-                                    matInput
-                                    name="title"
-                                    formControlName="title"
-                                    placeholder="e.g. Team Meeting"
+                                    placeholder="Add new tags relevant to this event..."
+                                    [matChipInputFor]="chipList"
+                                    [matChipInputSeparatorKeyCodes]="separators"
+                                    [matChipInputAddOnBlur]="true"
+                                    (matChipInputTokenEnd)="addTag($event)"
                                 />
-                                <mat-error>
-                                    {{ 'FORM.TITLE_ERROR' | translate }}
-                                </mat-error>
-                            </mat-form-field>
-                            <label for="host"
-                                >{{ 'FORM.HOST' | translate
-                                }}<span>*</span></label
+                            </mat-chip-grid>
+                        </mat-form-field>
+                        <div class="flex items-center space-x-4 py-4">
+                            <settings-toggle
+                                class="flex-1"
+                                [name]="
+                                    'CALENDAR_EVENT.GROUP_FEATURED' | translate
+                                "
+                                formControlName="featured"
                             >
-                            <div class="pb-4">
-                                <a-user-search-field
-                                    name="host"
-                                    formControlName="organiser"
-                                ></a-user-search-field>
-                            </div>
-                            <label for="tags">{{
-                                'COMMON.TAGS' | translate
-                            }}</label>
-                            <mat-form-field
-                                appearance="outline"
-                                class="no-subscript"
+                            </settings-toggle>
+                            <settings-toggle
+                                class="flex-1"
+                                [name]="
+                                    'APP.CONCIERGE.EVENTS_PUBLISH' | translate
+                                "
+                                [ngModel]="form.value.view_access === 'OPEN'"
+                                [ngModelOptions]="{ standalone: true }"
+                                (ngModelChange)="
+                                    form.patchValue({
+                                        view_access: $event
+                                            ? 'OPEN'
+                                            : 'PRIVATE',
+                                    })
+                                "
                             >
-                                <mat-chip-grid
-                                    #chipList
-                                    aria-label="Event Tags"
-                                >
-                                    @for (tag of tag_list; track tag) {
-                                        <mat-chip-row
-                                            [selectable]="true"
-                                            [removable]="true"
-                                            (removed)="removeTag(tag)"
-                                        >
-                                            {{ tag }}
-                                            <icon matChipRemove>close</icon>
-                                        </mat-chip-row>
-                                    }
-                                    <input
-                                        placeholder="Add new tags relevant to this event..."
-                                        [matChipInputFor]="chipList"
-                                        [matChipInputSeparatorKeyCodes]="
-                                            separators
-                                        "
-                                        [matChipInputAddOnBlur]="true"
-                                        (matChipInputTokenEnd)="addTag($event)"
-                                    />
-                                </mat-chip-grid>
-                            </mat-form-field>
-                            <div class="flex items-center space-x-4 py-4">
-                                <settings-toggle
-                                    class="flex-1"
-                                    [name]="
-                                        'CALENDAR_EVENT.GROUP_FEATURED'
-                                            | translate
-                                    "
-                                    formControlName="featured"
-                                >
-                                </settings-toggle>
-                                <settings-toggle
-                                    class="flex-1"
-                                    [name]="
-                                        'APP.CONCIERGE.EVENTS_PUBLISH'
-                                            | translate
-                                    "
-                                    [ngModel]="
-                                        form.value.view_access === 'OPEN'
-                                    "
-                                    [ngModelOptions]="{ standalone: true }"
-                                    (ngModelChange)="
-                                        form.patchValue({
-                                            view_access: $event
-                                                ? 'OPEN'
-                                                : 'PRIVATE',
-                                        })
-                                    "
-                                >
-                                </settings-toggle>
-                            </div>
-                        </ng-container>
+                            </settings-toggle>
+                        </div>
                         <!-- END BASIC DETAILS -->
                         <div class="h-px w-full bg-base-200"></div>
                         <h3 class="py-4 text-2xl font-medium">
                             {{ 'APP.CONCIERGE.EVENTS_DATE_TIME' | translate }}
                         </h3>
-                        <ng-container>
-                            <div
-                                class="flex flex-wrap items-center sm:space-x-2"
-                            >
-                                <div class="relative min-w-[256px] flex-1">
-                                    <label for="date">
-                                        {{ 'FORM.DATE' | translate
-                                        }}<span>*</span>
-                                    </label>
-                                    <a-date-field
-                                        name="date"
-                                        formControlName="date"
-                                        [to]="end_date"
-                                    >
-                                        {{ 'FORM.DATE_ERROR' | translate }}
-                                    </a-date-field>
-                                </div>
-                                <div class="relative min-w-[256px] flex-1">
-                                    <label for="date">
-                                        {{ 'FORM.DATE_END' | translate }}
+                        <div class="flex flex-wrap items-center sm:space-x-2">
+                            <div class="relative min-w-[256px] flex-1">
+                                <label for="date">
+                                    {{ 'FORM.DATE' | translate }}<span>*</span>
+                                </label>
+                                <a-date-field
+                                    name="date"
+                                    formControlName="date"
+                                    [to]="end_date"
+                                >
+                                    {{ 'FORM.DATE_ERROR' | translate }}
+                                </a-date-field>
+                            </div>
+                            <div class="relative min-w-[256px] flex-1">
+                                <label for="date">
+                                    {{ 'FORM.DATE_END' | translate }}
+                                    <span>*</span>
+                                </label>
+                                <a-date-field
+                                    name="date"
+                                    formControlName="date_end"
+                                    [from]="start_date"
+                                    [to]="end_date"
+                                >
+                                    {{ 'FORM.DATE_ERROR' | translate }}
+                                </a-date-field>
+                            </div>
+                        </div>
+                        @if (!form.value.all_day) {
+                            <div class="flex items-center space-x-2">
+                                <div class="w-1/3 flex-1">
+                                    <label for="start-time">
+                                        {{ 'FORM.TIME_START' | translate }}
                                         <span>*</span>
                                     </label>
-                                    <a-date-field
-                                        name="date"
-                                        formControlName="date_end"
-                                        [from]="start_date"
-                                        [to]="end_date"
-                                    >
-                                        {{ 'FORM.DATE_ERROR' | translate }}
-                                    </a-date-field>
-                                </div>
-                            </div>
-                            @if (!form.value.all_day) {
-                                <div class="flex items-center space-x-2">
-                                    <div class="w-1/3 flex-1">
-                                        <label for="start-time">
-                                            {{ 'FORM.TIME_START' | translate }}
-                                            <span>*</span>
-                                        </label>
-                                        <a-time-field
-                                            name="start-time"
-                                            [ngModel]="form.getRawValue().date"
-                                            (ngModelChange)="
-                                                form.patchValue({
-                                                    date: $event,
-                                                })
-                                            "
-                                            [disabled]="
-                                                form.controls.date.disabled
-                                            "
-                                            [ngModelOptions]="{
-                                                standalone: true,
-                                            }"
-                                            [use_24hr]="use_24hr"
-                                        ></a-time-field>
-                                    </div>
-                                    <div class="w-1/3 flex-1">
-                                        <label for="end-time">
-                                            {{ 'FORM.TIME_END' | translate }}
-                                            <span>*</span>
-                                        </label>
-                                        <a-time-field
-                                            name="end-time"
-                                            [ngModel]="
-                                                form.value.date_end ||
-                                                form.value.date +
-                                                    form.value.duration *
-                                                        60 *
-                                                        1000
-                                            "
-                                            (ngModelChange)="
-                                                form.patchValue({
-                                                    date_end: $event,
-                                                })
-                                            "
-                                            [ngModelOptions]="{
-                                                standalone: true,
-                                            }"
-                                            [from]="
-                                                form?.getRawValue()?.date +
-                                                30 * 60 * 1000
-                                            "
-                                            [use_24hr]="use_24hr"
-                                            [extra_info_fn]="duration_info"
-                                        ></a-time-field>
-                                    </div>
-                                </div>
-                            }
-                            <div class="flex flex-col">
-                                <label for="display-name">
-                                    {{ 'COMMON.TIMEZONE' | translate }}
-                                </label>
-                                <mat-form-field appearance="outline">
-                                    <icon matPrefix class="text-2xl">
-                                        search
-                                    </icon>
-                                    <input
-                                        matInput
-                                        formControlName="timezone"
-                                        [placeholder]="
-                                            'COMMON.TIMEZONE' | translate
+                                    <a-time-field
+                                        name="start-time"
+                                        [ngModel]="form.getRawValue().date"
+                                        (ngModelChange)="
+                                            form.patchValue({
+                                                date: $event,
+                                            })
                                         "
-                                        [matAutocomplete]="auto"
-                                    />
-                                </mat-form-field>
-                                <mat-autocomplete #auto="matAutocomplete">
-                                    @for (tz of filtered_timezones; track tz) {
-                                        <mat-option [value]="tz">
-                                            {{ tz }}
-                                        </mat-option>
-                                    }
-                                    @if (!timezones.length) {
-                                        <mat-option [disabled]="true">
-                                            {{
-                                                'COMMON.TIMEZONE_EMPTY'
-                                                    | translate
-                                            }}
-                                        </mat-option>
-                                    }
-                                </mat-autocomplete>
+                                        [disabled]="form.controls.date.disabled"
+                                        [ngModelOptions]="{
+                                            standalone: true,
+                                        }"
+                                        [use_24hr]="use_24hr"
+                                    ></a-time-field>
+                                </div>
+                                <div class="w-1/3 flex-1">
+                                    <label for="end-time">
+                                        {{ 'FORM.TIME_END' | translate }}
+                                        <span>*</span>
+                                    </label>
+                                    <a-time-field
+                                        name="end-time"
+                                        [ngModel]="
+                                            form.value.date_end ||
+                                            form.value.date +
+                                                form.value.duration * 60 * 1000
+                                        "
+                                        (ngModelChange)="
+                                            form.patchValue({
+                                                date_end: $event,
+                                            })
+                                        "
+                                        [ngModelOptions]="{
+                                            standalone: true,
+                                        }"
+                                        [from]="
+                                            form?.getRawValue()?.date +
+                                            30 * 60 * 1000
+                                        "
+                                        [use_24hr]="use_24hr"
+                                        [extra_info_fn]="duration_info"
+                                    ></a-time-field>
+                                </div>
                             </div>
-                        </ng-container>
+                        }
+                        <div class="flex flex-col">
+                            <label for="display-name">
+                                {{ 'COMMON.TIMEZONE' | translate }}
+                            </label>
+                            <mat-form-field appearance="outline">
+                                <icon matPrefix class="text-2xl"> search </icon>
+                                <input
+                                    matInput
+                                    formControlName="timezone"
+                                    [placeholder]="
+                                        'COMMON.TIMEZONE' | translate
+                                    "
+                                    [matAutocomplete]="auto"
+                                />
+                            </mat-form-field>
+                            <mat-autocomplete #auto="matAutocomplete">
+                                @for (tz of filtered_timezones; track tz) {
+                                    <mat-option [value]="tz">
+                                        {{ tz }}
+                                    </mat-option>
+                                }
+                                @if (!timezones.length) {
+                                    <mat-option [disabled]="true">
+                                        {{
+                                            'COMMON.TIMEZONE_EMPTY' | translate
+                                        }}
+                                    </mat-option>
+                                }
+                            </mat-autocomplete>
+                        </div>
                         <!-- END DATE TIME -->
                         <div class="h-px w-full bg-base-200"></div>
                         <h3 class="py-4 text-2xl font-medium">
                             {{ 'COMMON.LOCATION' | translate }}
                         </h3>
-                        <ng-container>
-                            <div class="flex items-center space-x-2 pb-2">
-                                <button
-                                    btn
-                                    matRipple
-                                    class="flex-1"
-                                    [class.inverse]="false"
-                                    [class.inverse]="
-                                        form.value.attendance_type !== 'ONSITE'
-                                    "
-                                    (click)="
-                                        form.patchValue({
-                                            attendance_type: 'ONSITE',
-                                        })
-                                    "
-                                >
-                                    <icon class="text-2xl">domain</icon>
-                                    <div class="mx-2">
-                                        {{
-                                            'APP.CONCIERGE.EVENTS_LOCATION_ONSITE'
-                                                | translate
-                                        }}
-                                    </div>
-                                </button>
-                                <button
-                                    btn
-                                    matRipple
-                                    class="flex-1"
-                                    [class.inverse]="
-                                        form.value.attendance_type !== 'ONLINE'
-                                    "
-                                    (click)="
-                                        form.patchValue({
-                                            attendance_type: 'ONLINE',
-                                        })
-                                    "
-                                >
-                                    <icon class="text-2xl">laptop_mac</icon>
-                                    <div class="mx-2">
-                                        {{
-                                            'APP.CONCIERGE.EVENTS_LOCATION_ONLINE'
-                                                | translate
-                                        }}
-                                    </div>
-                                </button>
-                                <button
-                                    btn
-                                    matRipple
-                                    class="flex-1"
-                                    [class.inverse]="
-                                        form.value.attendance_type !== 'ANY'
-                                    "
-                                    (click)="
-                                        form.patchValue({
-                                            attendance_type: 'ANY',
-                                        })
-                                    "
-                                >
-                                    <icon class="text-2xl">add</icon>
-                                    <div class="mx-2">
-                                        {{
-                                            'APP.CONCIERGE.EVENTS_LOCATION_BOTH'
-                                                | translate
-                                        }}
-                                    </div>
-                                </button>
-                            </div>
-                            @if (form.value.attendance_type !== 'ONLINE') {
-                                <label for="location">
-                                    {{ 'RESOURCE.BUILDING' | translate }}
-                                </label>
-                                <mat-form-field appearance="outline">
-                                    <mat-select
-                                        [ngModel]="building_zone"
-                                        [ngModelOptions]="{ standalone: true }"
-                                        (ngModelChange)="setBuilding($event)"
-                                        [placeholder]="
-                                            'COMMON.BUILDING_SELECT' | translate
-                                        "
-                                    >
-                                        @for (
-                                            building of building_list | async;
-                                            track building
-                                        ) {
-                                            <mat-option [value]="building">
-                                                {{
-                                                    building.display_name ||
-                                                        building.name
-                                                }}
-                                            </mat-option>
-                                        }
-                                    </mat-select>
-                                </mat-form-field>
-                                <div class="flex space-x-2">
-                                    <div class="flex flex-[2] flex-col">
-                                        <label for="level">{{
-                                            'RESOURCE.LEVEL' | translate
-                                        }}</label>
-                                        <mat-form-field appearance="outline">
-                                            <mat-select
-                                                [ngModel]="level_zone"
-                                                [ngModelOptions]="{
-                                                    standalone: true,
-                                                }"
-                                                (ngModelChange)="
-                                                    setLevel($event)
-                                                "
-                                                [placeholder]="
-                                                    'COMMON.LEVEL_SELECT'
-                                                        | translate
-                                                "
-                                            >
-                                                @for (
-                                                    level of active_levels
-                                                        | async;
-                                                    track level
-                                                ) {
-                                                    <mat-option [value]="level">
-                                                        {{
-                                                            level.display_name ||
-                                                                level.name
-                                                        }}
-                                                    </mat-option>
-                                                }
-                                            </mat-select>
-                                        </mat-form-field>
-                                    </div>
-                                    <div class="flex flex-[3] flex-col">
-                                        <label for="level">{{
-                                            'RESOURCE.ROOM' | translate
-                                        }}</label>
-                                        <mat-form-field appearance="outline">
-                                            <mat-select
-                                                [(ngModel)]="resource"
-                                                [ngModelOptions]="{
-                                                    standalone: true,
-                                                }"
-                                                [disabled]="
-                                                    (available_spaces | async)
-                                                        ?.length === 0
-                                                "
-                                                [placeholder]="
-                                                    'COMMON.ROOM_SELECT'
-                                                        | translate
-                                                "
-                                            >
-                                                <mat-option
-                                                    ><i>{{
-                                                        'COMMON.NONE'
-                                                            | translate
-                                                    }}</i></mat-option
-                                                >
-                                                @for (
-                                                    room of available_spaces
-                                                        | async;
-                                                    track room
-                                                ) {
-                                                    <mat-option
-                                                        [value]="room.email"
-                                                    >
-                                                        {{
-                                                            room.display_name ||
-                                                                room.name
-                                                        }}
-                                                    </mat-option>
-                                                }
-                                            </mat-select>
-                                        </mat-form-field>
-                                    </div>
+                        <div class="flex items-center space-x-2 pb-2">
+                            <button
+                                btn
+                                matRipple
+                                class="flex-1"
+                                [class.inverse]="false"
+                                [class.inverse]="
+                                    form.value.attendance_type !== 'ONSITE'
+                                "
+                                (click)="
+                                    form.patchValue({
+                                        attendance_type: 'ONSITE',
+                                    })
+                                "
+                            >
+                                <icon class="text-2xl">domain</icon>
+                                <div class="mx-2">
+                                    {{
+                                        'APP.CONCIERGE.EVENTS_LOCATION_ONSITE'
+                                            | translate
+                                    }}
                                 </div>
-                            }
-                        </ng-container>
+                            </button>
+                            <button
+                                btn
+                                matRipple
+                                class="flex-1"
+                                [class.inverse]="
+                                    form.value.attendance_type !== 'ONLINE'
+                                "
+                                (click)="
+                                    form.patchValue({
+                                        attendance_type: 'ONLINE',
+                                    })
+                                "
+                            >
+                                <icon class="text-2xl">laptop_mac</icon>
+                                <div class="mx-2">
+                                    {{
+                                        'APP.CONCIERGE.EVENTS_LOCATION_ONLINE'
+                                            | translate
+                                    }}
+                                </div>
+                            </button>
+                            <button
+                                btn
+                                matRipple
+                                class="flex-1"
+                                [class.inverse]="
+                                    form.value.attendance_type !== 'ANY'
+                                "
+                                (click)="
+                                    form.patchValue({
+                                        attendance_type: 'ANY',
+                                    })
+                                "
+                            >
+                                <icon class="text-2xl">add</icon>
+                                <div class="mx-2">
+                                    {{
+                                        'APP.CONCIERGE.EVENTS_LOCATION_BOTH'
+                                            | translate
+                                    }}
+                                </div>
+                            </button>
+                        </div>
+                        @if (form.value.attendance_type !== 'ONLINE') {
+                            <label for="location">
+                                {{ 'RESOURCE.BUILDING' | translate }}
+                            </label>
+                            <mat-form-field appearance="outline">
+                                <mat-select
+                                    [ngModel]="building_zone"
+                                    [ngModelOptions]="{ standalone: true }"
+                                    (ngModelChange)="setBuilding($event)"
+                                    [placeholder]="
+                                        'COMMON.BUILDING_SELECT' | translate
+                                    "
+                                >
+                                    @for (
+                                        building of building_list | async;
+                                        track building
+                                    ) {
+                                        <mat-option [value]="building">
+                                            {{
+                                                building.display_name ||
+                                                    building.name
+                                            }}
+                                        </mat-option>
+                                    }
+                                </mat-select>
+                            </mat-form-field>
+                            <div class="flex space-x-2">
+                                <div class="flex flex-[2] flex-col">
+                                    <label for="level">{{
+                                        'RESOURCE.LEVEL' | translate
+                                    }}</label>
+                                    <mat-form-field appearance="outline">
+                                        <mat-select
+                                            [ngModel]="level_zone"
+                                            [ngModelOptions]="{
+                                                standalone: true,
+                                            }"
+                                            (ngModelChange)="setLevel($event)"
+                                            [placeholder]="
+                                                'COMMON.LEVEL_SELECT'
+                                                    | translate
+                                            "
+                                        >
+                                            @for (
+                                                level of active_levels | async;
+                                                track level
+                                            ) {
+                                                <mat-option [value]="level">
+                                                    {{
+                                                        level.display_name ||
+                                                            level.name
+                                                    }}
+                                                </mat-option>
+                                            }
+                                        </mat-select>
+                                    </mat-form-field>
+                                </div>
+                                <div class="flex flex-[3] flex-col">
+                                    <label for="level">{{
+                                        'RESOURCE.ROOM' | translate
+                                    }}</label>
+                                    <mat-form-field appearance="outline">
+                                        <mat-select
+                                            [(ngModel)]="resource"
+                                            [ngModelOptions]="{
+                                                standalone: true,
+                                            }"
+                                            [disabled]="
+                                                (available_spaces | async)
+                                                    ?.length === 0
+                                            "
+                                            [placeholder]="
+                                                'COMMON.ROOM_SELECT' | translate
+                                            "
+                                        >
+                                            <mat-option
+                                                ><i>{{
+                                                    'COMMON.NONE' | translate
+                                                }}</i></mat-option
+                                            >
+                                            @for (
+                                                room of available_spaces
+                                                    | async;
+                                                track room
+                                            ) {
+                                                <mat-option
+                                                    [value]="room.email"
+                                                >
+                                                    {{
+                                                        room.display_name ||
+                                                            room.name
+                                                    }}
+                                                </mat-option>
+                                            }
+                                        </mat-select>
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                        }
                         <!-- END LOCATION -->
                         <div class="h-px w-full bg-base-200"></div>
                         <h3 class="py-4 text-2xl font-medium">
@@ -499,7 +486,27 @@ const EMPTY = [];
         }
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        IconComponent,
+        TranslatePipe,
+        MatRippleModule,
+        MatProgressSpinnerModule,
+        ImageListFieldComponent,
+        RichTextInputComponent,
+        MatFormFieldModule,
+        MatSelectModule,
+        MatInputModule,
+        MatChipsModule,
+        MatAutocompleteModule,
+        FormsModule,
+        ReactiveFormsModule,
+        SettingsToggleComponent,
+        DateFieldComponent,
+        TimeFieldComponent,
+        UserSearchFieldComponent,
+        RouterModule,
+    ],
 })
 export class EventManageComponent extends AsyncHandler implements OnInit {
     private _form_state = inject(EventFormService);

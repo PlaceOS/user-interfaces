@@ -1,21 +1,22 @@
-import { Component, OnInit, inject, input, output } from '@angular/core';
-import { AsyncHandler, SettingsService } from '@placeos/common';
-import { BehaviorSubject, combineLatest } from 'rxjs';
-import { debounceTime, map, tap } from 'rxjs/operators';
-
 import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
+import {
+    AsyncHandler,
+    BuildingLevel,
+    SettingsService,
+    Space,
+} from '@placeos/common';
+import { BehaviorSubject, combineLatest } from 'rxjs';
+import { debounceTime, map, tap } from 'rxjs/operators';
 
+import { OrganisationService } from '@placeos/common';
 import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
 import { DEFAULT_COLOURS } from 'libs/explore/src/lib/explore-spaces.service';
-import { BuildingLevel } from 'libs/organisation/src/lib/level.class';
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
-
-import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { Space } from '../space.class';
 import { NewSpaceLocationPinComponent } from './new-space-location-pin.component';
 
 @Component({

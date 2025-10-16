@@ -1,11 +1,26 @@
+import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AsyncHandler, SettingsService } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import {
+    AsyncHandler,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
+import {
+    BuildingPipe,
+    IconComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { combineLatest } from 'rxjs';
 import { first, map } from 'rxjs/operators';
 import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
+import { SearchbarComponent } from '../ui/searchbar.component';
 import { RoomManagementService } from './room-management.service';
 
 @Component({
@@ -69,7 +84,18 @@ import { RoomManagementService } from './room-management.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        IconComponent,
+        TranslatePipe,
+        MatRippleModule,
+        MatFormFieldModule,
+        MatSelectModule,
+        BuildingPipe,
+        SearchbarComponent,
+        FormsModule,
+        MatTooltipModule,
+    ],
 })
 export class RoomManagerTopbarComponent extends AsyncHandler implements OnInit {
     private _manager = inject(RoomManagementService);

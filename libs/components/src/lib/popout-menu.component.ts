@@ -1,5 +1,7 @@
 import { Component, input, output } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
 import { ApplicationIcon, AsyncHandler } from '@placeos/common';
+import { IconComponent } from './icon.component';
 
 export interface PopoutAction extends ApplicationIcon {
     /** ID of the action */
@@ -60,7 +62,7 @@ export interface PopoutAction extends ApplicationIcon {
             }
         `,
     ],
-    standalone: false,
+    imports: [IconComponent, MatRippleModule],
 })
 export class PopoutMenuComponent extends AsyncHandler {
     /** List of available actions */

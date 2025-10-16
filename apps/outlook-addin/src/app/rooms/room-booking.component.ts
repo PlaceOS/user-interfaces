@@ -1,7 +1,17 @@
 import { Component, DOCUMENT, OnInit, inject } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { Router } from '@angular/router';
 import { currentUser } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
+import {
+    DateFieldComponent,
+    DurationFieldComponent,
+    TimeFieldComponent,
+    UserListFieldComponent,
+} from '@placeos/form-fields';
 import { FeaturesFilterService } from './features-filter.service';
 
 @Component({
@@ -121,7 +131,17 @@ import { FeaturesFilterService } from './features-filter.service';
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        MatRippleModule,
+        UserListFieldComponent,
+        DurationFieldComponent,
+        TimeFieldComponent,
+        DateFieldComponent,
+        MatFormFieldModule,
+        MatInputModule,
+        ReactiveFormsModule,
+        FormsModule,
+    ],
 })
 export class RoomBookingComponent implements OnInit {
     private _document = inject<Document>(DOCUMENT);

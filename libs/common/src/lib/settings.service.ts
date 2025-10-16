@@ -21,7 +21,7 @@ import { VERSION } from './version';
 declare global {
     interface Window {
         debug: boolean;
-        application: HashMap;
+        app: HashMap;
         setting: (string) => any;
     }
 }
@@ -35,9 +35,12 @@ export function setting<T = any>(key: string): T | undefined {
 
 export function settingSignal<T = any>(
     key: string,
+    default_value: T = undefined,
 ): WritableSignal<T | undefined> {
     if (!_setting_signals[key]) {
-        _setting_signals[key] = signal<T>(setting(`app.${key}`));
+        _setting_signals[key] = signal<T>(
+            setting(`app.${key}`) || default_value,
+        );
     }
     return _setting_signals[key];
 }
@@ -145,8 +148,8 @@ export class SettingsService extends AsyncHandler {
         log('Settings', 'Successfully loaded settings');
         this._initialised.next(true);
         if (window.debug) {
-            if (!window.application) window.application = {};
-            window.application.settings = this;
+            if (!window.app) window.app = {};
+            window.app.settings = this;
             window.setting = (key) => this.get(key);
         }
         const user = await firstTruthyValueFrom(current_user);

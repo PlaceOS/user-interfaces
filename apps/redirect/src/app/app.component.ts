@@ -1,11 +1,10 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
+import { SettingsService } from '@placeos/common';
 import { authority, setAPI_Key } from '@placeos/ts-client';
-import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { first, lastValueFrom } from 'rxjs';
 
-import { setupPlace } from 'libs/common/src/lib/placeos';
-import { current_user, currentUser } from 'libs/common/src/lib/user-state';
+import { current_user, currentUser, setupPlace } from '@placeos/common';
 
 @Component({
     imports: [RouterModule],

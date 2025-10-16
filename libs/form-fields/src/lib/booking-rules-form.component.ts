@@ -19,13 +19,13 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import {
     BookingRuleset,
+    OrganisationService,
     SettingsService,
     getInvalidFields,
     i18n,
     notifyError,
     randomString,
 } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
 import { queryZones } from '@placeos/ts-client';
 import { endOfDay, set, startOfDay } from 'date-fns';
 import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';

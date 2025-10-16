@@ -3,7 +3,9 @@ import { MatDialog } from '@angular/material/dialog';
 import { Event, NavigationEnd, Router } from '@angular/router';
 import {
     AsyncHandler,
+    Booking,
     BookingRuleset,
+    BookingType,
     currentUser,
     flatten,
     getInvalidFields,
@@ -11,9 +13,11 @@ import {
     nextValueFrom,
     notifyError,
     notifyWarn,
+    OrganisationService,
     rulesForResource,
     SettingsService,
     unique,
+    User,
 } from '@placeos/common';
 import {
     cleanObject,
@@ -51,11 +55,7 @@ import {
     switchMap,
     tap,
 } from 'rxjs/operators';
-
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
-import { User } from 'libs/users/src/lib/user.class';
 import { BookingLinkModalComponent } from './booking-link-modal.component';
-import { Booking, BookingType } from './booking.class';
 import {
     findNearbyFeature,
     generateBookingForm,

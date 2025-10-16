@@ -6,8 +6,7 @@ import { BehaviorSubject } from 'rxjs';
 import { SettingsService } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
 
-import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { UserAvatarComponent } from 'libs/components/src/lib/user-avatar.component';
+import { IconComponent, UserAvatarComponent } from '@placeos/components';
 import { LandingColleaguesComponent } from '../../app/landing/landing-colleagues.component';
 import { LandingStateService } from '../../app/landing/landing-state.service';
 

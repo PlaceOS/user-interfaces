@@ -1,8 +1,8 @@
 import { FormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { IconComponent } from '@placeos/components';
 import { ExploreSearchService } from '@placeos/explore';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 

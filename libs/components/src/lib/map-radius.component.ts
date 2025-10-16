@@ -2,6 +2,7 @@ import { Component, ElementRef, OnInit, inject } from '@angular/core';
 import { formatDistanceToNow } from 'date-fns';
 import { MAP_FEATURE_DATA } from 'libs/common/src/lib/types';
 import { Observable } from 'rxjs';
+import { TranslatePipe } from './translate.pipe';
 
 export interface MapRadiusData {
     message: string;
@@ -68,7 +69,7 @@ export interface MapRadiusData {
             }
         `,
     ],
-    standalone: false,
+    imports: [TranslatePipe],
 })
 export class MapRadiusComponent implements OnInit {
     private _details = inject<MapRadiusData>(MAP_FEATURE_DATA);

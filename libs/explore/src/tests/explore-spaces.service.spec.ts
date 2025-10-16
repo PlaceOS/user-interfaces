@@ -5,9 +5,8 @@ import { createServiceFactory, SpectatorService } from '@ngneat/spectator';
 import { MockProvider } from 'ng-mocks';
 import { BehaviorSubject, of } from 'rxjs';
 
-import { SettingsService } from '@placeos/common';
+import { OrganisationService, SettingsService } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
-import { OrganisationService } from '@placeos/organisation';
 
 import { ExploreSpacesService } from '../lib/explore-spaces.service';
 import { ExploreStateService } from '../lib/explore-state.service';

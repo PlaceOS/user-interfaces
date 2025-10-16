@@ -1,5 +1,5 @@
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
-import { OrganisationService } from '@placeos/organisation';
+import { OrganisationService } from '@placeos/common';
 import { of } from 'rxjs';
 import { StaffStateService } from '../../app/staff/staff-state.service';
 

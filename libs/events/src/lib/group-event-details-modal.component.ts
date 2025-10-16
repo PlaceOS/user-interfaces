@@ -9,29 +9,28 @@ import {
 } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import {
+    Building,
+    BuildingLevel,
+    CalendarEvent,
+    GuestUser,
+    OrganisationService,
     SettingsService,
+    Space,
     currentUser,
     notifyInfo,
     unique,
 } from '@placeos/common';
 import { MapLocateModalComponent, MapPinComponent } from '@placeos/components';
-import {
-    Building,
-    BuildingLevel,
-    OrganisationService,
-} from '@placeos/organisation';
 import { ViewerFeature } from '@placeos/svg-viewer';
-import { GuestUser } from '@placeos/users';
+import { lastValueFrom } from 'rxjs';
+
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
 import { SanitizePipe } from 'libs/components/src/lib/sanitise.pipe';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { Space } from 'libs/events/src/lib/space.class';
 import { SpacePipe } from 'libs/events/src/lib/space.pipe';
-import { lastValueFrom } from 'rxjs';
 import { AttendeeListComponent } from './attendee-list.component';
-import { CalendarEvent } from './event.class';
 import {
     addEventGuest,
     checkinEventGuest,

@@ -5,17 +5,16 @@ import {
     MatDialogModule,
     MatDialogRef,
 } from '@angular/material/dialog';
-import { notifyError } from '@placeos/common';
-import {
-    generateCalendarFileLink,
-    generateGoogleCalendarLink,
-    generateMicrosoftCalendarLink,
-} from 'libs/common/src/lib/calendar-links';
+import { CalendarEvent, notifyError } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { SafePipe } from 'libs/components/src/lib/safe.pipe';
 import { SanitizePipe } from 'libs/components/src/lib/sanitise.pipe';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { CalendarEvent } from './event.class';
+import {
+    generateCalendarFileLink,
+    generateGoogleCalendarLink,
+    generateMicrosoftCalendarLink,
+} from './calendar-links';
 
 @Component({
     selector: 'event-link-modal',

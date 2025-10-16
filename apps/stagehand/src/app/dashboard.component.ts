@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
+import { SidebarComponent } from './ui/sidebar.component';
 
 @Component({
     selector: 'app-dashboard',
@@ -17,6 +19,6 @@ import { Component } from '@angular/core';
         </div>
     `,
     styles: [],
-    standalone: false,
+    imports: [MatRippleModule, SidebarComponent],
 })
 export class DashboardComponent {}

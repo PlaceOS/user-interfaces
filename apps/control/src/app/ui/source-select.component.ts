@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import {
     Component,
     OnChanges,
@@ -6,7 +7,10 @@ import {
     input,
     output,
 } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { unique } from '@placeos/common';
+import { TranslatePipe } from '@placeos/components';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ControlStateService, RoomInput } from '../control-state.service';
@@ -84,7 +88,12 @@ import { ControlStateService, RoomInput } from '../control-state.service';
             }
         </div>
     `,
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        MatProgressSpinnerModule,
+        MatRippleModule,
+    ],
 })
 export class SourceSelectComponent implements OnChanges {
     private _state = inject(ControlStateService);

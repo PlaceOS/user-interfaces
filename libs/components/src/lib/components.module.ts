@@ -1,23 +1,4 @@
-import { ClipboardModule } from '@angular/cdk/clipboard';
-import { PortalModule } from '@angular/cdk/portal';
-import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatRippleModule } from '@angular/material/core';
-import { MatDialogModule } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatPaginatorModule } from '@angular/material/paginator';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatRadioModule } from '@angular/material/radio';
-import { MatSelectModule } from '@angular/material/select';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatSliderModule } from '@angular/material/slider';
-import { MatTooltipModule } from '@angular/material/tooltip';
 
 import {
     provideHttpClient,
@@ -28,9 +9,6 @@ import { ActionIconComponent } from './action-icon.component';
 import { BindingDirective } from './binding.directive';
 import { PopoutMenuComponent } from './popout-menu.component';
 import { UserAvatarComponent } from './user-avatar.component';
-
-import { ScrollingModule } from '@angular/cdk/scrolling';
-import { RouterModule } from '@angular/router';
 
 import { AccessibilityTooltipComponent } from './accessibility-tooltip.component';
 import { AttachedResourceConfigModalComponent } from './attached-resource-config-modal.component';
@@ -90,64 +68,6 @@ import { ZonePipe } from './zone.pipe';
 
 import { MAP_FEATURE_DATA } from 'libs/common/src/lib/types';
 
-const MAT_MODULES = [
-    MatAutocompleteModule,
-    MatMenuModule,
-    MatFormFieldModule,
-    MatSelectModule,
-    MatRippleModule,
-    MatAutocompleteModule,
-    MatSelectModule,
-    MatDialogModule,
-    MatInputModule,
-    ClipboardModule,
-    MatProgressSpinnerModule,
-    MatChipsModule,
-    MatPaginatorModule,
-    PortalModule,
-    ScrollingModule,
-    MatTooltipModule,
-    MatCheckboxModule,
-    MatRadioModule,
-    MatSliderModule,
-    MatSlideToggleModule,
-];
-
-const COMPONENTS = [
-    ActionIconComponent,
-    PopoutMenuComponent,
-
-    MapPinComponent,
-    MapRadiusComponent,
-    MapPolygonComponent,
-    MapCanvasComponent,
-    IndoorMapsComponent,
-    StatusOverlayComponent,
-    MapLocateModalComponent,
-    RedirectComponent,
-    DebugConsoleComponent,
-    JsonDisplayComponent,
-    ImageViewerComponent,
-    WorkLocationTooltipComponent,
-
-    FixedPipe,
-    ThumbnailPipe,
-
-    UserControlsComponent,
-    BuildingSelectComponent,
-    RegionSelectComponent,
-    HelpTooltipComponent,
-    AccessibilityTooltipComponent,
-    LanguageSelectComponent,
-    AttachedResourceConfigModalComponent,
-
-    LoginComponent,
-
-    MisconfiguredComponent,
-];
-
-const DIRECTIVES = [LimitInputDirective];
-
 const STANDALONE_COMPONENTS = [
     IconComponent,
     ConfirmModalComponent,
@@ -185,25 +105,44 @@ const STANDALONE_COMPONENTS = [
     LevelPipe,
     BuildingPipe,
     ZonePipe,
+    ActionIconComponent,
+    PopoutMenuComponent,
+
+    MapPinComponent,
+    MapRadiusComponent,
+    MapPolygonComponent,
+    MapCanvasComponent,
+    IndoorMapsComponent,
+    StatusOverlayComponent,
+    MapLocateModalComponent,
+    RedirectComponent,
+    DebugConsoleComponent,
+    JsonDisplayComponent,
+    ImageViewerComponent,
+    WorkLocationTooltipComponent,
+    LimitInputDirective,
+
+    FixedPipe,
     DateFromPipe,
+    ThumbnailPipe,
+
+    UserControlsComponent,
+    BuildingSelectComponent,
+    RegionSelectComponent,
+    HelpTooltipComponent,
+    AccessibilityTooltipComponent,
+    LanguageSelectComponent,
+    AttachedResourceConfigModalComponent,
+
+    LoginComponent,
+
+    MisconfiguredComponent,
 ];
 
 @NgModule({
-    declarations: [...COMPONENTS, ...DIRECTIVES],
-    exports: [
-        ...COMPONENTS,
-        ...DIRECTIVES,
-        ...MAT_MODULES,
-        ...STANDALONE_COMPONENTS,
-    ],
-    imports: [
-        CommonModule,
-        FormsModule,
-        ReactiveFormsModule,
-        RouterModule,
-        ...MAT_MODULES,
-        ...STANDALONE_COMPONENTS,
-    ],
+    declarations: [],
+    exports: [...STANDALONE_COMPONENTS],
+    imports: [...STANDALONE_COMPONENTS],
     providers: [
         { provide: MAP_FEATURE_DATA, useValue: {} },
         provideHttpClient(withInterceptorsFromDi()),

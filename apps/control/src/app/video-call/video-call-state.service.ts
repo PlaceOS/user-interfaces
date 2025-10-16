@@ -1,10 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { AsyncHandler, nextValueFrom } from '@placeos/common';
 import { getModule } from '@placeos/ts-client';
-import {
-    VideoCallDetails,
-    VideoLayout,
-} from 'libs/mocks/src/lib/realtime/video-conference';
 import { Observable } from 'rxjs';
 import {
     distinctUntilChanged,
@@ -13,6 +9,39 @@ import {
     switchMap,
 } from 'rxjs/operators';
 import { ControlStateService } from '../control-state.service';
+
+export type VideoLayout = 'Auto' | 'Equal' | 'Overlay' | 'Prominent' | 'Single';
+export type CallStatus =
+    | 'Idle'
+    | 'Dialling'
+    | 'Ringing'
+    | 'Connecting'
+    | 'Connected'
+    | 'Disconnecting'
+    | 'OnHold'
+    | 'EarlyMedia'
+    | 'Preserved'
+    | 'RemotePreserved';
+
+export interface VideoCallDetails {
+    AnswerState: string;
+    CallType: string;
+    CallbackNumber: string;
+    DeviceType: string;
+    Direction: string;
+    DisplayName: number;
+    Duration: number;
+    'Encryption/Type': string;
+    FacilityServiceId: number;
+    HoldReason: string;
+    PlacedOnHold: boolean;
+    Protocol: string;
+    ReceiveCallRate: number;
+    RemoteNumber: string;
+    Status: CallStatus;
+    TransmitCallRate: number;
+    Ice: string;
+}
 
 @Injectable({
     providedIn: 'root',

@@ -1,5 +1,8 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { EventFormService } from '@placeos/events';
+import { MatRippleModule } from '@angular/material/core';
+import { RouterModule } from '@angular/router';
+import { EventFormService, SpacePipe } from '@placeos/events';
 
 @Component({
     selector: 'meeting-booking-success',
@@ -36,7 +39,7 @@ import { EventFormService } from '@placeos/events';
             }
         `,
     ],
-    standalone: false,
+    imports: [CommonModule, SpacePipe, MatRippleModule, RouterModule],
 })
 export class MeetingBookingSuccessComponent {
     private _service = inject(EventFormService);

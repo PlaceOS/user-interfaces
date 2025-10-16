@@ -1,15 +1,30 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatRippleModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
     AsyncHandler,
     i18n,
     nextValueFrom,
+    OrganisationService,
     SettingsService,
 } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import {
+    IconComponent,
+    SettingsToggleComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { combineLatest } from 'rxjs';
 import { debounceTime, filter, map } from 'rxjs/operators';
 import { EventsStateService } from './events-state.service';
+import { RoomBookingsApprovalsComponent } from './room-approvals.component';
+import { RoomBookingsTimelineComponent } from './room-timeline.component';
+import { RoomWeekBookingsTimelineComponent } from './room-week-timeline.component';
 
 const EMPTY = [];
 @Component({
@@ -146,8 +161,7 @@ const EMPTY = [];
             <div class="mt-4 flex h-px w-full flex-1 border-t border-base-200">
                 @if ((period | async) === 'day') {
                     <room-bookings-timeline class="relative z-0 w-1/2 flex-1" />
-                }
-                @if ((period | async) === 'week') {
+                } @else if ((period | async) === 'week') {
                     <room-week-bookings-timeline
                         class="relative z-0 w-1/2 flex-1"
                     />
@@ -159,7 +173,21 @@ const EMPTY = [];
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        MatFormFieldModule,
+        MatSelectModule,
+        MatMenuModule,
+        IconComponent,
+        MatRippleModule,
+        MatCheckboxModule,
+        FormsModule,
+        RoomBookingsTimelineComponent,
+        RoomWeekBookingsTimelineComponent,
+        RoomBookingsApprovalsComponent,
+        SettingsToggleComponent,
+    ],
 })
 export class RoomBookingsComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);

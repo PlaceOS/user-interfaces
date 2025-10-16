@@ -3,7 +3,12 @@ import {
     MAT_BOTTOM_SHEET_DATA,
     MatBottomSheetRef,
 } from '@angular/material/bottom-sheet';
-import { Space } from '@placeos/events';
+import { MatRippleModule } from '@angular/material/core';
+import { Space } from '@placeos/common';
+import {
+    AuthenticatedImageDirective,
+    IconComponent,
+} from '@placeos/components';
 import { RoomConfirmService } from './room-confirm.service';
 
 @Component({
@@ -82,7 +87,7 @@ import { RoomConfirmService } from './room-confirm.service';
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [MatRippleModule, IconComponent, AuthenticatedImageDirective],
 })
 export class RoomTileComponent implements OnInit {
     data = inject(MAT_BOTTOM_SHEET_DATA);

@@ -8,9 +8,9 @@ import {
     output,
 } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { CateringItem } from '@placeos/common';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { BehaviorSubject } from 'rxjs';
-import { CateringItem } from '../catering-item.class';
 import { CateringItemListItemComponent } from './catering-item-list-item.component';
 import { CateringOrderStateService } from './catering-order-state.service';
 

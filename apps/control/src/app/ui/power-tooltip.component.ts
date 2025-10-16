@@ -1,6 +1,11 @@
 import { Component, inject } from '@angular/core';
-import { CustomTooltipData } from 'libs/components/src/lib/custom-tooltip.component';
+import {
+    CustomTooltipData,
+    SanitizePipe,
+    TranslatePipe,
+} from '@placeos/components';
 
+import { MatRippleModule } from '@angular/material/core';
 import { ControlStateService } from '../control-state.service';
 
 @Component({
@@ -22,7 +27,7 @@ import { ControlStateService } from '../control-state.service';
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [TranslatePipe, SanitizePipe, MatRippleModule],
 })
 export class PowerTooltipComponent {
     private _state = inject(ControlStateService);

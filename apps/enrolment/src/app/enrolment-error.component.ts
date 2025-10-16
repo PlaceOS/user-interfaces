@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { EnrolmentStateService } from './enrolment-state.service';
 
@@ -37,7 +38,7 @@ import { EnrolmentStateService } from './enrolment-state.service';
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [CommonModule],
 })
 export class EnrolmentErrorComponent {
     private _state = inject(EnrolmentStateService);

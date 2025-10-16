@@ -1,4 +1,7 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
+import { RouterModule } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
 
 @Component({
@@ -25,7 +28,7 @@ import { BookingFormService } from '@placeos/bookings';
                     Please allow up to 5 minutes for you booking to be approved.
                 </p>
             }
-            <a btn btn matRipple [routerLink]="['/book', 'desks']" class="w-64">
+            <a btn matRipple [routerLink]="['/book', 'desks']" class="w-64">
                 New Booking
             </a>
         </div>
@@ -38,7 +41,7 @@ import { BookingFormService } from '@placeos/bookings';
             }
         `,
     ],
-    standalone: false,
+    imports: [MatRippleModule, RouterModule, CommonModule],
 })
 export class DeskBookingSuccessComponent {
     private _service = inject(BookingFormService);

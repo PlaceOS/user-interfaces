@@ -1,12 +1,26 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { FormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
 import {
+    MAT_DIALOG_DATA,
+    MatDialogModule,
+    MatDialogRef,
+} from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import {
+    OrganisationService,
     SettingsService,
     i18n,
     notifyError,
     notifySuccess,
 } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import {
+    IconComponent,
+    SettingsToggleComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
 import { lastValueFrom } from 'rxjs';
 
@@ -64,7 +78,17 @@ import { lastValueFrom } from 'rxjs';
         }
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        MatDialogModule,
+        IconComponent,
+        TranslatePipe,
+        MatRippleModule,
+        MatProgressSpinnerModule,
+        MatFormFieldModule,
+        MatInputModule,
+        SettingsToggleComponent,
+        FormsModule,
+    ],
 })
 export class InductionSettingsModalComponent implements OnInit {
     private _zone_id = inject(MAT_DIALOG_DATA);

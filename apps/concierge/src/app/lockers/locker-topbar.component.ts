@@ -5,13 +5,22 @@ import {
     AsyncHandler,
     firstTruthyValueFrom,
     nextValueFrom,
+    OrganisationService,
     SettingsService,
 } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
 
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { lastValueFrom, timer } from 'rxjs';
 import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
+import { DateOptionsComponent } from '../ui/date-options.component';
+import { SearchbarComponent } from '../ui/searchbar.component';
 import { LockerStateService } from './locker-state.service';
 
 @Component({
@@ -142,7 +151,18 @@ import { LockerStateService } from './locker-state.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        DateOptionsComponent,
+        IconComponent,
+        MatRippleModule,
+        MatTooltipModule,
+        MatFormFieldModule,
+        MatSelectModule,
+        FormsModule,
+        SearchbarComponent,
+        TranslatePipe,
+    ],
 })
 export class LockersTopbarComponent extends AsyncHandler implements OnInit {
     private _state = inject(LockerStateService);

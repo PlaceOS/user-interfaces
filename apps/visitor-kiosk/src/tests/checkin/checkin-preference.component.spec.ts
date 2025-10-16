@@ -3,7 +3,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { CateringStateService } from '@placeos/catering';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { IconComponent } from '@placeos/components';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 

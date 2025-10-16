@@ -1,7 +1,13 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 import { Component, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { MatMenuModule } from '@angular/material/menu';
 import { i18n, notifySuccess } from '@placeos/common';
+import {
+    IconComponent,
+    SimpleTableComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { BookingPanelSettingsModalComponent } from '../ui/app-settings/booking-panel-settings-modal.component';
 import { LevelManagementService } from './level-management.service';
 
@@ -117,7 +123,12 @@ import { LevelManagementService } from './level-management.service';
         </ng-template>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        SimpleTableComponent,
+        TranslatePipe,
+        IconComponent,
+        MatMenuModule,
+    ],
 })
 export class LevelListComponent {
     private _manager = inject(LevelManagementService);

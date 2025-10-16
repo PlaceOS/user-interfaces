@@ -4,7 +4,7 @@ import { SpacesService } from '@placeos/events';
 import { MockComponent, MockDirective, MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
-import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
+import { AuthenticatedImageDirective } from '@placeos/components';
 import { SpaceTimetableComponent } from '../app/space-timetable.component';
 import { AppTimetableComponent } from '../app/timetable.component';
 

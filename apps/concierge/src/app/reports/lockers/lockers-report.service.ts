@@ -1,13 +1,13 @@
 import { formatDate } from '@angular/common';
 import { inject, Injectable } from '@angular/core';
-import { Booking } from '@placeos/bookings';
 import {
+    Booking,
     downloadFile,
     jsonToCsv,
     nextValueFrom,
+    OrganisationService,
     SettingsService,
 } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
 import { showMetadata } from '@placeos/ts-client';
 import { format, isSameDay } from 'date-fns';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';

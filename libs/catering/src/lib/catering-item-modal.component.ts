@@ -8,23 +8,21 @@ import {
     ReactiveFormsModule,
     Validators,
 } from '@angular/forms';
-import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
-import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
-import { DialogEvent, randomInt } from '@placeos/common';
-
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
-
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 import { MatRippleModule } from '@angular/material/core';
+import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { CateringItem, DialogEvent, randomInt } from '@placeos/common';
+
+import { OrganisationService } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { CounterComponent } from 'libs/form-fields/src/lib/counter.component';
 import { ImageListFieldComponent } from 'libs/form-fields/src/lib/image-list-field.component';
-import { CateringItem } from './catering-item.class';
 
 export interface CateringItemModalData {
     item: CateringItem;

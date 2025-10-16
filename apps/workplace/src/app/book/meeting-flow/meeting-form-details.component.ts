@@ -1,8 +1,24 @@
 import { Component, inject, input } from '@angular/core';
-import { FormGroup } from '@angular/forms';
-import { SettingsService, formatDuration } from '@placeos/common';
+import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import {
+    OrganisationService,
+    SettingsService,
+    formatDuration,
+} from '@placeos/common';
+import { TranslatePipe } from '@placeos/components';
 import { EventFormService } from '@placeos/events';
-import { OrganisationService } from '@placeos/organisation';
+import {
+    DateFieldComponent,
+    DurationFieldComponent,
+    HostSelectFieldComponent,
+    RecurrenceFieldComponent,
+    TimeFieldComponent,
+    UserSearchFieldComponent,
+} from '@placeos/form-fields';
 import {
     addDays,
     addMinutes,
@@ -212,15 +228,17 @@ import {
                         </label>
                         <mat-form-field appearance="outline">
                             <mat-select formControlName="visibility">
-                                <mat-option
-                                    *ngFor="let option of visibility_options"
-                                    [value]="option.value"
-                                >
-                                    {{
-                                        'COMMON.VISIBILITY_' + option.label
-                                            | translate
-                                    }}
-                                </mat-option>
+                                @for (
+                                    option of visibility_options;
+                                    track option.value
+                                ) {
+                                    <mat-option [value]="option.value">
+                                        {{
+                                            'COMMON.VISIBILITY_' + option.label
+                                                | translate
+                                        }}
+                                    </mat-option>
+                                }
                             </mat-select>
                         </mat-form-field>
                     </div>
@@ -229,7 +247,22 @@ import {
         }
     `,
     styles: [],
-    standalone: false,
+    imports: [
+        TranslatePipe,
+        MatFormFieldModule,
+        MatSelectModule,
+        MatCheckboxModule,
+        RecurrenceFieldComponent,
+        HostSelectFieldComponent,
+        UserSearchFieldComponent,
+        DurationFieldComponent,
+        TimeFieldComponent,
+        DateFieldComponent,
+        MatFormFieldModule,
+        MatInputModule,
+        ReactiveFormsModule,
+        FormsModule,
+    ],
 })
 export class MeetingFormDetailsComponent {
     private _settings = inject(SettingsService);

@@ -1,10 +1,7 @@
-import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { Route, RouterModule } from '@angular/router';
 import { DealsComponent } from './deals.component';
 
-import { UIModule } from '../ui/ui.module';
-import { DealModalComponent } from './deal-modal.component';
 import { DealsListComponent } from './deals-list.component';
 import { DealsManageComponent } from './deals-manage.component';
 
@@ -19,18 +16,12 @@ const ROUTES: Route[] = [
     { path: '**', redirectTo: '' },
 ];
 
-const COMPONENTS = [
-    DealsListComponent,
-    DealsManageComponent,
-    DealModalComponent,
-];
-
 @NgModule({
-    declarations: [DealsComponent],
+    declarations: [],
     imports: [
-        CommonModule,
-        UIModule,
-        ...COMPONENTS,
+        DealsListComponent,
+        DealsManageComponent,
+        DealsComponent,
         RouterModule.forChild(ROUTES),
     ],
 })

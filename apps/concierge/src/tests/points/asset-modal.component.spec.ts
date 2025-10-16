@@ -7,13 +7,13 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { IconComponent } from '@placeos/components';
 import { SpacesService } from '@placeos/events';
 import { CounterComponent, TimeFieldComponent } from '@placeos/form-fields';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 
-import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
+import { SettingsToggleComponent } from '@placeos/components';
 import { DesksStateService } from '../../app/desks/desks-state.service';
 import { PointsAssetModalComponent } from '../../app/points/asset-modal.component';
 

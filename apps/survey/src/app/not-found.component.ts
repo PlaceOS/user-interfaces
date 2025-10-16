@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
+import { AuthenticatedImageDirective } from '@placeos/components';
 
 @Component({
     selector: 'app-not-found',

@@ -1,10 +1,17 @@
 import { Component, inject, input } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     downloadFile,
     formatDuration,
     jsonToCsv,
     nextValueFrom,
 } from '@placeos/common';
+import {
+    IconComponent,
+    SimpleTableComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { combineLatest } from 'rxjs';
 import { debounceTime, map, shareReplay } from 'rxjs/operators';
 import { ReportsStateService } from '../reports-state.service';
@@ -65,7 +72,13 @@ import { ReportsStateService } from '../reports-state.service';
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        SimpleTableComponent,
+        TranslatePipe,
+        IconComponent,
+        MatRippleModule,
+        MatTooltipModule,
+    ],
 })
 export class ReportSpacesUserListingComponent {
     private _reports = inject(ReportsStateService);

@@ -3,7 +3,7 @@ import { AsyncHandler, currentUser, log, randomInt } from '@placeos/common';
 import { BehaviorSubject } from 'rxjs';
 import { distinctUntilChanged, filter, map, shareReplay } from 'rxjs/operators';
 
-import { ChatService } from 'libs/components/src/lib/chat/chat.service';
+import { ChatService } from '@placeos/components';
 
 const WAITING_PHRASES = ['One second...', 'One moment...', 'Working on it...'];
 const DEFAULT_START_PHRASES = [

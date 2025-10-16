@@ -1,16 +1,24 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { AsyncHandler, Identity, SettingsService } from '@placeos/common';
 import {
+    AsyncHandler,
     Building,
     BuildingLevel,
+    firstTruthyValueFrom,
+    Identity,
     OrganisationService,
     Region,
-} from '@placeos/organisation';
-import { first } from 'rxjs/operators';
+    SettingsService,
+} from '@placeos/common';
 
-import { VirtualKeyboardComponent } from 'libs/components/src/lib/virtual-keyboard.component';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
+import { TranslatePipe, VirtualKeyboardComponent } from '@placeos/components';
 
 @Component({
     selector: '[bootstrap]',
@@ -33,7 +41,7 @@ import { VirtualKeyboardComponent } from 'libs/components/src/lib/virtual-keyboa
                     </div>
                 </div>
             </header>
-            @if (!loading) {
+            @if (!loading()) {
                 <div class="flex flex-col space-y-2 px-4">
                     @if ((regions | async)?.length > 1) {
                         <label>
@@ -60,14 +68,14 @@ import { VirtualKeyboardComponent } from 'libs/components/src/lib/virtual-keyboa
                                     <div class="flex items-center space-x-4">
                                         <div class="flex-1 truncate">
                                             {{
-                                                active_region?.display_name ||
-                                                    active_region?.name
+                                                active_region()?.display_name ||
+                                                    active_region()?.name
                                             }}
                                         </div>
                                         <div
                                             class="!mr-4 rounded bg-base-200 px-1.5 font-mono text-[0.625rem]"
                                         >
-                                            {{ active_region?.id }}
+                                            {{ active_region()?.id }}
                                         </div>
                                     </div>
                                 </mat-select-trigger>
@@ -119,14 +127,15 @@ import { VirtualKeyboardComponent } from 'libs/components/src/lib/virtual-keyboa
                                     <div class="flex items-center space-x-4">
                                         <div class="flex-1 truncate">
                                             {{
-                                                active_building?.display_name ||
-                                                    active_building?.name
+                                                active_building()
+                                                    ?.display_name ||
+                                                    active_building()?.name
                                             }}
                                         </div>
                                         <div
                                             class="!mr-4 rounded bg-base-200 px-1.5 font-mono text-[0.625rem]"
                                         >
-                                            {{ active_building?.id }}
+                                            {{ active_building()?.id }}
                                         </div>
                                     </div>
                                 </mat-select-trigger>
@@ -156,7 +165,7 @@ import { VirtualKeyboardComponent } from 'libs/components/src/lib/virtual-keyboa
                             </mat-select>
                         </mat-form-field>
                     }
-                    @if ((levels | async)?.length && active_building) {
+                    @if ((levels | async)?.length && active_building()) {
                         <div></div>
                         <label>
                             {{
@@ -179,14 +188,14 @@ import { VirtualKeyboardComponent } from 'libs/components/src/lib/virtual-keyboa
                                     <div class="flex items-center space-x-4">
                                         <div class="flex-1 truncate">
                                             {{
-                                                active_level?.display_name ||
-                                                    active_level?.name
+                                                active_level()?.display_name ||
+                                                    active_level()?.name
                                             }}
                                         </div>
                                         <div
                                             class="!mr-4 rounded bg-base-200 px-1.5 font-mono text-[0.625rem]"
                                         >
-                                            {{ active_level?.id }}
+                                            {{ active_level()?.id }}
                                         </div>
                                     </div>
                                 </mat-select-trigger>
@@ -306,10 +315,10 @@ import { VirtualKeyboardComponent } from 'libs/components/src/lib/virtual-keyboa
             } @else {
                 <div class="m-auto flex flex-col items-center p-8">
                     <mat-spinner [diameter]="32"></mat-spinner>
-                    <p>{{ loading }}</p>
+                    <p>{{ loading() }}</p>
                 </div>
             }
-            @if (!loading) {
+            @if (!loading()) {
                 <div
                     class="!mt-4 flex w-full items-center justify-end border-t border-base-300 px-4 py-2"
                 >
@@ -317,7 +326,7 @@ import { VirtualKeyboardComponent } from 'libs/components/src/lib/virtual-keyboa
                         btn
                         matRipple
                         class="w-32"
-                        [disabled]="!active_building && !active_level"
+                        [disabled]="!active_building() && !active_level()"
                         (click)="bootstrapKiosk()"
                     >
                         Finish Setup
@@ -337,7 +346,15 @@ import { VirtualKeyboardComponent } from 'libs/components/src/lib/virtual-keyboa
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatRippleModule,
+        TranslatePipe,
+        MatProgressSpinnerModule,
+        MatFormFieldModule,
+        MatSelectModule,
+        FormsModule,
+    ],
 })
 export class BootstrapComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);
@@ -346,13 +363,13 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
     private _router = inject(Router);
 
     /** Loading state of the bootstrap */
-    public loading: string;
+    public readonly loading = signal('');
     /** Actively selected building */
-    public active_region: Region;
+    public readonly active_region = signal<Region>(undefined);
     /** Actively selected building */
-    public active_building: Building;
+    public readonly active_building = signal<Building>(undefined);
     /** Actively selected level */
-    public active_level: BuildingLevel;
+    public readonly active_level = signal<BuildingLevel>(undefined);
     /** Actively selected level */
     public active_rotation: Identity;
     /** Actively selected location */
@@ -366,28 +383,29 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
 
     public setRegion(region: Region) {
         this._org.region = region;
-        this.active_building = undefined;
-        this.active_level = undefined;
+        this.active_building.set(undefined);
+        this.active_level.set(undefined);
         this.updateRotations();
     }
 
     public setBuilding(building: Building) {
         this._org.building = building;
-        this.active_level = undefined;
+        console.log('Set Building:', building, this.active_building());
+        this.active_level.set(undefined);
         this.updateRotations();
     }
 
     /** List of available locations */
     public get locations(): readonly Identity[] {
-        if (!this.active_level) {
+        if (!this.active_level()) {
             return [];
         }
-        return this.active_level.locations || [];
+        return this.active_level().locations || [];
     }
 
     public async ngOnInit() {
-        await this._org.initialised.pipe(first((_) => _)).toPromise();
-        this.active_region = this._org.region;
+        await firstTruthyValueFrom(this._org.initialised);
+        this.active_region.set(this._org.region);
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
@@ -403,7 +421,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
                 if (params.has('level')) {
                     const level = this._org.levelWithID([params.get('level')]);
                     if (level) {
-                        this.active_level = level;
+                        this.active_level.set(level);
                         this.bootstrapKiosk();
                     }
                 }
@@ -414,8 +432,8 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
 
     public updateRotations() {
         this.rotations = [];
-        if (!this.active_building) return;
-        const orientations = this.active_building.orientations;
+        if (!this.active_building()) return;
+        const orientations = this.active_building().orientations;
         const rotations: Identity[] = [];
         for (const key in orientations) {
             if (orientations[key]) {
@@ -436,14 +454,14 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
      * Store bootstrapped values and navigate to the main page
      */
     public bootstrapKiosk() {
-        this.loading = 'Bootstrapping application...';
+        this.loading.set('Bootstrapping application...');
         if (this.active_level) {
             if (localStorage) {
                 localStorage.setItem(
                     'KIOSK.building',
-                    this.active_building?.id || this.active_level.parent_id,
+                    this.active_building()?.id || this.active_level().parent_id,
                 );
-                localStorage.setItem('KIOSK.level', this.active_level.id);
+                localStorage.setItem('KIOSK.level', this.active_level().id);
                 if (this.active_rotation) {
                     localStorage.setItem(
                         'KIOSK.orientation',
@@ -462,14 +480,14 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
             route[0] = `/${route[0]}`;
             this._router.navigate(route);
         }
-        this.loading = null;
+        this.loading.set('');
     }
 
     /**
      * Check for any existing bootstrapped values
      */
     private checkBootstrap() {
-        this.loading = 'Checking for existing parameters...';
+        this.loading.set('Checking for existing parameters...');
         if (localStorage) {
             const building_id = localStorage.getItem('KIOSK.building');
             const level_id = localStorage.getItem('KIOSK.level');
@@ -484,6 +502,6 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
 
         VirtualKeyboardComponent.enabled =
             localStorage.getItem('OSK.enabled') === 'true';
-        this.loading = null;
+        this.loading.set('');
     }
 }

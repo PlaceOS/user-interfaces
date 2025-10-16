@@ -1,7 +1,20 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { SettingsService } from '@placeos/common';
-import { CalendarEvent } from '@placeos/events';
-import { User } from '@placeos/users';
+import { MatRippleModule } from '@angular/material/core';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { RouterModule } from '@angular/router';
+import { CalendarEvent, SettingsService, User } from '@placeos/common';
+import {
+    AuthenticatedImageDirective,
+    BuildingPipe,
+    IconComponent,
+    LevelPipe,
+    SimpleTableComponent,
+    TranslatePipe,
+} from '@placeos/components';
+import { SpacePipe } from '@placeos/events';
+import { AttendeeListComponent } from 'libs/events/src/lib/attendee-list.component';
 import { EventStateService } from './event-state.service';
 
 @Component({
@@ -289,7 +302,21 @@ import { EventStateService } from './event-state.service';
         </ng-template>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        SimpleTableComponent,
+        SpacePipe,
+        IconComponent,
+        MatMenuModule,
+        RouterModule,
+        MatRippleModule,
+        TranslatePipe,
+        AttendeeListComponent,
+        MatProgressBarModule,
+        AuthenticatedImageDirective,
+        LevelPipe,
+        BuildingPipe,
+    ],
 })
 export class EventListingComponent {
     private _settings = inject(SettingsService);

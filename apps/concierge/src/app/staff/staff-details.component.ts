@@ -1,7 +1,13 @@
 import { Component, inject, input } from '@angular/core';
-import { i18n, notifyError } from '@placeos/common';
-import { StaffUser } from '@placeos/users';
+import { i18n, notifyError, StaffUser } from '@placeos/common';
 
+import { MatTooltipModule } from '@angular/material/tooltip';
+import {
+    ActionIconComponent,
+    IconComponent,
+    TranslatePipe,
+    UserAvatarComponent,
+} from '@placeos/components';
 import { StaffStateService } from './staff-state.service';
 
 @Component({
@@ -62,7 +68,13 @@ import { StaffStateService } from './staff-state.service';
         }
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        UserAvatarComponent,
+        ActionIconComponent,
+        IconComponent,
+        MatTooltipModule,
+        TranslatePipe,
+    ],
 })
 export class StaffDetailsComponent {
     private _state = inject(StaffStateService);

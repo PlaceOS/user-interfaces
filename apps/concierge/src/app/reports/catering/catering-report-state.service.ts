@@ -1,13 +1,14 @@
 import { Injectable, inject } from '@angular/core';
-import { Booking } from '@placeos/bookings';
-import { CateringItem, CateringOrder } from '@placeos/catering';
 import {
+    Booking,
+    CalendarEvent,
+    CateringItem,
+    CateringOrder,
     downloadFile,
     flatten,
     jsonToCsv,
     nextValueFrom,
 } from '@placeos/common';
-import { CalendarEvent } from '@placeos/events';
 import { endOfDay, format, startOfDay } from 'date-fns';
 import { combineLatest } from 'rxjs';
 import { map, shareReplay } from 'rxjs/operators';

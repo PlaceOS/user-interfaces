@@ -1,8 +1,8 @@
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { of } from 'rxjs';
 
+import { OrganisationService } from '@placeos/common';
 import { ExploreStateService } from '@placeos/explore';
-import { OrganisationService } from '@placeos/organisation';
 
 import { ExploreLevelSelectComponent } from '../app/explore-level-select.component';
 

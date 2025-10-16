@@ -4,7 +4,6 @@ import { marked } from 'marked';
 
 @Pipe({
     name: 'markdown',
-    standalone: false,
 })
 export class MarkdownPipe implements PipeTransform {
     public transform(value: string): string {

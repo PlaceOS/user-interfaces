@@ -1,5 +1,7 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { formatDuration } from '@placeos/common';
+import { TranslatePipe } from '@placeos/components';
 import { differenceInBusinessDays, endOfDay, startOfDay } from 'date-fns';
 import { map } from 'rxjs/operators';
 import { ReportsStateService } from '../reports-state.service';
@@ -63,7 +65,7 @@ import { ReportsStateService } from '../reports-state.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [CommonModule, TranslatePipe],
 })
 export class ReportSpacesOverallComponent {
     private _state = inject(ReportsStateService);

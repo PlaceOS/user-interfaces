@@ -4,41 +4,27 @@ import {
     predictableRandomInt,
     randomString,
 } from '@placeos/common';
-import { addMinutes, getUnixTime, set, subDays } from 'date-fns';
+import {
+    addDays,
+    addMinutes,
+    getUnixTime,
+    setHours,
+    startOfDay,
+} from 'date-fns';
 import { MOCK_ASSETS } from './assets.data';
-import { MOCK_SPACES } from './spaces.data';
 
-import { MOCK_GUESTS, MOCK_STAFF } from './users.data';
+import { MOCK_SPACES } from './spaces.data';
+import { ACTIVE_USER, MOCK_GUESTS, MOCK_STAFF } from './users.data';
 import { MOCK_BUILDINGS, MOCK_LEVELS } from './zone.data';
 
-let EVENT_TIME = set(subDays(Date.now(), 3), {
-    hours: 7,
-    minutes: 0,
-    seconds: 0,
-    milliseconds: 0,
-});
-
-const nextEventTime = (save = false): number => {
-    const next = addMinutes(EVENT_TIME, (predictableRandomInt(8) + 1) * 15);
-    if (save) EVENT_TIME = addMinutes(next, 60);
-    return getUnixTime(next);
-};
-
-const TYPES = [
-    'desk',
-    'parking',
-    'asset-request',
-    'visitor',
-    'locker',
-    'group-event',
-];
 const TRACKING = ['in_storage', 'in_transit', 'at_location'];
 
-export const MOCK_BOOKINGS = new Array(300).fill(0).map((_, index) => {
-    const throw_away = predictableRandomInt(999999) % 3 === 0;
-    const user =
-        MOCK_STAFF[predictableRandomInt(MOCK_STAFF.length)] || ({} as any);
-    const type = TYPES[predictableRandomInt(TYPES.length)];
+const generateBookingForDay = (
+    day: number,
+    type: string,
+    index: number,
+    user: (typeof MOCK_STAFF)[0],
+) => {
     const bld = MOCK_BUILDINGS[predictableRandomInt(MOCK_BUILDINGS.length)];
     const lvls = MOCK_LEVELS.filter((_) => _.parent_id === bld?.id);
     const lvl = lvls[predictableRandomInt(lvls.length)];
@@ -48,65 +34,228 @@ export const MOCK_BOOKINGS = new Array(300).fill(0).map((_, index) => {
     const approver = MOCK_STAFF[predictableRandomInt(MOCK_STAFF.length)];
     const guest = MOCK_GUESTS[predictableRandomInt(MOCK_GUESTS.length)];
     const asset_count = predictableRandomInt(3, 1);
-    const position = padString(
-        (index % 18) + 1 + Math.floor(index / 18) * 100,
-        3,
+    const position = padString(predictableRandomInt(999) + 1, 3);
+    const base_time = setHours(
+        addDays(startOfDay(Date.now()), day - 15),
+        predictableRandomInt(10, 7),
     );
+    const booking_start = getUnixTime(base_time);
+    const time_length = predictableRandomInt(240, 60);
+    const booking_end = getUnixTime(addMinutes(base_time, time_length));
+    const qr_base = (Date.now() * predictableRandomInt(999999, 1)) / 100000;
+
     return {
-        id: `booking-${index}`,
-        booking_start: nextEventTime(true),
-        booking_end: nextEventTime(),
-        user_id: user.id,
-        user_name: user.name,
-        user_email: user.email,
-        booked_by_name: user.name,
-        booked_by_email: user.email,
+        id: index,
+        qr_code: Math.floor(qr_base).toString(),
+        booking_start,
+        booking_end,
+        timezone: 'Australia/Sydney',
+        title: capitalizeFirstLetter(
+            `${type.replace('-', ' ')} booking ${index}`,
+        ),
+        event_start: booking_start,
+        event_end: booking_end,
+        asset_ids:
+            type === 'asset-request'
+                ? [...Array(asset_count)].map(
+                      (_, i) =>
+                          MOCK_ASSETS[
+                              predictableRandomInt(MOCK_ASSETS.length, i + 1)
+                          ].id,
+                  )
+                : [
+                      type === 'visitor'
+                          ? guest.email
+                          : `${type}-${bld?.id}-${lvl?.id}-${position}`,
+                  ],
         asset_id:
             type === 'visitor'
                 ? guest.email
-                : type === 'parking'
-                  ? `park-${position}`
-                  : `desk-${lvl?.id}-${index}`,
+                : `${type}-${bld?.id}-${lvl?.id}-${position}`,
         asset_name:
-            type === 'visitor'
-                ? guest.name
-                : type === 'parking'
-                  ? position
-                  : `${lvl?.id}-${index}`,
+            type === 'visitor' ? guest.name : `${bld?.name}-${position}`,
         description:
             type === 'visitor'
                 ? guest.name
-                : type === 'parking'
-                  ? position
-                  : `Desk ${index}`,
-        title: `${capitalizeFirstLetter(type)} Booking ${index}`,
-        type,
+                : `${capitalizeFirstLetter(type.replace('-', ' '))} in ${bld?.name}`,
         booking_type: type,
+        type,
+        user_id: user.id,
+        user_name: user.name,
+        user_email: user.email,
+        booked_by_id: user.id,
+        booked_by_name: user.name,
+        booked_by_email: user.email,
         attendees: [],
-        checked_in: predictableRandomInt(999999) % 3 === 0,
-        access: predictableRandomInt(999999) % 3 === 0,
-        approved: approved === 0,
-        rejected: approved === 1,
+        checked_in: approved && predictableRandomInt(4) <= 2,
+        rejected: predictableRandomInt(12) === 0,
+        approved: approved !== 0,
+        access: approved !== 0,
         permission: type === 'group-event' ? 'OPEN' : 'PRIVATE',
-        approver_id: approved === 0 ? approver.id : '',
-        approver_name: approved === 0 ? approver.name : '',
-        approver_email: approved === 0 ? approver.email : '',
-        zones: [bld?.id, type === 'parking' ? 'level-p1' : lvl?.id],
+        approver_id: approved ? approver.id : '',
+        approver_name: approved ? approver.name : '',
+        approver_email: approved ? approver.email : '',
+        process_state:
+            type === 'asset-request'
+                ? TRACKING[predictableRandomInt(TRACKING.length, index)]
+                : '',
+        last_changed: booking_start,
+        created: booking_start - 3600,
+        created_by_id: user.id,
+        created_by_name: user.name,
+        created_by_email: user.email,
+        zones: [
+            bld?.id,
+            type === 'parking'
+                ? MOCK_LEVELS.find(
+                      (l) => l.parent_id === bld?.id && l.type === 'parking',
+                  )?.id
+                : lvl?.id,
+        ].filter(Boolean),
         extension_data: {
-            map_id: `table-10.00${index}`,
+            map_id: `table-${bld?.id}.${position}`,
+            note: capitalizeFirstLetter(
+                `${type.replace('-', ' ')} booking ${index}`,
+            ),
             plate_number: randomString(
                 8,
                 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789',
             ),
-            assets: new Array(asset_count).fill(0).map((_) => ({
-                ...MOCK_ASSETS[predictableRandomInt(asset_count)],
-                amount: predictableRandomInt(5, 1),
-            })),
-            tracking:
-                approved === 0
-                    ? TRACKING[predictableRandomInt(TRACKING.length)]
-                    : 'in_storage',
-            space_id: lvl_spaces[predictableRandomInt(lvl_spaces.length)]?.id,
+            tracking: approved ? 'at_location' : 'in_storage',
+            space_id: lvl_spaces.length
+                ? lvl_spaces[predictableRandomInt(lvl_spaces.length)].id
+                : `space-${index}`,
+            building_id: bld?.id,
+            building_name: bld?.name,
         },
     };
-});
+};
+
+// Generate bookings with new requirements
+export const MOCK_BOOKINGS = (() => {
+    const bookings = [];
+    let bookingIndex = 0;
+
+    // Create bookings for 30 days (15 past, 15 future)
+    for (let day = 0; day < 30; day++) {
+        const dayBookings: ReturnType<typeof generateBookingForDay>[] = [];
+
+        // For each day, pick 20 random users + the active user
+        const staffWithoutActive = MOCK_STAFF.filter(
+            (u) => u.id !== ACTIVE_USER.id,
+        );
+        const targetUserCount = Math.min(20, staffWithoutActive.length);
+        // Shuffle staffWithoutActive deterministically within safe bounds
+        const shuffled = [...staffWithoutActive];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = predictableRandomInt(i + 1); // 0..i
+            const temp = shuffled[i];
+            shuffled[i] = shuffled[j];
+            shuffled[j] = temp;
+        }
+        const selectedUsers = shuffled.slice(0, targetUserCount);
+        {
+            const activeFromStaff = MOCK_STAFF.find(
+                (u) => u.id === ACTIVE_USER.id,
+            );
+            selectedUsers.push(
+                activeFromStaff || {
+                    ...ACTIVE_USER,
+                    extension_data: {
+                        employee_id: 'EMP0000',
+                        start_date: new Date().toISOString(),
+                        manager_id: null,
+                    },
+                },
+            );
+        }
+        // Generate bookings for selected users
+        selectedUsers.forEach((user) => {
+            const userDayBookings = [];
+            if (!user) return;
+
+            // Desk bookings: 1-3 per day, within 7am-6pm and <= 8 hours
+            const deskBookingCount = predictableRandomInt(4, 1);
+            for (let i = 0; i < deskBookingCount; i++) {
+                const booking = generateBookingForDay(
+                    day,
+                    'desk',
+                    bookingIndex++,
+                    user,
+                );
+                const durationHours = predictableRandomInt(9, 2); // 2-8 hours
+                const latestStartHour = 18 - durationHours; // ensure end by 6pm
+                const minStartHour = Math.min(7 + i * 3, latestStartHour);
+                const startHour = predictableRandomInt(
+                    latestStartHour + 1,
+                    minStartHour,
+                );
+                const baseTime = setHours(
+                    addDays(startOfDay(Date.now()), day - 15),
+                    startHour,
+                );
+                booking.booking_start = getUnixTime(baseTime);
+                booking.booking_end = getUnixTime(
+                    addMinutes(baseTime, durationHours * 60),
+                );
+                booking.event_start = booking.booking_start;
+                booking.event_end = booking.booking_end;
+                userDayBookings.push(booking);
+            }
+
+            // Parking booking: exactly 1 per day, 6-8 hours within work hours
+            {
+                const booking = generateBookingForDay(
+                    day,
+                    'parking',
+                    bookingIndex++,
+                    user,
+                );
+                const durationHours = predictableRandomInt(9, 6); // 6-8 hours
+                const latestStartHour = 18 - durationHours; // ensure end by 6pm
+                const startHour = predictableRandomInt(latestStartHour + 1, 7);
+                const baseTime = setHours(
+                    addDays(startOfDay(Date.now()), day - 15),
+                    startHour,
+                );
+                booking.booking_start = getUnixTime(baseTime);
+                booking.booking_end = getUnixTime(
+                    addMinutes(baseTime, durationHours * 60),
+                );
+                booking.event_start = booking.booking_start;
+                booking.event_end = booking.booking_end;
+                userDayBookings.push(booking);
+            }
+
+            // Visitor booking: exactly 1 per day, 1-3 hours within work hours
+            {
+                const booking = generateBookingForDay(
+                    day,
+                    'visitor',
+                    bookingIndex++,
+                    user,
+                );
+                const durationHours = predictableRandomInt(4, 1); // 1-3 hours
+                const latestStartHour = 18 - durationHours; // ensure end by 6pm
+                const startHour = predictableRandomInt(latestStartHour + 1, 7);
+                const baseTime = setHours(
+                    addDays(startOfDay(Date.now()), day - 15),
+                    startHour,
+                );
+                booking.booking_start = getUnixTime(baseTime);
+                booking.booking_end = getUnixTime(
+                    addMinutes(baseTime, durationHours * 60),
+                );
+                booking.event_start = booking.booking_start;
+                booking.event_end = booking.booking_end;
+                userDayBookings.push(booking);
+            }
+
+            dayBookings.push(...userDayBookings);
+        });
+
+        bookings.push(...dayBookings);
+    }
+
+    return bookings.sort((a, b) => a.booking_start - b.booking_start);
+})();

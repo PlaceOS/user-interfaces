@@ -1,12 +1,15 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
+import { RouterModule } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
-import { SettingsService } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { OrganisationService, SettingsService } from '@placeos/common';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import {
     generateCalendarFileLink,
     generateGoogleCalendarLink,
     generateMicrosoftCalendarLink,
-} from 'libs/common/src/lib/calendar-links';
+} from '@placeos/events';
 
 @Component({
     selector: 'locker-flow-success',
@@ -113,7 +116,13 @@ import {
             </footer>
         </div>
     `,
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        IconComponent,
+        RouterModule,
+        MatRippleModule,
+    ],
 })
 export class BookLockerFlowSuccessComponent {
     private _state = inject(BookingFormService);

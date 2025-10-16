@@ -1,12 +1,16 @@
 import { Component, inject } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatRippleModule } from '@angular/material/core';
 import { Router } from '@angular/router';
 import {
+    OrganisationService,
     SettingsService,
     notifyError,
     notifyInfo,
     notifySuccess,
 } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { TranslatePipe } from '@placeos/components';
 import { first } from 'rxjs/operators';
 import { CheckinStateService } from './checkin-state.service';
 
@@ -49,7 +53,7 @@ import { CheckinStateService } from './checkin-state.service';
         </div>
     `,
     styles: [],
-    standalone: false,
+    imports: [TranslatePipe, MatRippleModule, MatCheckboxModule, FormsModule],
 })
 export class CheckinInductionComponent {
     private _checkin = inject(CheckinStateService);

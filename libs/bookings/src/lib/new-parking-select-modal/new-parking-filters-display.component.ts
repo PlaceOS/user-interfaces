@@ -1,8 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, input, output } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
-import { AsyncHandler, nextValueFrom, SettingsService } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import {
+    AsyncHandler,
+    nextValueFrom,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { BookingFormService } from '../booking-form.service';

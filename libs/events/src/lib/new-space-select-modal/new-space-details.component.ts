@@ -7,14 +7,15 @@ import {
     output,
 } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
+import { Space } from '@placeos/common';
 import { ViewerFeature } from '@placeos/svg-viewer';
+
+import { OrganisationService } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { ImageCarouselComponent } from 'libs/components/src/lib/image-carousel.component';
 import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
 import { MapPinComponent } from 'libs/components/src/lib/map-pin.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
-import { Space } from '../space.class';
 
 @Component({
     selector: `new-space-details`,

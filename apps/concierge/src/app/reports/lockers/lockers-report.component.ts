@@ -1,8 +1,22 @@
+import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute } from '@angular/router';
-import { AsyncHandler, SettingsService } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import {
+    AsyncHandler,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
+import {
+    AuthenticatedImageDirective,
+    TranslatePipe,
+} from '@placeos/components';
 import { debounceTime, map } from 'rxjs/operators';
+import { ReportsOptionsComponent } from '../reports-options.component';
+import { LockersReportChartsComponent } from './lockers-report-charts.component';
+import { LockersReportDailyUsageComponent } from './lockers-report-daily-usage.component';
+import { LockersReportListComponent } from './lockers-report-list.component';
+import { LockersReportOverallComponent } from './lockers-report-overall.component';
 import { LockersReportService } from './lockers-report.service';
 
 @Component({
@@ -69,7 +83,18 @@ import { LockersReportService } from './lockers-report.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatProgressSpinnerModule,
+        TranslatePipe,
+        MatProgressSpinnerModule,
+        LockersReportChartsComponent,
+        LockersReportOverallComponent,
+        LockersReportDailyUsageComponent,
+        LockersReportListComponent,
+        AuthenticatedImageDirective,
+        ReportsOptionsComponent,
+    ],
 })
 export class LockersReportComponent extends AsyncHandler implements OnInit {
     private _state = inject(LockersReportService);

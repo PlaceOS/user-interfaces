@@ -29,18 +29,18 @@ import {
     AsyncHandler,
     BookingRuleset,
     currentUser,
+    Desk,
     firstTruthyValueFrom,
     i18n,
     nextValueFrom,
     notifyError,
     notifySuccess,
+    OrganisationService,
     rulesForResource,
     SettingsService,
+    StaffUser,
 } from '@placeos/common';
 import { BookingFormService } from 'libs/bookings/src/lib/booking-form.service';
-import { Desk } from 'libs/organisation/src/lib/desk.class';
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
-import { StaffUser } from 'libs/users/src/lib/user.class';
 
 import { queryBookings } from 'libs/bookings/src/lib/bookings.fn';
 import { SetDatetimeModalComponent } from 'libs/explore/src/lib/set-datetime-modal.component';

@@ -1,3 +1,5 @@
+import { DragDropModule } from '@angular/cdk/drag-drop';
+import { CommonModule } from '@angular/common';
 import {
     Component,
     inject,
@@ -6,7 +8,19 @@ import {
     signal,
     SimpleChanges,
 } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { notifyError } from '@placeos/common';
+import {
+    CustomTooltipComponent,
+    IconComponent,
+    MediaDurationPipe,
+    TranslatePipe,
+} from '@placeos/components';
 import { isValidUrl } from '@placeos/events';
 import { listSignagePlaylistMedia, SignageMedia } from '@placeos/ts-client';
 import { getUnixTime, startOfMinute } from 'date-fns';
@@ -301,7 +315,20 @@ import { SignageStateService } from './signage-state.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        IconComponent,
+        MatMenuModule,
+        MatRippleModule,
+        MatFormFieldModule,
+        MatInputModule,
+        CustomTooltipComponent,
+        FormsModule,
+        DragDropModule,
+        MatTooltipModule,
+        MediaDurationPipe,
+    ],
 })
 export class SignageMediaListComponent implements OnChanges {
     private _state = inject(SignageStateService);

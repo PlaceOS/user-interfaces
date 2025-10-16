@@ -2,12 +2,13 @@ import { CommonModule } from '@angular/common';
 import { Component, SimpleChanges, inject, input, output } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { AssetGroup } from '@placeos/common';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
+
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { AssetStateService } from '../asset-state.service';
-import { AssetGroup } from '../asset.class';
 
 @Component({
     selector: 'asset-list',

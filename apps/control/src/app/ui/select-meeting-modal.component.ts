@@ -1,9 +1,18 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { i18n, notifySuccess } from '@placeos/common';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
+import { CalendarEvent, i18n, notifySuccess } from '@placeos/common';
+import {
+    IconComponent,
+    openConfirmModal,
+    TranslatePipe,
+} from '@placeos/components';
 import { format } from 'date-fns';
-import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
-import { CalendarEvent } from 'libs/events/src/lib/event.class';
 import { ControlStateService } from '../control-state.service';
 
 @Component({
@@ -87,7 +96,16 @@ import { ControlStateService } from '../control-state.service';
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        MatProgressSpinnerModule,
+        MatRippleModule,
+        MatFormFieldModule,
+        MatSelectModule,
+        FormsModule,
+        IconComponent,
+    ],
 })
 export class SelectMeetingModalComponent {
     private _service = inject(ControlStateService);

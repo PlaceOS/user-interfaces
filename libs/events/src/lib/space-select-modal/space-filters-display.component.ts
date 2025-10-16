@@ -2,11 +2,14 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject, model, output } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatRippleModule } from '@angular/material/core';
-import { AsyncHandler, SettingsService } from '@placeos/common';
+import {
+    AsyncHandler,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { SpaceFiltersComponent } from './space-filters.component';
 
 @Component({

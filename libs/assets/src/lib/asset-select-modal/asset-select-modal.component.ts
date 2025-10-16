@@ -1,11 +1,10 @@
 import { Component, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
-import { SettingsService } from '@placeos/common';
+import { AssetGroup, SettingsService } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { AssetStateService } from '../asset-state.service';
-import { AssetGroup } from '../asset.class';
 import { AssetDetailsComponent } from './asset-details.component';
 import { AssetFiltersDisplayComponent } from './asset-filters-display.component';
 import { AssetFiltersComponent } from './asset-filters.component';

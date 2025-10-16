@@ -1,5 +1,12 @@
 import { Component, inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MatRippleModule } from '@angular/material/core';
+import {
+    MAT_DIALOG_DATA,
+    MatDialogModule,
+    MatDialogRef,
+} from '@angular/material/dialog';
+import { IconComponent } from '@placeos/components';
+import { SourceSelectComponent } from './source-select.component';
 
 export class SourceSelectModalData {
     output: string;
@@ -35,7 +42,12 @@ export class SourceSelectModalData {
             </button>
         </div>
     `,
-    standalone: false,
+    imports: [
+        MatDialogModule,
+        IconComponent,
+        MatRippleModule,
+        SourceSelectComponent,
+    ],
 })
 export class SourceSelectModalComponent {
     private _data = inject<SourceSelectModalData>(MAT_DIALOG_DATA);

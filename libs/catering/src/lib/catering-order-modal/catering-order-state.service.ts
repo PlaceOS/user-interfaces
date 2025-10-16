@@ -1,8 +1,12 @@
 import { inject, Injectable } from '@angular/core';
-import { SettingsService, unique } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import {
+    CateringItem,
+    OrganisationService,
+    SettingsService,
+    Space,
+    unique,
+} from '@placeos/common';
 import { PlaceMetadata, showMetadata } from '@placeos/ts-client';
-import { Space } from 'libs/events/src/lib/space.class';
 import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
 import {
     catchError,
@@ -13,16 +17,15 @@ import {
     switchMap,
     tap,
 } from 'rxjs/operators';
-import { CateringItem } from '../catering-item.class';
 import { CateringSettings } from '../catering-state.service';
 import { cateringItemAvailable, getCateringRulesForZone } from '../utilities';
 
-export interface CateringOrderOptions {
+export interface CateringOrderSelectOptions {
     // Affects backend requests
     zone?: string;
 }
 
-export interface CateringOrderFilters {
+export interface CateringOrderSelectFilters {
     // Affects frontend filtering
     date?: number;
     duration?: number;
@@ -41,8 +44,8 @@ export class CateringOrderStateService {
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
 
-    private _options = new BehaviorSubject<CateringOrderOptions>({});
-    private _filters = new BehaviorSubject<CateringOrderFilters>({
+    private _options = new BehaviorSubject<CateringOrderSelectOptions>({});
+    private _filters = new BehaviorSubject<CateringOrderSelectFilters>({
         search: '',
         tags: [],
         categories: [],
@@ -174,11 +177,11 @@ export class CateringOrderStateService {
         return this._org.currency_code;
     }
 
-    public setOptions(opts: Partial<CateringOrderOptions>) {
+    public setOptions(opts: Partial<CateringOrderSelectOptions>) {
         this._options.next({ ...this._options.getValue(), ...opts });
     }
 
-    public setFilters(opts: Partial<CateringOrderFilters>) {
+    public setFilters(opts: Partial<CateringOrderSelectFilters>) {
         this._filters.next({ ...this._filters.getValue(), ...opts });
     }
 

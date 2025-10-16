@@ -1,11 +1,13 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
+import { OrganisationService } from '@placeos/common';
+import { InteractiveMapComponent } from '@placeos/components';
 import {
     ExploreDesksService,
     ExploreSpacesService,
     ExploreStateService,
     ExploreZonesService,
 } from '@placeos/explore';
-import { OrganisationService } from '@placeos/organisation';
 
 @Component({
     selector: 'explore-map-stack',
@@ -58,7 +60,7 @@ import { OrganisationService } from '@placeos/organisation';
             }
         `,
     ],
-    standalone: false,
+    imports: [InteractiveMapComponent, CommonModule],
 })
 export class ExploreMapStackComponent {
     private _orgs = inject(OrganisationService);

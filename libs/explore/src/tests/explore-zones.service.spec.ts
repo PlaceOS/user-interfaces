@@ -1,10 +1,10 @@
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator';
-import { SettingsService } from '@placeos/common';
 import {
     Building,
     Organisation,
     OrganisationService,
-} from '@placeos/organisation';
+    SettingsService,
+} from '@placeos/common';
 import { BehaviorSubject, of } from 'rxjs';
 
 import { ExploreStateService } from '../lib/explore-state.service';

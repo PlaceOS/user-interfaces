@@ -7,10 +7,15 @@ import {
 } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-import { currentUser, nextValueFrom, unique } from '@placeos/common';
-import { Calendar } from 'libs/common/src/lib/calendar.class';
-import { queryCalendars } from 'libs/common/src/lib/calendar.fn';
-import { StaffUser, User } from 'libs/users/src/lib/user.class';
+import {
+    Calendar,
+    currentUser,
+    nextValueFrom,
+    StaffUser,
+    unique,
+    User,
+} from '@placeos/common';
+import { queryCalendars } from 'libs/events/src/lib/calendar.fn';
 import { combineLatest, of } from 'rxjs';
 import { catchError, map, shareReplay } from 'rxjs/operators';
 

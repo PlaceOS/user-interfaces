@@ -7,7 +7,7 @@ import {
 } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
-import { SettingsService } from '@placeos/common';
+import { SettingsService, User } from '@placeos/common';
 
 import { BookingAsset } from 'libs/bookings/src/lib/booking-form.service';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -16,7 +16,6 @@ import { DateFieldComponent } from 'libs/form-fields/src/lib/date-field.componen
 import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
 import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.component';
 import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-field.component';
-import { User } from 'libs/users/src/lib/user.class';
 
 @Component({
     selector: 'set-datetime-modal',

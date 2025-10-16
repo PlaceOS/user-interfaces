@@ -6,12 +6,13 @@ import { AsyncHandler } from '@placeos/common';
 import { setMockTime, time } from './media-helpers';
 
 import { FormsModule } from '@angular/forms';
-import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { DateFieldComponent } from 'libs/form-fields/src/lib/date-field.component';
-import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.component';
-import { SettingsToggleComponent } from '../../../../libs/components/src/lib/settings-toggle.component';
+import {
+    CustomTooltipComponent,
+    IconComponent,
+    SettingsToggleComponent,
+    TranslatePipe,
+} from '@placeos/components';
+import { DateFieldComponent, TimeFieldComponent } from '@placeos/form-fields';
 
 @Component({
     selector: 'time-controls',

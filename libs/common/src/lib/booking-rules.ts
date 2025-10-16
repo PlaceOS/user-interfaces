@@ -1,6 +1,6 @@
 import { addMinutes, isAfter, isBefore } from 'date-fns';
 
-import { User } from 'libs/users/src/lib/user.class';
+import { User } from './types/user.class';
 
 declare global {
     interface Window {

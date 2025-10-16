@@ -1,8 +1,15 @@
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
+import {
+    ActivatedRoute,
+    NavigationEnd,
+    Router,
+    RouterModule,
+} from '@angular/router';
 import {
     AsyncHandler,
+    Desk,
+    OrganisationService,
     SettingsService,
     csvToJson,
     downloadFile,
@@ -12,11 +19,21 @@ import {
     notifyError,
     randomInt,
 } from '@placeos/common';
-import { Desk, OrganisationService } from '@placeos/organisation';
 
+import { CommonModule } from '@angular/common';
+import { MatRippleModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatSelectModule } from '@angular/material/select';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
+import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
 import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
+import { DateOptionsComponent } from '../ui/date-options.component';
+import { SearchbarComponent } from '../ui/searchbar.component';
 import { DeskBookModalComponent } from './desk-book-modal.component';
 import { DeskQrCodeModalComponent } from './desk-qr-code-modal.component';
 import { DesksStateService } from './desks-state.service';
@@ -260,7 +277,22 @@ import { DesksStateService } from './desks-state.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        MatProgressBarModule,
+        RouterModule,
+        MatRippleModule,
+        CommonModule,
+        IconComponent,
+        MatRippleModule,
+        MatTooltipModule,
+        DateOptionsComponent,
+        MatFormFieldModule,
+        MatSelectModule,
+        ApplicationSidebarComponent,
+        ApplicationTopbarComponent,
+        SearchbarComponent,
+        TranslatePipe,
+    ],
 })
 export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
     private _state = inject(DesksStateService);

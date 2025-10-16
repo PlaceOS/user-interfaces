@@ -5,8 +5,8 @@ import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
 import { PaymentsService } from '@placeos/payments';
 import { BehaviorSubject, of, Subject } from 'rxjs';
 
+import { OrganisationService } from '@placeos/common';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { BookingFormService } from '../lib/booking-form.service';
 
 jest.mock('@placeos/ts-client');

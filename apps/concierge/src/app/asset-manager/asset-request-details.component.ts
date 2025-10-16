@@ -1,7 +1,11 @@
-import { Component, inject, input, output } from '@angular/core';
-import { SettingsService } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { CommonModule } from '@angular/common';
+import { Component, inject, model, output } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
+import { MatMenuModule } from '@angular/material/menu';
+import { OrganisationService, SettingsService } from '@placeos/common';
+import { IconComponent, LevelPipe, TranslatePipe } from '@placeos/components';
 import { AssetManagerStateService } from './asset-manager-state.service';
+import { SplitJoinPipe } from './split-join.pipe';
 
 @Component({
     selector: 'asset-request-details',
@@ -9,7 +13,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
         @if (request()) {
             <div
                 class="fixed inset-0 z-50"
-                (click)="request = null(); requestChange.emit(request())"
+                (click)="request.set(null); requestChange.emit(request())"
             >
                 <div class="absolute inset-0 bg-black opacity-50"></div>
                 <div
@@ -20,7 +24,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         icon
                         matRipple
                         (click)="
-                            request = null(); requestChange.emit(request())
+                            request.set(null); requestChange.emit(request())
                         "
                         class="absolute right-1 top-1"
                     >
@@ -135,7 +139,9 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                             <div class="font-medium">Floor</div>
                         </div>
                         <div class="mt-1 pl-10">
-                            {{ level(request().zones)?.display_name || 'N/A' }}
+                            {{
+                                (request().zones | level)?.display_name || 'N/A'
+                            }}
                         </div>
                         <div class="mt-4 flex items-center space-x-4">
                             <div
@@ -255,14 +261,22 @@ import { AssetManagerStateService } from './asset-manager-state.service';
         }
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatMenuModule,
+        TranslatePipe,
+        SplitJoinPipe,
+        MatRippleModule,
+        IconComponent,
+        LevelPipe,
+    ],
 })
 export class AssetRequestDetailsComponent {
     private _state = inject(AssetManagerStateService);
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
 
-    public readonly request = input<any>(undefined);
+    public readonly request = model<any>(undefined);
     public readonly requestChange = output<any>();
 
     public loading = false;
@@ -273,10 +287,6 @@ export class AssetRequestDetailsComponent {
 
     public get time_format() {
         return this._settings.time_format;
-    }
-
-    public level(zones) {
-        return this._org.levelWithID(zones);
     }
 
     public async setStatus(status: string) {

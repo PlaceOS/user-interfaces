@@ -1,5 +1,8 @@
 import { Component, inject } from '@angular/core';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatRippleModule } from '@angular/material/core';
+import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+import { LockerGridComponent } from '@placeos/bookings';
+import { IconComponent } from '@placeos/components';
 
 @Component({
     selector: 'view-locker-bank-modal',
@@ -22,7 +25,12 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
         </main>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        MatDialogModule,
+        MatRippleModule,
+        IconComponent,
+        LockerGridComponent,
+    ],
 })
 export class ViewLockerBankModalComponent {
     private _data = inject(MAT_DIALOG_DATA);

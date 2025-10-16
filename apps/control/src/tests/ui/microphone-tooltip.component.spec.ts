@@ -4,9 +4,11 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { MockComponent, MockDirective } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 
-import { BindingDirective } from 'libs/components/src/lib/binding.directive';
-import { CustomTooltipData } from 'libs/components/src/lib/custom-tooltip.component';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
+import {
+    BindingDirective,
+    CustomTooltipData,
+    IconComponent,
+} from '@placeos/components';
 import { ControlStateService } from '../../app/control-state.service';
 import { MicrophoneTooltipComponent } from '../../app/ui/microphone-tooltip.component';
 

@@ -1,8 +1,20 @@
 import { Component, EventEmitter, Output, inject } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
+import {
+    FormControl,
+    FormGroup,
+    FormsModule,
+    ReactiveFormsModule,
+} from '@angular/forms';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
 import { AsyncHandler, DialogEvent } from '@placeos/common';
+import { SettingsToggleComponent, TranslatePipe } from '@placeos/components';
 import { SpacesService } from '@placeos/events';
+import { CounterComponent, TimeFieldComponent } from '@placeos/form-fields';
 import { addHours, startOfHour } from 'date-fns';
 import { combineLatest } from 'rxjs';
 import { map, shareReplay, tap } from 'rxjs/operators';
@@ -244,7 +256,20 @@ import { DesksStateService } from '../desks/desks-state.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        MatRippleModule,
+        TranslatePipe,
+        CounterComponent,
+        TimeFieldComponent,
+        TimeFieldComponent,
+        MatFormFieldModule,
+        MatSelectModule,
+        FormsModule,
+        SettingsToggleComponent,
+        MatAutocompleteModule,
+        MatProgressSpinnerModule,
+        ReactiveFormsModule,
+    ],
 })
 export class PointsAssetModalComponent extends AsyncHandler {
     private _spaces = inject(SpacesService);
@@ -300,11 +325,11 @@ export class PointsAssetModalComponent extends AsyncHandler {
         );
     }
 
-    public renderPrice(value: number = 0) {
+    public renderPrice(value = 0) {
         return `$${(value / 100)?.toFixed(2)}`;
     }
 
-    public renderPercent(value: number = 0) {
+    public renderPercent(value = 0) {
         return `${value}%`;
     }
 

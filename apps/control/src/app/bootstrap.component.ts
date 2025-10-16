@@ -4,9 +4,15 @@ import { querySystems } from '@placeos/ts-client';
 import { BehaviorSubject, of } from 'rxjs';
 import { debounceTime, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 
-import { AsyncHandler } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
-import { Space } from 'libs/events/src/lib/space.class';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatRippleModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { AsyncHandler, OrganisationService, Space } from '@placeos/common';
+import { TranslatePipe } from '@placeos/components';
 
 const STORE_KEY = 'PLACEOS.CONTROL.system';
 
@@ -76,6 +82,7 @@ const STORE_KEY = 'PLACEOS.CONTROL.system';
                         </mat-option>
                     }
                 </mat-autocomplete>
+                {{ system_id$ | async }}
                 <button
                     btn
                     matRipple
@@ -122,7 +129,16 @@ const STORE_KEY = 'PLACEOS.CONTROL.system';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        MatProgressSpinnerModule,
+        MatRippleModule,
+        MatAutocompleteModule,
+        MatFormFieldModule,
+        MatInputModule,
+        FormsModule,
+    ],
 })
 export class BootstrapComponent extends AsyncHandler implements OnInit {
     private route = inject(ActivatedRoute);

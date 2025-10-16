@@ -1,7 +1,6 @@
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { predictableRandomInt, unique } from '../../../common/src/lib/general';
 
-import { GuestUser, User } from './user.class';
+import { GuestUser, predictableRandomInt, unique, User } from '@placeos/common';
 
 let USER_COUNT = 0;
 

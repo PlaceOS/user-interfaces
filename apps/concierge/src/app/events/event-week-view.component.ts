@@ -4,6 +4,10 @@ import { map, shareReplay, startWith } from 'rxjs/operators';
 
 import { AsyncHandler } from '@placeos/common';
 
+import { CommonModule } from '@angular/common';
+import { MatRippleModule } from '@angular/material/core';
+import { CustomTooltipComponent } from '@placeos/components';
+import { GroupEventCardComponent } from '@placeos/events';
 import { EventStateService } from './event-state.service';
 
 @Component({
@@ -118,7 +122,12 @@ import { EventStateService } from './event-state.service';
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatRippleModule,
+        GroupEventCardComponent,
+        CustomTooltipComponent,
+    ],
 })
 export class EventWeekViewComponent extends AsyncHandler implements OnInit {
     private _state = inject(EventStateService);

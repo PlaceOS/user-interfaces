@@ -1,6 +1,9 @@
+import { CommonModule } from '@angular/common';
 import { Component, HostListener, inject, OnInit } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
-import { ActivatedRoute, Router } from '@angular/router';
+import { MatMenuModule } from '@angular/material/menu';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
     AsyncHandler,
@@ -9,9 +12,21 @@ import {
     MapsPeopleService,
     nextValueFrom,
     notifyError,
+    OrganisationService,
     SettingsService,
     unique,
+    User,
 } from '@placeos/common';
+import {
+    AuthenticatedImageDirective,
+    CustomTooltipComponent,
+    IconComponent,
+    InteractiveMapComponent,
+    MapPinComponent,
+    MapRadiusComponent,
+    VirtualKeyboardComponent,
+} from '@placeos/components';
+import { SpacePipe, SpacesService } from '@placeos/events';
 import {
     ExploreDesksService,
     ExploreParkingService,
@@ -19,20 +34,13 @@ import {
     ExploreStateService,
     ExploreZonesService,
 } from '@placeos/explore';
-import { OrganisationService } from '@placeos/organisation';
 import { Point } from '@placeos/svg-viewer';
 import { getModule } from '@placeos/ts-client';
+import { MapLocation, showStaff } from '@placeos/users';
 import { startOfMinute } from 'date-fns';
-import { MapPinComponent } from 'libs/components/src/lib/map-pin.component';
-import { MapRadiusComponent } from 'libs/components/src/lib/map-radius.component';
-import { VirtualKeyboardComponent } from 'libs/components/src/lib/virtual-keyboard.component';
-import { SpacePipe } from 'libs/events/src/lib/space.pipe';
-import { SpacesService } from 'libs/events/src/lib/spaces.service';
-import { MapLocation } from 'libs/users/src/lib/location.class';
-import { showStaff } from 'libs/users/src/lib/staff.fn';
-import { User } from 'libs/users/src/lib/user.class';
 import { combineLatest } from 'rxjs';
 import { first, map } from 'rxjs/operators';
+import { AccessibilityControlsComponent } from './accessibility-controls.component';
 
 @Component({
     selector: '[app-explore]',
@@ -267,7 +275,17 @@ import { first, map } from 'rxjs/operators';
         SpacePipe,
     ],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
-    standalone: false,
+    imports: [
+        CommonModule,
+        AccessibilityControlsComponent,
+        MatRippleModule,
+        IconComponent,
+        InteractiveMapComponent,
+        AuthenticatedImageDirective,
+        CustomTooltipComponent,
+        RouterModule,
+        MatMenuModule,
+    ],
 })
 export class ExploreComponent extends AsyncHandler implements OnInit {
     private _state = inject(ExploreStateService);
@@ -286,9 +304,9 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
 
     /** Number of seconds after a user action to reset the kiosk state */
     public reset_delay = 180;
-    public show_levels: boolean = true;
-    public show_legend: boolean = false;
-    public show_accessibility: boolean = false;
+    public show_levels = true;
+    public show_legend = false;
+    public show_accessibility = false;
     public legend = [
         { id: 'free', name: 'Space Available', color: '#43a047' },
         { id: 'busy', name: 'Space In Use', color: '#e53935' },

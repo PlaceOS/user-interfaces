@@ -1,11 +1,27 @@
 import { Component, OnInit, Renderer2, inject } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
+import {
+    BindingDirective,
+    CustomTooltipData,
+    IconComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { getModule } from '@placeos/ts-client';
-import { CustomTooltipData } from 'libs/components/src/lib/custom-tooltip.component';
 import { combineLatest } from 'rxjs';
 
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatSelectModule } from '@angular/material/select';
 import { ControlStateService, RoomInput } from '../control-state.service';
-import { JoystickPan, JoystickTilt } from './joystick.component';
+import {
+    JoystickComponent,
+    JoystickPan,
+    JoystickTilt,
+} from './joystick.component';
 
 export enum ZoomDirection {
     In = 'in',
@@ -199,7 +215,19 @@ export enum ZoomDirection {
         }
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        BindingDirective,
+        FormsModule,
+        TranslatePipe,
+        MatRippleModule,
+        IconComponent,
+        JoystickComponent,
+        MatMenuModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatSelectModule,
+    ],
 })
 export class CameraTooltipComponent extends AsyncHandler implements OnInit {
     private _state = inject(ControlStateService);

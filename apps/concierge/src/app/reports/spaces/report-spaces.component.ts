@@ -1,10 +1,25 @@
 import { Component, inject } from '@angular/core';
 import { debounceTime, map } from 'rxjs/operators';
 
+import { CommonModule } from '@angular/common';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute } from '@angular/router';
-import { AsyncHandler, SettingsService } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import {
+    AsyncHandler,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
+import {
+    AuthenticatedImageDirective,
+    TranslatePipe,
+} from '@placeos/components';
+import { ReportsOptionsComponent } from '../reports-options.component';
 import { ReportsStateService } from '../reports-state.service';
+import { ReportSpacesChartsComponent } from './report-spaces-charts.component';
+import { ReportSpacesOverallListComponent } from './report-spaces-overall-list.component';
+import { ReportSpacesOverallComponent } from './report-spaces-overall.component';
+import { ReportSpacesSpaceListingComponent } from './report-spaces-space-listing.component';
+import { ReportSpacesUserListingComponent } from './report-spaces-user-listing.component';
 
 @Component({
     selector: '[report-spaces]',
@@ -75,7 +90,18 @@ import { ReportsStateService } from '../reports-state.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatProgressSpinnerModule,
+        TranslatePipe,
+        ReportsOptionsComponent,
+        AuthenticatedImageDirective,
+        ReportSpacesChartsComponent,
+        ReportSpacesOverallComponent,
+        ReportSpacesOverallListComponent,
+        ReportSpacesSpaceListingComponent,
+        ReportSpacesUserListingComponent,
+    ],
 })
 export class ReportSpacesComponent extends AsyncHandler {
     private _state = inject(ReportsStateService);

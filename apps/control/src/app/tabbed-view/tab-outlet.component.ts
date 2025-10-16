@@ -1,10 +1,25 @@
+import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { MatRippleModule } from '@angular/material/core';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AsyncHandler, log, nextValueFrom } from '@placeos/common';
+import {
+    BindingDirective,
+    IconComponent,
+    SafePipe,
+    TranslatePipe,
+} from '@placeos/components';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { debounceTime, map } from 'rxjs/operators';
 import { ControlStateService } from '../control-state.service';
+import { CameraControlsComponent } from '../ui/camera-controls.component';
+import { MarkdownPipe } from '../ui/markdown.pipe';
+import { VoiceAssistantComponent } from '../ui/voice-assistant.component';
+import { VideoCallDialViewComponent } from '../video-call/video-call-dial-view.component';
+import { VideoCallPageComponent } from '../video-call/video-call-page.component';
 import { VideoCallStateService } from '../video-call/video-call-state.service';
+import { DeviceOutputListComponent } from './output-list.component';
+import { TVControlsComponent } from './tv-controls.component';
 
 @Component({
     selector: 'tab-outlet,[tab-outlet]',
@@ -207,7 +222,22 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        BindingDirective,
+        MatRippleModule,
+        IconComponent,
+        DeviceOutputListComponent,
+        TranslatePipe,
+        MarkdownPipe,
+        SafePipe,
+        TVControlsComponent,
+        VideoCallDialViewComponent,
+        CameraControlsComponent,
+        VideoCallPageComponent,
+        VoiceAssistantComponent,
+        RouterModule,
+    ],
 })
 export class TabOutletComponent extends AsyncHandler implements OnInit {
     private _service = inject(ControlStateService);

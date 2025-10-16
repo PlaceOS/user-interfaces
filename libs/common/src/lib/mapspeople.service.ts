@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { OrganisationService } from '@placeos/organisation';
+import { OrganisationService } from '@placeos/common';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { debounceTime, filter, map, shareReplay, tap } from 'rxjs/operators';
 import { AsyncHandler } from './async-handler.class';

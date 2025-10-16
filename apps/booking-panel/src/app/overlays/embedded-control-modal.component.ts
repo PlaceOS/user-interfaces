@@ -1,8 +1,10 @@
 import { animate, style, transition, trigger } from '@angular/animations';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 import { AsyncHandler } from '@placeos/common';
+import { IconComponent, SafePipe } from '@placeos/components';
 
 export interface EmbeddedControlModalData {
     control_url: string;
@@ -26,7 +28,7 @@ export interface EmbeddedControlModalData {
             </div>
         </div>
         <div class="absolute left-0 top-0 flex h-12 items-center">
-            <div countdown class="mx-2 text-2xl">{{ countdown }}</div>
+            <div countdown class="mx-2 text-2xl">{{ countdown() }}</div>
             <button
                 icon
                 matRipple
@@ -70,7 +72,7 @@ export interface EmbeddedControlModalData {
             ]),
         ]),
     ],
-    standalone: false,
+    imports: [SafePipe, MatRippleModule, IconComponent],
 })
 export class EmbeddedControlModalComponent
     extends AsyncHandler
@@ -83,15 +85,10 @@ export class EmbeddedControlModalComponent
     /** Control URL to embed into the modal */
     public readonly control_url: string = this._data.control_url;
     /** Display value for the time remain until the modal automatically closes */
-    public countdown: number;
-
-    constructor() {
-        super();
-        this.countdown = 30;
-    }
+    public readonly countdown = signal(30);
 
     public ngOnInit(): void {
-        this.countdown = 30;
+        this.countdown.set(30);
         this.interval('countdown', () => this.tick(), 1000);
     }
 
@@ -100,14 +97,14 @@ export class EmbeddedControlModalComponent
      */
     public close() {
         this._dialog_ref.close();
-        this.countdown = 30;
+        this.countdown.set(30);
     }
 
     /**
      * User confirmation of the content of the modal
      */
     public reset() {
-        this.countdown = 30;
+        this.countdown.set(30);
         this.interval('countdown', () => this.tick(), 1000);
     }
 
@@ -115,9 +112,9 @@ export class EmbeddedControlModalComponent
      * Decrement countdown and close if 0
      */
     public tick() {
-        if (this.countdown <= 0) {
+        if (this.countdown() <= 0) {
             this.close();
         }
-        this.countdown--;
+        this.countdown.update((value) => value - 1);
     }
 }

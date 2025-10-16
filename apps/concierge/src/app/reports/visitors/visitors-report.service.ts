@@ -7,9 +7,9 @@ import {
     jsonToCsv,
     nextValueFrom,
     notifyError,
+    OrganisationService,
     SettingsService,
 } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
 import { endOfDay, format, getUnixTime, isSameDay, startOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import {

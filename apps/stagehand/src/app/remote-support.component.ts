@@ -1,8 +1,21 @@
+import { CommonModule } from '@angular/common';
 import { Component, computed, inject } from '@angular/core';
-import { settingSignal } from 'libs/common/src/lib/settings.service';
+import { FormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatSelectModule } from '@angular/material/select';
+import { settingSignal } from '@placeos/common';
+import {
+    BindingDirective,
+    IconComponent,
+    SimpleTableComponent,
+} from '@placeos/components';
 import { BehaviorSubject, combineLatest, map } from 'rxjs';
 import { AlertsService } from './alerts.service';
 import { SupportService } from './support.service';
+import { SidebarComponent } from './ui/sidebar.component';
 
 function contains(str: string, substr: string) {
     return str.toLowerCase().includes(substr.toLowerCase());
@@ -341,7 +354,19 @@ function contains(str: string, substr: string) {
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatRippleModule,
+        MatMenuModule,
+        IconComponent,
+        BindingDirective,
+        SimpleTableComponent,
+        MatFormFieldModule,
+        MatSelectModule,
+        MatInputModule,
+        SidebarComponent,
+        FormsModule,
+    ],
 })
 export class RemoteSupportComponent {
     private readonly _alerts = inject(AlertsService);

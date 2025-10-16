@@ -10,13 +10,17 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { BookingFormService } from '@placeos/bookings';
-import { SettingsService } from '@placeos/common';
+import {
+    Building,
+    OrganisationService,
+    Region,
+    SettingsService,
+} from '@placeos/common';
 import {
     DateFieldComponent,
     DurationFieldComponent,
     TimeFieldComponent,
 } from '@placeos/form-fields';
-import { Building, OrganisationService, Region } from '@placeos/organisation';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 import { BehaviorSubject, of } from 'rxjs';

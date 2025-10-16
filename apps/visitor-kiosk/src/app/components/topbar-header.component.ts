@@ -1,6 +1,9 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { SettingsService } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { MatRippleModule } from '@angular/material/core';
+import { RouterModule } from '@angular/router';
+import { OrganisationService, SettingsService } from '@placeos/common';
+import { AuthenticatedImageDirective } from '@placeos/components';
 import { startOfMinute } from 'date-fns';
 import { debounceTime, map } from 'rxjs/operators';
 
@@ -45,7 +48,12 @@ import { debounceTime, map } from 'rxjs/operators';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatRippleModule,
+        RouterModule,
+        AuthenticatedImageDirective,
+    ],
 })
 export class TopbarHeaderComponent {
     private _settings = inject(SettingsService);

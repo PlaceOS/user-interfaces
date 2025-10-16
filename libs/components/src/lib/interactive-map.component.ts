@@ -6,23 +6,26 @@ import {
     input,
     model,
     OnChanges,
+    OnInit,
     output,
     SimpleChanges,
 } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import {
+    setCustomHeaders,
     ViewAction,
     ViewerFeature,
     ViewerLabel,
     ViewerStyles,
 } from '@placeos/svg-viewer';
 
+import { OrganisationService } from '@placeos/common';
+import { apiKey, token } from '@placeos/ts-client';
 import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
-import { log } from 'libs/common/src/lib/general';
+import { isMobileSafari, log } from 'libs/common/src/lib/general';
 import { MapsPeopleService } from 'libs/common/src/lib/mapspeople.service';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { ExploreStateService } from 'libs/explore/src/lib/explore-state.service';
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { CiscoMapComponent } from './cisco-map.component';
 import { IconComponent } from './icon.component';
 import { MapRendererComponent } from './map-renderer.component';
@@ -41,6 +44,8 @@ export interface MapMetadata {
     labels?: ViewerLabel[];
     actions?: ViewAction[];
 }
+
+let _initialized = false;
 
 @Component({
     selector: 'interactive-map',
@@ -126,7 +131,10 @@ export interface MapMetadata {
         CiscoMapComponent,
     ],
 })
-export class InteractiveMapComponent extends AsyncHandler implements OnChanges {
+export class InteractiveMapComponent
+    extends AsyncHandler
+    implements OnChanges, OnInit
+{
     private _settings = inject(SettingsService);
     private _mapspeople = inject(MapsPeopleService);
     private _org = inject(OrganisationService);
@@ -155,6 +163,10 @@ export class InteractiveMapComponent extends AsyncHandler implements OnChanges {
         return this._settings.get('app.explore.use_cisco_maps');
     }
 
+    public ngOnInit() {
+        if (!_initialized) this._setSafariHeaders();
+    }
+
     public ngOnChanges(changes: SimpleChanges) {
         if (
             changes.actions ||
@@ -178,5 +190,16 @@ export class InteractiveMapComponent extends AsyncHandler implements OnChanges {
             zone?.display_name || zone?.name || zone,
         );
         this._explore.setLevel(zone.id);
+    }
+
+    private _setSafariHeaders() {
+        _initialized = true;
+        if (isMobileSafari()) return;
+        const tkn = token();
+        setCustomHeaders(
+            tkn === 'x-api-key'
+                ? { 'x-api-key': apiKey() }
+                : { Authorization: `Bearer ${tkn}` },
+        );
     }
 }

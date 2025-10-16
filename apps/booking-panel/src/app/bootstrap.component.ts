@@ -4,10 +4,17 @@ import { querySystems } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import { debounceTime, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 
-import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
+import { AsyncHandler, OrganisationService } from '@placeos/common';
 
-import { Space } from 'libs/events/src/lib/space.class';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatRippleModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { Space } from '@placeos/common';
+import { TranslatePipe } from '@placeos/components';
 
 @Component({
     selector: '[app-bootstrap]',
@@ -121,7 +128,16 @@ import { Space } from 'libs/events/src/lib/space.class';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatRippleModule,
+        TranslatePipe,
+        MatProgressSpinnerModule,
+        MatAutocompleteModule,
+        MatFormFieldModule,
+        MatInputModule,
+        FormsModule,
+    ],
 })
 export class BootstrapComponent extends AsyncHandler implements OnInit {
     private route = inject(ActivatedRoute);

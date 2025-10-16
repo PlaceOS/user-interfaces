@@ -1,11 +1,22 @@
-import { DatePipe } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
 import { Router } from '@angular/router';
-import { Booking } from '@placeos/bookings';
-import { AsyncHandler, nextValueFrom, SettingsService } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import {
+    AsyncHandler,
+    Booking,
+    generateQRCode,
+    nextValueFrom,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
+import {
+    PrintableComponent,
+    SanitizePipe,
+    TranslatePipe,
+} from '@placeos/components';
+import { UserLabelComponent } from '@placeos/users';
 import { roundToNearestMinutes, startOfMinute } from 'date-fns';
-import { generateQRCode } from 'libs/common/src/lib/qr-code';
 import { combineLatest, firstValueFrom } from 'rxjs';
 import { filter, first, map, startWith } from 'rxjs/operators';
 import { CheckinStateService } from './checkin-state.service';
@@ -39,25 +50,28 @@ const DEFAULT_TEMPLATE = `
                     [innerHTML]="result_template | async | sanitize: 'html'"
                 ></div>
                 @if (printing()) {
-                    <div printable class="print-only">
-                        <user-label
-                            [user]="{
-                                name: ev?.asset_name || ev?.description,
-                                email: ev?.asset_id,
-                                photo: photo | async,
-                                title: ev?.title,
-                                host: ev?.user_name || ev.user_email,
-                                zones: ev?.zones,
-                                date: ev?.date || date,
-                                extra_details:
-                                    ev?.extension_data?.extra_details,
-                                pass_number: ev?.extension_data?.pass_number,
-                                qr_code: qr_code,
-                            }"
-                            [width]="label_size().width"
-                            [height]="label_size().height"
-                            [style.font-size]="label_size().scale + 'mm'"
-                        />
+                    <div printable class="print-only" [content]="print_content">
+                        <ng-template #print_content>
+                            <user-label
+                                [user]="{
+                                    name: ev?.asset_name || ev?.description,
+                                    email: ev?.asset_id,
+                                    photo: photo | async,
+                                    title: ev?.title,
+                                    host: ev?.user_name || ev.user_email,
+                                    zones: ev?.zones,
+                                    date: ev?.date || date,
+                                    extra_details:
+                                        ev?.extension_data?.extra_details,
+                                    pass_number:
+                                        ev?.extension_data?.pass_number,
+                                    qr_code: qr_code,
+                                }"
+                                [width]="label_size().width"
+                                [height]="label_size().height"
+                                [style.font-size]="label_size().scale + 'mm'"
+                            />
+                        </ng-template>
                     </div>
                 }
                 <div class="flex items-center space-x-2">
@@ -91,7 +105,14 @@ const DEFAULT_TEMPLATE = `
         `,
     ],
     providers: [DatePipe],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatRippleModule,
+        TranslatePipe,
+        UserLabelComponent,
+        SanitizePipe,
+        PrintableComponent,
+    ],
 })
 export class CheckinResultsComponent extends AsyncHandler implements OnInit {
     private readonly _org = inject(OrganisationService);

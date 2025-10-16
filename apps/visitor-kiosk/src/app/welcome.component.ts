@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import {
     ChangeDetectorRef,
     Component,
@@ -5,9 +6,17 @@ import {
     OnInit,
     inject,
 } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 
 import { AsyncHandler, LocaleService, SettingsService } from '@placeos/common';
+import {
+    AuthenticatedImageDirective,
+    IconComponent,
+    SanitizePipe,
+    TranslatePipe,
+} from '@placeos/components';
 
 @Component({
     selector: 'app-welcome',
@@ -141,7 +150,16 @@ import { AsyncHandler, LocaleService, SettingsService } from '@placeos/common';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        IconComponent,
+        MatMenuModule,
+        MatTooltipModule,
+        RouterModule,
+        AuthenticatedImageDirective,
+        SanitizePipe,
+    ],
 })
 export class WelcomeComponent
     extends AsyncHandler

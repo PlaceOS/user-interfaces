@@ -1,4 +1,7 @@
 import { Component } from '@angular/core';
+import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
+import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
+import { RoomBookingsComponent } from './room-bookings.component';
 
 @Component({
     selector: '[app-new-dayview]',
@@ -28,6 +31,10 @@ import { Component } from '@angular/core';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        ApplicationTopbarComponent,
+        ApplicationSidebarComponent,
+        RoomBookingsComponent,
+    ],
 })
 export class DayViewComponent {}

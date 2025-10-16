@@ -2,8 +2,14 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { first } from 'rxjs/operators';
 
-import { AsyncHandler } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { AsyncHandler, OrganisationService } from '@placeos/common';
+import { TranslatePipe } from '@placeos/components';
+import { DateOptionsComponent } from '../ui/date-options.component';
+import { SearchbarComponent } from '../ui/searchbar.component';
 import { VisitorsStateService } from './visitors-state.service';
 
 @Component({
@@ -53,7 +59,15 @@ import { VisitorsStateService } from './visitors-state.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        DateOptionsComponent,
+        SearchbarComponent,
+        MatFormFieldModule,
+        MatSelectModule,
+        FormsModule,
+        TranslatePipe,
+    ],
 })
 export class VisitorsTopbarComponent extends AsyncHandler implements OnInit {
     private _state = inject(VisitorsStateService);

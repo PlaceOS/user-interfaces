@@ -5,9 +5,13 @@ import { startOfMinute } from 'date-fns';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { getNextFreeTimeSlot } from 'libs/events/src/lib/helpers';
+import { CommonModule } from '@angular/common';
+import { MatRippleModule } from '@angular/material/core';
+import { IconComponent, TranslatePipe } from '@placeos/components';
+import { getNextFreeTimeSlot } from '@placeos/events';
 import { currentPeriod, nextPeriod } from '../new-panel/helpers';
 import { PanelStateService } from '../panel-state.service';
+import { CheckinTimetableComponent } from './checkin-timetable.component';
 
 @Component({
     selector: 'checkin-view',
@@ -250,7 +254,13 @@ import { PanelStateService } from '../panel-state.service';
         `,
     ],
     providers: [PanelStateService],
-    standalone: false,
+    imports: [
+        CommonModule,
+        IconComponent,
+        TranslatePipe,
+        MatRippleModule,
+        CheckinTimetableComponent,
+    ],
 })
 export class CheckinViewComponent extends AsyncHandler implements OnInit {
     private _state = inject(PanelStateService);

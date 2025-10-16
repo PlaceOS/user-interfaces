@@ -6,12 +6,19 @@ import { debounceTime, map } from 'rxjs/operators';
 import {
     AsyncHandler,
     firstTruthyValueFrom,
+    OrganisationService,
     SettingsService,
 } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
 
-import { generateQRCode } from 'libs/common/src/lib/qr-code';
-import { CalendarEvent } from 'libs/events/src/lib/event.class';
+import { CommonModule } from '@angular/common';
+import { MatRippleModule } from '@angular/material/core';
+import { CalendarEvent, generateQRCode } from '@placeos/common';
+import {
+    AuthenticatedImageDirective,
+    SafePipe,
+    SanitizePipe,
+    TranslatePipe,
+} from '@placeos/components';
 import { PanelStateService } from './panel-state.service';
 
 @Component({
@@ -104,7 +111,7 @@ import { PanelStateService } from './panel-state.service';
                     [source]="(logo | async)?.src || (logo | async)"
                 />
                 <p class="text-2xl">
-                    {{ time | date: 'shortTime' }}
+                    {{ time() | date: 'shortTime' }}
                 </p>
             </footer>
             @if (!hide_qr && checkin) {
@@ -124,7 +131,7 @@ import { PanelStateService } from './panel-state.service';
                         [class.w-56]="show_qr"
                     >
                         <div qr-checkin class="z-50 w-56 p-3">
-                            <img class="w-full" [src]="qr_code" />
+                            <img auth class="w-full" [source]="qr_code" />
                         </div>
                     </div>
                 </div>
@@ -143,7 +150,14 @@ import { PanelStateService } from './panel-state.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatRippleModule,
+        AuthenticatedImageDirective,
+        TranslatePipe,
+        SanitizePipe,
+        SafePipe,
+    ],
 })
 export class EventPanelComponent extends AsyncHandler implements OnInit {
     private _settings = inject(SettingsService);

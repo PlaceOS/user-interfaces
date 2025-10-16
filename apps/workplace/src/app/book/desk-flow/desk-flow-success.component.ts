@@ -1,18 +1,28 @@
+import { CommonModule } from '@angular/common';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
+import { RouterModule } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
-import { firstTruthyValueFrom, SettingsService } from '@placeos/common';
 import {
     Building,
     BuildingLevel,
+    firstTruthyValueFrom,
     OrganisationService,
-} from '@placeos/organisation';
+    SettingsService,
+} from '@placeos/common';
+import {
+    BuildingPipe,
+    IconComponent,
+    LevelPipe,
+    SafePipe,
+    SanitizePipe,
+    TranslatePipe,
+} from '@placeos/components';
 import {
     generateCalendarFileLink,
     generateGoogleCalendarLink,
     generateMicrosoftCalendarLink,
-} from 'libs/common/src/lib/calendar-links';
-import { BuildingPipe } from 'libs/components/src/lib/building.pipe';
-import { LevelPipe } from 'libs/components/src/lib/level.pipe';
+} from '@placeos/events';
 
 @Component({
     selector: 'desk-flow-success',
@@ -159,7 +169,15 @@ import { LevelPipe } from 'libs/components/src/lib/level.pipe';
         </div>
     `,
     providers: [LevelPipe, BuildingPipe],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        IconComponent,
+        MatRippleModule,
+        RouterModule,
+        SanitizePipe,
+        SafePipe,
+    ],
 })
 export class NewDeskFlowSuccessComponent implements OnInit {
     private _org = inject(OrganisationService);

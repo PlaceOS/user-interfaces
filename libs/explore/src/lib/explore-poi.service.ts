@@ -1,6 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { AsyncHandler, flatten } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { AsyncHandler, flatten, OrganisationService } from '@placeos/common';
 import { showMetadata } from '@placeos/ts-client';
 import {
     catchError,
@@ -15,7 +14,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { ExploreDeskInfoComponent } from './explore-desk-info.component';
 import {
     ExplorePointOfInterestModalComponent,
-    PointOfInterest,
+    POI,
 } from './explore-poi-modal.component';
 import { ExploreStateService } from './explore-state.service';
 
@@ -44,7 +43,7 @@ export class ExplorePointOfInterestService extends AsyncHandler {
                     })),
                 ),
             );
-            return list as PointOfInterest[];
+            return list as POI[];
         }),
         shareReplay(1),
     );
@@ -121,7 +120,7 @@ export class ExplorePointOfInterestService extends AsyncHandler {
         );
     }
 
-    public viewDetails(item: PointOfInterest) {
+    public viewDetails(item: POI) {
         this._dialog.open(ExplorePointOfInterestModalComponent, {
             data: item,
         });

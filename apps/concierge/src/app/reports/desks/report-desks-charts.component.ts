@@ -8,8 +8,13 @@ import {
 } from '@angular/core';
 import { ReportsStateService } from '../reports-state.service';
 
-import { AsyncHandler, nextValueFrom, SettingsService } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import {
+    AsyncHandler,
+    nextValueFrom,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
+import { TranslatePipe } from '@placeos/components';
 import { LineChart, PieChart } from 'chartist';
 import { format } from 'date-fns';
 import { combineLatest } from 'rxjs';
@@ -57,7 +62,7 @@ import { combineLatest } from 'rxjs';
             }
         `,
     ],
-    standalone: false,
+    imports: [TranslatePipe],
 })
 export class ReportDesksChartsComponent
     extends AsyncHandler

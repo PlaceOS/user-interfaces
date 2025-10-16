@@ -1,8 +1,18 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
+import { MatMenuModule } from '@angular/material/menu';
 import { Router } from '@angular/router';
-import { firstTruthyValueFrom, SettingsService, unique } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import {
+    firstTruthyValueFrom,
+    OrganisationService,
+    SettingsService,
+    unique,
+} from '@placeos/common';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { BehaviorSubject, combineLatest, map } from 'rxjs';
+import { FooterMenuComponent } from '../components/footer-menu.component';
+import { TopbarComponent } from '../components/topbar.component';
 import { DealsService } from './deals.service';
 
 @Component({
@@ -175,7 +185,15 @@ import { DealsService } from './deals.service';
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        IconComponent,
+        TranslatePipe,
+        MatRippleModule,
+        MatMenuModule,
+        TopbarComponent,
+        FooterMenuComponent,
+    ],
 })
 export class DealsComponent implements OnInit {
     private _service = inject(DealsService);

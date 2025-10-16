@@ -1,9 +1,8 @@
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { OrganisationService } from '@placeos/organisation';
+import { OrganisationService } from '@placeos/common';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
-import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { SimpleTableComponent } from 'libs/components/src/lib/simple-table.component';
+import { IconComponent, SimpleTableComponent } from '@placeos/components';
 import { PointsAssetsComponent } from '../../app/points/points-assets.component';
 import { PointsStateService } from '../../app/points/points-state.service';
 

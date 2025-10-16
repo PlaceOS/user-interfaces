@@ -1,7 +1,11 @@
 import { Component, inject } from '@angular/core';
 import { map } from 'rxjs/operators';
 
+import { CommonModule } from '@angular/common';
+import { MatRippleModule } from '@angular/material/core';
+import { TranslatePipe } from '@placeos/components';
 import { ControlStateService } from './control-state.service';
+import { OutputDisplayComponent } from './ui/output-display.component';
 
 @Component({
     selector: 'control-advanced-view',
@@ -59,7 +63,12 @@ import { ControlStateService } from './control-state.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        OutputDisplayComponent,
+        MatRippleModule,
+    ],
 })
 export class ControlAdvancedViewComponent {
     private _state = inject(ControlStateService);

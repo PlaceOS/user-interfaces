@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { OrganisationService } from '@placeos/organisation';
+import { OrganisationService } from '@placeos/common';
 import {
     connectionState,
     getModule,
@@ -24,6 +24,7 @@ import {
 
 import {
     AsyncHandler,
+    CalendarEvent,
     currentUser,
     log,
     nextValueFrom,
@@ -31,13 +32,13 @@ import {
     notifySuccess,
     notifyWarn,
     SettingsService,
+    Space,
     timePeriodsIntersect,
 } from '@placeos/common';
-import { CalendarEvent } from 'libs/events/src/lib/event.class';
-import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
-import { Space } from 'libs/events/src/lib/space.class';
-import { SpacesService } from 'libs/events/src/lib/spaces.service';
+import { EventFormService, SpacesService } from '@placeos/events';
 
+import { openConfirmModal } from '@placeos/components';
+import { SpacePipe } from '@placeos/events';
 import {
     addMinutes,
     differenceInMinutes,
@@ -46,8 +47,6 @@ import {
     isBefore,
     startOfMinute,
 } from 'date-fns';
-import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
-import { SpacePipe } from 'libs/events/src/lib/space.pipe';
 import { openBookingModal } from './overlays/booking-modal.component';
 import { EmbeddedControlModalComponent } from './overlays/embedded-control-modal.component';
 

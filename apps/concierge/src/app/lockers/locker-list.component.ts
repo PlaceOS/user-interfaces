@@ -1,7 +1,17 @@
 import { Clipboard } from '@angular/cdk/clipboard';
+import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
-import { Booking, Locker } from '@placeos/bookings';
-import { AsyncHandler, i18n, notifySuccess } from '@placeos/common';
+import { MatRippleModule } from '@angular/material/core';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { Locker } from '@placeos/bookings';
+import { AsyncHandler, Booking, i18n, notifySuccess } from '@placeos/common';
+import {
+    IconComponent,
+    SimpleTableComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { combineLatest } from 'rxjs';
 import { LockerStateService } from './locker-state.service';
 
@@ -128,7 +138,6 @@ import { LockerStateService } from './locker-state.service';
                         }}
                     </icon>
                 </button>
-                <mat-menu></mat-menu>
             </div>
         </ng-template>
         <ng-template #locker_list_template let-bank="row">
@@ -326,7 +335,16 @@ import { LockerStateService } from './locker-state.service';
         </ng-template>
     `,
     styles: [],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatMenuModule,
+        IconComponent,
+        MatRippleModule,
+        MatTooltipModule,
+        TranslatePipe,
+        SimpleTableComponent,
+        MatProgressBarModule,
+    ],
 })
 export class LockerListComponent extends AsyncHandler implements OnInit {
     private _state = inject(LockerStateService);

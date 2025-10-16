@@ -1,7 +1,7 @@
-import { Injectable } from '@angular/core';
+import { computed, inject, Injectable, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { flatten, notifySuccess } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { flatten, notifySuccess, OrganisationService } from '@placeos/common';
+import { openConfirmModal } from '@placeos/components';
 import {
     queryAnswers,
     queryQuestions,
@@ -13,7 +13,6 @@ import {
     SurveyAnswer,
     SurveyQuestion,
 } from '@placeos/ts-client';
-import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
 import {
     BehaviorSubject,
     combineLatest,
@@ -27,50 +26,8 @@ import {
     tap,
 } from 'rxjs';
 import { QuestionModalComponent } from './question-modal.component';
-import { updateQuestionMap } from './question.pipe';
-
-export enum TriggerEnum {
-    None = 'NONE',
-    Reserved = 'RESERVED',
-    Checked_In = 'CHECKEDIN',
-    Checked_Out = 'CHECKEDOUT',
-    // No_Show = 'NOSHOW',
-    Rejected = 'REJECTED',
-    Cancelled = 'CANCELLED',
-    // Ended = 'ENDED'
-    Visitor = 'VISITOR',
-}
-
-export enum QuestionType {
-    Single_Line_Text = 'text',
-    Comment_Box = 'comment',
-    Radio_Group = 'radiogroup',
-    Drop_Down = 'dropdown',
-    Check_Box = 'checkbox',
-    Rating = 'rating',
-    Empty = '0[EMPTY]',
-}
-
-export const TriggerOptions = getEnumOptions(TriggerEnum);
-export const QuestionTypeOptions = getEnumOptions(QuestionType);
-export const QuestionTypeMap = getEnumMap(QuestionType);
-
-export function getEnumOptions<T>(targetEnum: T) {
-    return Object.entries(targetEnum)
-        .filter((e) => isNaN(Number(e[0])))
-        .map((e) => ({
-            name: e[0].replace(/_/g, ' '),
-            id: e[1],
-        }));
-}
-
-export function getEnumMap<T>(targetEnum: T) {
-    const enum_map = {};
-    Object.entries(targetEnum)
-        .filter((e) => isNaN(Number(e[0])))
-        .forEach((e) => (enum_map[e[1]] = e[0].replace(/_/g, ' ')));
-    return enum_map;
-}
+// import { QuestionModalComponent } from './question-modal.component';
+// import { updateQuestionMap } from './question.pipe';
 
 export interface QuestionFilters {
     search_text?: string;
@@ -87,11 +44,29 @@ export interface QuestionFilters {
     providedIn: 'root',
 })
 export class NewSurveyService {
+    private _org = inject(OrganisationService);
+    private _dialog = inject(MatDialog);
+
     private _survey_id = new BehaviorSubject<string>('');
     private _bld_id = new BehaviorSubject<string>('');
     private _change = new BehaviorSubject(0);
     private _loading = new BehaviorSubject<boolean>(false);
     private _question_filters = new BehaviorSubject<QuestionFilters>({});
+
+    public readonly survey_list = signal<Survey[]>([]);
+    public readonly answer_list = signal<SurveyAnswer[]>([]);
+    public readonly building_surveys = computed(() => {
+        const bld_id = this._org.building_signal().id;
+        return this.survey_list().filter(
+            (survey) => survey.building_id === bld_id,
+        );
+    });
+    public readonly building_answers = computed(() => {
+        const surveys = this.building_surveys();
+        return this.answer_list().filter((answer) =>
+            surveys.find((s) => s.id === answer.survey_id),
+        );
+    });
 
     public readonly survey_list$ = combineLatest([
         this._org.building_list,
@@ -102,6 +77,7 @@ export class NewSurveyService {
             forkJoin(list.map((bld) => querySurveys({ building_id: bld.id }))),
         ),
         map((data) => flatten(data) as Survey[]),
+        tap((list) => this.survey_list.set(list)),
         shareReplay(1),
     );
 
@@ -116,6 +92,7 @@ export class NewSurveyService {
             ),
             map((answers) => flatten(answers) as SurveyAnswer[]),
             tap(() => this._loading.next(false)),
+            tap((list) => this.answer_list.set(list)),
             shareReplay(1),
         );
 
@@ -145,7 +122,7 @@ export class NewSurveyService {
     public readonly questions$: Observable<SurveyQuestion[]> = queryQuestions({
         limit: 1000,
     } as any).pipe(
-        tap((l) => updateQuestionMap(l)),
+        // tap((l) => updateQuestionMap(l)),
         shareReplay(1),
     );
 
@@ -181,11 +158,6 @@ export class NewSurveyService {
     );
 
     public readonly loading$ = this._loading.asObservable();
-
-    constructor(
-        private _org: OrganisationService,
-        private _dialog: MatDialog,
-    ) {}
 
     public get building() {
         return this._org.buildings.find(

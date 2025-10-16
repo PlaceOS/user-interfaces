@@ -6,6 +6,7 @@ import {
     MOCK_BUILDINGS,
     MOCK_LEVELS,
     MOCK_ORGS,
+    MOCK_REGIONS,
     MOCK_ZONES,
 } from './zone.data';
 
@@ -37,9 +38,7 @@ const MOCK_METADATA = {
 export const PARKING_SPACES = {};
 export const LOCKERS = {};
 
-export const ZONE_MOCKS = registerMocks();
-
-function registerMocks() {
+export function registerMockZones() {
     registerMockEndpoint({
         path: '/api/engine/v2/zones',
         metadata: {},
@@ -48,7 +47,7 @@ function registerMocks() {
             if (request.query_params.tags === 'org') {
                 return MOCK_ORGS;
             } else if (request.query_params.tags === 'region') {
-                return [];
+                return MOCK_REGIONS;
             } else if (request.query_params.tags === 'building') {
                 return MOCK_BUILDINGS;
             } else if (request.query_params.tags === 'level') {

@@ -1,6 +1,8 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { map } from 'rxjs/operators';
 import { ControlStateService } from '../control-state.service';
+import { DeviceOutputListItemComponent } from './output-list-item.component';
 
 @Component({
     selector: 'device-output-list',
@@ -18,7 +20,7 @@ import { ControlStateService } from '../control-state.service';
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [CommonModule, DeviceOutputListItemComponent],
 })
 export class DeviceOutputListComponent {
     private _state = inject(ControlStateService);

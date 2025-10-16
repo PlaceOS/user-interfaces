@@ -1,6 +1,12 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { OrganisationService } from '@placeos/organisation';
+import { FormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
+import { MatRadioModule } from '@angular/material/radio';
+import { OrganisationService } from '@placeos/common';
 import { CustomTooltipData } from './custom-tooltip.component';
+import { IconComponent } from './icon.component';
+import { TranslatePipe } from './translate.pipe';
 
 @Component({
     selector: 'region-select',
@@ -45,7 +51,14 @@ import { CustomTooltipData } from './custom-tooltip.component';
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatRadioModule,
+        IconComponent,
+        TranslatePipe,
+        MatRippleModule,
+        FormsModule,
+    ],
 })
 export class RegionSelectComponent {
     private _data = inject(CustomTooltipData);

@@ -268,6 +268,7 @@
         "VISIBILITY_PUBLIC": "Public",
         "VISIBILITY_PRIVATE": "Private",
         "VISIBILITY_CONFIDENTIAL": "Confidential",
+        "ITEM_PRICE": "Price",
         "PARKING_SETTINGS_SAVE": "Successfully saved parking settings"
     },
     "LANGUAGE": {
@@ -915,6 +916,7 @@
             "PARKING_NEW_HEADER": "New Parking Reservation",
             "PARKING_EDIT_HEADER": "Edit Parking Reservation",
             "PARKING_ASSIGNED": "You are already assigned a parking space \"{{ name }}\"",
+            "PARKING_SUCCESS_HEADER": "Parking space reserved",
             "PARKING_SUCCESS_MSG": "Your parking space reservation for \"{{ name }}\" has been successfully booked for the {{ date }} at {{ time }}",
             "PARKING_CONFIRM_TITLE": "Confirm Parking Reservation",
             "DESK_ASSIGNED": "You are already assigned a desk \"{{ name }}\"",
@@ -1320,7 +1322,9 @@
             "SURVEY_TEST": "Test Survey",
             "SURVEY_REMOVE": "Delete Survey",
             "SURVEY_RESPONSES": "Survey Responses",
-            "SURVEY_BUILDING_COUNT": "{{ count }} Building(s)",
+            "SURVEY_BUILDING_COUNT": "{{ count }} building(s)",
+            "SURVEY_BUILDING_COUNT_N": "{{ count }} buildings",
+            "SURVEY_BUILDING_COUNT_1": "{{ count }} building",
             "SURVEY_LIST_HEADER": "Survey Listing",
             "SURVEY_BLD_LIVE": "Live",
             "SURVEY_BLD_DRAFTS": "Drafts",

@@ -1,7 +1,6 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { Deal } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { Deal, OrganisationService } from '@placeos/common';
 import { showMetadata } from '@placeos/ts-client';
 import {
     catchError,

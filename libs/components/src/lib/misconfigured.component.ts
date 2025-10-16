@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { TranslatePipe } from './translate.pipe';
 
 @Component({
     selector: 'app-misconfigured',
@@ -37,6 +38,6 @@ import { Component } from '@angular/core';
             }
         `,
     ],
-    standalone: false,
+    imports: [TranslatePipe],
 })
 export class MisconfiguredComponent {}

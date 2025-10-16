@@ -1,6 +1,8 @@
 import { Component, inject } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
 import { Router } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
+import { DeskBookingFormComponent } from './desk-form.component';
 
 @Component({
     selector: 'desk-booking',
@@ -40,7 +42,7 @@ import { BookingFormService } from '@placeos/bookings';
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [DeskBookingFormComponent, MatRippleModule],
 })
 export class DeskBookingComponent {
     private _service = inject(BookingFormService);

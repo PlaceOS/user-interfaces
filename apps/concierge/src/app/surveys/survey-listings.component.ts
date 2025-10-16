@@ -1,9 +1,18 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
 
+import { CommonModule } from '@angular/common';
+import { MatMenuModule } from '@angular/material/menu';
+import {
+    BuildingPipe,
+    IconComponent,
+    LevelPipe,
+    SimpleTableComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { Survey } from '@placeos/ts-client';
-import { NewSurveyService } from './new-survey.service';
+import { SurveyService } from './survey.service';
 
 @Component({
     selector: 'survey-listings',
@@ -18,7 +27,8 @@ import { NewSurveyService } from './new-survey.service';
                         'APP.CONCIERGE.SURVEY_LIST_HEADER' | translate
                     }}</span>
                     <span class="text-4xl">
-                        {{ building?.display_name || building?.name }}
+                        @let bld = building() | building;
+                        {{ bld?.display_name || bld?.name }}
                     </span>
                 </div>
             </div>
@@ -27,7 +37,7 @@ import { NewSurveyService } from './new-survey.service';
                 matRipple
                 class="space-x-2"
                 [routerLink]="['/surveys', 'builder']"
-                [queryParams]="{ building_id: building?.id }"
+                [queryParams]="{ building_id: building() }"
             >
                 <span class="ml-4">{{
                     'APP.CONCIERGE.SURVEY_ADD' | translate
@@ -38,7 +48,7 @@ import { NewSurveyService } from './new-survey.service';
         <div class="flex h-1/2 w-full flex-1 overflow-auto px-8">
             <simple-table
                 class="block w-full min-w-[36rem] text-sm"
-                [data]="surveys$"
+                [data]="surveys()"
                 [columns]="[
                     { key: 'title', name: 'FORM.TITLE' | translate },
                     {
@@ -148,20 +158,25 @@ import { NewSurveyService } from './new-survey.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatMenuModule,
+        RouterModule,
+        SimpleTableComponent,
+        TranslatePipe,
+        IconComponent,
+        LevelPipe,
+        BuildingPipe,
+    ],
 })
 export class SurveyListingsComponent extends AsyncHandler implements OnInit {
     private _route = inject(ActivatedRoute);
-    private _survey = inject(NewSurveyService);
+    private _survey = inject(SurveyService);
 
-    public readonly loading$ = this._survey.loading$;
-    public readonly surveys$ = this._survey.building_surveys$;
+    public readonly surveys = this._survey.building_surveys;
+    public readonly building = this._survey.building;
 
-    public get building() {
-        return this._survey.building;
-    }
-
-    async ngOnInit() {
+    public ngOnInit() {
         this.subscription(
             'route-param',
             this._route.paramMap.subscribe((params) =>

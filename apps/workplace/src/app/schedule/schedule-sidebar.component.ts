@@ -1,6 +1,17 @@
+import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
-import { AsyncHandler, SettingsService } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { FormsModule } from '@angular/forms';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatRippleModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import {
+    AsyncHandler,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
+import { IconComponent, TranslatePipe } from '@placeos/components';
+import { DateCalendarComponent } from '@placeos/form-fields';
 import { isSameDay, startOfDay } from 'date-fns';
 import { debounceTime, filter, map } from 'rxjs/operators';
 import {
@@ -296,7 +307,17 @@ import {
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatCheckboxModule,
+        TranslatePipe,
+        IconComponent,
+        MatRippleModule,
+        FormsModule,
+        MatFormFieldModule,
+        MatSelectModule,
+        DateCalendarComponent,
+    ],
 })
 export class ScheduleSidebarComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);

@@ -1,12 +1,15 @@
 import { CommonModule } from '@angular/common';
 import { Component, ElementRef, OnInit, inject } from '@angular/core';
-import { SettingsService } from 'libs/common/src/lib/settings.service';
-import { MAP_FEATURE_DATA } from 'libs/common/src/lib/types';
+import {
+    CalendarEvent,
+    MAP_FEATURE_DATA,
+    SettingsService,
+    Space,
+} from '@placeos/common';
+
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { CalendarEvent } from 'libs/events/src/lib/event.class';
-import { Space } from 'libs/events/src/lib/space.class';
 
 export interface SpaceInfoData {
     space: Space;

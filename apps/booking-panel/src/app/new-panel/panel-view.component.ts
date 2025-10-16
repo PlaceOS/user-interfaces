@@ -1,7 +1,11 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AsyncHandler, RemoteLoggingService, VERSION } from '@placeos/common';
+import { SafePipe, TranslatePipe } from '@placeos/components';
 import { PanelStateService } from '../panel-state.service';
+import { PanelViewDetailsComponent } from './panel-view-details.component';
+import { PanelViewStatusComponent } from './panel-view-status.component';
 
 @Component({
     selector: 'panel-view',
@@ -56,7 +60,13 @@ import { PanelStateService } from '../panel-state.service';
     `,
     styles: [``],
     providers: [PanelStateService],
-    standalone: false,
+    imports: [
+        PanelViewStatusComponent,
+        PanelViewDetailsComponent,
+        CommonModule,
+        TranslatePipe,
+        SafePipe,
+    ],
 })
 export class PanelViewComponent extends AsyncHandler {
     private _state = inject(PanelStateService);

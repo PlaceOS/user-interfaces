@@ -3,11 +3,9 @@ import { MatDialog } from '@angular/material/dialog';
 import {
     approveBooking,
     approveBookingInstance,
-    Booking,
     checkinBooking,
     checkinBookingInstance,
     queryBookings,
-    RecurrenceDays,
     rejectBooking,
     rejectBookingInstance,
     removeBooking,
@@ -15,20 +13,22 @@ import {
 } from '@placeos/bookings';
 import {
     AsyncHandler,
+    Booking,
     i18n,
     nextValueFrom,
     notifyError,
     notifySuccess,
+    OrganisationService,
     randomInt,
+    RecurrenceDays,
     SettingsService,
     unique,
+    User,
 } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { openConfirmModal } from '@placeos/components';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
-import { User } from '@placeos/users';
+import { UserPipe } from '@placeos/users';
 import { addHours, endOfDay, getUnixTime, set, startOfDay } from 'date-fns';
-import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
-import { UserPipe } from 'libs/users/src/lib/user.pipe';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import {
     debounceTime,

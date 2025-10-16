@@ -1,6 +1,6 @@
 import { SpectatorRouting, createRoutingFactory } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
-import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
+import { AuthenticatedImageDirective } from '@placeos/components';
 import { MockDirective, MockProvider } from 'ng-mocks';
 import { TopbarHeaderComponent } from '../../app/components/topbar-header.component';
 

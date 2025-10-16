@@ -1,6 +1,9 @@
 import { Component, OnInit, inject } from '@angular/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router } from '@angular/router';
 import { notifyError } from '@placeos/common';
+import { TranslatePipe } from '@placeos/components';
+import { TakePhotoComponent } from '../components/take-photo.component';
 import { CheckinStateService } from './checkin-state.service';
 
 @Component({
@@ -29,7 +32,7 @@ import { CheckinStateService } from './checkin-state.service';
         }
     `,
     styles: [``],
-    standalone: false,
+    imports: [TranslatePipe, MatProgressSpinnerModule, TakePhotoComponent],
 })
 export class CheckinPhotoComponent implements OnInit {
     private _checkin = inject(CheckinStateService);

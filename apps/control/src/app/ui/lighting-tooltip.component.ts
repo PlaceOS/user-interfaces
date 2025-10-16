@@ -1,6 +1,12 @@
 import { Component, inject } from '@angular/core';
-import { CustomTooltipData } from 'libs/components/src/lib/custom-tooltip.component';
+import {
+    BindingDirective,
+    CustomTooltipData,
+    TranslatePipe,
+} from '@placeos/components';
 
+import { CommonModule } from '@angular/common';
+import { MatRippleModule } from '@angular/material/core';
 import {
     ControlStateService,
     EnvironmentSource,
@@ -52,7 +58,7 @@ import {
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [CommonModule, BindingDirective, TranslatePipe, MatRippleModule],
 })
 export class LightingTooltipComponent {
     private _state = inject(ControlStateService);

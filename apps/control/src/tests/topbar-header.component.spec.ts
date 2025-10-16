@@ -5,9 +5,11 @@ import { MockComponent, MockDirective, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 import { ControlStateService } from '../app/control-state.service';
 
-import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
-import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
+import {
+    AuthenticatedImageDirective,
+    CustomTooltipComponent,
+    IconComponent,
+} from '@placeos/components';
 import { TopbarHeaderComponent } from '../app/topbar-header.component';
 import { VideoCallStateService } from '../app/video-call/video-call-state.service';
 

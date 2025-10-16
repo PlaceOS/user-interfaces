@@ -1,12 +1,10 @@
 import { Component, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { generateQRCode, SettingsService, Space } from '@placeos/common';
+
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-
-import { generateQRCode } from 'libs/common/src/lib/qr-code';
-import { SettingsService } from 'libs/common/src/lib/settings.service';
-import { Space } from 'libs/events/src/lib/space.class';
 
 const DEFAULT_PATH = `workplace/#/explore?space={{id}}`;
 

@@ -34,7 +34,10 @@ export class MockAreaManagementModule implements HashMap {
         ),
     };
 
-    $locate_user(email: string, username: string) {}
+    $locate_user(email: string, username: string) {
+        // Mock locate user functionality
+        return {};
+    }
 
     $update() {
         updateLocations(this, MOCK_LEVELS);
@@ -67,7 +70,7 @@ export class MockLocationServicesModule implements HashMap {
     }
 }
 
-function padZero(no: number, len: number = 3) {
+function padZero(no: number, len = 3) {
     let str = `${no}`;
     while (str.length < len) {
         str = '0' + str;

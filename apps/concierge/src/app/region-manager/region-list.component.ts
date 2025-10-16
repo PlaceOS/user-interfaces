@@ -5,6 +5,12 @@ import { notifySuccess } from '@placeos/common';
 
 import { RegionManagementService } from './region-management.service';
 
+import { MatMenuModule } from '@angular/material/menu';
+import {
+    IconComponent,
+    SimpleTableComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { BookingPanelSettingsModalComponent } from '../ui/app-settings/booking-panel-settings-modal.component';
 import { ConciergeSettingsFormModalComponent } from '../ui/app-settings/concierge-settings-form-modal.component';
 import { VisitorKioskSettingsFormModalComponent } from '../ui/app-settings/visitor-kiosk-settings-form-modal.component';
@@ -153,7 +159,12 @@ import { WorkplaceSettingsFormModalComponent } from '../ui/app-settings/workplac
         </ng-template>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        SimpleTableComponent,
+        TranslatePipe,
+        IconComponent,
+        MatMenuModule,
+    ],
 })
 export class RegionListComponent {
     private _manager = inject(RegionManagementService);

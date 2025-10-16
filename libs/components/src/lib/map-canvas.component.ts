@@ -44,7 +44,6 @@ export interface MapPolygonData {
         ></canvas>
     `,
     styles: [],
-    standalone: false,
 })
 export class MapCanvasComponent extends AsyncHandler implements OnInit {
     private _data = inject<MapPolygonData>(MAP_FEATURE_DATA);

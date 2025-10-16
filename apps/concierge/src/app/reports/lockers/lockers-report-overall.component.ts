@@ -1,5 +1,7 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { formatDuration } from '@placeos/common';
+import { TranslatePipe } from '@placeos/components';
 import { differenceInBusinessDays, endOfDay, startOfDay } from 'date-fns';
 import { map } from 'rxjs/operators';
 import { LockersReportService } from './lockers-report.service';
@@ -31,7 +33,7 @@ import { LockersReportService } from './lockers-report.service';
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [CommonModule, TranslatePipe],
 })
 export class LockersReportOverallComponent {
     private _state = inject(LockersReportService);

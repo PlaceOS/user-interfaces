@@ -8,6 +8,7 @@ import {
     viewChild,
 } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
+import { IconComponent } from '@placeos/components';
 import { Point } from '@placeos/svg-viewer';
 
 /**
@@ -80,7 +81,7 @@ export enum JoystickPan {
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [IconComponent],
 })
 export class JoystickComponent extends AsyncHandler {
     private _renderer = inject(Renderer2);

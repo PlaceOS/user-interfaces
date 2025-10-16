@@ -1,8 +1,8 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { AuthorisedUserGuard } from 'libs/components/src/lib/authorised-user.guard';
+import { AuthorisedUserGuard } from '@placeos/components';
 
-import { UnauthorisedComponent } from 'libs/components/src/lib/unauthorised.component';
+import { UnauthorisedComponent } from '@placeos/components';
 import { DeskBookingComponent } from './desks/desk-booking.component';
 import { DeskBookingSuccessComponent } from './desks/desk-success.component';
 import { MeetingBookingComponent } from './meetings/meeting-booking.component';

@@ -1,10 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, forwardRef, input, signal } from '@angular/core';
+import { Component, forwardRef, inject, input, signal } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { notifyError, uploadFile } from '@placeos/common';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { notifyError, UploadsService } from '@placeos/common';
+import { IconComponent } from '@placeos/components';
 
 @Component({
     selector: 'upload-button',
@@ -48,6 +48,8 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
     ],
 })
 export class UploadButtonComponent {
+    private _uploads = inject(UploadsService);
+
     public readonly types = input<string[]>(['image']);
     public uploading = signal(false);
     public progress = signal(0);
@@ -99,7 +101,7 @@ export class UploadButtonComponent {
         this.progress.set(0);
         this.uploading.set(true);
         let status = null;
-        uploadFile(file).subscribe(
+        this._uploads.uploadFileWithProgress(file).subscribe(
             (s) => {
                 console.log(`Progress:`, s);
                 this.progress.set(s.progress);

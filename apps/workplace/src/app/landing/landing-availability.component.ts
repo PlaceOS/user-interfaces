@@ -1,7 +1,16 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { Space } from '@placeos/events';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { RouterModule } from '@angular/router';
+import { settingSignal, Space } from '@placeos/common';
+import {
+    BuildingPipe,
+    IconComponent,
+    LevelPipe,
+    TranslatePipe,
+} from '@placeos/components';
+import { SpacePipe } from '@placeos/events';
 import { ExploreSpacesService } from '@placeos/explore';
-import { settingSignal } from 'libs/common/src/lib/settings.service';
 import { LandingStateService } from './landing-state.service';
 
 @Component({
@@ -31,7 +40,7 @@ import { LandingStateService } from './landing-state.service';
                         <button
                             name="landing-view-space"
                             matRipple
-                            class="flex w-64 snap-start items-center space-x-4 rounded border border-base-200 bg-base-100 p-2 shadow"
+                            class="flex w-64 snap-start items-center space-x-2 rounded border border-base-200 bg-base-100 p-2 shadow"
                             [routerLink]="['/explore']"
                             [queryParams]="{ level: lvl.id }"
                         >
@@ -51,7 +60,7 @@ import { LandingStateService } from './landing-state.service';
                                     />
                                 }
                             </div>
-                            <div class="text-left">
+                            <div class="w-1/2 flex-1 space-y-1 text-left">
                                 <div
                                     class="max-w-full truncate px-1.5 font-medium"
                                 >
@@ -64,9 +73,12 @@ import { LandingStateService } from './landing-state.service';
                                         >place</icon
                                     >
                                     @let building = lvl.parent_id | building;
-                                    <span>{{
-                                        building?.display_name || building?.name
-                                    }}</span>
+                                    <div class="flex-1 truncate">
+                                        {{
+                                            building?.display_name ||
+                                                building?.name
+                                        }}
+                                    </div>
                                 </div>
                             </div>
                         </button>
@@ -128,7 +140,7 @@ import { LandingStateService } from './landing-state.service';
                                     />
                                 }
                             </div>
-                            <div class="text-left">
+                            <div class="w-1/2 flex-1 space-y-1 text-left">
                                 <div
                                     class="max-w-full truncate px-1.5 font-medium"
                                 >
@@ -141,9 +153,9 @@ import { LandingStateService } from './landing-state.service';
                                         >place</icon
                                     >
                                     @let level = space.zones | level;
-                                    <span>{{
-                                        level?.display_name || level?.name
-                                    }}</span>
+                                    <div class="flex-1 truncate">
+                                        {{ level?.display_name || level?.name }}
+                                    </div>
                                 </div>
                             </div>
                         </button>
@@ -168,7 +180,16 @@ import { LandingStateService } from './landing-state.service';
         `,
     ],
     providers: [ExploreSpacesService],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        LevelPipe,
+        BuildingPipe,
+        SpacePipe,
+        MatProgressSpinnerModule,
+        RouterModule,
+        IconComponent,
+    ],
 })
 export class LandingAvailabilityComponent {
     private _state = inject(LandingStateService);

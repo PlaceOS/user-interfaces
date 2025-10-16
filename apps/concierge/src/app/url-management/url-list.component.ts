@@ -1,5 +1,20 @@
-import { Component, inject } from '@angular/core';
-import { SettingsService, ShortURL, getShortUrlQRCode } from '@placeos/common';
+import { Component, inject, OnInit, signal } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
+import { MatMenuModule } from '@angular/material/menu';
+import {
+    AsyncHandler,
+    getShortUrlQRCode,
+    SettingsService,
+    ShortURL,
+} from '@placeos/common';
+import {
+    CustomTooltipComponent,
+    IconComponent,
+    PrintableComponent,
+    SafePipe,
+    SimpleTableComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { UrlManagementService } from './url-management.service';
 
 @Component({
@@ -71,22 +86,33 @@ import { UrlManagementService } from './url-management.service';
                 </button>
                 <ng-template #qr_menu>
                     <div class="rounded bg-base-100 py-2 shadow">
-                        <div class="" printable>
-                            <a
-                                [href]="
-                                    '/r/' + row.id.split('-')[1] | safe: 'url'
-                                "
-                                target="_blank"
-                                ref="noopener noreferrer"
-                                class="mx-4 my-2 block rounded-lg border border-base-200 bg-base-100 p-2"
-                            >
-                                <img class="mx-auto w-48" [src]="row.qr_code" />
-                            </a>
-                            <div
-                                class="mx-4 mt-2 w-[calc(100%-2rem)] rounded bg-base-200 p-2 text-center font-mono text-sm"
-                            >
-                                {{ row.name || row.id }}
-                            </div>
+                        <div class="" printable [content]="print_content">
+                            <ng-template #print_content>
+                                <a
+                                    [href]="
+                                        '/r/' + row.id.split('-')[1]
+                                            | safe: 'url'
+                                    "
+                                    target="_blank"
+                                    ref="noopener noreferrer"
+                                    class="mx-4 my-2 block rounded-lg border border-base-200 bg-base-100 p-2"
+                                >
+                                    @if (qr_codes()[row.id]) {
+                                        <img
+                                            class="mx-auto w-48"
+                                            [src]="
+                                                qr_codes()[row.id] || ''
+                                                    | safe: 'resource'
+                                            "
+                                        />
+                                    }
+                                </a>
+                                <div
+                                    class="mx-4 mt-2 w-[calc(100%-2rem)] rounded bg-base-200 p-2 text-center font-mono text-sm"
+                                >
+                                    {{ row.name || row.id }}
+                                </div>
+                            </ng-template>
                         </div>
                         <button
                             btn
@@ -123,9 +149,18 @@ import { UrlManagementService } from './url-management.service';
         </ng-template>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        SimpleTableComponent,
+        MatMenuModule,
+        IconComponent,
+        TranslatePipe,
+        MatRippleModule,
+        CustomTooltipComponent,
+        SafePipe,
+        PrintableComponent,
+    ],
 })
-export class UrlListComponent {
+export class UrlListComponent extends AsyncHandler implements OnInit {
     private _manager = inject(UrlManagementService);
     private _settings = inject(SettingsService);
 
@@ -133,14 +168,31 @@ export class UrlListComponent {
 
     public readonly edit = (region) => this._manager.editURL(region);
     public readonly remove = (region) => this._manager.removeURL(region);
+    public readonly qr_codes = signal<Record<string, string>>({});
 
     public get kiosk_url() {
         const path = this._settings.get('app.kiosk_url_path') || '/map-kiosk';
         return `${window.location.origin}${path}`;
     }
 
+    public ngOnInit() {
+        this.subscription(
+            'url_list',
+            this.features.subscribe(async (l) => {
+                for (const item of l) {
+                    await this.loadQrCode(item);
+                }
+            }),
+        );
+    }
+
     public async loadQrCode(item: ShortURL) {
-        (item as any).qr_code = await getShortUrlQRCode(item.id);
+        if (this.qr_codes[item.id]) return;
+        const code = await getShortUrlQRCode(item.id);
+        this.qr_codes.update((codes) => {
+            codes[item.id] = code;
+            return codes;
+        });
     }
 
     public print() {

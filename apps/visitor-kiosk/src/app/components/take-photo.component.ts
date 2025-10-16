@@ -8,7 +8,10 @@ import {
     signal,
     viewChild,
 } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AsyncHandler } from '@placeos/common';
+import { TranslatePipe } from '@placeos/components';
 
 @Component({
     selector: 'a-take-photo',
@@ -94,7 +97,7 @@ import { AsyncHandler } from '@placeos/common';
             }
         `,
     ],
-    standalone: false,
+    imports: [TranslatePipe, MatRippleModule, MatProgressSpinnerModule],
 })
 export class TakePhotoComponent
     extends AsyncHandler

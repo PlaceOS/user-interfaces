@@ -1,6 +1,26 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Event, NavigationEnd, Router } from '@angular/router';
+import {
+    AsyncHandler,
+    BookingRuleset,
+    CalendarEvent,
+    current_user,
+    currentUser,
+    filterResourcesFromRules,
+    firstTruthyValueFrom,
+    flatten,
+    getInvalidFields,
+    i18n,
+    nextValueFrom,
+    rulesForResource,
+    setDefaultCreator,
+    SettingsService,
+    Space,
+    unique,
+    User,
+} from '@placeos/common';
+import { showMetadata, showUser } from '@placeos/ts-client';
 import { startOfDay } from 'date-fns';
 import {
     BehaviorSubject,
@@ -22,43 +42,20 @@ import {
     tap,
 } from 'rxjs/operators';
 
-import { showMetadata, showUser } from '@placeos/ts-client';
-
-import { EventLinkModalComponent } from './event-link-modal.component';
-import { CalendarEvent, setDefaultCreator } from './event.class';
-import { querySpaceAvailability, removeEvent, saveEvent } from './events.fn';
-import { generateEventForm, newCalendarEventFromBooking } from './utilities';
-
-import {
-    AsyncHandler,
-    BookingRuleset,
-    current_user,
-    currentUser,
-    filterResourcesFromRules,
-    firstTruthyValueFrom,
-    flatten,
-    getInvalidFields,
-    i18n,
-    nextValueFrom,
-    rulesForResource,
-    SettingsService,
-    unique,
-} from '@placeos/common';
+import { AssetRequest, OrganisationService } from '@placeos/common';
+import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
+import { validateAssetRequestsForResource } from 'libs/assets/src/lib/assets.fn';
 import { newBookingFromCalendarEvent } from 'libs/bookings/src/lib/booking.utilities';
 import {
     createBookingsForEvent,
     queryResourceAvailability,
     saveBooking,
 } from 'libs/bookings/src/lib/bookings.fn';
-import { Space } from 'libs/events/src/lib/space.class';
 import { SpacePipe } from 'libs/events/src/lib/space.pipe';
 import { requestSpacesForZone } from 'libs/events/src/lib/space.utilities';
-
-import { AssetRequest } from 'libs/assets/src/lib/asset-request.class';
-import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
-import { validateAssetRequestsForResource } from 'libs/assets/src/lib/assets.fn';
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
-import { User } from 'libs/users/src/lib/user.class';
+import { EventLinkModalComponent } from './event-link-modal.component';
+import { querySpaceAvailability, removeEvent, saveEvent } from './events.fn';
+import { generateEventForm, newCalendarEventFromBooking } from './utilities';
 
 const BOOKING_URLS = [
     'book/rooms',
@@ -583,8 +580,8 @@ export class EventFormService extends AsyncHandler {
                 old_system: event?.system,
                 host,
                 title: this.form.value.title || 'Space Booking',
-                attendees: this.form.value.attendees.map((_) => {
-                    const v = { ..._ };
+                attendees: this.form.value.attendees.map((_: any) => {
+                    const v: any = { ..._ };
                     delete v.visit_expected;
                     delete v.extension_data;
                     return v;

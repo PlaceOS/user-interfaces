@@ -1,13 +1,16 @@
 import { Component, inject } from '@angular/core';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+import { AuthenticatedImageDirective } from './authenticated-image.directive';
+import { IconComponent } from './icon.component';
 
 @Component({
     selector: 'image-viewer',
     template: `
         <div class="h-screen w-screen bg-base-200">
             <img
+                auth
                 class="h-full w-full object-contain object-center"
-                [src]="url"
+                [source]="url"
             />
             <button
                 class="absolute right-1 top-1 bg-base-100"
@@ -20,8 +23,8 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [IconComponent, AuthenticatedImageDirective, MatDialogModule],
 })
 export class ImageViewerComponent {
-    url = inject(MAT_DIALOG_DATA);
+    public readonly url = inject(MAT_DIALOG_DATA);
 }

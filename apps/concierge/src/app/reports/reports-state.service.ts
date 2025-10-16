@@ -1,23 +1,25 @@
 import { formatDate } from '@angular/common';
 import { inject, Injectable } from '@angular/core';
-import { Booking, queryAllBookings } from '@placeos/bookings';
+import { queryAllBookings } from '@placeos/bookings';
 import {
+    Booking,
+    CalendarEvent,
     downloadFile,
     flatten,
     HashMap,
     i18n,
     jsonToCsv,
     notifyError,
+    OrganisationService,
     SettingsService,
     timePeriodsIntersect,
     unique,
 } from '@placeos/common';
 import {
-    CalendarEvent,
     queryAllEvents,
     requestSpacesForZone,
+    SpacePipe,
 } from '@placeos/events';
-import { OrganisationService } from '@placeos/organisation';
 import { showMetadata } from '@placeos/ts-client';
 import {
     addDays,
@@ -28,7 +30,6 @@ import {
     setDay,
     startOfDay,
 } from 'date-fns';
-import { SpacePipe } from 'libs/events/src/lib/space.pipe';
 import {
     BehaviorSubject,
     combineLatest,

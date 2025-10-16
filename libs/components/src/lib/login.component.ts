@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import {
     Component,
     ElementRef,
@@ -6,9 +7,13 @@ import {
     viewChild,
 } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { SettingsService } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { MatRippleModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { OrganisationService, SettingsService } from '@placeos/common';
 import { debounceTime, first, map } from 'rxjs/operators';
+import { AuthenticatedImageDirective } from './authenticated-image.directive';
 
 @Component({
     selector: 'app-login',
@@ -95,7 +100,14 @@ import { debounceTime, first, map } from 'rxjs/operators';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatRippleModule,
+        MatProgressSpinnerModule,
+        MatFormFieldModule,
+        MatInputModule,
+        AuthenticatedImageDirective,
+    ],
 })
 export class LoginComponent implements OnInit {
     private _settings = inject(SettingsService);

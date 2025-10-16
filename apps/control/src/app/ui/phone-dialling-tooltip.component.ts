@@ -1,6 +1,13 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { getModule } from '@placeos/ts-client';
 import { ControlStateService } from '../control-state.service';
+import { DialpadComponent } from './dialpad.component';
 
 @Component({
     selector: 'phone-dialling-tooltip',
@@ -35,7 +42,16 @@ import { ControlStateService } from '../control-state.service';
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatRippleModule,
+        IconComponent,
+        TranslatePipe,
+        DialpadComponent,
+        FormsModule,
+    ],
 })
 export class PhoneDiallingTooltipComponent {
     private _state = inject(ControlStateService);

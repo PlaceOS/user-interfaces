@@ -2,21 +2,33 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { showMetadata } from '@placeos/ts-client';
 import { lastValueFrom } from 'rxjs';
 
-import { Booking, saveBooking } from '@placeos/bookings';
+import { MatDialog } from '@angular/material/dialog';
+import { saveBooking } from '@placeos/bookings';
 import {
     AsyncHandler,
+    Booking,
+    generateQRCode,
     getTimezoneOffsetString,
     i18n,
     notifyError,
     notifySuccess,
+    OrganisationService,
     SettingsService,
+    User,
 } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
-import { User } from '@placeos/users';
-import { UserLabelModalComponent } from 'libs/users/src/lib/user-label-modal.component';
 
-import { MatDialog } from '@angular/material/dialog';
-import { generateQRCode } from 'libs/common/src/lib/qr-code';
+import { CommonModule } from '@angular/common';
+import { MatRippleModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import {
+    IconComponent,
+    SimpleTableComponent,
+    TranslatePipe,
+} from '@placeos/components';
+import { UserLabelModalComponent } from '@placeos/users';
 import { ParkingStateService } from '../parking/parking-state.service';
 import { VisitorsStateService } from './visitors-state.service';
 
@@ -646,7 +658,17 @@ import { VisitorsStateService } from './visitors-state.service';
         <div class="h-8 w-full"></div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatRippleModule,
+        MatTooltipModule,
+        MatMenuModule,
+        MatFormFieldModule,
+        MatInputModule,
+        TranslatePipe,
+        IconComponent,
+        SimpleTableComponent,
+    ],
 })
 export class GuestListingComponent extends AsyncHandler implements OnInit {
     private _state = inject(VisitorsStateService);

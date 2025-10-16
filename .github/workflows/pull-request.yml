@@ -2,9 +2,9 @@ name: 'PR Flow'
 
 on:
     push:
-        branches: [feat/*, fix/*, custom/*]
+        branches: [feat/*, fix/*, custom/*, refactor/*]
     pull_request:
-        branches: [feat/*, fix/*, custom/*]
+        branches: [feat/*, fix/*, custom/*, refactor/*]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:

@@ -2,9 +2,11 @@ import { Component, input, output } from '@angular/core';
 
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { MediaDurationPipe } from 'libs/components/src/lib/media-duration.pipe';
-import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import {
+    IconComponent,
+    MediaDurationPipe,
+    TranslatePipe,
+} from '@placeos/components';
 import { validateMedia } from './media-helpers';
 import { MediaPlayerItem } from './types';
 

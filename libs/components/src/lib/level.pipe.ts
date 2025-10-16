@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform, inject } from '@angular/core';
-import { BuildingLevel, OrganisationService } from '@placeos/organisation';
+import { BuildingLevel, OrganisationService } from '@placeos/common';
 
 @Pipe({
     name: 'level',

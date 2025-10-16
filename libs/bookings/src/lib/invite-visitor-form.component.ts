@@ -19,28 +19,32 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import {
     AsyncHandler,
-    CalEvent,
+    Booking,
     SettingsService,
+    User,
     currentUser,
-    generateCalendarFileLink,
-    generateGoogleCalendarLink,
-    generateMicrosoftCalendarLink,
+    getInvalidFields,
+    notifyError,
+    randomString,
 } from '@placeos/common';
-import { getInvalidFields, randomString } from 'libs/common/src/lib/general';
-import { notifyError } from 'libs/common/src/lib/notifications';
+
+import { OrganisationService } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { SafePipe } from 'libs/components/src/lib/safe.pipe';
 import { SanitizePipe } from 'libs/components/src/lib/sanitise.pipe';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import {
+    CalEvent,
+    generateCalendarFileLink,
+    generateGoogleCalendarLink,
+    generateMicrosoftCalendarLink,
+} from 'libs/events/src/lib/calendar-links';
 import { DateFieldComponent } from 'libs/form-fields/src/lib/date-field.component';
 import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
 import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.component';
 import { UserListFieldComponent } from 'libs/form-fields/src/lib/user-list-field.component';
 import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-field.component';
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
-import { User } from 'libs/users/src/lib/user.class';
 import { BookingFormService } from './booking-form.service';
-import { Booking } from './booking.class';
 
 @Component({
     selector: `invite-visitor-form`,

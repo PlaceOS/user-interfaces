@@ -1,10 +1,26 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { getTimezoneOffsetString, SettingsService } from '@placeos/common';
-import { CalendarEvent } from '@placeos/events';
-import { OrganisationService } from '@placeos/organisation';
+import {
+    CalendarEvent,
+    getTimezoneOffsetString,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import {
+    AuthenticatedImageDirective,
+    BuildingPipe,
+    IconComponent,
+    LevelPipe,
+    TranslatePipe,
+} from '@placeos/components';
+import { SpacePipe } from '@placeos/events';
 import { EventsStateService } from './events-state.service';
 
 @Component({
@@ -43,7 +59,7 @@ import { EventsStateService } from './events-state.service';
                     }}
                 </h3>
             </div>
-            <div class="relative -mt-px border-b border-base-200">
+            <div class="relative -mt-px border-b border-base-300">
                 <input
                     type="text"
                     [placeholder]="'COMMON.SEARCH' | translate"
@@ -57,7 +73,7 @@ import { EventsStateService } from './events-state.service';
                     search
                 </icon>
             </div>
-            <div class="flex-1 space-y-2 overflow-auto p-3">
+            <div class="flex-1 space-y-2 overflow-auto bg-base-200 p-3">
                 @if (!(filtered_pending | async)?.length) {
                     <div
                         class="flex h-full w-full flex-col items-center justify-center space-y-2"
@@ -72,7 +88,7 @@ import { EventsStateService } from './events-state.service';
                 }
                 @for (event of filtered_pending | async; track event) {
                     <div
-                        class="relative w-full rounded border border-base-300 p-2"
+                        class="relative w-full rounded-lg border border-base-300 bg-base-100 p-2"
                     >
                         @if (event.recurring_event_id) {
                             <div
@@ -267,7 +283,19 @@ import { EventsStateService } from './events-state.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        IconComponent,
+        BuildingPipe,
+        LevelPipe,
+        SpacePipe,
+        FormsModule,
+        MatProgressSpinnerModule,
+        AuthenticatedImageDirective,
+        MatTooltipModule,
+        MatMenuModule,
+    ],
 })
 export class RoomBookingsApprovalsComponent implements OnInit {
     private _state = inject(EventsStateService);

@@ -17,10 +17,12 @@ jest.mock('@placeos/ts-client', () => {
     return { getModule: jest.fn(), PlaceZone: ZONE };
 });
 
+import {
+    BindingDirective,
+    CustomTooltipData,
+    IconComponent,
+} from '@placeos/components';
 import * as client from '@placeos/ts-client';
-import { BindingDirective } from 'libs/components/src/lib/binding.directive';
-import { CustomTooltipData } from 'libs/components/src/lib/custom-tooltip.component';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
 
 describe('CameraTooltipComponent', () => {
     let spectator: Spectator<CameraTooltipComponent>;

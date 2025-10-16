@@ -3,10 +3,9 @@ import { querySystems, showSystem } from '@placeos/ts-client';
 import { BehaviorSubject, lastValueFrom } from 'rxjs';
 import { first, map, shareReplay } from 'rxjs/operators';
 
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
+import { OrganisationService } from '@placeos/common';
 
-import { flatten, SettingsService, unique } from '@placeos/common';
-import { Space } from './space.class';
+import { flatten, SettingsService, Space, unique } from '@placeos/common';
 import { SpacePipe } from './space.pipe';
 
 let SPACE_PIPE: SpacePipe;

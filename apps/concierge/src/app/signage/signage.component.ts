@@ -1,7 +1,13 @@
 import { Component, OnInit, inject } from '@angular/core';
 
-import { NavigationEnd, Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { MatRippleModule } from '@angular/material/core';
+import { MatTabsModule } from '@angular/material/tabs';
+import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { AsyncHandler, i18n } from '@placeos/common';
+import { TranslatePipe } from '@placeos/components';
+import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
+import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
 import { SignageStateService } from './signage-state.service';
 
 @Component({
@@ -11,7 +17,7 @@ import { SignageStateService } from './signage-state.service';
         <div class="flex h-px flex-1">
             <app-sidebar></app-sidebar>
             <main class="flex h-full w-1/2 flex-1 flex-col">
-                <div class="flex h-28 items-center justify-between p-8">
+                <div class="flex h-20 items-center justify-between p-8">
                     <h2 class="text-2xl font-medium">
                         {{ 'APP.CONCIERGE.SIGNAGE_HEADER' | translate }}
                     </h2>
@@ -34,20 +40,22 @@ import { SignageStateService } from './signage-state.service';
                     }
                 </div>
                 <div class="px-8">
-                    <nav mat-tab-nav-bar [tabPanel]="tabPanel">
-                        @for (link of links; track link.id) {
-                            <a
-                                mat-tab-link
-                                [routerLink]="
-                                    '/signage/' + (link.id | lowercase)
-                                "
-                                (click)="active_link = link.id"
-                                [active]="active_link == link.id"
-                            >
-                                {{ link.name }}
-                            </a>
-                        }
-                    </nav>
+                    <div class="overflow-hidden rounded bg-base-200">
+                        <nav mat-tab-nav-bar [tabPanel]="tabPanel">
+                            @for (link of links; track link.id) {
+                                <a
+                                    mat-tab-link
+                                    [routerLink]="
+                                        '/signage/' + (link.id | lowercase)
+                                    "
+                                    (click)="active_link = link.id"
+                                    [active]="active_link == link.id"
+                                >
+                                    {{ link.name }}
+                                </a>
+                            }
+                        </nav>
+                    </div>
                 </div>
                 <mat-tab-nav-panel
                     class="h-1/2 flex-1 overflow-auto px-8 py-4"
@@ -69,7 +77,15 @@ import { SignageStateService } from './signage-state.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        ApplicationTopbarComponent,
+        ApplicationSidebarComponent,
+        TranslatePipe,
+        MatRippleModule,
+        MatTabsModule,
+        RouterModule,
+    ],
 })
 export class SignageComponent extends AsyncHandler implements OnInit {
     private _state = inject(SignageStateService);

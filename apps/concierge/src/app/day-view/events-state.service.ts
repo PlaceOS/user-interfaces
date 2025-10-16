@@ -1,6 +1,24 @@
 import { Injectable, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
+    AsyncHandler,
+    CalendarEvent,
+    OrganisationService,
+    SettingsService,
+    Space,
+    flatten,
+    getTimezoneDifferenceInHours,
+    i18n,
+    notifyError,
+    notifySuccess,
+    timePeriodsIntersect,
+} from '@placeos/common';
+import {
+    declineEvent,
+    queryEvents,
+    requestSpacesForZone,
+} from '@placeos/events';
+import {
     addMinutes,
     endOfDay,
     endOfMonth,
@@ -24,26 +42,7 @@ import {
     tap,
 } from 'rxjs/operators';
 
-import {
-    AsyncHandler,
-    SettingsService,
-    flatten,
-    getTimezoneDifferenceInHours,
-    i18n,
-    notifyError,
-    notifySuccess,
-    timePeriodsIntersect,
-} from '@placeos/common';
-import {
-    CalendarEvent,
-    Space,
-    declineEvent,
-    queryEvents,
-    requestSpacesForZone,
-} from '@placeos/events';
-import { OrganisationService } from '@placeos/organisation';
-
-import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
+import { openConfirmModal } from '@placeos/components';
 import { EventBookModalComponent } from './event-book-modal.component';
 
 export type BookingType =

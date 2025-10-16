@@ -1,14 +1,21 @@
+import { CommonModule } from '@angular/common';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import {
     AsyncHandler,
     firstTruthyValueFrom,
+    OrganisationService,
     SettingsService,
+    Space,
 } from '@placeos/common';
-import { Space, SpacesService } from '@placeos/events';
-import { OrganisationService } from '@placeos/organisation';
+import {
+    AuthenticatedImageDirective,
+    IconComponent,
+} from '@placeos/components';
+import { SpacesService } from '@placeos/events';
 import { getHours, getMinutes, startOfSecond } from 'date-fns';
 import { debounceTime, map } from 'rxjs/operators';
+import { SpaceTimetableComponent } from './space-timetable.component';
 
 @Component({
     selector: 'app-timetable',
@@ -112,7 +119,12 @@ import { debounceTime, map } from 'rxjs/operators';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        AuthenticatedImageDirective,
+        SpaceTimetableComponent,
+        IconComponent,
+    ],
 })
 export class AppTimetableComponent extends AsyncHandler implements OnInit {
     private _settings = inject(SettingsService);

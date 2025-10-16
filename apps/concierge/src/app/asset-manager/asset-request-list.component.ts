@@ -1,10 +1,24 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
-import { Booking } from '@placeos/bookings';
-import { AsyncHandler, SettingsService } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { MatRippleModule } from '@angular/material/core';
+import { MatMenuModule } from '@angular/material/menu';
+import {
+    AsyncHandler,
+    Booking,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
+import {
+    IconComponent,
+    SimpleTableComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { startOfDay } from 'date-fns';
 import { map } from 'rxjs/operators';
+import { DateOptionsComponent } from '../ui/date-options.component';
 import { AssetManagerStateService } from './asset-manager-state.service';
+import { AssetRequestDetailsComponent } from './asset-request-details.component';
+import { SplitJoinPipe } from './split-join.pipe';
 
 @Component({
     selector: 'app-asset-request-list',
@@ -258,7 +272,17 @@ import { AssetManagerStateService } from './asset-manager-state.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatRippleModule,
+        DateOptionsComponent,
+        SimpleTableComponent,
+        AssetRequestDetailsComponent,
+        MatMenuModule,
+        IconComponent,
+        SplitJoinPipe,
+        TranslatePipe,
+    ],
 })
 export class AssetRequestListComponent extends AsyncHandler implements OnInit {
     private _state = inject(AssetManagerStateService);

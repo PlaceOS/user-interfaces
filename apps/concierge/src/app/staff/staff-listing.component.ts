@@ -2,6 +2,10 @@ import { Component, ElementRef, inject, viewChild } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
 import { map } from 'rxjs/operators';
 
+import { CommonModule } from '@angular/common';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { TranslatePipe } from '@placeos/components';
+import { StaffDetailsComponent } from './staff-details.component';
 import { StaffStateService } from './staff-state.service';
 
 const CHARS = '#abcdefghijklmnopqrstuvwxyz'.split('');
@@ -23,7 +27,7 @@ const CHARS = '#abcdefghijklmnopqrstuvwxyz'.split('');
             }
         </div>
         <div
-            class="relative w-full flex-1 overflow-auto bg-base-200"
+            class="relative w-full flex-1 overflow-auto"
             style="height: 50%"
             #container
             (scroll)="onScroll($event)"
@@ -34,7 +38,7 @@ const CHARS = '#abcdefghijklmnopqrstuvwxyz'.split('');
                         <div
                             group
                             [id]="'letter-' + (group === '#' ? '0' : group)"
-                            class="sticky top-0 z-10 border-b bg-base-200 text-sm font-medium capitalize"
+                            class="sticky top-0 z-10 m-2 rounded-lg border border-base-300 bg-base-200 text-sm font-medium capitalize"
                         >
                             {{ group }}
                         </div>
@@ -101,7 +105,12 @@ const CHARS = '#abcdefghijklmnopqrstuvwxyz'.split('');
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatProgressBarModule,
+        StaffDetailsComponent,
+        TranslatePipe,
+    ],
 })
 export class StaffListingComponent extends AsyncHandler {
     private _state = inject(StaffStateService);

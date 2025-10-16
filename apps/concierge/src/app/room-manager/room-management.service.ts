@@ -1,7 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { SettingsService } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { OrganisationService, SettingsService } from '@placeos/common';
 import { PlaceSystem, querySystems, showMetadata } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import {

@@ -1,11 +1,19 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 
-import { CdkDragDrop } from '@angular/cdk/drag-drop';
-import { ActivatedRoute, Router } from '@angular/router';
+import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { listSignagePlaylistMedia, SignagePlaylist } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { SignageMediaListComponent } from './signage-media-list.component';
+import { SignagePlaylistMediaListComponent } from './signage-playlist-media-list.component';
 import { SignageStateService } from './signage-state.service';
 
 @Component({
@@ -115,16 +123,16 @@ import { SignageStateService } from './signage-state.service';
                     @if (!selected_playlist) {
                         <signage-media-list
                             [playlist_count]="(playlists | async)?.length"
-                        ></signage-media-list>
+                        />
                     }
                     @if (selected_playlist) {
                         <signage-playlist-media-list
                             [playlist]="selected_playlist"
                             [playlist_count]="(playlists | async)?.length"
-                        ></signage-playlist-media-list>
+                        />
                     }
                 </div>
-                @if (show_dropzone) {
+                @if (show_dropzone()) {
                     <div
                         class="absolute inset-0"
                         (dragleave)="hideOverlay($event)"
@@ -161,7 +169,19 @@ import { SignageStateService } from './signage-state.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatFormFieldModule,
+        MatInputModule,
+        IconComponent,
+        RouterModule,
+        DragDropModule,
+        TranslatePipe,
+        MatRippleModule,
+        SignageMediaListComponent,
+        SignagePlaylistMediaListComponent,
+        FormsModule,
+    ],
 })
 export class SignageMediaComponent extends AsyncHandler implements OnInit {
     private _state = inject(SignageStateService);
@@ -181,7 +201,7 @@ export class SignageMediaComponent extends AsyncHandler implements OnInit {
         ),
     );
     public selected_playlist = '';
-    public show_dropzone = false;
+    public readonly show_dropzone = signal(false);
 
     public readonly addPlaylist = async () => {
         const result = await this._state.editPlaylist();
@@ -198,15 +218,15 @@ export class SignageMediaComponent extends AsyncHandler implements OnInit {
 
     public onEnter(e) {
         this.clearTimeout('hide_overlay');
-        this.show_dropzone = e?.dataTransfer?.types.includes('Files');
+        this.show_dropzone.set(e?.dataTransfer?.types.includes('Files'));
     }
 
     public hideOverlay(e) {
-        if (!this.show_dropzone) return;
+        if (!this.show_dropzone()) return;
         if (!(e.target instanceof HTMLInputElement)) {
             e.preventDefault();
         }
-        this.timeout('hide_overlay', () => (this.show_dropzone = false));
+        this.timeout('hide_overlay', () => this.show_dropzone.set(false));
     }
 
     public ngOnInit() {

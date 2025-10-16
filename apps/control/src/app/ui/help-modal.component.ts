@@ -1,7 +1,16 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { SettingsService } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { FormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
+import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { OrganisationService, SettingsService } from '@placeos/common';
+import {
+    AuthenticatedImageDirective,
+    IconComponent,
+    SafePipe,
+} from '@placeos/components';
 
 import { marked } from 'marked';
 import { debounceTime, map } from 'rxjs/operators';
@@ -85,7 +94,17 @@ import { debounceTime, map } from 'rxjs/operators';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatDialogModule,
+        SafePipe,
+        MatFormFieldModule,
+        MatSelectModule,
+        FormsModule,
+        MatRippleModule,
+        IconComponent,
+        AuthenticatedImageDirective,
+    ],
 })
 export class HelpModalComponent {
     private _data = inject<{

@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import {
@@ -6,11 +7,19 @@ import {
     loadLockers,
     queryBookings,
 } from '@placeos/bookings';
-import { AsyncHandler, currentUser, SettingsService } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import {
+    AsyncHandler,
+    currentUser,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
+import { TranslatePipe } from '@placeos/components';
 import { addHours, endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { combineLatest } from 'rxjs';
 import { map, shareReplay } from 'rxjs/operators';
+import { BookLockerFlowConfirmComponent } from './locker-flow/locker-flow-confirm.component';
+import { BookLockerFlowFormComponent } from './locker-flow/locker-flow-form.component';
+import { BookLockerFlowSuccessComponent } from './locker-flow/locker-flow-success.component';
 
 @Component({
     selector: 'placeos-book-locker-flow',
@@ -55,7 +64,13 @@ import { map, shareReplay } from 'rxjs/operators';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        BookLockerFlowConfirmComponent,
+        BookLockerFlowFormComponent,
+        BookLockerFlowSuccessComponent,
+    ],
 })
 export class BookLockerFlowComponent extends AsyncHandler implements OnInit {
     private _state = inject(BookingFormService);
