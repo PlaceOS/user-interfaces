@@ -198,14 +198,16 @@ export class CameraControlsComponent extends AsyncHandler implements OnInit {
         const end_event = e instanceof MouseEvent ? 'mouseup' : 'touchend';
         this.zoom = dir === 'in' ? ZoomDirection.In : ZoomDirection.Out;
         const { index } = this.active_camera;
-        await mod.execute('zoom', index ? [this.zoom, index] : [this.zoom]);
+        await mod
+            .execute('zoom', index ? [this.zoom, index] : [this.zoom])
+            .catch();
         this.subscription(
             'on_end',
             this._renderer.listen('window', end_event, () => {
-                this.unsub('on_move');
-                this.unsub('on_end');
                 this.zoom = ZoomDirection.Stop;
                 mod.execute('zoom', index ? [this.zoom, index] : [this.zoom]);
+                this.unsub('on_move');
+                this.unsub('on_end');
             }),
         );
     }
