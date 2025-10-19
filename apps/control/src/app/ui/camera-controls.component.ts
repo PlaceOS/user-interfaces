@@ -79,6 +79,8 @@ export enum ZoomDirection {
                                 (mousedown)="startZoom('out', $event)"
                                 (touchstart)="startZoom('out', $event)"
                                 (contextmenu)="$event.preventDefault()"
+                                (window:mouseup)="stopZoom()"
+                                (window:touchend)="stopZoom()"
                             >
                                 <icon>remove</icon>
                             </button>
@@ -195,20 +197,27 @@ export class CameraControlsComponent extends AsyncHandler implements OnInit {
     public async startZoom(dir: 'in' | 'out', e: MouseEvent | TouchEvent) {
         const mod = getModule(this.id, this.active_camera.mod);
         if (!mod) return;
-        const end_event = e instanceof MouseEvent ? 'mouseup' : 'touchend';
         this.zoom = dir === 'in' ? ZoomDirection.In : ZoomDirection.Out;
         const { index } = this.active_camera;
         await mod
             .execute('zoom', index ? [this.zoom, index] : [this.zoom])
             .catch();
-        this.subscription(
-            'on_end',
-            this._renderer.listen('window', end_event, () => {
+    }
+
+    public stopZoom() {
+        this.timeout(
+            'stop_zoom',
+            () => {
+                if (this.zoom === ZoomDirection.Stop) return;
+                const mod = getModule(this.id, this.active_camera.mod);
+                if (!mod) return;
+                const { index } = this.active_camera;
                 this.zoom = ZoomDirection.Stop;
                 mod.execute('zoom', index ? [this.zoom, index] : [this.zoom]);
                 this.unsub('on_move');
                 this.unsub('on_end');
-            }),
+            },
+            50,
         );
     }
 }

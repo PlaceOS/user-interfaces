@@ -143,7 +143,7 @@ export class PanelViewDetailsComponent extends AsyncHandler implements OnInit {
                             ),
                         );
                     } else if (!this.qr_code) {
-                        let url = `${location.origin}${location.pathname}#/checkin/${this._state.system}`;
+                        const url = `${location.origin}${location.pathname}#/checkin/${this._state.system}`;
                         this.qr_code.set(
                             generateQRCode(
                                 url,

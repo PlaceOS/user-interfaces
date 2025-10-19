@@ -135,7 +135,11 @@ export enum ZoomDirection {
                         <h3 class="mb-2 text-xl font-medium">
                             {{ 'APP.CONTROL.CONTROLS' | translate }}
                         </h3>
-                        <div class="flex items-center space-x-2">
+                        <div
+                            class="flex items-center space-x-2"
+                            (window:mouseup)="stopZoom()"
+                            (window:touchend)="stopZoom()"
+                        >
                             <joystick
                                 [(pan)]="pan"
                                 [(tilt)]="tilt"
@@ -327,26 +331,27 @@ export class CameraTooltipComponent extends AsyncHandler implements OnInit {
     public async startZoom(dir: 'in' | 'out', e: MouseEvent | TouchEvent) {
         const mod = getModule(this.id, this.active_camera.mod);
         if (!mod) return;
-        const end_event = e instanceof MouseEvent ? 'mouseup' : 'touchend';
         this.zoom = dir === 'in' ? ZoomDirection.In : ZoomDirection.Out;
         const { index } = this.active_camera;
-        await mod.execute('zoom', index ? [this.zoom, index] : [this.zoom]);
-        this.subscription(
-            'on_end',
-            this._renderer.listen('window', end_event, () => {
-                this.unsub('on_move');
-                this.unsub('on_end');
-                this.zoom = ZoomDirection.Stop;
-                mod.execute('zoom', index ? [this.zoom, index] : [this.zoom]);
-            }),
-        );
+        await mod
+            .execute('zoom', index ? [this.zoom, index] : [this.zoom])
+            .catch();
     }
 
-    public async stopZoom() {
-        const mod = getModule(this.id, this.active_camera.mod);
-        if (!mod) return;
-        const { index } = this.active_camera;
-        this.zoom = ZoomDirection.Stop;
-        mod.execute('zoom', index ? [this.zoom, index] : [this.zoom]);
+    public stopZoom() {
+        this.timeout(
+            'stop_zoom',
+            () => {
+                if (this.zoom === ZoomDirection.Stop) return;
+                const mod = getModule(this.id, this.active_camera.mod);
+                if (!mod) return;
+                const { index } = this.active_camera;
+                this.zoom = ZoomDirection.Stop;
+                mod.execute('zoom', index ? [this.zoom, index] : [this.zoom]);
+                this.unsub('on_move');
+                this.unsub('on_end');
+            },
+            50,
+        );
     }
 }
