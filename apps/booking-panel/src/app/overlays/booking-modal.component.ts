@@ -222,7 +222,7 @@ export class BookingModalComponent extends AsyncHandler implements OnInit {
     });
 
     public ngOnInit() {
-        if (this._data.disable_book_now_host) {
+        if (this._data.disable_book_now_host || this._data.user) {
             this.form.controls.organiser.setValidators([]);
             this.hide_host = true;
         } else {

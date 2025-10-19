@@ -275,7 +275,7 @@ export class CheckinViewComponent extends AsyncHandler implements OnInit {
     public readonly newBooking = (d = Date.now(), f = false) =>
         this._state.newBooking(d, this.has_user, f, true);
 
-    public has_user = false;
+    public has_user = true;
 
     public readonly event_state = combineLatest([
         this._state.current,
@@ -317,9 +317,7 @@ export class CheckinViewComponent extends AsyncHandler implements OnInit {
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
-                if (params.has('user')) {
-                    this.has_user = true;
-                }
+                this.has_user = params.get('user') !== 'false';
             }),
         );
     }

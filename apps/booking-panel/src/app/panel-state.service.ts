@@ -332,6 +332,7 @@ export class PanelStateService extends AsyncHandler {
         const details = await openBookingModal(
             {
                 ...this._settings.getValue(),
+                user: user ? currentUser() : undefined,
                 space,
                 date: future
                     ? date
