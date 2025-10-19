@@ -1,7 +1,7 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { startOfMinute } from 'date-fns';
 
-import { generateQRCode } from '@placeos/common';
+import { AsyncHandler, generateQRCode } from '@placeos/common';
 
 import { CommonModule } from '@angular/common';
 import { TranslatePipe } from '@placeos/components';
@@ -30,7 +30,7 @@ import { PanelStateService } from '../panel-state.service';
                     qr-checkin
                     class="absolute right-4 top-4 z-50 w-40 space-y-4 text-xl"
                 >
-                    <img class="w-full" [src]="qr_code" />
+                    <img class="w-full" [src]="qr_code()" />
                     @if (!hide_qr_text) {
                         <div class="w-full text-lg">
                             {{ 'APP.BOOKING_PANEL.SCAN_QR_CODE' | translate }}
@@ -64,7 +64,7 @@ import { PanelStateService } from '../panel-state.service';
                 "
             >
                 <p class="text-3xl">
-                    {{ time | date: 'EEE, MMM d, y h:mm a' }}
+                    {{ time() | date: 'EEE, MMM d, y h:mm a' }}
                 </p>
                 @if ((current | async) && !hide_meeting_details) {
                     <p class="text-4xl">
@@ -87,16 +87,14 @@ import { PanelStateService } from '../panel-state.service';
     ],
     imports: [CommonModule, TranslatePipe],
 })
-export class PanelViewDetailsComponent {
+export class PanelViewDetailsComponent extends AsyncHandler implements OnInit {
     private _state = inject(PanelStateService);
 
     public readonly system = this._state.space;
     public readonly current = this._state.current;
-    public qr_code: any;
+    public readonly qr_code = signal('');
 
-    public get time() {
-        return startOfMinute(Date.now());
-    }
+    public readonly time = signal(Date.now());
 
     public get hide_meeting_details() {
         return this._state.setting('hide_meeting_details');
@@ -123,28 +121,40 @@ export class PanelViewDetailsComponent {
     }
 
     public async ngOnInit() {
-        this._state.current.subscribe();
-        this._state.settings.subscribe(
-            ({ custom_qr_url, custom_qr_color, disable_book_now_host }) => {
-                if (custom_qr_url) {
-                    this.qr_code = generateQRCode(
-                        custom_qr_url.replace(
-                            '{system_id}',
-                            this._state.system,
-                        ),
-                        '#fff0',
-                        custom_qr_color || '#fff',
-                    );
-                } else if (!this.qr_code) {
-                    let url = `${location.origin}${location.pathname}#/checkin/${this._state.system}`;
-                    url += '?user=true';
-                    this.qr_code = generateQRCode(
-                        url,
-                        '#fff0',
-                        custom_qr_color || '#fff',
-                    );
-                }
-            },
+        this.interval(
+            'time',
+            () => this.time.set(startOfMinute(Date.now()).valueOf()),
+            5 * 1000,
+        );
+        this.subscription('current', this._state.current.subscribe());
+        this.subscription(
+            'settings',
+            this._state.settings.subscribe(
+                ({ custom_qr_url, custom_qr_color, disable_book_now_host }) => {
+                    if (custom_qr_url) {
+                        this.qr_code.set(
+                            generateQRCode(
+                                custom_qr_url.replace(
+                                    '{system_id}',
+                                    this._state.system,
+                                ),
+                                '#fff0',
+                                custom_qr_color || '#fff',
+                            ),
+                        );
+                    } else if (!this.qr_code) {
+                        let url = `${location.origin}${location.pathname}#/checkin/${this._state.system}`;
+                        url += '?user=true';
+                        this.qr_code.set(
+                            generateQRCode(
+                                url,
+                                '#fff0',
+                                custom_qr_color || '#fff',
+                            ),
+                        );
+                    }
+                },
+            ),
         );
     }
 }
