@@ -57,10 +57,10 @@ function isSamePoint(p1: Point, p2: Point): boolean {
             [class.hidden]="!src()"
         ></div>
         @if (src()) {
-            @if (!viewer || loading()) {
+            @if (!viewer() || loading()) {
                 <mat-spinner class="absolute" [diameter]="48" />
             }
-            @if (viewer === '~empty~') {
+            @if (viewer() === '~empty~') {
                 <div class="absolute inset-0 flex items-center justify-center">
                     <div class="opacity-30">
                         {{ 'EXPLORE.MAP_FAILED_TO_LOAD' | translate }}
@@ -89,7 +89,7 @@ function isSamePoint(p1: Point, p2: Point): boolean {
                                 [attr.no-scale]="element.no_scale"
                                 [attr.el-id]="element.location"
                                 [attr.track-id]="element.track_id"
-                                [attr.view-id]="viewer"
+                                [attr.view-id]="viewer()"
                             >
                                 @switch (type(element.content)) {
                                     @case ('component') {
@@ -172,7 +172,7 @@ export class MapRendererComponent
     public feature_list: ViewerFeature[] = [];
 
     /** ID of the active SVG Viewer */
-    public viewer: string;
+    public readonly viewer = signal('');
     /** Observable for changes on the SVG viewer */
     private _on_changes: BehaviorSubject<Viewer> = new BehaviorSubject(null);
 
@@ -215,7 +215,7 @@ export class MapRendererComponent
     }
 
     public ngOnDestroy(): void {
-        if (this.viewer) removeViewer(this.viewer);
+        if (this.viewer()) removeViewer(this.viewer());
     }
 
     public ngOnChanges(changes: SimpleChanges): void {
@@ -223,13 +223,13 @@ export class MapRendererComponent
             this.createView().catch((e) => {
                 console.warn(e);
                 this.loading.set(false);
-                this.viewer = '~empty~';
+                this.viewer.set('~empty~');
             });
         }
         if (changes.features) {
             this.updateInjectors();
         }
-        if (this.viewer) {
+        if (this.viewer()) {
             const focus = this.focus();
             if (changes.focus && focus) {
                 this.focusOn(focus);
@@ -267,18 +267,18 @@ export class MapRendererComponent
         this.createView().catch((e) => {
             console.warn(e);
             this.loading.set(false);
-            this.viewer = '~empty~';
+            this.viewer.set('~empty~');
         });
     }
 
     /** Update overlays, styles and actions of viewer */
     private updateView() {
         try {
-            if (!getViewer(this.viewer) || this.loading()) {
+            if (!getViewer(this.viewer()) || this.loading()) {
                 return this.timeout('update_view', () => this.updateView());
             }
             this.updateFeatureList();
-            updateViewer(this.viewer, {
+            updateViewer(this.viewer(), {
                 styles: this.styles(),
                 features: this.feature_list,
                 labels: this.labels(),
@@ -294,7 +294,7 @@ export class MapRendererComponent
     /** Update zoom and center position of viewer */
     private updateDisplay() {
         try {
-            updateViewer(this.viewer, {
+            updateViewer(this.viewer(), {
                 zoom: this.zoom(),
                 desired_zoom: this.zoom(),
                 center: this.center(),
@@ -325,16 +325,16 @@ export class MapRendererComponent
             const labels = this.labels();
             const actions = this.actions();
             const options = this.options();
-            if (this.viewer) {
+            if (this.viewer()) {
                 try {
-                    updateViewer(this.viewer, {
+                    updateViewer(this.viewer(), {
                         styles: styles,
                         features: [],
                         labels: labels,
                         actions: actions,
                         options: options,
                     });
-                    removeViewer(this.viewer);
+                    removeViewer(this.viewer());
                 } catch (e) {
                     console.warn(e);
                     return;
@@ -349,26 +349,28 @@ export class MapRendererComponent
             };max-age=30;path=/api/engine/v2/uploads;samesite=strict;${
                 location.protocol === 'https:' ? 'secure;' : ''
             }`;
-            this.viewer = await createViewer({
-                element: _outlet_el?.nativeElement,
-                url: src,
-                styles: styles,
-                zoom: this.zoom(),
-                desired_zoom: this.zoom(),
-                center: this.center(),
-                features: this.feature_list,
-                labels: labels,
-                actions: actions,
-                options: options,
-            }).catch((e) => '');
+            this.viewer.set(
+                await createViewer({
+                    element: _outlet_el?.nativeElement,
+                    url: src,
+                    styles: styles,
+                    zoom: this.zoom(),
+                    desired_zoom: this.zoom(),
+                    center: this.center(),
+                    features: this.feature_list,
+                    labels: labels,
+                    actions: actions,
+                    options: options,
+                }).catch((e) => ''),
+            );
             this.loading.set(false);
-            if (!this.viewer) {
-                this.viewer = '~empty~';
+            if (!this.viewer()) {
+                this.viewer.set('~empty~');
                 return;
             }
             this.subscription(
                 'view_changes',
-                listenToViewerChanges(this.viewer)?.subscribe((v) => {
+                listenToViewerChanges(this.viewer())?.subscribe((v) => {
                     this._on_changes.next({ ...v } as any);
                     this.zoomChange.emit(v.zoom);
                     this.zoom.set(v.zoom);
@@ -376,7 +378,7 @@ export class MapRendererComponent
                     this.center.set(v.center);
                 }),
             );
-            const viewer = getViewer(this.viewer);
+            const viewer = getViewer(this.viewer());
             this.mapInfo.emit(viewer.mappings);
             const focus = this.focus();
             if (focus) this.focusOn(focus);
@@ -388,8 +390,8 @@ export class MapRendererComponent
     }
 
     private focusOn(id: string) {
-        if (!id || !this.viewer) return;
-        const viewer: Viewer = getViewer(this.viewer);
+        if (!id || !this.viewer()) return;
+        const viewer: Viewer = getViewer(this.viewer());
         if (!viewer) return;
         const rect = viewer.mappings[id];
         if (!rect) return;

@@ -1,4 +1,4 @@
-import { Component, forwardRef, inject, input } from '@angular/core';
+import { Component, forwardRef, inject, input, signal } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 
@@ -17,7 +17,7 @@ const EMPTY_FAVS: string[] = [];
     selector: `desk-list-field`,
     template: `
         <div list class="space-y-2">
-            @for (item of items; track item) {
+            @for (item of items(); track item) {
                 <div
                     desk
                     class="relative flex w-full items-center rounded-lg border border-base-200 p-2 shadow"
@@ -32,9 +32,9 @@ const EMPTY_FAVS: string[] = [];
                                 @for (opt of features(); track opt) {
                                     <mat-checkbox
                                         [ngModel]="
-                                            (selected_features || []).includes(
-                                                opt
-                                            )
+                                            (
+                                                selected_features() || []
+                                            ).includes(opt)
                                         "
                                         (ngModelChange)="
                                             setFeature(opt, $event)
@@ -153,10 +153,10 @@ export class DeskListFieldComponent implements ControlValueAccessor {
     private _dialog = inject(MatDialog);
 
     public readonly features = input<string[]>([]);
-    public room_size = 3;
-    public items: BookingAsset[] = [];
-    public disabled = false;
-    public selected_features: string[] = [];
+    public readonly room_size = signal(3);
+    public readonly items = signal<BookingAsset[]>([]);
+    public readonly disabled = signal(false);
+    public readonly selected_features = signal<string[]>([]);
 
     private _onChange: (_: BookingAsset[]) => void;
     private _onTouch: (_: BookingAsset[]) => void;
@@ -171,7 +171,7 @@ export class DeskListFieldComponent implements ControlValueAccessor {
         const ref = this._dialog.open(NewDeskSelectModalComponent, {
             data: {
                 items: this.items,
-                options: { capacity: this.room_size },
+                options: { capacity: this.room_size() },
             },
         });
         ref.afterClosed().subscribe((items?: BookingAsset[]) => {
@@ -182,7 +182,7 @@ export class DeskListFieldComponent implements ControlValueAccessor {
 
     /** Remove the selected space from the list */
     public removeResource(space: BookingAsset) {
-        this.setValue(this.items.filter((_) => _.id !== space.id));
+        this.setValue(this.items().filter((_) => _.id !== space.id));
     }
 
     /**
@@ -190,8 +190,8 @@ export class DeskListFieldComponent implements ControlValueAccessor {
      * @param new_value New value to set on the form field
      */
     public setValue(new_value: BookingAsset[]) {
-        this.items = new_value;
-        if (this._onChange) this._onChange(this.items);
+        this.items.set(new_value);
+        if (this._onChange) this._onChange(this.items());
     }
 
     /* istanbul ignore next */
@@ -200,7 +200,7 @@ export class DeskListFieldComponent implements ControlValueAccessor {
      * @param value The new value for the component
      */
     public writeValue(value: BookingAsset[]) {
-        this.items = value || [];
+        this.items.set(value || []);
     }
 
     /* istanbul ignore next */
@@ -209,7 +209,7 @@ export class DeskListFieldComponent implements ControlValueAccessor {
     /* istanbul ignore next */
     public readonly registerOnTouched = (fn: (_: BookingAsset[]) => void) =>
         (this._onTouch = fn);
-    public readonly setDisabledState = (s: boolean) => (this.disabled = s);
+    public readonly setDisabledState = (s: boolean) => this.disabled.set(s);
 
     public toggleFavourite(space: BookingAsset) {
         if (!space?.id) return;
