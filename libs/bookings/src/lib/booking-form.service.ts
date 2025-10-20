@@ -747,6 +747,7 @@ export class BookingFormService extends AsyncHandler {
             Date.now(),
             'yyyy-MM-dd',
         )}]`;
+        let user_booking: Booking = null;
         let id = '';
         for (let i = 0; i < group_members.length; i++) {
             if (!available[i]) continue;
@@ -777,6 +778,7 @@ export class BookingFormService extends AsyncHandler {
             });
             const bkn = await this.postForm(true);
             if (bkn.id && !id) id = bkn.id;
+            if (bkn.user_email === currentUser().email) user_booking = bkn;
         }
         if (unavailable.length) {
             notifyWarn(
@@ -787,6 +789,7 @@ export class BookingFormService extends AsyncHandler {
                 }),
             );
         }
+        return user_booking;
     }
 
     private async checkQuestions() {

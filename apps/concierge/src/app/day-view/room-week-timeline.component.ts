@@ -374,8 +374,8 @@ export class RoomWeekBookingsTimelineComponent
                 remove_fn: (e) => this.remove(e),
             },
         });
-        ref.componentInstance.hide_edit = !this._settings.get(
-            'app.events.allow_edit',
+        ref.componentInstance.hide_edit.set(
+            !this._settings.get('app.events.allow_edit'),
         );
         this.subscription(
             'actions',

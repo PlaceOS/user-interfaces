@@ -445,8 +445,8 @@ Host:  ${event.organiser?.name || event.host}`;
                 remove_fn: (e) => this.remove(e, space_id),
             },
         });
-        ref.componentInstance.hide_edit = !this._settings.get(
-            'app.events.allow_edit',
+        ref.componentInstance.hide_edit.set(
+            !this._settings.get('app.events.allow_edit'),
         );
         this.subscription(
             'actions',
