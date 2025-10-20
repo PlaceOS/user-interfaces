@@ -224,15 +224,6 @@ export class BookingFormService extends AsyncHandler {
                 date = startOfDay(date).valueOf();
                 duration = 24 * 60 - 1;
             }
-            console.log(
-                'Booking:',
-                options.type,
-                user,
-                date,
-                duration,
-                resources.length,
-                restrictions,
-            );
             return bookedResourceList({
                 period_start: getUnixTime(date),
                 period_end: getUnixTime(addMinutes(date, duration)),
@@ -279,7 +270,6 @@ export class BookingFormService extends AsyncHandler {
                             !booked_ids.includes(asset.id)
                         );
                     });
-                    console.log('Resources Available:', available);
                     return available;
                 }),
                 catchError(() => of([])),
@@ -498,8 +488,6 @@ export class BookingFormService extends AsyncHandler {
         await this.checkQuestions();
         const options = this._options.getValue();
         const value = this.form.getRawValue();
-
-        console.log('i18n:', i18n('BOOKINGS.CONFIRM_MSG'));
 
         const content = i18n(
             options.group

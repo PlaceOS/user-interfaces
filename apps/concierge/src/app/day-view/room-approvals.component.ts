@@ -380,7 +380,7 @@ export class RoomBookingsApprovalsComponent implements OnInit {
         if (!mod) return;
         this.loading.set(true);
         await mod
-            .execute('accept_event_series', [
+            .execute('accept_recurring_event', [
                 event.mailbox,
                 event.recurring_event_id || event.id,
             ])
@@ -409,7 +409,7 @@ export class RoomBookingsApprovalsComponent implements OnInit {
         if (!mod) return;
         this.loading.set(true);
         await mod
-            .execute('decline_event_series', [
+            .execute('decline_recurring_event', [
                 event.mailbox,
                 event.recurring_event_id || event.id,
             ])
