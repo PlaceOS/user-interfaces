@@ -5,6 +5,7 @@ import { AnalyticsComponent } from './analytics.component';
 import { RemoteSupportComponent } from './remote-support.component';
 
 import { UnauthorisedComponent } from '@placeos/components';
+import { RecorderGridViewComponent } from './recorder-view.component';
 
 const routes: Routes = [
     {
@@ -14,6 +15,7 @@ const routes: Routes = [
     { path: 'alerts', component: AlertsComponent },
     { path: 'remote-support', component: RemoteSupportComponent },
     { path: 'analytics', component: AnalyticsComponent },
+    { path: 'recorder-grid', component: RecorderGridViewComponent },
     { path: '**', redirectTo: 'alerts' },
 ];
 

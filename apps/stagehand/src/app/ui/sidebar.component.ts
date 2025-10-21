@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
+import { settingSignal } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
 
 let compact_state = false;
@@ -93,6 +94,24 @@ let compact_state = false;
                         <span class="truncate">Analytics</span>
                     }
                 </a>
+                @if (show_recorder_view()) {
+                    <a
+                        matRipple
+                        class="relative flex w-full items-center space-x-4 p-2"
+                        routerLinkActive="bg-secondary-focus"
+                        [routerLink]="['/recorder-grid']"
+                        [matTooltip]="is_compact ? 'Recorder Streams' : ''"
+                        matTooltipPosition="right"
+                    >
+                        <div
+                            class="absolute inset-0 bg-base-100 opacity-0 hover:opacity-10"
+                        ></div>
+                        <icon class="!ml-0 text-2xl">stream</icon>
+                        @if (!is_compact) {
+                            <span class="truncate">Recorder Streams</span>
+                        }
+                    </a>
+                }
             </div>
             <div
                 class="flex flex-col space-y-2 py-4"
@@ -140,6 +159,7 @@ let compact_state = false;
     imports: [IconComponent, RouterModule, MatRippleModule, MatTooltipModule],
 })
 export class SidebarComponent {
+    public readonly show_recorder_view = settingSignal('show_recorder_view');
     public get is_compact() {
         return compact_state;
     }
