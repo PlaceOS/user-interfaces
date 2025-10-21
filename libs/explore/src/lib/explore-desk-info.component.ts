@@ -161,22 +161,22 @@ export interface DeskInfoData {
             }
 
             [status] {
-                background-color: var(--su);
-                color: var(--suc);
+                background-color: var(--success);
+                color: var(--success-content);
             }
 
             [status].busy {
-                background-color: var(--er);
-                color: var(--erc);
+                background-color: var(--error);
+                color: var(--error-content);
             }
 
             [status].pending {
-                background-color: var(--wa);
-                color: var(--wac);
+                background-color: var(--warn);
+                color: var(--warn-content);
             }
 
             [status].not-bookable {
-                background-color: var(--b3);
+                background-color: var(--base-300);
             }
         `,
     ],

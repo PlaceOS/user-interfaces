@@ -21,7 +21,7 @@ import { BookingFormService } from '../booking-form.service';
                 border: 1px solid rgba(0, 0, 0, 0.2);
                 border-radius: 1.25rem;
                 margin: 0.25rem;
-                background-color: var(--b1);
+                background-color: var(--base-100);
             }
 
             [filter-item]:hover {

@@ -260,10 +260,12 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
                         class: 'material-symbols-rounded',
                         content: 'sensor_occupied',
                     },
-                    color: this._presence[space.id] ? 'var(--su)' : 'var(--bc)',
+                    color: this._presence[space.id]
+                        ? 'var(--success)'
+                        : 'var(--base-content)',
                     text_color: this._presence[space.id]
-                        ? 'var(--suc)'
-                        : 'var(--b1)',
+                        ? 'var(--success-content)'
+                        : 'var(--base-100)',
                 },
                 z_index: 98,
             } as ViewerFeature);

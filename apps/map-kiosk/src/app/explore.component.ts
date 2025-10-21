@@ -258,7 +258,7 @@ import { AccessibilityControlsComponent } from './accessibility-controls.compone
                 left: 0;
                 right: 0;
                 bottom: 0;
-                background-color: var(--b2);
+                background-color: var(--base-200);
             }
 
             hr {

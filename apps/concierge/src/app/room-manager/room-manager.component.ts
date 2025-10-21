@@ -25,7 +25,7 @@ import { RoomManagerTopbarComponent } from './room-manager-topbar.component';
                 flex-direction: column;
                 height: 100%;
                 width: 100%;
-                background-color: var(--b1);
+                background-color: var(--base-100);
             }
 
             sidebar {

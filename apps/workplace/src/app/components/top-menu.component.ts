@@ -120,7 +120,7 @@ import { IconComponent } from '@placeos/components';
                 margin-bottom: 0.25rem;
                 height: 3rem;
 
-                background-color: var(--b2);
+                background-color: var(--base-200);
                 opacity: 0.4;
             }
 

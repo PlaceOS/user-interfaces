@@ -67,7 +67,7 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
             }
 
             button[icon][disabled] {
-                background-color: var(--n) !important;
+                background-color: var(--neutral) !important;
             }
         `,
     ],

@@ -63,7 +63,7 @@ import { CateringReportStateService } from './catering-report-state.service';
             }
 
             [item] {
-                border: 1px solid var(--b2);
+                border: 1px solid var(--base-200);
                 border-radius: 0.5rem;
                 padding: 1rem;
                 margin: 0.5rem;

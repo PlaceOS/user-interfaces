@@ -260,7 +260,7 @@ export interface FindAvailabilityData {
             }
             [disabled='true'],
             [disabled='true'] [header] {
-                background: var(--b3) !important;
+                background: var(--base-300) !important;
                 pointer-events: none;
             }
             [disabled='true'] > * {

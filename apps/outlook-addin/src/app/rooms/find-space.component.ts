@@ -468,7 +468,7 @@ import { RoomConfirmService } from './room-confirm.service';
                 font-size: 0.875rem;
             }
             .mat-button-toggle-checked {
-                border: 1px solid var(--s);
+                border: 1px solid var(--secondary);
                 border-radius: 5px;
                 box-shadow: none;
             }

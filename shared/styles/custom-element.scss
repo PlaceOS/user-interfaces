@@ -11,8 +11,8 @@
 code {
     font-family: 'Roboto Mono', monospace;
     font-size: 0.675rem;
-    background-color: var(--in);
-    color: var(--inc);
+    background-color: var(--info);
+    color: var(--info-content);
     border-radius: 0.25rem;
     padding: 0.25rem 0.5rem;
     margin: 0 0.25rem;
@@ -160,7 +160,7 @@ code {
 mat-form-field {
     &.mdc-form-field-appearance-outline.mdc-focused {
         .mdc-form-field-outline-thick {
-            color: var(--p);
+            color: var(--primary);
         }
     }
 
@@ -203,7 +203,7 @@ mat-form-field {
     .mdc-option {
         &.mdc-selected {
             &:not(.mdc-option-disabled) {
-                color: var(--p);
+                color: var(--primary);
             }
         }
     }
@@ -218,15 +218,15 @@ mat-form-field {
 
 .mdc-snack-bar-container {
     &.success {
-        background-color: var(--su);
+        background-color: var(--success);
         color: #fff;
     }
     &.warn {
-        background-color: var(--wa);
+        background-color: var(--warn);
         color: #fff;
     }
     &.error {
-        background-color: var(--er);
+        background-color: var(--error);
         color: #fff;
     }
     &.info {
@@ -286,7 +286,7 @@ mat-form-field {
     &[overlay],
     &[overlay]:hover {
         .mdc-form-field-outline {
-            background-color: var(--n);
+            background-color: var(--neutral);
             border-radius: 4px;
         }
     }
@@ -305,18 +305,18 @@ mat-slider {
     }
 
     .mdc-slider-thumb {
-        background-color: var(--p);
+        background-color: var(--primary);
     }
 
     .mdc-slider-track-fill {
-        background-color: var(--p);
+        background-color: var(--primary);
     }
 }
 
 mat-form-field {
     &.mdc-form-field-appearance-outline.mdc-focused {
         .mdc-form-field-outline-thick {
-            color: var(--p);
+            color: var(--primary);
         }
     }
 }
@@ -343,28 +343,28 @@ mat-form-field {
 }
 
 .mdc-button-toggle-button[aria-pressed='true'] {
-    background-color: var(--p);
-    color: var(--pc);
+    background-color: var(--primary);
+    color: var(--primary-content);
 }
 
 .mdc-chip.mdc-standard-chip {
     &.mdc-primary {
-        color: var(--p);
+        color: var(--primary);
     }
     &.mdc-accent {
-        background-color: var(--wa);
+        background-color: var(--warn);
     }
 }
 
 .mdc-spinner {
     circle {
-        stroke: var(--p);
+        stroke: var(--primary);
     }
 }
 
 .mdc-progress-bar-fill {
     &::after {
-        background-color: var(--p);
+        background-color: var(--primary);
     }
 }
 
@@ -404,10 +404,10 @@ div.mdc-menu-panel {
 
 a-date-picker {
     .date.active {
-        background-color: var(--p) !important;
+        background-color: var(--primary) !important;
     }
     .dot {
-        background-color: var(--p) !important;
+        background-color: var(--primary) !important;
     }
 }
 
@@ -423,8 +423,8 @@ a-date-picker {
         transition:
             transform 200ms,
             top 200ms;
-        border-bottom: 3px solid var(--bc);
-        border-right: 3px solid var(--bc);
+        border-bottom: 3px solid var(--base-content);
+        border-right: 3px solid var(--base-content);
     }
 
     &.upside {
@@ -492,13 +492,13 @@ form {
 custom-table[asset-requests],
 custom-table[purchase-orders] {
     cdk-row {
-        background-color: var(--b1);
+        background-color: var(--base-100);
         [cdk-cell]:not(:first-child) {
-            border-left: 1px solid var(--b2);
+            border-left: 1px solid var(--base-200);
         }
     }
     cdk-header-row {
-        background: var(--b3) !important;
+        background: var(--base-300) !important;
         [cdk-header-cell] {
             background: none;
         }
@@ -532,8 +532,8 @@ custom-table[asset-view] {
 
 custom-table[header-dark] {
     cdk-header-row {
-        background: var(--n) !important;
-        color: var(--nc);
+        background: var(--neutral) !important;
+        color: var(--neutral-content);
         [cdk-header-cell] {
             background: none;
         }
@@ -542,8 +542,8 @@ custom-table[header-dark] {
 
 button[btn]:not([icon]),
 a[btn] {
-    --bg-color: var(--s);
-    --color: var(--sc);
+    --bg-color: var(--secondary);
+    --color: var(--secondary-content);
     background-color: var(--bg-color);
     border: 1px solid var(--bg-color);
     color: var(--color);
@@ -560,34 +560,34 @@ a[btn] {
     }
 
     &.clear {
-        --color: var(--bc);
+        --color: var(--base-content);
         background: none;
         border: none;
     }
 
     &.info {
-        --bg-color: var(--in);
-        --color: var(--inc);
+        --bg-color: var(--info);
+        --color: var(--info-content);
     }
 
     &.error {
-        --bg-color: var(--er);
-        --color: var(--erc);
+        --bg-color: var(--error);
+        --color: var(--error-content);
     }
 
     &.success {
-        --bg-color: var(--su);
-        --color: var(--suc);
+        --bg-color: var(--success);
+        --color: var(--success-content);
     }
 
     &.base {
-        --bg-color: var(--b1);
-        --color: var(--bc);
+        --bg-color: var(--base-100);
+        --color: var(--base-content);
     }
 
     &:not([disabled='false'])[disabled] {
-        --bg-color: var(--b4);
-        --color: var(--bc);
+        --bg-color: var(--base-400);
+        --color: var(--base-content);
         opacity: 0.3;
         pointer-events: none;
     }
@@ -658,17 +658,17 @@ a[icon] {
     }
 
     .mat-mdc-menu-panel {
-        background-color: var(--b1);
+        background-color: var(--base-100);
     }
 
     .mat-mdc-menu-item-text {
-        color: var(--bc);
+        color: var(--base-content);
     }
 
     .mat-mdc-menu-item {
-        color: var(--bc);
+        color: var(--base-content);
         &:hover {
-            background-color: var(--b2);
+            background-color: var(--base-200);
         }
     }
 
@@ -681,17 +681,17 @@ a[icon] {
     }
 
     .mdc-slider__value-indicator {
-        background-color: var(--b3);
-        color: var(--bc);
+        background-color: var(--base-300);
+        color: var(--base-content);
         opacity: 1;
 
         &::before {
-            border-top-color: var(--b3);
+            border-top-color: var(--base-300);
         }
     }
 
     .mat-mdc-tab-list {
-        border-bottom: 1px solid var(--b2);
+        border-bottom: 1px solid var(--base-200);
     }
 
     .mat-mdc-form-field-infix {
@@ -738,14 +738,14 @@ a[icon] {
     }
 
     mat-pseudo-checkbox.mdc-pseudo-checkbox-checked {
-        background: var(--p);
+        background: var(--primary);
     }
 
     mat-checkbox {
         .mdc-checkbox__background {
-            border-color: var(--n);
+            border-color: var(--neutral);
             svg {
-                color: var(--inc);
+                color: var(--info-content);
             }
         }
 
@@ -757,8 +757,8 @@ a[icon] {
         &.mat-mdc-checkbox-checked,
         &[ng-reflect-indeterminate='true'] {
             .mdc-checkbox__background {
-                border-color: var(--in);
-                background-color: var(--in);
+                border-color: var(--info);
+                background-color: var(--info);
             }
         }
     }
@@ -768,27 +768,27 @@ a[icon] {
     }
 
     .mdc-tab__text-label {
-        color: var(--bc);
+        color: var(--base-content);
     }
 
     .mdc-tab-indicator__content {
-        border-color: var(--s);
+        border-color: var(--secondary);
     }
 
     [aria-selected='true'] {
         .mdc-tab__text-label {
-            color: var(--s);
+            color: var(--secondary);
         }
     }
 
     .mat-mdc-paginator {
-        background-color: var(--b2);
-        color: var(--bc);
+        background-color: var(--base-200);
+        color: var(--base-content);
 
         .mat-mdc-button-base * {
-            color: var(--bc);
-            border-color: var(--bc);
-            fill: var(--bc);
+            color: var(--base-content);
+            border-color: var(--base-content);
+            fill: var(--base-content);
         }
     }
 
@@ -797,17 +797,17 @@ a[icon] {
     }
 
     .mdc-ink-bar {
-        background-color: var(--p);
+        background-color: var(--primary);
     }
 
     mat-chip {
         &[color='internal'] {
-            color: var(--pc);
-            background-color: var(--p);
+            color: var(--primary-content);
+            background-color: var(--primary);
         }
         &[color='external'] {
-            color: var(--wac);
-            background-color: var(--wa);
+            color: var(--warn-content);
+            background-color: var(--warn);
         }
     }
 
@@ -855,45 +855,45 @@ a[icon] {
     }
 
     .mdc-datepicker-toggle button {
-        color: var(--bc);
+        color: var(--base-content);
     }
 
     nav {
         .mdc-tab-links {
-            background-color: var(--b2);
+            background-color: var(--base-200);
         }
         .mdc-tab-link {
-            color: var(--bc);
+            color: var(--base-content);
         }
     }
 
     .mdc-select-value-text,
     .mdc-select-arrow {
-        color: var(--b1);
+        color: var(--base-100);
     }
 
     .mdc-form-field-outline > div {
-        color: var(--b2);
+        color: var(--base-200);
     }
 
     .mdc-form-field {
         ::placeholder,
         .mdc-select-placeholder {
-            color: var(--b2);
+            color: var(--base-200);
         }
     }
 
     button.mdc-button,
     a[button] {
-        color: var(--bc);
+        color: var(--base-content);
 
         &.inverse {
             background: none;
-            --color: var(--b1);
+            --color: var(--base-100);
         }
 
         &.error {
-            --color: var(--er);
+            --color: var(--error);
         }
 
         &[disabled] {
@@ -910,56 +910,56 @@ a[icon] {
     }
 
     .mdc-menu-surface {
-        background-color: var(--b1);
+        background-color: var(--base-100);
 
         .mdc-list-item__primary-text {
-            color: var(--bc);
+            color: var(--base-content);
         }
 
         .mdc-list-item--selected {
             .mdc-list-item__primary-text {
-                color: var(--s);
+                color: var(--secondary);
             }
         }
     }
 
     mat-pseudo-checkbox {
-        color: var(--bc);
-        border-color: var(--n);
+        color: var(--base-content);
+        border-color: var(--neutral);
         &::after {
-            color: var(--bc);
+            color: var(--base-content);
         }
 
         &.mat-pseudo-checkbox-checked {
-            border-color: var(--s);
-            background-color: var(--s);
-            color: var(--sc);
+            border-color: var(--secondary);
+            background-color: var(--secondary);
+            color: var(--secondary-content);
         }
     }
 
     .mdc-menu-item {
-        color: var(--bc);
+        color: var(--base-content);
         &:hover {
-            background-color: var(--b3);
+            background-color: var(--base-300);
         }
 
         mat-pseudo-checkbox {
-            color: var(--s);
+            color: var(--secondary);
             background-color: none;
             border-color: none;
             &::after {
-                color: var(--s);
+                color: var(--secondary);
             }
         }
     }
 
     .mat-mdc-option {
         mat-pseudo-checkbox {
-            color: var(--s);
+            color: var(--secondary);
             background-color: #0000;
             border-color: #0000;
             &::after {
-                color: var(--s);
+                color: var(--secondary);
             }
         }
     }
@@ -969,24 +969,24 @@ a[icon] {
         cdk-row {
             background: none;
             [cdk-cell]:not(:first-child) {
-                border-left: 1px solid var(--b2);
+                border-left: 1px solid var(--base-200);
             }
         }
     }
     mat-dialog-container,
     .mdc-dialog__surface {
-        background-color: var(--b1);
-        color: var(--bc);
+        background-color: var(--base-100);
+        color: var(--base-content);
         border-radius: 0.25rem;
     }
 
     .mdc-label {
-        color: var(--bc);
+        color: var(--base-content);
     }
 
     mat-bottom-sheet-container {
-        background-color: var(--b1);
-        color: var(--bc);
+        background-color: var(--base-100);
+        color: var(--base-content);
     }
 
     .mdc-paginator {
@@ -996,61 +996,61 @@ a[icon] {
 
     mat-spinner {
         svg {
-            stroke: var(--s);
+            stroke: var(--secondary);
         }
     }
 
     .mdc-radio-outer-circle,
     .mdc-radio__outer-circle {
-        border-color: var(--b3);
+        border-color: var(--base-300);
     }
 
     .mdc-radio-checked,
     .mat-mdc-radio-checked {
         .mdc-radio-outer-circle,
         .mdc-radio__outer-circle {
-            border-color: var(--s);
+            border-color: var(--secondary);
         }
         .mdc-radio-inner-circle,
         .mdc-radio__inner-circle {
-            border-color: var(--s);
+            border-color: var(--secondary);
         }
     }
 
     .mat-mdc-select-value,
     .mat-mdc-select-arrow {
-        color: var(--bc);
+        color: var(--base-content);
     }
 
     .inverse {
         .mat-mdc-select-value,
         .mat-mdc-select-arrow {
-            color: var(--b1);
+            color: var(--base-100);
         }
     }
 
     .mdc-notched-outline__leading,
     .mdc-notched-outline__trailing {
-        border-color: var(--n);
+        border-color: var(--neutral);
     }
 
     .mdc-text-field__input {
-        color: var(--bc);
+        color: var(--base-content);
     }
 
     .mdc-text-field--focused {
         .mdc-notched-outline__leading,
         .mdc-notched-outline__trailing {
-            border-color: var(--s);
+            border-color: var(--secondary);
         }
     }
 
     .mdc-autocomplete-panel {
-        background-color: var(--n);
+        background-color: var(--neutral);
     }
 
     .mdc-ink-bar {
-        background-color: var(--bc);
+        background-color: var(--base-content);
     }
 
     .mdc-menu-panel,
@@ -1088,28 +1088,28 @@ a[icon] {
         }
         &.success {
             .mdc-snackbar__surface {
-                background-color: var(--su);
-                color: var(--suc);
+                background-color: var(--success);
+                color: var(--success-content);
             }
         }
         &.info {
             .mdc-snackbar__surface {
-                background-color: var(--in);
-                color: var(--inc);
+                background-color: var(--info);
+                color: var(--info-content);
             }
         }
         &.error {
             .mdc-snackbar__surface {
-                background-color: var(--er);
-                color: var(--erc);
+                background-color: var(--error);
+                color: var(--error-content);
             }
         }
         &.warning,
         &.warn,
         &.pending {
             .mdc-snackbar__surface {
-                background-color: var(--wa);
-                color: var(--wac);
+                background-color: var(--warn);
+                color: var(--warn-content);
             }
         }
     }
@@ -1145,7 +1145,7 @@ mat-list-option.mdc-list-item--selected {
 }
 
 .ct-label {
-    color: var(--bc);
+    color: var(--base-content);
 }
 
 .progress-bar {
@@ -1192,7 +1192,7 @@ survey-widget *::-webkit-scrollbar-thumb {
 
 [event-details] {
     a {
-        color: var(--in);
+        color: var(--info);
         text-decoration: underline;
     }
 }

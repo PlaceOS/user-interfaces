@@ -123,7 +123,7 @@ import { SurveyService } from './survey.service';
                 height: 100%;
                 width: 100%;
                 overflow: auto;
-                background-color: var(--b1);
+                background-color: var(--base-100);
             }
         `,
     ],

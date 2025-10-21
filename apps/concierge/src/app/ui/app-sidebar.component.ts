@@ -82,12 +82,12 @@ import { debounceTime, filter } from 'rxjs/operators';
             }
 
             a.active {
-                background-color: var(--s);
-                color: var(--sc);
+                background-color: var(--secondary);
+                color: var(--secondary-content);
             }
 
             a.active:hover {
-                color: var(--bc);
+                color: var(--base-content);
                 opacity: 0.75;
             }
         `,

@@ -234,7 +234,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
     styles: [
         `
             a.active icon {
-                color: var(--s) !important;
+                color: var(--secondary) !important;
             }
 
             a.active {

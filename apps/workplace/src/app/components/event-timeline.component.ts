@@ -328,8 +328,8 @@ interface ITimelineBlock {
                     left: 0;
                     right: 0;
                     border: none;
-                    border-top: 2px solid var(--s);
-                    border-bottom: 2px solid var(--s);
+                    border-top: 2px solid var(--secondary);
+                    border-bottom: 2px solid var(--secondary);
                     pointer-events: auto;
 
                     .knob {
@@ -355,7 +355,7 @@ interface ITimelineBlock {
                     right: 0;
                     width: auto;
                     height: 2px;
-                    background-color: var(--s);
+                    background-color: var(--secondary);
                 }
             }
 
@@ -376,7 +376,7 @@ interface ITimelineBlock {
                 top: 0;
                 left: 0;
                 bottom: 0;
-                background-color: rgba(var(--s), 0.54);
+                background-color: rgba(var(--secondary), 0.54);
                 border: 1px solid rgba(#fff, 0.87);
             }
 
@@ -396,9 +396,9 @@ interface ITimelineBlock {
                 position: absolute;
                 top: 0;
                 bottom: 0;
-                background-color: rgba(var(--s), 0.2);
-                border-left: 2px solid var(--s);
-                border-right: 2px solid var(--s);
+                background-color: rgba(var(--secondary), 0.2);
+                border-left: 2px solid var(--secondary);
+                border-right: 2px solid var(--secondary);
                 pointer-events: auto;
 
                 .inner {
@@ -414,7 +414,7 @@ interface ITimelineBlock {
                     height: 12px;
                     width: 12px;
                     border-radius: 100%;
-                    background-color: var(--s);
+                    background-color: var(--secondary);
                     transform: translateX(calc(-50% - 1px));
                     box-shadow:
                         0 1px 3px 0 rgba(0, 0, 0, 0.2),

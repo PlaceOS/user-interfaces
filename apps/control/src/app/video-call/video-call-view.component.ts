@@ -55,7 +55,7 @@ import { VideoCallPageComponent } from './video-call-page.component';
     styles: [
         `
             :host > div {
-                background-color: var(--p);
+                background-color: var(--primary);
                 color: #fff;
             }
 

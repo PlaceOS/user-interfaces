@@ -115,7 +115,7 @@ import { SpaceTimetableComponent } from './space-timetable.component';
                 height: 0;
                 border-top: 0.6rem solid transparent;
                 border-bottom: 0.6rem solid transparent;
-                border-left: 0.75rem solid var(--s);
+                border-left: 0.75rem solid var(--secondary);
             }
         `,
     ],

@@ -111,7 +111,7 @@ import { combineLatest } from 'rxjs';
             }
 
             button[icon][disabled] {
-                background-color: var(--n) !important;
+                background-color: var(--neutral) !important;
             }
 
             mat-slide-toggle div {

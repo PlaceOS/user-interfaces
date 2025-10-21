@@ -106,7 +106,7 @@ import { ExploreSearchService, SearchResult } from './explore-search.service';
                 height: 3rem;
                 width: 0;
                 border-radius: 1.5rem;
-                border: 1px solid var(--b3);
+                border: 1px solid var(--base-300);
                 transition: width 200ms opacity 200ms;
                 opacity: 0;
                 pointer-events: none;

@@ -28,7 +28,7 @@ import { ReportsMenuComponent } from './reports-menu.component';
                 flex-direction: column;
                 height: 100%;
                 width: 100%;
-                background-color: var(--b1);
+                background-color: var(--base-100);
             }
 
             main > *:not(router-outlet) {

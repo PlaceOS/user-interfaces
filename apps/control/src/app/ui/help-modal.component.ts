@@ -88,8 +88,8 @@ import { debounceTime, map } from 'rxjs/operators';
     styles: [
         `
             li.active {
-                background-color: var(--b1);
-                color: var(--bc);
+                background-color: var(--base-100);
+                color: var(--base-content);
                 overflow: visible !important;
             }
         `,

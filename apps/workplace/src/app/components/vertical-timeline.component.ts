@@ -164,8 +164,8 @@ import { ITimelineEventGroup } from './event-timeline.component';
                 top: 0;
                 left: 0;
                 right: 0;
-                border: 2px solid var(--s);
-                background-color: var(--s);
+                border: 2px solid var(--secondary);
+                background-color: var(--secondary);
                 color: #fff;
                 z-index: 100;
                 touch-action: none;
@@ -184,7 +184,7 @@ import { ITimelineEventGroup } from './event-timeline.component';
                     height: 1em;
                     width: 1em;
                     border-radius: 100%;
-                    background-color: var(--s);
+                    background-color: var(--secondary);
                     box-shadow:
                         0 1px 3px 0 rgba(#000, 0.2),
                         0 1px 1px 0 rgba(#000, 0.14),

@@ -251,8 +251,8 @@ export interface CateringOrderModalData {
 
             input:focus {
                 border: none;
-                border-top: 2px solid var(--s);
-                border-bottom: 2px solid var(--s);
+                border-top: 2px solid var(--secondary);
+                border-bottom: 2px solid var(--secondary);
                 box-shadow: none;
             }
 

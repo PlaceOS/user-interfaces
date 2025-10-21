@@ -29,12 +29,12 @@ import { first } from 'rxjs/operators';
     styles: [
         `
             .active {
-                background: var(--s) !important;
+                background: var(--secondary) !important;
                 color: #fff !important;
             }
 
             button:not(:first-child) {
-                border-top: 1px solid var(--b3) !important;
+                border-top: 1px solid var(--base-300) !important;
             }
         `,
     ],

@@ -68,7 +68,7 @@ import { QuestionType } from './types';
                                             cx: size / 2 + 'px',
                                             cy: size / 2 + 'px',
                                             r: (size - border_width) / 2 + 'px',
-                                            stroke: 'var(--b2)',
+                                            stroke: 'var(--base-200)',
                                             'stroke-width': border_width + 'px',
                                             'stroke-dasharray': circle() + 'px',
                                         }"
@@ -81,12 +81,12 @@ import { QuestionType } from './types';
                                             r: (size - border_width) / 2 + 'px',
                                             stroke:
                                                 percent <= 0.25
-                                                    ? 'var(--er)'
+                                                    ? 'var(--error)'
                                                     : percent <= 0.5
-                                                      ? 'var(--wa)'
+                                                      ? 'var(--warn)'
                                                       : percent <= 0.75
-                                                        ? 'var(--in)'
-                                                        : 'var(--su)',
+                                                        ? 'var(--info)'
+                                                        : 'var(--success)',
                                             'stroke-width': border_width + 'px',
                                             'stroke-dasharray': circle() + 'px',
                                             'stroke-dashoffset':
@@ -125,12 +125,12 @@ import { QuestionType } from './types';
                                                 width: (percent || 0) + '%',
                                                 'background-color':
                                                     percent <= 25
-                                                        ? 'var(--er)'
+                                                        ? 'var(--error)'
                                                         : percent <= 50
-                                                          ? 'var(--wa)'
+                                                          ? 'var(--warn)'
                                                           : percent <= 75
-                                                            ? 'var(--in)'
-                                                            : 'var(--su)',
+                                                            ? 'var(--info)'
+                                                            : 'var(--success)',
                                             }"
                                         ></div>
                                     </div>

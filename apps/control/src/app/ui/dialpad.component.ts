@@ -38,8 +38,8 @@ import { TranslatePipe } from '@placeos/components';
     styles: [
         `
             [digit] {
-                box-shadow: 0px 4px 0px 0px var(--b3);
-                border: 2px solid var(--b3);
+                box-shadow: 0px 4px 0px 0px var(--base-300);
+                border: 2px solid var(--base-300);
                 transition:
                     top 200ms,
                     bottom 200ms,
