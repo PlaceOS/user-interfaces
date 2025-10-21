@@ -585,6 +585,11 @@ a[btn] {
         --color: var(--base-content);
     }
 
+    &.white {
+        --bg-color: #fff;
+        --color: #000;
+    }
+
     &:not([disabled='false'])[disabled] {
         --bg-color: var(--base-400);
         --color: var(--base-content);

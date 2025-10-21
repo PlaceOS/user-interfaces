@@ -19,11 +19,8 @@ import { PanelStateService } from '../panel-state.service';
             }
             <div class="absolute inset-0 bg-black opacity-50"></div>
             <div name class="absolute left-4 top-4 text-4xl font-medium">
-                {{
-                    (system | async)?.display_name ||
-                        (system | async)?.name ||
-                        '&lt;Unknown Space&gt;'
-                }}
+                @let sys = system | async;
+                {{ sys?.display_name || sys?.name || '' }}
             </div>
             @if (checkin) {
                 <div
