@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { OrganisationService } from '@placeos/common';
+import { OrganisationService, randomInt } from '@placeos/common';
 import {
     connectionState,
     getModule,
@@ -160,7 +160,14 @@ export class PanelStateService extends AsyncHandler {
                         [status, message],
                         'error',
                     );
-                    status === 404 ? this._router.navigate(['/bootstrap']) : '';
+                    if (status === 404) this._router.navigate(['/bootstrap']);
+                    else {
+                        this.timeout(
+                            'reload_system',
+                            () => this._system.next(id),
+                            2000 + randomInt(3000),
+                        );
+                    }
                     return of(new PlaceSystem());
                 }),
             ),
