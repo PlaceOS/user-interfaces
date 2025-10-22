@@ -43,14 +43,7 @@ export type StatusValue = 'success' | 'warning' | 'error' | 'info' | 'neutral';
                     }
                 </icon>
             </div>
-            <div
-                [class.text-success-content]="status() === 'success'"
-                [class.text-warning-content]="status() === 'warning'"
-                [class.text-error-content]="status() === 'error'"
-                [class.text-info-content]="status() === 'info'"
-                [class.text-base-content]="status() === 'neutral'"
-                [class.opacity-40]="status() === 'neutral'"
-            >
+            <div [class.opacity-40]="status() === 'neutral'">
                 <ng-content></ng-content>
             </div>
         </div>
