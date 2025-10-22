@@ -4,7 +4,7 @@
     /* Brand */
     --brand-100: hsl(336, 57%, 48%); /* #C52B67 */
     --brand-200: hsla(217, 91%, 60%, 1); /* #C52B67 */
-    --brand-300: hsl(336, 57%, 48%); /* #C52B67 */
+    --brand-300: rgb(223, 249, 255); /* #C52B67 */
     --brand-400: hsl(336, 57%, 48%); /* #C52B67 */
     --brand-500: hsl(336, 57%, 48%); /* #C52B67 */
     --brand-600: hsl(336, 57%, 48%); /* #C52B67 */
@@ -44,7 +44,7 @@
 
     /* Info */
     --info: hsla(217, 91%, 60%, 1); /* Light Blue */
-    --info-light: hsla(217, 100%, 80%, 0.5); /* Light Blue */
+    --info-light: rgb(227, 242, 253); /* Light Blue */
     --info-content: hsla(
         214,
         100%,
@@ -54,17 +54,12 @@
 
     /* Warning */
     --warn: hsla(45, 100%, 64%, 1); /* Yellow */
-    --warn-light: hsla(
-        48,
-        100%,
-        96%,
-        1
-    ); /* Yellow */
+    --warn-light: rgb(255, 253, 231); /* Yellow */
     --warn-content: hsl(0, 0%, 0%); /* Black content on yellow background */
 
     /* Success */
     --success: hsla(118, 50%, 43%, 1); /* Light Green */
-    --success-light: hsla(118, 50%, 43%, 0.5); /* Light Green */
+    --success-light: rgb(232, 245, 233); /* Light Green */
     --success-content: hsla(
         152,
         81%,
@@ -74,12 +69,7 @@
 
     /* Error */
     --error: hsla(354, 75%, 53%, 1); /* Red */
-    --error-light: hsla(
-        356,
-        100%,
-        97%,
-        1
-    ); /* Red */
+    --error-light: rgb(255, 235, 238); /* Red */
     --error-content: hsl(0, 0%, 100%); /* White content on red background */
 }
 
@@ -87,7 +77,7 @@
     /* Brand */
     --brand-100: hsl(336, 57%, 48%); /* #C52B67 */
     --brand-200: hsla(217, 91%, 60%, 1); /* #C52B67 */
-    --brand-300: hsl(336, 57%, 48%); /* #C52B67 */
+    --brand-300: rgba(0, 139, 213, 0.74); /* #C52B67 */
     --brand-400: hsl(336, 57%, 48%); /* #C52B67 */
     --brand-500: hsl(336, 57%, 48%); /* #C52B67 */
     --brand-600: hsl(336, 57%, 48%); /* #C52B67 */
