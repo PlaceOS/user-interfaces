@@ -27,7 +27,7 @@ import { EventsStateService } from './events-state.service';
     selector: 'room-bookings-approvals',
     template: `
         <div
-            class="flex h-full w-[20rem] flex-col overflow-hidden border-l border-base-200"
+            class="flex h-full w-[20rem] flex-col overflow-hidden border-l border-base-300"
             [style.width]="show() ? '' : '0px'"
         >
             <div
@@ -73,7 +73,7 @@ import { EventsStateService } from './events-state.service';
                     search
                 </icon>
             </div>
-            <div class="flex-1 space-y-2 overflow-auto bg-base-200 p-3">
+            <div class="flex-1 space-y-1 overflow-auto bg-base-200 p-1">
                 @if (!(filtered_pending | async)?.length) {
                     <div
                         class="flex h-full w-full flex-col items-center justify-center space-y-2"
@@ -163,7 +163,7 @@ import { EventsStateService } from './events-state.service';
                             <button
                                 btn
                                 matRipple
-                                class="flex min-w-0 flex-1 items-center space-x-2 border-success bg-success-light text-black"
+                                class="flex min-w-0 flex-1 items-center space-x-1 border-success bg-success-light text-black"
                                 [disabled]="status()[event.id] === 'accept'"
                                 (click)="approve(event)"
                             >
@@ -180,7 +180,7 @@ import { EventsStateService } from './events-state.service';
                             <button
                                 btn
                                 matRipple
-                                class="flex min-w-0 flex-1 items-center space-x-2 border-error bg-error-light text-black"
+                                class="flex min-w-0 flex-1 items-center space-x-1 border-error bg-error-light text-black"
                                 [disabled]="status()[event.id] === 'decline'"
                                 (click)="reject(event)"
                             >

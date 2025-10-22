@@ -100,7 +100,7 @@ const EMPTY = [];
                         class="flex max-w-[32rem] flex-1 items-center rounded-full border border-base-300"
                     >
                         <div
-                            class="flex w-px flex-1 items-center space-x-1 overflow-x-auto rounded-full px-1"
+                            class="flex w-px flex-1 items-center space-x-1 overflow-x-auto rounded-l-full px-1"
                         >
                             @for (type of types; track type.id) {
                                 @if (!type_list.includes(type.id)) {
