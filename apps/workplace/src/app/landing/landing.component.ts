@@ -81,7 +81,7 @@ import { LandingUpcomingComponent } from './landing-upcoming.component';
             }
             <div class="z-0 h-full w-1/2 flex-1 overflow-auto sm:px-4">
                 <header
-                    class="sticky top-0 z-50 mb-4 flex items-center justify-between overflow-hidden bg-ternary px-4 sm:rounded-b"
+                    class="sticky top-0 z-50 mb-4 flex items-center justify-between overflow-hidden bg-brand-300 px-4 shadow sm:rounded-b"
                 >
                     <div class="">
                         <div class="font-medium sm:text-xl">
