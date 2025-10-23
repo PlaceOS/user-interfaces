@@ -386,6 +386,7 @@ export class RoomBookingsApprovalsComponent implements OnInit {
                 30 * 1000,
             )
             .catch();
+        await mod.execute('find_bookings_for_approval').catch();
         this.loading.set(false);
         this.status.update((s) => {
             s[event.id] = 'accept';
@@ -416,6 +417,7 @@ export class RoomBookingsApprovalsComponent implements OnInit {
                 30 * 1000,
             )
             .catch();
+        await mod.execute('find_bookings_for_approval').catch();
         this.loading.set(false);
         this.status.update((s) => {
             s[event.id] = 'decline';
