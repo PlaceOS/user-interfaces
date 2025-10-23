@@ -380,10 +380,11 @@ export class RoomBookingsApprovalsComponent implements OnInit {
         if (!mod) return;
         this.loading.set(true);
         await mod
-            .execute('accept_recurring_event', [
-                event.mailbox,
-                event.recurring_event_id || event.id,
-            ])
+            .execute(
+                'accept_recurring_event',
+                [event.mailbox, event.recurring_event_id || event.id],
+                30 * 1000,
+            )
             .catch();
         this.loading.set(false);
         this.status.update((s) => {
@@ -409,10 +410,11 @@ export class RoomBookingsApprovalsComponent implements OnInit {
         if (!mod) return;
         this.loading.set(true);
         await mod
-            .execute('decline_recurring_event', [
-                event.mailbox,
-                event.recurring_event_id || event.id,
-            ])
+            .execute(
+                'decline_recurring_event',
+                [event.mailbox, event.recurring_event_id || event.id],
+                30 * 1000,
+            )
             .catch();
         this.loading.set(false);
         this.status.update((s) => {
