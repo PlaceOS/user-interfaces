@@ -132,7 +132,7 @@ const EMPTY = [];
                                 />
                             </mat-chip-grid>
                         </mat-form-field>
-                        <div class="flex items-center space-x-4 py-4">
+                        <div class="flex items-center space-x-2 py-4">
                             <settings-toggle
                                 class="flex-1"
                                 [name]="
@@ -141,22 +141,24 @@ const EMPTY = [];
                                 formControlName="featured"
                             >
                             </settings-toggle>
-                            <settings-toggle
-                                class="flex-1"
-                                [name]="
-                                    'APP.CONCIERGE.EVENTS_PUBLISH' | translate
-                                "
-                                [ngModel]="form.value.view_access === 'OPEN'"
-                                [ngModelOptions]="{ standalone: true }"
-                                (ngModelChange)="
-                                    form.patchValue({
-                                        view_access: $event
-                                            ? 'OPEN'
-                                            : 'PRIVATE',
-                                    })
-                                "
+                            <mat-form-field
+                                appearance="outline"
+                                class="no-subscript"
                             >
-                            </settings-toggle>
+                                <mat-select formControlName="view_access">
+                                    <mat-option value="PRIVATE">{{
+                                        'APP.CONCIERGE.EVENTS_DRAFT' | translate
+                                    }}</mat-option>
+                                    <mat-option value="OPEN">{{
+                                        'APP.CONCIERGE.EVENTS_PUBLISH'
+                                            | translate
+                                    }}</mat-option>
+                                    <mat-option value="PUBLIC">{{
+                                        'APP.CONCIERGE.EVENTS_PUBLISH_PUBLIC'
+                                            | translate
+                                    }}</mat-option>
+                                </mat-select>
+                            </mat-form-field>
                         </div>
                         <!-- END BASIC DETAILS -->
                         <div class="h-px w-full bg-base-200"></div>
@@ -574,6 +576,8 @@ export class EventManageComponent extends AsyncHandler implements OnInit {
             attendance_type: 'ONSITE',
             shared_event: true,
         });
+        if (!this.form.value.view_access)
+            this.form.patchValue({ view_access: 'OPEN' });
         this.subscription(
             'route.params',
             this._route.paramMap.subscribe(async (params) => {

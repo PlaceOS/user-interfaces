@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { AsyncHandler, generateQRCode, SettingsService } from '@placeos/common';
 import {
     CustomTooltipComponent,
@@ -178,6 +179,7 @@ interface QR_Codes {
         PrintableComponent,
         LevelPipe,
         CustomTooltipComponent,
+        MatTooltipModule,
         SafePipe,
     ],
 })
@@ -207,7 +209,7 @@ export class POIListComponent extends AsyncHandler implements OnInit {
                 for (const item of l) {
                     if (this.qr_codes()[item.id]) continue;
                     const qr_private = await this.loadQrCode(item);
-                    const qr_public = await this.loadQrCode(item);
+                    const qr_public = await this.loadPublicQrCode(item);
                     this.qr_codes.update((m) => {
                         m[item.id] = {
                             private: qr_private,

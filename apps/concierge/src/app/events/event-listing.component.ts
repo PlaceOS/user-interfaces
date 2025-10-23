@@ -198,7 +198,7 @@ import { EventStateService } from './event-state.service';
         </ng-template>
         <ng-template #published_template let-data="data">
             <div
-                *ngIf="data === 'OPEN' || data === 'open'"
+                *ngIf="data !== 'PRIVATE' && data !== 'private'"
                 class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-success text-2xl text-success-content"
             >
                 <icon>done</icon>
