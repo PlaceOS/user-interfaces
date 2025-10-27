@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
+import {
+    Component,
+    computed,
+    inject,
+    model,
+    OnInit,
+    signal,
+} from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import {
     MAT_DIALOG_DATA,
@@ -12,12 +19,12 @@ import {
     Building,
     BuildingLevel,
     CalendarEvent,
+    currentUser,
     GuestUser,
+    notifyInfo,
     OrganisationService,
     SettingsService,
     Space,
-    currentUser,
-    notifyInfo,
     unique,
 } from '@placeos/common';
 import { MapLocateModalComponent, MapPinComponent } from '@placeos/components';
@@ -46,16 +53,16 @@ import {
             <div
                 class="relative flex h-52 w-full items-center justify-between overflow-hidden bg-base-200"
             >
-                @if (event.extension_data?.images?.length) {
+                @if (event().extension_data?.images?.length) {
                     <img
                         auth
-                        [source]="event.extension_data?.images[0]"
+                        [source]="event().extension_data?.images[0]"
                         class="absolute left-1/2 top-1/2 min-h-full min-w-full -translate-x-1/2 -translate-y-1/2 object-cover"
                     />
                 }
             </div>
 
-            @if (featured) {
+            @if (featured()) {
                 <div
                     class="absolute left-0 top-0 flex items-center space-x-2 rounded-br bg-info py-2 pl-2 pr-4 text-sm text-info-content"
                 >
@@ -65,36 +72,40 @@ import {
                     </div>
                 </div>
             }
-            <button
-                icon
-                mat-dialog-close
-                class="absolute right-1 top-1 overflow-hidden"
-            >
-                <div class="absolute inset-0 z-0 bg-base-100 opacity-30"></div>
-                <icon class="z-10">close</icon>
-            </button>
+            @if (!is_limited()) {
+                <button
+                    icon
+                    mat-dialog-close
+                    class="absolute right-1 top-1 overflow-hidden"
+                >
+                    <div
+                        class="absolute inset-0 z-0 bg-base-100 opacity-30"
+                    ></div>
+                    <icon class="z-10">close</icon>
+                </button>
+            }
             <div
                 class="flex items-center justify-between border-b border-base-200 px-8 py-4"
             >
                 <h3 class="text-left text-xl">
-                    {{ event.title }}
+                    {{ event().title }}
                 </h3>
                 <div class="flex items-center space-x-2">
-                    @if (!concierge) {
+                    @if (!concierge()) {
                         <div
                             btn
                             class="flex h-10 items-center space-x-2 rounded px-4"
-                            [class.bg-base-200]="!is_interested"
-                            [class.text-base-content]="!is_interested"
-                            [class.opacity-30]="!is_interested"
-                            [class.bg-success]="is_interested"
-                            [class.text-success-content]="is_interested"
-                            [class.opacity-100]="is_interested"
+                            [class.bg-base-200]="!is_interested()"
+                            [class.text-base-content]="!is_interested()"
+                            [class.opacity-30]="!is_interested()"
+                            [class.bg-success]="is_interested()"
+                            [class.text-success-content]="is_interested()"
+                            [class.opacity-100]="is_interested()"
                         >
                             <icon>star</icon>
                             <div class="pr-2">
                                 {{
-                                    (is_interested
+                                    (is_interested()
                                         ? 'CALENDAR_EVENT.GROUP_INTERESTED'
                                         : 'CALENDAR_EVENT.GROUP_NOT_INTERESTED'
                                     ) | translate
@@ -104,17 +115,17 @@ import {
                         <div
                             btn
                             class="flex h-10 items-center space-x-2 rounded px-4"
-                            [class.bg-base-200]="!is_going"
-                            [class.text-base-content]="!is_going"
-                            [class.opacity-30]="!is_going"
-                            [class.bg-success]="is_going"
-                            [class.text-success-content]="is_going"
-                            [class.opacity-100]="is_going"
+                            [class.bg-base-200]="!is_going()"
+                            [class.text-base-content]="!is_going()"
+                            [class.opacity-30]="!is_going()"
+                            [class.bg-success]="is_going()"
+                            [class.text-success-content]="is_going()"
+                            [class.opacity-100]="is_going()"
                         >
                             <icon>help</icon>
                             <div class="pr-2">
                                 {{
-                                    (is_going
+                                    (is_going()
                                         ? 'CALENDAR_EVENT.GROUP_GOING'
                                         : 'CALENDAR_EVENT.GROUP_NOT_GOING'
                                     ) | translate
@@ -126,8 +137,10 @@ import {
                         btn
                         matRipple
                         class="clear w-[2.75rem] bg-base-200 text-base-content"
-                        [disabled]="event.state === 'done'"
-                        [matMenuTriggerFor]="concierge ? concierge_menu : menu"
+                        [disabled]="event().state === 'done'"
+                        [matMenuTriggerFor]="
+                            concierge() ? concierge_menu : menu
+                        "
                     >
                         <icon class="text-2xl">more_horiz</icon>
                     </button>
@@ -147,7 +160,7 @@ import {
                         </button>
                         <button
                             mat-menu-item
-                            (click)="edit ? edit(event) : ''"
+                            (click)="edit ? edit(event()) : ''"
                             mat-dialog-close
                         >
                             <div class="flex items-center space-x-2">
@@ -172,7 +185,7 @@ import {
                         </button>
                         <button
                             mat-menu-item
-                            (click)="remove ? remove(event, false) : ''"
+                            (click)="remove ? remove(event(), false) : ''"
                         >
                             <div class="flex items-center space-x-2">
                                 <icon class="text-2xl text-error">
@@ -194,12 +207,12 @@ import {
                             (click)="toggleInterest()"
                         >
                             <div class="flex items-center space-x-2">
-                                <icon [class.text-error]="is_interested">
+                                <icon [class.text-error]="is_interested()">
                                     star
                                 </icon>
                                 <span>
                                     {{
-                                        (is_interested
+                                        (is_interested()
                                             ? 'CALENDAR_EVENT.GROUP_INTEREST_REMOVE'
                                             : 'CALENDAR_EVENT.GROUP_INTEREST_ADD'
                                         ) | translate
@@ -209,12 +222,12 @@ import {
                         </button>
                         <button mat-menu-item (click)="toggleAttendance()">
                             <div class="flex items-center space-x-2">
-                                <icon [class.text-error]="is_going">
+                                <icon [class.text-error]="is_going()">
                                     help
                                 </icon>
                                 <span>
                                     {{
-                                        (is_going
+                                        (is_going()
                                             ? 'CALENDAR_EVENT.GROUP_GOING_REMOVE'
                                             : 'CALENDAR_EVENT.GROUP_GOING_ADD'
                                         ) | translate
@@ -241,8 +254,8 @@ import {
                                     | translate
                                         : {
                                               name:
-                                                  event.organiser?.name ||
-                                                  event.host,
+                                                  event().organiser?.name ||
+                                                  event().host,
                                           }
                             }}
                         </div>
@@ -263,10 +276,10 @@ import {
                                 }}
                             </div>
                             <div class="text-sm opacity-30">
-                                {{ event.date | date: 'EEEE, d MMMM, yyyy' }}
-                                . {{ event.date | date: time_format }} -
+                                {{ event().date | date: 'EEEE, d MMMM, yyyy' }}
+                                . {{ event().date | date: time_format }} -
                                 {{
-                                    event.date + event.duration * 60 * 1000
+                                    event().date + event().duration * 60 * 1000
                                         | date: time_format
                                 }}
                             </div>
@@ -279,15 +292,12 @@ import {
                             <icon>place</icon>
                         </div>
                         <div class="flex flex-col text-sm">
-                            @if (is_onsite && has_space) {
+                            @if (is_onsite() && has_space()) {
                                 <div>
-                                    {{
-                                        (system_id | space | async)
-                                            ?.display_name
-                                    }}
+                                    {{ space().display_name }}
                                 </div>
                             }
-                            @if (is_onsite && !has_space) {
+                            @if (is_onsite() && !has_space()) {
                                 <div class="opacity-30">
                                     {{
                                         'CALENDAR_EVENT.GROUP_UNCONFIRMED'
@@ -295,10 +305,10 @@ import {
                                     }}
                                 </div>
                             }
-                            @if (is_online) {
+                            @if (is_online()) {
                                 <div class="opacity-30">
                                     {{
-                                        (is_onsite
+                                        (is_onsite()
                                             ? 'CALENDAR_EVENT.GROUP_BOTH_LOCATIONS'
                                             : 'CALENDAR_EVENT.GROUP_REMOTE'
                                         ) | translate
@@ -309,7 +319,7 @@ import {
                     </div>
                     <button
                         matRipple
-                        (click)="show_attendees = true"
+                        (click)="show_attendees.set(!is_limited() && true)"
                         class="flex min-h-12 items-center space-x-4 rounded"
                     >
                         <div
@@ -322,8 +332,8 @@ import {
                                 'CALENDAR_EVENT.GROUP_ATTENDEES'
                                     | translate
                                         : {
-                                              going: attendance,
-                                              interested: attendees,
+                                              going: attendance(),
+                                              interested: attendees(),
                                           }
                             }}
                         </div>
@@ -334,7 +344,7 @@ import {
                     <div class="pb-4 text-sm">
                         <span
                             event-details
-                            [innerHTML]="body | sanitize"
+                            [innerHTML]="body() | sanitize"
                         ></span>
                         @if (!raw_description()) {
                             <span class="opacity-30">
@@ -347,7 +357,7 @@ import {
                     </div>
                 </div>
                 <div>
-                    @if (level) {
+                    @if (level()) {
                         <div class="flex w-[20rem]">
                             <div class="w-full border border-base-300">
                                 <button
@@ -355,24 +365,21 @@ import {
                                     class="relative h-40 w-full bg-base-200"
                                     (click)="viewLocation()"
                                 >
-                                    @if (!showing_map) {
+                                    @if (!showing_map()) {
                                         <interactive-map
-                                            [src]="level?.map_id"
-                                            [features]="features"
-                                            [styles]="styles"
+                                            [src]="level().map_id"
+                                            [features]="features()"
+                                            [styles]="styles()"
                                         ></interactive-map>
                                     }
                                 </button>
                                 <div class="space-y-2 p-4">
-                                    @if (is_onsite && has_space) {
+                                    @if (is_onsite() && has_space()) {
                                         <div>
-                                            {{
-                                                (system_id | space | async)
-                                                    ?.display_name
-                                            }}
+                                            {{ space().display_name }}
                                         </div>
                                     }
-                                    @if (is_onsite && !has_space) {
+                                    @if (is_onsite() && !has_space()) {
                                         <div class="opacity-30">
                                             {{
                                                 'CALENDAR_EVENT.GROUP_UNCONFIRMED'
@@ -381,19 +388,19 @@ import {
                                         </div>
                                     }
                                     <div class="!mt-0 text-sm opacity-30">
-                                        @if (building && level) {
+                                        @if (building() && level()) {
                                             <span>
                                                 {{
-                                                    building.display_name ||
-                                                        building.name
+                                                    building().display_name ||
+                                                        building().name
                                                 }},
                                                 {{
-                                                    level?.display_name ||
-                                                        level?.name
+                                                    level().display_name ||
+                                                        level().name
                                                 }}
                                             </span>
                                         }
-                                        @if (!building || !level) {
+                                        @if (!building() || !level()) {
                                             <span class="opacity-30">
                                                 {{
                                                     'CALENDAR_EVENT.GROUP_NO_LOCATION'
@@ -402,18 +409,18 @@ import {
                                             </span>
                                         }
                                     </div>
-                                    @if (is_online) {
+                                    @if (is_online()) {
                                         <a
                                             class="mt-4 opacity-30"
                                             [class.underline]="
-                                                event.meeting_url
+                                                event().meeting_url
                                             "
-                                            [href]="event.meeting_url"
+                                            [href]="event().meeting_url"
                                             target="_blank"
                                             rel="noopener noreferrer"
                                         >
                                             {{
-                                                (is_onsite
+                                                (is_onsite()
                                                     ? 'CALENDAR_EVENT.GROUP_BOTH_LOCATIONS'
                                                     : 'CALENDAR_EVENT.GROUP_REMOTE'
                                                 ) | translate
@@ -427,21 +434,21 @@ import {
                 </div>
             </div>
         </div>
-        @if (show_attendees) {
+        @if (show_attendees()) {
             <div class="absolute inset-0 z-50">
                 <button
                     class="absolute inset-0 bg-base-content opacity-60"
-                    (click)="show_attendees = false"
+                    (click)="show_attendees.set(false)"
                 ></button>
                 <div
                     class="absolute inset-y-8 left-1/2 w-[24rem] -translate-x-1/2 overflow-hidden rounded shadow"
                 >
                     <attendee-list
                         [show_host]="false"
-                        [list]="event.attendees"
-                        [host]="event.host"
+                        [list]="event().attendees"
+                        [host]="event().host"
                         [show_host]="false"
-                        (click)="show_attendees = false"
+                        (click)="show_attendees.set(false)"
                     ></attendee-list>
                 </div>
             </div>
@@ -459,65 +466,57 @@ import {
         MatMenuModule,
         MatDialogModule,
         AuthenticatedImageDirective,
-        SpacePipe,
     ],
 })
-export class GroupEventDetailsModalComponent {
+export class GroupEventDetailsModalComponent implements OnInit {
     private _data = inject<{
         event: CalendarEvent;
         edit_fn: (i) => void;
         remove_fn: (i, s) => void;
         concierge: boolean;
-    }>(MAT_DIALOG_DATA);
+    }>(MAT_DIALOG_DATA, { optional: true });
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
     private _dialog = inject(MatDialog);
-    private _dialog_ref =
-        inject<MatDialogRef<GroupEventDetailsModalComponent>>(MatDialogRef);
+    private _dialog_ref = inject<MatDialogRef<GroupEventDetailsModalComponent>>(
+        MatDialogRef,
+        { optional: true },
+    );
 
-    public readonly edit = this._data.edit_fn;
-    public readonly remove = this._data.remove_fn;
-    public space: Space;
-    public event: CalendarEvent = this._data.event;
-    public concierge = this._data.concierge;
-    public building: Building;
-    public level: BuildingLevel;
-    public features: ViewerFeature[] = [];
-    public locate = '';
-    public showing_map = false;
-    public show_attendees = false;
-    public styles = {};
+    public readonly edit = this._data?.edit_fn;
+    public readonly remove = this._data?.remove_fn;
+    public readonly space = signal<Space>(new Space());
+    public readonly event = model(this._data?.event);
+    public readonly is_limited = signal(!this._data);
+    public readonly concierge = signal(this._data?.concierge);
+    public readonly building = signal<Building>(new Building());
+    public readonly level = signal<BuildingLevel>(new BuildingLevel());
+    public readonly features = signal<ViewerFeature[]>([]);
+    public readonly locate = signal('');
+    public readonly showing_map = signal(false);
+    public readonly show_attendees = signal(false);
+    public readonly styles = signal({});
     public readonly raw_description = signal('');
-    public calendar_space: Space;
+    public readonly calendar_space = signal(new Space());
 
-    public get time_format() {
-        return this._settings.time_format;
-    }
+    public readonly featured = computed(
+        () =>
+            (this.event() as any).featured ||
+            this.event().extension_data?.featured,
+    );
+    public readonly has_space = computed(() => !!this.space().id);
+    public readonly is_onsite = computed(
+        () => this.event().extension_data.attendance_type !== 'ONLINE',
+    );
+    public readonly is_online = computed(
+        () =>
+            !this.is_onsite() ||
+            this.event().extension_data.attendance_type === 'ANY',
+    );
 
-    public get featured() {
-        return (
-            (this.event as any).featured || this.event.extension_data?.featured
-        );
-    }
-
-    public get is_onsite() {
-        return this.event.extension_data.attendance_type !== 'ONLINE';
-    }
-
-    public get has_space() {
-        return !!this.space?.id;
-    }
-
-    public get is_online() {
-        return (
-            !this.is_onsite ||
-            this.event.extension_data.attendance_type === 'ANY'
-        );
-    }
-
-    public get body() {
-        if (this.is_online) return this.event.body;
-        let body = this.event.body;
+    public readonly body = computed(() => {
+        if (this.is_online()) return this.event().body;
+        let body = this.event().body;
         const remove_blocks = [
             `<div style="margin-bottom:24px; overflow:hidden; white-space:nowrap">________________________________________________________________________________</div>`,
             `<p>________________________________________________________________________________</p>`,
@@ -531,74 +530,68 @@ export class GroupEventDetailsModalComponent {
             body = body.replace(block, '');
         }
         return body;
-    }
+    });
+    public readonly attendance = computed(
+        () =>
+            this.event().attendees?.filter((_: any) => _.checked_in)?.length ||
+            0,
+    );
 
-    public get attendance() {
-        return (
-            this.event.attendees?.filter((_: any) => _.checked_in)?.length || 0
-        );
-    }
-
-    public get attendees() {
-        return (
-            this.event.attendees?.filter(
+    public readonly attendees = computed(
+        () =>
+            this.event().attendees?.filter(
                 (user) => user.email !== this.group_event_calendar,
-            )?.length || 0
-        );
-    }
+            )?.length || 0,
+    );
 
-    public get is_interested() {
-        return !!this.guest_details;
-    }
-
-    public get is_going() {
-        return this.guest_details?.checked_in;
-    }
-
-    public get system_id() {
-        return this.space?.id;
-    }
-
-    public get guest_details() {
+    public readonly guest_details = computed(() => {
         const user = currentUser();
-        return this.event.attendees?.find((_) => _.email === user.email);
-    }
+        return this.event().attendees?.find((_) => _.email === user.email);
+    });
+    public readonly is_interested = computed(() => !!this.guest_details());
+    public readonly is_going = computed(() => this.guest_details()?.checked_in);
+    public readonly system_id = computed(() => this.space().id);
 
     public get group_event_calendar() {
-        return this._settings.get('app.group_events_calendar');
+        return this._settings.get<string>('app.group_events_calendar') || '';
+    }
+
+    public get time_format() {
+        return this._settings.time_format;
     }
 
     public async ngOnInit() {
         const space_pipe = new SpacePipe();
         space_pipe.org = this._org;
-        const resource = this.event.resources.find(
+        const resource = this.event().resources.find(
             (_) => _.email !== this.group_event_calendar,
         );
-        this.space = await space_pipe.transform(
-            resource?.id || resource?.email,
+        this.space.set(
+            await space_pipe.transform(resource?.id || resource?.email),
         );
-        this.calendar_space = await space_pipe.transform(
-            this.group_event_calendar,
+        this.calendar_space.set(
+            await space_pipe.transform(this.group_event_calendar),
         );
-        const map_id = (this.event.extension_data as any)?.map_id;
-        const id = this.space?.map_id || map_id;
+        const map_id = (this.event().extension_data as any)?.map_id;
+        const id = this.space()?.map_id || map_id;
         if (id) {
             this.styles[`#${id}`] = { fill: 'green' };
-            this.features = [
+            this.features.set([
                 {
                     location: id,
                     content: MapPinComponent,
                     data: {},
                 },
-            ];
+            ]);
         }
-        const zones = (this.space?.zones as any) || [];
-        this.level = this._org.levelWithID(zones);
-        this.building =
+        const zones = (this.space().zones as any) || [];
+        this.level.set(this._org.levelWithID(zones) || this.level());
+        this.building.set(
             this._org.buildings.find((_) => zones.includes(_.id)) ||
-            this._org.building;
-        this.locate = map_id || '';
-        this.raw_description.set(this.removeHtmlTags(this.event.body).trim());
+                this._org.building,
+        );
+        this.locate.set(map_id || '');
+        this.raw_description.set(this.removeHtmlTags(this.event().body).trim());
     }
 
     public removeHtmlTags(html: string) {
@@ -606,72 +599,78 @@ export class GroupEventDetailsModalComponent {
         return (doc.body.textContent || '').trim();
     }
     public viewLocation() {
-        if (!this.space?.map_id) {
+        if (!this.space().map_id) {
             return notifyInfo('Unable to locate space on map.');
         }
-        this.showing_map = true;
+        this.showing_map.set(true);
         const ref = this._dialog.open(MapLocateModalComponent, {
             maxWidth: '95vw',
             maxHeight: '95vh',
             data: { item: this.space },
         });
-        ref.afterClosed().subscribe(() => {
-            this.showing_map = false;
-        });
+        ref.afterClosed().subscribe(() => this.showing_map.set(false));
     }
 
     public async toggleInterest() {
-        let user = this.guest_details;
+        let user = this.guest_details();
         console.log('System', this.event, this.calendar_space);
         const _user = new GuestUser(currentUser());
-        if (this.is_interested && user) {
+        if (this.is_interested() && user) {
             await lastValueFrom(
-                removeEventGuest(this.event.id, _user, {
-                    system_id: this.calendar_space?.id,
+                removeEventGuest(this.event().id, _user, {
+                    system_id: this.calendar_space().id,
                     calendar: this.group_event_calendar,
                 }),
             );
-            (this.event as any).attendees = (this.event.attendees || []).filter(
-                (_: any) => _.email !== user.email,
-            );
+            this.event.update((e) => {
+                (e as any).attendees = (e.attendees || []).filter(
+                    (_: any) => _.email !== user.email,
+                );
+                return e;
+            });
         } else {
             user = await lastValueFrom(
-                addEventGuest(this.event.id, _user, {
-                    system_id: this.calendar_space?.id,
+                addEventGuest(this.event().id, _user, {
+                    system_id: this.calendar_space().id,
                     calendar: this.group_event_calendar,
                 }),
             );
-            (this.event as any).attendees = unique(
-                [...(this.event.attendees || []), user],
-                'email',
-            );
+            this.event.update((e) => {
+                (e as any).attendees = unique(
+                    [...(e.attendees || []), user],
+                    'email',
+                );
+                return e;
+            });
         }
     }
 
     public async toggleAttendance() {
-        let user = this.guest_details;
+        let user = this.guest_details();
         const _user = new GuestUser(currentUser());
         if (!user) {
             user = await lastValueFrom(
-                addEventGuest(this.event.id, _user, {
-                    system_id: this.event.system?.id,
+                addEventGuest(this.event().id, _user, {
+                    system_id: this.event().system?.id,
                     calendar: this.group_event_calendar,
                 }),
             );
             (this.event as any).attendees = unique(
-                [...(this.event.attendees || []), user],
+                [...(this.event().attendees || []), user],
                 'email',
             );
         }
         user = { ...currentUser(), ...(user || {}) };
         if (!user.email) return;
         await lastValueFrom(
-            checkinEventGuest(this.event.id, user.email, !this.is_going, {
-                system_id: this.event.system?.id,
+            checkinEventGuest(this.event().id, user.email, !this.is_going(), {
+                system_id: this.event().system?.id,
             }),
         );
-        const guest = this.event.attendees.find((_) => _.email === user.email);
+        const guest = this.event().attendees.find(
+            (_) => _.email === user.email,
+        );
         if (!guest) return;
-        (guest as any).checked_in = !this.is_going;
+        (guest as any).checked_in = !this.is_going();
     }
 }
