@@ -3,6 +3,7 @@ import {
     Component,
     OnInit,
     SimpleChanges,
+    WritableSignal,
     inject,
     input,
     output,
@@ -116,7 +117,7 @@ export class NewDeskMapComponent extends AsyncHandler implements OnInit {
     public center = { x: 0.5, y: 0.5 };
     public level?: BuildingLevel;
     public coordinates = undefined;
-    public readonly statuses: Record<string, any> = {};
+    public readonly statuses: Record<string, WritableSignal<string>> = {};
 
     private _change = new BehaviorSubject(0);
 

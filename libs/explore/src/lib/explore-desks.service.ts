@@ -296,12 +296,14 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
         const style_map = {};
         const colours = this._settings.get('app.explore.colors') || {};
         for (const desk_id in this._statuses) {
-            if (!this._statuses[desk_id]?.()) continue;
+            if (!this._statuses[desk_id])
+                this._statuses[desk_id] = signal('free');
+            const s = this._statuses[desk_id]();
             style_map[`#${desk_id}`] = {
                 fill:
-                    colours[`desk-${this._statuses[desk_id]()}`] ||
-                    colours[`${this._statuses[desk_id]()}`] ||
-                    DEFAULT_COLOURS[`${this._statuses[desk_id]()}`],
+                    colours[`desk-${s}`] ||
+                    colours[`${s}`] ||
+                    DEFAULT_COLOURS[`${s}`],
             };
         }
         this._state.setStyles('desks', style_map);
