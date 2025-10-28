@@ -14,3 +14,6 @@ export * from './lib/locker.class';
 export * from './lib/parking-select-modal/parking-select-modal.component';
 export * from './lib/parking-space-list-field.component';
 export * from './lib/parking.service';
+
+export * from './lib/visitor-invite-form.component';
+export * from './lib/visitor-invite-success.component';

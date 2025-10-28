@@ -54,7 +54,12 @@ import { TranslatePipe } from './translate.pipe';
                 <footer
                     class="fixed bottom-0 left-1/2 z-10 mx-auto my-2 flex w-full max-w-[39rem] -translate-x-1/2 items-center justify-end rounded border-none bg-base-200 px-4 py-2"
                 >
-                    <button btn matRipple class="w-32" (click)="confirm.emit()">
+                    <button
+                        btn
+                        matRipple
+                        class="min-w-32"
+                        (click)="confirm.emit()"
+                    >
                         {{ confirm_text() || ('COMMON.SAVE' | translate) }}
                     </button>
                 </footer>
