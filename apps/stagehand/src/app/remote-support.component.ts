@@ -390,7 +390,7 @@ export class RemoteSupportComponent {
                     case 'available':
                         return this.status[room.id] === 'free';
                     case 'issues':
-                        return room.issues.length > 0;
+                        return room.issues?.length > 0;
                 }
                 return true;
             });

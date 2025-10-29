@@ -154,7 +154,8 @@ export class DashboardsService extends AsyncHandler {
     private _org = inject(OrganisationService);
     private _dialog = inject(MatDialog);
 
-    private _mqtt_broker;
+    private _mqtt_broker: mqtt.MqttClient;
+    private _connected = false;
     private _alerts = signal([]);
 
     public readonly loading = signal<string[]>([]);
@@ -246,6 +247,7 @@ export class DashboardsService extends AsyncHandler {
         const dashboard = this.dashboard();
         if (!dashboard) return;
         if (!this._mqtt_broker) await this._initialiseBroker();
+        this.timeout('listen_to_topics', () => this._listenToAlertTopics());
     }
 
     private async _initialiseBroker() {
@@ -258,20 +260,37 @@ export class DashboardsService extends AsyncHandler {
             username: jwt,
             password: jwt,
         });
-        this._mqtt_broker.on('connect', () => {
-            const alert_list = this.alerts_list();
-            for (const alert of alert_list) {
-                for (const item of alert.conditions.comparisons) {
-                    const topic = compareAsTopic(item);
-                    if (!topic) continue;
-                    log('ALERTS', 'Listening to topic:', topic);
-                    this._mqtt_broker.subscribe(topic);
-                }
-            }
+        this._mqtt_broker.on('connect', () => (this._connected = true));
+        this._mqtt_broker.on('disconnect', () => {
+            this._connected = false;
+            delete this._mqtt_broker;
         });
         this._mqtt_broker.on('message', (t, b) =>
             this._handleBrokerMessage(t, b),
         );
+    }
+
+    private _listenToAlertTopics() {
+        if (!this._connected) {
+            return this.timeout('alert_topics', () =>
+                this._listenToAlertTopics(),
+            );
+        }
+        this.unsubWith('alert:');
+        const dashboard = this.dashboard();
+        const alert_list = this.alerts_list();
+        for (const alert of alert_list) {
+            for (const item of alert.conditions.comparisons) {
+                const topic = compareAsTopic(item);
+                if (!topic) continue;
+                log('ALERTS', 'Listening to topic:', topic);
+                this._mqtt_broker.subscribe(topic);
+                this.subscription(`alert:${dashboard.id}|${topic}`, () => {
+                    log('ALERTS', 'Dropped topic:', topic);
+                    this._mqtt_broker.unsubscribe(topic);
+                });
+            }
+        }
     }
 
     private _handleBrokerMessage(t: string, msg_buffer: Buffer) {

@@ -5,7 +5,7 @@ import { RouterModule } from '@angular/router';
 import { settingSignal } from 'libs/common/src/lib/settings.service';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 
-let compact_state = false;
+const COMPACT_SIGNAL = signal(false);
 
 @Component({
     selector: 'sidebar',
@@ -13,7 +13,7 @@ let compact_state = false;
         <div
             sidebar
             class="flex h-full flex-col bg-secondary text-secondary-content"
-            [style.width]="is_compact() ? '3rem' : '16rem'"
+            [style.width]="is_compact() ? '3.5rem' : '16rem'"
         >
             <div class="flex items-center px-1">
                 <div
@@ -34,18 +34,19 @@ let compact_state = false;
                     icon
                     matRipple
                     class="rounded"
+                    [class.w-14]="is_compact()"
                     (click)="toggleCompact()"
                     [matTooltip]="
                         is_compact() ? 'Expand Sidebar' : 'Collapse Sidebar'
                     "
                     matTooltipPosition="right"
                 >
-                    <icon class="text-2xl">{{
+                    <icon class="text-3xl">{{
                         is_compact() ? 'menu' : 'close'
                     }}</icon>
                 </button>
             </div>
-            <div class="mt-8 flex-1 overflow-auto">
+            <div class="mt-8 flex-1 space-y-1 overflow-auto">
                 <a
                     matRipple
                     class="relative flex w-full items-center space-x-4 p-2"
@@ -57,7 +58,7 @@ let compact_state = false;
                     <div
                         class="absolute inset-0 bg-base-100 opacity-0 hover:opacity-10"
                     ></div>
-                    <icon class="!ml-0 text-2xl">notifications</icon>
+                    <icon class="!ml-0 text-3xl">notifications</icon>
                     @if (!is_compact()) {
                         <span class="truncate">Alerts</span>
                     }
@@ -73,7 +74,7 @@ let compact_state = false;
                     <div
                         class="absolute inset-0 bg-base-100 opacity-0 hover:opacity-10"
                     ></div>
-                    <icon class="!ml-0 text-2xl">wifi</icon>
+                    <icon class="!ml-0 text-3xl">wifi</icon>
                     @if (!is_compact()) {
                         <span class="truncate">Remote Support</span>
                     }
@@ -90,7 +91,7 @@ let compact_state = false;
                         <div
                             class="absolute inset-0 bg-base-100 opacity-0 hover:opacity-10"
                         ></div>
-                        <icon class="!ml-0 text-2xl">show_chart</icon>
+                        <icon class="!ml-0 text-3xl">show_chart</icon>
                         @if (!is_compact()) {
                             <span class="truncate">Analytics</span>
                         }
@@ -107,7 +108,7 @@ let compact_state = false;
                     <div
                         class="absolute inset-0 bg-base-100 opacity-0 hover:opacity-10"
                     ></div>
-                    <icon class="!ml-0 text-2xl">dashboard</icon>
+                    <icon class="!ml-0 text-3xl">dashboard</icon>
                     @if (!is_compact()) {
                         <span class="truncate">Manage Dashboards</span>
                     }
@@ -157,7 +158,7 @@ let compact_state = false;
                         </span>
                     }
                     @if (is_compact()) {
-                        <icon class="text-2xl text-base-100">open_in_new</icon>
+                        <icon class="text-3xl text-base-100">open_in_new</icon>
                     }
                 </a>
                 @if (!is_compact()) {
@@ -179,7 +180,7 @@ let compact_state = false;
     imports: [MatRippleModule, MatTooltipModule, IconComponent, RouterModule],
 })
 export class SidebarComponent {
-    public readonly is_compact = signal(false);
+    public readonly is_compact = COMPACT_SIGNAL;
     public readonly backoffice_link = settingSignal(
         'backoffice_link',
         `${location.origin}/backoffice/`,

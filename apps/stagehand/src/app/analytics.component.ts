@@ -42,9 +42,9 @@ interface AnalyticsPage {
                         ></iframe>
                     } @else {
                         <div
-                            class="flex h-full w-full flex-col items-center justify-center"
+                            class="flex h-full w-full flex-col items-center justify-center space-y-4 p-12 opacity-30"
                         >
-                            <icon class="text-6xl">arrow_warm_up</icon>
+                            <icon class="text-8xl">arrow_warm_up</icon>
                             <p>
                                 {{
                                     'Select an analytics dashboard from above'

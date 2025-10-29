@@ -19,6 +19,7 @@ const routes: Routes = [
         component: UnauthorisedComponent,
     },
     { path: 'alerts', component: AlertsComponent },
+    { path: 'alerts/:id', component: AlertsComponent },
     { path: 'remote-support', component: RemoteSupportComponent },
     { path: 'analytics', component: AnalyticsComponent },
     {
