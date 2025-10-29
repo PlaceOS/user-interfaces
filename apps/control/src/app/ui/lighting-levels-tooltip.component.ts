@@ -86,7 +86,7 @@ export class LightingLevelsTooltipComponent extends AsyncHandler {
                 const sys_id = await nextValueFrom(this._state.system_id);
                 const mod = getModule(sys_id, 'Lighting');
                 if (!mod) return;
-                await mod.execute('set_lighting_level', [level.area, value]);
+                await mod.execute('set_lighting_level', [value, level.area]);
             },
             50,
         );

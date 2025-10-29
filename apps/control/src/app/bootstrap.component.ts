@@ -82,7 +82,6 @@ const STORE_KEY = 'PLACEOS.CONTROL.system';
                         </mat-option>
                     }
                 </mat-autocomplete>
-                {{ system_id$ | async }}
                 <button
                     btn
                     matRipple
