@@ -160,7 +160,7 @@ export class InteractiveMapComponent
     );
 
     public get use_cisco_maps() {
-        return this._settings.get('app.explore.use_cisco_maps');
+        return this._settings.get('app.explore.cisco_maps.enabled');
     }
 
     public ngOnInit() {

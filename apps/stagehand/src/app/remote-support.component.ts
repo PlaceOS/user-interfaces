@@ -118,7 +118,7 @@ function contains(str: string, substr: string) {
                     </div>
                     <div class="overflow-auto p-4">
                         <simple-table
-                            class="block w-full min-w-[88rem] overflow-hidden bg-base-100 text-sm"
+                            class="block w-full min-w-[64rem] overflow-hidden bg-base-100 text-sm"
                             [data]="filtered_rooms"
                             [filter]="search.getValue()"
                             [columns]="[
@@ -128,7 +128,7 @@ function contains(str: string, substr: string) {
                                 },
                                 {
                                     key: 'available',
-                                    name: 'Status',
+                                    name: 'Occupancy Status',
                                     content: status_template,
                                 },
                                 {
@@ -139,17 +139,8 @@ function contains(str: string, substr: string) {
                                     content: event_template,
                                 },
                                 {
-                                    key: 'source',
-                                    name: 'Current Source',
-                                },
-                                {
-                                    key: 'mic_list',
-                                    name: 'Microphones',
-                                    content: mics_template,
-                                },
-                                {
                                     key: 'issues',
-                                    name: 'Issues',
+                                    name: 'Alerts',
                                     content: issue_template,
                                 },
                                 {

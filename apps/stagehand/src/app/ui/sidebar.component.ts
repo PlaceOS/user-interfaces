@@ -78,22 +78,24 @@ let compact_state = false;
                         <span class="truncate">Remote Support</span>
                     }
                 </a>
-                <a
-                    matRipple
-                    class="relative flex w-full items-center space-x-4 p-2"
-                    routerLinkActive="bg-secondary-focus"
-                    [routerLink]="['/analytics']"
-                    [matTooltip]="is_compact() ? 'Analytics' : ''"
-                    matTooltipPosition="right"
-                >
-                    <div
-                        class="absolute inset-0 bg-base-100 opacity-0 hover:opacity-10"
-                    ></div>
-                    <icon class="!ml-0 text-2xl">show_chart</icon>
-                    @if (!is_compact()) {
-                        <span class="truncate">Analytics</span>
-                    }
-                </a>
+                @if (analytics_pages()?.length > 0) {
+                    <a
+                        matRipple
+                        class="relative flex w-full items-center space-x-4 p-2"
+                        routerLinkActive="bg-secondary-focus"
+                        [routerLink]="['/analytics']"
+                        [matTooltip]="is_compact() ? 'Analytics' : ''"
+                        matTooltipPosition="right"
+                    >
+                        <div
+                            class="absolute inset-0 bg-base-100 opacity-0 hover:opacity-10"
+                        ></div>
+                        <icon class="!ml-0 text-2xl">show_chart</icon>
+                        @if (!is_compact()) {
+                            <span class="truncate">Analytics</span>
+                        }
+                    </a>
+                }
                 <a
                     matRipple
                     class="relative flex w-full items-center space-x-4 p-2"
@@ -182,7 +184,11 @@ export class SidebarComponent {
         'backoffice_link',
         `${location.origin}/backoffice/`,
     );
-    public readonly show_recorder_view = settingSignal('show_recorder_view');
+    public readonly show_recorder_view = settingSignal(
+        'show_recorder_view',
+        false,
+    );
+    public readonly analytics_pages = settingSignal('analytics_pages', []);
 
     public toggleCompact() {
         this.is_compact.update((s) => !s);
