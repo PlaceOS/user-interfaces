@@ -79,7 +79,6 @@ function compareAsTopic(item: TriggerComparison): string {
     const module_name = parts.join('_');
     const topic = topicToString({
         module_name,
-        module_index,
         state_key: item.left.status,
     });
     return topic;

@@ -50,22 +50,6 @@ let compact_state = false;
                     matRipple
                     class="relative flex w-full items-center space-x-4 p-2"
                     routerLinkActive="bg-secondary-focus"
-                    [routerLink]="['/dashboards']"
-                    [matTooltip]="is_compact() ? 'Dashboards' : ''"
-                    matTooltipPosition="right"
-                >
-                    <div
-                        class="absolute inset-0 bg-base-100 opacity-0 hover:opacity-10"
-                    ></div>
-                    <icon class="!ml-0 text-2xl">dashboard</icon>
-                    @if (!is_compact()) {
-                        <span class="truncate">Dashboards</span>
-                    }
-                </a>
-                <a
-                    matRipple
-                    class="relative flex w-full items-center space-x-4 p-2"
-                    routerLinkActive="bg-secondary-focus"
                     [routerLink]="['/alerts']"
                     [matTooltip]="is_compact() ? 'Alerts' : ''"
                     matTooltipPosition="right"
@@ -108,6 +92,22 @@ let compact_state = false;
                     <icon class="!ml-0 text-2xl">show_chart</icon>
                     @if (!is_compact()) {
                         <span class="truncate">Analytics</span>
+                    }
+                </a>
+                <a
+                    matRipple
+                    class="relative flex w-full items-center space-x-4 p-2"
+                    routerLinkActive="bg-secondary-focus"
+                    [routerLink]="['/dashboards']"
+                    [matTooltip]="is_compact() ? 'Manage Dashboards' : ''"
+                    matTooltipPosition="right"
+                >
+                    <div
+                        class="absolute inset-0 bg-base-100 opacity-0 hover:opacity-10"
+                    ></div>
+                    <icon class="!ml-0 text-2xl">dashboard</icon>
+                    @if (!is_compact()) {
+                        <span class="truncate">Manage Dashboards</span>
                     }
                 </a>
                 @if (show_recorder_view()) {

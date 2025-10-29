@@ -80,7 +80,7 @@ export type AlertType = 'threshold' | 'status' | 'custom';
                                 matInput
                                 name="name"
                                 formControlName="name"
-                                placeholder="Dashboard Name"
+                                placeholder="Alert Name"
                             />
                             <mat-error>Name is required</mat-error>
                         </mat-form-field>
@@ -92,7 +92,7 @@ export type AlertType = 'threshold' | 'status' | 'custom';
                                 matInput
                                 name="description"
                                 formControlName="description"
-                                placeholder="Description of the dashboard"
+                                placeholder="Description of the alert"
                             ></textarea>
                         </mat-form-field>
                         <settings-toggle
@@ -208,7 +208,7 @@ export type AlertType = 'threshold' | 'status' | 'custom';
                                         | translate
                                 "
                             ></simple-table>
-                            <simple-table
+                            <!-- <simple-table
                                 class="block w-full min-w-[32rem] text-sm"
                                 [data]="
                                     form.value.conditions?.time_dependents || []
@@ -233,7 +233,7 @@ export type AlertType = 'threshold' | 'status' | 'custom';
                                 [empty_message]="
                                     'TRIGGERS.CONDITION_TIME_EMPTY' | translate
                                 "
-                            ></simple-table>
+                            ></simple-table> -->
                             <ng-template #time_dep_template let-row="row">
                                 <div
                                     class="mono flex items-center space-x-2 p-4 text-sm"
@@ -321,7 +321,7 @@ export class DashboardAlertManageComponent
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
 
-    public readonly severity_options = ['low', 'medium', 'high'];
+    public readonly severity_options = ['medium', 'high', 'critical'];
     public readonly type_options = ['threshold', 'status', 'custom'];
 
     public readonly loading = signal('');
@@ -339,7 +339,7 @@ export class DashboardAlertManageComponent
             comparisons: [],
             time_dependents: [],
         }),
-        severity: new FormControl<AlertSeverity>('low'),
+        severity: new FormControl<AlertSeverity>('medium'),
         alert_type: new FormControl<AlertType>('threshold'),
         debounce_period: new FormControl(0),
     });

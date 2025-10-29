@@ -211,6 +211,10 @@ export class AlertConditionModalComponent extends AsyncHandler {
         return this._data.alert;
     }
 
+    public ngOnInit() {
+        this.form.controls.condition_type.disable();
+    }
+
     public async save() {
         console.log('Save Conditions');
         this.form.markAllAsTouched();
