@@ -2112,6 +2112,8 @@
             "DASHBOARD_ALERTS_EDIT": "Edit Alert",
             "DASHBOARD_ALERTS_NEW": "New Alert",
             "DASHBOARD_ALERTS_REMOVE": "Remove Alert",
+            "DASHBOARD_ALERTS_OPEN": "View Alerts",
+            "DASHBOARD_ALERTS_CLOSE": "Hide Alerts",
             "DASHBOARD_ALERTS_REMOVE_HEADER": "Remove Dashboard Alert",
             "DASHBOARD_ALERTS_REMOVE_CONTENT": "Are you sure you want to remove the dashboard alert \"{{ name }}\"?",
             "DASHBOARD_ALERTS_REMOVE_SUCCESS": "Successfully removed dashboard alert",

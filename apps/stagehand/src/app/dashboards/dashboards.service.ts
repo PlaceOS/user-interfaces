@@ -163,7 +163,9 @@ export class DashboardsService extends AsyncHandler {
     public readonly alert = signal<PlaceAlert>(undefined);
     public readonly dashboard_list = signal<PlaceAlertDashboard[]>([]);
     public readonly alerts_list = signal<PlaceAlert[]>([]);
-
+    public readonly dashboard_alert_map = signal<Record<string, PlaceAlert[]>>(
+        {},
+    );
     public readonly dashboard_alerts = signal<Alert[]>([]);
 
     public async setAlert(id: string) {
@@ -182,7 +184,7 @@ export class DashboardsService extends AsyncHandler {
         this.loading.update((l) => [...l, 'DASHBOARD']);
         const dashboard = await lastValueFrom(showAlertDashboard(id));
         this.dashboard.set(dashboard);
-        this._loadDashboardAlerts();
+        this.loadDashboardAlerts();
         this.loading.update((l) => l.filter((i) => i !== 'DASHBOARD'));
     }
 
@@ -230,15 +232,23 @@ export class DashboardsService extends AsyncHandler {
         await lastValueFrom(removeAlert(alert.id));
         result.close();
         notifySuccess(i18n('APP.STAGEHAND.DASHBOARD_ALERTS_REMOVE_SUCCESS'));
-        this._loadDashboardAlerts();
+        this.loadDashboardAlerts();
     }
 
-    private async _loadDashboardAlerts() {
+    async loadDashboardAlerts(id = '') {
         const dashboard = this.dashboard();
-        if (!dashboard) return;
+        if (!dashboard && !id) return;
         this.loading.update((l) => [...l, 'ALERT_LIST']);
-        const alerts = await lastValueFrom(listDashboardAlerts(dashboard.id));
-        this.alerts_list.set(alerts.data);
+        const alerts = await lastValueFrom(
+            listDashboardAlerts(id || dashboard.id),
+        );
+        if (!id) this.alerts_list.set(alerts.data);
+        else {
+            this.dashboard_alert_map.update((m) => {
+                m[id] = alerts.data;
+                return m;
+            });
+        }
         this.loading.update((l) => l.filter((i) => i !== 'ALERT_LIST'));
     }
 

@@ -195,7 +195,7 @@ export interface TableColumn {
                     <div
                         child-node
                         [style.gridColumn]="'span ' + active_columns.length"
-                        class="border-b border-base-200 last:border-b-0 last:border-t"
+                        class="relative border-b border-base-200 last:border-b-0 last:border-t"
                     >
                         <ng-container
                             *ngTemplateOutlet="
