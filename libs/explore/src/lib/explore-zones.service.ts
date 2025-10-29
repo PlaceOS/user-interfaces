@@ -1,10 +1,11 @@
 import { inject, Injectable } from '@angular/core';
 import { Point, ViewerFeature } from '@placeos/svg-viewer';
 import { showMetadata } from '@placeos/ts-client';
-import { debounceTime, filter, first, map } from 'rxjs/operators';
+import { debounceTime, filter, map } from 'rxjs/operators';
 
 import {
     AsyncHandler,
+    firstTruthyValueFrom,
     HashMap,
     i18n,
     OrganisationService,
@@ -97,7 +98,7 @@ export class ExploreZonesService extends AsyncHandler {
     }
 
     public async init() {
-        await this._org.initialised.pipe(first((_) => _)).toPromise();
+        await firstTruthyValueFrom(this._org.initialised);
         const zone_metadata = await Promise.all(
             this._org.levels.map((bld) =>
                 showMetadata(bld.id, 'map_regions').toPromise(),
@@ -154,7 +155,6 @@ export class ExploreZonesService extends AsyncHandler {
         const temp_unit = this._settings.get('app.use_imperial_units')
             ? 'F'
             : 'C';
-
         for (const zone of value) {
             const id = zone.map_id || zone.area_id;
             // if (!this._area_list.includes(id)) continue;

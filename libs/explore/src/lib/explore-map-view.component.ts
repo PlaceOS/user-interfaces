@@ -31,6 +31,7 @@ import { SpacesService } from 'libs/events/src/lib/spaces.service';
 import { MapLocation } from 'libs/users/src/lib/location.class';
 import { showStaff } from 'libs/users/src/lib/staff.fn';
 
+import { FormsModule } from '@angular/forms';
 import { ExploreDesksService } from './explore-desks.service';
 import { ExploreLockersService } from './explore-lockers.service';
 import { ExploreMapControlComponent } from './explore-map-control.component';
@@ -135,6 +136,7 @@ const EMPTY = [];
         MatSlideToggle,
         MatRippleModule,
         ExploreMapControlComponent,
+        FormsModule,
     ],
 })
 export class ExploreMapViewComponent extends AsyncHandler implements OnInit {

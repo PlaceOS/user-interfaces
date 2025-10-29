@@ -138,7 +138,6 @@ export class ExploreStateService extends AsyncHandler {
                     continue;
                 list = list.concat(actions[key]);
             }
-            console.log('Actions:', list);
             return list;
         }),
     );
