@@ -28,12 +28,12 @@ const EMPTY = [];
     template: `
         <div
             name="radius"
-            class="radius center border-blue-600 absolute rounded-full border-8 border-dashed bg-info bg-opacity-25"
+            class="radius center border-blue-600 absolute rounded-full border-8 border-dashed bg-info opacity-30"
             [style]="'height: ' + diameter + '%; width: ' + diameter + '%;'"
         ></div>
         <div
             shadow
-            class="center absolute h-8 w-8 rounded-full bg-neutral"
+            class="center absolute h-8 w-8 rounded-full bg-black opacity-30"
         ></div>
         <div
             name="dot"
