@@ -2,11 +2,8 @@ import { NgModule } from '@angular/core';
 
 import { RouterModule } from '@angular/router';
 
-import {
-    GlobalBannerComponent,
-    GlobalLoadingComponent,
-} from '@placeos/components';
-
+import { GlobalBannerComponent } from 'libs/components/src/lib/global-banner.component';
+import { GlobalLoadingComponent } from 'libs/components/src/lib/global-loading.component';
 import { SidebarComponent } from './sidebar.component';
 
 const STANDALONE_COMPONENTS = [

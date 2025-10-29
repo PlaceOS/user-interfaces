@@ -39,7 +39,7 @@ export function settingSignal<T = any>(
 ): WritableSignal<T | undefined> {
     if (!_setting_signals[key]) {
         _setting_signals[key] = signal<T>(
-            setting(`app.${key}`) || default_value,
+            setting(`app.${key}`) ?? default_value,
         );
     }
     return _setting_signals[key];

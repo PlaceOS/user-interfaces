@@ -7,6 +7,7 @@ import {
     model,
     output,
 } from '@angular/core';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import { AsyncHandler, nextValueFrom } from '@placeos/common';
 import { BehaviorSubject, Observable, combineLatest } from 'rxjs';
@@ -292,7 +293,13 @@ export interface TableColumn {
             }
         `,
     ],
-    imports: [CommonModule, MatRippleModule, TranslatePipe, IconComponent],
+    imports: [
+        CommonModule,
+        MatRippleModule,
+        TranslatePipe,
+        IconComponent,
+        MatCheckboxModule,
+    ],
 })
 export class SimpleTableComponent<T extends object = any> extends AsyncHandler {
     public readonly data = input<T[] | Observable<T[]>>(undefined);

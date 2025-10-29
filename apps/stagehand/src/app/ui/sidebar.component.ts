@@ -1,9 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
-import { settingSignal } from '@placeos/common';
-import { IconComponent } from '@placeos/components';
+import { settingSignal } from 'libs/common/src/lib/settings.service';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
 
 let compact_state = false;
 
@@ -13,13 +13,13 @@ let compact_state = false;
         <div
             sidebar
             class="flex h-full flex-col bg-secondary text-secondary-content"
-            [style.width]="is_compact ? '3rem' : '16rem'"
+            [style.width]="is_compact() ? '3rem' : '16rem'"
         >
             <div class="flex items-center px-1">
                 <div
                     header
                     class="overflow-hidden"
-                    [style.width]="is_compact ? '0rem' : '13rem'"
+                    [style.width]="is_compact() ? '0rem' : '13rem'"
                 >
                     <div class="px-2 py-4">
                         <div class="truncate text-2xl font-medium">
@@ -36,12 +36,12 @@ let compact_state = false;
                     class="rounded"
                     (click)="toggleCompact()"
                     [matTooltip]="
-                        is_compact ? 'Expand Sidebar' : 'Collapse Sidebar'
+                        is_compact() ? 'Expand Sidebar' : 'Collapse Sidebar'
                     "
                     matTooltipPosition="right"
                 >
                     <icon class="text-2xl">{{
-                        is_compact ? 'menu' : 'close'
+                        is_compact() ? 'menu' : 'close'
                     }}</icon>
                 </button>
             </div>
@@ -50,15 +50,31 @@ let compact_state = false;
                     matRipple
                     class="relative flex w-full items-center space-x-4 p-2"
                     routerLinkActive="bg-secondary-focus"
+                    [routerLink]="['/dashboards']"
+                    [matTooltip]="is_compact() ? 'Dashboards' : ''"
+                    matTooltipPosition="right"
+                >
+                    <div
+                        class="absolute inset-0 bg-base-100 opacity-0 hover:opacity-10"
+                    ></div>
+                    <icon class="!ml-0 text-2xl">dashboard</icon>
+                    @if (!is_compact()) {
+                        <span class="truncate">Dashboards</span>
+                    }
+                </a>
+                <a
+                    matRipple
+                    class="relative flex w-full items-center space-x-4 p-2"
+                    routerLinkActive="bg-secondary-focus"
                     [routerLink]="['/alerts']"
-                    [matTooltip]="is_compact ? 'Alerts' : ''"
+                    [matTooltip]="is_compact() ? 'Alerts' : ''"
                     matTooltipPosition="right"
                 >
                     <div
                         class="absolute inset-0 bg-base-100 opacity-0 hover:opacity-10"
                     ></div>
                     <icon class="!ml-0 text-2xl">notifications</icon>
-                    @if (!is_compact) {
+                    @if (!is_compact()) {
                         <span class="truncate">Alerts</span>
                     }
                 </a>
@@ -67,14 +83,14 @@ let compact_state = false;
                     class="relative flex w-full items-center space-x-4 p-2"
                     routerLinkActive="bg-secondary-focus"
                     [routerLink]="['/remote-support']"
-                    [matTooltip]="is_compact ? 'Remote Support' : ''"
+                    [matTooltip]="is_compact() ? 'Remote Support' : ''"
                     matTooltipPosition="right"
                 >
                     <div
                         class="absolute inset-0 bg-base-100 opacity-0 hover:opacity-10"
                     ></div>
                     <icon class="!ml-0 text-2xl">wifi</icon>
-                    @if (!is_compact) {
+                    @if (!is_compact()) {
                         <span class="truncate">Remote Support</span>
                     }
                 </a>
@@ -83,14 +99,14 @@ let compact_state = false;
                     class="relative flex w-full items-center space-x-4 p-2"
                     routerLinkActive="bg-secondary-focus"
                     [routerLink]="['/analytics']"
-                    [matTooltip]="is_compact ? 'Analytics' : ''"
+                    [matTooltip]="is_compact() ? 'Analytics' : ''"
                     matTooltipPosition="right"
                 >
                     <div
                         class="absolute inset-0 bg-base-100 opacity-0 hover:opacity-10"
                     ></div>
                     <icon class="!ml-0 text-2xl">show_chart</icon>
-                    @if (!is_compact) {
+                    @if (!is_compact()) {
                         <span class="truncate">Analytics</span>
                     }
                 </a>
@@ -115,32 +131,34 @@ let compact_state = false;
             </div>
             <div
                 class="flex flex-col space-y-2 py-4"
-                [class.px-4]="!is_compact"
-                [class.px-0]="is_compact"
+                [class.px-4]="!is_compact()"
+                [class.px-0]="is_compact()"
             >
                 <a
                     btn
                     matRipple
                     class="inverse"
-                    [class.min-w-0]="is_compact"
-                    [class.base]="!is_compact"
-                    [class.clear]="is_compact"
-                    [matTooltip]="is_compact ? 'Launch PlaceOS Backoffice' : ''"
+                    [class.min-w-0]="is_compact()"
+                    [class.base]="!is_compact()"
+                    [class.clear]="is_compact()"
+                    [matTooltip]="
+                        is_compact() ? 'Launch PlaceOS Backoffice' : ''
+                    "
                     matTooltipPosition="right"
-                    [href]="backoffice_link"
+                    [href]="backoffice_link()"
                     target="_blank"
                     ref="noopener noreferrer"
                 >
-                    @if (!is_compact) {
+                    @if (!is_compact()) {
                         <span class="truncate text-sm">
                             Launch PlaceOS Backoffice
                         </span>
                     }
-                    @if (is_compact) {
+                    @if (is_compact()) {
                         <icon class="text-2xl text-base-100">open_in_new</icon>
                     }
                 </a>
-                @if (!is_compact) {
+                @if (!is_compact()) {
                     <p class="text-center text-xs opacity-40">
                         Access system configuration and management
                     </p>
@@ -156,19 +174,17 @@ let compact_state = false;
             }
         `,
     ],
-    imports: [IconComponent, RouterModule, MatRippleModule, MatTooltipModule],
+    imports: [MatRippleModule, MatTooltipModule, IconComponent, RouterModule],
 })
 export class SidebarComponent {
+    public readonly is_compact = signal(false);
+    public readonly backoffice_link = settingSignal(
+        'backoffice_link',
+        `${location.origin}/backoffice/`,
+    );
     public readonly show_recorder_view = settingSignal('show_recorder_view');
-    public get is_compact() {
-        return compact_state;
-    }
-
-    public get backoffice_link() {
-        return `${location.origin}/backoffice/`;
-    }
 
     public toggleCompact() {
-        compact_state = !compact_state;
+        this.is_compact.update((s) => !s);
     }
 }
