@@ -1,6 +1,13 @@
 import { Component, inject } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import {
+    FormControl,
+    FormGroup,
+    ReactiveFormsModule,
+    Validators,
+} from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import {
     AsyncHandler,
     ShortURL,
@@ -8,6 +15,9 @@ import {
     notifyError,
     saveShortURL,
 } from '@placeos/common';
+import { SettingsToggleComponent, TranslatePipe } from '@placeos/components';
+import { RichTextInputComponent } from '@placeos/form-fields';
+import { FullscreenModalShellComponent } from 'libs/components/src/lib/fullscreen-modal-shell.component';
 
 @Component({
     selector: 'short-url-modal',
@@ -64,11 +74,12 @@ import {
                         <rich-text-input
                             name="description"
                             formControlName="description"
+                            placeholder="URL description..."
                         ></rich-text-input>
                     </div>
                 }
                 @if (form.controls.enabled) {
-                    <div class="item-center flex space-x-4 pb-4">
+                    <div class="item-center flex space-x-4 py-4">
                         <settings-toggle
                             class="flex-1"
                             [name]="'APP.CONCIERGE.URLS_ENABLED' | translate"
@@ -95,7 +106,15 @@ import {
         </fullscreen-modal-shell>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        FullscreenModalShellComponent,
+        SettingsToggleComponent,
+        RichTextInputComponent,
+        MatFormFieldModule,
+        MatInputModule,
+        TranslatePipe,
+        ReactiveFormsModule,
+    ],
 })
 export class ShortUrlModalComponent extends AsyncHandler {
     private _data = inject<ShortURL | undefined>(MAT_DIALOG_DATA);

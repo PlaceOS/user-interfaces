@@ -1,22 +1,49 @@
 import { Component, inject, signal } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { currentUser, notifySuccess, SettingsService } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import {
+    FormControl,
+    FormGroup,
+    FormsModule,
+    ReactiveFormsModule,
+} from '@angular/forms';
+import {
+    MAT_DIALOG_DATA,
+    MatDialogModule,
+    MatDialogRef,
+} from '@angular/material/dialog';
+import {
+    currentUser,
+    notifySuccess,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
 import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
 import { map } from 'rxjs/operators';
 
 import { DEFAULT_SETTINGS } from 'apps/concierge/src/environments/settings';
 import { format } from 'date-fns';
 
+import { MatRippleModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import { VERSION } from '@placeos/common';
+import {
+    IconComponent,
+    SettingsToggleComponent,
+    TranslatePipe,
+} from '@placeos/components';
+import { FullscreenModalShellComponent } from 'libs/components/src/lib/fullscreen-modal-shell.component';
 import { lastValueFrom } from 'rxjs';
+import { UploadButtonComponent } from './upload-button.component';
 
 @Component({
     selector: 'concierge-settings-form-modal',
     template: `
         <fullscreen-modal-shell
-            [heading]="'Concierge Settings - ' + zone.display_name || zone.name"
+            [heading]="
+                'Concierge Settings - ' +
+                (zone.display_name || zone.name || 'Organisation')
+            "
             [loading]="loading()"
             (confirm)="save()"
         >
@@ -1241,7 +1268,20 @@ import { lastValueFrom } from 'rxjs';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        MatDialogModule,
+        FullscreenModalShellComponent,
+        SettingsToggleComponent,
+        ReactiveFormsModule,
+        MatRippleModule,
+        IconComponent,
+        TranslatePipe,
+        MatSelectModule,
+        MatFormFieldModule,
+        MatInputModule,
+        FormsModule,
+        UploadButtonComponent,
+    ],
 })
 export class ConciergeSettingsFormModalComponent {
     private _data = inject<{

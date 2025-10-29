@@ -2,11 +2,9 @@ import { SpectatorRouting } from '@ngneat/spectator';
 import { createRoutingFactory } from '@ngneat/spectator/jest';
 import { MockComponent, MockPipe, MockProvider } from 'ng-mocks';
 
-import { SettingsService } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { OrganisationService, SettingsService } from '@placeos/common';
 
-import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { SafePipe } from 'libs/components/src/lib/safe.pipe';
+import { IconComponent, SafePipe } from '@placeos/components';
 import { ControlSpaceListItemComponent } from '../../app/control/list-item.component';
 
 describe('ControlSpaceListItemComponent', () => {

@@ -1,7 +1,14 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { MatRippleModule } from '@angular/material/core';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 
+import {
+    CateringMenuComponent,
+    CateringOrderListComponent,
+} from '@placeos/catering';
 import { AsyncHandler } from '@placeos/common';
+import { TranslatePipe } from '@placeos/components';
+import { CateringTopbarComponent } from './catering-topbar.component';
 
 @Component({
     selector: 'app-catering',
@@ -101,7 +108,14 @@ import { AsyncHandler } from '@placeos/common';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        TranslatePipe,
+        MatRippleModule,
+        RouterModule,
+        CateringMenuComponent,
+        CateringOrderListComponent,
+        CateringTopbarComponent,
+    ],
 })
 export class CateringComponent extends AsyncHandler implements OnInit {
     private _route = inject(ActivatedRoute);

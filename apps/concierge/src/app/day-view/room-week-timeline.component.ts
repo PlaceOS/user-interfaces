@@ -1,19 +1,22 @@
-import { DatePipe } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
     AsyncHandler,
+    CalendarEvent,
     getTimezoneOffsetInMinutes,
     getTimezoneOffsetString,
     i18n,
+    OrganisationService,
     SettingsService,
 } from '@placeos/common';
+import { TranslatePipe } from '@placeos/components';
 import {
-    CalendarEvent,
     EventDetailsModalComponent,
     SetupBreakdownModalComponent,
 } from '@placeos/events';
-import { OrganisationService } from '@placeos/organisation';
+import { UserPipe } from '@placeos/users';
 import {
     addDays,
     isSameDay,
@@ -24,7 +27,9 @@ import {
 } from 'date-fns';
 import { combineLatest, lastValueFrom } from 'rxjs';
 import { map, shareReplay, startWith } from 'rxjs/operators';
+import { DateOptionsComponent } from '../ui/date-options.component';
 import { EventsStateService } from './events-state.service';
+import { RoomBookingSearchComponent } from './room-booking-search.component';
 
 @Component({
     selector: 'room-week-bookings-timeline',
@@ -188,7 +193,14 @@ import { EventsStateService } from './events-state.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatRippleModule,
+        RoomBookingSearchComponent,
+        DateOptionsComponent,
+        TranslatePipe,
+        UserPipe,
+    ],
 })
 export class RoomWeekBookingsTimelineComponent
     extends AsyncHandler
@@ -362,8 +374,8 @@ export class RoomWeekBookingsTimelineComponent
                 remove_fn: (e) => this.remove(e),
             },
         });
-        ref.componentInstance.hide_edit = !this._settings.get(
-            'app.events.allow_edit',
+        ref.componentInstance.hide_edit.set(
+            !this._settings.get('app.events.allow_edit'),
         );
         this.subscription(
             'actions',

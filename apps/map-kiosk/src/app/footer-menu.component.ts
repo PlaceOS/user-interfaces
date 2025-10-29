@@ -1,4 +1,7 @@
 import { Component } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
+import { RouterModule } from '@angular/router';
+import { IconComponent } from '@placeos/components';
 
 @Component({
     selector: 'footer-menu',
@@ -32,6 +35,6 @@ import { Component } from '@angular/core';
             </a>
         </div>
     `,
-    standalone: false,
+    imports: [MatRippleModule, RouterModule, IconComponent],
 })
 export class FooterMenuComponent {}

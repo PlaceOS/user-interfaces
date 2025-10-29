@@ -1,7 +1,14 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
+import { ReactiveFormsModule } from '@angular/forms';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { MatRippleModule } from '@angular/material/core';
 import { Router } from '@angular/router';
-import { BookingFormService, ParkingService } from '@placeos/bookings';
+import {
+    BookingFormService,
+    ParkingService,
+    ParkingSpaceListFieldComponent,
+} from '@placeos/bookings';
 import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
     AsyncHandler,
@@ -11,8 +18,10 @@ import {
     notifyError,
     SettingsService,
 } from '@placeos/common';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { roundToNearestMinutes } from 'date-fns';
 import { NewParkingFlowConfirmComponent } from './parking-flow-confirm.component';
+import { ParkingFormDetailsComponent } from './parking-form-details.component';
 
 @Component({
     selector: 'parking-flow-form',
@@ -133,7 +142,15 @@ import { NewParkingFlowConfirmComponent } from './parking-flow-confirm.component
     `,
     styles: [``],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatRippleModule,
+        ReactiveFormsModule,
+        TranslatePipe,
+        IconComponent,
+        ParkingFormDetailsComponent,
+        ParkingSpaceListFieldComponent,
+    ],
 })
 export class ParkingFlowFormComponent extends AsyncHandler implements OnInit {
     private _state = inject(BookingFormService);

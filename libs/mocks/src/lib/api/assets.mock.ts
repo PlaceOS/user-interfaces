@@ -9,8 +9,6 @@ import {
 
 const BASE_PATH = '/api/engine/v2';
 
-export const ASSET_MOCKS = registerMocks();
-
 const update = (dataset) => (id, data) => {
     const index = dataset.findIndex((e) => e.id === id);
     if (index < 0)
@@ -23,7 +21,7 @@ const update = (dataset) => (id, data) => {
     return new_event;
 };
 
-function registerMocks() {
+export function registerMockAssets() {
     registerMockEndpoint({
         path: `${BASE_PATH}/asset_categories`,
         metadata: {},

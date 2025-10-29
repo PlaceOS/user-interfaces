@@ -1,15 +1,15 @@
 import { inject, Injectable } from '@angular/core';
-import { searchStaff, StaffUser } from '@placeos/users';
+import { searchStaff } from '@placeos/users';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 
+import { checkinBooking, queryBookings, saveBooking } from '@placeos/bookings';
 import {
+    AsyncHandler,
     Booking,
-    checkinBooking,
-    queryBookings,
-    saveBooking,
-} from '@placeos/bookings';
-import { AsyncHandler, timePeriodsIntersect } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+    OrganisationService,
+    StaffUser,
+    timePeriodsIntersect,
+} from '@placeos/common';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { map, shareReplay, switchMap } from 'rxjs/operators';
 
@@ -27,13 +27,9 @@ export class StaffStateService extends AsyncHandler {
 
     private _onsite: Record<string, boolean> = {};
     private _events: Record<string, Booking> = {};
-
     private _filters = new BehaviorSubject<StaffFilters>({});
-
     private _search = new BehaviorSubject<string>('');
-
     private _loading = new BehaviorSubject<boolean>(false);
-
     private _users = new BehaviorSubject<StaffUser[]>([]);
 
     public readonly loading = this._loading.asObservable();

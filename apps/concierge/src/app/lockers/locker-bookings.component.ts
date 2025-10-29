@@ -1,6 +1,15 @@
 import { Component, inject } from '@angular/core';
 
+import { CommonModule } from '@angular/common';
+import { MatRippleModule } from '@angular/material/core';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { SettingsService } from '@placeos/common';
+import {
+    IconComponent,
+    SimpleTableComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { map } from 'rxjs/operators';
 import { LockerStateService } from './locker-state.service';
 
@@ -250,7 +259,15 @@ import { LockerStateService } from './locker-state.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatRippleModule,
+        MatMenuModule,
+        MatTooltipModule,
+        IconComponent,
+        TranslatePipe,
+        SimpleTableComponent,
+    ],
 })
 export class LockerBookingsComponent {
     private _state = inject(LockerStateService);

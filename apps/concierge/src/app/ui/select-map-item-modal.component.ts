@@ -1,12 +1,24 @@
+import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { FormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
+import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import {
     AsyncHandler,
+    BuildingLevel,
     MapsPeopleService,
+    OrganisationService,
     nextValueFrom,
     unique,
 } from '@placeos/common';
-import { BuildingLevel, OrganisationService } from '@placeos/organisation';
+import {
+    IconComponent,
+    InteractiveMapComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { Rect } from '@placeos/svg-viewer/dist/types';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import { debounceTime, map, shareReplay, switchMap, tap } from 'rxjs/operators';
@@ -20,16 +32,23 @@ declare let mapsindoors: any;
 @Component({
     selector: 'select-map-item-modal',
     template: `
-        <header>
-            <h2>{{ 'APP.CONCIERGE.POI_MAP_SELECT_HEADER' | translate }}</h2>
+        <header
+            class="sticky top-0 z-10 mx-auto mt-2 flex h-14 w-[calc(100%-1rem)] items-center justify-between rounded border-none bg-base-200 px-4 py-2"
+        >
+            <h2 class="text-xl font-medium capitalize">
+                {{ 'APP.CONCIERGE.POI_MAP_SELECT_HEADER' | translate }}
+            </h2>
             <button icon matRipple mat-dialog-close>
                 <icon>close</icon>
             </button>
         </header>
         <main
-            class="flex h-[75vh] max-h-[75vh] min-w-[80vw] max-w-[calc(100vw-2rem)] overflow-hidden sm:max-w-[64rem]"
+            class="flex h-[75vh] max-h-[75vh] min-w-[80vw] max-w-[calc(100vw-2rem)] space-x-2 overflow-hidden p-2 sm:max-w-[64rem]"
         >
-            <div map class="relative h-full w-1/2 flex-1 bg-base-200">
+            <div
+                map
+                class="relative h-full w-1/2 flex-1 rounded-lg bg-base-200"
+            >
                 <interactive-map
                     [src]="level?.map_id"
                     [actions]="actions"
@@ -41,7 +60,7 @@ declare let mapsindoors: any;
             </div>
             <div
                 poi-list
-                class="relative flex h-full w-[20rem] flex-col border-l border-base-300 shadow"
+                class="relative flex h-full w-[20rem] flex-col rounded-lg border border-base-300"
             >
                 <div search class="flex flex-col border-b border-base-200 p-2">
                     <mat-form-field
@@ -153,7 +172,7 @@ declare let mapsindoors: any;
                     @if (last_page > 0) {
                         <div
                             pagination
-                            class="sticky bottom-0 z-10 flex w-full items-center justify-center space-x-1 bg-base-100 p-2"
+                            class="sticky bottom-0 z-10 -mx-2 flex w-[calc(100%+1rem)] items-center justify-center space-x-1 border-t border-base-300 bg-base-100 p-2"
                         >
                             <button
                                 icon
@@ -233,7 +252,18 @@ declare let mapsindoors: any;
         </main>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        MatDialogModule,
+        MatRippleModule,
+        IconComponent,
+        TranslatePipe,
+        CommonModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatSelectModule,
+        InteractiveMapComponent,
+        FormsModule,
+    ],
 })
 export class SelectMapItemModalComponent
     extends AsyncHandler

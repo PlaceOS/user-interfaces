@@ -11,6 +11,7 @@ import { DashboardListComponent } from './dashboards/dashboard-list.component';
 import { DashboardManageComponent } from './dashboards/dashboard-mange.component';
 import { DashboardViewComponent } from './dashboards/dashboard-view.component';
 import { DashboardsComponent } from './dashboards/dashboards.component';
+import { RecorderGridViewComponent } from './recorder-view.component';
 
 const routes: Routes = [
     {
@@ -40,6 +41,7 @@ const routes: Routes = [
             { path: '**', redirectTo: 'list' },
         ],
     },
+    { path: 'recorder-grid', component: RecorderGridViewComponent },
     { path: '**', redirectTo: 'alerts' },
 ];
 

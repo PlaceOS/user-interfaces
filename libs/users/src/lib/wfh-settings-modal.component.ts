@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import {
@@ -18,11 +19,10 @@ import {
     i18n,
     notifyError,
     reloadUserData,
+    WorktimeBlock,
+    WorktimePreference,
 } from '@placeos/common';
 
-import { WorktimeBlock, WorktimePreference } from './user.class';
-
-import { FormsModule } from '@angular/forms';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.component';

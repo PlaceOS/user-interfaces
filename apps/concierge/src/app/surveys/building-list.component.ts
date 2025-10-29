@@ -1,9 +1,13 @@
-import { Component, inject } from '@angular/core';
-import { flatten } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
-import { combineLatest } from 'rxjs';
-import { map, shareReplay, startWith } from 'rxjs/operators';
-import { NewSurveyService } from './new-survey.service';
+import { CommonModule } from '@angular/common';
+import { Component, computed, inject } from '@angular/core';
+import { RouterModule } from '@angular/router';
+import { AsyncHandler, flatten, OrganisationService } from '@placeos/common';
+import {
+    AuthenticatedImageDirective,
+    IconComponent,
+    TranslatePipe,
+} from '@placeos/components';
+import { SurveyService } from './survey.service';
 
 @Component({
     selector: 'building-list',
@@ -17,12 +21,14 @@ import { NewSurveyService } from './new-survey.service';
             <div class="mb-8 px-8">
                 {{
                     'APP.CONCIERGE.SURVEY_BUILDING_COUNT'
-                        | translate: { count: (buildings$ | async)?.length }
+                        | translate
+                            : { count: buildings()?.length }
+                            : buildings()?.length
                 }}
             </div>
-            <div class="h-1/2 w-full flex-1 space-y-4 overflow-auto px-8">
-                @for (building of buildings$ | async; track building.id) {
-                    @let stats = (stats$ | async)[building.id];
+            <div class="h-1/2 w-full flex-1 space-y-4 overflow-auto px-8 pb-8">
+                @for (building of buildings(); track building.id) {
+                    @let stats = bld_stats()?.[building.id];
                     <a
                         matRipple
                         class="relative flex space-x-4 overflow-hidden rounded-xl border border-base-300 bg-base-100 shadow hover:border-info"
@@ -97,6 +103,15 @@ import { NewSurveyService } from './new-survey.service';
                         </icon>
                     </a>
                 }
+                @if (buildings().length <= 0) {
+                    <div
+                        class="flex h-[calc(100%-2rem)] w-full flex-col items-center justify-center rounded-xl bg-base-200"
+                    >
+                        <div class="opacity-30">
+                            {{ 'APP.CONCIERGE.SURVEY_NO_BLD' | translate }}
+                        </div>
+                    </div>
+                }
             </div>
         </div>
     `,
@@ -108,48 +123,46 @@ import { NewSurveyService } from './new-survey.service';
                 height: 100%;
                 width: 100%;
                 overflow: auto;
-                background-color: var(--b1);
+                background-color: var(--base-100);
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        AuthenticatedImageDirective,
+        CommonModule,
+        TranslatePipe,
+        RouterModule,
+        IconComponent,
+    ],
 })
-export class BuildingListComponent {
+export class BuildingListComponent extends AsyncHandler {
     private _org = inject(OrganisationService);
-    private _survey = inject(NewSurveyService);
+    private _survey = inject(SurveyService);
 
-    public readonly buildings$ = this._org.building_list;
-    public readonly surveys$ = this._survey.survey_list$;
-    public readonly answers$ = this._survey.answer_list$;
+    public readonly buildings = this._org.buildings_signal;
+    public readonly surveys = this._survey.survey_list;
+    public readonly answers = this._survey.answer_list;
 
-    public readonly stats$ = combineLatest([
-        this.buildings$,
-        this.surveys$,
-        this.answers$,
-    ]).pipe(
-        map(([bld_list, surveys, answers]) => {
-            const mapping = {};
-            const answers_list = flatten(answers);
-            for (let i = 0; i < bld_list.length; i++) {
-                const bld = bld_list[i];
-                const survey_list = surveys.filter(
-                    (_) => _.building_id === bld.id,
-                );
-                mapping[bld.id] = {
-                    live: survey_list.filter(
-                        (_) => `${_.trigger}`.toLowerCase() !== 'none',
-                    ).length,
-                    drafts: survey_list.filter(
-                        (_) => `${_.trigger}`.toLowerCase() === 'none',
-                    ).length,
-                    answers: answers_list.filter((resp) =>
-                        survey_list.find((_) => _.id === resp.survey_id),
-                    ).length,
-                };
-            }
-            return mapping;
-        }),
-        startWith({}),
-        shareReplay(1),
-    );
+    public readonly bld_stats = computed(() => {
+        const mapping = {};
+        const answers_list = flatten(this.answers());
+        for (let i = 0; i < this.buildings().length; i++) {
+            const bld = this.buildings()[i];
+            const survey_list = this.surveys().filter(
+                (_) => _.building_id === bld.id,
+            );
+            mapping[bld.id] = {
+                live: survey_list.filter(
+                    (_) => `${_.trigger}`.toLowerCase() !== 'none',
+                ).length,
+                drafts: survey_list.filter(
+                    (_) => `${_.trigger}`.toLowerCase() === 'none',
+                ).length,
+                answers: answers_list.filter((resp) =>
+                    survey_list.find((_) => _.id === resp.survey_id),
+                ).length,
+            };
+        }
+        return mapping;
+    });
 }

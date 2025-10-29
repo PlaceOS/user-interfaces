@@ -6,7 +6,7 @@ import { SafePipe } from './safe.pipe';
     selector: 'icon,i[icon]',
     template: `
         <div
-            class="flex h-[1.25em] w-[1.25em] items-center justify-center overflow-hidden"
+            class="flex h-[1.25em] max-h-[1.25em] w-[1.25em] max-w-[1.25em] items-center justify-center overflow-hidden"
         >
             @if (!icon() || icon().type !== 'img') {
                 <i [class]="icon()?.class || className()">

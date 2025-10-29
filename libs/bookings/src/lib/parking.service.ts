@@ -1,11 +1,11 @@
 import { Injectable, inject } from '@angular/core';
 import {
     AsyncHandler,
+    OrganisationService,
     SettingsService,
     currentUser,
     flatten,
 } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
 import { showMetadata } from '@placeos/ts-client';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest, forkJoin, of } from 'rxjs';

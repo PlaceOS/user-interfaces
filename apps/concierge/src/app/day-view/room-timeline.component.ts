@@ -1,21 +1,24 @@
-import { DatePipe } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     AsyncHandler,
+    CalendarEvent,
+    OrganisationService,
     SettingsService,
     getTimezoneDifferenceInHours,
     getTimezoneOffsetString,
     notifyError,
     notifySuccess,
 } from '@placeos/common';
+import { TranslatePipe, openConfirmModal } from '@placeos/components';
 import {
-    CalendarEvent,
     EventDetailsModalComponent,
     SetupBreakdownModalComponent,
     declineEvent,
 } from '@placeos/events';
-import { OrganisationService } from '@placeos/organisation';
 import {
     addHours,
     differenceInMinutes,
@@ -25,10 +28,11 @@ import {
     startOfDay,
     startOfMinute,
 } from 'date-fns';
-import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
 import { combineLatest } from 'rxjs';
 import { debounceTime, map, shareReplay, startWith } from 'rxjs/operators';
+import { DateOptionsComponent } from '../ui/date-options.component';
 import { EventsStateService } from './events-state.service';
+import { RoomBookingSearchComponent } from './room-booking-search.component';
 
 @Component({
     selector: 'room-bookings-timeline',
@@ -239,7 +243,14 @@ import { EventsStateService } from './events-state.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        DateOptionsComponent,
+        TranslatePipe,
+        RoomBookingSearchComponent,
+        MatRippleModule,
+        MatTooltipModule,
+    ],
 })
 export class RoomBookingsTimelineComponent
     extends AsyncHandler
@@ -434,8 +445,8 @@ Host:  ${event.organiser?.name || event.host}`;
                 remove_fn: (e) => this.remove(e, space_id),
             },
         });
-        ref.componentInstance.hide_edit = !this._settings.get(
-            'app.events.allow_edit',
+        ref.componentInstance.hide_edit.set(
+            !this._settings.get('app.events.allow_edit'),
         );
         this.subscription(
             'actions',

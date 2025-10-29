@@ -3,8 +3,18 @@ import { AsyncHandler } from '@placeos/common';
 import { getModule } from '@placeos/ts-client';
 import { combineLatest } from 'rxjs';
 
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { ControlStateService, RoomInput } from '../control-state.service';
-import { JoystickPan, JoystickTilt } from './joystick.component';
+import {
+    JoystickComponent,
+    JoystickPan,
+    JoystickTilt,
+} from './joystick.component';
 
 export enum ZoomDirection {
     In = 'in',
@@ -69,6 +79,8 @@ export enum ZoomDirection {
                                 (mousedown)="startZoom('out', $event)"
                                 (touchstart)="startZoom('out', $event)"
                                 (contextmenu)="$event.preventDefault()"
+                                (window:mouseup)="stopZoom()"
+                                (window:touchend)="stopZoom()"
                             >
                                 <icon>remove</icon>
                             </button>
@@ -86,7 +98,16 @@ export enum ZoomDirection {
         }
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        IconComponent,
+        MatRippleModule,
+        JoystickComponent,
+        MatFormFieldModule,
+        MatSelectModule,
+        FormsModule,
+    ],
 })
 export class CameraControlsComponent extends AsyncHandler implements OnInit {
     private _state = inject(ControlStateService);
@@ -176,18 +197,27 @@ export class CameraControlsComponent extends AsyncHandler implements OnInit {
     public async startZoom(dir: 'in' | 'out', e: MouseEvent | TouchEvent) {
         const mod = getModule(this.id, this.active_camera.mod);
         if (!mod) return;
-        const end_event = e instanceof MouseEvent ? 'mouseup' : 'touchend';
         this.zoom = dir === 'in' ? ZoomDirection.In : ZoomDirection.Out;
         const { index } = this.active_camera;
-        await mod.execute('zoom', index ? [this.zoom, index] : [this.zoom]);
-        this.subscription(
-            'on_end',
-            this._renderer.listen('window', end_event, () => {
-                this.unsub('on_move');
-                this.unsub('on_end');
+        await mod
+            .execute('zoom', index ? [this.zoom, index] : [this.zoom])
+            .catch();
+    }
+
+    public stopZoom() {
+        this.timeout(
+            'stop_zoom',
+            () => {
+                if (this.zoom === ZoomDirection.Stop) return;
+                const mod = getModule(this.id, this.active_camera.mod);
+                if (!mod) return;
+                const { index } = this.active_camera;
                 this.zoom = ZoomDirection.Stop;
                 mod.execute('zoom', index ? [this.zoom, index] : [this.zoom]);
-            }),
+                this.unsub('on_move');
+                this.unsub('on_end');
+            },
+            50,
         );
     }
 }

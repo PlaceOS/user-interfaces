@@ -1,9 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { Router } from '@angular/router';
-import { HashMap } from '@placeos/common';
-import { EventFormService, Space, SpacesService } from '@placeos/events';
-import { SpacePipe } from 'libs/events/src/lib/space.pipe';
+import { HashMap, Space } from '@placeos/common';
+import { EventFormService, SpacePipe, SpacesService } from '@placeos/events';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { RoomConfirmComponent } from './room-confirm.component';
 import { RoomDetailsComponent } from './room-details.component';
@@ -16,7 +15,7 @@ export class RoomConfirmService {
     private router = inject(Router);
     private _state = inject(EventFormService);
     private _spaces = inject(SpacesService);
-    private _space_pipe = inject(SpacePipe);
+    private _space_pipe = new SpacePipe();
 
     space: Space;
     public book_space: HashMap<boolean> = {};

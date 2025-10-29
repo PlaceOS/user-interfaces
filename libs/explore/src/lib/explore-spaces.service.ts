@@ -14,18 +14,18 @@ import {
 import {
     AsyncHandler,
     BookingRuleset,
+    CalendarEvent,
     currentUser,
     HashMap,
     i18n,
     nextValueFrom,
+    OrganisationService,
     rulesForResource,
     SettingsService,
+    Space,
 } from '@placeos/common';
 import { notifyError } from 'libs/common/src/lib/notifications';
-import { CalendarEvent } from 'libs/events/src/lib/event.class';
 import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
-import { Space } from 'libs/events/src/lib/space.class';
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 
 import { ExploreBookQrComponent } from './explore-book-qr.component';
 import { ExploreBookingModalComponent } from './explore-booking-modal.component';
@@ -260,10 +260,12 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
                         class: 'material-symbols-rounded',
                         content: 'sensor_occupied',
                     },
-                    color: this._presence[space.id] ? 'var(--su)' : 'var(--bc)',
+                    color: this._presence[space.id]
+                        ? 'var(--success)'
+                        : 'var(--base-content)',
                     text_color: this._presence[space.id]
-                        ? 'var(--suc)'
-                        : 'var(--b1)',
+                        ? 'var(--success-content)'
+                        : 'var(--base-100)',
                 },
                 z_index: 98,
             } as ViewerFeature);

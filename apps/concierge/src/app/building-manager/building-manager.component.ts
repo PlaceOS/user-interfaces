@@ -1,4 +1,9 @@
 import { Component, inject } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
+import { TranslatePipe } from '@placeos/components';
+import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
+import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
+import { BuildingListComponent } from './building-list.component';
 import { BuildingManagementService } from './building-management.service';
 
 @Component({
@@ -31,7 +36,7 @@ import { BuildingManagementService } from './building-management.service';
                 flex-direction: column;
                 height: 100%;
                 width: 100%;
-                background-color: var(--b1);
+                background-color: var(--base-100);
             }
 
             sidebar {
@@ -47,7 +52,13 @@ import { BuildingManagementService } from './building-management.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        BuildingListComponent,
+        ApplicationTopbarComponent,
+        ApplicationSidebarComponent,
+        MatRippleModule,
+        TranslatePipe,
+    ],
 })
 export class BuildingManagerComponent {
     private _state = inject(BuildingManagementService);

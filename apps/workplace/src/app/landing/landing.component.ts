@@ -1,9 +1,25 @@
+import { CommonModule } from '@angular/common';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { AsyncHandler, SettingsService, userSignal } from '@placeos/common';
-import { Building, OrganisationService } from '@placeos/organisation';
+import { MatRippleModule } from '@angular/material/core';
+import {
+    AsyncHandler,
+    Building,
+    OrganisationService,
+    settingSignal,
+    SettingsService,
+    userSignal,
+} from '@placeos/common';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { startOfMinute } from 'date-fns';
-import { settingSignal } from 'libs/common/src/lib/settings.service';
 import { debounceTime } from 'rxjs';
+import { FooterMenuComponent } from '../components/footer-menu.component';
+import { TopbarComponent } from '../components/topbar.component';
+import { LandingAvailabilityComponent } from './landing-availability.component';
+import { LandingColleaguesComponent } from './landing-colleagues.component';
+import { LandingFavouritesComponent } from './landing-favourites.component';
+import { LandingQuickBookComponent } from './landing-quick-book.component';
+import { LandingQuickLinksComponent } from './landing-quick-links.component';
+import { LandingUpcomingComponent } from './landing-upcoming.component';
 
 @Component({
     selector: 'app-landing',
@@ -65,7 +81,7 @@ import { debounceTime } from 'rxjs';
             }
             <div class="z-0 h-full w-1/2 flex-1 overflow-auto sm:px-4">
                 <header
-                    class="sticky top-0 z-50 mb-4 flex items-center justify-between overflow-hidden bg-ternary px-4 sm:rounded-b"
+                    class="sticky top-0 z-50 mb-4 flex items-center justify-between overflow-hidden bg-brand-300 px-4 shadow sm:rounded-b"
                 >
                     <div class="">
                         <div class="font-medium sm:text-xl">
@@ -126,7 +142,20 @@ import { debounceTime } from 'rxjs';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TopbarComponent,
+        FooterMenuComponent,
+        MatRippleModule,
+        TranslatePipe,
+        IconComponent,
+        LandingColleaguesComponent,
+        LandingFavouritesComponent,
+        LandingQuickLinksComponent,
+        LandingQuickBookComponent,
+        LandingAvailabilityComponent,
+        LandingUpcomingComponent,
+    ],
 })
 export class LandingComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);

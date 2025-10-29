@@ -2,8 +2,12 @@ import { inject, Injectable } from '@angular/core';
 import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { AsyncHandler, SettingsService, unique } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import {
+    AsyncHandler,
+    OrganisationService,
+    SettingsService,
+    unique,
+} from '@placeos/common';
 
 import {
     loadLockerBanks,

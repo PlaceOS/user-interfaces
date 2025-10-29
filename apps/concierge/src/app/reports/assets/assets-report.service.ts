@@ -1,22 +1,23 @@
 import { formatDate } from '@angular/common';
 import { inject, Injectable } from '@angular/core';
 import {
-    AssetGroup,
     queryAssetGroupsExtended,
     queryAssetPurchaseOrders,
 } from '@placeos/assets';
-import { Booking, queryBookings } from '@placeos/bookings';
+import { queryBookings } from '@placeos/bookings';
 import {
+    AssetGroup,
+    Booking,
+    CalendarEvent,
     downloadFile,
     i18n,
     jsonToCsv,
     nextValueFrom,
     notifyError,
+    OrganisationService,
     SettingsService,
     unique,
 } from '@placeos/common';
-import { CalendarEvent } from '@placeos/events';
-import { OrganisationService } from '@placeos/organisation';
 import {
     addDays,
     endOfDay,

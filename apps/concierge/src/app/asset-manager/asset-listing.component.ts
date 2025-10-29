@@ -1,7 +1,10 @@
 import { Component, inject } from '@angular/core';
-import { NavigationEnd, Router } from '@angular/router';
+import { MatTabsModule } from '@angular/material/tabs';
+import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
+import { TranslatePipe } from '@placeos/components';
 import { AssetManagerStateService } from './asset-manager-state.service';
+import { AssetManagerTopbarComponent } from './asset-manager-topbar.component';
 
 @Component({
     selector: 'asset-listing',
@@ -57,7 +60,12 @@ import { AssetManagerStateService } from './asset-manager-state.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        MatTabsModule,
+        RouterModule,
+        TranslatePipe,
+        AssetManagerTopbarComponent,
+    ],
 })
 export class AssetListingComponent extends AsyncHandler {
     private _router = inject(Router);

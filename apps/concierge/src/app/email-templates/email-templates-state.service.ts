@@ -5,11 +5,11 @@ import {
     nextValueFrom,
     notifyError,
     notifySuccess,
+    OrganisationService,
     randomString,
     SettingsService,
     unique,
 } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
 import {
     PlaceMetadata,
     showMetadata,

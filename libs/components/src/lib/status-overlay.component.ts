@@ -1,5 +1,8 @@
 import { Component, input } from '@angular/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { RouterModule } from '@angular/router';
 import { ApplicationLink } from '@placeos/common';
+import { IconComponent } from './icon.component';
 
 @Component({
     selector: 'status-overlay',
@@ -42,7 +45,7 @@ import { ApplicationLink } from '@placeos/common';
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [RouterModule, MatProgressSpinnerModule, IconComponent],
 })
 export class StatusOverlayComponent {
     /** Whether overlay is loading */

@@ -1,8 +1,23 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute } from '@angular/router';
-import { AsyncHandler, SettingsService } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import {
+    AsyncHandler,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
+import {
+    AuthenticatedImageDirective,
+    TranslatePipe,
+} from '@placeos/components';
 import { debounceTime, map } from 'rxjs/operators';
+
+import { ReportsOptionsComponent } from '../reports-options.component';
+import { ParkingReportChartsComponent } from './parking-report-charts.component';
+import { ParkingReportDailyUsageComponent } from './parking-report-daily-usage.component';
+import { ParkingReportListComponent } from './parking-report-list.component';
+import { ParkingReportOverallComponent } from './parking-report-overall.component';
 import { ParkingReportService } from './parking-report.service';
 
 @Component({
@@ -69,7 +84,17 @@ import { ParkingReportService } from './parking-report.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatProgressSpinnerModule,
+        TranslatePipe,
+        AuthenticatedImageDirective,
+        ParkingReportOverallComponent,
+        ParkingReportDailyUsageComponent,
+        ParkingReportChartsComponent,
+        ParkingReportListComponent,
+        ReportsOptionsComponent,
+    ],
 })
 export class ParkingReportComponent extends AsyncHandler {
     private _state = inject(ParkingReportService);

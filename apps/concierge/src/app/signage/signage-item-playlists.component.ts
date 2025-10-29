@@ -1,3 +1,5 @@
+import { DragDropModule } from '@angular/cdk/drag-drop';
+import { CommonModule } from '@angular/common';
 import {
     Component,
     OnChanges,
@@ -6,6 +8,10 @@ import {
     input,
     output,
 } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { TranslatePipe } from '@placeos/components';
 import { SignagePlaylist } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map, startWith, tap } from 'rxjs/operators';
@@ -165,7 +171,14 @@ const PLAYLIST_ITEM_COUNTS = {};
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        MatRippleModule,
+        MatMenuModule,
+        DragDropModule,
+        MatTooltipModule,
+    ],
 })
 export class SignageItemPlaylistsComponent implements OnChanges {
     private _state = inject(SignageStateService);

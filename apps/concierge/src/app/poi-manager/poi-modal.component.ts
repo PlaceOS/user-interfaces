@@ -1,22 +1,42 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import {
+    FormControl,
+    FormGroup,
+    FormsModule,
+    ReactiveFormsModule,
+    Validators,
+} from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
 import {
     MAT_DIALOG_DATA,
     MatDialog,
     MatDialogRef,
 } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import {
     AsyncHandler,
+    Building,
     createShortURL,
     getInvalidFields,
     nextValueFrom,
     notifyError,
+    OrganisationService,
     randomString,
     SettingsService,
     updateShortURL,
 } from '@placeos/common';
-import { Building, OrganisationService } from '@placeos/organisation';
+import {
+    IconComponent,
+    SettingsToggleComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
+import { FullscreenModalShellComponent } from 'libs/components/src/lib/fullscreen-modal-shell.component';
+import { ImageFieldComponent } from 'libs/form-fields/src/lib/image-field.component';
+import { UploadButtonComponent } from '../ui/app-settings/upload-button.component';
 import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.component';
 import { PointOfInterest } from './poi-management.service';
 
@@ -252,7 +272,21 @@ import { PointOfInterest } from './poi-management.service';
         </fullscreen-modal-shell>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        IconComponent,
+        FullscreenModalShellComponent,
+        ReactiveFormsModule,
+        ImageFieldComponent,
+        MatRippleModule,
+        MatFormFieldModule,
+        MatInputModule,
+        FormsModule,
+        SettingsToggleComponent,
+        MatSelectModule,
+        UploadButtonComponent,
+    ],
 })
 export class POIModalComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);

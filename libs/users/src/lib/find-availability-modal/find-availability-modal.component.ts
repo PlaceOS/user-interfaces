@@ -14,7 +14,7 @@ import {
     MatDialogModule,
     MatDialogRef,
 } from '@angular/material/dialog';
-import { AsyncHandler } from '@placeos/common';
+import { AsyncHandler, User } from '@placeos/common';
 import {
     addMinutes,
     differenceInMinutes,
@@ -25,11 +25,11 @@ import {
     setHours,
     startOfDay,
 } from 'date-fns';
-import { queryUserFreeBusy } from 'libs/common/src/lib/calendar.fn';
 import { DurationPipe } from 'libs/components/src/lib/duration.pipe';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { UserAvatarComponent } from 'libs/components/src/lib/user-avatar.component';
+import { queryUserFreeBusy } from 'libs/events/src/lib/calendar.fn';
 import { DateFieldComponent } from 'libs/form-fields/src/lib/date-field.component';
 import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-field.component';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
@@ -41,7 +41,6 @@ import {
     shareReplay,
     switchMap,
 } from 'rxjs/operators';
-import { User } from '../user.class';
 import {
     AvailabilityBlock,
     UserAvailabilityComponent,
@@ -261,7 +260,7 @@ export interface FindAvailabilityData {
             }
             [disabled='true'],
             [disabled='true'] [header] {
-                background: var(--b3) !important;
+                background: var(--base-300) !important;
                 pointer-events: none;
             }
             [disabled='true'] > * {

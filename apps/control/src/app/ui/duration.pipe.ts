@@ -8,7 +8,6 @@ export function padLength(value: number | string, length = 2): string {
 
 @Pipe({
     name: 'duration',
-    standalone: false,
 })
 export class DurationPipe implements PipeTransform {
     public transform(length: number): string {

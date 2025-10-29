@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { nextValueFrom } from '@placeos/common';
-import { CalendarEvent, checkinEventGuest, showEvent } from '@placeos/events';
+import { CalendarEvent, nextValueFrom } from '@placeos/common';
+import { checkinEventGuest, showEvent } from '@placeos/events';
 import { setToken } from '@placeos/ts-client';
 import { showGuest, updateGuest } from '@placeos/users';
 import { getUnixTime } from 'date-fns';

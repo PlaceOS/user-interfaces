@@ -1,6 +1,10 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { Building } from '@placeos/organisation';
+import { Building } from '@placeos/common';
+import { TranslatePipe } from '@placeos/components';
+import { FullscreenModalShellComponent } from 'libs/components/src/lib/fullscreen-modal-shell.component';
+import { BuildingFormComponent } from './building-form.component';
 
 @Component({
     selector: 'building-modal',
@@ -28,7 +32,12 @@ import { Building } from '@placeos/organisation';
         </fullscreen-modal-shell>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        FullscreenModalShellComponent,
+        BuildingFormComponent,
+        TranslatePipe,
+    ],
 })
 export class BuildingModalComponent {
     private _data = inject<Building | undefined>(MAT_DIALOG_DATA);

@@ -2,13 +2,14 @@ import { Component, OnInit, inject, output } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 import {
+    CalendarEvent,
     DialogEvent,
     SettingsService,
     currentUser,
     notifyError,
     notifySuccess,
 } from '@placeos/common';
-import { CalendarEvent, EventFormService, queryEvents } from '@placeos/events';
+import { EventFormService, queryEvents } from '@placeos/events';
 
 export interface BookingModalData {
     event?: CalendarEvent;

@@ -4,18 +4,11 @@ import {
     NgModule,
     provideZonelessChangeDetection,
 } from '@angular/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { Router } from '@angular/router';
 import { LocaleService } from '@placeos/common';
 
-import { MatRippleModule } from '@angular/material/core';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatProgressSpinner } from '@angular/material/progress-spinner';
-import { MatSelectModule } from '@angular/material/select';
 import { ServiceWorkerModule } from '@angular/service-worker';
 
 import { registerLocaleData } from '@angular/common';
@@ -27,8 +20,6 @@ import localeIt from '@angular/common/locales/it';
 import localeJa from '@angular/common/locales/ja';
 import localeZh from '@angular/common/locales/zh';
 
-import { AppComponent } from '../../../../libs/components/src/lib/app.component';
-
 import { environment } from '../environments/environment';
 import { AppRoutingModule } from './app-routing.module';
 import { BootstrapComponent } from './bootstrap.component';
@@ -37,45 +28,24 @@ import { WelcomeComponent } from './welcome.component';
 
 import * as Sentry from '@sentry/angular';
 
-import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
-import { GlobalBannerComponent } from 'libs/components/src/lib/global-banner.component';
-import { GlobalLoadingComponent } from 'libs/components/src/lib/global-loading.component';
-import { SanitizePipe } from 'libs/components/src/lib/sanitise.pipe';
-import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-field.component';
+import {
+    GlobalBannerComponent,
+    GlobalLoadingComponent,
+} from '@placeos/components';
+import { AppComponent } from './app.component';
 import { TopbarHeaderComponent } from './components/topbar-header.component';
-
-const MAT_MODULES = [
-    MatProgressSpinner,
-    MatRippleModule,
-    MatFormFieldModule,
-    MatSelectModule,
-    MatInputModule,
-    MatMenuModule,
-    MatCheckboxModule,
-];
 
 const STANDALONE_COMPONENTS = [
     GlobalLoadingComponent,
     GlobalBannerComponent,
-    IconComponent,
-    TranslatePipe,
-    SanitizePipe,
-    AuthenticatedImageDirective,
-    UserSearchFieldComponent,
+    BootstrapComponent,
+    WelcomeComponent,
+    VisitorRegistrationComponent,
+    TopbarHeaderComponent,
 ];
 
 @NgModule({
-    declarations: [
-        AppComponent,
-        BootstrapComponent,
-        WelcomeComponent,
-        VisitorRegistrationComponent,
-        TopbarHeaderComponent,
-    ],
+    declarations: [AppComponent],
     bootstrap: [AppComponent],
     imports: [
         BrowserModule,
@@ -84,9 +54,6 @@ const STANDALONE_COMPONENTS = [
         ServiceWorkerModule.register('ngsw-worker.js', {
             enabled: environment.production,
         }),
-        FormsModule,
-        ReactiveFormsModule,
-        ...MAT_MODULES,
         ...STANDALONE_COMPONENTS,
     ],
     providers: [

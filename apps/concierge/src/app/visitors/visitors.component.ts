@@ -1,10 +1,25 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, Router } from '@angular/router';
-import { nextValueFrom, SettingsService } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import {
+    nextValueFrom,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
+import { TranslatePipe } from '@placeos/components';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
+import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
+import { DateOptionsComponent } from '../ui/date-options.component';
+import { SearchbarComponent } from '../ui/searchbar.component';
+import { GuestListingComponent } from './guest-listing.component';
 import { InviteVisitorModalComponent } from './invite-visitor-modal.component';
 import { VisitorsStateService } from './visitors-state.service';
 
@@ -90,11 +105,24 @@ import { VisitorsStateService } from './visitors-state.service';
                 flex-direction: column;
                 height: 100%;
                 width: 100%;
-                background-color: var(--b1);
+                background-color: var(--base-100);
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatProgressBarModule,
+        MatFormFieldModule,
+        MatSelectModule,
+        DateOptionsComponent,
+        GuestListingComponent,
+        FormsModule,
+        MatRippleModule,
+        SearchbarComponent,
+        ApplicationSidebarComponent,
+        ApplicationTopbarComponent,
+        TranslatePipe,
+    ],
 })
 export class VisitorsComponent implements OnInit, OnDestroy {
     private _state = inject(VisitorsStateService);

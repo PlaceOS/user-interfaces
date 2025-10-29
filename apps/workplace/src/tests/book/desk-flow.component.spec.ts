@@ -1,7 +1,7 @@
 import { FormGroup } from '@angular/forms';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { BookingFormService } from '@placeos/bookings';
-import { OrganisationService } from '@placeos/organisation';
+import { OrganisationService } from '@placeos/common';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 import { NewDeskFlowComponent } from '../../app/book/desk-flow.component';

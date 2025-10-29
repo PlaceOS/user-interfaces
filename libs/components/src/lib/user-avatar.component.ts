@@ -1,5 +1,5 @@
 import { Component, input } from '@angular/core';
-import { User } from 'libs/users/src/lib/user.class';
+import { User } from '@placeos/common';
 import { AuthenticatedImageDirective } from './authenticated-image.directive';
 
 @Component({

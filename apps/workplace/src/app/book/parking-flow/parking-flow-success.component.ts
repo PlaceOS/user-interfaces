@@ -1,12 +1,20 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
+import { RouterModule } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
+import { OrganisationService, SettingsService } from '@placeos/common';
+import {
+    IconComponent,
+    SafePipe,
+    SanitizePipe,
+    TranslatePipe,
+} from '@placeos/components';
 import {
     generateCalendarFileLink,
     generateGoogleCalendarLink,
     generateMicrosoftCalendarLink,
-    SettingsService,
-} from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+} from '@placeos/events';
 
 @Component({
     selector: 'parking-flow-success',
@@ -17,7 +25,9 @@ import { OrganisationService } from '@placeos/organisation';
             <main
                 class="flex flex-1 flex-col items-center justify-center space-y-2 p-8"
             >
-                <h2 class="text-2xl font-medium"></h2>
+                <h2 class="pb-4 text-2xl font-medium">
+                    {{ 'APP.WORKPLACE.PARKING_SUCCESS_HEADER' | translate }}
+                </h2>
                 <p class="max-w-[32rem] text-center">
                     {{
                         'APP.WORKPLACE.PARKING_SUCCESS_MSG'
@@ -37,7 +47,7 @@ import { OrganisationService } from '@placeos/organisation';
                                   }
                     }}
                 </p>
-                <img src="assets/icons/parking-success.svg" />
+                <img class="h-[20rem]" src="assets/icons/parking-success.svg" />
                 @if (show_links) {
                     <div
                         class="relative flex flex-col items-center space-y-4 p-4"
@@ -100,7 +110,15 @@ import { OrganisationService } from '@placeos/organisation';
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        RouterModule,
+        TranslatePipe,
+        MatRippleModule,
+        SafePipe,
+        SanitizePipe,
+        IconComponent,
+    ],
 })
 export class ParkingFlowSuccessComponent {
     private _state = inject(BookingFormService);

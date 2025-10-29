@@ -1,5 +1,5 @@
 import { Pipe } from '@angular/core';
-import { padLength } from 'libs/common/src/lib/general';
+import { padLength } from '@placeos/common';
 
 @Pipe({
     name: 'mediaDuration',

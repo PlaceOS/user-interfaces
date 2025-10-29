@@ -1,4 +1,6 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
+import { RouterModule } from '@angular/router';
 import { SettingsService } from '@placeos/common';
 import { startOfMinute } from 'date-fns';
 
@@ -32,7 +34,7 @@ import { startOfMinute } from 'date-fns';
             }
         `,
     ],
-    standalone: false,
+    imports: [CommonModule, RouterModule],
 })
 export class CheckinComponent {
     private _settings = inject(SettingsService);

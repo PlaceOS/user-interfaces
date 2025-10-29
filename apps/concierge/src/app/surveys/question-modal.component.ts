@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Inject, viewChild } from '@angular/core';
+import { Component, inject, OnInit, viewChild } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import {
     MAT_DIALOG_DATA,
@@ -7,13 +7,12 @@ import {
     MatDialogRef,
 } from '@angular/material/dialog';
 import { notifySuccess } from '@placeos/common';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import {
     addQuestion,
     SurveyQuestion,
     updateQuestion,
 } from '@placeos/ts-client';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { lastValueFrom } from 'rxjs';
 import { QuestionComponent } from './question.component';
 
@@ -63,17 +62,17 @@ import { QuestionComponent } from './question.component';
         MatDialogModule,
     ],
 })
-export class QuestionModalComponent {
-    readonly question_el = viewChild<QuestionComponent>('question_el');
+export class QuestionModalComponent implements OnInit {
+    private _data: SurveyQuestion = inject(MAT_DIALOG_DATA);
+    private _dialog_ref = inject(MatDialogRef<QuestionModalComponent>);
+
+    public readonly question_el = viewChild<QuestionComponent>('question_el');
 
     public is_edit = false;
     public loading = false;
     public question: SurveyQuestion;
 
-    constructor(
-        @Inject(MAT_DIALOG_DATA) private _data: SurveyQuestion,
-        private _dialog_ref: MatDialogRef<QuestionModalComponent>,
-    ) {
+    public ngOnInit() {
         this.is_edit = !!(this._data?.id > 0);
         this.question = this._data || new SurveyQuestion({ type: 'text' });
         console.log('Data', this._data, this.question);

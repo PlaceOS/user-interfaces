@@ -1,9 +1,20 @@
 import { Component, inject } from '@angular/core';
-import { Booking } from '@placeos/bookings';
-import { MapPinComponent } from '@placeos/components';
-import { OrganisationService } from '@placeos/organisation';
-import { SpacePipe } from 'libs/events/src/lib/space.pipe';
+import { Booking, OrganisationService } from '@placeos/common';
+import {
+    IconComponent,
+    InteractiveMapComponent,
+    MapPinComponent,
+    SimpleTableComponent,
+} from '@placeos/components';
+
+import { CommonModule } from '@angular/common';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatMenuModule } from '@angular/material/menu';
+import { SpacePipe } from '@placeos/events';
 import { AssetManagerStateService } from './asset-manager-state.service';
+import { SplitJoinPipe } from './split-join.pipe';
 
 @Component({
     selector: 'asset-location-modal',
@@ -124,7 +135,17 @@ import { AssetManagerStateService } from './asset-manager-state.service';
         </ng-template>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        MatDialogModule,
+        CommonModule,
+        MatMenuModule,
+        IconComponent,
+        SplitJoinPipe,
+        InteractiveMapComponent,
+        SimpleTableComponent,
+        MatFormFieldModule,
+        MatInputModule,
+    ],
 })
 export class AssetLocationModalComponent {
     private _state = inject(AssetManagerStateService);

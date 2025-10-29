@@ -1,5 +1,13 @@
 import { Component, computed, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatSelectModule } from '@angular/material/select';
+import { IconComponent, SimpleTableComponent } from '@placeos/components';
 import { AlertsService } from './alerts.service';
+import { SidebarComponent } from './ui/sidebar.component';
 
 @Component({
     selector: 'stagehand-alerts',
@@ -313,7 +321,17 @@ import { AlertsService } from './alerts.service';
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        MatMenuModule,
+        MatRippleModule,
+        SimpleTableComponent,
+        IconComponent,
+        MatFormFieldModule,
+        MatSelectModule,
+        MatInputModule,
+        SidebarComponent,
+        FormsModule,
+    ],
 })
 export class AlertsComponent {
     private _service = inject(AlertsService);

@@ -3,15 +3,15 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { MockComponent } from 'ng-mocks';
 import { BehaviorSubject, of } from 'rxjs';
 
+import { OrganisationService } from '@placeos/common';
 import {
     ExploreDesksService,
     ExploreStateService,
     ExploreZoomControlComponent,
 } from '@placeos/explore';
 import { UserSearchFieldComponent } from '@placeos/form-fields';
-import { OrganisationService } from '@placeos/organisation';
 
-import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
+import { InteractiveMapComponent } from '@placeos/components';
 import { DeskMapViewComponent } from '../../app/desks/desk-map-view.component';
 import { DesksStateService } from '../../app/desks/desks-state.service';
 

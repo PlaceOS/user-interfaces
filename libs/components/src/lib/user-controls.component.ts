@@ -1,26 +1,37 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
-
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import {
+    currentUser,
+    hasNewVersion,
+    i18n,
+    LocaleService,
+    SettingsService,
+    VERSION,
+    WorktimePreference,
+} from '@placeos/common';
 import { logout } from '@placeos/ts-client';
+import { format, set, startOfMinute } from 'date-fns';
+
+import { CommonModule } from '@angular/common';
+import { MatRippleModule } from '@angular/material/core';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { OrganisationService } from '@placeos/common';
+import { SupportTicketModalComponent } from 'libs/form-fields/src/lib/support-ticket-modal.component';
+import { WFHSettingsModalComponent } from 'libs/users/src/lib/wfh-settings-modal.component';
 import { AccessibilityTooltipComponent } from './accessibility-tooltip.component';
 import { BuildingSelectComponent } from './building-select.component';
 import { ChangelogModalComponent } from './changelog-modal.component';
+import { CustomTooltipComponent } from './custom-tooltip.component';
+import { DeskHeightPresetsComponent } from './desk-height-presets.component';
 import { HelpTooltipComponent } from './help-tooltip.component';
+import { IconComponent } from './icon.component';
 import { LanguageSelectComponent } from './language-tooltip.component';
 import { RegionSelectComponent } from './region-select.component';
-import { WorkLocationTooltipComponent } from './work-location-tooltip.component';
-
-import { WorktimePreference } from '@placeos/users';
-import { format, set, startOfMinute } from 'date-fns';
-import { hasNewVersion } from 'libs/common/src/lib/application';
-import { i18n, LocaleService } from 'libs/common/src/lib/locale.service';
-import { SettingsService } from 'libs/common/src/lib/settings.service';
-import { currentUser } from 'libs/common/src/lib/user-state';
-import { VERSION } from 'libs/common/src/lib/version';
-import { SupportTicketModalComponent } from 'libs/form-fields/src/lib/support-ticket-modal.component';
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
-import { WFHSettingsModalComponent } from 'libs/users/src/lib/wfh-settings-modal.component';
+import { TranslatePipe } from './translate.pipe';
+import { UserAvatarComponent } from './user-avatar.component';
 import { UserParkingTooltipComponent } from './user-parking-tooltip.component';
+import { WorkLocationTooltipComponent } from './work-location-tooltip.component';
 
 export interface AppLocale {
     id: string;
@@ -396,7 +407,18 @@ export interface AppLocale {
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatDialogModule,
+        MatRippleModule,
+        TranslatePipe,
+        IconComponent,
+        CustomTooltipComponent,
+        MatTooltipModule,
+        UserAvatarComponent,
+        MatMenuModule,
+        DeskHeightPresetsComponent,
+    ],
 })
 export class UserControlsComponent implements OnInit {
     private _settings = inject(SettingsService);

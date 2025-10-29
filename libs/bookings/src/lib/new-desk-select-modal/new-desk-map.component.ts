@@ -1,26 +1,30 @@
+import { CommonModule } from '@angular/common';
 import {
     Component,
     OnInit,
     SimpleChanges,
+    WritableSignal,
     inject,
     input,
     output,
     signal,
 } from '@angular/core';
-import { AsyncHandler, SettingsService } from '@placeos/common';
-import { map } from 'rxjs/operators';
-
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-import { OrganisationService } from '@placeos/organisation';
+import {
+    AsyncHandler,
+    BuildingLevel,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
+import { BehaviorSubject, combineLatest } from 'rxjs';
+import { map } from 'rxjs/operators';
+
 import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { ExploreDeskInfoComponent } from 'libs/explore/src/lib/explore-desk-info.component';
 import { DEFAULT_COLOURS } from 'libs/explore/src/lib/explore-spaces.service';
-import { BuildingLevel } from 'libs/organisation/src/lib/level.class';
-import { BehaviorSubject, combineLatest } from 'rxjs';
 import { BookingAsset, BookingFormService } from '../booking-form.service';
 
 @Component({
@@ -113,7 +117,7 @@ export class NewDeskMapComponent extends AsyncHandler implements OnInit {
     public center = { x: 0.5, y: 0.5 };
     public level?: BuildingLevel;
     public coordinates = undefined;
-    public readonly statuses: Record<string, any> = {};
+    public readonly statuses: Record<string, WritableSignal<string>> = {};
 
     private _change = new BehaviorSubject(0);
 

@@ -9,7 +9,7 @@ import { MockComponent, MockProvider } from 'ng-mocks';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { CounterComponent } from 'libs/form-fields/src/lib/counter.component';
 
-import { OrganisationService } from '@placeos/organisation';
+import { OrganisationService } from '@placeos/common';
 import { BehaviorSubject } from 'rxjs';
 import { CateringItem } from '../lib/catering-item.class';
 import { CateringOrderModalComponent } from '../lib/catering-order-modal.component';

@@ -1,4 +1,8 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
+import { RouterModule } from '@angular/router';
+import { TranslatePipe } from '@placeos/components';
 import { CheckinStateService } from './checkin-state.service';
 
 @Component({
@@ -25,7 +29,7 @@ import { CheckinStateService } from './checkin-state.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [CommonModule, TranslatePipe, MatRippleModule, RouterModule],
 })
 export class CheckinErrorComponent {
     private _checkin = inject(CheckinStateService);

@@ -4,23 +4,11 @@ import {
     NgModule,
     provideZonelessChangeDetection,
 } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { Router } from '@angular/router';
 import { ServiceWorkerModule } from '@angular/service-worker';
-
-import { AppComponent } from 'libs/components/src/lib/app.component';
-
-import { environment } from '../environments/environment';
-import { AppRoutingModule } from './app-routing.module';
-import { SharedOverlaysModule } from './overlays/overlays.module';
-
-import * as Sentry from '@sentry/angular';
-
-import { SharedBookingsModule } from '@placeos/bookings';
-import { SharedComponentModule } from './components/shared.module';
 
 import { registerLocaleData } from '@angular/common';
 import localeAr from '@angular/common/locales/ar';
@@ -29,7 +17,19 @@ import localeFr from '@angular/common/locales/fr';
 import localeIt from '@angular/common/locales/it';
 import localeJa from '@angular/common/locales/ja';
 import localeZh from '@angular/common/locales/zh';
+
 import { LocaleService } from '@placeos/common';
+
+import { environment } from '../environments/environment';
+import { AppRoutingModule } from './app-routing.module';
+
+import * as Sentry from '@sentry/angular';
+
+import {
+    GlobalBannerComponent,
+    GlobalLoadingComponent,
+} from '@placeos/components';
+import { AppComponent } from './app.component';
 
 @NgModule({
     declarations: [AppComponent],
@@ -38,14 +38,12 @@ import { LocaleService } from '@placeos/common';
         BrowserModule,
         BrowserAnimationsModule,
         AppRoutingModule,
+        MatSnackBarModule,
+        GlobalLoadingComponent,
+        GlobalBannerComponent,
         ServiceWorkerModule.register('ngsw-worker.js', {
             enabled: environment.production,
         }),
-        FormsModule,
-        MatSnackBarModule,
-        SharedOverlaysModule,
-        SharedComponentModule,
-        SharedBookingsModule,
     ],
     providers: [
         provideZonelessChangeDetection(),

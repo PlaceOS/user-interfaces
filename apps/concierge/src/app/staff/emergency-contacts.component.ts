@@ -1,12 +1,29 @@
 import { Clipboard } from '@angular/cdk/clipboard';
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
-import { nextValueFrom, notifySuccess } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import {
+    nextValueFrom,
+    notifySuccess,
+    OrganisationService,
+} from '@placeos/common';
+import {
+    IconComponent,
+    openConfirmModal,
+    SimpleTableComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
-import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { filter, map, shareReplay, switchMap } from 'rxjs/operators';
+import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
+import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
 import { EmergencyContactModalComponent } from './emergency-contact-modal.component';
 import { RoleManagementModalComponent } from './role-management-modal.component';
 
@@ -209,11 +226,24 @@ export interface EmergencyContactData {
                 flex-direction: column;
                 height: 100%;
                 width: 100%;
-                background-color: var(--b1);
+                background-color: var(--base-100);
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatRippleModule,
+        IconComponent,
+        MatTooltipModule,
+        SimpleTableComponent,
+        MatFormFieldModule,
+        MatSelectModule,
+        MatInputModule,
+        ApplicationTopbarComponent,
+        ApplicationSidebarComponent,
+        FormsModule,
+        TranslatePipe,
+    ],
 })
 export class EmergencyContactsComponent {
     private _org = inject(OrganisationService);

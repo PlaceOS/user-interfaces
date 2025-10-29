@@ -2,17 +2,23 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { first } from 'rxjs/operators';
 
-import { AsyncHandler } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { AsyncHandler, OrganisationService } from '@placeos/common';
+import { TranslatePipe } from '@placeos/components';
+import { SearchbarComponent } from '../ui/searchbar.component';
 import { StaffStateService } from './staff-state.service';
 
 @Component({
     selector: 'staff-topbar',
     template: `
         <div
-            class="flex h-20 items-center space-x-2 border-b border-base-200 bg-base-100 px-4"
+            class="flex items-center space-x-4 border-b border-base-200 bg-base-100 p-4"
         >
-            <mat-form-field appearance="outline">
+            <mat-form-field appearance="outline" class="no-subscript w-48">
                 <mat-select
                     multiple
                     [(ngModel)]="zones"
@@ -49,7 +55,15 @@ import { StaffStateService } from './staff-state.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatSlideToggleModule,
+        SearchbarComponent,
+        MatFormFieldModule,
+        MatSelectModule,
+        FormsModule,
+        TranslatePipe,
+    ],
 })
 export class StaffTopbarComponent extends AsyncHandler implements OnInit {
     private _state = inject(StaffStateService);

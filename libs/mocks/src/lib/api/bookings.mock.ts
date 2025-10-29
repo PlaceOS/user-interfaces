@@ -2,27 +2,114 @@ import { predictableRandomInt, timePeriodsIntersect } from '@placeos/common';
 import { registerMockEndpoint } from '@placeos/ts-client';
 
 import { MOCK_BOOKINGS } from './bookings.data';
+import { ACTIVE_USER } from './users.data';
 
-export const BOOKING_MOCKS = registerMocks();
-
-function registerMocks() {
+export function registerMockBookings() {
     registerMockEndpoint({
         path: '/api/staff/v1/bookings',
         metadata: {},
         method: 'GET',
         callback: (_) => {
-            const events = MOCK_BOOKINGS.filter(
-                (event) =>
+            let events = MOCK_BOOKINGS;
+            if (!_.query_params.zone_ids && !_.query_params.zones) {
+                // Real API returns active user bookings when no zone is specified
+                _.query_params.user_id = ACTIVE_USER.id;
+            }
+
+            // Filter by user if user_id is provided
+            if (_.query_params.user_id) {
+                events = events.filter(
+                    (booking) => booking.user_id === _.query_params.user_id,
+                );
+            }
+
+            // Filter by user email if email is provided
+            if (_.query_params.email) {
+                events = events.filter(
+                    (booking) => booking.user_email === _.query_params.email,
+                );
+            }
+
+            // Filter by zones if provided
+            if (_.query_params.zones || _.query_params.zone_ids) {
+                const zones = (
+                    _.query_params.zones ||
+                    _.query_params.zone_ids ||
+                    ''
+                )
+                    .split(',')
+                    .filter((id) => !!id);
+                if (zones.length > 0) {
+                    events = events.filter((booking) =>
+                        zones.some((zone) => booking.zones.includes(zone)),
+                    );
+                }
+            }
+
+            // Filter by time period if provided
+            if (_.query_params.period_start && _.query_params.period_end) {
+                events = events.filter((event) =>
                     timePeriodsIntersect(
                         +_.query_params.period_start,
                         +_.query_params.period_end,
                         event.booking_start,
                         event.booking_end,
-                    ) &&
-                    (event.type === _.query_params.type ||
-                        event.booking_type === _.query_params.type),
-            );
+                    ),
+                );
+            }
+
+            // Filter by type if provided
+            if (_.query_params.type) {
+                events = events.filter(
+                    (event) =>
+                        event.type === _.query_params.type ||
+                        event.booking_type === _.query_params.type,
+                );
+            }
+
+            // Pagination
+            const limit = +_.query_params.limit || 50;
+            const offset = +_.query_params.offset || 0;
+            events = events.slice(offset, offset + limit);
+
             return events;
+        },
+    });
+
+    // Debug endpoint to show booking distribution by user
+    registerMockEndpoint({
+        path: '/api/debug/bookings/distribution',
+        metadata: {},
+        method: 'GET',
+        callback: (_) => {
+            const distribution = {};
+            MOCK_BOOKINGS.forEach((booking) => {
+                if (!distribution[booking.user_id]) {
+                    distribution[booking.user_id] = {
+                        user_name: booking.user_name,
+                        user_email: booking.user_email,
+                        total: 0,
+                        desk: 0,
+                        parking: 0,
+                        visitor: 0,
+                        other: 0,
+                    };
+                }
+                distribution[booking.user_id].total++;
+                if (booking.type === 'desk')
+                    distribution[booking.user_id].desk++;
+                else if (booking.type === 'parking')
+                    distribution[booking.user_id].parking++;
+                else if (booking.type === 'visitor')
+                    distribution[booking.user_id].visitor++;
+                else distribution[booking.user_id].other++;
+            });
+
+            return {
+                total_bookings: MOCK_BOOKINGS.length,
+                total_users: Object.keys(distribution).length,
+                distribution,
+            };
         },
     });
 
@@ -42,7 +129,7 @@ function registerMocks() {
     });
 
     registerMockEndpoint({
-        path: '/api/staff/v1/bookings/:id/attendee',
+        path: '/api/staff/v1/bookings/:id/guests/:email',
         metadata: {},
         method: 'POST',
         callback: (_) => {
@@ -57,7 +144,6 @@ function registerMocks() {
                 id: _.body.id,
                 name: _.body.name,
                 email: _.body.email,
-                checked_in: false,
             };
             event.attendees.push(user);
             return user;
@@ -65,9 +151,9 @@ function registerMocks() {
     });
 
     registerMockEndpoint({
-        path: '/api/staff/v1/bookings/:id/guests/:email/check_in',
+        path: '/api/staff/v1/bookings/:id/guests/:email',
         metadata: {},
-        method: 'POST',
+        method: 'DELETE',
         callback: (_) => {
             const { id, email } = _.route_params;
             const event = MOCK_BOOKINGS.find((e) => e.id === id);
@@ -83,18 +169,17 @@ function registerMocks() {
             if (!guest) {
                 throw {
                     status: 404,
-                    message: `Unable to find guest with email ${email}`,
+                    message: `Unable to find guest with email ${decodeURIComponent(email)}`,
                 };
             }
-            guest.checked_in = _.query_params.state === 'true';
             return guest;
         },
     });
 
     registerMockEndpoint({
-        path: '/api/staff/v1/bookings/:id/attendee/:email',
+        path: '/api/staff/v1/bookings/:id/guests/:email/checkin',
         metadata: {},
-        method: 'DELETE',
+        method: 'POST',
         callback: (_) => {
             const { id, email } = _.route_params;
             const event = MOCK_BOOKINGS.find((e) => e.id === id);
@@ -107,7 +192,7 @@ function registerMocks() {
             event.attendees = event.attendees.filter(
                 (_) => _.email !== decodeURIComponent(email),
             );
-            return event;
+            return {};
         },
     });
 
@@ -140,50 +225,71 @@ function registerMocks() {
     registerMockEndpoint({
         path: '/api/staff/v1/bookings/:id',
         metadata: {},
-        method: 'PUT',
-        callback: (req) => updateBooking(req.route_params.id, { ...req.body }),
-    });
-
-    registerMockEndpoint({
-        path: '/api/staff/v1/bookings/:id',
-        metadata: {},
         method: 'PATCH',
-        callback: (req) => updateBooking(req.route_params.id, { ...req.body }),
+        callback: (req) => updateBooking(req.route_params.id, req.body),
     });
 
     registerMockEndpoint({
         path: '/api/staff/v1/bookings/:id/approve',
         metadata: {},
         method: 'POST',
-        callback: (req) =>
-            updateBooking(req.route_params.id, {
-                ...req.body,
-                approved: true,
-                rejected: false,
-            }),
+        callback: (req) => {
+            const booking = MOCK_BOOKINGS.find(
+                (b) => b.id === req.route_params.id,
+            );
+            if (!booking)
+                throw {
+                    status: 404,
+                    message: `Unable to find booking with ID ${req.route_params.id}`,
+                };
+            booking.approved = true;
+            booking.rejected = false;
+            return booking;
+        },
     });
 
     registerMockEndpoint({
         path: '/api/staff/v1/bookings/:id/reject',
         metadata: {},
         method: 'POST',
-        callback: (req) =>
-            updateBooking(req.route_params.id, {
-                ...req.body,
-                approved: false,
-                rejected: true,
-            }),
+        callback: (req) => {
+            const booking = MOCK_BOOKINGS.find(
+                (b) => b.id === req.route_params.id,
+            );
+            if (!booking)
+                throw {
+                    status: 404,
+                    message: `Unable to find booking with ID ${req.route_params.id}`,
+                };
+            booking.approved = false;
+            booking.rejected = true;
+            return booking;
+        },
     });
 
     registerMockEndpoint({
-        path: '/api/staff/v1/bookings/:id/check_in',
+        path: '/api/staff/v1/bookings/:id/checkin',
         metadata: {},
         method: 'POST',
-        callback: (req) =>
-            updateBooking(req.route_params.id, {
-                ...req.body,
-                checked_in: req.query_params.state === 'true',
-            }),
+        callback: (req) => {
+            const booking = MOCK_BOOKINGS.find(
+                (b) => b.id === req.route_params.id,
+            );
+            if (!booking)
+                throw {
+                    status: 404,
+                    message: `Unable to find booking with ID ${req.route_params.id}`,
+                };
+            booking.checked_in = true;
+            return booking;
+        },
+    });
+
+    registerMockEndpoint({
+        path: '/api/staff/v1/bookings/:id',
+        metadata: {},
+        method: 'PUT',
+        callback: (req) => updateBooking(req.route_params.id, req.body),
     });
 
     registerMockEndpoint({

@@ -1,11 +1,18 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { ReactiveFormsModule } from '@angular/forms';
 import {
-    AssetCategory,
-    generateAssetCategoryForm,
-    saveAssetCategory,
-} from '@placeos/assets';
-import { i18n, notifyError } from '@placeos/common';
+    MAT_DIALOG_DATA,
+    MatDialogModule,
+    MatDialogRef,
+} from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
+import { generateAssetCategoryForm, saveAssetCategory } from '@placeos/assets';
+import { AssetCategory, i18n, notifyError } from '@placeos/common';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { map } from 'rxjs/operators';
 import { AssetManagerStateService } from './asset-manager-state.service';
 
@@ -94,7 +101,18 @@ import { AssetManagerStateService } from './asset-manager-state.service';
         }
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        IconComponent,
+        TranslatePipe,
+        MatDialogModule,
+        MatFormFieldModule,
+        MatProgressSpinnerModule,
+        MatFormFieldModule,
+        MatSelectModule,
+        ReactiveFormsModule,
+        MatInputModule,
+    ],
 })
 export class AssetCategoryFormComponent {
     private _state = inject(AssetManagerStateService);

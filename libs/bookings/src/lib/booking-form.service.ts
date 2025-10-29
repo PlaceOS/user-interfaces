@@ -3,7 +3,9 @@ import { MatDialog } from '@angular/material/dialog';
 import { Event, NavigationEnd, Router } from '@angular/router';
 import {
     AsyncHandler,
+    Booking,
     BookingRuleset,
+    BookingType,
     currentUser,
     flatten,
     getInvalidFields,
@@ -11,9 +13,11 @@ import {
     nextValueFrom,
     notifyError,
     notifyWarn,
+    OrganisationService,
     rulesForResource,
     SettingsService,
     unique,
+    User,
 } from '@placeos/common';
 import {
     cleanObject,
@@ -51,11 +55,7 @@ import {
     switchMap,
     tap,
 } from 'rxjs/operators';
-
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
-import { User } from 'libs/users/src/lib/user.class';
 import { BookingLinkModalComponent } from './booking-link-modal.component';
-import { Booking, BookingType } from './booking.class';
 import {
     findNearbyFeature,
     generateBookingForm,
@@ -224,15 +224,6 @@ export class BookingFormService extends AsyncHandler {
                 date = startOfDay(date).valueOf();
                 duration = 24 * 60 - 1;
             }
-            console.log(
-                'Booking:',
-                options.type,
-                user,
-                date,
-                duration,
-                resources.length,
-                restrictions,
-            );
             return bookedResourceList({
                 period_start: getUnixTime(date),
                 period_end: getUnixTime(addMinutes(date, duration)),
@@ -279,7 +270,6 @@ export class BookingFormService extends AsyncHandler {
                             !booked_ids.includes(asset.id)
                         );
                     });
-                    console.log('Resources Available:', available);
                     return available;
                 }),
                 catchError(() => of([])),
@@ -498,8 +488,6 @@ export class BookingFormService extends AsyncHandler {
         await this.checkQuestions();
         const options = this._options.getValue();
         const value = this.form.getRawValue();
-
-        console.log('i18n:', i18n('BOOKINGS.CONFIRM_MSG'));
 
         const content = i18n(
             options.group
@@ -747,6 +735,7 @@ export class BookingFormService extends AsyncHandler {
             Date.now(),
             'yyyy-MM-dd',
         )}]`;
+        let user_booking: Booking = null;
         let id = '';
         for (let i = 0; i < group_members.length; i++) {
             if (!available[i]) continue;
@@ -777,6 +766,7 @@ export class BookingFormService extends AsyncHandler {
             });
             const bkn = await this.postForm(true);
             if (bkn.id && !id) id = bkn.id;
+            if (bkn.user_email === currentUser().email) user_booking = bkn;
         }
         if (unavailable.length) {
             notifyWarn(
@@ -787,6 +777,7 @@ export class BookingFormService extends AsyncHandler {
                 }),
             );
         }
+        return user_booking;
     }
 
     private async checkQuestions() {

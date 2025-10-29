@@ -1,9 +1,19 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, OnInit, inject, signal } from '@angular/core';
+import {
+    Component,
+    ElementRef,
+    OnInit,
+    WritableSignal,
+    computed,
+    inject,
+    signal,
+} from '@angular/core';
 import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
 
 import { MAP_FEATURE_DATA } from 'libs/common/src/lib/types';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+
+type DeskStatus = 'free' | 'busy' | 'pending' | 'reserved' | 'unknown' | '';
 
 export interface DeskInfoData {
     id: string;
@@ -13,7 +23,7 @@ export interface DeskInfoData {
     start?: number;
     end?: number;
     department?: string;
-    status: 'free' | 'busy' | 'pending' | 'reserved' | 'unknown' | '';
+    status: WritableSignal<DeskStatus>;
 }
 
 @Component({
@@ -28,18 +38,20 @@ export interface DeskInfoData {
             [hover]="true"
             [delay]="3000"
             class="pointer-events-auto relative z-20 h-full w-full"
-            [attr.id]="id"
-            [attr.map_id]="map_id"
+            [attr.id]="id()"
+            [attr.map_id]="map_id()"
+            (mouseenter)="updatePosition()"
+            (touchdown)="updatePosition()"
         ></div>
         <ng-template #desk_tooltip>
             <div
                 name="space-info"
-                [id]="map_id"
+                [id]="map_id()"
                 [class]="
                     'pointer-events-none absolute left-0 top-0 w-64 bg-base-100 p-1 shadow ' +
-                    x_pos +
+                    x_pos() +
                     ' ' +
-                    y_pos
+                    y_pos()
                 "
             >
                 <div class="rounded-md border border-base-200 p-1">
@@ -47,22 +59,22 @@ export interface DeskInfoData {
                     <div class="flex w-full items-center space-x-4">
                         <div class="flex flex-1 flex-col px-2 py-1">
                             <h4 map-id class="m-0 truncate font-medium">
-                                {{ name || map_id || id }}
+                                {{ name() || map_id() || id() }}
                             </h4>
-                            @if (user) {
+                            @if (user()) {
                                 <p user class="text-xs">
-                                    {{ user }}
+                                    {{ user() }}
                                 </p>
                             }
-                            @if (user && department) {
+                            @if (user() && department()) {
                                 <p user class="text-xs">
-                                    {{ department }}
+                                    {{ department() }}
                                 </p>
                             }
-                            @if (start) {
+                            @if (start()) {
                                 <p start class="text-xs">
-                                    {{ start | date: 'shortTime' }} &ndash;
-                                    {{ end | date: 'shortTime' }}
+                                    {{ start() | date: 'shortTime' }} &ndash;
+                                    {{ end() | date: 'shortTime' }}
                                 </p>
                             }
                         </div>
@@ -83,7 +95,7 @@ export interface DeskInfoData {
                                         ) | translate
                                     }}
                                 </div>
-                                @if (status !== 'not-bookable') {
+                                @if (status() !== 'not-bookable') {
                                     <div available-until>
                                         {{ available_until }}
                                     </div>
@@ -161,22 +173,22 @@ export interface DeskInfoData {
             }
 
             [status] {
-                background-color: var(--su);
-                color: var(--suc);
+                background-color: var(--success);
+                color: var(--success-content);
             }
 
             [status].busy {
-                background-color: var(--er);
-                color: var(--erc);
+                background-color: var(--error);
+                color: var(--error-content);
             }
 
             [status].pending {
-                background-color: var(--wa);
-                color: var(--wac);
+                background-color: var(--warn);
+                color: var(--warn-content);
             }
 
             [status].not-bookable {
-                background-color: var(--b3);
+                background-color: var(--base-300);
             }
         `,
     ],
@@ -187,40 +199,34 @@ export class ExploreDeskInfoComponent implements OnInit {
     private _element = inject<ElementRef<HTMLElement>>(ElementRef);
 
     /** Space to display details for */
-    public status = signal('');
-    public readonly id = this._details.id;
-    public readonly map_id = this._details.map_id;
-    public readonly name = this._details.name;
-    public readonly user = this._details.user;
-    public readonly start = this._details.start;
-    public readonly end = this._details.end;
-    public readonly department = this._details.department;
+    public readonly status = computed(() => this._details.status?.());
+    public readonly id = signal(this._details.id);
+    public readonly map_id = signal(this._details.map_id);
+    public readonly name = signal(this._details.name);
+    public readonly user = signal(this._details.user);
+    public readonly start = signal(this._details.start);
+    public readonly end = signal(this._details.end);
+    public readonly department = signal(this._details.department);
 
-    public y_pos: 'top' | 'bottom';
+    public y_pos = signal<'top' | 'bottom'>('top');
 
-    public x_pos: 'left' | 'right';
+    public x_pos = signal<'left' | 'right'>('left');
 
     public ngOnInit(tries = 0) {
         if (tries > 10) return;
-        setTimeout(() => {
-            const parent =
-                this._element.nativeElement.parentElement?.parentElement;
-            if (!parent) return this.ngOnInit(++tries);
-            const position = {
-                y: parseInt(parent.style.top, 10) / 100,
-                x: parseInt(parent.style.left, 10) / 100,
-            };
-            this.y_pos = position.y >= 0.5 ? 'bottom' : 'top';
-            this.x_pos = position.x >= 0.5 ? 'right' : 'left';
-        }, 200);
-        if (typeof this._details.status === 'string') {
-            this.status.set((this._details.status || '').trim());
-        } else if (this._details.status != null) {
-            this.status = this._details.status;
-        }
+        setTimeout(() => this.updatePosition(), 200);
     }
 
     public get available_until() {
         return '';
+    }
+
+    public updatePosition(tries = 0) {
+        const parent = this._element.nativeElement.parentElement?.parentElement;
+        if (!parent) return setTimeout(() => this.updatePosition(++tries), 200);
+        const box = parent?.getBoundingClientRect();
+        const wbox = document.body?.getBoundingClientRect();
+        this.y_pos.set(box.y >= wbox.height / 2 ? 'bottom' : 'top');
+        this.x_pos.set(box.x >= wbox.width / 2 ? 'right' : 'left');
     }
 }

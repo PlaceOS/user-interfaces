@@ -1,5 +1,7 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { OrganisationService } from '@placeos/organisation';
+import { OrganisationService } from '@placeos/common';
+import { TranslatePipe } from '@placeos/components';
 import { CateringReportStateService } from './catering-report-state.service';
 
 @Component({
@@ -61,7 +63,7 @@ import { CateringReportStateService } from './catering-report-state.service';
             }
 
             [item] {
-                border: 1px solid var(--b2);
+                border: 1px solid var(--base-200);
                 border-radius: 0.5rem;
                 padding: 1rem;
                 margin: 0.5rem;
@@ -71,7 +73,7 @@ import { CateringReportStateService } from './catering-report-state.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [CommonModule, TranslatePipe],
 })
 export class CateringReportOverallComponent {
     private _report = inject(CateringReportStateService);

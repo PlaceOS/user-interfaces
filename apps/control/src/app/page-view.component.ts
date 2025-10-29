@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { ControlAdvancedViewComponent } from './advanced-view.component';
+import { SourceSelectComponent } from './ui/source-select.component';
 
 @Component({
     selector: '[control-page-view]',
@@ -24,7 +26,7 @@ import { Component } from '@angular/core';
             }
         `,
     ],
-    standalone: false,
+    imports: [ControlAdvancedViewComponent, SourceSelectComponent],
 })
 export class ControlPageViewComponent {
     public view: 'basic' | 'advanced';

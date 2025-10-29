@@ -1,7 +1,16 @@
-import { Component, inject } from '@angular/core';
-import { BookingFormService } from '@placeos/bookings';
-import { AsyncHandler, SettingsService } from '@placeos/common';
-import { Desk } from '@placeos/organisation';
+import { Component, inject, OnInit } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { AssetListFieldComponent } from '@placeos/assets';
+import { BookingFormService, DeskListFieldComponent } from '@placeos/bookings';
+import { AsyncHandler, Desk, SettingsService } from '@placeos/common';
+import {
+    DateFieldComponent,
+    DurationFieldComponent,
+    TimeFieldComponent,
+} from '@placeos/form-fields';
 
 @Component({
     selector: 'desk-booking-form',
@@ -128,9 +137,20 @@ import { Desk } from '@placeos/organisation';
         }
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        AssetListFieldComponent,
+        DeskListFieldComponent,
+        MatCheckboxModule,
+        FormsModule,
+        ReactiveFormsModule,
+        DurationFieldComponent,
+        TimeFieldComponent,
+        DateFieldComponent,
+        MatFormFieldModule,
+        MatInputModule,
+    ],
 })
-export class DeskBookingFormComponent extends AsyncHandler {
+export class DeskBookingFormComponent extends AsyncHandler implements OnInit {
     private _service = inject(BookingFormService);
     private _settings = inject(SettingsService);
 

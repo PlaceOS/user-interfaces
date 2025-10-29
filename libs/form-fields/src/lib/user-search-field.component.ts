@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/member-ordering */
+import { CommonModule } from '@angular/common';
 import {
     Component,
     ElementRef,
@@ -14,7 +15,14 @@ import {
     FormsModule,
     NG_VALUE_ACCESSOR,
 } from '@angular/forms';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatRippleModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { AsyncHandler, SettingsService, User } from '@placeos/common';
 import { authority, queryUsers } from '@placeos/ts-client';
+import { searchGuests, searchStaff } from '@placeos/users';
 import { BehaviorSubject, forkJoin, Observable, of } from 'rxjs';
 import {
     catchError,
@@ -26,26 +34,18 @@ import {
     tap,
 } from 'rxjs/operators';
 
-import { AsyncHandler, SettingsService } from '@placeos/common';
-
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-
-import { CommonModule } from '@angular/common';
-import { MatRippleModule } from '@angular/material/core';
-import { searchGuests } from '@placeos/users';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { searchStaff } from 'libs/users/src/lib/staff.fn';
-import { User } from 'libs/users/src/lib/user.class';
 
 @Component({
     selector: 'a-user-search-field',
     template: `
         <div class="flex w-full space-x-2">
-            <mat-form-field appearance="outline" class="w-1/2 flex-1">
+            <mat-form-field
+                appearance="outline"
+                class="w-1/2 flex-1"
+                [class.no-subscript]="!error()"
+            >
                 <icon
                     matPrefix
                     class="block flex w-6 items-center justify-center text-2xl"

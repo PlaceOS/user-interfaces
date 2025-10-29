@@ -1,8 +1,17 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute } from '@angular/router';
-import { AsyncHandler, SettingsService } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import {
+    AsyncHandler,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
+import { AuthenticatedImageDirective } from '@placeos/components';
 import { debounceTime, map } from 'rxjs/operators';
+import { EnrolmentErrorComponent } from './enrolment-error.component';
+import { EnrolmentEventDetailsComponent } from './enrolment-event-details.component';
+import { EnrolmentGuestConfirmComponent } from './enrolment-guest-confirm.component';
 import { EnrolmentStateService } from './enrolment-state.service';
 
 @Component({
@@ -63,7 +72,14 @@ import { EnrolmentStateService } from './enrolment-state.service';
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatProgressSpinnerModule,
+        EnrolmentErrorComponent,
+        EnrolmentGuestConfirmComponent,
+        EnrolmentEventDetailsComponent,
+        AuthenticatedImageDirective,
+    ],
 })
 export class EnrolmentComponent extends AsyncHandler {
     private _state = inject(EnrolmentStateService);

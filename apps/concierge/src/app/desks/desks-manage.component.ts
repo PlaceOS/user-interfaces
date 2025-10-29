@@ -1,21 +1,34 @@
 import { Clipboard } from '@angular/cdk/clipboard';
+import { CommonModule } from '@angular/common';
 import { Component, ElementRef, inject } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     AsyncHandler,
-    SettingsService,
     csvToJson,
+    Desk,
+    generateQRCode,
     i18n,
     loadTextFileFromInputEvent,
     nextValueFrom,
     notifyError,
     notifySuccess,
+    OrganisationService,
     randomInt,
+    SettingsService,
 } from '@placeos/common';
-import { Desk, OrganisationService } from '@placeos/organisation';
+import {
+    CustomTooltipComponent,
+    IconComponent,
+    openConfirmModal,
+    PrintableComponent,
+    SafePipe,
+    SimpleTableComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { updateMetadata } from '@placeos/ts-client';
-import { generateQRCode } from 'libs/common/src/lib/qr-code';
-import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
 import { DesksStateService } from './desks-state.service';
 
 const QR_CODES = {};
@@ -168,20 +181,22 @@ const QR_CODES = {};
                     </button>
                     <ng-template #qr_menu>
                         <div class="rounded bg-base-100 py-2 shadow">
-                            <div class="" printable>
-                                <a
-                                    [href]="row.qr_link | safe: 'url'"
-                                    target="_blank"
-                                    ref="noopener noreferrer"
-                                    class="mx-4 my-2 block rounded-lg border border-base-200 bg-base-100 p-2"
-                                >
-                                    <img class="w-48" [src]="row.qr_code" />
-                                </a>
-                                <div
-                                    class="mx-4 mt-2 w-[calc(100%-2rem)] rounded bg-base-200 p-2 text-center font-mono text-sm"
-                                >
-                                    {{ row.name || row.id }}
-                                </div>
+                            <div class="" printable [content]="print_content">
+                                <ng-template #print_content>
+                                    <a
+                                        [href]="row.qr_link | safe: 'url'"
+                                        target="_blank"
+                                        ref="noopener noreferrer"
+                                        class="mx-4 my-2 block rounded-lg border border-base-200 bg-base-100 p-2"
+                                    >
+                                        <img class="w-48" [src]="row.qr_code" />
+                                    </a>
+                                    <div
+                                        class="mx-4 mt-2 w-[calc(100%-2rem)] rounded bg-base-200 p-2 text-center font-mono text-sm"
+                                    >
+                                        {{ row.name || row.id }}
+                                    </div>
+                                </ng-template>
                             </div>
                             <button
                                 btn
@@ -229,7 +244,18 @@ const QR_CODES = {};
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        SimpleTableComponent,
+        TranslatePipe,
+        MatProgressSpinnerModule,
+        MatRippleModule,
+        IconComponent,
+        MatTooltipModule,
+        CustomTooltipComponent,
+        PrintableComponent,
+        SafePipe,
+    ],
 })
 export class DesksManageComponent extends AsyncHandler {
     private _state = inject(DesksStateService);

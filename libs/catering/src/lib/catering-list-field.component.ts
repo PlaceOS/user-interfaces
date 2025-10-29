@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import {
     Component,
     forwardRef,
@@ -8,23 +9,22 @@ import {
     SimpleChanges,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
+    CateringItem,
+    CateringOrder,
     i18n,
+    OrganisationService,
     randomString,
     SettingsService,
 } from '@placeos/common';
-
-import { CommonModule } from '@angular/common';
-import { MatRippleModule } from '@angular/material/core';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { OrganisationService } from '@placeos/organisation';
 import { endOfDay, startOfDay } from 'date-fns';
-import { CateringItem } from 'libs/catering/src/lib/catering-item.class';
+
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { CateringOrder } from './catering-order.class';
 import { NewCateringSelectModalComponent } from './new-catering-order-modal/new-catering-select-modal.component';
 
 const EMPTY_FAVS = [];

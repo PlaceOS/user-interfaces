@@ -7,14 +7,17 @@ import {
     signal,
     viewChild,
 } from '@angular/core';
-import { Router } from '@angular/router';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { Router, RouterModule } from '@angular/router';
 import {
     AsyncHandler,
     currentUser,
     i18n,
+    OrganisationService,
     SettingsService,
 } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { IconComponent } from '@placeos/components';
 
 @Component({
     selector: 'top-menu',
@@ -85,7 +88,7 @@ import { OrganisationService } from '@placeos/organisation';
                             >
                                 {{ route.icon }}
                             </icon>
-                            <div class="truncate">{{ route.name }}</div>
+                            <div class="truncate pr-4">{{ route.name }}</div>
                         </div>
                     </a>
                 }
@@ -117,7 +120,7 @@ import { OrganisationService } from '@placeos/organisation';
                 margin-bottom: 0.25rem;
                 height: 3rem;
 
-                background-color: var(--b2);
+                background-color: var(--base-200);
                 opacity: 0.4;
             }
 
@@ -127,7 +130,7 @@ import { OrganisationService } from '@placeos/organisation';
             }
         `,
     ],
-    standalone: false,
+    imports: [MatMenuModule, IconComponent, RouterModule, MatTooltipModule],
 })
 export class TopMenuComponent
     extends AsyncHandler

@@ -1,11 +1,16 @@
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { Component, inject, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import {
     addStringKey,
     AsyncHandler,
     removeStringKey,
     SettingsService,
 } from '@placeos/common';
+import { IconComponent, TranslatePipe } from '@placeos/components';
+import { DateRangeFieldComponent } from '@placeos/form-fields';
 import { queryAnswers, Survey } from '@placeos/ts-client';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
@@ -18,6 +23,7 @@ import {
     switchMap,
     tap,
 } from 'rxjs/operators';
+import { NewSurveyWidgetComponent } from './new-survey-widget.component';
 import { NewSurveyService } from './new-survey.service';
 
 @Component({
@@ -29,7 +35,7 @@ import { NewSurveyService } from './new-survey.service';
                 flex-direction: column;
                 height: 100%;
                 width: 100%;
-                background-color: var(--b1);
+                background-color: var(--base-100);
                 overflow: auto;
             }
         `,
@@ -154,9 +160,23 @@ import { NewSurveyService } from './new-survey.service';
             </div>
         </div>
     `,
-    standalone: false,
+    imports: [
+        MatProgressSpinnerModule,
+        CommonModule,
+        TranslatePipe,
+        NewSurveyWidgetComponent,
+        DateRangeFieldComponent,
+        RouterModule,
+        FormsModule,
+        IconComponent,
+        TranslatePipe,
+    ],
 })
 export class SurveyResponsesComponent extends AsyncHandler implements OnInit {
+    private _settings = inject(SettingsService);
+    private _route = inject(ActivatedRoute);
+    private _service = inject(NewSurveyService);
+
     public readonly options$ = new BehaviorSubject<any>({});
     public readonly loading$ = new BehaviorSubject('');
 
@@ -219,14 +239,6 @@ export class SurveyResponsesComponent extends AsyncHandler implements OnInit {
 
     public get week_start() {
         return this._settings.get('app.week_start');
-    }
-
-    constructor(
-        private _settings: SettingsService,
-        private _route: ActivatedRoute,
-        private _service: NewSurveyService,
-    ) {
-        super();
     }
 
     public ngOnInit() {

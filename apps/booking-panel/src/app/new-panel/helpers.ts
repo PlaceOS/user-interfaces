@@ -1,7 +1,7 @@
 import { addMinutes, differenceInSeconds, format } from 'date-fns';
 
-import { CalendarEvent } from 'libs/events/src/lib/event.class';
-import { getNextFreeTimeSlot } from 'libs/events/src/lib/helpers';
+import { CalendarEvent } from '@placeos/common';
+import { getNextFreeTimeSlot } from '@placeos/events';
 
 export function nextPeriod(next: CalendarEvent) {
     const next_diff = Math.ceil(

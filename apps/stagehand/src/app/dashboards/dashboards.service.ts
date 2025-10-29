@@ -6,6 +6,7 @@ import {
     i18n,
     log,
     notifySuccess,
+    OrganisationService,
 } from '@placeos/common';
 import {
     listDashboardAlerts,
@@ -20,10 +21,9 @@ import {
     TriggerComparison,
     TriggerConditionOperator,
 } from '@placeos/ts-client';
-import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
 import { lastValueFrom } from 'rxjs';
 
-import { OrganisationService } from '@placeos/organisation';
+import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
 import mqtt from 'mqtt';
 import { Alert } from '../alerts.service';
 
@@ -39,7 +39,7 @@ export interface StateTopic {
     state_key?: string;
 }
 
-let _org_id: string = '';
+let _org_id = '';
 
 function topicToString(topic: StateTopic): string {
     return `placeos/${_org_id || '+'}/+/${topic.region_id || '+'}/${topic.building_id || '+'}/${topic.level_id || '+'}/${topic.area_id || '+'}/${topic.system_id || '+'}/${topic.driver_id || '+'}/${topic.module_name || '+'}/${topic.module_index || '+'}/${topic.state_key || '+'}`;

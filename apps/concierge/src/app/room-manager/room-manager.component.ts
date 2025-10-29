@@ -1,4 +1,8 @@
 import { Component } from '@angular/core';
+import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
+import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
+import { RoomListComponent } from './room-list.component';
+import { RoomManagerTopbarComponent } from './room-manager-topbar.component';
 
 @Component({
     selector: '[app-new-room-manager]',
@@ -21,7 +25,7 @@ import { Component } from '@angular/core';
                 flex-direction: column;
                 height: 100%;
                 width: 100%;
-                background-color: var(--b1);
+                background-color: var(--base-100);
             }
 
             sidebar {
@@ -37,6 +41,11 @@ import { Component } from '@angular/core';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        ApplicationTopbarComponent,
+        ApplicationSidebarComponent,
+        RoomManagerTopbarComponent,
+        RoomListComponent,
+    ],
 })
 export class RoomManagerComponent {}

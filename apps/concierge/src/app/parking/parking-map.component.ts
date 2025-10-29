@@ -1,7 +1,12 @@
+import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
-import { AsyncHandler, nextValueFrom } from '@placeos/common';
+import {
+    AsyncHandler,
+    OrganisationService,
+    nextValueFrom,
+} from '@placeos/common';
+import { InteractiveMapComponent } from '@placeos/components';
 import { ExploreParkingService, ExploreStateService } from '@placeos/explore';
-import { OrganisationService } from '@placeos/organisation';
 import { first } from 'rxjs/operators';
 import { ParkingStateService } from './parking-state.service';
 
@@ -24,7 +29,7 @@ import { ParkingStateService } from './parking-state.service';
     `,
     styles: [``],
     providers: [ExploreParkingService],
-    standalone: false,
+    imports: [CommonModule, InteractiveMapComponent],
 })
 export class ParkingMapComponent extends AsyncHandler implements OnInit {
     private _explore = inject(ExploreStateService);

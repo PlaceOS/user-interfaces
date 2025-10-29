@@ -1,7 +1,11 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { MatMenuModule } from '@angular/material/menu';
 import { Router } from '@angular/router';
 import { AsyncHandler, SettingsService } from '@placeos/common';
+import { CustomTooltipComponent } from '@placeos/components';
+import { GroupEventCardComponent } from '@placeos/events';
 import {
     addDays,
     format,
@@ -140,7 +144,12 @@ import { EventStateService } from './event-state.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatMenuModule,
+        GroupEventCardComponent,
+        CustomTooltipComponent,
+    ],
 })
 export class EventMonthViewComponent extends AsyncHandler {
     private _state = inject(EventStateService);

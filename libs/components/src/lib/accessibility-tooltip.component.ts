@@ -1,6 +1,12 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
+import { MatSliderModule } from '@angular/material/slider';
 import { AsyncHandler, current_user, SettingsService } from '@placeos/common';
 import { CustomTooltipData } from './custom-tooltip.component';
+import { IconComponent } from './icon.component';
+import { SettingsToggleComponent } from './settings-toggle.component';
+import { TranslatePipe } from './translate.pipe';
 
 @Component({
     selector: 'accessibility-tooltip',
@@ -82,7 +88,14 @@ import { CustomTooltipData } from './custom-tooltip.component';
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        MatRippleModule,
+        MatSliderModule,
+        SettingsToggleComponent,
+        IconComponent,
+        TranslatePipe,
+        FormsModule,
+    ],
 })
 export class AccessibilityTooltipComponent
     extends AsyncHandler

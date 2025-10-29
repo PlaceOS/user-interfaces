@@ -1,4 +1,6 @@
 import { Component, inject } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 
 @Component({
@@ -52,7 +54,7 @@ import { AsyncHandler, SettingsService } from '@placeos/common';
         </div> -->
     `,
     styles: [``],
-    standalone: false,
+    imports: [MatRippleModule, MatSlideToggleModule],
 })
 export class AccessibilityControlsComponent extends AsyncHandler {
     private _settings = inject(SettingsService);

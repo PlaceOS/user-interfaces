@@ -1,9 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { Component, input, output } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
+import { CateringItem } from '@placeos/common';
+
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { CateringItem } from '../catering-item.class';
 
 @Component({
     selector: 'new-catering-item-list-item',

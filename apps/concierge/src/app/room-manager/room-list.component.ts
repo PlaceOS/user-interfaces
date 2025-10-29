@@ -1,6 +1,14 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 import { Component, inject } from '@angular/core';
+import { MatMenuModule } from '@angular/material/menu';
 import { i18n, notifySuccess, SettingsService } from '@placeos/common';
+import {
+    IconComponent,
+    LevelPipe,
+    SanitizePipe,
+    SimpleTableComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { RoomManagementService } from './room-management.service';
 
 @Component({
@@ -168,7 +176,14 @@ import { RoomManagementService } from './room-management.service';
         </ng-template>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        SimpleTableComponent,
+        IconComponent,
+        MatMenuModule,
+        SanitizePipe,
+        TranslatePipe,
+        LevelPipe,
+    ],
 })
 export class RoomListComponent {
     private _manager = inject(RoomManagementService);

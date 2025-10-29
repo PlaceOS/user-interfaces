@@ -1,7 +1,15 @@
 import { Clipboard } from '@angular/cdk/clipboard';
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormGroup } from '@angular/forms';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { i18n, notifySuccess } from '@placeos/common';
+import {
+    IconComponent,
+    SimpleTableComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { BehaviorSubject } from 'rxjs';
 import { ParkingStateService } from './parking-state.service';
 
@@ -103,7 +111,15 @@ import { ParkingStateService } from './parking-state.service';
         <div class="h-20 w-full"></div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatProgressBarModule,
+        SimpleTableComponent,
+        IconComponent,
+        TranslatePipe,
+        SimpleTableComponent,
+        MatTooltipModule,
+    ],
 })
 export class ParkingUsersListComponent {
     private _state = inject(ParkingStateService);

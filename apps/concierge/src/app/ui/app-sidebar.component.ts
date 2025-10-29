@@ -1,14 +1,17 @@
 import { Component, ElementRef, OnInit, inject, signal } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
+import { RouterModule } from '@angular/router';
 import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
     AsyncHandler,
+    OrganisationService,
     SettingsService,
     currentUser,
     firstTruthyValueFrom,
     i18n,
     unique,
 } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { IconComponent } from '@placeos/components';
 import { debounceTime, filter } from 'rxjs/operators';
 
 @Component({
@@ -79,18 +82,18 @@ import { debounceTime, filter } from 'rxjs/operators';
             }
 
             a.active {
-                background-color: var(--s);
-                color: var(--sc);
+                background-color: var(--secondary);
+                color: var(--secondary-content);
             }
 
             a.active:hover {
-                color: var(--bc);
+                color: var(--base-content);
                 opacity: 0.75;
             }
         `,
     ],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
-    standalone: false,
+    imports: [RouterModule, MatRippleModule, IconComponent],
 })
 export class ApplicationSidebarComponent
     extends AsyncHandler

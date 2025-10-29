@@ -1,4 +1,11 @@
 import { Component, inject } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { TranslatePipe } from '@placeos/components';
+import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
+import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
+import { UrlListComponent } from './url-list.component';
 import { UrlManagementService } from './url-management.service';
 
 @Component({
@@ -41,7 +48,7 @@ import { UrlManagementService } from './url-management.service';
                 flex-direction: column;
                 height: 100%;
                 width: 100%;
-                background-color: var(--b1);
+                background-color: var(--base-100);
             }
 
             sidebar {
@@ -57,7 +64,15 @@ import { UrlManagementService } from './url-management.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        ApplicationTopbarComponent,
+        ApplicationSidebarComponent,
+        MatFormFieldModule,
+        MatInputModule,
+        FormsModule,
+        TranslatePipe,
+        UrlListComponent,
+    ],
 })
 export class UrlManagerComponent {
     private _state = inject(UrlManagementService);

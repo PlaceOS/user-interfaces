@@ -1,12 +1,18 @@
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import {
     AsyncHandler,
     i18n,
     nextValueFrom,
     notifySuccess,
 } from '@placeos/common';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import {
     listZoneTriggers,
     SignagePlaylist,
@@ -15,6 +21,8 @@ import {
 } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map, shareReplay, switchMap, tap } from 'rxjs/operators';
+import { SearchOverlayComponent } from './search-overlay.component';
+import { SignageItemPlaylistsComponent } from './signage-item-playlists.component';
 import { SignageStateService } from './signage-state.service';
 
 @Component({
@@ -150,7 +158,18 @@ import { SignageStateService } from './signage-state.service';
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        TranslatePipe,
+        MatFormFieldModule,
+        MatInputModule,
+        MatRippleModule,
+        RouterModule,
+        IconComponent,
+        SearchOverlayComponent,
+        SignageItemPlaylistsComponent,
+        CommonModule,
+        FormsModule,
+    ],
 })
 export class SignageZonesComponent extends AsyncHandler implements OnInit {
     private _state = inject(SignageStateService);

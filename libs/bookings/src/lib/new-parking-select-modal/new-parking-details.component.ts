@@ -1,7 +1,7 @@
 import { Component, SimpleChanges, inject, input, output } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
+import { OrganisationService } from '@placeos/common';
 import { MapPinComponent } from '@placeos/components';
-import { OrganisationService } from '@placeos/organisation';
 import { ViewerFeature } from '@placeos/svg-viewer';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { ImageCarouselComponent } from 'libs/components/src/lib/image-carousel.component';

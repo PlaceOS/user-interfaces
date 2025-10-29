@@ -21,7 +21,7 @@ import { VERSION } from './version';
 declare global {
     interface Window {
         debug: boolean;
-        application: HashMap;
+        app: HashMap;
         setting: (string) => any;
     }
 }
@@ -148,8 +148,8 @@ export class SettingsService extends AsyncHandler {
         log('Settings', 'Successfully loaded settings');
         this._initialised.next(true);
         if (window.debug) {
-            if (!window.application) window.application = {};
-            window.application.settings = this;
+            if (!window.app) window.app = {};
+            window.app.settings = this;
             window.setting = (key) => this.get(key);
         }
         const user = await firstTruthyValueFrom(current_user);

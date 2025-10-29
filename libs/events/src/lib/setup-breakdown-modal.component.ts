@@ -6,10 +6,10 @@ import {
     MatDialogModule,
     MatDialogRef,
 } from '@angular/material/dialog';
-import { notifyError, notifySuccess } from '@placeos/common';
+import { CalendarEvent, notifyError, notifySuccess } from '@placeos/common';
+
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { CalendarEvent } from './event.class';
 import { saveEvent, updateEventMetadata } from './events.fn';
 
 @Component({

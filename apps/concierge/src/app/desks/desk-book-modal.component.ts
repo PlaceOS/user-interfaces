@@ -1,14 +1,22 @@
-import { Component, inject, output } from '@angular/core';
+import { Component, inject, OnInit, output } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { BookingFormService } from '@placeos/bookings';
 import {
     DialogEvent,
     i18n,
+    nextValueFrom,
     notifyError,
     notifySuccess,
     SettingsService,
 } from '@placeos/common';
+import {
+    FullscreenModalShellComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { BehaviorSubject } from 'rxjs';
+
+import { CommonModule } from '@angular/common';
+import { NewDeskFormDetailsComponent } from 'apps/workplace/src/app/book/desk-flow/desk-form-details.component';
 
 @Component({
     selector: 'desk-book-modal',
@@ -31,9 +39,14 @@ import { BehaviorSubject } from 'rxjs';
         </fullscreen-modal-shell>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        FullscreenModalShellComponent,
+        NewDeskFormDetailsComponent,
+        TranslatePipe,
+    ],
 })
-export class DeskBookModalComponent {
+export class DeskBookModalComponent implements OnInit {
     private _booking_form = inject(BookingFormService);
     private _dialog_ref =
         inject<MatDialogRef<DeskBookModalComponent>>(MatDialogRef);
@@ -46,7 +59,7 @@ export class DeskBookModalComponent {
         return this._booking_form.form;
     }
 
-    constructor() {
+    public ngOnInit() {
         if (!this.form.value.id) {
             this.form.patchValue({
                 duration:
@@ -58,7 +71,11 @@ export class DeskBookModalComponent {
     public async save() {
         this.loading.next(true);
         this.form.patchValue({ booking_type: 'desk' });
-        const event = await this._booking_form.postForm().catch((_) => {
+        let method = () => this._booking_form.postForm();
+        if ((await nextValueFrom(this._booking_form.options))?.group) {
+            method = () => this._booking_form.postFormForGroup();
+        }
+        const event = await method().catch((_) => {
             notifyError(_);
             this.loading.next(false);
             throw _;

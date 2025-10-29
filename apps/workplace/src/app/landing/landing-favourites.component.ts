@@ -3,19 +3,27 @@ import { Router } from '@angular/router';
 import { BehaviorSubject, combineLatest, lastValueFrom } from 'rxjs';
 import { map, shareReplay, tap } from 'rxjs/operators';
 
+import { BookingFormService, FAV_PARKING_KEY } from '@placeos/bookings';
 import {
-    BookingFormService,
+    AsyncHandler,
     BookingType,
-    FAV_PARKING_KEY,
-} from '@placeos/bookings';
-import { AsyncHandler, SettingsService } from '@placeos/common';
-import { EventFormService, Space } from '@placeos/events';
-import { OrganisationService } from '@placeos/organisation';
+    OrganisationService,
+    SettingsService,
+    Space,
+} from '@placeos/common';
+import { EventFormService } from '@placeos/events';
 import { showMetadata } from '@placeos/ts-client';
 
-import { FAV_DESK_KEY } from 'libs/bookings/src/lib/desk-select-modal/desk-select-modal.component';
-import { FAV_LOCKER_KEY } from 'libs/bookings/src/lib/locker-select-modal/locker-select-modal.component';
-import { SpacePipe } from 'libs/events/src/lib/space.pipe';
+import { CommonModule } from '@angular/common';
+import { MatRippleModule } from '@angular/material/core';
+import { MatMenuModule } from '@angular/material/menu';
+import { FAV_DESK_KEY, FAV_LOCKER_KEY } from '@placeos/bookings';
+import {
+    AuthenticatedImageDirective,
+    IconComponent,
+    TranslatePipe,
+} from '@placeos/components';
+import { SpacePipe } from '@placeos/events';
 
 const EMPTY = [];
 
@@ -272,7 +280,14 @@ const EMPTY = [];
         `,
     ],
     providers: [SpacePipe],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        IconComponent,
+        MatRippleModule,
+        MatMenuModule,
+        AuthenticatedImageDirective,
+    ],
 })
 export class LandingFavouritesComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);

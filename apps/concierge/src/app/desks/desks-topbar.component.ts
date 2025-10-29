@@ -2,10 +2,18 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { first } from 'rxjs/operators';
 
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { showBooking } from '@placeos/bookings';
 import {
     AsyncHandler,
+    Desk,
+    OrganisationService,
     csvToJson,
     downloadFile,
     jsonToCsv,
@@ -15,8 +23,10 @@ import {
     notifyInfo,
     randomInt,
 } from '@placeos/common';
-import { Desk, OrganisationService } from '@placeos/organisation';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
+import { DateOptionsComponent } from '../ui/date-options.component';
+import { SearchbarComponent } from '../ui/searchbar.component';
 import { DeskBookModalComponent } from './desk-book-modal.component';
 import { DesksStateService } from './desks-state.service';
 
@@ -61,7 +71,6 @@ import { DesksStateService } from './desks-state.service';
             }
             @if (manage) {
                 <button
-                    btn
                     icon
                     matRipple
                     class="mx-2 rounded bg-primary text-white"
@@ -73,7 +82,6 @@ import { DesksStateService } from './desks-state.service';
             }
             @if (manage) {
                 <button
-                    btn
                     icon
                     matRipple
                     class="relative rounded bg-primary text-white"
@@ -89,7 +97,6 @@ import { DesksStateService } from './desks-state.service';
             }
             @if (manage) {
                 <button
-                    btn
                     icon
                     matRipple
                     class="mx-2 rounded bg-primary text-white"
@@ -103,7 +110,6 @@ import { DesksStateService } from './desks-state.service';
             }
             @if (manage) {
                 <button
-                    btn
                     icon
                     matRipple
                     class="mx-2 rounded bg-primary text-white"
@@ -132,7 +138,18 @@ import { DesksStateService } from './desks-state.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        DateOptionsComponent,
+        SearchbarComponent,
+        MatRippleModule,
+        MatTooltipModule,
+        IconComponent,
+        MatFormFieldModule,
+        MatSelectModule,
+        CommonModule,
+        TranslatePipe,
+        FormsModule,
+    ],
 })
 export class DesksTopbarComponent extends AsyncHandler implements OnInit {
     private _desks = inject(DesksStateService);

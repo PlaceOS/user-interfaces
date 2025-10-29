@@ -1,7 +1,15 @@
-import { flatten, unique } from '@placeos/common';
+import {
+    Asset,
+    AssetCategory,
+    AssetGroup,
+    AssetPurchaseOrder,
+    AssetRequest,
+    Booking,
+    flatten,
+    unique,
+} from '@placeos/common';
 import { cleanObject, del, get, post, put } from '@placeos/ts-client';
 import { addMinutes, endOfDay, getUnixTime, startOfDay } from 'date-fns';
-import { Booking } from 'libs/bookings/src/lib/booking.class';
 import {
     BookingsQueryParams,
     createBooking,
@@ -11,13 +19,6 @@ import {
 import { toQueryString } from 'libs/common/src/lib/api';
 import { combineLatest, forkJoin, of } from 'rxjs';
 import { map, switchMap, tap } from 'rxjs/operators';
-import { AssetRequest } from './asset-request.class';
-import {
-    Asset,
-    AssetCategory,
-    AssetGroup,
-    AssetPurchaseOrder,
-} from './asset.class';
 
 const BASE_ENDPOINT = '/api/engine/v2';
 

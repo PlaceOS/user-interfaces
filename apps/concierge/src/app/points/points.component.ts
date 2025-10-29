@@ -1,7 +1,13 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { Router } from '@angular/router';
+import { MatRippleModule } from '@angular/material/core';
+import { MatTabsModule } from '@angular/material/tabs';
+import { Router, RouterModule } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
+import { TranslatePipe } from '@placeos/components';
+import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
+import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
 import { PointsStateService } from './points-state.service';
+import { PointsTopbarComponent } from './points-topbar.component';
 
 @Component({
     selector: 'placeos-new-points',
@@ -18,24 +24,33 @@ import { PointsStateService } from './points-state.service';
                     }
                 </points-topbar>
                 <div class="mb-4 px-8">
-                    <nav mat-tab-nav-bar [tabPanel]="tabPanel">
-                        <a
-                            mat-tab-link
-                            [routerLink]="['/points-management', 'overview']"
-                            [active]="page === 'overview'"
-                        >
-                            {{
-                                'APP.CONCIERGE.POINTS_TAB_OVERVIEW' | translate
-                            }}
-                        </a>
-                        <a
-                            mat-tab-link
-                            [routerLink]="['/points-management', 'assets']"
-                            [active]="page === 'assets'"
-                        >
-                            {{ 'APP.CONCIERGE.POINTS_TAB_ASSETS' | translate }}
-                        </a>
-                    </nav>
+                    <div class="overflow-hidden rounded bg-base-200">
+                        <nav mat-tab-nav-bar [tabPanel]="tabPanel">
+                            <a
+                                mat-tab-link
+                                [routerLink]="[
+                                    '/points-management',
+                                    'overview',
+                                ]"
+                                [active]="page === 'overview'"
+                            >
+                                {{
+                                    'APP.CONCIERGE.POINTS_TAB_OVERVIEW'
+                                        | translate
+                                }}
+                            </a>
+                            <a
+                                mat-tab-link
+                                [routerLink]="['/points-management', 'assets']"
+                                [active]="page === 'assets'"
+                            >
+                                {{
+                                    'APP.CONCIERGE.POINTS_TAB_ASSETS'
+                                        | translate
+                                }}
+                            </a>
+                        </nav>
+                    </div>
                 </div>
                 <mat-tab-nav-panel
                     class="h-1/2 w-full flex-1 overflow-auto px-8"
@@ -53,11 +68,19 @@ import { PointsStateService } from './points-state.service';
                 flex-direction: column;
                 height: 100%;
                 width: 100%;
-                background-color: var(--b1);
+                background-color: var(--base-100);
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        MatTabsModule,
+        RouterModule,
+        ApplicationTopbarComponent,
+        ApplicationSidebarComponent,
+        PointsTopbarComponent,
+        MatRippleModule,
+        TranslatePipe,
+    ],
 })
 export class PointsComponent extends AsyncHandler implements OnInit {
     private _state = inject(PointsStateService);

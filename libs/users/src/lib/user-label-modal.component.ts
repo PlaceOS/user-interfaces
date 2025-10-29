@@ -37,13 +37,15 @@ interface UserLabelSettings {
                     [height]="height()"
                     [style.font-size]="scale() + 'mm'"
                 />
-                <div printable class="print-only">
-                    <user-label
-                        [user]="details"
-                        [width]="width()"
-                        [height]="height()"
-                        [style.font-size]="scale() + 'mm'"
-                    />
+                <div printable class="print-only" [content]="print_content">
+                    <ng-template #print_content>
+                        <user-label
+                            [user]="details"
+                            [width]="width()"
+                            [height]="height()"
+                            [style.font-size]="scale() + 'mm'"
+                        />
+                    </ng-template>
                 </div>
             </div>
             <div class="rounded-lg border border-base-300 bg-base-100">

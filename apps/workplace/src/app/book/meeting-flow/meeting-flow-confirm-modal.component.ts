@@ -1,27 +1,38 @@
-import { DatePipe } from '@angular/common';
-import { Component, OnInit, inject, input } from '@angular/core';
+import { CommonModule, DatePipe } from '@angular/common';
+import { Component, OnInit, inject, model } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { addMinutes, endOfDay, startOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { validateAssetRequestsForResource } from '@placeos/assets';
-import { CateringItem, CateringOrder } from '@placeos/catering';
 import {
+    AssetRequest,
     AsyncHandler,
+    CateringItem,
+    CateringOrder,
+    OrganisationService,
     SettingsService,
+    Space,
     formatRecurrence,
     fromEventRecurrence,
     getTimezoneOffsetString,
     i18n,
     notifyError,
 } from '@placeos/common';
-import { EventFormService, Space } from '@placeos/events';
-import { OrganisationService } from '@placeos/organisation';
+import { EventFormService } from '@placeos/events';
 
-import { AssetRequest } from 'libs/assets/src/lib/asset-request.class';
-import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
-import { SpacePipe } from 'libs/events/src/lib/space.pipe';
+import { MatRippleModule } from '@angular/material/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import {
+    IconComponent,
+    LevelPipe,
+    SanitizePipe,
+    TranslatePipe,
+    openConfirmModal,
+} from '@placeos/components';
+import { SpacePipe } from '@placeos/events';
 
 @Component({
     selector: 'meeting-flow-confirm-modal',
@@ -450,7 +461,17 @@ import { SpacePipe } from 'libs/events/src/lib/space.pipe';
     `,
     styles: [``],
     providers: [SpacePipe],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        IconComponent,
+        MatRippleModule,
+        SanitizePipe,
+        MatTooltipModule,
+        SpacePipe,
+        LevelPipe,
+        MatProgressSpinnerModule,
+    ],
 })
 export class MeetingFlowConfirmModalComponent
     extends AsyncHandler
@@ -465,7 +486,7 @@ export class MeetingFlowConfirmModalComponent
     private _dialog = inject(MatDialog);
     private _settings = inject(SettingsService);
 
-    public readonly show_close = input(false);
+    public readonly show_close = model(false);
 
     private _loading = new BehaviorSubject(false);
 

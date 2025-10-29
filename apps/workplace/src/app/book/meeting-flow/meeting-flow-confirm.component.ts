@@ -1,13 +1,18 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component, OnInit, inject, input } from '@angular/core';
-import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
+import { Component, OnInit, inject, model } from '@angular/core';
+import {
+    MatBottomSheetModule,
+    MatBottomSheetRef,
+} from '@angular/material/bottom-sheet';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { CateringItem } from '@placeos/catering';
 import {
     AsyncHandler,
+    CalendarEvent,
+    CateringItem,
+    OrganisationService,
     SettingsService,
     formatRecurrence,
     fromEventRecurrence,
@@ -15,13 +20,14 @@ import {
     i18n,
     notifyError,
 } from '@placeos/common';
-import { CalendarEvent, EventFormService } from '@placeos/events';
-import { OrganisationService } from '@placeos/organisation';
-import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { EventFormService } from '@placeos/events';
 
-import { SpacePipe } from 'libs/events/src/lib/space.pipe';
+import {
+    IconComponent,
+    TranslatePipe,
+    openConfirmModal,
+} from '@placeos/components';
+import { SpacePipe } from '@placeos/events';
 
 @Component({
     selector: 'meeting-flow-confirm',
@@ -177,6 +183,7 @@ import { SpacePipe } from 'libs/events/src/lib/space.pipe';
         TranslatePipe,
         IconComponent,
         MatChipsModule,
+        MatBottomSheetModule,
     ],
 })
 export class MeetingFlowConfirmComponent
@@ -190,7 +197,7 @@ export class MeetingFlowConfirmComponent
     private _dialog = inject(MatDialog);
     private _settings = inject(SettingsService);
 
-    public readonly show_close = input(false);
+    public readonly show_close = model(false);
 
     private _date: DatePipe = new DatePipe('en');
 

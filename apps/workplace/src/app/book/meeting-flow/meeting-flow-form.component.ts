@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import {
     Component,
     ElementRef,
@@ -6,12 +7,21 @@ import {
     TemplateRef,
     viewChild,
 } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {
     MatBottomSheet,
     MatBottomSheetRef,
 } from '@angular/material/bottom-sheet';
+import { MatRippleModule } from '@angular/material/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { Router } from '@angular/router';
+import { AssetListFieldComponent, AssetStateService } from '@placeos/assets';
+import {
+    CateringListFieldComponent,
+    CateringOrderStateService,
+} from '@placeos/catering';
 import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
     AsyncHandler,
@@ -21,19 +31,29 @@ import {
     nextValueFrom,
     notifyError,
     notifyWarn,
+    OrganisationService,
+    settingSignal,
     SettingsService,
+    Space,
     UserIdleTimeService,
 } from '@placeos/common';
-import { EventFormService, Space } from '@placeos/events';
-import { OrganisationService } from '@placeos/organisation';
+import {
+    IconComponent,
+    openConfirmModal,
+    TranslatePipe,
+} from '@placeos/components';
+import { EventFormService } from '@placeos/events';
+import {
+    RichTextInputComponent,
+    SpaceListFieldComponent,
+    UserListFieldComponent,
+} from '@placeos/form-fields';
 import { FindAvailabilityModalComponent } from '@placeos/users';
-import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
-import { CateringOrderStateService } from 'libs/catering/src/lib/catering-order-modal/catering-order-state.service';
-import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import { debounceTime, first, map, switchMap, tap } from 'rxjs/operators';
 import { MeetingFlowConfirmModalComponent } from './meeting-flow-confirm-modal.component';
 import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
+import { MeetingFormDetailsComponent } from './meeting-form-details.component';
 
 @Component({
     selector: 'meeting-flow-form',
@@ -142,7 +162,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                                         class="mt-4"
                                         formControlName="attendees"
                                         [time]="form.value.date"
-                                        [guests]="allow_externals"
+                                        [guests]="allow_externals()"
                                     ></a-user-list-field>
                                 </div>
                             </section>
@@ -467,7 +487,23 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
     `,
     styles: [],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        IconComponent,
+        MatRippleModule,
+        RichTextInputComponent,
+        AssetListFieldComponent,
+        CateringListFieldComponent,
+        MatFormFieldModule,
+        MatInputModule,
+        FormsModule,
+        ReactiveFormsModule,
+        SpaceListFieldComponent,
+        UserListFieldComponent,
+        MeetingFormDetailsComponent,
+        UserListFieldComponent,
+    ],
 })
 export class MeetingFlowFormComponent extends AsyncHandler implements OnInit {
     private _state = inject(EventFormService);
@@ -529,9 +565,7 @@ export class MeetingFlowFormComponent extends AsyncHandler implements OnInit {
         return !!this._settings.get('app.events.hide_attendees');
     }
 
-    public get allow_externals() {
-        return this._settings.get('app.events.allow_externals');
-    }
+    public allow_externals = settingSignal('events.allow_externals');
 
     public get strict_capacity_check() {
         return this._settings.get('app.events.strict_capacity_check');
@@ -726,7 +760,7 @@ export class MeetingFlowFormComponent extends AsyncHandler implements OnInit {
             this.dialog_ref = this._dialog.open(
                 MeetingFlowConfirmModalComponent,
             );
-            this.dialog_ref.componentInstance.show_close = true;
+            this.dialog_ref.componentInstance.show_close.set(true);
             this.dialog_ref.afterClosed().subscribe((value) => {
                 if (value) {
                     this.unsubWith('idle');
@@ -738,7 +772,7 @@ export class MeetingFlowFormComponent extends AsyncHandler implements OnInit {
             this.sheet_ref = this._bottom_sheet.open(
                 MeetingFlowConfirmComponent,
             );
-            this.sheet_ref.instance.show_close = true;
+            this.sheet_ref.instance.show_close.set(true);
             this.sheet_ref.afterDismissed().subscribe((value) => {
                 if (value) {
                     this.unsubWith('idle');

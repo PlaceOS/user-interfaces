@@ -1,7 +1,8 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { nextValueFrom } from '@placeos/common';
+import { MatRippleModule } from '@angular/material/core';
+import { nextValueFrom, OrganisationService } from '@placeos/common';
 import { ExploreStateService } from '@placeos/explore';
-import { OrganisationService } from '@placeos/organisation';
 import { first } from 'rxjs/operators';
 
 @Component({
@@ -28,16 +29,16 @@ import { first } from 'rxjs/operators';
     styles: [
         `
             .active {
-                background: var(--s) !important;
+                background: var(--secondary) !important;
                 color: #fff !important;
             }
 
             button:not(:first-child) {
-                border-top: 1px solid var(--b3) !important;
+                border-top: 1px solid var(--base-300) !important;
             }
         `,
     ],
-    standalone: false,
+    imports: [MatRippleModule, CommonModule],
 })
 export class ExploreLevelSelectComponent {
     private _org = inject(OrganisationService);

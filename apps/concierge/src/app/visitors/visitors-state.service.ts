@@ -13,7 +13,6 @@ import {
 
 import { MatDialog } from '@angular/material/dialog';
 import {
-    Booking,
     approveBooking,
     checkinBooking,
     queryBookings,
@@ -23,6 +22,8 @@ import {
 } from '@placeos/bookings';
 import {
     AsyncHandler,
+    Booking,
+    OrganisationService,
     SettingsService,
     downloadFile,
     i18n,
@@ -31,8 +32,7 @@ import {
     notifyError,
     notifySuccess,
 } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
-import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
+import { openConfirmModal } from '@placeos/components';
 import { VisitorInductionModalComponent } from './visitor-induction-modal.component';
 import { VisitorNotesModalComponent } from './visitor-notes-modal.component';
 

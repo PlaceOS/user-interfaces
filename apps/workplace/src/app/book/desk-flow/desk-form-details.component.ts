@@ -1,20 +1,37 @@
+import { CommonModule } from '@angular/common';
 import {
     Component,
-    OnChanges,
-    SimpleChanges,
+    computed,
     inject,
     input,
+    OnChanges,
     output,
+    SimpleChanges,
 } from '@angular/core';
-import { FormGroup } from '@angular/forms';
-import { BookingFormService } from '@placeos/bookings';
+import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { AssetListFieldComponent } from '@placeos/assets';
+import { BookingFormService, DeskListFieldComponent } from '@placeos/bookings';
 import {
     AsyncHandler,
     BookingRecurrence,
+    Desk,
+    OrganisationService,
+    settingSignal,
     SettingsService,
 } from '@placeos/common';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { RecurrenceDetails } from '@placeos/events';
-import { Desk, OrganisationService } from '@placeos/organisation';
+import {
+    DateFieldComponent,
+    DurationFieldComponent,
+    RecurrenceFieldComponent,
+    TimeFieldComponent,
+    UserListFieldComponent,
+    UserSearchFieldComponent,
+} from '@placeos/form-fields';
 import { addDays, endOfDay, set } from 'date-fns';
 
 @Component({
@@ -116,7 +133,7 @@ import { addDays, endOfDay, set } from 'date-fns';
                             <a-date-field
                                 name="date"
                                 formControlName="date"
-                                [to]="end_date"
+                                [to]="end_date()"
                                 [timezone]="timezone"
                             >
                                 {{ 'FORM.DATE_REQUIRED' | translate }}
@@ -180,7 +197,7 @@ import { addDays, endOfDay, set } from 'date-fns';
                                 [ngModel]="form().value"
                                 (ngModelChange)="onRecurrenceChange($event)"
                                 [ngModelOptions]="{ standalone: true }"
-                                [available_days]="available_days"
+                                [available_days]="available_days()"
                             ></recurrence-field>
                             @if (form().value.id) {
                                 <mat-checkbox formControlName="update_master">
@@ -288,7 +305,24 @@ import { addDays, endOfDay, set } from 'date-fns';
             </div>
         }
     `,
-    standalone: false,
+    imports: [
+        CommonModule,
+        IconComponent,
+        TranslatePipe,
+        AssetListFieldComponent,
+        DeskListFieldComponent,
+        UserListFieldComponent,
+        MatCheckboxModule,
+        RecurrenceFieldComponent,
+        DurationFieldComponent,
+        TimeFieldComponent,
+        DateFieldComponent,
+        FormsModule,
+        ReactiveFormsModule,
+        MatFormFieldModule,
+        MatInputModule,
+        UserSearchFieldComponent,
+    ],
 })
 export class NewDeskFormDetailsComponent
     extends AsyncHandler
@@ -389,13 +423,14 @@ export class NewDeskFormDetailsComponent
             : '';
     }
 
-    public get available_days() {
-        return this._settings.get('app.desks.available_period') || 90;
-    }
+    public readonly available_days = settingSignal(
+        'desks.available_period',
+        90,
+    );
 
-    public get end_date() {
-        return endOfDay(addDays(Date.now(), this.available_days)).valueOf();
-    }
+    public readonly end_date = computed(() => {
+        return endOfDay(addDays(Date.now(), this.available_days())).valueOf();
+    });
 
     public get use_24hr() {
         return this._settings.get('app.use_24_hour_time');

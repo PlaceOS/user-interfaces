@@ -9,6 +9,11 @@ import { AsyncHandler } from '@placeos/common';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
+import { MatSliderModule } from '@angular/material/slider';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { ControlStateService, RoomOutput } from '../control-state.service';
 
 export const ICON_MAP = {
@@ -83,7 +88,14 @@ export const ICON_MAP = {
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatSliderModule,
+        FormsModule,
+        IconComponent,
+        MatRippleModule,
+        TranslatePipe,
+    ],
 })
 export class OutputDisplayComponent extends AsyncHandler implements OnChanges {
     private _state = inject(ControlStateService);

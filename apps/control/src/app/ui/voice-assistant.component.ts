@@ -1,4 +1,7 @@
+import { CommonModule } from '@angular/common';
 import { Component, SimpleChanges, inject, input } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
+import { IconComponent } from '@placeos/components';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { VoiceAssistantService } from './voice-assistant.service';
@@ -57,7 +60,7 @@ import { VoiceAssistantService } from './voice-assistant.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [CommonModule, MatRippleModule, IconComponent],
 })
 export class VoiceAssistantComponent {
     private _service = inject(VoiceAssistantService);

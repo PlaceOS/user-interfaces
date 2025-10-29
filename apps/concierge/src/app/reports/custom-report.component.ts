@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AsyncHandler, SettingsService } from '@placeos/common';
+import { SafePipe } from '@placeos/components';
 
 const EMPTY = {};
 
@@ -22,7 +23,7 @@ const EMPTY = {};
             }
         `,
     ],
-    standalone: false,
+    imports: [SafePipe],
 })
 export class CustomReportComponent extends AsyncHandler {
     private _settings = inject(SettingsService);
@@ -31,7 +32,7 @@ export class CustomReportComponent extends AsyncHandler {
     public id = '';
 
     public get report_url() {
-        let report =
+        const report =
             (this._settings.get('app.custom_reports') || []).find(
                 (_) => _.id === this.id,
             ) || EMPTY;

@@ -1,7 +1,6 @@
 import { Component, forwardRef } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { randomInt } from '@placeos/common';
-import { Attachment } from '@placeos/users';
+import { Attachment, randomInt } from '@placeos/common';
 import { takeWhile } from 'rxjs/operators';
 
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';

@@ -9,7 +9,13 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { AsyncHandler, randomInt } from '@placeos/common';
 import { addDays, addWeeks, endOfDay, format, startOfDay } from 'date-fns';
 
+import { FormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { IconComponent } from '@placeos/components';
+import { DateRangeFieldComponent } from '@placeos/form-fields';
 import Chart from 'chart.js/auto';
+import { SidebarComponent } from './ui/sidebar.component';
 
 @Component({
     selector: 'stagehand-analytics',
@@ -200,7 +206,14 @@ import Chart from 'chart.js/auto';
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        IconComponent,
+        MatFormFieldModule,
+        MatSelectModule,
+        DateRangeFieldComponent,
+        FormsModule,
+        SidebarComponent,
+    ],
 })
 export class AnalyticsComponent extends AsyncHandler implements OnInit {
     private _route = inject(ActivatedRoute);

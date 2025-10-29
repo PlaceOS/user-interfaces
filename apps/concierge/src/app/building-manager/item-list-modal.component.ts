@@ -1,6 +1,13 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { FormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
+import {
+    MAT_DIALOG_DATA,
+    MatDialogModule,
+    MatDialogRef,
+} from '@angular/material/dialog';
 import { SettingsService, notifyError } from '@placeos/common';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
 
 @Component({
@@ -60,7 +67,14 @@ import { showMetadata, updateMetadata } from '@placeos/ts-client';
         </footer>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        MatDialogModule,
+        MatRippleModule,
+        IconComponent,
+        MatRippleModule,
+        FormsModule,
+        TranslatePipe,
+    ],
 })
 export class ItemListModalComponent implements OnInit {
     private _bld_id = inject(MAT_DIALOG_DATA);

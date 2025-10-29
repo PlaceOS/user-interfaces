@@ -2,6 +2,12 @@ import { Component, inject, input } from '@angular/core';
 import { downloadFile, jsonToCsv, nextValueFrom } from '@placeos/common';
 import { format } from 'date-fns';
 
+import { CommonModule } from '@angular/common';
+import {
+    IconComponent,
+    SimpleTableComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { ReportsStateService } from '../reports-state.service';
 
 @Component({
@@ -70,7 +76,7 @@ import { ReportsStateService } from '../reports-state.service';
             </div>
         </div>
     `,
-    standalone: false,
+    imports: [CommonModule, TranslatePipe, IconComponent, SimpleTableComponent],
 })
 export class ReportSpacesOverallListComponent {
     private _state = inject(ReportsStateService);

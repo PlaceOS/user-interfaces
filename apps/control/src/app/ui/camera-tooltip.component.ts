@@ -1,11 +1,27 @@
 import { Component, OnInit, Renderer2, inject } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
+import {
+    BindingDirective,
+    CustomTooltipData,
+    IconComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { getModule } from '@placeos/ts-client';
-import { CustomTooltipData } from 'libs/components/src/lib/custom-tooltip.component';
 import { combineLatest } from 'rxjs';
 
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatSelectModule } from '@angular/material/select';
 import { ControlStateService, RoomInput } from '../control-state.service';
-import { JoystickPan, JoystickTilt } from './joystick.component';
+import {
+    JoystickComponent,
+    JoystickPan,
+    JoystickTilt,
+} from './joystick.component';
 
 export enum ZoomDirection {
     In = 'in',
@@ -119,7 +135,11 @@ export enum ZoomDirection {
                         <h3 class="mb-2 text-xl font-medium">
                             {{ 'APP.CONTROL.CONTROLS' | translate }}
                         </h3>
-                        <div class="flex items-center space-x-2">
+                        <div
+                            class="flex items-center space-x-2"
+                            (window:mouseup)="stopZoom()"
+                            (window:touchend)="stopZoom()"
+                        >
                             <joystick
                                 [(pan)]="pan"
                                 [(tilt)]="tilt"
@@ -199,7 +219,19 @@ export enum ZoomDirection {
         }
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        BindingDirective,
+        FormsModule,
+        TranslatePipe,
+        MatRippleModule,
+        IconComponent,
+        JoystickComponent,
+        MatMenuModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatSelectModule,
+    ],
 })
 export class CameraTooltipComponent extends AsyncHandler implements OnInit {
     private _state = inject(ControlStateService);
@@ -299,26 +331,27 @@ export class CameraTooltipComponent extends AsyncHandler implements OnInit {
     public async startZoom(dir: 'in' | 'out', e: MouseEvent | TouchEvent) {
         const mod = getModule(this.id, this.active_camera.mod);
         if (!mod) return;
-        const end_event = e instanceof MouseEvent ? 'mouseup' : 'touchend';
         this.zoom = dir === 'in' ? ZoomDirection.In : ZoomDirection.Out;
         const { index } = this.active_camera;
-        await mod.execute('zoom', index ? [this.zoom, index] : [this.zoom]);
-        this.subscription(
-            'on_end',
-            this._renderer.listen('window', end_event, () => {
-                this.unsub('on_move');
-                this.unsub('on_end');
-                this.zoom = ZoomDirection.Stop;
-                mod.execute('zoom', index ? [this.zoom, index] : [this.zoom]);
-            }),
-        );
+        await mod
+            .execute('zoom', index ? [this.zoom, index] : [this.zoom])
+            .catch();
     }
 
-    public async stopZoom() {
-        const mod = getModule(this.id, this.active_camera.mod);
-        if (!mod) return;
-        const { index } = this.active_camera;
-        this.zoom = ZoomDirection.Stop;
-        mod.execute('zoom', index ? [this.zoom, index] : [this.zoom]);
+    public stopZoom() {
+        this.timeout(
+            'stop_zoom',
+            () => {
+                if (this.zoom === ZoomDirection.Stop) return;
+                const mod = getModule(this.id, this.active_camera.mod);
+                if (!mod) return;
+                const { index } = this.active_camera;
+                this.zoom = ZoomDirection.Stop;
+                mod.execute('zoom', index ? [this.zoom, index] : [this.zoom]);
+                this.unsub('on_move');
+                this.unsub('on_end');
+            },
+            50,
+        );
     }
 }

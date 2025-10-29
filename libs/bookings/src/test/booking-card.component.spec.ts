@@ -3,8 +3,8 @@ import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { set } from 'date-fns';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
+import { OrganisationService } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 
 import { SettingsService } from '@placeos/common';
 import { StatusPillComponent } from 'libs/components/src/lib/status-pill.component';

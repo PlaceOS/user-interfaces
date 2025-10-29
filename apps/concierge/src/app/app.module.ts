@@ -20,10 +20,8 @@ import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { MAT_CHIPS_DEFAULT_OPTIONS } from '@angular/material/chips';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 
-import { AppComponent } from '../../../../libs/components/src/lib/app.component';
 import { environment } from '../environments/environment';
 import { AppRoutingModule } from './app-routing.module';
-import { UIModule } from './ui/ui.module';
 
 import * as Sentry from '@sentry/angular';
 
@@ -35,6 +33,11 @@ import localeIt from '@angular/common/locales/it';
 import localeJa from '@angular/common/locales/ja';
 import localeZh from '@angular/common/locales/zh';
 import { LocaleService } from '@placeos/common';
+import {
+    GlobalBannerComponent,
+    GlobalLoadingComponent,
+} from '@placeos/components';
+import { AppComponent } from './app.component';
 
 @NgModule({
     declarations: [AppComponent],
@@ -44,7 +47,8 @@ import { LocaleService } from '@placeos/common';
         AppRoutingModule,
         MatSnackBarModule,
         BrowserAnimationsModule,
-        UIModule,
+        GlobalLoadingComponent,
+        GlobalBannerComponent,
         ServiceWorkerModule.register('ngsw-worker.js', {
             enabled: environment.production,
         }),

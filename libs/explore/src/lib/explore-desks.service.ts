@@ -29,18 +29,18 @@ import {
     AsyncHandler,
     BookingRuleset,
     currentUser,
+    Desk,
     firstTruthyValueFrom,
     i18n,
     nextValueFrom,
     notifyError,
     notifySuccess,
+    OrganisationService,
     rulesForResource,
     SettingsService,
+    StaffUser,
 } from '@placeos/common';
 import { BookingFormService } from 'libs/bookings/src/lib/booking-form.service';
-import { Desk } from 'libs/organisation/src/lib/desk.class';
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
-import { StaffUser } from 'libs/users/src/lib/user.class';
 
 import { queryBookings } from 'libs/bookings/src/lib/bookings.fn';
 import { SetDatetimeModalComponent } from 'libs/explore/src/lib/set-datetime-modal.component';
@@ -296,12 +296,14 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
         const style_map = {};
         const colours = this._settings.get('app.explore.colors') || {};
         for (const desk_id in this._statuses) {
-            if (!this._statuses[desk_id]?.()) continue;
+            if (!this._statuses[desk_id])
+                this._statuses[desk_id] = signal('free');
+            const s = this._statuses[desk_id]();
             style_map[`#${desk_id}`] = {
                 fill:
-                    colours[`desk-${this._statuses[desk_id]()}`] ||
-                    colours[`${this._statuses[desk_id]()}`] ||
-                    DEFAULT_COLOURS[`${this._statuses[desk_id]()}`],
+                    colours[`desk-${s}`] ||
+                    colours[`${s}`] ||
+                    DEFAULT_COLOURS[`${s}`],
             };
         }
         this._state.setStyles('desks', style_map);

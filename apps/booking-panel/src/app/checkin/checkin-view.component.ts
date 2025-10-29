@@ -5,9 +5,13 @@ import { startOfMinute } from 'date-fns';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { getNextFreeTimeSlot } from 'libs/events/src/lib/helpers';
+import { CommonModule } from '@angular/common';
+import { MatRippleModule } from '@angular/material/core';
+import { IconComponent, TranslatePipe } from '@placeos/components';
+import { getNextFreeTimeSlot } from '@placeos/events';
 import { currentPeriod, nextPeriod } from '../new-panel/helpers';
 import { PanelStateService } from '../panel-state.service';
+import { CheckinTimetableComponent } from './checkin-timetable.component';
 
 @Component({
     selector: 'checkin-view',
@@ -250,7 +254,13 @@ import { PanelStateService } from '../panel-state.service';
         `,
     ],
     providers: [PanelStateService],
-    standalone: false,
+    imports: [
+        CommonModule,
+        IconComponent,
+        TranslatePipe,
+        MatRippleModule,
+        CheckinTimetableComponent,
+    ],
 })
 export class CheckinViewComponent extends AsyncHandler implements OnInit {
     private _state = inject(PanelStateService);
@@ -265,7 +275,7 @@ export class CheckinViewComponent extends AsyncHandler implements OnInit {
     public readonly newBooking = (d = Date.now(), f = false) =>
         this._state.newBooking(d, this.has_user, f, true);
 
-    public has_user = false;
+    public has_user = true;
 
     public readonly event_state = combineLatest([
         this._state.current,
@@ -307,9 +317,7 @@ export class CheckinViewComponent extends AsyncHandler implements OnInit {
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
-                if (params.has('user')) {
-                    this.has_user = true;
-                }
+                this.has_user = params.get('user') !== 'false';
             }),
         );
     }

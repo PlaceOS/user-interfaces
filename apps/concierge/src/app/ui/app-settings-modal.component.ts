@@ -1,8 +1,19 @@
 import { Component, inject } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { SettingsService, notifyError, notifySuccess } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatRippleModule } from '@angular/material/core';
+import {
+    MAT_DIALOG_DATA,
+    MatDialogModule,
+    MatDialogRef,
+} from '@angular/material/dialog';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import {
+    OrganisationService,
+    SettingsService,
+    notifyError,
+    notifySuccess,
+} from '@placeos/common';
 import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
 
 @Component({
@@ -212,7 +223,13 @@ import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        ReactiveFormsModule,
+        MatRippleModule,
+        MatDialogModule,
+        MatProgressSpinnerModule,
+        MatCheckboxModule,
+    ],
 })
 export class AppSettingsModalComponent {
     private _data = inject<{

@@ -1,7 +1,33 @@
 import { inject, Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
+    approveBooking,
+    checkinBooking,
+    queryBookings,
+    queryPagedBookings,
+    rejectBooking,
+    removeBooking,
+    saveBooking,
+} from '@placeos/bookings';
+import {
+    AsyncHandler,
+    Booking,
+    Desk,
+    generateQRCode,
+    i18n,
+    nextValueFrom,
+    notifyError,
+    notifyInfo,
+    notifySuccess,
+    OrganisationService,
+    randomInt,
+    RecurrenceDays,
+    SettingsService,
+    unique,
+} from '@placeos/common';
+import {
     listChildMetadata,
+    QueryResponse,
     showMetadata,
     updateMetadata,
 } from '@placeos/ts-client';
@@ -26,33 +52,7 @@ import {
     tap,
 } from 'rxjs/operators';
 
-import {
-    approveBooking,
-    Booking,
-    checkinBooking,
-    queryBookings,
-    queryPagedBookings,
-    RecurrenceDays,
-    rejectBooking,
-    removeBooking,
-    saveBooking,
-} from '@placeos/bookings';
-import {
-    AsyncHandler,
-    i18n,
-    nextValueFrom,
-    notifyError,
-    notifyInfo,
-    notifySuccess,
-    randomInt,
-    SettingsService,
-    unique,
-} from '@placeos/common';
-import { Desk, OrganisationService } from '@placeos/organisation';
-
-import { QueryResponse } from '@placeos/ts-client';
-import { generateQRCode } from 'libs/common/src/lib/qr-code';
-import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
+import { openConfirmModal } from '@placeos/components';
 import { DeskModalComponent } from './desk-modal.component';
 
 function addQRCodeToBooking(booking: Booking): Booking {

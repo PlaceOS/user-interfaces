@@ -1,24 +1,33 @@
 import { Overlay, OverlayRef } from '@angular/cdk/overlay';
 import { CdkPortal, PortalModule } from '@angular/cdk/portal';
+import { CommonModule } from '@angular/common';
 
-import { Component, OnDestroy, OnInit, inject, viewChild } from '@angular/core';
+import {
+    Component,
+    OnDestroy,
+    OnInit,
+    TemplateRef,
+    inject,
+    input,
+    viewChild,
+} from '@angular/core';
 import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
 
 @Component({
     selector: '[printable]',
     template: `
-        <ng-content />
+        <ng-container *ngTemplateOutlet="content()"></ng-container>
 
         <ng-template cdk-portal>
             <div
                 printable-view
                 class="pointer-events-none fixed left-0 top-0 hidden flex-col items-end print:flex"
             >
-                <ng-content />
+                <ng-container *ngTemplateOutlet="content()"></ng-container>
             </div>
         </ng-template>
     `,
-    imports: [PortalModule],
+    imports: [CommonModule, PortalModule],
 })
 export class PrintableComponent
     extends AsyncHandler
@@ -28,6 +37,8 @@ export class PrintableComponent
     private _overlay_ref: OverlayRef = null;
 
     private readonly _portal = viewChild(CdkPortal);
+    /** Content to render in the tooltip */
+    public readonly content = input<TemplateRef<any>>(undefined);
 
     public ngOnInit(): void {
         this.open();

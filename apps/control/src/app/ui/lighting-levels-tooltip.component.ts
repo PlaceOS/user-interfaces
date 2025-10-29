@@ -1,6 +1,13 @@
 import { Component, inject } from '@angular/core';
-import { CustomTooltipData } from 'libs/components/src/lib/custom-tooltip.component';
+import {
+    BindingDirective,
+    CustomTooltipData,
+    TranslatePipe,
+} from '@placeos/components';
 
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatSliderModule } from '@angular/material/slider';
 import { AsyncHandler, nextValueFrom } from '@placeos/common';
 import { getModule } from '@placeos/ts-client';
 import { ControlStateService } from '../control-state.service';
@@ -51,7 +58,13 @@ import { ControlStateService } from '../control-state.service';
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        MatSliderModule,
+        FormsModule,
+        BindingDirective,
+    ],
 })
 export class LightingLevelsTooltipComponent extends AsyncHandler {
     private _state = inject(ControlStateService);

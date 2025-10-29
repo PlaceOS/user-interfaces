@@ -1,10 +1,17 @@
 import { Component, ElementRef, inject, viewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AsyncHandler, currentUser } from '@placeos/common';
-import { ChatService } from 'libs/components/src/lib/chat/chat.service';
+import {
+    ChatService,
+    DateFromPipe,
+    IconComponent,
+    SanitizePipe,
+} from '@placeos/components';
 import { first, map, tap } from 'rxjs/operators';
 
-import { OrganisationService } from '@placeos/organisation';
+import { CommonModule } from '@angular/common';
+import { MatRippleModule } from '@angular/material/core';
+import { OrganisationService } from '@placeos/common';
 import * as tf from '@tensorflow/tfjs';
 
 declare let loadVosklet: any;
@@ -219,7 +226,13 @@ declare let loadVosklet: any;
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        MatRippleModule,
+        CommonModule,
+        IconComponent,
+        SanitizePipe,
+        DateFromPipe,
+    ],
 })
 export class PanelViewComponent extends AsyncHandler {
     private _route = inject(ActivatedRoute);
@@ -480,7 +493,7 @@ export class PanelViewComponent extends AsyncHandler {
         this.interval('check_listening', () => this.startListening(), 500);
     }
 
-    public _last_text: string = '';
+    public _last_text = '';
 
     private _speakText(text: string) {
         if (this._last_text === text) return;

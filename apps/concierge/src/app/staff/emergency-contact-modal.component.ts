@@ -1,16 +1,36 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject, signal, viewChild } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import {
+    FormControl,
+    FormGroup,
+    FormsModule,
+    ReactiveFormsModule,
+} from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
+import {
+    MAT_DIALOG_DATA,
+    MatDialogModule,
+    MatDialogRef,
+} from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
 import {
     i18n,
     nextValueFrom,
     notifyError,
     notifySuccess,
+    OrganisationService,
     randomString,
 } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import {
+    CustomTooltipComponent,
+    IconComponent,
+    TranslatePipe,
+} from '@placeos/components';
+import { UserSearchFieldComponent } from '@placeos/form-fields';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
-import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { filter, map, shareReplay, switchMap } from 'rxjs/operators';
 import { EmergencyContact } from './emergency-contacts.component';
@@ -169,7 +189,21 @@ import { EmergencyContact } from './emergency-contacts.component';
         </ng-template>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        IconComponent,
+        MatDialogModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatSelectModule,
+        MatRippleModule,
+        FormsModule,
+        ReactiveFormsModule,
+        MatProgressSpinnerModule,
+        CustomTooltipComponent,
+        UserSearchFieldComponent,
+    ],
 })
 export class EmergencyContactModalComponent {
     private _data = inject<EmergencyContact | undefined>(MAT_DIALOG_DATA);

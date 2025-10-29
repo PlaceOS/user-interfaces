@@ -1,6 +1,19 @@
 import { Component, EventEmitter, inject, OnInit, Output } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
+import {
+    FormControl,
+    FormGroup,
+    ReactiveFormsModule,
+    Validators,
+} from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
+import {
+    MAT_DIALOG_DATA,
+    MatDialog,
+    MatDialogModule,
+} from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import {
     AsyncHandler,
@@ -9,10 +22,16 @@ import {
     HashMap,
     i18n,
     notifyError,
+    Space,
+    User,
 } from '@placeos/common';
-import { Space } from '@placeos/events';
+import { IconComponent, TranslatePipe } from '@placeos/components';
+import {
+    DurationFieldComponent,
+    TimeFieldComponent,
+    UserSearchFieldComponent,
+} from '@placeos/form-fields';
 import { getModule } from '@placeos/ts-client';
-import { User } from '@placeos/users';
 import { lastValueFrom, of } from 'rxjs';
 import { first, shareReplay, switchMap } from 'rxjs/operators';
 
@@ -166,7 +185,19 @@ export async function openBookingModal(
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        MatRippleModule,
+        TranslatePipe,
+        IconComponent,
+        MatProgressSpinnerModule,
+        MatFormFieldModule,
+        MatInputModule,
+        DurationFieldComponent,
+        TimeFieldComponent,
+        UserSearchFieldComponent,
+        ReactiveFormsModule,
+        MatDialogModule,
+    ],
 })
 export class BookingModalComponent extends AsyncHandler implements OnInit {
     private _data: BookingModalData = inject(MAT_DIALOG_DATA);
@@ -191,7 +222,7 @@ export class BookingModalComponent extends AsyncHandler implements OnInit {
     });
 
     public ngOnInit() {
-        if (this._data.disable_book_now_host) {
+        if (this._data.disable_book_now_host || this._data.user) {
             this.form.controls.organiser.setValidators([]);
             this.hide_host = true;
         } else {

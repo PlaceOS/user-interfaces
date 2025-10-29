@@ -1,9 +1,14 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { nextValueFrom, SettingsService } from '@placeos/common';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { addMonths, addWeeks, format } from 'date-fns';
 import { map, shareReplay } from 'rxjs/operators';
+import { EventMonthViewComponent } from './event-month-view.component';
 import { EventStateService } from './event-state.service';
+import { EventWeekViewComponent } from './event-week-view.component';
 
 @Component({
     selector: 'event-calendar',
@@ -70,7 +75,14 @@ import { EventStateService } from './event-state.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        MatRippleModule,
+        EventWeekViewComponent,
+        EventMonthViewComponent,
+        IconComponent,
+    ],
 })
 export class EventCalendarComponent {
     private _settings = inject(SettingsService);

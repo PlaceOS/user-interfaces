@@ -1,4 +1,7 @@
 import { Component } from '@angular/core';
+import { RouterModule } from '@angular/router';
+import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
+import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
 
 @Component({
     selector: 'app-survey',
@@ -18,10 +21,14 @@ import { Component } from '@angular/core';
                 flex-direction: column;
                 height: 100%;
                 width: 100%;
-                background-color: var(--b1);
+                background-color: var(--base-100);
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        ApplicationTopbarComponent,
+        ApplicationSidebarComponent,
+        RouterModule,
+    ],
 })
 export class SurveyComponent {}

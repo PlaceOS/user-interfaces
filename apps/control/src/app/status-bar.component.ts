@@ -1,7 +1,13 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
+import { MatSliderModule } from '@angular/material/slider';
 import { AsyncHandler, nextValueFrom } from '@placeos/common';
+import { BindingDirective, IconComponent } from '@placeos/components';
 import { map } from 'rxjs/operators';
 import { ControlStateService } from './control-state.service';
+import { DurationPipe } from './ui/duration.pipe';
 
 @Component({
     selector: 'control-status-bar',
@@ -140,7 +146,15 @@ import { ControlStateService } from './control-state.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        BindingDirective,
+        MatSliderModule,
+        FormsModule,
+        MatRippleModule,
+        IconComponent,
+        DurationPipe,
+    ],
 })
 export class ControlStatusBarComponent extends AsyncHandler {
     private _state = inject(ControlStateService);

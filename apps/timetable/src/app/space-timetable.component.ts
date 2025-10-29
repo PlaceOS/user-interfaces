@@ -1,6 +1,7 @@
 import { Component, input, signal } from '@angular/core';
-import { AsyncHandler } from '@placeos/common';
-import { Space } from '@placeos/events';
+import { AsyncHandler, Space } from '@placeos/common';
+import { BindingDirective } from '@placeos/components';
+import { SpaceEventDetailsComponent } from './space-event-details.component';
 
 @Component({
     selector: 'space-timetable',
@@ -43,7 +44,7 @@ import { Space } from '@placeos/events';
             }
         `,
     ],
-    standalone: false,
+    imports: [BindingDirective, SpaceEventDetailsComponent],
 })
 export class SpaceTimetableComponent extends AsyncHandler {
     public readonly space = input<Space>(null);

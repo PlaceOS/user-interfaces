@@ -1,4 +1,4 @@
-import { Calendar } from '../lib/calendar.class';
+import { Calendar } from '../lib/types/calendar.class';
 
 describe('Calendar', () => {
     let calendar: Calendar;

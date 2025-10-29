@@ -86,7 +86,6 @@ export interface MapPolygonData {
             }
         `,
     ],
-    standalone: false,
 })
 export class MapPolygonComponent extends AsyncHandler implements OnInit {
     private _details = inject<MapPolygonData>(MAP_FEATURE_DATA);

@@ -4,9 +4,9 @@ import { MockProvider } from 'ng-mocks';
 import { BehaviorSubject, of } from 'rxjs';
 import { delay } from 'rxjs/operators';
 
+import { OrganisationService } from '@placeos/common';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { Building } from 'libs/organisation/src/lib/building.class';
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 
 import { CateringOrder } from '../lib/catering-order.class';
 import { CateringStateService } from '../lib/catering-state.service';

@@ -5,8 +5,7 @@ import {
     input,
     output,
 } from '@angular/core';
-import { AsyncHandler } from '@placeos/common';
-import { CalendarEvent } from '@placeos/events';
+import { AsyncHandler, CalendarEvent } from '@placeos/common';
 import {
     addHours,
     addMinutes,
@@ -91,7 +90,7 @@ interface EventBlock {
             }
         `,
     ],
-    standalone: false,
+    imports: [],
 })
 export class CheckinTimetableComponent
     extends AsyncHandler

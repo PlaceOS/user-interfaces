@@ -1,8 +1,11 @@
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { MapsPeopleService, SettingsService } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import {
+    MapsPeopleService,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';

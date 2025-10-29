@@ -1,4 +1,11 @@
-import { Component, inject, OnInit, output } from '@angular/core';
+import {
+    Component,
+    computed,
+    inject,
+    OnInit,
+    output,
+    signal,
+} from '@angular/core';
 import {
     MAT_DIALOG_DATA,
     MatDialog,
@@ -12,15 +19,22 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
+    Building,
+    BuildingLevel,
+    CalendarEvent,
+    CateringItem,
     formatRecurrence,
     fromEventRecurrence,
     getTimezoneOffsetString,
     i18n,
     notifyError,
+    settingSignal,
     SettingsService,
+    Space,
 } from '@placeos/common';
 import { getModule } from '@placeos/ts-client';
-import { CateringItem } from 'libs/catering/src/lib/catering-item.class';
+
+import { OrganisationService } from '@placeos/common';
 import { BindingDirective } from 'libs/components/src/lib/binding.directive';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { ImageCarouselComponent } from 'libs/components/src/lib/image-carousel.component';
@@ -31,14 +45,10 @@ import { SanitizePipe } from 'libs/components/src/lib/sanitise.pipe';
 import { StatusPillComponent } from 'libs/components/src/lib/status-pill.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { UserAvatarComponent } from 'libs/components/src/lib/user-avatar.component';
-import { Space } from 'libs/events/src/lib/space.class';
 import { SpacePipe } from 'libs/events/src/lib/space.pipe';
-import { Building } from 'libs/organisation/src/lib/building.class';
-import { BuildingLevel } from 'libs/organisation/src/lib/level.class';
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { UserPipe } from 'libs/users/src/lib/user.pipe';
+import { lastValueFrom } from 'rxjs';
 import { AttendeeListComponent } from './attendee-list.component';
-import { CalendarEvent } from './event.class';
 import { getEventMetadata } from './events.fn';
 
 const EMPTY_ACTIONS = [];
@@ -55,19 +65,19 @@ const EMPTY_ACTIONS = [];
                 <i
                     binding
                     [(model)]="room_status"
-                    [sys]="space?.id"
+                    [sys]="space()?.id"
                     mod="Bookings"
                     bind="status"
                 ></i>
-                @if (!event?.system?.images?.length) {
+                @if (!event()?.system?.images?.length) {
                     <div class="block h-8 w-full sm:hidden"></div>
                 }
-                @if (event?.system?.images?.length) {
+                @if (event()?.system?.images?.length) {
                     <div
                         class="h-64 w-full overflow-hidden bg-neutral sm:rounded-b print:hidden"
                     >
                         <image-carousel
-                            [images]="event?.system?.images"
+                            [images]="event()?.system?.images"
                             class="h-64 w-full"
                         ></image-carousel>
                     </div>
@@ -75,53 +85,53 @@ const EMPTY_ACTIONS = [];
                 <h3
                     title
                     class="mt-2 w-full px-3 text-xl font-medium"
-                    [class.pt-4]="!event?.system?.images?.length"
+                    [class.pt-4]="!event()?.system?.images?.length"
                 >
-                    {{ event.title }}
+                    {{ event().title }}
                 </h3>
                 <div class="w-full items-center justify-between sm:flex">
                     <div class="m-2 flex items-center space-x-2">
-                        <status-pill [status]="event_status">
+                        <status-pill [status]="event_status()">
                             <div
                                 class="flex flex-col leading-tight"
-                                [class.pr-4]="timezone && tz"
+                                [class.pr-4]="timezone() && tz()"
                             >
-                                <div>{{ period }}</div>
-                                @if (timezone && tz) {
+                                <div>{{ period() }}</div>
+                                @if (timezone() && tz()) {
                                     <div class="text-xs opacity-30">
-                                        {{ period_tz }}
+                                        {{ period_tz() }}
                                     </div>
                                 }
                             </div>
                         </status-pill>
-                        @if (event.recurring_event_id) {
+                        @if (event().recurring_event_id) {
                             <icon class="text-2xl" [matTooltip]="recurr_tooltip"
                                 >event_repeat</icon
                             >
                         }
                     </div>
-                    @if (event.state !== 'done') {
+                    @if (event().state !== 'done') {
                         <div
                             actions
                             class="flex items-center space-x-2 px-2 print:hidden"
                         >
                             @if (
-                                room_status &&
-                                event?.can_check_in &&
-                                room_status !== 'free'
+                                room_status() &&
+                                event()?.can_check_in &&
+                                room_status() !== 'free'
                             ) {
                                 <button
                                     btn
                                     matRipple
                                     class="h-10 flex-1"
                                     [class.bg-success]="
-                                        room_status !== 'pending'
+                                        room_status() !== 'pending'
                                     "
                                     [class.border-none]="
-                                        room_status !== 'pending'
+                                        room_status() !== 'pending'
                                     "
                                     [class.pointer-events-none]="
-                                        room_status !== 'pending'
+                                        room_status() !== 'pending'
                                     "
                                     (click)="checkin()"
                                 >
@@ -129,13 +139,13 @@ const EMPTY_ACTIONS = [];
                                         class="flex items-center justify-center space-x-2"
                                     >
                                         <icon class="text-2xl">{{
-                                            room_status === 'pending'
+                                            room_status() === 'pending'
                                                 ? 'arrow_back'
                                                 : 'done'
                                         }}</icon>
                                         <div class="pr-4">
                                             {{
-                                                (room_status === 'pending'
+                                                (room_status() === 'pending'
                                                     ? 'COMMON.CHECK_IN'
                                                     : 'COMMON.CHECKED_IN'
                                                 ) | translate
@@ -169,12 +179,12 @@ const EMPTY_ACTIONS = [];
                         <icon>event</icon>
                         <div class="flex flex-col leading-tight">
                             <div>
-                                {{ event.date | date: 'EEEE, dd LLLL y' }}
+                                {{ event().date | date: 'EEEE, dd LLLL y' }}
                             </div>
-                            @if (timezone && tz && !tz_date_same) {
+                            @if (timezone() && tz() && !tz_date_same()) {
                                 <div class="text-xs opacity-30">
                                     {{
-                                        event.date
+                                        event().date
                                             | date: 'EEEE, dd LLLL y (z)' : tz
                                     }}
                                 </div>
@@ -184,10 +194,10 @@ const EMPTY_ACTIONS = [];
                     <div class="flex items-center space-x-2 px-2">
                         <icon>schedule</icon>
                         <div class="flex flex-col leading-tight">
-                            <div>{{ period }}</div>
-                            @if (timezone && tz) {
+                            <div>{{ period() }}</div>
+                            @if (timezone() && tz()) {
                                 <div class="text-xs opacity-30">
-                                    {{ period_tz }}
+                                    {{ period_tz() }}
                                 </div>
                             }
                         </div>
@@ -195,43 +205,48 @@ const EMPTY_ACTIONS = [];
                     <div class="flex items-center space-x-2 px-2">
                         <icon>map</icon>
                         <div>
-                            @if (level) {
-                                {{ level?.display_name || level?.name }},
+                            @if (level()) {
+                                {{ level()?.display_name || level()?.name }},
                             }
                             {{
-                                event?.system?.display_name ||
-                                    event?.system?.name ||
-                                    event?.location
+                                event()?.system?.display_name ||
+                                    event()?.system?.name ||
+                                    event()?.location
                             }}
                         </div>
                     </div>
-                    @if (building) {
+                    @if (building()) {
                         <div class="flex items-center space-x-2 px-2">
                             <icon>place</icon>
                             <div>
-                                {{ building?.display_name || building?.name }},
-                                {{ building?.address }}
+                                {{
+                                    building()?.display_name ||
+                                        building()?.name
+                                }},
+                                {{ building()?.address }}
                             </div>
                         </div>
                     }
-                    @if (event.creator !== event.host) {
+                    @if (event().creator !== event().host) {
                         <div class="flex items-center space-x-2 px-2">
                             <icon matTooltip="Created By">person</icon>
                             <div>
                                 {{
-                                    (event.creator | user)?.name ||
-                                        event.creator
+                                    (event().creator | user)?.name ||
+                                        event().creator
                                 }}
                             </div>
                         </div>
                     }
-                    @if (event.visibility && event.visibility !== 'normal') {
+                    @if (
+                        event().visibility && event().visibility !== 'normal'
+                    ) {
                         <div class="flex items-center space-x-2 px-2">
                             <icon matTooltip="Visibility">visibility</icon>
                             <div>
                                 {{
                                     'COMMON.VISIBILITY_' +
-                                        (event.visibility | uppercase)
+                                        (event().visibility | uppercase)
                                         | translate
                                 }}
                             </div>
@@ -251,7 +266,7 @@ const EMPTY_ACTIONS = [];
                             matRipple
                             show-attendees
                             class="clear text-xs underline print:hidden"
-                            (click)="show_attendees = true"
+                            (click)="show_attendees.set(true)"
                         >
                             {{ 'COMMON.VIEW_ALL' | translate }}
                         </button>
@@ -260,7 +275,7 @@ const EMPTY_ACTIONS = [];
                         <div
                             class="flex flex-1 flex-col items-center justify-center space-y-1"
                         >
-                            <div class="text-lg">{{ accept_count || 0 }}</div>
+                            <div class="text-lg">{{ accept_count() || 0 }}</div>
                             <div class="text-sm uppercase">
                                 {{ 'COMMON.TRUE' | translate }}
                             </div>
@@ -268,7 +283,9 @@ const EMPTY_ACTIONS = [];
                         <div
                             class="flex flex-1 flex-col items-center justify-center space-y-1"
                         >
-                            <div class="text-lg">{{ declined_count || 0 }}</div>
+                            <div class="text-lg">
+                                {{ declined_count() || 0 }}
+                            </div>
                             <div class="text-sm uppercase">
                                 {{ 'COMMON.FALSE' | translate }}
                             </div>
@@ -276,15 +293,17 @@ const EMPTY_ACTIONS = [];
                         <div
                             class="flex flex-1 flex-col items-center justify-center space-y-1"
                         >
-                            <div class="text-lg">{{ pending_count || 0 }}</div>
+                            <div class="text-lg">
+                                {{ pending_count() || 0 }}
+                            </div>
                             <div class="text-sm uppercase">
                                 {{ 'COMMON.PENDING' | translate }}
                             </div>
                         </div>
                     </div>
                     <div class="hidden print:block">
-                        @for (user of event.attendees; track user) {
-                            @if (user.email !== event.host) {
+                        @for (user of event().attendees; track user) {
+                            @if (user.email !== event().host) {
                                 <div
                                     class="flex items-center space-x-2 px-2"
                                     attendee
@@ -313,21 +332,23 @@ const EMPTY_ACTIONS = [];
                         {{ 'FORM.HOST' | translate }}
                     </h3>
                     <div class="flex items-center space-x-2 px-2" host>
-                        <a-user-avatar [user]="event.organiser"></a-user-avatar>
+                        <a-user-avatar
+                            [user]="event().organiser"
+                        ></a-user-avatar>
                         <div class="w-px flex-1 text-sm">
                             <div class="w-full truncate">
-                                {{ event.organiser?.name }}
+                                {{ event().organiser?.name }}
                             </div>
                             <div
                                 class="w-full truncate opacity-60"
-                                [title]="event.host"
+                                [title]="event().host"
                             >
-                                {{ event.host }}
+                                {{ event().host }}
                             </div>
                         </div>
                     </div>
                 </div>
-                @if (has_catering) {
+                @if (has_catering()) {
                     <div
                         class="min-w-1/3 mt-4 flex-grow-[3] rounded border-base-200 sm:m-2 sm:w-[16rem] sm:border sm:bg-base-100 sm:p-4"
                     >
@@ -335,7 +356,10 @@ const EMPTY_ACTIONS = [];
                             {{ 'CALENDAR_EVENT.CATERING' | translate }}
                         </h3>
                         <div class="flex flex-col space-y-2">
-                            @for (order of event.valid_catering; track order) {
+                            @for (
+                                order of event().valid_catering;
+                                track order
+                            ) {
                                 <div
                                     order
                                     class="overflow-hidden rounded-xl border border-base-300 bg-base-100"
@@ -476,11 +500,11 @@ const EMPTY_ACTIONS = [];
                     class="min-w-1/3 relative m-2 mt-4 h-64 w-[calc(100%-1rem)] flex-grow-[3] overflow-hidden rounded border border-base-200 p-2 sm:mt-2 sm:h-48 sm:w-[16rem] sm:bg-base-100"
                     (click)="viewLocation()"
                 >
-                    @if (!hide_map) {
+                    @if (!hide_map()) {
                         <interactive-map
                             class="pointer-events-none"
-                            [src]="level?.map_id"
-                            [features]="features"
+                            [src]="level()?.map_id"
+                            [features]="features()"
                             [options]="{
                                 disable_pan: true,
                                 disable_zoom: true,
@@ -488,7 +512,7 @@ const EMPTY_ACTIONS = [];
                         ></interactive-map>
                     }
                 </button>
-                @if (raw_body) {
+                @if (raw_body()) {
                     <div
                         class="min-w-1/3 mt-4 flex-grow-[3] rounded border-base-200 sm:m-2 sm:w-[16rem] sm:border sm:bg-base-100 sm:p-4"
                     >
@@ -497,30 +521,30 @@ const EMPTY_ACTIONS = [];
                         >
                             {{ 'CALENDAR_EVENT.NOTES_HEADER' | translate }}
                         </h3>
-                        @if (raw_body) {
+                        @if (raw_body()) {
                             <div
                                 notes
                                 class="mx-4 max-w-full overflow-hidden"
                                 [innerHTML]="
-                                    (body | sanitize) ||
+                                    (body() | sanitize) ||
                                     'Unable to sanitize notes contents'
                                 "
                             ></div>
                         }
                     </div>
                 }
-                @if (has_assets) {
+                @if (has_assets()) {
                     <div
                         class="min-w-1/3 mt-4 flex-grow-[3] rounded border-base-200 sm:m-2 sm:w-[16rem] sm:border sm:bg-base-100 sm:p-4"
                     >
                         <h3 class="mx-3 pt-2 text-lg font-medium">
                             {{ 'CALENDAR_EVENT.ASSETS_HEADER' | translate }} ({{
-                                event.valid_assets?.length || 0
+                                event().valid_assets?.length || 0
                             }})
                         </h3>
                         <div class="flex flex-col space-y-2">
                             @for (
-                                request of event.valid_assets;
+                                request of event().valid_assets;
                                 track request
                             ) {
                                 <div
@@ -642,24 +666,24 @@ const EMPTY_ACTIONS = [];
                 >
                     <icon>close</icon>
                 </button>
-                @if (show_attendees) {
+                @if (show_attendees()) {
                     <div class="absolute inset-0 z-50">
                         <attendee-list
-                            [list]="event.attendees"
-                            [host]="event.host"
-                            (click)="show_attendees = false"
+                            [list]="event().attendees"
+                            [host]="event().host"
+                            (click)="show_attendees.set(false)"
                         ></attendee-list>
                     </div>
                 }
             </div>
             <mat-menu #menu="matMenu" xPosition="before">
-                @if (!hide_edit) {
+                @if (!hide_edit()) {
                     <button
                         mat-menu-item
                         mat-dialog-close
-                        (click)="edit ? edit(event) : ''"
-                        [matTooltip]="!can_edit ? no_edit_message : ''"
-                        [disabled]="!can_edit"
+                        (click)="edit ? edit(event()) : ''"
+                        [matTooltip]="!can_edit() ? no_edit_message() : ''"
+                        [disabled]="!can_edit()"
                     >
                         <div class="flex items-center space-x-2 pr-2 text-base">
                             <icon class="text-2xl">edit</icon>
@@ -671,7 +695,7 @@ const EMPTY_ACTIONS = [];
                 }
                 <button
                     mat-menu-item
-                    (click)="remove ? remove(event, false) : ''"
+                    (click)="remove ? remove(event(), false) : ''"
                 >
                     <div class="flex items-center space-x-2 pr-2 text-base">
                         <icon class="text-2xl text-error">delete</icon>
@@ -690,10 +714,10 @@ const EMPTY_ACTIONS = [];
                         </div>
                     </button>
                 }
-                @if (event.recurring_event_id) {
+                @if (event().recurring_event_id) {
                     <button
                         mat-menu-item
-                        (click)="remove ? remove(event, true) : ''"
+                        (click)="remove ? remove(event(), true) : ''"
                     >
                         <div class="flex items-center space-x-2 pr-2 text-base">
                             <icon class="text-2xl text-error">delete</icon>
@@ -706,7 +730,7 @@ const EMPTY_ACTIONS = [];
                         </div>
                     </button>
                 }
-                @for (act of custom_actions; track act) {
+                @for (act of custom_actions(); track act) {
                     <button mat-menu-item (click)="action.emit(act.id)">
                         <div class="flex items-center space-x-2 pr-2 text-base">
                             <icon class="text-2xl">{{ act.icon }}</icon>
@@ -750,148 +774,162 @@ export class EventDetailsModalComponent implements OnInit {
     private _dialog = inject(MatDialog);
 
     public readonly action = output<any>();
-    public edit = this._data.edit_fn;
-    public remove = this._data.remove_fn;
+    public readonly edit = this._data.edit_fn;
+    public readonly remove = this._data.remove_fn;
 
-    public show_order = {};
-    public show_request = {};
-    public room_status = '';
-    public hide_map = false;
-    public hide_edit = false;
-    public raw_body = '';
-    public print = false;
-    public show_attendees = false;
-    public readonly event = this._data.event;
-    public no_edit_message =
-        'Editing bookings long than \n a day is not available';
-    public features = [
+    public readonly show_order = {};
+    public readonly show_request = {};
+    public readonly room_status = signal('');
+    public readonly hide_map = signal(false);
+    public readonly hide_edit = signal(false);
+    public readonly raw_body = signal('');
+    public readonly print = signal(false);
+    public readonly show_attendees = signal(false);
+    public readonly event = signal(this._data.event);
+    public readonly no_edit_message = signal(
+        'Editing bookings long than \n a day is not available',
+    );
+    public readonly features = computed(() => [
         {
-            location: this.event?.system?.map_id,
+            location: this.space().map_id || this.event()?.system?.map_id,
             content: MapPinComponent,
         },
-    ];
-
-    public readonly has_catering = this.event?.ext('catering')?.length > 0;
-    public readonly has_assets = !!this.event?.linked_bookings?.find(
-        (_) => _.booking_type === 'asset-request',
+    ]);
+    public readonly has_catering = computed(
+        () => this.event()?.ext('catering')?.length > 0,
+    );
+    public readonly has_assets = computed(
+        () =>
+            !!this.event()?.linked_bookings?.find(
+                (_) => _.booking_type === 'asset-request',
+            ),
     );
 
     public get is_concierge() {
         return this._settings.app_name.toLowerCase().includes('concierge');
     }
 
-    public get can_edit() {
+    public readonly can_edit = computed(() => {
         return true;
         // return (
         //     this.event.duration <= 24 * 60 ||
         //     this._settings.get('app.events.allow_multiday')
         // );
-    }
+    });
 
-    public level: BuildingLevel = new BuildingLevel();
-    public building: Building = new Building();
-    public space: Space = new Space();
-
-    private _local_tz = getTimezoneOffsetString(
-        Intl.DateTimeFormat().resolvedOptions().timeZone,
+    public readonly space = signal(new Space());
+    public readonly level = computed(
+        () => this._org.levelWithID(this.space().zones) || new BuildingLevel(),
     );
-
-    public get timezone() {
-        return this._settings.get('app.events.use_building_timezone')
+    public readonly building = computed(
+        () =>
+            this._org.buildings.find((b) =>
+                this.space().zones.includes(b.id),
+            ) || new Building(),
+    );
+    public readonly timezone = computed(() =>
+        settingSignal('events.use_building_timezone')
             ? this._org.building.timezone
-            : '';
-    }
-
-    public get tz() {
-        const tz = this.timezone;
+            : '',
+    );
+    public readonly tz = computed(() => {
+        const tz = this.timezone();
         if (!tz) return '';
         const tz_offset = getTimezoneOffsetString(tz);
         return tz_offset === this._local_tz ? '' : tz_offset;
-    }
+    });
 
-    public get tz_date_same() {
+    public readonly tz_date_same = computed(() => {
         return !this._date
-            .transform(this.event.date, 'yyyy-MM-dd', this.tz)
-            .localeCompare(this._date.transform(this.event.date, 'yyyy-MM-dd'));
-    }
+            .transform(this.event().date, 'yyyy-MM-dd', this.tz())
+            .localeCompare(
+                this._date.transform(this.event().date, 'yyyy-MM-dd'),
+            );
+    });
 
-    public accept_count = this.event.attendees.reduce(
-        (count, user) => (count += user.response_status === 'accepted' ? 1 : 0),
-        0,
+    public readonly accept_count = computed(() =>
+        this.event().attendees.reduce(
+            (count, user) =>
+                (count += user.response_status === 'accepted' ? 1 : 0),
+            0,
+        ),
     );
-    public declined_count = this.event.attendees.reduce(
-        (count, user) => (count += user.response_status === 'declined' ? 1 : 0),
-        0,
+    public readonly declined_count = computed(() =>
+        this.event().attendees.reduce(
+            (count, user) =>
+                (count += user.response_status === 'declined' ? 1 : 0),
+            0,
+        ),
     );
-    public pending_count = this.event.attendees.reduce(
-        (count, user) =>
-            (count +=
-                user.response_status === 'tentative' ||
-                user.response_status === 'needsAction'
-                    ? 1
-                    : 0),
-        0,
+    public readonly pending_count = computed(() =>
+        this.event().attendees.reduce(
+            (count, user) =>
+                (count +=
+                    user.response_status === 'tentative' ||
+                    user.response_status === 'needsAction'
+                        ? 1
+                        : 0),
+            0,
+        ),
     );
 
-    public get body() {
-        return this.event.body.replace(/\\n\\n\[ID\|.*\]/gm, '');
-    }
+    public readonly body = computed(() =>
+        this.event().body.replace(/\\n\\n\[ID\|.*\]/gm, ''),
+    );
 
-    public get allow_edit() {
-        return !this._settings.get('app.events.booking_unavailable');
-    }
+    public readonly allow_edit = computed(
+        () => !settingSignal('events.booking_unavailable')(),
+    );
 
-    public get custom_actions(): [string, string][] {
-        return this._settings.get('app.events.custom_actions') || EMPTY_ACTIONS;
-    }
+    public readonly custom_actions = computed(() => {
+        return (settingSignal('events.custom_actions')() || EMPTY_ACTIONS) as [
+            string,
+            string,
+        ][];
+    });
 
     public get time_format() {
         return this._settings.time_format;
     }
 
-    public get event_status() {
-        if (this.event?.state === 'done') return 'neutral';
-        if (this.event?.status === 'approved') return 'success';
-        if (this.event?.status === 'tentative') return 'warning';
-        if (this.event?.status === 'declined') return 'error';
+    public readonly event_status = computed(() => {
+        if (this.event()?.state === 'done') return 'neutral';
+        if (this.event()?.status === 'approved') return 'success';
+        if (this.event()?.status === 'tentative') return 'warning';
+        if (this.event()?.status === 'declined') return 'error';
         return 'warning';
-    }
-
-    constructor() {
-        const doc = new DOMParser().parseFromString(
-            this.event.body,
-            'text/html',
-        );
-        this.raw_body = (doc.body.textContent || '').trim();
-        console.log('');
-        this._load().then();
-    }
+    });
+    private _local_tz = getTimezoneOffsetString(
+        Intl.DateTimeFormat().resolvedOptions().timeZone,
+    );
 
     public ngOnInit() {
-        this.no_edit_message = i18n('CALENDAR_EVENT.NO_LONG_EDIT_MSG');
+        const doc = new DOMParser().parseFromString(
+            this.event().body,
+            'text/html',
+        );
+        this.raw_body.set((doc.body.textContent || '').trim());
+        this._load().then();
+        this.no_edit_message.set(i18n('CALENDAR_EVENT.NO_LONG_EDIT_MSG'));
     }
 
-    public get period() {
-        if (this.event?.all_day) return 'All Day';
-        return this.formattedTime();
-    }
-
-    public get period_tz() {
-        return this.formattedTime(this.tz);
-    }
+    public readonly period = computed(() =>
+        this.event()?.all_day ? 'All Day' : this.formattedTime(),
+    );
+    public readonly period_tz = computed(() => this.formattedTime(this.tz()));
 
     private _date: DatePipe = new DatePipe('en');
 
     public formattedTime(tz?: string) {
-        const date = this.event.date;
-        const date_end = this.event.date_end;
-        const all_day = this.event.all_day;
+        const date = this.event().date;
+        const date_end = this.event().date_end;
+        const all_day = this.event().all_day;
         const tz_format = this._date.transform(date, 'zzzz', tz);
         const start_date = this._date.transform(date, 'MMM d', tz);
         const start_time = this._date.transform(date, this.time_format, tz);
         const end_date = this._date.transform(date_end, 'MMM d', tz);
         const end_time = this._date.transform(date_end, this.time_format, tz);
-        const is_multiday = this.event?.duration > 24 * 60;
+        const is_multiday = this.event()?.duration > 24 * 60;
 
         if (is_multiday) {
             return `${start_date}${all_day ? '' : ', ' + start_time} - ${end_date}${all_day ? '' : ', ' + end_time}`;
@@ -907,62 +945,55 @@ export class EventDetailsModalComponent implements OnInit {
 
     public get recurr_tooltip() {
         return (
-            formatRecurrence(fromEventRecurrence(this.event.recurrence)) ||
+            formatRecurrence(fromEventRecurrence(this.event().recurrence)) ||
             i18n('CALENDAR_EVENT.RECURRING_TOOLTIP')
         );
     }
 
     public async checkin() {
-        const mod = getModule(this.space?.id, 'Bookings');
+        const mod = getModule(this.space()?.id, 'Bookings');
         if (!mod) return;
         await mod
-            .execute('checkin', [getUnixTime(this.event.date)])
+            .execute('checkin', [getUnixTime(this.event().date)])
             .catch((e) => notifyError(`Error checking in booking. ${e}`));
-        this.room_status = 'busy';
+        this.room_status.set('busy');
     }
 
     private async _load() {
-        this.space = await this._space_pipe.transform(
-            this.event.system?.id || this.event.system?.email,
+        this.space.set(
+            await this._space_pipe.transform(
+                this.event().system?.id || this.event().system?.email,
+            ),
         );
-        this.level = this._org.levelWithID(this.space.zones);
-        this.building = this._org.buildings.find((bld) =>
-            this.space.zones.includes(bld.id),
-        );
-        this.features = [
-            {
-                location: this.space.map_id,
-                content: MapPinComponent,
-            },
-        ];
         const doc = new DOMParser().parseFromString(
-            this.event.body,
+            this.event().body,
             'text/html',
         );
-        this.raw_body = (doc.body.textContent || '').trim();
+        this.raw_body.set((doc.body.textContent || '').trim());
         if (
-            this.event.extension_data.catering?.length ||
-            this.event.extension_data.assets?.length
+            this.event().extension_data.catering?.length ||
+            this.event().extension_data.assets?.length
         ) {
             return;
         }
-        const metadata = await getEventMetadata(
-            this.event.id,
-            this.space.id,
-        ).toPromise();
+        const metadata = await lastValueFrom(
+            getEventMetadata(this.event().id, this.space().id),
+        );
         if (metadata) {
-            (this as any).event = new CalendarEvent({
-                ...this.event,
-                extension_data: {
-                    ...this.event.extension_data,
-                    ...metadata,
-                },
-            });
+            this.event.set(
+                new CalendarEvent({
+                    ...this.event,
+                    extension_data: {
+                        ...this.event().extension_data,
+                        ...metadata,
+                    },
+                }),
+            );
         }
     }
 
     public status(id: string): string {
-        const booking = this.event.linked_bookings.find(
+        const booking = this.event().linked_bookings.find(
             (_) => _.asset_id === id,
         );
         if (booking.status) return booking.status;
@@ -976,22 +1007,20 @@ export class EventDetailsModalComponent implements OnInit {
     }
 
     public viewLocation() {
-        this.hide_map = true;
+        this.hide_map.set(true);
         const ref = this._dialog.open(MapLocateModalComponent, {
             maxWidth: '95vw',
             maxHeight: '95vh',
             data: { item: this.space },
         });
-        ref.afterClosed().subscribe(() => {
-            this.hide_map = false;
-        });
+        ref.afterClosed().subscribe(() => this.hide_map.set(false));
     }
 
     public printEvent() {
-        this.print = true;
+        this.print.set(true);
         setTimeout(() => {
             window.print();
-            setTimeout(() => (this.print = false), 100);
+            setTimeout(() => this.print.set(false), 100);
         }, 300);
     }
 }

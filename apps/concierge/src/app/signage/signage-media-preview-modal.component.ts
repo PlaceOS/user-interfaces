@@ -1,10 +1,12 @@
 import { Component, inject, output, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
-import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { SafePipe } from 'libs/components/src/lib/safe.pipe';
-import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import {
+    AuthenticatedImageDirective,
+    IconComponent,
+    SafePipe,
+    TranslatePipe,
+} from '@placeos/components';
 
 @Component({
     selector: 'signage-media-preview-modal',

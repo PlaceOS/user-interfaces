@@ -2,6 +2,14 @@ import { Component, inject, input } from '@angular/core';
 import { downloadFile, jsonToCsv, nextValueFrom } from '@placeos/common';
 import { format } from 'date-fns';
 
+import { CommonModule } from '@angular/common';
+import { MatRippleModule } from '@angular/material/core';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import {
+    IconComponent,
+    SimpleTableComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { ReportsStateService } from '../reports-state.service';
 
 @Component({
@@ -71,7 +79,14 @@ import { ReportsStateService } from '../reports-state.service';
             </div>
         </div>
     `,
-    standalone: false,
+    imports: [
+        SimpleTableComponent,
+        CommonModule,
+        TranslatePipe,
+        IconComponent,
+        MatRippleModule,
+        MatTooltipModule,
+    ],
 })
 export class ReportDesksOverallListComponent {
     private _state = inject(ReportsStateService);

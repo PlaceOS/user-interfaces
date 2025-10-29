@@ -6,7 +6,7 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { CommonModule } from '@angular/common';
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
+import { OrganisationService } from '@placeos/common';
 import {
     CardInputFieldComponent,
     PaymentCardDetails,

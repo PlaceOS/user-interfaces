@@ -11,8 +11,7 @@ import {
 import { BehaviorSubject } from 'rxjs';
 import { ControlStateService } from '../app/control-state.service';
 
-import { BindingDirective } from 'libs/components/src/lib/binding.directive';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { BindingDirective, IconComponent } from '@placeos/components';
 import { ControlStatusBarComponent } from '../app/status-bar.component';
 import { DurationPipe } from '../app/ui/duration.pipe';
 

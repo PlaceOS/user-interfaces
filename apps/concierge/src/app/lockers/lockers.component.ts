@@ -1,10 +1,20 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
+import {
+    ActivatedRoute,
+    NavigationEnd,
+    Router,
+    RouterModule,
+} from '@angular/router';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { LockerStateService } from './locker-state.service';
 
+import { CommonModule } from '@angular/common';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
+import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
 import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
+import { LockersTopbarComponent } from './locker-topbar.component';
 
 @Component({
     selector: '[app-new-lockers]',
@@ -35,11 +45,18 @@ import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component'
                 flex-direction: column;
                 height: 100%;
                 width: 100%;
-                background-color: var(--b1);
+                background-color: var(--base-100);
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        ApplicationTopbarComponent,
+        ApplicationSidebarComponent,
+        LockersTopbarComponent,
+        RouterModule,
+        MatProgressBarModule,
+    ],
 })
 export class LockersComponent extends AsyncHandler implements OnInit {
     private _state = inject(LockerStateService);

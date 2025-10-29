@@ -1,6 +1,11 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject, input } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { downloadFile, i18n, jsonToCsv, nextValueFrom } from '@placeos/common';
+import { SimpleTableComponent, TranslatePipe } from '@placeos/components';
 import { format } from 'date-fns';
+import { DurationPipe } from 'libs/components/src/lib/duration.pipe';
 import { map } from 'rxjs/operators';
 import { LockersReportService } from './lockers-report.service';
 
@@ -83,7 +88,14 @@ import { LockersReportService } from './lockers-report.service';
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        DurationPipe,
+        TranslatePipe,
+        SimpleTableComponent,
+        MatRippleModule,
+        MatTooltipModule,
+    ],
 })
 export class LockersReportListComponent {
     private _state = inject(LockersReportService);

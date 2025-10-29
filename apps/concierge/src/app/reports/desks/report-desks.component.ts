@@ -1,10 +1,23 @@
 import { Component, inject } from '@angular/core';
 import { debounceTime, map } from 'rxjs/operators';
 
+import { CommonModule } from '@angular/common';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute } from '@angular/router';
-import { AsyncHandler, SettingsService } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import {
+    AsyncHandler,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
+import {
+    AuthenticatedImageDirective,
+    TranslatePipe,
+} from '@placeos/components';
+import { ReportsOptionsComponent } from '../reports-options.component';
 import { ReportsStateService } from '../reports-state.service';
+import { ReportDesksChartsComponent } from './report-desks-charts.component';
+import { ReportDesksLevelListComponent } from './report-desks-level-list.component';
+import { ReportDesksOverallListComponent } from './report-desks-overall-list.component';
 
 @Component({
     selector: '[report-desks]',
@@ -97,7 +110,16 @@ import { ReportsStateService } from '../reports-state.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        MatProgressSpinnerModule,
+        ReportsOptionsComponent,
+        ReportDesksChartsComponent,
+        ReportDesksLevelListComponent,
+        ReportDesksOverallListComponent,
+        AuthenticatedImageDirective,
+    ],
 })
 export class ReportDesksComponent extends AsyncHandler {
     private _state = inject(ReportsStateService);

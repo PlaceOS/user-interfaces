@@ -1,7 +1,9 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { time } from './media-helpers';
+import { MediaPlayerComponent } from './media-player.component';
 import { MediaEvent, SignageService } from './signage.service';
 
 @Component({
@@ -34,7 +36,7 @@ import { MediaEvent, SignageService } from './signage.service';
             width: 100%;
         }
     `,
-    standalone: false,
+    imports: [CommonModule, MediaPlayerComponent],
 })
 export class SignagePanelComponent extends AsyncHandler implements OnInit {
     private _router = inject(Router);

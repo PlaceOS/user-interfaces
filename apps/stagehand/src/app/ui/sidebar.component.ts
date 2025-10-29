@@ -110,6 +110,24 @@ let compact_state = false;
                         <span class="truncate">Analytics</span>
                     }
                 </a>
+                @if (show_recorder_view()) {
+                    <a
+                        matRipple
+                        class="relative flex w-full items-center space-x-4 p-2"
+                        routerLinkActive="bg-secondary-focus"
+                        [routerLink]="['/recorder-grid']"
+                        [matTooltip]="is_compact ? 'Recorder Streams' : ''"
+                        matTooltipPosition="right"
+                    >
+                        <div
+                            class="absolute inset-0 bg-base-100 opacity-0 hover:opacity-10"
+                        ></div>
+                        <icon class="!ml-0 text-2xl">stream</icon>
+                        @if (!is_compact) {
+                            <span class="truncate">Recorder Streams</span>
+                        }
+                    </a>
+                }
             </div>
             <div
                 class="flex flex-col space-y-2 py-4"
@@ -164,6 +182,7 @@ export class SidebarComponent {
         'backoffice_link',
         `${location.origin}/backoffice/`,
     );
+    public readonly show_recorder_view = settingSignal('show_recorder_view');
 
     public toggleCompact() {
         this.is_compact.update((s) => !s);

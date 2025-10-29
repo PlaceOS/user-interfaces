@@ -8,7 +8,7 @@ jest.mock('@placeos/common');
 import * as common_lib from '@placeos/common';
 import * as ts_client from '@placeos/ts-client';
 
-import { OrganisationService } from '@placeos/organisation';
+import { OrganisationService } from '@placeos/common';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { MockProvider } from 'ng-mocks';
 import {

@@ -1,7 +1,17 @@
 import { Component, inject } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
-import { CustomTooltipData } from 'libs/components/src/lib/custom-tooltip.component';
+import {
+    BindingDirective,
+    CustomTooltipData,
+    IconComponent,
+    SettingsToggleComponent,
+    TranslatePipe,
+} from '@placeos/components';
 
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
+import { MatSliderModule } from '@angular/material/slider';
 import { getModule } from '@placeos/ts-client';
 import { ControlStateService } from '../control-state.service';
 
@@ -218,7 +228,16 @@ import { ControlStateService } from '../control-state.service';
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        BindingDirective,
+        MatSliderModule,
+        FormsModule,
+        MatRippleModule,
+        SettingsToggleComponent,
+        IconComponent,
+    ],
 })
 export class MicrophoneTooltipComponent extends AsyncHandler {
     private _state = inject(ControlStateService);

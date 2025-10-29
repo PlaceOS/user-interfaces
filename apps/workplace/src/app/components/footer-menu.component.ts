@@ -1,6 +1,11 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { AsyncHandler, SettingsService } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { RouterModule } from '@angular/router';
+import {
+    AsyncHandler,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 
 @Component({
     selector: 'footer-menu',
@@ -229,7 +234,7 @@ import { OrganisationService } from '@placeos/organisation';
     styles: [
         `
             a.active icon {
-                color: var(--s) !important;
+                color: var(--secondary) !important;
             }
 
             a.active {
@@ -242,7 +247,7 @@ import { OrganisationService } from '@placeos/organisation';
             }
         `,
     ],
-    standalone: false,
+    imports: [TranslatePipe, IconComponent, RouterModule],
 })
 export class FooterMenuComponent extends AsyncHandler implements OnInit {
     private _settings = inject(SettingsService);

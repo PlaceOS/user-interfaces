@@ -1,6 +1,16 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { MatRippleModule } from '@angular/material/core';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
+
+import {
+    CateringMenuComponent,
+    CateringOrderListComponent,
+} from '@placeos/catering';
+import { TranslatePipe } from '@placeos/components';
+import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
+import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
+import { CateringTopbarComponent } from './catering-topbar.component';
 
 @Component({
     selector: '[app-new-catering]',
@@ -98,7 +108,7 @@ import { AsyncHandler } from '@placeos/common';
                 flex-direction: column;
                 height: 100%;
                 width: 100%;
-                background-color: var(--b1);
+                background-color: var(--base-100);
             }
 
             a {
@@ -118,7 +128,16 @@ import { AsyncHandler } from '@placeos/common';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        ApplicationTopbarComponent,
+        ApplicationSidebarComponent,
+        MatRippleModule,
+        RouterModule,
+        CateringTopbarComponent,
+        TranslatePipe,
+        CateringOrderListComponent,
+        CateringMenuComponent,
+    ],
 })
 export class CateringComponent extends AsyncHandler implements OnInit {
     private _route = inject(ActivatedRoute);

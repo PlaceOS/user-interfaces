@@ -16,21 +16,26 @@ import {
     tap,
 } from 'rxjs/operators';
 
-import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
-import { flatten, nextValueFrom, unique } from 'libs/common/src/lib/general';
-import { i18n } from 'libs/common/src/lib/locale.service';
-import { notifyError, notifySuccess } from 'libs/common/src/lib/notifications';
-import { SettingsService } from 'libs/common/src/lib/settings.service';
-import { currentUser } from 'libs/common/src/lib/user-state';
-import { Building } from 'libs/organisation/src/lib/building.class';
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
-
+import {
+    AsyncHandler,
+    Building,
+    CateringItem,
+    CateringOrder,
+    OrganisationService,
+    SettingsService,
+    currentUser,
+    flatten,
+    i18n,
+    nextValueFrom,
+    notifyError,
+    notifySuccess,
+    unique,
+} from '@placeos/common';
 import { CateringImportMenuModalComponent } from './catering-import-menu-modal.component';
 import {
     CateringItemModalComponent,
     CateringItemModalData,
 } from './catering-item-modal.component';
-import { CateringItem } from './catering-item.class';
 import {
     CateringItemOptionModalComponent,
     CateringItemOptionModalData,
@@ -43,7 +48,6 @@ import {
     CateringOrderOptionsModalComponent,
     CateringOrderOptionsModalData,
 } from './catering-order-options-modal.component';
-import { CateringOrder } from './catering-order.class';
 import { CateringOrdersService } from './catering-orders.service';
 import { CateringOption } from './catering.interfaces';
 

@@ -1,13 +1,17 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject, model } from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
+import { MatRippleModule } from '@angular/material/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { BookingAsset, BookingFormService } from '@placeos/bookings';
 import {
     AsyncHandler,
+    OrganisationService,
     SettingsService,
     nextValueFrom,
     notifyError,
 } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 
 @Component({
     selector: 'locker-flow-confirm',
@@ -99,7 +103,13 @@ import { OrganisationService } from '@placeos/organisation';
         </footer>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        MatProgressSpinnerModule,
+        MatRippleModule,
+        IconComponent,
+    ],
 })
 export class BookLockerFlowConfirmComponent extends AsyncHandler {
     private _state = inject(BookingFormService);

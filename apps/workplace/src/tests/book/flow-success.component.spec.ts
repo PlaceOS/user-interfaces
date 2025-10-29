@@ -1,5 +1,5 @@
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { IconComponent } from '@placeos/components';
 import { MockComponent } from 'ng-mocks';
 
 import { FlowSuccessComponent } from '../../app/book/flow-success.component';

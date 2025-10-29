@@ -1,6 +1,9 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { MatRippleModule } from '@angular/material/core';
 import { SettingsService } from '@placeos/common';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { ScheduleFilterCardComponent } from './schedule-filter-card.component';
 import { ScheduleStateService } from './schedule-state.service';
 
@@ -28,6 +31,7 @@ import { ScheduleStateService } from './schedule-state.service';
                         </div>
                         <button
                             icon
+                            matRipple
                             name="schedule-remove-event-filter"
                             (click)="toggleType('event', true)"
                         >
@@ -47,6 +51,7 @@ import { ScheduleStateService } from './schedule-state.service';
                         </div>
                         <button
                             icon
+                            matRipple
                             name="schedule-remove-desk-filter"
                             (click)="toggleType('desk', true)"
                         >
@@ -159,6 +164,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     <div>{{ 'RESOURCE.ROOMS' | translate }}</div>
                     <button
                         icon
+                        matRipple
                         name="schedule-remove-event-filter-mobile"
                         (click)="toggleType('event', true)"
                     >
@@ -176,6 +182,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     <div>{{ 'RESOURCE.DESKS' | translate }}</div>
                     <button
                         icon
+                        matRipple
                         name="schedule-remove-desk-filter-mobile"
                         (click)="toggleType('desk', true)"
                     >
@@ -193,6 +200,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     <div>{{ 'RESOURCE.PARKING' | translate }}</div>
                     <button
                         icon
+                        matRipple
                         name="schedule-remove-parking-filter-mobile"
                         (click)="toggleType('parking', true)"
                     >
@@ -210,6 +218,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     <div>{{ 'RESOURCE.VISITORS' | translate }}</div>
                     <button
                         icon
+                        matRipple
                         name="schedule-remove-visitor-filter-mobile"
                         (click)="toggleType('visitor', true)"
                     >
@@ -227,6 +236,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     <div>{{ 'RESOURCE.LOCKERS' | translate }}</div>
                     <button
                         icon
+                        matRipple
                         name="schedule-remove-locker-filter-mobile"
                         (click)="toggleType('locker', true)"
                     >
@@ -244,6 +254,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     <div>{{ 'RESOURCE.EVENTS' | translate }}</div>
                     <button
                         icon
+                        matRipple
                         name="schedule-remove-locker-filter-mobile"
                         (click)="toggleType('group-event', true)"
                     >
@@ -254,7 +265,7 @@ import { ScheduleStateService } from './schedule-state.service';
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [CommonModule, TranslatePipe, IconComponent, MatRippleModule],
 })
 export class ScheduleFiltersComponent {
     private _sheet = inject(MatBottomSheet);

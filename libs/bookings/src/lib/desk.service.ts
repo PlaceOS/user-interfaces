@@ -2,16 +2,16 @@ import { inject, Injectable } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import {
     currentUser,
+    Desk,
     DialogEvent,
     notifyError,
     notifySuccess,
+    User,
 } from '@placeos/common';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { first, map } from 'rxjs/operators';
 
-import { Desk } from 'libs/organisation/src/lib/desk.class';
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
-import { StaffUser, User } from 'libs/users/src/lib/user.class';
+import { OrganisationService } from '@placeos/common';
 
 import { queryBookings, saveBooking } from './bookings.fn';
 import { DeskConfirmModalComponent } from './desk-confirm-modal.component';
@@ -35,7 +35,7 @@ export class DesksService {
         date,
     }: {
         desks: Desk[];
-        host?: StaffUser;
+        host?: User;
         attendees?: User[];
         reason?: string;
         date?: Date;
@@ -128,7 +128,7 @@ export class DesksService {
 
     private async makeDeskBooking(
         desk: Desk,
-        host: StaffUser,
+        host: User,
         date: number,
         reason: string,
         for_user: User = null,

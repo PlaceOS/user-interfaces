@@ -2,8 +2,21 @@ import { Component, inject, input, output } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { first, map } from 'rxjs/operators';
 
-import { AsyncHandler, Identity, SettingsService } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import {
+    AsyncHandler,
+    Identity,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
+import { IconComponent, TranslatePipe } from '@placeos/components';
+import { DateRangeFieldComponent } from '@placeos/form-fields';
 import { endOfDay, startOfDay } from 'date-fns';
 import { combineLatest } from 'rxjs';
 
@@ -98,7 +111,7 @@ import { combineLatest } from 'rxjs';
             }
 
             button[icon][disabled] {
-                background-color: var(--n) !important;
+                background-color: var(--neutral) !important;
             }
 
             mat-slide-toggle div {
@@ -108,7 +121,18 @@ import { combineLatest } from 'rxjs';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        MatFormFieldModule,
+        MatSelectModule,
+        DateRangeFieldComponent,
+        MatProgressSpinnerModule,
+        MatRippleModule,
+        MatTooltipModule,
+        FormsModule,
+        IconComponent,
+        TranslatePipe,
+        CommonModule,
+    ],
 })
 export class ReportsOptionsComponent extends AsyncHandler {
     private _org = inject(OrganisationService);

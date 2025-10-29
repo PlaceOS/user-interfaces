@@ -1,12 +1,13 @@
 import { Pipe, PipeTransform } from '@angular/core';
+import { User } from '@placeos/common';
 import { lastValueFrom } from 'rxjs';
+
 import { showGuest } from './guests.fn';
 import { showStaff } from './staff.fn';
-import { User } from './user.class';
 
 const USER_LIST: User[] = [];
 
-const EMPTY_USER = new User();
+const EMPTY_USER: User = {} as any;
 
 export function addUser(user: User): void {
     USER_LIST.push(user);

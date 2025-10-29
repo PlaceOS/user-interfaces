@@ -3,9 +3,11 @@ import { MatDialog } from '@angular/material/dialog';
 import { BehaviorSubject, of } from 'rxjs';
 import { shareReplay, switchMap, tap } from 'rxjs/operators';
 
-import { SettingsService } from 'libs/common/src/lib/settings.service';
-import { currentUser } from 'libs/common/src/lib/user-state';
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
+import {
+    OrganisationService,
+    SettingsService,
+    currentUser,
+} from '@placeos/common';
 import { PaymentCardDetails } from './card-input-field.component';
 import { PaymentModalComponent } from './payment-modal.component';
 

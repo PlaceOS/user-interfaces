@@ -12,24 +12,24 @@ import { first } from 'rxjs/operators';
 import {
     AsyncHandler,
     i18n,
+    MapsPeopleService,
     nextValueFrom,
     notifyError,
     notifyWarn,
     SettingsService,
     unique,
+    User,
 } from '@placeos/common';
 
-import { MapsPeopleService } from 'libs/common/src/lib/mapspeople.service';
+import { OrganisationService } from '@placeos/common';
 import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
 import { MapPinComponent } from 'libs/components/src/lib/map-pin.component';
 import { MapRadiusComponent } from 'libs/components/src/lib/map-radius.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { SpacePipe } from 'libs/events/src/lib/space.pipe';
 import { SpacesService } from 'libs/events/src/lib/spaces.service';
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { MapLocation } from 'libs/users/src/lib/location.class';
 import { showStaff } from 'libs/users/src/lib/staff.fn';
-import { User } from 'libs/users/src/lib/user.class';
 
 import { ExploreDesksService } from './explore-desks.service';
 import { ExploreLockersService } from './explore-lockers.service';

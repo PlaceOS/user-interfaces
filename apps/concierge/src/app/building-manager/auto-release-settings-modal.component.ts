@@ -2,10 +2,12 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import {
     MAT_DIALOG_DATA,
     MatDialog,
+    MatDialogModule,
     MatDialogRef,
 } from '@angular/material/dialog';
 import {
     SettingsService,
+    WorktimePreference,
     i18n,
     nextValueFrom,
     notifyError,
@@ -20,7 +22,6 @@ import {
     updateMetadata,
     updateSettings,
 } from '@placeos/ts-client';
-import { WorktimePreference } from '@placeos/users';
 import {
     set,
     setDay,
@@ -29,10 +30,23 @@ import {
     startOfDay,
     startOfMinute,
 } from 'date-fns';
-import * as yaml from 'js-yaml';
-import { WFHSettingsModalComponent } from 'libs/users/src/lib/wfh-settings-modal.component';
 import { lastValueFrom } from 'rxjs';
 import { map } from 'rxjs/operators';
+
+import { WFHSettingsModalComponent } from '@placeos/users';
+
+import { FormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
+import { SettingsToggleComponent, TranslatePipe } from '@placeos/components';
+import {
+    DurationFieldComponent,
+    TimeFieldComponent,
+} from '@placeos/form-fields';
+
+import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
 
 @Component({
     selector: 'auto-release-modal',
@@ -236,7 +250,18 @@ import { map } from 'rxjs/operators';
         }
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        DurationFieldComponent,
+        MatProgressSpinnerModule,
+        MatRippleModule,
+        SettingsToggleComponent,
+        MatFormFieldModule,
+        MatSelectModule,
+        TimeFieldComponent,
+        FormsModule,
+        MatDialogModule,
+        TranslatePipe,
+    ],
 })
 export class AutoReleaseSettingsModalComponent implements OnInit {
     private _id = inject(MAT_DIALOG_DATA);
@@ -342,7 +367,7 @@ export class AutoReleaseSettingsModalComponent implements OnInit {
         if (!unencrypted) return;
         try {
             this.settings =
-                yaml.load(unencrypted.settings_string)?.auto_release || {};
+                parseYaml(unencrypted.settings_string)?.auto_release || {};
         } catch {}
         if (!this.settings.custom) this.settings.custom = [];
         for (const name of this.types) {
@@ -356,9 +381,9 @@ export class AutoReleaseSettingsModalComponent implements OnInit {
 
     public async save() {
         this.loading.set(i18n('APP.CONCIERGE.AUTO_RELEASE_SAVING'));
-        const settings = await querySettings({ parent_id: this.id })
-            .pipe(map((_) => _.data))
-            .toPromise();
+        const settings = await lastValueFrom(
+            querySettings({ parent_id: this.id }).pipe(map((_) => _.data)),
+        );
         let unencrypted = settings.find(
             (_) => _.encryption_level === EncryptionLevel.None,
         );
@@ -373,9 +398,9 @@ export class AutoReleaseSettingsModalComponent implements OnInit {
         delete new_settings.custom;
         let old_settings = {};
         try {
-            old_settings = yaml.load(unencrypted.settings_string) || {};
+            old_settings = parseYaml(unencrypted.settings_string) || {};
         } catch {}
-        (unencrypted as any).settings_string = yaml.dump({
+        (unencrypted as any).settings_string = stringifyYaml({
             ...old_settings,
             auto_release: new_settings,
         });

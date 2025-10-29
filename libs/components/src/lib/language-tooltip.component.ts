@@ -1,6 +1,9 @@
 import { Component, inject } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
 import { LocaleService, SettingsService } from '@placeos/common';
 import { CustomTooltipData } from './custom-tooltip.component';
+import { IconComponent } from './icon.component';
+import { TranslatePipe } from './translate.pipe';
 
 @Component({
     selector: 'language-select',
@@ -46,7 +49,7 @@ import { CustomTooltipData } from './custom-tooltip.component';
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [TranslatePipe, MatRippleModule, IconComponent],
 })
 export class LanguageSelectComponent {
     private _data = inject(CustomTooltipData);

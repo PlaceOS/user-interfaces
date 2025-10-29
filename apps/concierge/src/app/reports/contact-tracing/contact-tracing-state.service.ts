@@ -1,6 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import {
+    OrganisationService,
     SettingsService,
+    StaffUser,
     currentUser,
     downloadFile,
     jsonToCsv,
@@ -8,9 +10,7 @@ import {
     notifyError,
     notifyWarn,
 } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
 import { getModule } from '@placeos/ts-client';
-import { StaffUser } from '@placeos/users';
 import { endOfDay, format, getUnixTime, startOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import {

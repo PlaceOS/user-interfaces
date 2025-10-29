@@ -2,6 +2,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AsyncHandler, current_user, SettingsService } from '@placeos/common';
 import { first } from 'rxjs/operators';
+import { FooterMenuComponent } from './footer-menu.component';
 
 @Component({
     selector: '[desk-booking]',
@@ -21,7 +22,7 @@ import { first } from 'rxjs/operators';
             }
         `,
     ],
-    standalone: false,
+    imports: [FooterMenuComponent],
 })
 export class DeskBookingComponent extends AsyncHandler implements OnInit {
     private _settings = inject(SettingsService);

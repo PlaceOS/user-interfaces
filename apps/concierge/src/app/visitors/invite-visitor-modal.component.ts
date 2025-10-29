@@ -1,18 +1,49 @@
-import { Component, inject } from '@angular/core';
+import { AsyncPipe } from '@angular/common';
+import { Component, inject, signal } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import {
+    BookingFormService,
+    VisitorInviteFormComponent,
+    VisitorInviteSuccessComponent,
+} from '@placeos/bookings';
+import {
+    FullscreenModalShellComponent,
+    TranslatePipe,
+} from '@placeos/components';
 
 @Component({
     selector: 'invite-visitor-modal',
     template: `
-        <main class="relative max-h-[80vh] min-h-[40rem] min-w-[40rem]">
-            <invite-visitor-form
-                [date]="date"
-                (done)="onDone()"
-            ></invite-visitor-form>
-        </main>
+        <fullscreen-modal-shell
+            [heading]="'BOOKINGS.VISITOR_INVITE_TITLE' | translate"
+            [loading]="loading | async"
+            [confirm_text]="'BOOKINGS.VISITOR_SEND' | translate"
+            [hide_confirm]="done()"
+            (confirm)="post()"
+        >
+            @if (!done()) {
+                <visitor-invite-form
+                    [date]="date"
+                    [confirm]="post_time()"
+                    (done)="done.set($event)"
+                ></visitor-invite-form>
+            } @else {
+                <visitor-invite-success
+                    [last_count]="done()"
+                    (done)="close()"
+                    (another)="reset()"
+                ></visitor-invite-success>
+            }
+        </fullscreen-modal-shell>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        AsyncPipe,
+        TranslatePipe,
+        VisitorInviteFormComponent,
+        VisitorInviteSuccessComponent,
+        FullscreenModalShellComponent,
+    ],
 })
 export class InviteVisitorModalComponent {
     private _data = inject<{
@@ -20,10 +51,17 @@ export class InviteVisitorModalComponent {
     }>(MAT_DIALOG_DATA);
     private _dialog_ref =
         inject<MatDialogRef<InviteVisitorModalComponent>>(MatDialogRef);
+    private _form = inject(BookingFormService);
+
+    public readonly loading = this._form.loading;
 
     public readonly date = this._data.date;
-
-    public onDone() {
-        this._dialog_ref.close();
-    }
+    public readonly done = signal(0);
+    public readonly post_time = signal(0);
+    public readonly post = () => this.post_time.set(Date.now());
+    public readonly close = () => this._dialog_ref.close();
+    public readonly reset = () => {
+        this.post_time.set(0);
+        this.done.set(0);
+    };
 }

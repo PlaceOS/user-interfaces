@@ -9,8 +9,12 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
-import { AsyncHandler, SettingsService, current_user } from '@placeos/common';
-import { User } from '@placeos/users';
+import {
+    AsyncHandler,
+    SettingsService,
+    User,
+    current_user,
+} from '@placeos/common';
 import { map } from 'rxjs/operators';
 import { DateFromPipe } from '../date-from.pipe';
 import { IconComponent } from '../icon.component';

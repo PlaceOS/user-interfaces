@@ -1,17 +1,33 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { getTimezoneOffsetString, SettingsService } from '@placeos/common';
-import { CalendarEvent } from '@placeos/events';
-import { OrganisationService } from '@placeos/organisation';
+import {
+    CalendarEvent,
+    getTimezoneOffsetString,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import {
+    AuthenticatedImageDirective,
+    BuildingPipe,
+    IconComponent,
+    LevelPipe,
+    TranslatePipe,
+} from '@placeos/components';
+import { SpacePipe } from '@placeos/events';
 import { EventsStateService } from './events-state.service';
 
 @Component({
     selector: 'room-bookings-approvals',
     template: `
         <div
-            class="flex h-full w-[20rem] flex-col overflow-hidden border-l border-base-200"
+            class="flex h-full w-[20rem] flex-col overflow-hidden border-l border-base-300"
             [style.width]="show() ? '' : '0px'"
         >
             <div
@@ -43,7 +59,7 @@ import { EventsStateService } from './events-state.service';
                     }}
                 </h3>
             </div>
-            <div class="relative -mt-px border-b border-base-200">
+            <div class="relative -mt-px border-b border-base-300">
                 <input
                     type="text"
                     [placeholder]="'COMMON.SEARCH' | translate"
@@ -57,7 +73,7 @@ import { EventsStateService } from './events-state.service';
                     search
                 </icon>
             </div>
-            <div class="flex-1 space-y-2 overflow-auto p-3">
+            <div class="flex-1 space-y-1 overflow-auto bg-base-200 p-1">
                 @if (!(filtered_pending | async)?.length) {
                     <div
                         class="flex h-full w-full flex-col items-center justify-center space-y-2"
@@ -72,7 +88,7 @@ import { EventsStateService } from './events-state.service';
                 }
                 @for (event of filtered_pending | async; track event) {
                     <div
-                        class="relative w-full rounded border border-base-300 p-2"
+                        class="relative w-full rounded-lg border border-base-300 bg-base-100 p-2"
                     >
                         @if (event.recurring_event_id) {
                             <div
@@ -147,7 +163,7 @@ import { EventsStateService } from './events-state.service';
                             <button
                                 btn
                                 matRipple
-                                class="flex flex-1 items-center space-x-2 border-success bg-success-light text-black"
+                                class="flex min-w-0 flex-1 items-center space-x-1 border-success bg-success-light text-black"
                                 [disabled]="status()[event.id] === 'accept'"
                                 (click)="approve(event)"
                             >
@@ -164,7 +180,7 @@ import { EventsStateService } from './events-state.service';
                             <button
                                 btn
                                 matRipple
-                                class="flex flex-1 items-center space-x-2 border-error bg-error-light text-black"
+                                class="flex min-w-0 flex-1 items-center space-x-1 border-error bg-error-light text-black"
                                 [disabled]="status()[event.id] === 'decline'"
                                 (click)="reject(event)"
                             >
@@ -267,7 +283,19 @@ import { EventsStateService } from './events-state.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        IconComponent,
+        BuildingPipe,
+        LevelPipe,
+        SpacePipe,
+        FormsModule,
+        MatProgressSpinnerModule,
+        AuthenticatedImageDirective,
+        MatTooltipModule,
+        MatMenuModule,
+    ],
 })
 export class RoomBookingsApprovalsComponent implements OnInit {
     private _state = inject(EventsStateService);
@@ -352,11 +380,13 @@ export class RoomBookingsApprovalsComponent implements OnInit {
         if (!mod) return;
         this.loading.set(true);
         await mod
-            .execute('accept_event_series', [
-                event.mailbox,
-                event.recurring_event_id || event.id,
-            ])
+            .execute(
+                'accept_recurring_event',
+                [event.mailbox, event.recurring_event_id || event.id],
+                30 * 1000,
+            )
             .catch();
+        await mod.execute('find_bookings_for_approval').catch();
         this.loading.set(false);
         this.status.update((s) => {
             s[event.id] = 'accept';
@@ -381,11 +411,13 @@ export class RoomBookingsApprovalsComponent implements OnInit {
         if (!mod) return;
         this.loading.set(true);
         await mod
-            .execute('decline_event_series', [
-                event.mailbox,
-                event.recurring_event_id || event.id,
-            ])
+            .execute(
+                'decline_recurring_event',
+                [event.mailbox, event.recurring_event_id || event.id],
+                30 * 1000,
+            )
             .catch();
+        await mod.execute('find_bookings_for_approval').catch();
         this.loading.set(false);
         this.status.update((s) => {
             s[event.id] = 'decline';

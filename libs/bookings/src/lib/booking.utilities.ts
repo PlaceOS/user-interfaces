@@ -1,5 +1,12 @@
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { current_user, currentUser, flatten } from '@placeos/common';
+import {
+    Booking,
+    CalendarEvent,
+    current_user,
+    currentUser,
+    flatten,
+    OrganisationService,
+} from '@placeos/common';
 import {
     createViewer,
     getViewer,
@@ -12,9 +19,7 @@ import {
     differenceInMinutes,
     roundToNearestMinutes,
 } from 'date-fns';
-import { CalendarEvent } from 'libs/events/src/lib/event.class';
 import { endInFuture } from 'libs/events/src/lib/validators';
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { combineLatest, forkJoin, Observable, of } from 'rxjs';
 import {
     catchError,
@@ -23,7 +28,6 @@ import {
     shareReplay,
     switchMap,
 } from 'rxjs/operators';
-import { Booking } from './booking.class';
 import { Locker, LockerBank } from './locker.class';
 
 function setBookingAsset(form: FormGroup, resource: any) {

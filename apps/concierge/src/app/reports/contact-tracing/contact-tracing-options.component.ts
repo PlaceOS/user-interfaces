@@ -1,5 +1,14 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject, output } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { SettingsService } from '@placeos/common';
+import { IconComponent } from '@placeos/components';
+import {
+    DateRangeFieldComponent,
+    UserSearchFieldComponent,
+} from '@placeos/form-fields';
 import { ContactTracingStateService } from './contact-tracing-state.service';
 
 @Component({
@@ -58,11 +67,19 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
             }
 
             button[icon][disabled] {
-                background-color: var(--n) !important;
+                background-color: var(--neutral) !important;
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        DateRangeFieldComponent,
+        MatRippleModule,
+        MatTooltipModule,
+        IconComponent,
+        UserSearchFieldComponent,
+        FormsModule,
+    ],
 })
 export class ContactTracingOptionsComponent {
     private _state = inject(ContactTracingStateService);

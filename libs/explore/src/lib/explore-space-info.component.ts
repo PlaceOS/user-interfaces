@@ -1,12 +1,15 @@
 import { CommonModule } from '@angular/common';
 import { Component, ElementRef, OnInit, inject } from '@angular/core';
-import { SettingsService } from 'libs/common/src/lib/settings.service';
-import { MAP_FEATURE_DATA } from 'libs/common/src/lib/types';
+import {
+    CalendarEvent,
+    MAP_FEATURE_DATA,
+    SettingsService,
+    Space,
+} from '@placeos/common';
+
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { CalendarEvent } from 'libs/events/src/lib/event.class';
-import { Space } from 'libs/events/src/lib/space.class';
 
 export interface SpaceInfoData {
     space: Space;
@@ -120,22 +123,22 @@ export interface SpaceInfoData {
     styles: [
         `
             [status] {
-                background-color: var(--su);
-                color: var(--suc);
+                background-color: var(--success);
+                color: var(--success-content);
             }
 
             [status].busy {
-                background-color: var(--er);
-                color: var(--erc);
+                background-color: var(--error);
+                color: var(--error-content);
             }
 
             [status].pending {
-                background-color: var(--wa);
-                color: var(--wac);
+                background-color: var(--warn);
+                color: var(--warn-content);
             }
 
             [status].not-bookable {
-                background-color: var(--b3);
+                background-color: var(--base-300);
             }
         `,
     ],

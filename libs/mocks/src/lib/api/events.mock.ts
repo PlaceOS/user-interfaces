@@ -2,10 +2,7 @@ import { predictableRandomInt, timePeriodsIntersect } from '@placeos/common';
 import { mockSystem, registerMockEndpoint } from '@placeos/ts-client';
 import { MOCK_EVENTS } from './events.data';
 import { ACTIVE_USER, MOCK_STAFF } from './users.data';
-
-export const EVENT_MOCKS = registerMocks();
-
-function registerMocks() {
+export function registerMockEvents() {
     registerMockEndpoint({
         path: '/api/staff/v1/events',
         metadata: {},
@@ -13,10 +10,18 @@ function registerMocks() {
         callback: (_) => {
             let events = MOCK_EVENTS;
             if (!_.query_params.zone_ids) {
+                // Live API returns user events when no zone_ids are provided
                 events = events.filter(
                     (event) =>
                         !!event.attendees.find(
                             (user) => user.email === ACTIVE_USER.email,
+                        ),
+                );
+            } else if (_.query_params.zone_ids) {
+                events = events.filter(
+                    (event) =>
+                        !!event.system.zones.find((zone) =>
+                            _.query_params.zone_ids.includes(zone),
                         ),
                 );
             }

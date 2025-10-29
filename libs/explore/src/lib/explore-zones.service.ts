@@ -3,8 +3,13 @@ import { Point, ViewerFeature } from '@placeos/svg-viewer';
 import { showMetadata } from '@placeos/ts-client';
 import { debounceTime, filter, first, map } from 'rxjs/operators';
 
-import { AsyncHandler, HashMap, i18n, SettingsService } from '@placeos/common';
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
+import {
+    AsyncHandler,
+    HashMap,
+    i18n,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
 
 import {
     MapCanvasComponent,

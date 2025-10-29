@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import {
     Component,
     ElementRef,
@@ -6,8 +7,16 @@ import {
     output,
     viewChild,
 } from '@angular/core';
-import { AsyncHandler, i18n, SettingsService } from '@placeos/common';
-import { CalendarEvent } from '@placeos/events';
+import { FormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
+import {
+    AsyncHandler,
+    CalendarEvent,
+    i18n,
+    SettingsService,
+} from '@placeos/common';
+import { IconComponent, TranslatePipe } from '@placeos/components';
+import { UserPipe } from '@placeos/users';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { EventsStateService } from './events-state.service';
@@ -124,7 +133,14 @@ import { EventsStateService } from './events-state.service';
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        UserPipe,
+        MatRippleModule,
+        FormsModule,
+        IconComponent,
+        TranslatePipe,
+    ],
 })
 export class RoomBookingSearchComponent extends AsyncHandler implements OnInit {
     private _state = inject(EventsStateService);

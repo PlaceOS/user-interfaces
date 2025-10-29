@@ -2,20 +2,20 @@ input,
 textarea {
     user-select: text;
     background: none;
-    caret-color: var(--s) !important;
+    caret-color: var(--secondary) !important;
 
     span[required] {
-        color: var(--wa);
+        color: var(--warn);
     }
 
     &::placeholder {
-        color: var(--b3);
+        color: var(--base-300);
     }
 }
 
 label {
     span[required] {
-        color: var(--wa);
+        color: var(--warn);
     }
 }
 
@@ -30,16 +30,16 @@ label {
 }
 
 a[link] {
-    color: var(--in);
+    color: var(--info);
     text-decoration: underline;
     cursor: pointer;
 
     &:hover {
-        color: var(--inf);
+        color: var(--info-focus);
     }
 
     &:active {
-        color: var(--p);
+        color: var(--primary);
     }
 }
 
@@ -51,11 +51,11 @@ a[link] {
     font-weight: bold;
 
     > span:first-child {
-        color: var(--wa);
+        color: var(--warn);
     }
 
     &.error {
-        color: var(--er);
+        color: var(--error);
     }
 }
 
@@ -67,10 +67,10 @@ a[link] {
     ::placeholder,
     .mat-form-field-label,
     .mat-mdc-select-placeholder {
-        color: var(--n);
+        color: var(--neutral);
     }
 
     input {
-        caret-color: var(--p);
+        caret-color: var(--primary);
     }
 }

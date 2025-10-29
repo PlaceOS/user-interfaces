@@ -9,22 +9,22 @@ import {
     initialiseUploadService,
     OpenStack,
 } from '@placeos/cloud-uploads';
-import { first } from 'rxjs/operators';
 
 import {
     AsyncHandler,
     currentUser,
+    firstTruthyValueFrom,
     log,
+    OrganisationService,
     setAppName,
     setNotifyOutlet,
     SettingsService,
     setupCache,
     setupPlace,
 } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
-import { setInternalUserDomain } from 'libs/users/src/lib/user.utilities';
+import { setInternalUserDomain } from '@placeos/users';
 
-import { SpacesService } from 'libs/events/src/lib/spaces.service';
+import { SpacesService } from '@placeos/events';
 
 import * as MOCKS from '@placeos/mocks';
 import { PlaceAuthority, token } from '@placeos/ts-client';
@@ -74,7 +74,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
             await fetch('/auth/authority')
         ).json();
         /** Wait for settings to initialise */
-        await this._settings.initialised.pipe(first((_) => _)).toPromise();
+        await firstTruthyValueFrom(this._settings.initialised);
         setAppName(this._settings.get('app.short_name'));
         const settings = this._settings.get('composer') || {};
         settings.mock =

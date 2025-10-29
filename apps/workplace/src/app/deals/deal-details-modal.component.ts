@@ -7,9 +7,11 @@ import {
     MatDialogRef,
 } from '@angular/material/dialog';
 import { RouterModule } from '@angular/router';
-import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import {
+    AuthenticatedImageDirective,
+    IconComponent,
+    TranslatePipe,
+} from '@placeos/components';
 
 @Component({
     selector: 'deal-details-modal',

@@ -1,9 +1,14 @@
-import { DatePipe } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { Component, inject, model } from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
+import { MatRippleModule } from '@angular/material/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { BookingFormService } from '@placeos/bookings';
 import {
+    AssetRequest,
     AsyncHandler,
+    Desk,
+    OrganisationService,
     SettingsService,
     formatRecurrence,
     fromBookingRecurrence,
@@ -12,9 +17,8 @@ import {
     nextValueFrom,
     notifyError,
 } from '@placeos/common';
-import { Desk, OrganisationService } from '@placeos/organisation';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { addMinutes, endOfDay } from 'date-fns';
-import { AssetRequest } from 'libs/assets/src/lib/asset-request.class';
 import { map } from 'rxjs/operators';
 
 @Component({
@@ -30,7 +34,7 @@ import { map } from 'rxjs/operators';
                 @if (loading | async) {
                     <mat-spinner diameter="32"></mat-spinner>
                 }
-                @if (show_close()) {
+                @if (show_close() && !(loading | async)) {
                     <button
                         icon
                         name="close-desk-confirm"
@@ -214,7 +218,13 @@ import { map } from 'rxjs/operators';
         </footer>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        IconComponent,
+        MatRippleModule,
+        MatProgressSpinnerModule,
+    ],
 })
 export class NewDeskFlowConfirmComponent extends AsyncHandler {
     private _state = inject(BookingFormService);

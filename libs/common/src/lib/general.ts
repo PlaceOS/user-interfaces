@@ -1,6 +1,6 @@
 import { FormGroup } from '@angular/forms';
 import { formatDuration as duration } from 'date-fns';
-import { first, lastValueFrom, Observable, take } from 'rxjs';
+import { first, lastValueFrom, map, Observable, take } from 'rxjs';
 import { i18n, i18nAvailable } from './locale.service';
 import { HashMap } from './types';
 
@@ -585,5 +585,16 @@ export function nextValueFrom<T = any>(obs: Observable<T>): Promise<T> {
 export function firstTruthyValueFrom<T = any>(obs: Observable<T>): Promise<T> {
     return obs
         ? lastValueFrom(obs.pipe(first((_) => !!_)))
+        : Promise.resolve(null);
+}
+
+export function mapLastValueFrom<T = any>(
+    obs: Observable<T>,
+    map_fn: (value: any) => T,
+): Promise<T> {
+    return obs
+        ? map
+            ? lastValueFrom(obs.pipe(map(map_fn)))
+            : lastValueFrom(obs)
         : Promise.resolve(null);
 }

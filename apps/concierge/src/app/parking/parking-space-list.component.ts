@@ -1,7 +1,15 @@
 import { Clipboard } from '@angular/cdk/clipboard';
-import { Component, inject } from '@angular/core';
-import { Booking } from '@placeos/bookings';
-import { AsyncHandler, i18n, notifySuccess } from '@placeos/common';
+import { CommonModule } from '@angular/common';
+import { Component, inject, OnInit } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { AsyncHandler, Booking, i18n, notifySuccess } from '@placeos/common';
+import {
+    IconComponent,
+    SimpleTableComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { ParkingSpace } from '@placeos/explore';
 import { combineLatest } from 'rxjs';
 import { ParkingStateService } from './parking-state.service';
@@ -138,9 +146,17 @@ import { ParkingStateService } from './parking-state.service';
         <div class="h-20 w-full"></div>
     `,
     styles: [],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatProgressBarModule,
+        IconComponent,
+        MatRippleModule,
+        MatTooltipModule,
+        SimpleTableComponent,
+        TranslatePipe,
+    ],
 })
-export class ParkingSpaceListComponent extends AsyncHandler {
+export class ParkingSpaceListComponent extends AsyncHandler implements OnInit {
     private _state = inject(ParkingStateService);
     private _clipboard = inject(Clipboard);
 

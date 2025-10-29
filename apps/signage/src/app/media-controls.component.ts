@@ -2,9 +2,11 @@ import { Component, model, output } from '@angular/core';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
-import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { MediaDurationPipe } from 'libs/components/src/lib/media-duration.pipe';
-import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import {
+    IconComponent,
+    MediaDurationPipe,
+    TranslatePipe,
+} from '@placeos/components';
 import { MediaPlayerState } from './types';
 
 type MediaLoop = 'NONE' | 'ONE' | 'ALL';

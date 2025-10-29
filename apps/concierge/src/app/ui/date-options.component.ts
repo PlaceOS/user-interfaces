@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import {
     Component,
     OnChanges,
@@ -8,8 +9,15 @@ import {
     model,
     output,
 } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
+import {
+    CustomTooltipComponent,
+    IconComponent,
+    TranslatePipe,
+} from '@placeos/components';
+import { DateCalendarComponent } from '@placeos/form-fields';
 import {
     addDays,
     format,
@@ -117,7 +125,14 @@ import {
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatRippleModule,
+        TranslatePipe,
+        CustomTooltipComponent,
+        DateCalendarComponent,
+        IconComponent,
+    ],
 })
 export class DateOptionsComponent
     extends AsyncHandler

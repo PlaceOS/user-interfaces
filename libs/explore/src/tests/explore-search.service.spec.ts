@@ -1,9 +1,5 @@
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator';
-import {
-    Building,
-    Organisation,
-    OrganisationService,
-} from '@placeos/organisation';
+import { Building, Organisation, OrganisationService } from '@placeos/common';
 import { BehaviorSubject, of } from 'rxjs';
 
 import { ExploreSearchService } from '../lib/explore-search.service';

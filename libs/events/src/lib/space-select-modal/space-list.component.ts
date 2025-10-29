@@ -1,14 +1,14 @@
-import { Component, inject, input, output } from '@angular/core';
-import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
-
 import { CommonModule } from '@angular/common';
+import { Component, inject, input, output } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { Space } from '@placeos/common';
+
+import { OrganisationService } from '@placeos/common';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { Space } from '../space.class';
+import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
 
 @Component({
     selector: `space-list`,

@@ -19,15 +19,15 @@ import {
 
 import {
     AsyncHandler,
+    BuildingLevel,
     firstTruthyValueFrom,
     HashMap,
+    OrganisationService,
     SettingsService,
+    Space,
     unique,
 } from '@placeos/common';
-import { Space } from 'libs/events/src/lib/space.class';
 import { SpacesService } from 'libs/events/src/lib/spaces.service';
-import { BuildingLevel } from 'libs/organisation/src/lib/level.class';
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 
 export interface MapOptions {
     is_public: boolean;

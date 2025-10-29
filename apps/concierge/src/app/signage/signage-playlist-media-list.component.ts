@@ -1,6 +1,14 @@
 import { Clipboard } from '@angular/cdk/clipboard';
-import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+import {
+    CdkDragDrop,
+    DragDropModule,
+    moveItemInArray,
+} from '@angular/cdk/drag-drop';
+import { CommonModule } from '@angular/common';
 import { Component, inject, input, signal, SimpleChanges } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
 import {
     currentUser,
@@ -8,6 +16,12 @@ import {
     notifyInfo,
     SettingsService,
 } from '@placeos/common';
+import {
+    AuthenticatedImageDirective,
+    IconComponent,
+    MediaDurationPipe,
+    TranslatePipe,
+} from '@placeos/components';
 import {
     listSignagePlaylistMedia,
     MediaAnimation,
@@ -314,7 +328,17 @@ import { SignageStateService } from './signage-state.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        IconComponent,
+        MatMenuModule,
+        MatRippleModule,
+        AuthenticatedImageDirective,
+        DragDropModule,
+        MatTooltipModule,
+        MediaDurationPipe,
+    ],
 })
 export class SignagePlaylistMediaListComponent {
     private _state = inject(SignageStateService);

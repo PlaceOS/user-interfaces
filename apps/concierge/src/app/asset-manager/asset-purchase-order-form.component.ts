@@ -1,7 +1,10 @@
+import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
+import { ReactiveFormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
-    AssetPurchaseOrder,
     generateAssetPurchaseOrderForm,
     queryAssetGroups,
     queryAssets,
@@ -9,13 +12,17 @@ import {
     showAssetPurchaseOrder,
 } from '@placeos/assets';
 import {
+    AssetPurchaseOrder,
     AsyncHandler,
+    OrganisationService,
     i18n,
     notifyError,
     notifySuccess,
 } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { SimpleTableComponent, TranslatePipe } from '@placeos/components';
+import { DateFieldComponent } from '@placeos/form-fields';
 import { addYears, getUnixTime } from 'date-fns';
+import { FullscreenModalShellComponent } from 'libs/components/src/lib/fullscreen-modal-shell.component';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { filter, shareReplay, switchMap } from 'rxjs/operators';
 import { AssetManagerStateService } from './asset-manager-state.service';
@@ -178,7 +185,16 @@ import { AssetManagerStateService } from './asset-manager-state.service';
         </fullscreen-modal-shell>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        FullscreenModalShellComponent,
+        SimpleTableComponent,
+        TranslatePipe,
+        DateFieldComponent,
+        MatFormFieldModule,
+        MatInputModule,
+        ReactiveFormsModule,
+    ],
 })
 export class AssetPurchaseOrderFormComponent
     extends AsyncHandler

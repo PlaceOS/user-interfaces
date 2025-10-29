@@ -1,5 +1,8 @@
 import { Component, input } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
+import { RouterModule } from '@angular/router';
 import { currentUser } from '@placeos/common';
+import { IconComponent } from '@placeos/components';
 
 @Component({
     selector: 'flow-success',
@@ -42,7 +45,7 @@ import { currentUser } from '@placeos/common';
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [RouterModule, MatRippleModule, IconComponent],
 })
 export class FlowSuccessComponent {
     public readonly calendar = input<string>(undefined);

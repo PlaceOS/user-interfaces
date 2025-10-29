@@ -1,16 +1,10 @@
+import { CalendarEvent, GuestUser, toQueryString } from '@placeos/common';
 import { del, get, patch, post, put, query } from '@placeos/ts-client';
+import { addMinutes, getUnixTime } from 'date-fns';
 import { Observable, combineLatest, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 
-import { toQueryString } from 'libs/common/src/lib/api';
-import { GuestUser } from 'libs/users/src/lib/user.class';
-
-import { addMinutes, getUnixTime } from 'date-fns';
-import {
-    queryCalendarAvailability,
-    querySpaceFreeBusy,
-} from 'libs/common/src/lib/calendar.fn';
-import { CalendarEvent } from './event.class';
+import { queryCalendarAvailability, querySpaceFreeBusy } from './calendar.fn';
 import { EventExtensionData } from './event.interfaces';
 
 export interface CalendarEventQueryParams {

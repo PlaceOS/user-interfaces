@@ -1,8 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
-    Booking,
-    BookingType,
     checkinBooking,
     loadLockerBanks,
     loadLockers,
@@ -13,19 +11,22 @@ import {
 } from '@placeos/bookings';
 import {
     AsyncHandler,
+    Booking,
+    BookingType,
+    CalendarEvent,
     current_user,
     currentUser,
     flatten,
+    OrganisationService,
     SettingsService,
     unique,
 } from '@placeos/common';
+import { openConfirmModal } from '@placeos/components';
 import {
-    CalendarEvent,
     newCalendarEventFromBooking,
     queryEvents,
     requestSpacesForZone,
 } from '@placeos/events';
-import { OrganisationService } from '@placeos/organisation';
 import { getModule } from '@placeos/ts-client';
 import {
     addMinutes,
@@ -44,7 +45,6 @@ import {
     startOfMinute,
     startOfWeek,
 } from 'date-fns';
-import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
 import {
     BehaviorSubject,
     combineLatest,

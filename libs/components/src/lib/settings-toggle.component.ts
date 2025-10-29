@@ -35,7 +35,7 @@ import { IconComponent } from './icon.component';
                     <div
                         toggle
                         class="relative h-8 w-12 rounded-full border-2 border-base-400"
-                        [class.bg-base-300]="!value"
+                        [class.bg-base-200]="!value"
                         [class.bg-info]="value"
                         [class.!border-info]="value"
                     >

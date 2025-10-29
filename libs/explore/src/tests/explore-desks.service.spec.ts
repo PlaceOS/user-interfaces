@@ -1,8 +1,11 @@
 import { fakeAsync } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator';
-import { SettingsService } from '@placeos/common';
-import { Building, OrganisationService } from '@placeos/organisation';
+import {
+    Building,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
 import { BehaviorSubject, of } from 'rxjs';
 
 import { BookingFormService } from 'libs/bookings/src/lib/booking-form.service';

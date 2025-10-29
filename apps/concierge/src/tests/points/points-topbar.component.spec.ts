@@ -1,5 +1,5 @@
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { OrganisationService } from '@placeos/organisation';
+import { OrganisationService } from '@placeos/common';
 import { MockComponent } from 'ng-mocks';
 import { of } from 'rxjs';
 import { PointsTopbarComponent } from '../../app/points/points-topbar.component';

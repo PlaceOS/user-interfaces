@@ -1,29 +1,45 @@
 import { Component, inject } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { i18n, notifyError, notifySuccess } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
+import {
+    MAT_DIALOG_DATA,
+    MatDialogModule,
+    MatDialogRef,
+} from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
+import {
+    i18n,
+    notifyError,
+    notifySuccess,
+    OrganisationService,
+} from '@placeos/common';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { PlaceSystem, showMetadata, updateMetadata } from '@placeos/ts-client';
 
 @Component({
     selector: 'room-alert-modal',
     template: `
-        <header class="space-x-4">
-            <h2>
+        <header
+            class="sticky top-0 z-10 mx-auto my-2 flex h-14 w-[calc(100%-1rem)] items-center justify-between rounded border-none bg-base-200 p-2"
+        >
+            <h2 class="px-2 text-xl font-medium capitalize">
                 {{
                     'APP.CONCIERGE.ROOMS_ALERT_HEADER'
                         | translate: { name: room.display_name || room.name }
                 }}
             </h2>
             @if (!loading) {
-                <button btn icon mat-dialog-close>
+                <button icon matRipple mat-dialog-close>
                     <icon>close</icon>
                 </button>
             }
         </header>
         @if (!loading) {
             <main
-                class="flex max-h-[65vh] min-w-[24rem] flex-col overflow-y-auto overflow-x-hidden p-4"
+                class="flex max-h-[65vh] min-w-[28rem] flex-col overflow-y-auto overflow-x-hidden p-4"
                 [formGroup]="form"
             >
                 <label for="status">{{ 'COMMON.STATUS' | translate }}</label>
@@ -64,14 +80,24 @@ import { PlaceSystem, showMetadata, updateMetadata } from '@placeos/ts-client';
         }
         @if (!loading) {
             <footer class="flex justify-end border-t border-base-200 p-2">
-                <button btn class="w-32" (click)="save()">
+                <button btn matRipple class="w-32" (click)="save()">
                     {{ 'COMMON.SAVE' | translate }}
                 </button>
             </footer>
         }
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        MatDialogModule,
+        MatRippleModule,
+        MatProgressSpinnerModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatSelectModule,
+        ReactiveFormsModule,
+        TranslatePipe,
+        IconComponent,
+    ],
 })
 export class RoomAlertModalComponent {
     private _data = inject<{

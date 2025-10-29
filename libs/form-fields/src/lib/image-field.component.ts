@@ -14,11 +14,13 @@ import {
     AsyncHandler,
     nextValueFrom,
     notifyInfo,
+    UPLOAD_PERMISSIONS_MODAL,
     UploadsService,
 } from '@placeos/common';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-permissions-modal.component';
 
 @Component({
     selector: 'image-field',
@@ -103,6 +105,10 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
             provide: NG_VALUE_ACCESSOR,
             useExisting: forwardRef(() => ImageFieldComponent),
             multi: true,
+        },
+        {
+            provide: UPLOAD_PERMISSIONS_MODAL,
+            useValue: UploadPermissionsModalComponent,
         },
     ],
     imports: [

@@ -1,14 +1,11 @@
 import { Component, EventEmitter, OnInit, Output, inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
-import { AsyncHandler, DialogEvent } from '@placeos/common';
-
 import { MatRippleModule } from '@angular/material/core';
-
-import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+import { AsyncHandler, DialogEvent, User } from '@placeos/common';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { UserFormComponent } from './user-form.component';
-import { User } from './user.class';
 import { generateUserForm } from './user.utilities';
 
 @Component({

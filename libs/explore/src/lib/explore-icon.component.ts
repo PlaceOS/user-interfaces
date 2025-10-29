@@ -35,6 +35,7 @@ export class ExploreIconComponent {
     }>(MAP_FEATURE_DATA);
 
     public readonly icon = this._details.icon || { content: 'done' };
-    public readonly color = this._details.color || 'var(--in)';
-    public readonly text_color = this._details.text_color || 'var(--inc)';
+    public readonly color = this._details.color || 'var(--info)';
+    public readonly text_color =
+        this._details.text_color || 'var(--info-content)';
 }

@@ -1,15 +1,16 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { first } from 'rxjs/operators';
 
-import { SettingsService } from '@placeos/common';
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
+import {
+    firstTruthyValueFrom,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
 
 @Component({
     selector: 'page-redirect',
     template: ``,
     styles: [``],
-    standalone: false,
 })
 export class RedirectComponent implements OnInit {
     private _settings = inject(SettingsService);
@@ -17,8 +18,8 @@ export class RedirectComponent implements OnInit {
     private _router = inject(Router);
 
     public async ngOnInit() {
-        await this._settings.initialised.pipe(first((_) => _)).toPromise();
-        await this._org.initialised.pipe(first((_) => _)).toPromise();
+        await firstTruthyValueFrom(this._settings.initialised);
+        await firstTruthyValueFrom(this._org.initialised);
         if (!this._settings.get('app.default_route')) return;
         this._router.navigate(
             this._settings.get('app.default_route').split('/'),

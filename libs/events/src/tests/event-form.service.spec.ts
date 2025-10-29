@@ -4,9 +4,9 @@ import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
 import { MockProvider } from 'ng-mocks';
 import { BehaviorSubject, of, Subject } from 'rxjs';
 
+import { OrganisationService } from '@placeos/common';
 import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { PaymentsService } from 'libs/payments/src/lib/payments.service';
 
 import { OldEventFormService } from '../lib/event-form.service';
