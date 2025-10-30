@@ -42,7 +42,7 @@ function contains(str: string, substr: string) {
                 </header>
                 <main class="w-full flex-1 overflow-auto">
                     <div
-                        class="grid w-full flex-1 grid-cols-1 gap-4 p-4 sm:grid-cols-2 lg:grid-cols-3"
+                        class="grid w-full flex-1 grid-cols-1 gap-4 p-4 sm:grid-cols-2"
                     >
                         <div
                             class="rounded-lg border border-base-300 bg-base-100 p-4 shadow"
@@ -74,7 +74,7 @@ function contains(str: string, substr: string) {
                                 {{ critical_alerts() }} critical
                             </div>
                         </div>
-                        <div
+                        <!-- <div
                             class="rounded-lg border border-base-300 bg-base-100 p-4 shadow"
                         >
                             <div class="flex items-center justify-between">
@@ -87,7 +87,7 @@ function contains(str: string, substr: string) {
                             </div>
                             <div class="text-4xl font-bold">99.9%</div>
                             <div class="text-sm opacity-40">Last 30 days</div>
-                        </div>
+                        </div> -->
                     </div>
                     <div class="flex items-center space-x-4 px-4">
                         <mat-form-field
