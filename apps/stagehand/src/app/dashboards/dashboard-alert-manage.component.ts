@@ -264,7 +264,7 @@ export type AlertType = 'threshold' | 'status' | 'custom';
                                     <button
                                         icon
                                         matRipple
-                                        [disabled]="!template_system"
+                                        [disabled]="!template_system()"
                                         matTooltip="Edit Condition"
                                         (click)="editCondition(row)"
                                     >

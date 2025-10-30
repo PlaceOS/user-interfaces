@@ -150,13 +150,13 @@ import { SidebarComponent } from './ui/sidebar.component';
                                     <mat-option value="critical"
                                         >Critical</mat-option
                                     >
-                                    <mat-option value="warning"
+                                    <mat-option value="high"
                                         >Warning</mat-option
                                     >
-                                    <mat-option value="info">Info</mat-option>
+                                    <mat-option value="medium">Info</mat-option>
                                 </mat-select>
                             </mat-form-field>
-                            <mat-form-field
+                            <!-- <mat-form-field
                                 appearance="outline"
                                 class="no-subscript flex-1 bg-base-100"
                             >
@@ -179,7 +179,7 @@ import { SidebarComponent } from './ui/sidebar.component';
                                         >Closed</mat-option
                                     >
                                 </mat-select>
-                            </mat-form-field>
+                            </mat-form-field> -->
                             <mat-form-field
                                 appearance="outline"
                                 class="no-subscript flex-1 bg-base-100"
