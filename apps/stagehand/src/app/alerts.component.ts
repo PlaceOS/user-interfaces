@@ -1,4 +1,4 @@
-import { AsyncPipe } from '@angular/common';
+import { AsyncPipe, CommonModule } from '@angular/common';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
@@ -8,7 +8,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AsyncHandler } from '@placeos/common';
+import { AsyncHandler, settingSignal } from '@placeos/common';
 import {
     IconComponent,
     SimpleTableComponent,
@@ -324,11 +324,12 @@ import { SidebarComponent } from './ui/sidebar.component';
                         </ng-template>
                         <ng-template #actions_template let-row="row">
                             <div class="flex space-x-2 p-2">
+                                {{ backoffice_link | json }}
                                 <a
                                     icon
                                     matRipple
                                     [href]="
-                                        backoffice_link +
+                                        (backoffice_link() || '/backoffice/') +
                                         '#/systems/' +
                                         row.location
                                     "
@@ -342,7 +343,7 @@ import { SidebarComponent } from './ui/sidebar.component';
                                 <!-- <a
                                     icon
                                     matRipple
-                                    [href]="service_link"
+                                    [href]="service_link()"
                                     target="_blank"
                                     ref="noopener noreferrer"
                                     class="rounded"
@@ -374,6 +375,7 @@ import { SidebarComponent } from './ui/sidebar.component';
     `,
     styles: [``],
     imports: [
+        CommonModule,
         AsyncPipe,
         MatMenuModule,
         MatRippleModule,
@@ -441,13 +443,14 @@ export class AlertsComponent extends AsyncHandler implements OnInit {
         return list;
     });
 
-    public get backoffice_link() {
-        return `${location.origin}/backoffice/`;
-    }
-
-    public get service_link() {
-        return `https://service-now.example.com`;
-    }
+    public readonly backoffice_link = settingSignal(
+        'backoffice_link',
+        `${location.origin}/backoffice/`,
+    );
+    public readonly service_link = settingSignal(
+        'service_link',
+        `${location.origin}/control/`,
+    );
 
     public ngOnInit() {
         this._dashboards.loadDashboards();
@@ -460,18 +463,29 @@ export class AlertsComponent extends AsyncHandler implements OnInit {
             }),
         );
         this._applyDashboard('');
+        console.log('Backoffice Link:', this.backoffice_link());
     }
 
     public async setDashboard(dash_id: string) {
-        this._router.navigate(['/alerts', dash_id]);
-        this._applyDashboard(dash_id);
+        this.timeout(
+            'route_dash',
+            () => {
+                this._router.navigate(['/alerts', dash_id]);
+                this._applyDashboard(dash_id);
+            },
+            100,
+        );
     }
 
     private _applyDashboard(id: string) {
-        this.timeout('apply_dash', async () => {
-            await this._dashboards.setDashboard(id);
-            this.dashboard.set(id);
-            this._dashboards.listenForDashboardAlerts(true);
-        });
+        this.timeout(
+            'apply_dash',
+            async () => {
+                await this._dashboards.setDashboard(id);
+                this.dashboard.set(id);
+                this._dashboards.listenForDashboardAlerts(true);
+            },
+            100,
+        );
     }
 }

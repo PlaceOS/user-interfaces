@@ -303,7 +303,7 @@ function contains(str: string, substr: string) {
                                     icon
                                     matRipple
                                     [href]="
-                                        backoffice_link() +
+                                        (backoffice_link() || '/backoffice/') +
                                         '#/systems/' +
                                         row.id
                                     "
