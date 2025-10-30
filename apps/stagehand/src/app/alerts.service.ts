@@ -4,7 +4,7 @@ import { token } from '@placeos/ts-client';
 
 import mqtt from 'mqtt';
 
-type AlertSeverity = 'critical' | 'warning' | 'info';
+type AlertSeverity = 'critical' | 'high' | 'medium' | 'low';
 type AlertStatus = 'open' | 'in progress' | 'closed' | 'resolved';
 type DeviceType = 'display' | 'audio' | 'video' | 'network' | 'control';
 
@@ -113,7 +113,7 @@ export class AlertsService {
                                   ...list.filter((_) => _.id !== id),
                                   {
                                       id,
-                                      severity: 'warning',
+                                      severity: 'high',
                                       type: 'control',
                                       subject: 'Disconnected',
                                       location: topic.system_id,

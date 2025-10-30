@@ -30,7 +30,10 @@ import { SidebarComponent } from './ui/sidebar.component';
                 >
                     <h1 class="text-2xl font-bold">AV Systems Alerts</h1>
 
-                    <mat-form-field appearance="outline" class="no-subscript">
+                    <mat-form-field
+                        appearance="outline"
+                        class="no-subscript min-w-64"
+                    >
                         <mat-select
                             [(ngModel)]="dashboard"
                             (ngModelChange)="setDashboard($event)"
@@ -50,7 +53,7 @@ import { SidebarComponent } from './ui/sidebar.component';
                 <main class="w-full flex-1 overflow-auto bg-base-200">
                     <!-- @if (dashboard()) { -->
                     <div
-                        class="grid w-full flex-1 grid-cols-1 gap-4 p-4 sm:grid-cols-2 lg:grid-cols-4"
+                        class="grid w-full flex-1 grid-cols-1 gap-4 p-4 sm:grid-cols-2 lg:grid-cols-3"
                     >
                         <div
                             class="rounded-lg border border-base-300 bg-base-100 p-4 shadow"
@@ -108,99 +111,105 @@ import { SidebarComponent } from './ui/sidebar.component';
                                 Pending resolution
                             </div>
                         </div>
-                        <div
-                            class="rounded-lg border border-base-300 bg-base-100 p-4 shadow"
-                        >
-                            <div class="flex items-center justify-between">
-                                <h3 class="text-xl font-medium">Infomation</h3>
-                                <icon
-                                    class="text-3xl text-info"
-                                    className="material-symbols-outlined"
-                                    >info</icon
-                                >
-                            </div>
-                            <div class="text-4xl font-bold">
-                                {{ info_alerts() || '0' }}
-                            </div>
-                            <div class="text-sm opacity-40">
-                                System Notifications
-                            </div>
-                        </div>
                     </div>
-                    <div class="flex items-center space-x-4 p-4">
-                        <mat-form-field
-                            appearance="outline"
-                            class="no-subscript flex-1 bg-base-100"
-                        >
-                            <icon matPrefix class="relative -left-2 text-2xl"
-                                >search</icon
+                    <div
+                        class="flex flex-col items-center space-y-2 px-4 lg:flex-row lg:space-x-2 lg:space-y-0"
+                    >
+                        <div class="lg:max-w-1/2 w-full max-w-full flex-1">
+                            <mat-form-field
+                                appearance="outline"
+                                class="no-subscript w-full bg-base-100"
                             >
-                            <input
-                                matInput
-                                [(ngModel)]="search"
-                                placeholder="Search for alert or location..."
-                            />
-                        </mat-form-field>
-                        <mat-form-field
-                            appearance="outline"
-                            class="no-subscript w-44 bg-base-100"
+                                <icon
+                                    matPrefix
+                                    class="relative -left-2 text-2xl"
+                                    >search</icon
+                                >
+                                <input
+                                    matInput
+                                    [(ngModel)]="search"
+                                    placeholder="Search for alert or location..."
+                                />
+                            </mat-form-field>
+                        </div>
+                        <div
+                            class="lg:max-w-1/2 flex w-full max-w-full flex-1 items-center space-x-2"
                         >
-                            <mat-select
-                                placeholder="All Severities"
-                                [ngModel]="severity()"
-                                (ngModelChange)="severity.set($event)"
+                            <mat-form-field
+                                appearance="outline"
+                                class="no-subscript flex-1 bg-base-100"
                             >
-                                <mat-option value="">All Severities</mat-option>
-                                <mat-option value="critical"
-                                    >Critical</mat-option
+                                <mat-select
+                                    placeholder="All Severities"
+                                    [ngModel]="severity()"
+                                    (ngModelChange)="severity.set($event)"
                                 >
-                                <mat-option value="warning">Warning</mat-option>
-                                <mat-option value="info">Info</mat-option>
-                            </mat-select>
-                        </mat-form-field>
-                        <mat-form-field
-                            appearance="outline"
-                            class="no-subscript w-40 bg-base-100"
-                        >
-                            <mat-select
-                                placeholder="All Statuses"
-                                [ngModel]="status()"
-                                (ngModelChange)="status.set($event)"
+                                    <mat-option value=""
+                                        >All Severities</mat-option
+                                    >
+                                    <mat-option value="critical"
+                                        >Critical</mat-option
+                                    >
+                                    <mat-option value="warning"
+                                        >Warning</mat-option
+                                    >
+                                    <mat-option value="info">Info</mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                            <mat-form-field
+                                appearance="outline"
+                                class="no-subscript flex-1 bg-base-100"
                             >
-                                <mat-option value="">All Statuses</mat-option>
-                                <mat-option value="open">Open</mat-option>
-                                <mat-option value="in progress"
-                                    >In Progress</mat-option
+                                <mat-select
+                                    placeholder="All Statuses"
+                                    [ngModel]="status()"
+                                    (ngModelChange)="status.set($event)"
                                 >
-                                <mat-option value="resolved"
-                                    >Resolved</mat-option
-                                >
-                                <mat-option value="closed">Closed</mat-option>
-                            </mat-select>
-                        </mat-form-field>
-                        <mat-form-field
-                            appearance="outline"
-                            class="no-subscript w-48 bg-base-100"
-                        >
-                            <mat-select
-                                placeholder="All Device Types"
-                                [ngModel]="device_type()"
-                                (ngModelChange)="device_type.set($event)"
+                                    <mat-option value=""
+                                        >All Statuses</mat-option
+                                    >
+                                    <mat-option value="open">Open</mat-option>
+                                    <mat-option value="in progress"
+                                        >In Progress</mat-option
+                                    >
+                                    <mat-option value="resolved"
+                                        >Resolved</mat-option
+                                    >
+                                    <mat-option value="closed"
+                                        >Closed</mat-option
+                                    >
+                                </mat-select>
+                            </mat-form-field>
+                            <mat-form-field
+                                appearance="outline"
+                                class="no-subscript flex-1 bg-base-100"
                             >
-                                <mat-option value="">All Devices</mat-option>
-                                <mat-option value="display">Display</mat-option>
-                                <mat-option value="audio">Audio</mat-option>
-                                <mat-option value="video">Video</mat-option>
-                                <mat-option value="network">Network</mat-option>
-                                <mat-option value="control"
-                                    >Control System</mat-option
+                                <mat-select
+                                    placeholder="All Device Types"
+                                    [ngModel]="device_type()"
+                                    (ngModelChange)="device_type.set($event)"
                                 >
-                            </mat-select>
-                        </mat-form-field>
+                                    <mat-option value=""
+                                        >All Devices</mat-option
+                                    >
+                                    <mat-option value="display"
+                                        >Display</mat-option
+                                    >
+                                    <mat-option value="audio">Audio</mat-option>
+                                    <mat-option value="video">Video</mat-option>
+                                    <mat-option value="network"
+                                        >Network</mat-option
+                                    >
+                                    <mat-option value="control"
+                                        >Control System</mat-option
+                                    >
+                                </mat-select>
+                            </mat-form-field>
+                        </div>
                     </div>
                     <div class="overflow-auto p-4">
                         <simple-table
-                            class="block w-full min-w-[64rem] overflow-hidden bg-base-100 text-sm"
+                            class="block w-full min-w-[56rem] overflow-hidden bg-base-100 text-sm"
                             [data]="filtered_alerts()"
                             [filter]="search"
                             [columns]="[
@@ -228,6 +237,7 @@ import { SidebarComponent } from './ui/sidebar.component';
                                     key: 'status',
                                     name: 'Status',
                                     content: status_template,
+                                    show: false,
                                     size: '9rem',
                                 },
                                 {
@@ -235,7 +245,7 @@ import { SidebarComponent } from './ui/sidebar.component';
                                     name: ' ',
                                     content: actions_template,
                                     sortable: false,
-                                    size: '6rem',
+                                    size: '3.125rem',
                                 },
                             ]"
                             [selectable]="true"
@@ -330,7 +340,7 @@ import { SidebarComponent } from './ui/sidebar.component';
                                 >
                                     <icon class="text-2xl">build</icon>
                                 </a>
-                                <a
+                                <!-- <a
                                     icon
                                     matRipple
                                     [href]="service_link"
@@ -342,7 +352,7 @@ import { SidebarComponent } from './ui/sidebar.component';
                                     <icon class="text-2xl"
                                         >person_raised_hand</icon
                                     >
-                                </a>
+                                </a> -->
                             </div>
                         </ng-template>
                     </div>
@@ -406,13 +416,16 @@ export class AlertsComponent extends AsyncHandler implements OnInit {
     public readonly dashboards = this._dashboards.dashboard_list.asReadonly();
 
     public readonly info_alerts = computed(
-        () => this.alert_list().filter((a) => a.severity === 'info').length,
+        () =>
+            this.alert_list().filter(
+                (a) => a.severity === 'medium' || a.severity === 'low',
+            ).length,
     );
     public readonly critical_alerts = computed(
         () => this.alert_list().filter((a) => a.severity === 'critical').length,
     );
     public readonly warning_alerts = computed(
-        () => this.alert_list().filter((a) => a.severity === 'warning').length,
+        () => this.alert_list().filter((a) => a.severity === 'high').length,
     );
     public readonly open_alerts = computed(
         () => this.alert_list().filter((a) => a.status === 'open').length,
