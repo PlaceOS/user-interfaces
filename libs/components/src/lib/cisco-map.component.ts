@@ -1,21 +1,22 @@
 import {
     Component,
     ElementRef,
-    OnInit,
     inject,
     input,
+    OnInit,
     output,
     viewChild,
 } from '@angular/core';
 import {
     AsyncHandler,
     BuildingLevel,
+    firstTruthyValueFrom,
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
 import { MapMetadata } from './interactive-map.component';
 
-declare class SpacesRichMap {}
+declare class SpacesDigitalMap {}
 
 const DEFAULT_ZOOM = 18.5;
 
@@ -45,44 +46,54 @@ export class CiscoMapComponent extends AsyncHandler implements OnInit {
 
     private readonly _mapContainer =
         viewChild.required<ElementRef<HTMLDivElement>>('map_container');
-    private _map: SpacesRichMap;
+    private _map: SpacesDigitalMap;
 
-    constructor() {
-        super();
-    }
-
-    public ngOnInit(): void {
+    public async ngOnInit() {
+        await firstTruthyValueFrom(this._org.initialised);
         this._injectScript();
         this.timeout('init', () => this._initialiseMap());
     }
 
     private _injectScript(): void {
-        if (document.getElementById('cisco-spaces-rich-maps-script')) return;
+        if (document.getElementById('cisco-spaces-maps-script')) return;
         const script = document.createElement('script');
-        script.id = 'cisco-spaces-rich-maps-script';
-        script.src =
-            'https://maps.ciscospaces.io/js/spaces-rich-maps-2.0-beta.min.js';
+        script.id = 'cisco-spaces-maps-script';
+        script.src = this._settings.get('app.explore.cisco_maps.script');
         document.body.appendChild(script);
     }
 
-    private _initialiseMap(): void {
-        if (!SpacesRichMap) {
-            console.error('Cisco Spaces Rich Map is not defined');
+    private async _initialiseMap() {
+        if (!SpacesDigitalMap) {
+            console.error('Cisco Spaces script root is not defined');
+            this.timeout('init', () => this._initialiseMap());
             return;
         }
         const config = this._settings.get('app.explore.cisco_maps');
-        this._map = new (SpacesRichMap as any)({
+        const api_endpoint = config.api_endpoint;
+        const b_resp = await fetch(`${api_endpoint}/buildings`, {
+            method: 'POST',
+            headers: { 'x-api-key': config.access_token },
+        });
+        const { result } = await b_resp.json();
+        const { hashed_tenant_id, buildings } = result;
+        const bld = buildings[0] || {};
+        const resp = await fetch(`${api_endpoint}/sessionKey`, {
+            method: 'GET',
+            headers: { 'x-api-key': config.access_token },
+            body: JSON.stringify({ building_id: bld.id }),
+        });
+        const { session_key } = await resp.json();
+        this._map = new (SpacesDigitalMap as any)({
             mapContainer: 'cisco-map-container',
-            token: config.token,
-            tenantId: config.tenant_id,
-            locationId: config.location_id,
-            defaultFloor: 0,
-            initialPos: [0, 0],
+            sessionKey: session_key,
+            tenantId: hashed_tenant_id,
+            locationId: bld?.hashed_id,
+            defaultFloor: bld?.floors[0]?.levelIndex,
+            initialPos: bld?.coordinates,
             initialZoom: 20,
             initialPitch: 65,
             initialBearing: 118,
             poiLegendHolder: 'poi-switch',
-            hideNavigationControls: true,
         });
         console.log('Map initialized', this._map);
     }
