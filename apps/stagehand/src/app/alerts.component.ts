@@ -1,3 +1,4 @@
+import { AsyncPipe } from '@angular/common';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
@@ -5,6 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSelectModule } from '@angular/material/select';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
 import {
@@ -12,6 +14,7 @@ import {
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
+import { SpacePipe } from 'libs/events/src/lib/space.pipe';
 import { DashboardsService } from './dashboards/dashboards.service';
 import { SidebarComponent } from './ui/sidebar.component';
 
@@ -33,6 +36,9 @@ import { SidebarComponent } from './ui/sidebar.component';
                             (ngModelChange)="setDashboard($event)"
                             placeholder="Select dashboard"
                         >
+                            <mat-option [value]="''"
+                                >Disconnected Devices</mat-option
+                            >
                             @for (item of dashboards(); track item.id) {
                                 <mat-option [value]="item.id">{{
                                     item.name
@@ -42,327 +48,305 @@ import { SidebarComponent } from './ui/sidebar.component';
                     </mat-form-field>
                 </header>
                 <main class="w-full flex-1 overflow-auto bg-base-200">
-                    @if (dashboard()) {
+                    <!-- @if (dashboard()) { -->
+                    <div
+                        class="grid w-full flex-1 grid-cols-1 gap-4 p-4 sm:grid-cols-2 lg:grid-cols-4"
+                    >
                         <div
-                            class="grid w-full flex-1 grid-cols-1 gap-4 p-4 sm:grid-cols-2 lg:grid-cols-4"
+                            class="rounded-lg border border-base-300 bg-base-100 p-4 shadow"
                         >
-                            <div
-                                class="rounded-lg border border-base-300 bg-base-100 p-4 shadow"
-                            >
-                                <div class="flex items-center justify-between">
-                                    <h3 class="text-xl font-medium">
-                                        Critical Issues
-                                    </h3>
-                                    <icon
-                                        class="text-3xl text-error"
-                                        className="material-symbols-outlined"
-                                        >warning</icon
-                                    >
-                                </div>
-                                <div class="text-4xl font-bold">
-                                    {{ critical_alerts() || '0' }}
-                                </div>
-                                <div class="text-sm opacity-40">
-                                    Immediate attention required
-                                </div>
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-xl font-medium">
+                                    Critical Issues
+                                </h3>
+                                <icon
+                                    class="text-3xl text-error"
+                                    className="material-symbols-outlined"
+                                    >warning</icon
+                                >
                             </div>
-                            <div
-                                class="rounded-lg border border-base-300 bg-base-100 p-4 shadow"
-                            >
-                                <div class="flex items-center justify-between">
-                                    <h3 class="text-xl font-medium">
-                                        Warnings
-                                    </h3>
-                                    <icon
-                                        class="text-3xl text-warning"
-                                        className="material-symbols-outlined"
-                                        >error</icon
-                                    >
-                                </div>
-                                <div class="text-4xl font-bold">
-                                    {{ warning_alerts() || '0' }}
-                                </div>
-                                <div class="text-sm opacity-40">
-                                    Attention may be required
-                                </div>
+                            <div class="text-4xl font-bold">
+                                {{ critical_alerts() || '0' }}
                             </div>
-                            <div
-                                class="rounded-lg border border-base-300 bg-base-100 p-4 shadow"
-                            >
-                                <div class="flex items-center justify-between">
-                                    <h3 class="text-xl font-medium">
-                                        Open Alerts
-                                    </h3>
-                                    <icon
-                                        class="text-3xl text-info"
-                                        className="material-symbols-outlined"
-                                        >schedule</icon
-                                    >
-                                </div>
-                                <div class="text-4xl font-bold">
-                                    {{ open_alerts() || '0' }}
-                                </div>
-                                <div class="text-sm opacity-40">
-                                    Pending resolution
-                                </div>
-                            </div>
-                            <div
-                                class="rounded-lg border border-base-300 bg-base-100 p-4 shadow"
-                            >
-                                <div class="flex items-center justify-between">
-                                    <h3 class="text-xl font-medium">
-                                        Infomation
-                                    </h3>
-                                    <icon
-                                        class="text-3xl text-info"
-                                        className="material-symbols-outlined"
-                                        >info</icon
-                                    >
-                                </div>
-                                <div class="text-4xl font-bold">
-                                    {{ info_alerts() || '0' }}
-                                </div>
-                                <div class="text-sm opacity-40">
-                                    System Notifications
-                                </div>
+                            <div class="text-sm opacity-40">
+                                Immediate attention required
                             </div>
                         </div>
-                        <div class="flex items-center space-x-4 p-4">
-                            <mat-form-field
-                                appearance="outline"
-                                class="no-subscript flex-1 bg-base-100"
+                        <div
+                            class="rounded-lg border border-base-300 bg-base-100 p-4 shadow"
+                        >
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-xl font-medium">Warnings</h3>
+                                <icon
+                                    class="text-3xl text-warning"
+                                    className="material-symbols-outlined"
+                                    >error</icon
+                                >
+                            </div>
+                            <div class="text-4xl font-bold">
+                                {{ warning_alerts() || '0' }}
+                            </div>
+                            <div class="text-sm opacity-40">
+                                Attention may be required
+                            </div>
+                        </div>
+                        <div
+                            class="rounded-lg border border-base-300 bg-base-100 p-4 shadow"
+                        >
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-xl font-medium">Open Alerts</h3>
+                                <icon
+                                    class="text-3xl text-info"
+                                    className="material-symbols-outlined"
+                                    >schedule</icon
+                                >
+                            </div>
+                            <div class="text-4xl font-bold">
+                                {{ open_alerts() || '0' }}
+                            </div>
+                            <div class="text-sm opacity-40">
+                                Pending resolution
+                            </div>
+                        </div>
+                        <div
+                            class="rounded-lg border border-base-300 bg-base-100 p-4 shadow"
+                        >
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-xl font-medium">Infomation</h3>
+                                <icon
+                                    class="text-3xl text-info"
+                                    className="material-symbols-outlined"
+                                    >info</icon
+                                >
+                            </div>
+                            <div class="text-4xl font-bold">
+                                {{ info_alerts() || '0' }}
+                            </div>
+                            <div class="text-sm opacity-40">
+                                System Notifications
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-4 p-4">
+                        <mat-form-field
+                            appearance="outline"
+                            class="no-subscript flex-1 bg-base-100"
+                        >
+                            <icon matPrefix class="relative -left-2 text-2xl"
+                                >search</icon
+                            >
+                            <input
+                                matInput
+                                [(ngModel)]="search"
+                                placeholder="Search for alert or location..."
+                            />
+                        </mat-form-field>
+                        <mat-form-field
+                            appearance="outline"
+                            class="no-subscript w-44 bg-base-100"
+                        >
+                            <mat-select
+                                placeholder="All Severities"
+                                [ngModel]="severity()"
+                                (ngModelChange)="severity.set($event)"
+                            >
+                                <mat-option value="">All Severities</mat-option>
+                                <mat-option value="critical"
+                                    >Critical</mat-option
+                                >
+                                <mat-option value="warning">Warning</mat-option>
+                                <mat-option value="info">Info</mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                        <mat-form-field
+                            appearance="outline"
+                            class="no-subscript w-40 bg-base-100"
+                        >
+                            <mat-select
+                                placeholder="All Statuses"
+                                [ngModel]="status()"
+                                (ngModelChange)="status.set($event)"
+                            >
+                                <mat-option value="">All Statuses</mat-option>
+                                <mat-option value="open">Open</mat-option>
+                                <mat-option value="in progress"
+                                    >In Progress</mat-option
+                                >
+                                <mat-option value="resolved"
+                                    >Resolved</mat-option
+                                >
+                                <mat-option value="closed">Closed</mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                        <mat-form-field
+                            appearance="outline"
+                            class="no-subscript w-48 bg-base-100"
+                        >
+                            <mat-select
+                                placeholder="All Device Types"
+                                [ngModel]="device_type()"
+                                (ngModelChange)="device_type.set($event)"
+                            >
+                                <mat-option value="">All Devices</mat-option>
+                                <mat-option value="display">Display</mat-option>
+                                <mat-option value="audio">Audio</mat-option>
+                                <mat-option value="video">Video</mat-option>
+                                <mat-option value="network">Network</mat-option>
+                                <mat-option value="control"
+                                    >Control System</mat-option
+                                >
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+                    <div class="overflow-auto p-4">
+                        <simple-table
+                            class="block w-full min-w-[64rem] overflow-hidden bg-base-100 text-sm"
+                            [data]="filtered_alerts()"
+                            [filter]="search"
+                            [columns]="[
+                                {
+                                    key: 'severity',
+                                    name: 'Severity',
+                                    content: severity_template,
+                                },
+                                {
+                                    key: 'type',
+                                    name: 'Device',
+                                    content: device_template,
+                                },
+                                {
+                                    key: 'location',
+                                    name: 'Location',
+                                    content: location_template,
+                                },
+                                {
+                                    key: 'issue',
+                                    name: 'Issue',
+                                    content: issue_template,
+                                },
+                                {
+                                    key: 'status',
+                                    name: 'Status',
+                                    content: status_template,
+                                    size: '9rem',
+                                },
+                                {
+                                    key: 'actions',
+                                    name: ' ',
+                                    content: actions_template,
+                                    sortable: false,
+                                    size: '6rem',
+                                },
+                            ]"
+                            [selectable]="true"
+                            [sortable]="true"
+                            empty_message="No requested assets for this product"
+                        ></simple-table>
+                        <ng-template #issue_template let-row="row">
+                            <div class="p-4 text-sm">
+                                <div class="truncate font-medium">
+                                    {{ row.subject }}
+                                </div>
+                                <div class="max-w-48 opacity-50">
+                                    {{ row.body }}
+                                </div>
+                            </div>
+                        </ng-template>
+                        <ng-template #severity_template let-data="data">
+                            <div
+                                [class]="
+                                    'flex items-center space-x-2 p-4 ' +
+                                    severity_types[data]?.class
+                                "
                             >
                                 <icon
-                                    matPrefix
-                                    class="relative -left-2 text-2xl"
-                                    >search</icon
+                                    class="text-xl"
+                                    className="material-symbols-outlined"
+                                    >{{ severity_types[data]?.icon }}</icon
                                 >
-                                <input
-                                    matInput
-                                    [(ngModel)]="search"
-                                    placeholder="Search for alert or location..."
-                                />
-                            </mat-form-field>
-                            <mat-form-field
-                                appearance="outline"
-                                class="no-subscript w-44 bg-base-100"
+                                <div>{{ severity_types[data]?.text }}</div>
+                            </div>
+                        </ng-template>
+                        <ng-template #device_template let-alert="row">
+                            <div
+                                class="flex items-center space-x-2 p-4 font-mono text-xs"
                             >
-                                <mat-select
-                                    placeholder="All Severities"
-                                    [ngModel]="severity()"
-                                    (ngModelChange)="severity.set($event)"
+                                {{ alert.device }}
+                                <icon
+                                    class="text-xl"
+                                    className="material-symbols-outlined"
+                                    >{{ device_types[alert.type]?.icon }}</icon
                                 >
-                                    <mat-option value=""
-                                        >All Severities</mat-option
-                                    >
-                                    <mat-option value="critical"
-                                        >Critical</mat-option
-                                    >
-                                    <mat-option value="warning"
-                                        >Warning</mat-option
-                                    >
-                                    <mat-option value="info">Info</mat-option>
-                                </mat-select>
-                            </mat-form-field>
-                            <mat-form-field
-                                appearance="outline"
-                                class="no-subscript w-40 bg-base-100"
-                            >
-                                <mat-select
-                                    placeholder="All Statuses"
-                                    [ngModel]="status()"
-                                    (ngModelChange)="status.set($event)"
-                                >
-                                    <mat-option value=""
-                                        >All Statuses</mat-option
-                                    >
-                                    <mat-option value="open">Open</mat-option>
-                                    <mat-option value="in progress"
-                                        >In Progress</mat-option
-                                    >
-                                    <mat-option value="resolved"
-                                        >Resolved</mat-option
-                                    >
-                                    <mat-option value="closed"
-                                        >Closed</mat-option
-                                    >
-                                </mat-select>
-                            </mat-form-field>
-                            <mat-form-field
-                                appearance="outline"
-                                class="no-subscript w-48 bg-base-100"
-                            >
-                                <mat-select
-                                    placeholder="All Device Types"
-                                    [ngModel]="device_type()"
-                                    (ngModelChange)="device_type.set($event)"
-                                >
-                                    <mat-option value=""
-                                        >All Devices</mat-option
-                                    >
-                                    <mat-option value="display"
-                                        >Display</mat-option
-                                    >
-                                    <mat-option value="audio">Audio</mat-option>
-                                    <mat-option value="video">Video</mat-option>
-                                    <mat-option value="network"
-                                        >Network</mat-option
-                                    >
-                                    <mat-option value="control"
-                                        >Control System</mat-option
-                                    >
-                                </mat-select>
-                            </mat-form-field>
-                        </div>
-                        <div class="overflow-auto p-4">
-                            <simple-table
-                                class="block w-full min-w-[64rem] overflow-hidden bg-base-100 text-sm"
-                                [data]="filtered_alerts()"
-                                [filter]="search"
-                                [columns]="[
-                                    {
-                                        key: 'severity',
-                                        name: 'Severity',
-                                        content: severity_template,
-                                    },
-                                    {
-                                        key: 'type',
-                                        name: 'Device',
-                                        content: device_template,
-                                    },
-                                    {
-                                        key: 'location',
-                                        name: 'Location',
-                                    },
-                                    {
-                                        key: 'issue',
-                                        name: 'Issue',
-                                        content: issue_template,
-                                    },
-                                    {
-                                        key: 'status',
-                                        name: 'Status',
-                                        content: status_template,
-                                        size: '9rem',
-                                    },
-                                    {
-                                        key: 'actions',
-                                        name: ' ',
-                                        content: actions_template,
-                                        sortable: false,
-                                        size: '3.5rem',
-                                    },
-                                ]"
-                                [selectable]="true"
-                                [sortable]="true"
-                                empty_message="No requested assets for this product"
-                            ></simple-table>
-                            <ng-template #issue_template let-row="row">
-                                <div class="p-4 text-sm">
-                                    <div class="truncate font-medium">
-                                        {{ row.subject }}
+                                <div>
+                                    {{ device_types[alert.type]?.text }}
+                                </div>
+                            </div>
+                        </ng-template>
+                        <ng-template #location_template let-data="data">
+                            <div class="px-4 py-2">
+                                @let space = data | space | async;
+                                @let name = space?.display_name || space?.name;
+                                <div>{{ name || data }}</div>
+                                @if (name) {
+                                    <div class="text-xs opacity-30">
+                                        {{ data }}
                                     </div>
-                                    <div class="max-w-48 opacity-50">
-                                        {{ row.body }}
-                                    </div>
-                                </div>
-                            </ng-template>
-                            <ng-template #severity_template let-data="data">
-                                <div
-                                    [class]="
-                                        'flex items-center space-x-2 p-4 ' +
-                                        severity_types[data].class
+                                }
+                            </div>
+                        </ng-template>
+                        <ng-template #status_template let-data="data">
+                            <div
+                                class="mx-4 rounded-full px-4 py-2 text-sm capitalize"
+                                [class.bg-success-light]="
+                                    data === 'resolved' || data === 'closed'
+                                "
+                                [class.text-success]="
+                                    data === 'resolved' || data === 'closed'
+                                "
+                                [class.bg-error-light]="data === 'open'"
+                                [class.text-error]="data === 'open'"
+                                [class.bg-warning-light]="
+                                    data === 'in progress'
+                                "
+                                [class.text-warning]="data === 'in progress'"
+                            >
+                                {{ data }}
+                            </div>
+                        </ng-template>
+                        <ng-template #actions_template let-row="row">
+                            <div class="flex space-x-2 p-2">
+                                <a
+                                    icon
+                                    matRipple
+                                    [href]="
+                                        backoffice_link +
+                                        '#/systems/' +
+                                        row.location
                                     "
+                                    target="_blank"
+                                    ref="noopener noreferrer"
+                                    class="rounded"
+                                    matTooltip="Manage Room"
                                 >
-                                    <icon
-                                        class="text-xl"
-                                        className="material-symbols-outlined"
-                                        >{{ severity_types[data].icon }}</icon
-                                    >
-                                    <div>{{ severity_types[data].text }}</div>
-                                </div>
-                            </ng-template>
-                            <ng-template #device_template let-data="data">
-                                <div class="flex items-center space-x-2 p-4">
-                                    <icon
-                                        class="text-xl"
-                                        className="material-symbols-outlined"
-                                        >{{ device_types[data].icon }}</icon
-                                    >
-                                    <div>{{ device_types[data].text }}</div>
-                                </div>
-                            </ng-template>
-                            <ng-template #status_template let-data="data">
-                                <div
-                                    class="m-4 rounded-full px-4 py-2 text-sm capitalize"
-                                    [class.bg-success-light]="
-                                        data === 'resolved' || data === 'closed'
-                                    "
-                                    [class.text-success]="
-                                        data === 'resolved' || data === 'closed'
-                                    "
-                                    [class.bg-error-light]="data === 'open'"
-                                    [class.text-error]="data === 'open'"
-                                    [class.bg-warning-light]="
-                                        data === 'in progress'
-                                    "
-                                    [class.text-warning]="
-                                        data === 'in progress'
-                                    "
+                                    <icon class="text-2xl">build</icon>
+                                </a>
+                                <a
+                                    icon
+                                    matRipple
+                                    [href]="service_link"
+                                    target="_blank"
+                                    ref="noopener noreferrer"
+                                    class="rounded"
+                                    matTooltip="Raise Ticket"
                                 >
-                                    {{ data }}
-                                </div>
-                            </ng-template>
-                            <ng-template #actions_template let-row="row">
-                                <div class="p-2">
-                                    <button
-                                        icon
-                                        matRipple
-                                        class="rounded"
-                                        [matMenuTriggerFor]="menu"
+                                    <icon class="text-2xl"
+                                        >person_raised_hand</icon
                                     >
-                                        <icon class="text-2xl">more_vert</icon>
-                                    </button>
-                                    <mat-menu #menu="matMenu">
-                                        <a
-                                            mat-menu-item
-                                            [href]="
-                                                backoffice_link +
-                                                '#/systems/' +
-                                                row.id
-                                            "
-                                            target="_blank"
-                                            ref="noopener noreferrer"
-                                        >
-                                            <div
-                                                class="flex items-center space-x-2"
-                                            >
-                                                <icon class="text-2xl"
-                                                    >build</icon
-                                                >
-                                                <div>Manage Room</div>
-                                            </div>
-                                        </a>
-                                        <a
-                                            mat-menu-item
-                                            [href]="service_link"
-                                            target="_blank"
-                                            ref="noopener noreferrer"
-                                        >
-                                            <div
-                                                class="flex items-center space-x-2"
-                                            >
-                                                <icon class="text-2xl"
-                                                    >confirmation_number</icon
-                                                >
-                                                <div>Raise Ticket</div>
-                                            </div>
-                                        </a>
-                                    </mat-menu>
-                                </div>
-                            </ng-template>
-                        </div>
-                    } @else {
+                                </a>
+                            </div>
+                        </ng-template>
+                    </div>
+                    <!-- } @else {
                         <div
                             class="flex h-full w-full flex-col items-center justify-center space-y-4 p-12 opacity-30"
                         >
@@ -374,13 +358,14 @@ import { SidebarComponent } from './ui/sidebar.component';
                                 }}
                             </p>
                         </div>
-                    }
+                    } -->
                 </main>
             </div>
         </div>
     `,
     styles: [``],
     imports: [
+        AsyncPipe,
         MatMenuModule,
         MatRippleModule,
         SimpleTableComponent,
@@ -391,6 +376,8 @@ import { SidebarComponent } from './ui/sidebar.component';
         MatInputModule,
         SidebarComponent,
         FormsModule,
+        SpacePipe,
+        MatTooltipModule,
     ],
 })
 export class AlertsComponent extends AsyncHandler implements OnInit {
@@ -399,9 +386,10 @@ export class AlertsComponent extends AsyncHandler implements OnInit {
     private _dashboards = inject(DashboardsService);
     public search = '';
     public readonly severity_types = {
-        critical: { icon: 'warning', class: 'text-error', text: 'Critical' },
-        warning: { icon: 'error', class: 'text-warning', text: 'Warning' },
-        info: { icon: 'info', class: 'text-info', text: 'Info' },
+        critical: { icon: 'dangerous', class: 'text-error', text: 'Critical' },
+        high: { icon: 'warning', class: 'text-warning', text: 'Warning' },
+        medium: { icon: 'info', class: 'text-info', text: 'Info' },
+        low: { icon: 'info', class: 'text-info', text: 'Low' },
     };
     public readonly device_types = {
         display: { icon: 'devices', text: 'Display' },
@@ -459,6 +447,7 @@ export class AlertsComponent extends AsyncHandler implements OnInit {
                 }
             }),
         );
+        this._applyDashboard('');
     }
 
     public async setDashboard(dash_id: string) {
@@ -470,7 +459,7 @@ export class AlertsComponent extends AsyncHandler implements OnInit {
         this.timeout('apply_dash', async () => {
             await this._dashboards.setDashboard(id);
             this.dashboard.set(id);
-            this._dashboards.listenForDashboardAlerts();
+            this._dashboards.listenForDashboardAlerts(true);
         });
     }
 }

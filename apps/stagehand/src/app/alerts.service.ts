@@ -13,6 +13,7 @@ export interface Alert {
     severity: AlertSeverity;
     type: DeviceType;
     location: string;
+    device: string;
     subject: string;
     body: string;
     status: AlertStatus;
@@ -116,6 +117,7 @@ export class AlertsService {
                                       type: 'control',
                                       subject: 'Disconnected',
                                       location: topic.system_id,
+                                      device: ``,
                                       body: `Module "${topic.module_name}_${topic.module_index}" is disconnected`,
                                       timestamp: data.timestamp,
                                       status: 'open',

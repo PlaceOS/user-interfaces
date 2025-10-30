@@ -1,6 +1,12 @@
-import { Component, input } from '@angular/core';
+import { Component, computed, input } from '@angular/core';
 import { ApplicationIcon } from 'libs/common/src/lib/types';
 import { SafePipe } from './safe.pipe';
+
+const CLASS_MAP = {
+    rounded: 'material-symbols-rounded',
+    outlined: 'material-symbols-outlined',
+    sharp: 'material-symbols-sharp',
+};
 
 @Component({
     selector: 'icon,i[icon]',
@@ -9,7 +15,7 @@ import { SafePipe } from './safe.pipe';
             class="flex h-[1.25em] max-h-[1.25em] w-[1.25em] max-w-[1.25em] items-center justify-center overflow-hidden"
         >
             @if (!icon() || icon().type !== 'img') {
-                <i [class]="icon()?.class || className()">
+                <i [class]="class_ref()">
                     {{ icon()?.content }}
                     <ng-content></ng-content>
                 </i>
@@ -33,6 +39,11 @@ import { SafePipe } from './safe.pipe';
 })
 export class IconComponent {
     public readonly className = input('material-symbols-rounded');
-    /** Icon details */
     public readonly icon = input<ApplicationIcon>(undefined);
+    public readonly class_ref = computed(
+        () =>
+            CLASS_MAP[this.icon()?.class] ||
+            CLASS_MAP[this.className()] ||
+            this.className(),
+    );
 }

@@ -7,6 +7,7 @@ import {
     log,
     notifySuccess,
     OrganisationService,
+    unique,
 } from '@placeos/common';
 import {
     listDashboardAlerts,
@@ -73,8 +74,11 @@ function stringToTopic(topic: string): StateTopic {
 }
 
 function compareAsTopic(item: TriggerComparison): string {
-    if (!(item.left instanceof Object)) return;
-    const parts = item.left.mod.split('_');
+    if (!(item.left instanceof Object))
+        return topicToString({
+            state_key: `${item.left}`,
+        });
+    const parts = (item.left?.mod || '').split('_');
     const module_index = parts.pop();
     const module_name = parts.join('_');
     const topic = topicToString({
@@ -252,10 +256,10 @@ export class DashboardsService extends AsyncHandler {
         this.loading.update((l) => l.filter((i) => i !== 'ALERT_LIST'));
     }
 
-    public async listenForDashboardAlerts() {
+    public async listenForDashboardAlerts(force = false) {
         this.dashboard_alerts.set([]);
         const dashboard = this.dashboard();
-        if (!dashboard) return;
+        if (!dashboard && !force) return;
         if (!this._mqtt_broker) await this._initialiseBroker();
         this.timeout('listen_to_topics', () => this._listenToAlertTopics());
     }
@@ -289,16 +293,36 @@ export class DashboardsService extends AsyncHandler {
         this.unsubWith('alert:');
         const dashboard = this.dashboard();
         const alert_list = this.alerts_list();
+        if (!alert_list.length) {
+            alert_list.push({
+                name: 'Disconnected Device',
+                severity: 'medium',
+                conditions: {
+                    comparisons: [
+                        {
+                            left: 'connected',
+                            operator: TriggerConditionOperator.EQ,
+                            right: false,
+                        },
+                    ],
+                },
+            } as any);
+        }
+        console.log('Listen to alerts:', dashboard, alert_list);
         for (const alert of alert_list) {
             for (const item of alert.conditions.comparisons) {
                 const topic = compareAsTopic(item);
+                console.log('Topic:', topic, item);
                 if (!topic) continue;
                 log('ALERTS', 'Listening to topic:', topic);
                 this._mqtt_broker.subscribe(topic);
-                this.subscription(`alert:${dashboard.id}|${topic}`, () => {
-                    log('ALERTS', 'Dropped topic:', topic);
-                    this._mqtt_broker.unsubscribe(topic);
-                });
+                this.subscription(
+                    `alert:${dashboard?.id || 'disconnected'}|${topic}`,
+                    () => {
+                        log('ALERTS', 'Dropped topic:', topic);
+                        this._mqtt_broker.unsubscribe(topic);
+                    },
+                );
             }
         }
     }
@@ -317,7 +341,7 @@ export class DashboardsService extends AsyncHandler {
             'update_alerts',
             () => {
                 const alert_list = this.alerts_list();
-                const alert_out: Alert[] = [];
+                let alert_out: Alert[] = [];
                 for (const alert of alert_list) {
                     const comparision_matches: any[][] = [];
                     for (const item of alert.conditions.comparisons) {
@@ -346,12 +370,15 @@ export class DashboardsService extends AsyncHandler {
                         if (
                             group.length >= alert.conditions.comparisons.length
                         ) {
-                            const { time, topic_str } = group[1];
+                            console.log('Group:', group);
+                            const { time, topic_str } = group[0];
+                            const topic = stringToTopic(topic_str);
                             alert_out.push({
                                 id: `${alert.id}+${time}`,
                                 severity: alert.severity as any,
                                 type: alert.alert_type as any,
-                                location: topic_str,
+                                location: topic.system_id,
+                                device: `${topic.module_name}_${topic.module_index}`,
                                 subject: alert.name,
                                 body: alert.description,
                                 status: 'open',
@@ -359,6 +386,8 @@ export class DashboardsService extends AsyncHandler {
                             });
                         }
                     }
+                    alert_out = unique(alert_out, 'id');
+                    console.log('Alerts:', alert_out);
                 }
                 this.dashboard_alerts.set(alert_out);
             },
