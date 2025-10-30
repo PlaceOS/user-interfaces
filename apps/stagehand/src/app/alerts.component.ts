@@ -248,7 +248,6 @@ import { SidebarComponent } from './ui/sidebar.component';
                                     size: '3.125rem',
                                 },
                             ]"
-                            [selectable]="true"
                             [sortable]="true"
                             empty_message="No requested assets for this product"
                         ></simple-table>

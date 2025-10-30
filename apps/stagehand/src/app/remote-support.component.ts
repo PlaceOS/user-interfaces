@@ -129,6 +129,12 @@ function contains(str: string, substr: string) {
                             [filter]="search_term()"
                             [columns]="[
                                 {
+                                    key: 'actions',
+                                    name: ' ',
+                                    content: actions_template,
+                                    size: '6rem',
+                                },
+                                {
                                     key: 'display_name',
                                     name: 'Room',
                                 },
@@ -149,14 +155,7 @@ function contains(str: string, substr: string) {
                                     name: 'Alerts',
                                     content: issue_template,
                                 },
-                                {
-                                    key: 'actions',
-                                    name: ' ',
-                                    content: actions_template,
-                                    size: '6rem',
-                                },
                             ]"
-                            [selectable]="true"
                             [sortable]="true"
                             empty_message="No rooms able to be remotely supported"
                         ></simple-table>
