@@ -1,3 +1,4 @@
+import { getUnixTime } from 'date-fns';
 import { BuildingLevel } from './org.classes';
 
 interface CalendarAvailability {
@@ -43,6 +44,8 @@ export class Space {
     public readonly features: string[];
     /** Whether the space bookings need approval */
     public readonly approval: boolean;
+    /** Time that the room was created */
+    public readonly created_at: number;
 
     public readonly availability: CalendarAvailability[];
 
@@ -63,6 +66,7 @@ export class Space {
         this.level = data.level || new BuildingLevel();
         this.availability = data.availability || [];
         this.approval = data.approval ?? false;
+        this.created_at = data.created_at ?? getUnixTime(Date.now());
     }
 
     public inUseAt(start: number, duration: number): boolean {

@@ -110,8 +110,8 @@ export class BindingDirective<T = any>
                                 this._binding = false;
                                 this.clearTimeout('bound');
                                 if (this.ignore()) return;
-                                this.model.set(value);
                                 this._old_model = this.model();
+                                this.model.set(value);
                                 this.modelChange.emit(this.model());
                             }, 10);
                         }),

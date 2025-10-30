@@ -1,19 +1,25 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSelectModule } from '@angular/material/select';
-import { settingSignal } from '@placeos/common';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import {
+    AsyncHandler,
+    CalendarEvent,
+    settingSignal,
+    Space,
+} from '@placeos/common';
 import {
     BindingDirective,
     IconComponent,
     SimpleTableComponent,
 } from '@placeos/components';
-import { BehaviorSubject, combineLatest, map } from 'rxjs';
-import { AlertsService } from './alerts.service';
+import { startOfMonth } from 'date-fns';
+import { DashboardsService } from './dashboards/dashboards.service';
 import { SupportService } from './support.service';
 import { SidebarComponent } from './ui/sidebar.component';
 
@@ -46,9 +52,11 @@ function contains(str: string, substr: string) {
                                 <icon class="text-3xl text-info">sensors</icon>
                             </div>
                             <div class="text-4xl font-bold">
-                                {{ (room_list | async)?.length || '0' }}
+                                {{ room_list()?.length || '0' }}
                             </div>
-                            <div class="text-sm opacity-40">+2 this month</div>
+                            <div class="text-sm opacity-40">
+                                +{{ new_rooms()?.length || '0' }} this month
+                            </div>
                         </div>
                         <div
                             class="rounded-lg border border-base-300 bg-base-100 p-4 shadow"
@@ -91,8 +99,7 @@ function contains(str: string, substr: string) {
                             >
                             <input
                                 matInput
-                                [ngModel]="search.getValue()"
-                                (ngModelChange)="search.next($event)"
+                                [(ngModel)]="search_term"
                                 placeholder="Search rooms..."
                             />
                         </mat-form-field>
@@ -102,8 +109,7 @@ function contains(str: string, substr: string) {
                         >
                             <mat-select
                                 placeholder="All Rooms"
-                                [ngModel]="state.getValue()"
-                                (ngModelChange)="state.next($event)"
+                                [(ngModel)]="state"
                             >
                                 <mat-option>All Rooms</mat-option>
                                 <mat-option value="in_use">In Use</mat-option>
@@ -119,8 +125,8 @@ function contains(str: string, substr: string) {
                     <div class="overflow-auto p-4">
                         <simple-table
                             class="block w-full min-w-[64rem] overflow-hidden bg-base-100 text-sm"
-                            [data]="filtered_rooms"
-                            [filter]="search.getValue()"
+                            [data]="filtered_rooms()"
+                            [filter]="search_term()"
                             [columns]="[
                                 {
                                     key: 'display_name',
@@ -147,7 +153,7 @@ function contains(str: string, substr: string) {
                                     key: 'actions',
                                     name: ' ',
                                     content: actions_template,
-                                    size: '3.5rem',
+                                    size: '6rem',
                                 },
                             ]"
                             [selectable]="true"
@@ -157,7 +163,7 @@ function contains(str: string, substr: string) {
                         <ng-template #status_template let-space="row">
                             <i
                                 binding
-                                [(model)]="status[space.id]"
+                                (modelChange)="setStatus(space, $event)"
                                 [sys]="space.id"
                                 mod="Bookings"
                                 bind="status"
@@ -166,23 +172,25 @@ function contains(str: string, substr: string) {
                                 <div
                                     class="h-3 w-3 rounded-full"
                                     [class.bg-error]="
-                                        status[space.id] === 'busy'
+                                        status()[space.id] === 'busy'
                                     "
                                     [class.bg-warning]="
-                                        status[space.id] !== 'busy' &&
-                                        status[space.id] !== 'free'
+                                        status()[space.id] !== 'busy' &&
+                                        status()[space.id] !== 'free'
                                     "
                                     [class.bg-success]="
-                                        status[space.id] === 'free'
+                                        status()[space.id] === 'free'
                                     "
                                 ></div>
                                 <div>
                                     {{
-                                        status[space.id] === 'free'
+                                        status()[space.id] === 'free'
                                             ? 'Available'
-                                            : status[space.id] === 'busy'
+                                            : status()[space.id] === 'busy'
                                               ? 'In Use'
-                                              : 'Pending'
+                                              : status()[space.id] === 'pending'
+                                                ? 'Pending'
+                                                : 'No status'
                                     }}
                                 </div>
                             </div>
@@ -190,19 +198,19 @@ function contains(str: string, substr: string) {
                         <ng-template #event_template let-space="row">
                             <i
                                 binding
-                                [(model)]="next[space.id]"
+                                (modelChange)="setNextBooking(space, $event)"
                                 [sys]="space.id"
                                 mod="Bookings"
                                 bind="next_booking"
                             ></i>
                             <div class="p-4">
-                                @if (next[space.id]) {
+                                @if (next()[space.id]) {
                                     {{
-                                        next[space.id].event_start * 1000
+                                        next()[space.id].event_start * 1000
                                             | date: 'shortTime'
                                     }}
                                     &ndash;
-                                    {{ next[space.id].title }}
+                                    {{ next()[space.id].title }}
                                 } @else {
                                     <span class="opacity-30">None</span>
                                 }
@@ -291,52 +299,36 @@ function contains(str: string, substr: string) {
                             }
                         </ng-template>
                         <ng-template #actions_template let-row="row">
-                            <div class="p-2">
-                                <button
+                            <div class="flex space-x-2 p-2">
+                                <a
                                     icon
                                     matRipple
+                                    [href]="
+                                        backoffice_link() +
+                                        '#/systems/' +
+                                        row.id
+                                    "
+                                    target="_blank"
+                                    ref="noopener noreferrer"
+                                    matTooltip="Manage Room"
                                     class="rounded"
-                                    [matMenuTriggerFor]="menu"
                                 >
-                                    <icon class="text-2xl">more_vert</icon>
-                                </button>
-                                <mat-menu #menu="matMenu">
-                                    <a
-                                        mat-menu-item
-                                        [href]="
-                                            backoffice_link +
-                                            '#/systems/' +
-                                            row.id
-                                        "
-                                        target="_blank"
-                                        ref="noopener noreferrer"
-                                    >
-                                        <div
-                                            class="flex items-center space-x-2"
-                                        >
-                                            <icon class="text-2xl">build</icon>
-                                            <div>Manage Room</div>
-                                        </div>
-                                    </a>
-                                    <a
-                                        mat-menu-item
-                                        [href]="
-                                            row.support_url ||
-                                            service_link + '#/tabbed/' + row.id
-                                        "
-                                        target="_blank"
-                                        ref="noopener noreferrer"
-                                    >
-                                        <div
-                                            class="flex items-center space-x-2"
-                                        >
-                                            <icon class="text-2xl"
-                                                >devices</icon
-                                            >
-                                            <div>Control Room</div>
-                                        </div>
-                                    </a>
-                                </mat-menu>
+                                    <icon class="text-2xl">build</icon>
+                                </a>
+                                <a
+                                    icon
+                                    matRipple
+                                    [href]="
+                                        row.support_url ||
+                                        service_link() + '#/tabbed/' + row.id
+                                    "
+                                    target="_blank"
+                                    ref="noopener noreferrer"
+                                    matTooltip="Control Room"
+                                    class="rounded"
+                                >
+                                    <icon class="text-2xl">devices</icon>
+                                </a>
                             </div>
                         </ng-template>
                     </div>
@@ -357,52 +349,86 @@ function contains(str: string, substr: string) {
         MatInputModule,
         SidebarComponent,
         FormsModule,
+        MatTooltipModule,
     ],
 })
-export class RemoteSupportComponent {
-    private readonly _alerts = inject(AlertsService);
+export class RemoteSupportComponent extends AsyncHandler implements OnInit {
+    private readonly _dashboard = inject(DashboardsService);
     private readonly _support = inject(SupportService);
 
     public readonly is_eduction = settingSignal('educational_environment');
 
-    public readonly alerts = this._alerts.alerts;
+    public readonly alerts = this._dashboard.dashboard_alerts;
     public readonly critical_alerts = computed(
         () =>
             this.alerts().filter((alert) => alert.severity === 'critical')
                 .length,
     );
 
-    public search = new BehaviorSubject('');
-    public status: Record<string, string> = {};
-    public next: Record<string, any> = {};
-    public readonly state = new BehaviorSubject('');
-    public readonly room_list = this._support.space_list;
-    public readonly filtered_rooms = combineLatest([
-        this.room_list,
-        this.state,
-        this.search,
-    ]).pipe(
-        map(([list, type, search]) => {
-            list = list.filter((room) => {
-                switch (type) {
-                    case 'in_use':
-                        return this.status[room.id] === 'busy';
-                    case 'available':
-                        return this.status[room.id] === 'free';
-                    case 'issues':
-                        return room.issues?.length > 0;
-                }
-                return true;
-            });
-            return list;
-        }),
+    public readonly search_term = signal('');
+    public readonly status = signal<Record<string, string>>({});
+    public readonly next = signal<Record<string, CalendarEvent>>({});
+    public readonly state = signal('');
+    public readonly room_list = signal<Space[]>([]);
+    public readonly new_rooms = computed(() =>
+        this.room_list().filter(
+            (rm) => rm.created_at * 1000 > startOfMonth(Date.now()).valueOf(),
+        ),
+    );
+    public readonly room_data = computed(() =>
+        this.room_list().map((rm) => ({
+            ...rm,
+            issues: this.alerts().filter((a) => a.location == rm.id),
+        })),
+    );
+    public readonly backoffice_link = settingSignal(
+        'backoffice_link',
+        `${location.origin}/backoffice/`,
+    );
+    public readonly service_link = settingSignal(
+        'service_link',
+        `${location.origin}/control/`,
     );
 
-    public get backoffice_link() {
-        return `${location.origin}/backoffice/`;
+    public readonly filtered_rooms = computed(() => {
+        const term = this.search_term().toLowerCase();
+        return this.room_data().filter((room) => {
+            switch (this.state()) {
+                case 'in_use':
+                    return this.status[room.id] === 'busy';
+                case 'available':
+                    return this.status[room.id] === 'free';
+                case 'issues':
+                    return (room as any).issues?.length > 0;
+            }
+            if (term) {
+                if (
+                    !room.name.toLowerCase().includes(term) &&
+                    !room.display_name.toLowerCase().includes(term)
+                ) {
+                    return false;
+                }
+            }
+            return true;
+        });
+    });
+
+    public ngOnInit() {
+        this.subscription(
+            'room_list',
+            this._support.space_list.subscribe((l) => {
+                this.room_list.set(l);
+                this._dashboard.setDashboard('');
+                this._dashboard.listenForDashboardAlerts(true);
+            }),
+        );
     }
 
-    public get service_link() {
-        return `${location.origin}/control/`;
+    public setNextBooking(space: Space, event: CalendarEvent) {
+        this.next.update((old) => ({ ...old, [space.id]: event }));
+    }
+
+    public setStatus(space: Space, status: string) {
+        this.status.update((old) => ({ ...old, [space.id]: status }));
     }
 }
