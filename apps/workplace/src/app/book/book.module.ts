@@ -7,6 +7,7 @@ import { CodeFlowSuccessComponent } from './code-flow-success.component';
 import { BookCodeFlowComponent } from './code-flow.component';
 import { NewDeskFlowComponent } from './desk-flow.component';
 import { BookLockerFlowComponent } from './locker-flow.component';
+import { MeetingFlowNewComponent } from './meeting-flow-new/meeting-flow-new.component';
 import { BookMeetingFlowComponent } from './meeting-flow.component';
 import { NewParkingFlowComponent } from './parking-flow.component';
 import { VisitorFlowComponent } from './visitor-flow.component';
@@ -23,7 +24,9 @@ const ROUTES: Route[] = [
             { path: 'desks', redirectTo: 'desk/form' },
             { path: 'desk/:step', component: NewDeskFlowComponent },
             { path: 'meeting', redirectTo: 'meeting/form' },
-            { path: 'meeting/:step', component: BookMeetingFlowComponent },
+            { path: 'meeting/:step', component: MeetingFlowNewComponent },
+            // { path: 'meeting', redirectTo: 'meeting/form' },
+            // { path: 'meeting/:step', component: BookMeetingFlowComponent },
             { path: 'parking', redirectTo: 'parking/form' },
             { path: 'parking/:step', component: NewParkingFlowComponent },
             { path: 'visitor', redirectTo: 'visitor/form' },

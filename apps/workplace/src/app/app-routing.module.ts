@@ -11,13 +11,13 @@ const routes: Routes = [
     { path: '-', component: RedirectComponent },
     { path: 'unauthorised', component: UnauthorisedComponent },
     { path: 'misconfigured', component: MisconfiguredComponent },
-    {
-        path: 'landing',
-        canActivate: [AuthorisedUserGuard],
-        canLoad: [AuthorisedUserGuard],
-        loadChildren: () =>
-            import('./landing/landing.module').then((m) => m.AppLandingModule),
-    },
+    // {
+    //     path: 'landing',
+    //     canActivate: [AuthorisedUserGuard],
+    //     canLoad: [AuthorisedUserGuard],
+    //     loadChildren: () =>
+    //         import('./landing/landing.module').then((m) => m.AppLandingModule),
+    // },
     {
         path: 'book',
         canActivate: [AuthorisedUserGuard],
@@ -72,6 +72,15 @@ const routes: Routes = [
         canLoad: [AuthorisedUserGuard],
         loadChildren: () =>
             import('./deals/deals.module').then((m) => m.DealsModule),
+    },
+    {
+        path: 'landing',
+        canActivate: [AuthorisedUserGuard],
+        canLoad: [AuthorisedUserGuard],
+        loadComponent: () =>
+            import('./landing-new/landing-new.component').then(
+                (m) => m.LandingNewComponent,
+            ),
     },
     { path: '**', redirectTo: '-', pathMatch: 'full' },
 ];
