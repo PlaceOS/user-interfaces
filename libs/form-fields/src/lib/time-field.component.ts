@@ -32,7 +32,7 @@ import {
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 
 @Component({
-    selector: 'a-time-field',
+    selector: 'a-time-field,time-field',
     template: `
         <button
             time-field

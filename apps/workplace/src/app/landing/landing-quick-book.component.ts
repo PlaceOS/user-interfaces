@@ -20,7 +20,7 @@ import { TranslatePipe } from '@placeos/components';
         <div
             class="mx-4 mb-4 flex w-[calc(100%-2rem)] snap-x space-x-2 overflow-auto"
         >
-            @if (features().includes('desks')) {
+            @if (features()?.includes('desks')) {
                 <button
                     matRipple
                     class="flex w-64 min-w-64 snap-start items-center space-x-4 rounded border border-base-200 bg-base-100 p-2 shadow"
@@ -89,7 +89,7 @@ export class LandingQuickBookComponent {
     private _book_form = inject(BookingFormService);
 
     public readonly loading = signal('');
-    public readonly features = settingSignal<string[]>('features');
+    public readonly features = settingSignal<string[]>('features', []);
 
     public async book(type: string) {
         if (this.loading()) return;

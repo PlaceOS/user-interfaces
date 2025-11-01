@@ -63,9 +63,16 @@ export class CiscoMapComponent extends AsyncHandler implements OnInit {
     }
 
     private async _initialiseMap() {
+        try {
+            SpacesDigitalMap;
+        } catch {
+            console.error('Cisco Spaces namespace is not defined');
+            this.timeout('init', () => this._initialiseMap(), 1000);
+            return;
+        }
         if (!SpacesDigitalMap) {
-            console.error('Cisco Spaces script root is not defined');
-            this.timeout('init', () => this._initialiseMap());
+            console.error('Cisco Spaces namespace is not defined');
+            this.timeout('init', () => this._initialiseMap(), 1000);
             return;
         }
         const config = this._settings.get('app.explore.cisco_maps');

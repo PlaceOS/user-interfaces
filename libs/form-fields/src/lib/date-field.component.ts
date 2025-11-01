@@ -31,7 +31,7 @@ export enum TimezoneDiffRange {
 }
 
 @Component({
-    selector: 'a-date-field',
+    selector: 'a-date-field,date-field',
     template: `
         <button
             class="flex h-12 w-full items-center justify-between rounded border border-neutral"

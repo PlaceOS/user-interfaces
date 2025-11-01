@@ -119,19 +119,21 @@ export class LocaleService {
         const map_default = this._default_mappings || {};
         if (plural) {
             key_value = `${key}_${plural}`;
+            const any_key_value = `${key}_N`;
             value =
+                // Check for exact plural
                 map[key_value] ||
                 map_short[key_value] ||
                 map_default[key_value] ||
+                // Check for catch-all plural
+                map[any_key_value] ||
+                map_short[any_key_value] ||
+                map_default[any_key_value] ||
+                // Check for key
+                map[key] ||
+                map_short[key] ||
+                map_default[key] ||
                 key;
-            if (value === key) {
-                key_value = `${key}_N`;
-                value =
-                    map[key_value] ||
-                    map_short[key_value] ||
-                    map_default[key_value] ||
-                    key;
-            }
         } else {
             value =
                 map[key_value] ||

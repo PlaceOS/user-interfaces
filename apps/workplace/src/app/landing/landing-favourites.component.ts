@@ -286,6 +286,7 @@ const EMPTY = [];
         IconComponent,
         MatRippleModule,
         MatMenuModule,
+        SpacePipe,
         AuthenticatedImageDirective,
     ],
 })

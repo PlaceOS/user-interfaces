@@ -36,13 +36,15 @@ export function setting<T = any>(key: string): T | undefined {
 export function settingSignal<T = any>(
     key: string,
     default_value: T = undefined,
+    root = false,
 ): WritableSignal<T | undefined> {
-    if (!_setting_signals[key]) {
-        _setting_signals[key] = signal<T>(
-            setting(`app.${key}`) ?? default_value,
+    const full_key = root ? key : `app.${key}`;
+    if (!_setting_signals[full_key]) {
+        _setting_signals[full_key] = signal<T>(
+            setting(full_key) ?? default_value,
         );
     }
-    return _setting_signals[key];
+    return _setting_signals[full_key];
 }
 
 @Injectable({
@@ -72,7 +74,7 @@ export class SettingsService extends AsyncHandler {
         this._overrides.next(value);
         this._applyCssVariables();
         for (const key in _setting_signals) {
-            _setting_signals[key].set(this.get(`app.${key}`));
+            _setting_signals[key].update((old) => this.get(key) ?? old);
         }
     }
 

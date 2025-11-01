@@ -22,7 +22,7 @@ export interface DurationOption {
 }
 
 @Component({
-    selector: 'a-duration-field',
+    selector: 'a-duration-field,duration-field',
     template: `
         <button
             duration-field
