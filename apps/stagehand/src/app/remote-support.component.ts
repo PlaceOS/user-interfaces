@@ -54,9 +54,9 @@ function contains(str: string, substr: string) {
                             <div class="text-4xl font-bold">
                                 {{ room_list()?.length || '0' }}
                             </div>
-                            <div class="text-sm opacity-40">
+                            <!-- <div class="text-sm opacity-40">
                                 +{{ new_rooms()?.length || '0' }} this month
-                            </div>
+                            </div> -->
                         </div>
                         <div
                             class="rounded-lg border border-base-300 bg-base-100 p-4 shadow"

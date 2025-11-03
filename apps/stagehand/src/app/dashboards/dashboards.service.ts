@@ -373,12 +373,13 @@ export class DashboardsService extends AsyncHandler {
                             console.log('Group:', group);
                             const { time, topic_str } = group[0];
                             const topic = stringToTopic(topic_str);
+                            const device = `${topic.module_name}_${topic.module_index}`;
                             alert_out.push({
-                                id: `${alert.id}+${time}`,
+                                id: `${alert.id}+${topic.system_id}+${device}`,
                                 severity: alert.severity as any,
                                 type: alert.alert_type as any,
                                 location: topic.system_id,
-                                device: `${topic.module_name}_${topic.module_index}`,
+                                device,
                                 subject: alert.name,
                                 body: alert.description,
                                 status: 'open',

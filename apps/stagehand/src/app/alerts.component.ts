@@ -53,7 +53,7 @@ import { SidebarComponent } from './ui/sidebar.component';
                 <main class="w-full flex-1 overflow-auto bg-base-200">
                     <!-- @if (dashboard()) { -->
                     <div
-                        class="grid w-full flex-1 grid-cols-1 gap-4 p-4 sm:grid-cols-2 lg:grid-cols-3"
+                        class="grid w-full flex-1 grid-cols-1 gap-4 p-4 sm:grid-cols-2 md:grid-cols-3"
                     >
                         <div
                             class="rounded-lg border border-base-300 bg-base-100 p-4 shadow"
@@ -219,6 +219,11 @@ import { SidebarComponent } from './ui/sidebar.component';
                                     content: severity_template,
                                 },
                                 {
+                                    key: 'issue',
+                                    name: 'Issue',
+                                    content: issue_template,
+                                },
+                                {
                                     key: 'type',
                                     name: 'Device',
                                     content: device_template,
@@ -227,11 +232,6 @@ import { SidebarComponent } from './ui/sidebar.component';
                                     key: 'location',
                                     name: 'Location',
                                     content: location_template,
-                                },
-                                {
-                                    key: 'issue',
-                                    name: 'Issue',
-                                    content: issue_template,
                                 },
                                 {
                                     key: 'status',
@@ -454,15 +454,17 @@ export class AlertsComponent extends AsyncHandler implements OnInit {
 
     public ngOnInit() {
         this._dashboards.loadDashboards();
+        this.timeout('apply_dash', () => this._applyDashboard(''));
         this.subscription(
             'route.params',
             this._route.paramMap.subscribe(async (params) => {
                 if (params.has('id')) {
-                    this._applyDashboard(params.get('id'));
+                    this.timeout('apply_dash', () =>
+                        this._applyDashboard(params.get('id')),
+                    );
                 }
             }),
         );
-        this._applyDashboard('');
         console.log('Backoffice Link:', this.backoffice_link());
     }
 
@@ -471,21 +473,15 @@ export class AlertsComponent extends AsyncHandler implements OnInit {
             'route_dash',
             () => {
                 this._router.navigate(['/alerts', dash_id]);
-                this._applyDashboard(dash_id);
+                this.timeout('apply_dash', () => this._applyDashboard(dash_id));
             },
             100,
         );
     }
 
-    private _applyDashboard(id: string) {
-        this.timeout(
-            'apply_dash',
-            async () => {
-                await this._dashboards.setDashboard(id);
-                this.dashboard.set(id);
-                this._dashboards.listenForDashboardAlerts(true);
-            },
-            100,
-        );
+    private async _applyDashboard(id: string) {
+        await this._dashboards.setDashboard(id);
+        this.dashboard.set(id);
+        this._dashboards.listenForDashboardAlerts(true);
     }
 }
