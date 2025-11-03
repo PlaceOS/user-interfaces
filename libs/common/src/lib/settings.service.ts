@@ -73,9 +73,7 @@ export class SettingsService extends AsyncHandler {
     public set overrides(value: HashMap[]) {
         this._overrides.next(value);
         this._applyCssVariables();
-        for (const key in _setting_signals) {
-            _setting_signals[key].update((old) => this.get(key) ?? old);
-        }
+        this._updateSignals();
     }
 
     public get theme() {
@@ -254,6 +252,7 @@ export class SettingsService extends AsyncHandler {
     private async _savePendingChanges() {
         const user = currentUser();
         if (!user?.id || !Object.keys(this._pending_settings).length) return;
+        this._updateSignals();
         await lastValueFrom(
             updateMetadata(user.id, {
                 name: 'settings',
@@ -308,5 +307,11 @@ export class SettingsService extends AsyncHandler {
             ? window?.matchMedia('(prefers-color-scheme: dark)')?.matches
             : false;
         this.setTheme(os_dark ? 'dark' : '');
+    }
+
+    private _updateSignals() {
+        for (const key in _setting_signals) {
+            _setting_signals[key].update((old) => this.get(key) ?? old);
+        }
     }
 }

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, output, signal } from '@angular/core';
+import { Component, inject, OnInit, output, signal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -9,6 +9,7 @@ import {
     OrganisationService,
     settingSignal,
     SettingsService,
+    Space,
     unique,
 } from '@placeos/common';
 import {
@@ -25,8 +26,8 @@ import {
     TimeFieldComponent,
 } from '@placeos/form-fields';
 import { combineLatest, map } from 'rxjs';
-
-const FAV_SPACE_KEY = 'favourite_rooms';
+import { MeetingFlowSpaceListComponent } from './meeting-flow-space-list.component';
+import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component';
 
 @Component({
     selector: 'meeting-flow-space-select',
@@ -182,321 +183,107 @@ const FAV_SPACE_KEY = 'favourite_rooms';
                     </div>
                 </div>
                 <div class="flex flex-1 flex-col">
-                    <div
-                        filters
-                        class="mb-2 flex flex-wrap rounded-lg border border-base-300 bg-base-100 p-2"
-                    >
-                        @let feature_list = (options | async)?.features || [];
-                        @let zones = (options | async)?.features || [];
-                        @let capacity = (options | async)?.capacity || [];
-                        @let event = form().getRawValue();
-                        @let zone = (zones | level) || (zones | building);
-                        @let location = zone?.display_name || zone?.name || '';
-                        @if (feature_list.length > 1) {
+                    <div class="mb-2 flex space-x-2">
+                        <div
+                            filters
+                            class="flex flex-1 flex-wrap rounded-lg border border-base-300 bg-base-100 p-2"
+                        >
+                            @let feature_list =
+                                (options | async)?.features || [];
+                            @let zones = (options | async)?.features || [];
+                            @let capacity = (options | async)?.capacity || [];
+                            @let event = form().getRawValue();
+                            @let zone = (zones | level) || (zones | building);
+                            @let location =
+                                zone?.display_name || zone?.name || '';
+                            @if (feature_list.length > 1) {
+                                <button
+                                    btn
+                                    matRipple
+                                    name="clear-space-filters"
+                                    class="mb-2 mr-2 min-h-[2rem]"
+                                    (click)="removeAllFeatures()"
+                                >
+                                    {{ 'COMMON.FILTERS_CLEAR' | translate }}
+                                </button>
+                            }
+                            @if (location) {
+                                <div filter-item zone>
+                                    {{ location }}
+                                </div>
+                            }
+                            <div filter-item date>
+                                {{ event.date | date: 'mediumDate' }}
+                            </div>
+                            <div filter-item time>
+                                @if (!event.all_day) {
+                                    {{ event.date | date: time_format }} &mdash;
+                                    {{ event.date_end | date: time_format }}
+                                }
+                                @if (event.all_day) {
+                                    {{ 'COMMON.ALL_DAY' | translate }}
+                                }
+                            </div>
+                            <div filter-item count>
+                                {{
+                                    'CALENDAR_EVENT.SPACE_SELECT_SIZE_X'
+                                        | translate
+                                            : {
+                                                  count: capacity || 2,
+                                              }
+                                }}
+                            </div>
+                            @for (feat of feature_list; track feat) {
+                                <div filter-item>
+                                    <p class="truncate">{{ feat }}</p>
+                                    <button
+                                        icon
+                                        matRipple
+                                        name="remove-space-filter"
+                                        class="-mr-4"
+                                        (click)="removeFeature(feat)"
+                                    >
+                                        <icon>close</icon>
+                                    </button>
+                                </div>
+                            }
+                        </div>
+                        <div class="space-y-2">
                             <button
                                 btn
                                 matRipple
-                                name="clear-space-filters"
-                                class="mb-2 mr-2 min-h-[2rem]"
-                                (click)="removeAllFeatures()"
+                                class="w-full space-x-2"
+                                [class.inverse]="view() !== 'list'"
+                                (click)="view.set('list')"
                             >
-                                {{ 'COMMON.FILTERS_CLEAR' | translate }}
+                                <icon class="text-2xl">list</icon>
+                                <div class="pr-2">List</div>
                             </button>
-                        }
-                        @if (location) {
-                            <div filter-item zone>
-                                {{ location }}
-                            </div>
-                        }
-                        <div filter-item date>
-                            {{ event.date | date: 'mediumDate' }}
+                            <button
+                                btn
+                                matRipple
+                                class="w-full space-x-2"
+                                [class.inverse]="view() !== 'map'"
+                                (click)="view.set('map')"
+                            >
+                                <icon class="text-2xl">Map</icon>
+                                <div class="pr-2">Map</div>
+                            </button>
                         </div>
-                        <div filter-item time>
-                            @if (!event.all_day) {
-                                {{ event.date | date: time_format }} &mdash;
-                                {{ event.date_end | date: time_format }}
-                            }
-                            @if (event.all_day) {
-                                {{ 'COMMON.ALL_DAY' | translate }}
-                            }
-                        </div>
-                        <div filter-item count>
-                            {{
-                                'CALENDAR_EVENT.SPACE_SELECT_SIZE_X'
-                                    | translate
-                                        : {
-                                              count: capacity || 2,
-                                          }
-                            }}
-                        </div>
-                        @for (feat of feature_list; track feat) {
-                            <div filter-item>
-                                <p class="truncate">{{ feat }}</p>
-                                <button
-                                    icon
-                                    matRipple
-                                    name="remove-space-filter"
-                                    class="-mr-4"
-                                    (click)="removeFeature(feat)"
-                                >
-                                    <icon>close</icon>
-                                </button>
-                            </div>
-                        }
                     </div>
                     <div
-                        class="flex flex-1 flex-col rounded-lg border border-base-300 bg-base-200 p-2"
+                        class="relative flex flex-1 flex-col overflow-hidden rounded-lg border border-base-300 bg-base-200 p-2"
                     >
-                        @if (!(loading | async)) {
-                            @if ((available_spaces | async)?.length) {
-                                <ul class="list-style-none space-y-2">
-                                    @for (
-                                        space of available_spaces | async;
-                                        track space
-                                    ) {
-                                        <li
-                                            space
-                                            matRipple
-                                            [class.!border-info]="
-                                                active() === space.id
-                                            "
-                                            class="relative w-full rounded-lg border border-base-200 bg-base-100 p-2 shadow hover:border-info"
-                                            [class.!bg-error-light]="
-                                                (room_alerts | async)[space.id]
-                                                    ? (room_alerts | async)[
-                                                          space.id
-                                                      ][0] === 'closed'
-                                                    : false
-                                            "
-                                        >
-                                            <button
-                                                name="select-space"
-                                                class="flex h-full w-full items-center rounded"
-                                                (click)="selectSpace(space)"
-                                                [class.pointer-events-none]="
-                                                    (room_alerts | async)[
-                                                        space.id
-                                                    ]
-                                                        ? (room_alerts | async)[
-                                                              space.id
-                                                          ][0] === 'closed'
-                                                        : false
-                                                "
-                                            >
-                                                <div
-                                                    class="relative mr-4 flex h-20 w-20 min-w-[5rem] items-center justify-center overflow-hidden rounded-xl bg-base-200"
-                                                >
-                                                    @if (
-                                                        selected().includes(
-                                                            space.id
-                                                        )
-                                                    ) {
-                                                        <div
-                                                            class="absolute left-1 top-1 flex h-6 w-6 items-center justify-center rounded-full border border-neutral bg-base-200 text-white"
-                                                        >
-                                                            <icon>done</icon>
-                                                        </div>
-                                                    }
-                                                    @if (space.images?.length) {
-                                                        <img
-                                                            auth
-                                                            class="h-full object-cover"
-                                                            [source]="
-                                                                space.images[0]
-                                                            "
-                                                        />
-                                                    } @else {
-                                                        <img
-                                                            class="m-auto"
-                                                            src="assets/icons/room-placeholder.svg"
-                                                        />
-                                                    }
-                                                    @if (
-                                                        (room_alerts | async)[
-                                                            space.id
-                                                        ]
-                                                    ) {
-                                                        <div
-                                                            class="pointer-events-auto absolute bottom-1 left-1 flex h-6 w-6 items-center justify-center rounded-full"
-                                                            [matTooltip]="
-                                                                (room_alerts
-                                                                    | async)[
-                                                                    space.id
-                                                                ][1]
-                                                            "
-                                                            [class.bg-error]="
-                                                                (room_alerts
-                                                                    | async)[
-                                                                    space.id
-                                                                ][0] ===
-                                                                'closed'
-                                                            "
-                                                            [class.bg-info]="
-                                                                (room_alerts
-                                                                    | async)[
-                                                                    space.id
-                                                                ][0] === 'info'
-                                                            "
-                                                            [class.bg-warning]="
-                                                                (room_alerts
-                                                                    | async)[
-                                                                    space.id
-                                                                ][0] === 'warn'
-                                                            "
-                                                            [class.text-error-content]="
-                                                                (room_alerts
-                                                                    | async)[
-                                                                    space.id
-                                                                ][0] ===
-                                                                'closed'
-                                                            "
-                                                            [class.text-info-content]="
-                                                                (room_alerts
-                                                                    | async)[
-                                                                    space.id
-                                                                ][0] === 'info'
-                                                            "
-                                                            [class.text-warning-content]="
-                                                                (room_alerts
-                                                                    | async)[
-                                                                    space.id
-                                                                ][0] === 'warn'
-                                                            "
-                                                            (click)="
-                                                                $event.stopPropagation()
-                                                            "
-                                                        >
-                                                            <icon>{{
-                                                                (room_alerts
-                                                                    | async)[
-                                                                    space.id
-                                                                ][0] === 'warn'
-                                                                    ? 'warning'
-                                                                    : (room_alerts
-                                                                            | async)[
-                                                                            space
-                                                                                .id
-                                                                        ][0] ===
-                                                                        'info'
-                                                                      ? 'info'
-                                                                      : 'close'
-                                                            }}</icon>
-                                                        </div>
-                                                    }
-                                                </div>
-                                                <div class="max-w-48 space-y-2">
-                                                    <div
-                                                        class="mr-10 truncate text-left font-medium"
-                                                    >
-                                                        {{
-                                                            space.display_name ||
-                                                                space.name ||
-                                                                'Meeting Space'
-                                                        }}
-                                                    </div>
-                                                    <div
-                                                        class="flex items-center space-x-2 text-sm"
-                                                    >
-                                                        <icon class="text-info"
-                                                            >place</icon
-                                                        >
-                                                        <p class="truncate">
-                                                            {{
-                                                                space.location ||
-                                                                    (
-                                                                        space.zones
-                                                                        | level
-                                                                    )
-                                                                        ?.display_name ||
-                                                                    (
-                                                                        space.zones
-                                                                        | level
-                                                                    )?.name
-                                                            }}
-                                                        </p>
-                                                    </div>
-                                                    <div
-                                                        class="flex items-center space-x-2 text-sm"
-                                                    >
-                                                        <icon class="text-info"
-                                                            >people</icon
-                                                        >
-                                                        <p>
-                                                            {{
-                                                                'CALENDAR_EVENT.CAPACITY_COUNT'
-                                                                    | translate
-                                                                        : {
-                                                                              count:
-                                                                                  space.capacity <
-                                                                                  1
-                                                                                      ? 2
-                                                                                      : space.capacity,
-                                                                          }
-                                                            }}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </button>
-                                            <button
-                                                icon
-                                                matRipple
-                                                name="toggle-space-favourite"
-                                                class="absolute right-1 top-1"
-                                                [class.text-info]="
-                                                    isFavourite(space.id)
-                                                "
-                                                (click)="toggleFav.emit(space)"
-                                            >
-                                                <icon
-                                                    [className]="
-                                                        isFavourite(space.id)
-                                                            ? 'material-symbols-rounded'
-                                                            : 'material-symbols-outlined'
-                                                    "
-                                                    >favorite</icon
-                                                >
-                                            </button>
-                                            @if (space.approval) {
-                                                <div
-                                                    class="absolute bottom-1 right-1 w-14 rounded bg-warning px-2 py-1 text-center text-[0.625rem] font-medium leading-tight text-warning-content"
-                                                >
-                                                    {{
-                                                        'COMMON.APPROVAL_REQUIRED'
-                                                            | translate
-                                                    }}
-                                                </div>
-                                            }
-                                        </li>
-                                    }
-                                </ul>
-                            } @else {
-                                <div
-                                    empty
-                                    class="flex flex-col items-center justify-center space-y-2 p-16"
-                                >
-                                    <p class="text-center opacity-30">
-                                        {{
-                                            'CALENDAR_EVENT.SPACE_SELECT_EMPTY'
-                                                | translate
-                                        }}
-                                    </p>
-                                </div>
-                            }
+                        @if (view() === 'map') {
+                            <meeting-flow-space-map
+                                [selected_spaces]="selected()"
+                                (space_selected)="toggleSpace($event)"
+                            />
                         } @else {
-                            <div
-                                loading
-                                class="flex flex-col items-center justify-center space-y-2 p-16"
-                            >
-                                <mat-spinner [diameter]="32"></mat-spinner>
-                                <p class="opacity-30">
-                                    {{
-                                        'CALENDAR_EVENT.SPACE_SELECT_LOADING'
-                                            | translate
-                                    }}
-                                    <!-- <br />
-                      {{ loading | async | json }} -->
-                                </p>
-                            </div>
+                            <meeting-flow-space-list
+                                [selected_spaces]="selected()"
+                                (space_selected)="toggleSpace($event)"
+                            />
                         }
                     </div>
                 </div>
@@ -529,8 +316,9 @@ const FAV_SPACE_KEY = 'favourite_rooms';
                 align-items: center;
                 padding: 0 1rem;
                 min-height: 2rem;
+                height: 2rem;
                 font-size: 0.875rem;
-                border: 1px solid rgba(0, 0, 0, 0.2);
+                border: 1px solid var(--base-300);
                 border-radius: 1.25rem;
                 margin: 0.25rem;
                 max-width: 100%;
@@ -561,9 +349,11 @@ const FAV_SPACE_KEY = 'favourite_rooms';
         TranslatePipe,
         BuildingPipe,
         LevelPipe,
+        MeetingFlowSpaceListComponent,
+        MeetingFlowSpaceMapComponent,
     ],
 })
-export class MeetingFlowSpaceSelectComponent {
+export class MeetingFlowSpaceSelectComponent implements OnInit {
     private _event_form = inject(EventFormService);
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
@@ -584,6 +374,8 @@ export class MeetingFlowSpaceSelectComponent {
         [],
     );
     public readonly form = signal(this._event_form.form);
+    public readonly selected = signal<string[]>([]);
+    public readonly view = signal<'map' | 'list'>('list');
 
     public readonly options = this._event_form.options$;
     public readonly filters = this._event_form.filters$;
@@ -599,15 +391,8 @@ export class MeetingFlowSpaceSelectComponent {
     public readonly setFilters = (f) => this._event_form.setFilters(f);
     public readonly loading = this._event_form.loading$;
 
-    public readonly available_spaces = this._event_form.available_spaces;
     public readonly room_alerts = this._event_form.room_alerts;
     public readonly active = signal('');
-    public readonly selected = signal('');
-    public readonly favourites = settingSignal<string[]>(
-        FAV_SPACE_KEY,
-        [],
-        true,
-    );
 
     public readonly levels = combineLatest([
         this._org.active_region,
@@ -637,14 +422,18 @@ export class MeetingFlowSpaceSelectComponent {
         ),
     );
 
-    public field(name: string) {
-        return this.form()?.getRawValue()?.[name];
-    }
-
     public get timezone() {
         return this._settings.get('app.events.use_building_timezone')
             ? this._org.building.timezone
             : '';
+    }
+
+    public ngOnInit() {
+        this.selected.set((this.field('resources') || []).map(({ id }) => id));
+    }
+
+    public field(name: string) {
+        return this.form()?.getRawValue()?.[name];
     }
 
     public async toggleFeature(feat: string, state: boolean) {
@@ -654,7 +443,17 @@ export class MeetingFlowSpaceSelectComponent {
         this._event_form.setFilters({ features: new_list });
     }
 
-    public isFavourite(space_id: string) {
-        return this.favourites().includes(space_id);
+    public toggleSpace(space: Space) {
+        const resources = this.field('resources') || [];
+        if (this._settings.get('app.events.allow_multiple_spaces')) {
+            const new_resources = resources.find(({ id }) => id === space.id)
+                ? resources.filter(({ id }) => id !== space.id)
+                : [...resources, space];
+            this.form().patchValue({ resources: new_resources });
+            this.selected.set(new_resources.map(({ id }) => id));
+        } else {
+            this.form().patchValue({ resources: [space] });
+            this.selected.set([space.id]);
+        }
     }
 }
