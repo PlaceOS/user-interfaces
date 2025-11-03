@@ -214,6 +214,13 @@ import { SidebarComponent } from './ui/sidebar.component';
                             [filter]="search"
                             [columns]="[
                                 {
+                                    key: 'actions',
+                                    name: ' ',
+                                    content: actions_template,
+                                    sortable: false,
+                                    size: '3.125rem',
+                                },
+                                {
                                     key: 'severity',
                                     name: 'Severity',
                                     content: severity_template,
@@ -239,13 +246,6 @@ import { SidebarComponent } from './ui/sidebar.component';
                                     content: status_template,
                                     show: false,
                                     size: '9rem',
-                                },
-                                {
-                                    key: 'actions',
-                                    name: ' ',
-                                    content: actions_template,
-                                    sortable: false,
-                                    size: '3.125rem',
                                 },
                             ]"
                             [sortable]="true"
