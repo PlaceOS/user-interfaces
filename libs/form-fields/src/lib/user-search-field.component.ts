@@ -34,6 +34,7 @@ import {
     tap,
 } from 'rxjs/operators';
 
+import { UserAvatarComponent } from '@placeos/components';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 
@@ -72,10 +73,13 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                     @let term = search_term.getValue();
                     @for (user of user_list; track $index) {
                         <mat-option [value]="user">
-                            <div class="leading-tight">
-                                <div>{{ user.name }}</div>
-                                <div class="text-xs opacity-30">
-                                    {{ user.email }}
+                            <div class="flex items-center space-x-2">
+                                <a-user-avatar class="-ml-2" [user]="user" />
+                                <div class="leading-tight">
+                                    <div>{{ user.name }}</div>
+                                    <div class="text-xs opacity-30">
+                                        {{ user.email }}
+                                    </div>
                                 </div>
                             </div>
                         </mat-option>
@@ -154,6 +158,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
         MatRippleModule,
         IconComponent,
         TranslatePipe,
+        UserAvatarComponent,
     ],
 })
 export class UserSearchFieldComponent

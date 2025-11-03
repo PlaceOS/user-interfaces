@@ -43,6 +43,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { User } from '@placeos/common';
 import { authority, queryUsers } from '@placeos/ts-client';
 
+import { UserAvatarComponent } from '@placeos/components';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { searchGuests } from 'libs/users/src/lib/guests.fn';
@@ -150,21 +151,24 @@ const DENIED_FILE_TYPES = [
                             (click)="addUser(user)"
                             class="leading-tight"
                         >
-                            {{ user.name }}<br />
-                            <span class="w-full text-xs"
-                                >{{ user.email }}
-                                @if (
-                                    user.username &&
-                                    user.username !== user.email
-                                ) {
-                                    <span>
-                                        (<span class="truncate">{{
-                                            user.username
-                                        }}</span
-                                        >)
-                                    </span>
-                                }
-                            </span>
+                            <div class="flex items-center space-x-2">
+                                <a-user-avatar class="-ml-2" [user]="user" />
+                                <div class="leading-tight">
+                                    <div>{{ user.name }}</div>
+                                    <div class="text-xs opacity-30">
+                                        {{ user.email }}
+                                        @if (
+                                            user.username &&
+                                            user.username !== user.email
+                                        ) {
+                                            (<span class="truncate">{{
+                                                user.username
+                                            }}</span
+                                            >)
+                                        }
+                                    </div>
+                                </div>
+                            </div>
                         </mat-option>
                     }
                 </mat-autocomplete>
@@ -254,6 +258,7 @@ const DENIED_FILE_TYPES = [
         IconComponent,
         PlaceUserPipe,
         MatTooltipModule,
+        UserAvatarComponent,
     ],
 })
 export class UserListFieldComponent
