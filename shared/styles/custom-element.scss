@@ -173,6 +173,23 @@ mat-form-field {
         .mdc-form-field-outline {
             background-color: #fff;
             border-radius: 4px;
+            overflow: hidden;
+        }
+    }
+
+    &.white-faded {
+        .mdc-form-field-wrapper {
+            padding: 0;
+        }
+
+        .mat-mdc-text-field-wrapper.mdc-text-field--outlined {
+            background-color: #fff4;
+            .mat-mdc-select-min-line {
+                color: #fff;
+            }
+            svg {
+                fill: #fff;
+            }
         }
     }
 }

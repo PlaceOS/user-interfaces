@@ -54,9 +54,9 @@ function contains(str: string, substr: string) {
                             <div class="text-4xl font-bold">
                                 {{ room_list()?.length || '0' }}
                             </div>
-                            <div class="text-sm opacity-40">
+                            <!-- <div class="text-sm opacity-40">
                                 +{{ new_rooms()?.length || '0' }} this month
-                            </div>
+                            </div> -->
                         </div>
                         <div
                             class="rounded-lg border border-base-300 bg-base-100 p-4 shadow"
@@ -374,12 +374,21 @@ export class RemoteSupportComponent extends AsyncHandler implements OnInit {
             (rm) => rm.created_at * 1000 > startOfMonth(Date.now()).valueOf(),
         ),
     );
-    public readonly room_data = computed(() =>
-        this.room_list().map((rm) => ({
-            ...rm,
-            issues: this.alerts().filter((a) => a.location == rm.id),
-        })),
-    );
+    public readonly room_data = computed(() => {
+        const r_id = this._dashboard.region_id();
+        const bld_id = this._dashboard.building_id();
+        return this.room_list()
+            .filter(
+                (rm) =>
+                    (!bld_id && !r_id) ||
+                    rm.zones.includes(bld_id) ||
+                    (!bld_id && rm.zones.includes(r_id)),
+            )
+            .map((rm) => ({
+                ...rm,
+                issues: this.alerts().filter((a) => a.location == rm.id),
+            }));
+    });
     public readonly backoffice_link = settingSignal(
         'backoffice_link',
         `${location.origin}/backoffice/`,
