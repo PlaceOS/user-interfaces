@@ -1,9 +1,16 @@
-import { Component, signal } from '@angular/core';
+import { AsyncPipe } from '@angular/common';
+import { Component, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
+import { OrganisationService } from '@placeos/common';
+import { TranslatePipe } from '@placeos/components';
 import { settingSignal } from 'libs/common/src/lib/settings.service';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { DashboardsService } from '../dashboards/dashboards.service';
 
 const COMPACT_SIGNAL = signal(false);
 
@@ -46,7 +53,58 @@ const COMPACT_SIGNAL = signal(false);
                     }}</icon>
                 </button>
             </div>
-            <div class="mt-8 flex-1 space-y-1 overflow-auto">
+            @if (!is_compact()) {
+                @let r_list = region_list | async;
+                @let bld_list = building_list | async;
+                @if (r_list.length || bld_list.length) {
+                    <div class="space-y-2 p-2">
+                        @if (r_list.length > 0) {
+                            <mat-form-field
+                                appearance="outline"
+                                class="no-subscript white-faded w-full"
+                            >
+                                <mat-select [(ngModel)]="region">
+                                    <mat-option value="">{{
+                                        'COMMON.REGION_ALL' | translate
+                                    }}</mat-option>
+                                    @for (region of r_list; track region.id) {
+                                        <mat-option
+                                            [value]="region.id"
+                                            (click)="setRegion(region)"
+                                            >{{
+                                                region.display_name ||
+                                                    region.name
+                                            }}</mat-option
+                                        >
+                                    }
+                                </mat-select>
+                            </mat-form-field>
+                        }
+                        @if (bld_list.length > 0 && region()) {
+                            <mat-form-field
+                                appearance="outline"
+                                class="no-subscript white-faded w-full"
+                            >
+                                <mat-select [(ngModel)]="building">
+                                    <mat-option value="">{{
+                                        'COMMON.BUILDING_ALL' | translate
+                                    }}</mat-option>
+                                    @for (bld of bld_list; track bld.id) {
+                                        <mat-option
+                                            [value]="bld.id"
+                                            (click)="setBuilding(bld)"
+                                            >{{
+                                                bld.display_name || bld.name
+                                            }}</mat-option
+                                        >
+                                    }
+                                </mat-select>
+                            </mat-form-field>
+                        }
+                    </div>
+                }
+            }
+            <div class="mt-2 flex-1 space-y-1 overflow-auto">
                 <a
                     matRipple
                     class="relative flex w-full items-center space-x-4 p-2"
@@ -177,9 +235,22 @@ const COMPACT_SIGNAL = signal(false);
             }
         `,
     ],
-    imports: [MatRippleModule, MatTooltipModule, IconComponent, RouterModule],
+    imports: [
+        AsyncPipe,
+        MatRippleModule,
+        MatTooltipModule,
+        IconComponent,
+        RouterModule,
+        MatFormFieldModule,
+        MatSelectModule,
+        FormsModule,
+        TranslatePipe,
+    ],
 })
 export class SidebarComponent {
+    private _dash = inject(DashboardsService);
+    private _org = inject(OrganisationService);
+
     public readonly is_compact = COMPACT_SIGNAL;
     public readonly backoffice_link = settingSignal(
         'backoffice_link',
@@ -190,6 +261,21 @@ export class SidebarComponent {
         false,
     );
     public readonly analytics_pages = settingSignal('analytics_pages', []);
+    public readonly region = this._dash.region_id;
+    public readonly building = this._dash.building_id;
+
+    public readonly region_list = this._org.region_list;
+    public readonly building_list = this._org.active_buildings;
+
+    public readonly setRegion = (r) => {
+        this._org.region = r;
+        this.building.set('');
+        this._dash.listenForDashboardAlerts(true);
+    };
+    public readonly setBuilding = (b) => {
+        this._org.building = b;
+        this._dash.listenForDashboardAlerts(true);
+    };
 
     public toggleCompact() {
         this.is_compact.update((s) => !s);
