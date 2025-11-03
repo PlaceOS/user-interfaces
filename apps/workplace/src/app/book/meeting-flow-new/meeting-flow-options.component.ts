@@ -26,7 +26,7 @@ import { BehaviorSubject, combineLatest, map, tap } from 'rxjs';
             class="relative z-0 flex w-full flex-col overflow-hidden rounded-xl border border-base-300 bg-base-100"
         >
             <div
-                class="gradient relative flex items-center space-x-2 border-l-8 border-base-content p-4 text-2xl font-medium"
+                class="gradient relative flex items-center space-x-2 border-l-8 border-base-content px-4 py-3 text-xl font-medium"
             >
                 <icon>task_alt</icon>
                 <div>Review & Confirm Booking</div>
@@ -69,7 +69,7 @@ import { BehaviorSubject, combineLatest, map, tap } from 'rxjs';
                 </div>
             </div>
             <div
-                class="gradient relative flex items-center space-x-2 border-l-8 border-base-content p-4 text-2xl font-medium"
+                class="gradient relative flex items-center space-x-2 border-l-8 border-base-content px-4 py-3 text-xl font-medium"
             >
                 <icon>fork_right</icon>
                 <div>Optional Extras</div>
@@ -196,7 +196,13 @@ import { BehaviorSubject, combineLatest, map, tap } from 'rxjs';
         <div
             class="sticky bottom-0 mt-4 flex justify-end rounded-t-xl border-x border-t border-base-300 bg-base-100 p-3"
         >
-            <button btn matRipple class="w-40">Confirm</button>
+            <button btn matRipple class="">
+                <div class="flex items-center space-x-2">
+                    <icon class="text-2xl">task_alt</icon>
+                    <div class="flex-1 pr-4">Confirm</div>
+                    <icon class="text-2xl">keyboard_arrow_right</icon>
+                </div>
+            </button>
         </div>
     `,
     styles: [

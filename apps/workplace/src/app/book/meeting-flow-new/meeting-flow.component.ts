@@ -1,5 +1,7 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
+import { ActivatedRoute, RouterModule } from '@angular/router';
+import { AsyncHandler } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
 import { MeetingFlowDetailsComponent } from './meeting-flow-details.component';
 import { MeetingFlowOptionsComponent } from './meeting-flow-options.component';
@@ -9,7 +11,9 @@ import { MeetingFlowSpaceSelectComponent } from './meeting-flow-space-select.com
     selector: 'meeting-flow',
     template: `
         <div class="h-full w-full overflow-auto bg-base-200">
-            <div class="mx-auto w-[56rem] max-w-full space-y-4 px-4 pt-4">
+            <div
+                class="mx-auto min-h-full w-[56rem] max-w-full space-y-4 px-4 pt-4"
+            >
                 <div
                     class="w-full rounded-xl border border-base-300 bg-base-100 p-4"
                 >
@@ -17,10 +21,11 @@ import { MeetingFlowSpaceSelectComponent } from './meeting-flow-space-select.com
                         Book a meeting room
                     </h3>
                     <div class="flex items-center justify-center space-x-2">
-                        <button
+                        <a
                             matRipple
                             class="flex items-center space-x-2 rounded p-2"
-                            (click)="view.set(0)"
+                            [routerLink]="[]"
+                            [queryParams]="{ view: 0 }"
                         >
                             <div
                                 class="flex h-8 w-8 items-center justify-center rounded-full"
@@ -33,9 +38,9 @@ import { MeetingFlowSpaceSelectComponent } from './meeting-flow-space-select.com
                                 <icon>{{ view() > 0 ? 'done' : 'edit' }}</icon>
                             </div>
                             <div class="hidden sm:block">Details</div>
-                        </button>
+                        </a>
                         <div class="h-0.5 w-16 bg-base-200"></div>
-                        <button
+                        <a
                             matRipple
                             class="flex items-center space-x-2 rounded p-2"
                             (click)="view.set(1)"
@@ -53,12 +58,13 @@ import { MeetingFlowSpaceSelectComponent } from './meeting-flow-space-select.com
                                 }}</icon>
                             </div>
                             <div class="hidden sm:block">Select Room</div>
-                        </button>
+                        </a>
                         <div class="h-0.5 w-16 bg-base-200"></div>
-                        <button
+                        <a
                             matRipple
                             class="flex items-center space-x-2 rounded p-2"
-                            (click)="view.set(2)"
+                            [routerLink]="[]"
+                            [queryParams]="{ view: 2 }"
                         >
                             <div
                                 class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
@@ -73,7 +79,7 @@ import { MeetingFlowSpaceSelectComponent } from './meeting-flow-space-select.com
                                 }}</icon>
                             </div>
                             <div class="hidden sm:block">Confirm & Options</div>
-                        </button>
+                        </a>
                     </div>
                 </div>
                 <div class="w-full">
@@ -82,7 +88,10 @@ import { MeetingFlowSpaceSelectComponent } from './meeting-flow-space-select.com
                             <meeting-flow-details />
                         }
                         @case (1) {
-                            <meeting-flow-space-select />
+                            <meeting-flow-space-select
+                                (prev)="previous()"
+                                (next)="next()"
+                            />
                         }
                         @case (2) {
                             <meeting-flow-options />
@@ -99,8 +108,27 @@ import { MeetingFlowSpaceSelectComponent } from './meeting-flow-space-select.com
         MeetingFlowDetailsComponent,
         MeetingFlowSpaceSelectComponent,
         MeetingFlowOptionsComponent,
+        RouterModule,
     ],
 })
-export class MeetingFlowComponent {
+export class MeetingFlowComponent extends AsyncHandler implements OnInit {
+    private _route = inject(ActivatedRoute);
+
     public readonly view = signal(0);
+
+    public readonly previous = () =>
+        this.view.update((u) => Math.max(0, u - 1));
+    public readonly next = () => this.view.update((u) => u + 1);
+
+    public ngOnInit() {
+        this.subscription(
+            'route.query',
+            this._route.queryParamMap.subscribe((params) => {
+                if (params.has('view')) {
+                    if (Number.isNaN(+params.get('view'))) return;
+                    this.view.update((old) => +params.get('view'));
+                }
+            }),
+        );
+    }
 }

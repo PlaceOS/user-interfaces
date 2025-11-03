@@ -1,7 +1,10 @@
+import { AsyncPipe } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { RouterModule } from '@angular/router';
 import { IconComponent } from '@placeos/components';
 import { EventFormService } from '@placeos/events';
 import {
@@ -13,113 +16,144 @@ import {
 @Component({
     selector: 'meeting-flow-details',
     template: `
-        <div
-            class="flex w-full flex-col overflow-hidden rounded-xl border border-base-300 bg-base-100"
-        >
+        <div class="h-full w-full">
             <div
-                class="gradient relative flex items-center space-x-2 border-l-8 border-base-content p-4 text-2xl font-medium"
+                class="flex w-full flex-col overflow-hidden rounded-xl border border-base-300 bg-base-100"
             >
-                <icon>info</icon>
-                <div>Meeting Details</div>
-            </div>
-            <div class="flex flex-col p-4" [formGroup]="form()">
-                <label class="uppercase"
-                    >Meeting Title <span required>*</span></label
-                >
-                <mat-form-field appearance="outline">
-                    <input
-                        matInput
-                        formControlName="title"
-                        placeholder="Meeting title"
-                    />
-                </mat-form-field>
                 <div
-                    class="flex flex-col space-y-2 sm:flex-row sm:space-x-2 sm:space-y-0"
+                    class="gradient relative flex items-center space-x-2 border-l-8 border-base-content px-4 py-3 text-xl font-medium"
                 >
-                    <div class="flex-1">
-                        <label for="date" class="uppercase">Date</label>
-                        <date-field name="date" formControlName="date" />
-                    </div>
-                    <div class="flex-1">
-                        <label for="time" class="uppercase">Time</label>
-                        <time-field
-                            name="time"
-                            [ngModel]="form().getRawValue().date"
-                            (ngModelChange)="
-                                form().patchValue({ date: $event })
-                            "
-                            [ngModelOptions]="{ standalone: true }"
+                    <icon>info</icon>
+                    <div>Meeting Details</div>
+                </div>
+                <div class="flex flex-col p-4" [formGroup]="form()">
+                    <label class="uppercase"
+                        >Meeting Title <span required>*</span></label
+                    >
+                    <mat-form-field appearance="outline">
+                        <input
+                            matInput
+                            formControlName="title"
+                            placeholder="Meeting title"
                         />
-                    </div>
-                    <div class="flex-1">
-                        <label for="duration" class="uppercase">Duration</label>
-                        <duration-field
-                            name="duration"
-                            formControlName="duration"
-                        />
+                    </mat-form-field>
+                    <div
+                        class="flex flex-col space-y-2 sm:flex-row sm:space-x-2 sm:space-y-0"
+                    >
+                        <div class="flex-1">
+                            <label for="date" class="uppercase">Date</label>
+                            <date-field name="date" formControlName="date" />
+                        </div>
+                        <div class="flex-1">
+                            <label for="time" class="uppercase">Time</label>
+                            <time-field
+                                name="time"
+                                [ngModel]="form().getRawValue().date"
+                                (ngModelChange)="
+                                    form().patchValue({ date: $event })
+                                "
+                                [ngModelOptions]="{ standalone: true }"
+                            />
+                        </div>
+                        <div class="flex-1">
+                            <label for="duration" class="uppercase"
+                                >Duration</label
+                            >
+                            <duration-field
+                                name="duration"
+                                formControlName="duration"
+                            />
+                        </div>
                     </div>
                 </div>
+                <div
+                    class="gradient relative flex items-center space-x-2 border-l-8 border-base-content px-4 py-3 text-xl font-medium"
+                >
+                    <icon>info</icon>
+                    <div>Room Size</div>
+                </div>
+                <div class="-mx-1 flex flex-wrap p-4">
+                    @let capacity = (options | async)?.capacity || -1;
+                    <button
+                        btn
+                        matRipple
+                        class="m-1 min-w-40 flex-1"
+                        [class.inverse]="capacity !== 1 && capacity !== -1"
+                        (click)="setCapacity(1)"
+                    >
+                        <div class="flex items-center space-x-2">
+                            <icon>person</icon>
+                            <div>1&ndash;2 people</div>
+                        </div>
+                        @if (!(capacity !== 1 && capacity !== -1)) {
+                            <icon class="absolute right-0 top-0">task_alt</icon>
+                        }
+                    </button>
+                    <button
+                        btn
+                        matRipple
+                        class="m-1 min-w-40 flex-1"
+                        [class.inverse]="capacity !== 3"
+                        (click)="setCapacity(3)"
+                    >
+                        <div class="flex items-center space-x-2">
+                            <icon>group</icon>
+                            <div>3-4 people</div>
+                        </div>
+                        @if (capacity === 3) {
+                            <icon class="absolute right-0 top-0">task_alt</icon>
+                        }
+                    </button>
+                    <button
+                        btn
+                        matRipple
+                        class="m-1 min-w-40 flex-1"
+                        [class.inverse]="capacity !== 5"
+                        (click)="setCapacity(5)"
+                    >
+                        <div class="flex items-center space-x-2">
+                            <icon>groups</icon>
+                            <div>5-8 people</div>
+                        </div>
+                        @if (capacity === 5) {
+                            <icon class="absolute right-0 top-0">task_alt</icon>
+                        }
+                    </button>
+                    <button
+                        btn
+                        matRipple
+                        class="m-1 min-w-40 flex-1"
+                        [class.inverse]="capacity !== 9"
+                        (click)="setCapacity(9)"
+                    >
+                        <div class="flex items-center space-x-2">
+                            <icon>groups</icon>
+                            <div>9+ people</div>
+                        </div>
+                        @if (capacity === 9) {
+                            <icon class="absolute right-0 top-0">task_alt</icon>
+                        }
+                    </button>
+                </div>
             </div>
+            <div class="min-h-4 sm:min-h-[calc(100vh-44.25rem)]"></div>
             <div
-                class="gradient relative flex items-center space-x-2 border-l-8 border-base-content p-4 text-2xl font-medium"
+                class="sticky bottom-0 z-20 flex justify-between rounded-t-xl border-x border-t border-base-300 bg-base-100 p-3"
             >
-                <icon>info</icon>
-                <div>Room Size</div>
-            </div>
-            <div class="-mx-1 flex flex-wrap p-4">
-                <button
+                <div></div>
+                <a
                     btn
                     matRipple
-                    class="m-1 min-w-40 flex-1"
-                    [class.inverse]="true"
+                    [attr.disabled]="!form()?.value.title"
+                    [routerLink]="[]"
+                    [queryParams]="{ view: 1 }"
                 >
-                    <div class="flex items-center space-x-2">
-                        <icon>person</icon>
-                        <div>1-2 people</div>
-                    </div>
-                </button>
-                <button
-                    btn
-                    matRipple
-                    class="m-1 min-w-40 flex-1"
-                    [class.inverse]="true"
-                >
-                    <div class="flex items-center space-x-2">
-                        <icon>group</icon>
-                        <div>3-4 people</div>
-                    </div>
-                </button>
-                <button
-                    btn
-                    matRipple
-                    class="m-1 min-w-40 flex-1"
-                    [class.inverse]="true"
-                >
-                    <div class="flex items-center space-x-2">
-                        <icon>groups</icon>
-                        <div>5-8 people</div>
-                    </div>
-                </button>
-                <button
-                    btn
-                    matRipple
-                    class="m-1 min-w-40 flex-1"
-                    [class.inverse]="true"
-                >
-                    <div class="flex items-center space-x-2">
-                        <icon>groups</icon>
-                        <div>9+ people</div>
-                    </div>
-                </button>
-            </div>
-            <div class="flex justify-end p-4">
-                <button btn matRipple class="">
                     <div class="flex items-center space-x-2">
                         <icon class="text-2xl">search</icon>
                         <div class="flex-1 pr-4">Search available rooms</div>
                         <icon class="text-2xl">keyboard_arrow_right</icon>
                     </div>
-                </button>
+                </a>
             </div>
         </div>
     `,
@@ -136,6 +170,8 @@ import {
         `,
     ],
     imports: [
+        AsyncPipe,
+        MatRippleModule,
         IconComponent,
         MatFormFieldModule,
         MatInputModule,
@@ -144,10 +180,16 @@ import {
         TimeFieldComponent,
         FormsModule,
         ReactiveFormsModule,
+        RouterModule,
     ],
 })
 export class MeetingFlowDetailsComponent {
     private _event_form = inject(EventFormService);
 
     public readonly form = signal(this._event_form.form);
+    public readonly options = this._event_form.filters$;
+
+    public readonly setCapacity = (capacity: number) => {
+        this._event_form.setFilters({ capacity });
+    };
 }

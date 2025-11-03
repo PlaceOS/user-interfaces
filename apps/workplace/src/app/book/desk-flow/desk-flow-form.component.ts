@@ -3,6 +3,7 @@ import {
     MatBottomSheet,
     MatBottomSheetRef,
 } from '@angular/material/bottom-sheet';
+import { MatRippleModule } from '@angular/material/core';
 import { Router } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
 import {
@@ -13,7 +14,7 @@ import {
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
-import { TranslatePipe } from '@placeos/components';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { isBefore, startOfMinute } from 'date-fns';
 import { lastValueFrom } from 'rxjs';
 import { first } from 'rxjs/operators';
@@ -25,6 +26,46 @@ import { NewDeskFormDetailsComponent } from './desk-form-details.component';
     styles: [],
     template: `
         <div class="h-full w-full overflow-auto bg-base-200">
+            <div
+                class="relative mx-auto mt-4 w-[48rem] max-w-full space-y-2 rounded-xl border border-base-300 bg-brand-400 p-4 text-base-100 shadow"
+            >
+                <div class="flex items-center justify-between pb-2">
+                    <div
+                        class="relative overflow-hidden rounded px-2 py-1 text-sm capitalize"
+                    >
+                        <div
+                            class="absolute inset-0 bg-brand-content opacity-20"
+                        ></div>
+                        <div>Quick Action</div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <icon>auto_awesome</icon>
+                        <div class="text-sm">Smart Selection</div>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="mb-1 text-2xl font-medium">Auto-Assign</h3>
+                    <p class="text-sm">
+                        We'll always try to book you in your home
+                        neighbourhood—if it's full, we'll find you a spot
+                        nearby.
+                    </p>
+                </div>
+                <div class="flex items-center space-x-4 pt-2">
+                    <button btn matRipple class="w-full flex-1 space-x-2">
+                        <icon class="text-2xl">bolt</icon>
+                        <div>Auto-Assign</div>
+                    </button>
+                    <button
+                        btn
+                        matRipple
+                        class="inverse white w-full flex-1 space-x-2"
+                    >
+                        <icon class="text-2xl">map</icon>
+                        <div>View Neighbourhood</div>
+                    </button>
+                </div>
+            </div>
             <div
                 class="mx-auto w-[48rem] max-w-full border border-base-200 bg-base-100 sm:my-4"
             >
@@ -55,7 +96,12 @@ import { NewDeskFormDetailsComponent } from './desk-form-details.component';
             </div>
         </div>
     `,
-    imports: [TranslatePipe, NewDeskFormDetailsComponent],
+    imports: [
+        TranslatePipe,
+        NewDeskFormDetailsComponent,
+        IconComponent,
+        MatRippleModule,
+    ],
 })
 export class NewDeskFlowFormComponent implements OnInit {
     private _state = inject(BookingFormService);

@@ -549,14 +549,15 @@ a[btn] {
     color: var(--color);
     padding: 0 1rem;
     min-height: 3rem;
-    border-radius: 0.25rem;
+    border-radius: 0.5rem;
     display: flex;
     align-items: center;
     justify-content: center;
 
     &.inverse {
         color: var(--bg-color);
-        background-color: transparent;
+        background-color: color-mix(in srgb, var(--bg-color) 15%, transparent);
+        @apply backdrop-blur-sm;
     }
 
     &.clear {
