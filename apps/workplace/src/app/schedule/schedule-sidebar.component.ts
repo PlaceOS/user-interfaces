@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, computed, inject, input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
@@ -7,10 +7,16 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import {
     AsyncHandler,
+    Booking,
+    CalendarEvent,
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
-import { IconComponent, TranslatePipe } from '@placeos/components';
+import {
+    IconComponent,
+    SettingsToggleComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { DateCalendarComponent } from '@placeos/form-fields';
 import { isSameDay, startOfDay } from 'date-fns';
 import { debounceTime, filter, map } from 'rxjs/operators';
@@ -18,45 +24,14 @@ import {
     ScheduleOptions,
     ScheduleStateService,
 } from './schedule-state.service';
+import { BOOKING_TYPE_COLORS } from './schedule.component';
 
 @Component({
     selector: 'schedule-sidebar',
     template: `
         <div
-            class="bg-base-100[#1F2021] flex h-full w-[18rem] flex-col overflow-hidden border-r border-base-200"
+            class="flex h-full w-[18rem] flex-col overflow-hidden border-r border-base-300 bg-base-100"
         >
-            <div class="flex items-center space-x-2 p-2">
-                <button
-                    btn
-                    matRipple
-                    class="flex-1"
-                    [class.inverse]="period !== 'day'"
-                    (click)="setOptions({ period: 'day' })"
-                >
-                    {{ 'COMMON.DAY' | translate }}
-                </button>
-                <button
-                    btn
-                    matRipple
-                    class="flex-1"
-                    [class.inverse]="period !== 'week'"
-                    (click)="setOptions({ period: 'week' })"
-                >
-                    {{ 'COMMON.WEEK' | translate }}
-                </button>
-            </div>
-            @if (!is_today) {
-                <div class="w-full px-2">
-                    <button
-                        btn
-                        matRipple
-                        class="inverse w-full"
-                        (click)="setDateToToday()"
-                    >
-                        {{ 'COMMON.TODAY' | translate }}
-                    </button>
-                </div>
-            }
             @if (period === 'day') {
                 <date-calendar
                     class="border-b border-base-200"
@@ -66,7 +41,7 @@ import {
                 ></date-calendar>
             }
             @if (period === 'week') {
-                <div class="w-full px-2">
+                <div class="w-full p-2">
                     <mat-form-field
                         appearance="outline"
                         class="no-subscript w-full"
@@ -100,202 +75,41 @@ import {
                     </mat-form-field>
                 </div>
             }
-            <h3 class="mx-4 mt-4 font-medium">
+            <h3 class="mx-4 mt-4 pb-2 font-medium uppercase">
                 {{ 'APP.WORKPLACE.SCHEDULE_FILTERS' | translate }}
             </h3>
-            <div class="h-1/2 flex-1 space-y-4 overflow-auto p-4">
-                @if (hasFeature('spaces')) {
-                    <button
-                        matRipple
-                        name="schedule-toggle-event-filter"
-                        class="flex w-full items-center space-x-2 text-left"
-                        (click)="toggleType('event')"
-                    >
-                        <div
-                            class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200 text-2xl"
-                        >
-                            <icon>place</icon>
-                        </div>
-                        <div class="flex-1">
-                            <div class="">
-                                {{ 'RESOURCE.ROOMS' | translate }}
-                            </div>
-                            <div class="text-sm opacity-60">
-                                {{
-                                    'APP.WORKPLACE.SCHEDULE_FILTER_ROOMS'
-                                        | translate
-                                }}
-                            </div>
-                        </div>
-                        <mat-checkbox
+            <div class="h-1/2 flex-1 space-y-1 overflow-auto px-4">
+                @for (item of feature_list; track item.type) {
+                    @if (hasFeature(item.feat)) {
+                        <settings-toggle
                             [ngModel]="
                                 (filters | async)?.shown_types?.includes(
-                                    'event'
+                                    item.type
                                 )
                             "
-                        ></mat-checkbox>
-                    </button>
-                }
-                @if (hasFeature('desks')) {
-                    <button
-                        matRipple
-                        name="schedule-toggle-desk-filter"
-                        class="flex w-full items-center space-x-2 text-left"
-                        (click)="toggleType('desk')"
-                    >
-                        <div
-                            class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200 text-2xl"
+                            (click)="toggleType(item.type)"
                         >
-                            <img
-                                src="assets/icons/desk-outline.svg"
-                                class="w-6"
-                            />
-                        </div>
-                        <div class="flex-1">
-                            <div class="">
-                                {{ 'RESOURCE.DESKS' | translate }}
+                            <div
+                                class="-my-2 -ml-2 flex items-center space-x-2"
+                            >
+                                <div
+                                    class="rounded-full bg-base-300 p-1 text-2xl"
+                                    [style.background-color]="
+                                        colors[item.type][0]
+                                    "
+                                    [style.color]="colors[item.type][1]"
+                                >
+                                    <icon>{{ item.icon }}</icon>
+                                </div>
+                                <div class="flex-1 font-medium">
+                                    {{ item.name | translate }}
+                                </div>
+                                <div class="font-mono text-xs">
+                                    {{ counts()[item.type] || 0 }}
+                                </div>
                             </div>
-                            <div class="text-sm opacity-60">
-                                {{
-                                    'APP.WORKPLACE.SCHEDULE_FILTER_DESKS'
-                                        | translate
-                                }}
-                            </div>
-                        </div>
-                        <mat-checkbox
-                            [ngModel]="
-                                (filters | async)?.shown_types?.includes('desk')
-                            "
-                        ></mat-checkbox>
-                    </button>
-                }
-                @if (hasFeature('parking')) {
-                    <button
-                        matRipple
-                        name="schedule-toggle-parking-filter"
-                        class="flex w-full items-center space-x-2 text-left"
-                        (click)="toggleType('parking')"
-                    >
-                        <div
-                            class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200 text-2xl"
-                        >
-                            <icon>drive_eta</icon>
-                        </div>
-                        <div class="flex-1">
-                            <div class="">
-                                {{ 'RESOURCE.PARKING' | translate }}
-                            </div>
-                            <div class="text-sm opacity-60">
-                                {{
-                                    'APP.WORKPLACE.SCHEDULE_FILTER_PARKING'
-                                        | translate
-                                }}
-                            </div>
-                        </div>
-                        <mat-checkbox
-                            [ngModel]="
-                                (filters | async)?.shown_types?.includes(
-                                    'parking'
-                                )
-                            "
-                        ></mat-checkbox>
-                    </button>
-                }
-                @if (hasFeature('visitor-invite')) {
-                    <button
-                        matRipple
-                        name="schedule-toggle-visitor-filter"
-                        class="flex w-full items-center space-x-2 text-left"
-                        (click)="toggleType('visitor')"
-                    >
-                        <div
-                            class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200 text-2xl"
-                        >
-                            <icon>people</icon>
-                        </div>
-                        <div class="flex-1">
-                            <div class="">
-                                {{ 'RESOURCE.VISITORS' | translate }}
-                            </div>
-                            <div class="text-sm opacity-60">
-                                {{
-                                    'APP.WORKPLACE.SCHEDULE_FILTER_VISITORS'
-                                        | translate
-                                }}
-                            </div>
-                        </div>
-                        <mat-checkbox
-                            [ngModel]="
-                                (filters | async)?.shown_types?.includes(
-                                    'visitor'
-                                )
-                            "
-                        ></mat-checkbox>
-                    </button>
-                }
-                @if (hasFeature('lockers')) {
-                    <button
-                        matRipple
-                        name="schedule-toggle-locker-filter"
-                        class="flex w-full items-center space-x-2 text-left"
-                        (click)="toggleType('locker')"
-                    >
-                        <div
-                            class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200 text-2xl"
-                        >
-                            <icon>lock</icon>
-                        </div>
-                        <div class="flex-1">
-                            <div class="">
-                                {{ 'RESOURCE.LOCKERS' | translate }}
-                            </div>
-                            <div class="text-sm opacity-60">
-                                {{
-                                    'APP.WORKPLACE.SCHEDULE_FILTER_LOCKERS'
-                                        | translate
-                                }}
-                            </div>
-                        </div>
-                        <mat-checkbox
-                            [ngModel]="
-                                (filters | async)?.shown_types?.includes(
-                                    'locker'
-                                )
-                            "
-                        ></mat-checkbox>
-                    </button>
-                }
-                @if (hasFeature('group-events')) {
-                    <button
-                        matRipple
-                        name="schedule-toggle-locker-filter"
-                        class="flex w-full items-center space-x-2 text-left"
-                        (click)="toggleType('group-event')"
-                    >
-                        <div
-                            class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200 text-2xl"
-                        >
-                            <icon>event_available</icon>
-                        </div>
-                        <div class="flex-1">
-                            <div class="">
-                                {{ 'RESOURCE.EVENTS' | translate }}
-                            </div>
-                            <div class="text-sm opacity-60">
-                                {{
-                                    'APP.WORKPLACE.SCHEDULE_FILTER_EVENTS'
-                                        | translate
-                                }}
-                            </div>
-                        </div>
-                        <mat-checkbox
-                            [ngModel]="
-                                (filters | async)?.shown_types?.includes(
-                                    'group-event'
-                                )
-                            "
-                        ></mat-checkbox>
-                    </button>
+                        </settings-toggle>
+                    }
                 }
             </div>
         </div>
@@ -317,6 +131,7 @@ import {
         MatFormFieldModule,
         MatSelectModule,
         DateCalendarComponent,
+        SettingsToggleComponent,
     ],
 })
 export class ScheduleSidebarComponent extends AsyncHandler implements OnInit {
@@ -328,9 +143,63 @@ export class ScheduleSidebarComponent extends AsyncHandler implements OnInit {
     public readonly date = this._state.date.pipe(map((_) => startOfDay(_)));
     public readonly toggleType = (t) => this._state.toggleType(t);
     public readonly setDate = (d) => this._state.setDate(d);
+    public readonly bookings = input<(Booking | CalendarEvent)[]>([]);
+
+    public readonly colors = BOOKING_TYPE_COLORS;
 
     public readonly week_date = this._state.week_date;
     public readonly week_options = this._state.week_options;
+
+    public readonly feature_list = [
+        {
+            type: 'event',
+            feat: 'spaces',
+            icon: 'meeting_room',
+            name: 'RESOURCE.ROOMS',
+        },
+        { type: 'desk', feat: 'desks', icon: 'desk', name: 'RESOURCE.DESKS' },
+        {
+            type: 'parking',
+            feat: 'parking',
+            icon: 'drive_eta',
+            name: 'RESOURCE.PARKING',
+        },
+        {
+            type: 'visitor',
+            feat: 'visitor-invite',
+            icon: 'people',
+            name: 'RESOURCE.VISITORS',
+        },
+        {
+            type: 'locker',
+            feat: 'lockers',
+            icon: 'lock',
+            name: 'RESOURCE.LOCKERS',
+        },
+        {
+            type: 'group-event',
+            feat: 'group-events',
+            icon: 'event_available',
+            name: 'RESOURCE.EVENTS',
+        },
+    ];
+
+    public readonly counts = computed(() => {
+        const mapping: Record<string, number> = {};
+        const bkn_list = this.bookings() || [];
+        for (const bkn of bkn_list) {
+            if (bkn instanceof CalendarEvent) {
+                const type = bkn.extension_data?.shared_event
+                    ? 'group-event'
+                    : 'event';
+                mapping[type] = (mapping[type] || 0) + 1;
+            } else {
+                const type = bkn.booking_type;
+                mapping[type] = (mapping[type] || 0) + 1;
+            }
+        }
+        return mapping;
+    });
 
     public get period() {
         return this._state.getOptions()?.period;

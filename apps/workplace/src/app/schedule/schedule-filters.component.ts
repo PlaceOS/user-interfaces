@@ -10,23 +10,16 @@ import { ScheduleStateService } from './schedule-state.service';
 @Component({
     selector: 'schedule-filters',
     template: `
-        <div
-            class="hidden rounded border border-base-200 bg-base-100 p-2 sm:block"
-        >
-            <h3 class="mb-2 font-medium">
-                {{
-                    'APP.WORKPLACE.SCHEDULE_FILTERS_DISPLAY_HEADER' | translate
-                }}
-            </h3>
+        <div class="hidden border-b border-base-300 bg-base-100 p-1 sm:block">
             <div class="flex flex-wrap">
                 @if (
                     (filters | async)?.shown_types?.includes('event') &&
                     hasFeature('spaces')
                 ) {
                     <div
-                        class="m-1 flex items-center rounded-3xl border border-base-200"
+                        class="m-1 flex h-8 items-center rounded-full border border-base-200 text-sm"
                     >
-                        <div class="px-2">
+                        <div class="ml-2 px-2">
                             {{ 'RESOURCE.ROOMS' | translate }}
                         </div>
                         <button
@@ -44,7 +37,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     hasFeature('desks')
                 ) {
                     <div
-                        class="m-1 flex items-center rounded-3xl border border-base-200"
+                        class="m-1 flex h-8 items-center rounded-full border border-base-200 text-sm"
                     >
                         <div class="px-2">
                             {{ 'RESOURCE.DESKS' | translate }}
@@ -64,7 +57,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     hasFeature('parking')
                 ) {
                     <div
-                        class="m-1 flex items-center rounded-3xl border border-base-200"
+                        class="m-1 flex h-8 items-center rounded-full border border-base-200 text-sm"
                     >
                         <div class="px-2">
                             {{ 'RESOURCE.PARKING' | translate }}
@@ -84,7 +77,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     hasFeature('visitor-invite')
                 ) {
                     <div
-                        class="m-1 flex items-center rounded-3xl border border-base-200"
+                        class="m-1 flex h-8 items-center rounded-full border border-base-200 text-sm"
                     >
                         <div class="px-2">
                             {{ 'RESOURCE.VISITORS' | translate }}
@@ -104,7 +97,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     hasFeature('lockers')
                 ) {
                     <div
-                        class="m-1 flex items-center rounded-3xl border border-base-200"
+                        class="m-1 flex h-8 items-center rounded-full border border-base-200 text-sm"
                     >
                         <div class="px-2">
                             {{ 'RESOURCE.LOCKERS' | translate }}
@@ -124,7 +117,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     hasFeature('group-events')
                 ) {
                     <div
-                        class="m-1 flex items-center rounded-3xl border border-base-200"
+                        class="m-1 flex h-8 items-center rounded-full border border-base-200 text-sm"
                     >
                         <div class="px-2">
                             {{ 'RESOURCE.EVENTS' | translate }}

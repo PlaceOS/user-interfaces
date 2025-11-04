@@ -36,7 +36,7 @@ import { GroupEventDetailsModalComponent } from './group-event-details-modal.com
     selector: 'event-card',
     template: `
         @if (event()) {
-            <h4 class="mb-2 flex items-center" date>
+            <h4 class="mb-2 flex items-center px-2" date>
                 @if (show_day()) {
                     <span day>{{ day }},&nbsp;</span>
                 }

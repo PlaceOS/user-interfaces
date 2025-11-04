@@ -224,9 +224,18 @@ interface FavoriteEntry {
                                     Quick Actions
                                 </h3>
                             </div>
-                            <button btn matRipple class="w-full space-x-2">
-                                <icon class="text-xl">desk</icon>
-                                <div>Book a desk now</div>
+                            <button btn matRipple class="h-16 w-full">
+                                <div class="space-y-1">
+                                    <div class="flex items-center space-x-2">
+                                        <icon class="text-xl">bolt</icon>
+                                        <div class="pr-2 font-medium">
+                                            Auto-assign Desk
+                                        </div>
+                                    </div>
+                                    <div class="text-xs">
+                                        We'll find you a desk for today
+                                    </div>
+                                </div>
                             </button>
                             <h4 class="font-medium">Reserve</h4>
                             <a

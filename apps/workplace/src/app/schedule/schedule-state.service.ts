@@ -1,13 +1,17 @@
 import { inject, Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { Router } from '@angular/router';
 import {
+    BookingFormService,
     checkinBooking,
+    checkinBookingInstance,
     loadLockerBanks,
     loadLockers,
     Locker,
     LockerBank,
     ParkingService,
     queryBookings,
+    removeBooking,
 } from '@placeos/bookings';
 import {
     AsyncHandler,
@@ -17,14 +21,19 @@ import {
     current_user,
     currentUser,
     flatten,
+    i18n,
+    notifyError,
+    notifySuccess,
     OrganisationService,
     SettingsService,
     unique,
 } from '@placeos/common';
 import { openConfirmModal } from '@placeos/components';
 import {
+    EventFormService,
     newCalendarEventFromBooking,
     queryEvents,
+    removeEvent,
     requestSpacesForZone,
 } from '@placeos/events';
 import { getModule } from '@placeos/ts-client';
@@ -77,6 +86,9 @@ export class ScheduleStateService extends AsyncHandler {
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
     private _dialog = inject(MatDialog);
+    private _event_form = inject(EventFormService);
+    private _booking_form = inject(BookingFormService);
+    private _router = inject(Router);
     private _parking = inject(ParkingService);
 
     private _poll = new BehaviorSubject(0);
@@ -667,5 +679,159 @@ export class ScheduleStateService extends AsyncHandler {
             include_checked_out: true,
             include_deleted: 'recurring',
         }).pipe(catchError(() => of([])));
+    }
+
+    ///////////////////////////////////////////////////////////////
+
+    public async edit(event: CalendarEvent) {
+        console.log('Edit Event:', event);
+        this._router.navigate(['/book', 'meeting', 'form']);
+        if (event.creator !== event.mailbox) {
+            event =
+                (
+                    await queryEvents({
+                        period_start: event.event_start,
+                        period_end: event.event_end,
+                        ical_uid: event.ical_uid,
+                    }).toPromise()
+                ).find((_) => _.ical_uid === event.ical_uid) || event;
+        }
+        setTimeout(() => this._event_form.newForm(event), 300);
+    }
+
+    public editBooking(event: Booking) {
+        console.log('Edit Booking:', event.type);
+        this._router.navigate(['/book', `${event.type}`]);
+        this._booking_form.newForm(event.booking_type, event);
+        setTimeout(() => {
+            this._booking_form.form.patchValue({
+                resources: [
+                    {
+                        id: event.asset_id,
+                        name: event.asset_name || event.description,
+                    },
+                ],
+                asset_id: event.asset_id,
+            });
+        }, 100);
+    }
+
+    public async remove(item: CalendarEvent | Booking, remove_series = false) {
+        const time = `${format(item.date, 'dd MMM yyyy h:mma')}`;
+        const resource_name =
+            item instanceof CalendarEvent
+                ? item.space?.display_name
+                : item.asset_name || item.asset_id;
+        const resp = await openConfirmModal(
+            {
+                title: i18n(
+                    remove_series
+                        ? 'APP.WORKPLACE.SCHEDULE_REMOVE_SERIES_TITLE'
+                        : 'APP.WORKPLACE.SCHEDULE_REMOVE_TITLE',
+                    { name: resource_name, time },
+                ),
+                content: i18n(
+                    remove_series
+                        ? 'APP.WORKPLACE.SCHEDULE_REMOVE_SERIES_MSG'
+                        : 'APP.WORKPLACE.SCHEDULE_REMOVE_MSG',
+                    { name: resource_name, time },
+                ),
+                icon: { content: 'delete' },
+            },
+            this._dialog,
+        );
+        if (item instanceof CalendarEvent && item.creator !== item.mailbox) {
+            item =
+                (
+                    await queryEvents({
+                        period_start: item.event_start,
+                        period_end: item.event_end,
+                        ical_uid: item.ical_uid,
+                    }).toPromise()
+                ).find(
+                    (_) => _.ical_uid === (item as CalendarEvent).ical_uid,
+                ) || item;
+        }
+        if (resp.reason !== 'done') return;
+        resp.loading(
+            i18n(
+                remove_series
+                    ? 'APP.WORKPLACE.SCHEDULE_REMOVE_SERIES_LOADING'
+                    : 'APP.WORKPLACE.SCHEDULE_REMOVE_LOADING',
+            ),
+        );
+        await (item instanceof CalendarEvent ? removeEvent : removeBooking)(
+            remove_series
+                ? (item as any).recurring_event_id || item.id
+                : item.id,
+            {
+                calendar: this._settings.get('app.events.use_bookings')
+                    ? null
+                    : (item as CalendarEvent).calendar || currentUser()?.email,
+                system_id: (item as CalendarEvent).system?.id,
+                instance: remove_series ? undefined : !!(item as any).instance,
+                start_time: (item as any).instance
+                    ? (item as any).instance
+                    : undefined,
+            } as any,
+        )
+            .toPromise()
+            .catch((e) => {
+                notifyError(
+                    i18n(
+                        remove_series
+                            ? 'APP.WORKPLACE.SCHEDULE_REMOVE_SERIES_ERROR'
+                            : 'APP.WORKPLACE.SCHEDULE_REMOVE_ERROR',
+                        { error: e },
+                    ),
+                );
+                resp.close();
+                throw e;
+            });
+        notifySuccess(
+            i18n(
+                remove_series
+                    ? 'APP.WORKPLACE.SCHEDULE_REMOVE_SERIES_SUCCESS'
+                    : 'APP.WORKPLACE.SCHEDULE_REMOVE_SUCCESS',
+            ),
+        );
+        this.removeItem(item);
+        this._dialog.closeAll();
+    }
+
+    public async end(item: Booking) {
+        const time = `${format(item.date, 'dd MMM yyyy h:mma')}`;
+        const resource_name = item.asset_name || item.asset_id;
+        const resp = await openConfirmModal(
+            {
+                title: i18n('APP.WORKPLACE.SCHEDULE_END_TITLE'),
+                content: i18n('APP.WORKPLACE.SCHEDULE_END_MSG', {
+                    name: resource_name,
+                    time,
+                }),
+                icon: { content: 'event_busy' },
+            },
+            this._dialog,
+        );
+
+        if (resp.reason !== 'done') return;
+        resp.loading(i18n('APP.WORKPLACE.SCHEDULE_END_LOADING'));
+        const promise = (
+            item.instance
+                ? checkinBookingInstance(item.id, item.instance, false)
+                : checkinBooking(item.id, false)
+        )
+            .toPromise()
+            .catch((e) => {
+                notifyError(
+                    i18n('APP.WORKPLACE.SCHEDULE_END_ERROR', { error: e }),
+                );
+                resp.close();
+                throw e;
+            });
+        await promise;
+        notifySuccess(i18n('APP.WORKPLACE.SCHEDULE_END_SUCCESS'));
+        this.removeItem(item);
+        this._dialog.closeAll();
     }
 }

@@ -35,7 +35,7 @@ import { ParkingService } from './parking.service';
     selector: 'booking-card',
     template: `
         @if (booking()) {
-            <h4 class="mb-2 flex items-center">
+            <h4 class="mb-2 flex items-center px-2">
                 @if (show_day()) {
                     <span day>{{ day }},&nbsp;</span>
                 }

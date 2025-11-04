@@ -19,7 +19,7 @@ import { IconComponent } from './icon.component';
             (click)="setValue(!value)"
         >
             <div class="z-10 flex flex-1 items-center space-x-2 p-2 text-left">
-                <div>
+                <div class="w-full">
                     {{ name() }}
                     <ng-content></ng-content>
                 </div>
