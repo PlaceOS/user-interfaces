@@ -224,6 +224,7 @@ import { SidebarComponent } from './ui/sidebar.component';
                                     key: 'severity',
                                     name: 'Severity',
                                     content: severity_template,
+                                    size: '8rem',
                                 },
                                 {
                                     key: 'issue',
