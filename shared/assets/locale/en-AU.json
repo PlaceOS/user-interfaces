@@ -846,6 +846,7 @@
             "MENU_CONTROL": "Room Control",
             "MENU_EXPLORE": "Spaces",
             "MENU_EVENTS": "Events",
+            "MENU_AI": "Ben AI",
             "MENU_DEALS": "Deals & Offers",
             "GLOBAL_SEARCH": "Search for people or spaces...",
             "GLOBAL_SEARCH_EMPTY": "No matches found.",

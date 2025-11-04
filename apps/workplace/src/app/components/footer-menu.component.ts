@@ -1,4 +1,6 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, model, OnInit, signal } from '@angular/core';
+import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { MatRippleModule } from '@angular/material/core';
 import { RouterModule } from '@angular/router';
 import {
     AsyncHandler,
@@ -6,19 +8,19 @@ import {
     SettingsService,
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
+import { ChatViewComponent } from '../landing-new/chat-view.component';
 
 @Component({
     selector: 'footer-menu',
     template: `
         @if (show_book_items() && features().length > 1) {
             <div
-                class="fixed inset-0 bottom-16 z-20 text-white"
+                class="fixed inset-0 bottom-16 z-20"
                 [attr.dark]="dark_mode()"
-                (click)="show_book_items.set(false)"
+                (click)="show_book_items.set(false); blur_backdrop.set(false)"
             >
-                <div class="absolute inset-0 bg-black opacity-50"></div>
                 <div
-                    class="absolute inset-x-0 bottom-0 flex flex-wrap items-end justify-center p-4"
+                    class="absolute inset-x-0 bottom-0 grid grid-cols-2 gap-4 rounded-t-xl border-t border-base-200 bg-base-100 p-4"
                 >
                     @if (features().includes('spaces')) {
                         <a
@@ -26,20 +28,12 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                             matRipple
                             [routerLink]="['/book', 'meeting']"
                             routerLinkActive="active"
-                            class="m-2 flex w-1/3 flex-col items-center justify-center space-y-2"
+                            class="flex flex-col items-center justify-center space-y-4 rounded-xl bg-base-200 px-4 py-8"
                         >
-                            <div
-                                class="flex h-12 w-12 items-center justify-center rounded-full bg-base-100 text-2xl text-base-content"
+                            <icon class="text-3xl text-secondary"
+                                >meeting_room</icon
                             >
-                                <icon filled>meeting_room</icon>
-                                <icon
-                                    outline
-                                    class="text-neutral"
-                                    className="material-symbols-outlined"
-                                    >meeting_room</icon
-                                >
-                            </div>
-                            <div class="text-xs">
+                            <div>
                                 {{ 'APP.WORKPLACE.MENU_ROOMS' | translate }}
                             </div>
                         </a>
@@ -50,20 +44,10 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                             name="footer-nav-desks"
                             [routerLink]="['/book', 'desks']"
                             routerLinkActive="active"
-                            class="m-2 flex w-1/3 flex-col items-center justify-center space-y-2"
+                            class="flex flex-col items-center justify-center space-y-4 rounded-xl bg-base-200 px-4 py-8"
                         >
-                            <div
-                                class="flex h-12 w-12 items-center justify-center rounded-full bg-base-100 text-2xl text-base-content"
-                            >
-                                <icon filled>desk</icon>
-                                <icon
-                                    outline
-                                    class="text-neutral"
-                                    className="material-symbols-outlined"
-                                    >desk</icon
-                                >
-                            </div>
-                            <div class="text-xs">
+                            <icon class="text-3xl text-secondary">desk</icon>
+                            <div>
                                 {{ 'APP.WORKPLACE.MENU_DESKS' | translate }}
                             </div>
                         </a>
@@ -74,20 +58,12 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                             name="footer-nav-parking"
                             [routerLink]="['/book', 'parking']"
                             routerLinkActive="active"
-                            class="m-2 flex w-1/3 flex-col items-center justify-center space-y-2 text-base"
+                            class="flex flex-col items-center justify-center space-y-4 rounded-xl bg-base-200 px-4 py-8"
                         >
-                            <div
-                                class="flex h-12 w-12 items-center justify-center rounded-full bg-base-100 text-2xl text-base-content"
+                            <icon class="text-3xl text-secondary"
+                                >directions_car</icon
                             >
-                                <icon filled>directions_car</icon>
-                                <icon
-                                    outline
-                                    class="text-neutral"
-                                    className="material-symbols-outlined"
-                                    >directions_car</icon
-                                >
-                            </div>
-                            <div class="text-xs">
+                            <div>
                                 {{ 'APP.WORKPLACE.MENU_PARKING' | translate }}
                             </div>
                         </a>
@@ -98,20 +74,12 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                             name="footer-nav-visitor-invite"
                             [routerLink]="['/book', 'visitor']"
                             routerLinkActive="active"
-                            class="m-2 flex w-1/3 flex-col items-center justify-center space-y-2"
+                            class="flex flex-col items-center justify-center space-y-4 rounded-xl bg-base-200 px-4 py-8"
                         >
-                            <div
-                                class="flex h-12 w-12 items-center justify-center rounded-full bg-base-100 text-2xl text-base-content"
+                            <icon class="text-3xl text-secondary"
+                                >person_add</icon
                             >
-                                <icon filled>person_add</icon>
-                                <icon
-                                    outline
-                                    class="text-neutral"
-                                    className="material-symbols-outlined"
-                                    >person_add</icon
-                                >
-                            </div>
-                            <div class="text-xs">
+                            <div>
                                 {{ 'APP.WORKPLACE.MENU_VISITORS' | translate }}
                             </div>
                         </a>
@@ -122,20 +90,10 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                             name="footer-nav-my-day"
                             [routerLink]="['/your-bookings']"
                             routerLinkActive="active"
-                            class="m-2 flex w-1/3 flex-col items-center justify-center space-y-2 text-base"
+                            class="flex flex-col items-center justify-center space-y-4 rounded-xl bg-base-200 px-4 py-8"
                         >
-                            <div
-                                class="flex h-12 w-12 items-center justify-center rounded-full bg-base-100 text-2xl text-base-content"
-                            >
-                                <icon filled>today</icon>
-                                <icon
-                                    outline
-                                    class="text-neutral"
-                                    className="material-symbols-outlined"
-                                    >today</icon
-                                >
-                            </div>
-                            <div class="text-xs">
+                            <icon class="text-3xl text-secondary">today</icon>
+                            <div>
                                 {{ 'APP.WORKPLACE.MENU_SCHEDULE' | translate }}
                             </div>
                         </a>
@@ -146,24 +104,27 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                             name="footer-nav-my-day"
                             [routerLink]="['/group-events']"
                             routerLinkActive="active"
-                            class="m-2 flex w-1/3 flex-col items-center justify-center space-y-2 text-base"
+                            class="flex flex-col items-center justify-center space-y-4 rounded-xl bg-base-200 px-4 py-8"
                         >
-                            <div
-                                class="flex h-12 w-12 items-center justify-center rounded-full bg-base-100 text-2xl text-base-content"
+                            <icon class="text-3xl text-primary"
+                                >local_activity</icon
                             >
-                                <icon filled>local_activity</icon>
-                                <icon
-                                    outline
-                                    class="text-neutral"
-                                    className="material-symbols-outlined"
-                                    >local_activity</icon
-                                >
-                            </div>
-                            <div class="text-xs">
+                            <div>
                                 {{ 'APP.WORKPLACE.MENU_EVENTS' | translate }}
                             </div>
                         </a>
                     }
+                    <button
+                        matRipple
+                        name="footer-act-ben"
+                        class="flex flex-col items-center justify-center space-y-4 rounded-xl bg-secondary px-4 py-8 text-secondary-content"
+                        (click)="openAIPanel(); $event.stopPropagation()"
+                    >
+                        <img class="h-10" src="assets/icons/ben_icon.svg" />
+                        <div>
+                            {{ 'APP.WORKPLACE.MENU_AI' | translate }}
+                        </div>
+                    </button>
                 </div>
             </div>
         }
@@ -193,7 +154,10 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                 <button
                     matRipple
                     class="z-10 mb-4 flex h-12 w-12 items-center justify-center rounded-full"
-                    (click)="show_book_items.set(!show_book_items())"
+                    (click)="
+                        show_book_items.set(!show_book_items());
+                        blur_backdrop.set(show_book_items())
+                    "
                     [class.bg-secondary]="show_book_items()"
                     [class.text-white]="show_book_items()"
                     [class.bg-base-200]="!show_book_items()"
@@ -247,12 +211,14 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
             }
         `,
     ],
-    imports: [TranslatePipe, IconComponent, RouterModule],
+    imports: [TranslatePipe, IconComponent, RouterModule, MatRippleModule],
 })
 export class FooterMenuComponent extends AsyncHandler implements OnInit {
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
+    private _bottom_sheet = inject(MatBottomSheet);
 
+    public readonly blur_backdrop = model(false);
     public readonly show_book_items = signal(false);
     public readonly dark_mode = signal(false);
     public readonly features = signal<string[]>([]);
@@ -272,5 +238,9 @@ export class FooterMenuComponent extends AsyncHandler implements OnInit {
                 );
             }),
         );
+    }
+
+    public openAIPanel() {
+        const ref = this._bottom_sheet.open(ChatViewComponent);
     }
 }

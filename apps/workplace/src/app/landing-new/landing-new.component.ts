@@ -35,14 +35,14 @@ interface FavoriteEntry {
 @Component({
     selector: 'landing-new',
     template: `
-        <div
-            class="absolute inset-0 flex flex-col overflow-hidden"
-            [class.blur]="open_concierge()"
-        >
+        <div class="absolute inset-0 flex flex-col overflow-hidden">
             @if (!hide_nav()) {
-                <topbar class="z-10" />
+                <topbar class="z-10" [class.blur]="open_concierge()" />
             }
-            <div class="relative flex h-1/2 flex-1 overflow-auto bg-base-200">
+            <div
+                class="relative flex h-1/2 flex-1 overflow-auto bg-base-200"
+                [class.blur]="open_concierge()"
+            >
                 <div
                     class="mx-auto flex w-[80rem] max-w-full flex-col gap-4 p-4"
                 >
@@ -448,7 +448,7 @@ interface FavoriteEntry {
                 </button>
             </div>
             @if (!hide_nav()) {
-                <footer-menu />
+                <footer-menu [(blur_backdrop)]="open_concierge" />
             }
             <div></div>
         </div>
