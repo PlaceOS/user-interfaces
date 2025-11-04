@@ -169,6 +169,7 @@ export class DashboardsService extends AsyncHandler {
     private _mqtt_broker: mqtt.MqttClient;
     private _connected = false;
     private _alerts = signal([]);
+    private _initialising = signal(false);
 
     public readonly loading = signal<string[]>([]);
     public readonly region_id = signal<string>('');
@@ -285,23 +286,35 @@ export class DashboardsService extends AsyncHandler {
     }
 
     private async _initialiseBroker() {
-        await firstTruthyValueFrom(this._org.initialised);
-        _org_id = this._org.organisation.id;
-        const jwt = token();
-        const url = `${location.host}/api/mqtt/`;
-        const secure = location.protocol === 'https:';
-        this._mqtt_broker = mqtt.connect(`ws${secure ? 's' : ''}://${url}`, {
-            username: jwt,
-            password: jwt,
-        });
-        this._mqtt_broker.on('connect', () => (this._connected = true));
-        this._mqtt_broker.on('disconnect', () => {
-            this._connected = false;
-            delete this._mqtt_broker;
-        });
-        this._mqtt_broker.on('message', (t, b) =>
-            this._handleBrokerMessage(t, b),
-        );
+        this._initialising.set(true);
+        if (this._initialising()) return;
+        try {
+            await firstTruthyValueFrom(this._org.initialised);
+            this.unsubWith('alert:');
+            _org_id = this._org.organisation.id;
+            const jwt = token();
+            const url = `${location.host}/api/mqtt/`;
+            const secure = location.protocol === 'https:';
+            this._mqtt_broker = mqtt.connect(
+                `ws${secure ? 's' : ''}://${url}`,
+                {
+                    username: jwt,
+                    password: jwt,
+                },
+            );
+            this._mqtt_broker.on('connect', () => (this._connected = true));
+            this._mqtt_broker.on('disconnect', () => {
+                this._connected = false;
+                delete this._mqtt_broker;
+            });
+            this._mqtt_broker.on('message', (t, b) =>
+                this._handleBrokerMessage(t, b),
+            );
+        } catch (e) {
+            this.timeout('init_finish', () => this._initialising.set(false));
+            throw e;
+        }
+        this.timeout('init_finish', () => this._initialising.set(false));
     }
 
     private _listenToAlertTopics() {
@@ -343,7 +356,7 @@ export class DashboardsService extends AsyncHandler {
                     `alert:${dashboard?.id || 'disconnected'}|${topic}`,
                     () => {
                         log('ALERTS', 'Dropped topic:', topic);
-                        this._mqtt_broker.unsubscribe(topic);
+                        this._mqtt_broker?.unsubscribe(topic);
                     },
                 );
             }
