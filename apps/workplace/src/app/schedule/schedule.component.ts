@@ -2,15 +2,12 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
-import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
-import { ActivatedRoute, Router } from '@angular/router';
-import { BookingFormService } from '@placeos/bookings';
-import { AsyncHandler, SettingsService } from '@placeos/common';
+import { ActivatedRoute } from '@angular/router';
+import { AsyncHandler } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
-import { EventFormService } from '@placeos/events';
 import { FooterMenuComponent } from '../components/footer-menu.component';
 import { TopbarComponent } from '../components/topbar.component';
 import { ScheduleDayViewComponent } from './schedule-day-view.component';
@@ -23,15 +20,6 @@ import {
 } from './schedule-state.service';
 import { ScheduleTopbarComponent } from './schedule-topbar.component';
 import { ScheduleWeekViewComponent } from './schedule-week-view.component';
-
-export const BOOKING_TYPE_COLORS = {
-    event: ['#C7D2FE', '#4338CA'],
-    desk: ['#BFDBFE', '#1E40AF'],
-    parking: ['#FED7AA', '#EA580C'],
-    visitor: ['#FBCFE8', '#DB2777'],
-    locker: ['#A7f3D0', '#059669'],
-    'group-event': ['#FCD34D', '#D97706'],
-};
 
 @Component({
     selector: 'app-schedule',
@@ -114,18 +102,13 @@ export const BOOKING_TYPE_COLORS = {
 })
 export class ScheduleComponent extends AsyncHandler implements OnInit {
     private _state = inject(ScheduleStateService);
-    private _event_form = inject(EventFormService);
-    private _booking_form = inject(BookingFormService);
-    private _router = inject(Router);
     private _route = inject(ActivatedRoute);
-    private _dialog = inject(MatDialog);
-    private _settings = inject(SettingsService);
 
     public readonly b_list = this._state.bookings;
     public readonly bookings = this._state.filtered_bookings;
     public readonly loading = this._state.loading;
 
-    public readonly view = signal<'day' | 'week' | 'list'>('list');
+    public readonly view = signal<'day' | 'week' | 'list'>('day');
     public readonly date = this._state.date;
     public readonly setDate = (d) => this._state.setDate(d);
 

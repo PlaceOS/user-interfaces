@@ -12,7 +12,11 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { BookingDetailsModalComponent } from '@placeos/bookings';
-import { Booking, CalendarEvent } from '@placeos/common';
+import {
+    BOOKING_TYPE_COLORS,
+    Booking,
+    CalendarEvent,
+} from '@placeos/common';
 import { IconComponent } from '@placeos/components';
 import {
     EventDetailsModalComponent,
@@ -20,7 +24,6 @@ import {
 } from '@placeos/events';
 import { format, isSameDay, setHours, setMinutes, startOfDay } from 'date-fns';
 import { ScheduleStateService } from './schedule-state.service';
-import { BOOKING_TYPE_COLORS } from './schedule.component';
 
 interface TimeSlot {
     hour: number;

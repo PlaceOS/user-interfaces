@@ -14,6 +14,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import {
     AsyncHandler,
+    BOOKING_TYPE_COLORS,
     CalendarEvent,
     formatRecurrence,
     fromEventRecurrence,
@@ -57,6 +58,18 @@ import { GroupEventDetailsModalComponent } from './group-event-details-modal.com
                 <div
                     class="relative w-full rounded-xl border border-base-300 bg-base-100 py-4 shadow"
                 >
+                    <div
+                        class="absolute right-2 top-2 rounded-full bg-base-300 p-1 text-2xl"
+                        [style.background-color]="typeColors[0]"
+                        [style.color]="typeColors[1]"
+                    >
+                        <icon
+                            [matTooltip]="typeLabel | translate"
+                            matTooltipPosition="left"
+                        >
+                            {{ typeIcon }}
+                        </icon>
+                    </div>
                     <h4 class="px-4 text-lg">{{ event()?.title }}</h4>
                     <div class="mx-4 my-2 flex items-center space-x-2">
                         <status-pill [status]="status">
@@ -128,9 +141,12 @@ import { GroupEventDetailsModalComponent } from './group-event-details-modal.com
                     >
                         chevron_right
                     </icon>
-                    @if (event()?.attendees?.length) {
+                    @if (
+                        event()?.attendees?.length &&
+                        !event()?.extension_data?.shared_event
+                    ) {
                         <div
-                            class="absolute bottom-2 right-2 flex items-center pr-4 text-sm sm:bottom-auto sm:top-2 sm:text-base"
+                            class="absolute bottom-2 right-2 flex items-center pr-4 text-sm sm:bottom-auto sm:right-14 sm:top-2 sm:text-base"
                         >
                             @for (
                                 user of event()?.attendees
@@ -264,6 +280,25 @@ export class EventCardComponent
         if (event?.status === 'tentative') return 'warning';
         if (event?.status === 'declined') return 'error';
         return 'warning';
+    }
+
+    public get typeIcon() {
+        return this.event()?.extension_data?.shared_event
+            ? 'event_available'
+            : 'meeting_room';
+    }
+
+    public get typeLabel() {
+        return this.event()?.extension_data?.shared_event
+            ? 'RESOURCE.EVENT'
+            : 'RESOURCE.ROOM';
+    }
+
+    public get typeColors() {
+        const type = this.event()?.extension_data?.shared_event
+            ? 'group-event'
+            : 'event';
+        return BOOKING_TYPE_COLORS[type];
     }
 
     constructor() {

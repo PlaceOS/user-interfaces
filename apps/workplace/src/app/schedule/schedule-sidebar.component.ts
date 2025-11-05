@@ -7,6 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import {
     AsyncHandler,
+    BOOKING_TYPE_COLORS,
     Booking,
     CalendarEvent,
     OrganisationService,
@@ -24,7 +25,6 @@ import {
     ScheduleOptions,
     ScheduleStateService,
 } from './schedule-state.service';
-import { BOOKING_TYPE_COLORS } from './schedule.component';
 
 @Component({
     selector: 'schedule-sidebar',

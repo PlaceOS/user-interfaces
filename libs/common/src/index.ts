@@ -29,3 +29,5 @@ export * from './lib/types/event.class';
 export * from './lib/types/org.classes';
 export * from './lib/types/space.class';
 export * from './lib/types/user.class';
+
+export * from './lib/constants';

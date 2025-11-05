@@ -6,11 +6,13 @@ import {
     SimpleChanges,
     inject,
     input,
+    signal,
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import {
+    BOOKING_TYPE_COLORS,
     Booking,
     SettingsService,
     currentUser,
@@ -56,6 +58,18 @@ import { ParkingService } from './parking.service';
                 <div
                     class="relative w-full rounded-xl border border-base-300 bg-base-100 py-4 shadow"
                 >
+                    <div
+                        class="absolute right-2 top-2 rounded-full bg-base-300 p-1 text-2xl"
+                        [style.background-color]="typeColors[0]"
+                        [style.color]="typeColors[1]"
+                    >
+                        <icon
+                            [matTooltip]="typeLabel | translate"
+                            matTooltipPosition="left"
+                        >
+                            {{ typeIcon }}
+                        </icon>
+                    </div>
                     <h4 class="px-4 text-lg">{{ booking()?.title }}</h4>
                     <div class="mx-4 my-2 flex items-center space-x-2">
                         <status-pill [status]="status">{{
@@ -71,50 +85,28 @@ import { ParkingService } from './parking.service';
                         class="divide-base-200-500 flex flex-col flex-wrap space-y-2 py-2 sm:flex-row sm:space-y-0 sm:divide-x"
                     >
                         <div class="flex max-w-[33%] items-center px-4">
-                            @switch (type) {
-                                @case ('desk') {
-                                    <icon
-                                        [matTooltip]="
-                                            'RESOURCE.DESK' | translate
-                                        "
-                                        matTooltipPosition="right"
-                                        >desk</icon
-                                    >
+                            <icon>
+                                @switch (type) {
+                                    @case ('desk') {
+                                        desk
+                                    }
+                                    @case ('locker') {
+                                        lock
+                                    }
+                                    @case ('parking') {
+                                        drive_eta
+                                    }
+                                    @case ('visitor') {
+                                        people
+                                    }
+                                    @default {
+                                        book
+                                    }
                                 }
-                                @case ('locker') {
-                                    <icon
-                                        [matTooltip]="
-                                            'RESOURCE.LOCKER' | translate
-                                        "
-                                        matTooltipPosition="right"
-                                        >lock</icon
-                                    >
-                                }
-                                @case ('parking') {
-                                    <icon
-                                        [matTooltip]="
-                                            'RESOURCE.PARKING' | translate
-                                        "
-                                        matTooltipPosition="right"
-                                        >drive_eta</icon
-                                    >
-                                }
-                                @case ('visitor') {
-                                    <icon
-                                        [matTooltip]="
-                                            'RESOURCE.VISITOR' | translate
-                                        "
-                                        matTooltipPosition="right"
-                                        >people</icon
-                                    >
-                                }
-                                @default {
-                                    <icon>book</icon>
-                                }
-                            }
+                            </icon>
                             <div class="mx-2 w-1/2 flex-1 truncate">
                                 {{
-                                    raw_description ||
+                                    raw_description() ||
                                         booking()?.asset_name ||
                                         booking()?.asset_id
                                 }}
@@ -137,21 +129,21 @@ import { ParkingService } from './parking.service';
                         booking()?.booking_type !== 'group-event'
                     ) {
                         <div
-                            class="bg-warning/50 absolute right-2 top-2 rounded-xl px-2 py-1 text-xs"
+                            class="bg-warning/50 absolute right-2 top-14 rounded-xl px-2 py-1 text-xs"
                         >
                             {{ 'BOOKINGS.ASSOCIATE' | translate }}
                         </div>
                     }
                     @if (booking()?.booking_type === 'group-event') {
                         <div
-                            class="bg-warning/50 absolute right-2 top-2 rounded-xl px-2 py-1 text-xs"
+                            class="bg-warning/50 absolute right-2 top-14 rounded-xl px-2 py-1 text-xs"
                         >
                             {{ 'BOOKINGS.EVENT' | translate }}
                         </div>
                     }
                     @if (is_reserved_parking_space | async) {
                         <div
-                            class="bg-warning/50 absolute right-2 top-2 rounded-xl px-2 py-1 text-xs"
+                            class="bg-warning/50 absolute right-2 top-14 rounded-xl px-2 py-1 text-xs"
                         >
                             {{
                                 (booking().status !== 'declined'
@@ -199,7 +191,7 @@ export class BookingCardComponent
     public readonly remove_fn = input((i, s?) => null);
     public readonly end_fn = input((i) => null);
 
-    public raw_description = '';
+    public readonly raw_description = signal('');
 
     public readonly is_reserved_parking_space =
         this._parking.assigned_space.pipe(
@@ -239,10 +231,6 @@ export class BookingCardComponent
         );
     }
 
-    constructor() {
-        super();
-    }
-
     public ngOnInit() {
         this.subscription(
             'route.query',
@@ -257,14 +245,45 @@ export class BookingCardComponent
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.booking) {
-            this.raw_description = this.removeHtmlTags(
-                this.booking()?.description,
+            this.raw_description.set(
+                this.removeHtmlTags(this.booking()?.description),
             );
         }
     }
 
     public get type() {
         return this.booking().type;
+    }
+
+    public get typeIcon() {
+        const type = this.booking()?.booking_type;
+        const iconMap = {
+            event: 'meeting_room',
+            desk: 'desk',
+            parking: 'drive_eta',
+            visitor: 'people',
+            locker: 'lock',
+            'group-event': 'event_available',
+        };
+        return iconMap[type] || 'book';
+    }
+
+    public get typeLabel() {
+        const type = this.booking()?.booking_type;
+        const labelMap = {
+            event: 'RESOURCE.ROOM',
+            desk: 'RESOURCE.DESK',
+            parking: 'RESOURCE.PARKING',
+            visitor: 'RESOURCE.VISITOR',
+            locker: 'RESOURCE.LOCKER',
+            'group-event': 'RESOURCE.EVENT',
+        };
+        return labelMap[type] || 'RESOURCE.BOOKING';
+    }
+
+    public get typeColors() {
+        const type = this.booking()?.booking_type;
+        return BOOKING_TYPE_COLORS[type] || ['#E5E7EB', '#1F2937'];
     }
 
     public get day() {
