@@ -189,3 +189,11 @@ nx migrate --run-migrations
 - Custom localization support via `shared/locales`, **TranslationPipe** and **LocalesService**
 - Tailwind is custom themed with CSS variables in `shared/styles/application.scss`
 - Use **IconComponent** for icons
+
+## Code styles
+
+- Use snake_case for variables
+- Use camelCase for functions
+- Use PascalCase for classes, types and interfaces
+- Use kebab-case for file names, directories and CSS selectors(id, class, attribute)
+- Use CAPS_CASE for constants
