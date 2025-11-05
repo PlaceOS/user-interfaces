@@ -36,7 +36,10 @@ import { ScheduleWeekViewComponent } from './schedule-week-view.component';
                 [bookings]="b_list | async"
             ></schedule-sidebar>
             <div class="flex h-full flex-1 flex-col overflow-auto">
-                <schedule-filters class="sticky top-0 z-20"></schedule-filters>
+                <schedule-filters
+                    class="sticky top-0 z-20"
+                    [bookings]="b_list | async"
+                ></schedule-filters>
                 @if (view() === 'day') {
                     <schedule-day-view
                         [date]="date | async"

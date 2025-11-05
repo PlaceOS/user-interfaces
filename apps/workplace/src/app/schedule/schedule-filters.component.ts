@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatRippleModule } from '@angular/material/core';
-import { SettingsService } from '@placeos/common';
+import { Booking, CalendarEvent, SettingsService } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { ScheduleFilterCardComponent } from './schedule-filter-card.component';
 import { ScheduleStateService } from './schedule-state.service';
@@ -12,129 +12,33 @@ import { ScheduleStateService } from './schedule-state.service';
     template: `
         <div class="hidden border-b border-base-300 bg-base-100 p-1 sm:block">
             <div class="flex flex-wrap">
-                @if (
-                    (filters | async)?.shown_types?.includes('event') &&
-                    hasFeature('spaces')
-                ) {
-                    <div
-                        class="m-1 flex h-8 items-center rounded-full border border-base-200 text-sm"
-                    >
-                        <div class="ml-2 px-2">
-                            {{ 'RESOURCE.ROOMS' | translate }}
-                        </div>
-                        <button
-                            icon
-                            matRipple
-                            name="schedule-remove-event-filter"
-                            (click)="toggleType('event', true)"
+                @for (item of feature_list; track item.type) {
+                    @if (
+                        (filters | async)?.shown_types?.includes(item.type) &&
+                        hasFeature(item.feat)
+                    ) {
+                        <div
+                            class="m-1 flex h-8 items-center rounded-full border border-base-200 text-sm"
                         >
-                            <icon>close</icon>
-                        </button>
-                    </div>
-                }
-                @if (
-                    (filters | async)?.shown_types?.includes('desk') &&
-                    hasFeature('desks')
-                ) {
-                    <div
-                        class="m-1 flex h-8 items-center rounded-full border border-base-200 text-sm"
-                    >
-                        <div class="px-2">
-                            {{ 'RESOURCE.DESKS' | translate }}
+                            <div class="px-2">{{ item.name | translate }}</div>
+                            <button
+                                icon
+                                matRipple
+                                [name]="
+                                    'schedule-remove-' + item.type + '-filter'
+                                "
+                                (click)="toggleType(item.type, true)"
+                            >
+                                <icon>close</icon>
+                            </button>
                         </div>
-                        <button
-                            icon
-                            matRipple
-                            name="schedule-remove-desk-filter"
-                            (click)="toggleType('desk', true)"
-                        >
-                            <icon>close</icon>
-                        </button>
-                    </div>
-                }
-                @if (
-                    (filters | async)?.shown_types?.includes('parking') &&
-                    hasFeature('parking')
-                ) {
-                    <div
-                        class="m-1 flex h-8 items-center rounded-full border border-base-200 text-sm"
-                    >
-                        <div class="px-2">
-                            {{ 'RESOURCE.PARKING' | translate }}
-                        </div>
-                        <button
-                            icon
-                            matRipple
-                            name="schedule-remove-parking-filter"
-                            (click)="toggleType('parking', true)"
-                        >
-                            <icon>close</icon>
-                        </button>
-                    </div>
-                }
-                @if (
-                    (filters | async)?.shown_types?.includes('visitor') &&
-                    hasFeature('visitor-invite')
-                ) {
-                    <div
-                        class="m-1 flex h-8 items-center rounded-full border border-base-200 text-sm"
-                    >
-                        <div class="px-2">
-                            {{ 'RESOURCE.VISITORS' | translate }}
-                        </div>
-                        <button
-                            icon
-                            matRipple
-                            name="schedule-remove-visitor-filter"
-                            (click)="toggleType('visitor', true)"
-                        >
-                            <icon>close</icon>
-                        </button>
-                    </div>
-                }
-                @if (
-                    (filters | async)?.shown_types?.includes('locker') &&
-                    hasFeature('lockers')
-                ) {
-                    <div
-                        class="m-1 flex h-8 items-center rounded-full border border-base-200 text-sm"
-                    >
-                        <div class="px-2">
-                            {{ 'RESOURCE.LOCKERS' | translate }}
-                        </div>
-                        <button
-                            icon
-                            matRipple
-                            name="schedule-remove-locker-filter"
-                            (click)="toggleType('locker', true)"
-                        >
-                            <icon>close</icon>
-                        </button>
-                    </div>
-                }
-                @if (
-                    (filters | async)?.shown_types?.includes('group-event') &&
-                    hasFeature('group-events')
-                ) {
-                    <div
-                        class="m-1 flex h-8 items-center rounded-full border border-base-200 text-sm"
-                    >
-                        <div class="px-2">
-                            {{ 'RESOURCE.EVENTS' | translate }}
-                        </div>
-                        <button
-                            icon
-                            matRipple
-                            name="schedule-remove-locker-filter"
-                            (click)="toggleType('group-event', true)"
-                        >
-                            <icon>close</icon>
-                        </button>
-                    </div>
+                    }
                 }
             </div>
         </div>
-        <div class="flex items-center space-x-2 overflow-auto sm:hidden">
+        <div
+            class="flex items-center space-x-2 overflow-auto border-b border-base-300 bg-base-100 p-2 sm:hidden"
+        >
             <button
                 btn
                 matRipple
@@ -144,116 +48,31 @@ import { ScheduleStateService } from './schedule-state.service';
             >
                 <div class="flex items-center justify-center space-x-2">
                     <icon class="text-xl">filter_list</icon>
-                    <!-- <div class="mr-2">{{ "APP.WORKPLACE.FILTERS" | translate }}</div> -->
                 </div>
             </button>
-            @if (
-                (filters | async)?.shown_types?.includes('event') &&
-                hasFeature('spaces')
-            ) {
-                <div
-                    class="flex items-center rounded-3xl border border-base-200 bg-base-100 pl-2 text-sm"
-                >
-                    <div>{{ 'RESOURCE.ROOMS' | translate }}</div>
-                    <button
-                        icon
-                        matRipple
-                        name="schedule-remove-event-filter-mobile"
-                        (click)="toggleType('event', true)"
+            @for (item of feature_list; track item.type) {
+                @if (
+                    (filters | async)?.shown_types?.includes(item.type) &&
+                    hasFeature(item.feat)
+                ) {
+                    <div
+                        class="flex items-center rounded-3xl border border-base-200 bg-base-100 pl-2 text-sm"
                     >
-                        <icon>close</icon>
-                    </button>
-                </div>
-            }
-            @if (
-                (filters | async)?.shown_types?.includes('desk') &&
-                hasFeature('desks')
-            ) {
-                <div
-                    class="flex items-center rounded-3xl border border-base-200 bg-base-100 pl-2 text-sm"
-                >
-                    <div>{{ 'RESOURCE.DESKS' | translate }}</div>
-                    <button
-                        icon
-                        matRipple
-                        name="schedule-remove-desk-filter-mobile"
-                        (click)="toggleType('desk', true)"
-                    >
-                        <icon>close</icon>
-                    </button>
-                </div>
-            }
-            @if (
-                (filters | async)?.shown_types?.includes('parking') &&
-                hasFeature('parking')
-            ) {
-                <div
-                    class="flex items-center rounded-3xl border border-base-200 bg-base-100 pl-2 text-sm"
-                >
-                    <div>{{ 'RESOURCE.PARKING' | translate }}</div>
-                    <button
-                        icon
-                        matRipple
-                        name="schedule-remove-parking-filter-mobile"
-                        (click)="toggleType('parking', true)"
-                    >
-                        <icon>close</icon>
-                    </button>
-                </div>
-            }
-            @if (
-                (filters | async)?.shown_types?.includes('visitor') &&
-                hasFeature('visitor-invite')
-            ) {
-                <div
-                    class="flex items-center rounded-3xl border border-base-200 bg-base-100 pl-2 text-sm"
-                >
-                    <div>{{ 'RESOURCE.VISITORS' | translate }}</div>
-                    <button
-                        icon
-                        matRipple
-                        name="schedule-remove-visitor-filter-mobile"
-                        (click)="toggleType('visitor', true)"
-                    >
-                        <icon>close</icon>
-                    </button>
-                </div>
-            }
-            @if (
-                (filters | async)?.shown_types?.includes('locker') &&
-                hasFeature('lockers')
-            ) {
-                <div
-                    class="flex items-center rounded-3xl border border-base-200 bg-base-100 pl-2 text-sm"
-                >
-                    <div>{{ 'RESOURCE.LOCKERS' | translate }}</div>
-                    <button
-                        icon
-                        matRipple
-                        name="schedule-remove-locker-filter-mobile"
-                        (click)="toggleType('locker', true)"
-                    >
-                        <icon>close</icon>
-                    </button>
-                </div>
-            }
-            @if (
-                (filters | async)?.shown_types?.includes('group-event') &&
-                hasFeature('group-events')
-            ) {
-                <div
-                    class="flex items-center rounded-3xl border border-base-200 bg-base-100 pl-2 text-sm"
-                >
-                    <div>{{ 'RESOURCE.EVENTS' | translate }}</div>
-                    <button
-                        icon
-                        matRipple
-                        name="schedule-remove-locker-filter-mobile"
-                        (click)="toggleType('group-event', true)"
-                    >
-                        <icon>close</icon>
-                    </button>
-                </div>
+                        <div>{{ item.name | translate }}</div>
+                        <button
+                            icon
+                            matRipple
+                            [name]="
+                                'schedule-remove-' +
+                                item.type +
+                                '-filter-mobile'
+                            "
+                            (click)="toggleType(item.type, true)"
+                        >
+                            <icon>close</icon>
+                        </button>
+                    </div>
+                }
             }
         </div>
     `,
@@ -266,6 +85,16 @@ export class ScheduleFiltersComponent {
     private _settings = inject(SettingsService);
 
     public readonly filters = this._state.filters;
+    public readonly bookings = input<(Booking | CalendarEvent)[]>([]);
+
+    public readonly feature_list = [
+        { type: 'event', feat: 'spaces', name: 'RESOURCE.ROOMS' },
+        { type: 'desk', feat: 'desks', name: 'RESOURCE.DESKS' },
+        { type: 'parking', feat: 'parking', name: 'RESOURCE.PARKING' },
+        { type: 'visitor', feat: 'visitor-invite', name: 'RESOURCE.VISITORS' },
+        { type: 'locker', feat: 'lockers', name: 'RESOURCE.LOCKERS' },
+        { type: 'group-event', feat: 'group-events', name: 'RESOURCE.EVENTS' },
+    ];
 
     public readonly toggleType = (t, c = false) => this._state.toggleType(t, c);
 
@@ -274,6 +103,7 @@ export class ScheduleFiltersComponent {
     }
 
     public openFilters() {
-        this._sheet.open(ScheduleFilterCardComponent);
+        const ref = this._sheet.open(ScheduleFilterCardComponent);
+        ref.instance.bookings.set(this.bookings());
     }
 }
