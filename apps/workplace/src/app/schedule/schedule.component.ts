@@ -45,7 +45,7 @@ export const BOOKING_TYPE_COLORS = {
         >
             <schedule-sidebar
                 class="hidden bg-base-100 sm:block"
-                [bookings]="bookings | async"
+                [bookings]="b_list | async"
             ></schedule-sidebar>
             <div class="flex h-full flex-1 flex-col overflow-auto">
                 <schedule-filters class="sticky top-0 z-20"></schedule-filters>
@@ -121,6 +121,7 @@ export class ScheduleComponent extends AsyncHandler implements OnInit {
     private _dialog = inject(MatDialog);
     private _settings = inject(SettingsService);
 
+    public readonly b_list = this._state.bookings;
     public readonly bookings = this._state.filtered_bookings;
     public readonly loading = this._state.loading;
 

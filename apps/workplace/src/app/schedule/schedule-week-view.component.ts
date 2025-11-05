@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, computed, inject, input } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { BookingDetailsModalComponent } from '@placeos/bookings';
 import { Booking, CalendarEvent } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
@@ -9,9 +10,23 @@ import {
     EventDetailsModalComponent,
     GroupEventDetailsModalComponent,
 } from '@placeos/events';
-import { addDays, format, startOfWeek } from 'date-fns';
+import {
+    addDays,
+    format,
+    isBefore,
+    isSameDay,
+    startOfDay,
+    startOfWeek,
+} from 'date-fns';
 import { ScheduleStateService } from './schedule-state.service';
 import { BOOKING_TYPE_COLORS } from './schedule.component';
+
+interface Weekday {
+    id: string;
+    date: number;
+    is_past: boolean;
+    is_today: boolean;
+}
 
 @Component({
     selector: `schedule-week-view`,
@@ -20,14 +35,30 @@ import { BOOKING_TYPE_COLORS } from './schedule.component';
             <div class="m-2">
                 <div class="grid w-full min-w-[87.5rem] grid-cols-7 gap-2">
                     @for (day of weekdays(); track day.id) {
-                        <div header class="flex flex-col items-center">
-                            <div>{{ day.date | date: 'EEE, dd' }}</div>
-                            <div class="relative pt-2 text-xs">
+                        <div
+                            header
+                            class="flex items-center justify-center space-x-2 py-2"
+                        >
+                            <div
+                                [matTooltip]="
+                                    day.is_today
+                                        ? 'Today'
+                                        : (day.date | date: 'fullDate')
+                                "
+                            >
+                                {{ day.date | date: 'EEE, dd' }}
+                            </div>
+                            <div
+                                class="relative flex h-6 w-6 items-center justify-center rounded-full font-mono text-xs"
+                                [class.bg-base-300]="!day.is_today"
+                                [class.bg-info]="day.is_today"
+                                [class.text-info-content]="day.is_today"
+                                [matTooltip]="
+                                    (bookings_by_date()[day.id]?.length || 0) +
+                                    ' bookings'
+                                "
+                            >
                                 {{ bookings_by_date()[day.id]?.length || 0 }}
-                                <icon
-                                    class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-3xl opacity-50"
-                                    >calendar_today</icon
-                                >
                             </div>
                         </div>
                     }
@@ -35,6 +66,7 @@ import { BOOKING_TYPE_COLORS } from './schedule.component';
                         <div
                             body
                             class="flex min-h-[calc(100vh-15rem)] flex-col space-y-2 rounded-xl border border-base-300 bg-base-100 p-2"
+                            [class.opacity-30]="day.is_past"
                         >
                             @for (
                                 bkn of bookings_by_date()[day.id] || [];
@@ -48,6 +80,17 @@ import { BOOKING_TYPE_COLORS } from './schedule.component';
                                         colors[type(bkn)][0]
                                     "
                                     (click)="viewBooking(bkn)"
+                                    [matTooltip]="
+                                        bkn.title +
+                                        '
+' +
+                                        (bkn.user_name || bkn.host) +
+                                        '
+' +
+                                        (bkn.date | date: 'shortTime') +
+                                        ' - ' +
+                                        (bkn.date_end | date: 'shortTime')
+                                    "
                                 >
                                     <div class="truncate text-sm">
                                         {{ bkn.title }}
@@ -72,7 +115,7 @@ import { BOOKING_TYPE_COLORS } from './schedule.component';
         </div>
     `,
     styles: [``],
-    imports: [CommonModule, IconComponent, MatRippleModule],
+    imports: [CommonModule, IconComponent, MatRippleModule, MatTooltipModule],
 })
 export class ScheduleWeekViewComponent {
     private _dialog = inject(MatDialog);
@@ -82,10 +125,15 @@ export class ScheduleWeekViewComponent {
     public readonly colors = BOOKING_TYPE_COLORS;
 
     public readonly weekdays = computed(() => {
-        const days: { id: string; date: number }[] = [];
+        const days: Weekday[] = [];
         for (let i = 0; i < 7; i++) {
             const date = addDays(startOfWeek(this.date()), i);
-            days.push({ id: format(date, 'yyyy-MM-dd'), date: date.valueOf() });
+            days.push({
+                id: format(date, 'yyyy-MM-dd'),
+                date: date.valueOf(),
+                is_past: isBefore(date, startOfDay(Date.now())),
+                is_today: isSameDay(date, Date.now()),
+            });
         }
         return days;
     });

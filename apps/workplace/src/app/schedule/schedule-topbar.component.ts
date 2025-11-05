@@ -44,7 +44,7 @@ import { addDays, subDays } from 'date-fns';
             </div>
             <div
                 view
-                class="flex w-full space-x-1 rounded-xl bg-base-200 p-1 sm:w-auto"
+                class="flex w-full space-x-1 rounded-xl border border-base-300 bg-base-200 p-1 sm:w-auto"
             >
                 <a
                     btn
