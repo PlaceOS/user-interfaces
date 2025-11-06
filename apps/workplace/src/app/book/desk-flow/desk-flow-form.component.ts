@@ -3,6 +3,7 @@ import {
     MatBottomSheet,
     MatBottomSheetRef,
 } from '@angular/material/bottom-sheet';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatRippleModule } from '@angular/material/core';
 import { Router } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
@@ -20,6 +21,7 @@ import { lastValueFrom } from 'rxjs';
 import { first } from 'rxjs/operators';
 import { NewDeskFlowConfirmComponent } from './desk-flow-confirm.component';
 import { NewDeskFormDetailsComponent } from './desk-form-details.component';
+import { AutoAssignedDeskModalComponent } from './auto-assigned-desk-modal.component';
 
 @Component({
     selector: 'desk-flow-form',
@@ -52,7 +54,12 @@ import { NewDeskFormDetailsComponent } from './desk-form-details.component';
                     </p>
                 </div>
                 <div class="flex items-center space-x-4 pt-2">
-                    <button btn matRipple class="w-full flex-1 space-x-2">
+                    <button
+                        btn
+                        matRipple
+                        class="w-full flex-1 space-x-2"
+                        (click)="autoAssignDesk()"
+                    >
                         <icon class="text-2xl">bolt</icon>
                         <div>Auto-Assign</div>
                     </button>
@@ -108,6 +115,7 @@ export class NewDeskFlowFormComponent implements OnInit {
     private _router = inject(Router);
     private _org = inject(OrganisationService);
     private _bottom_sheet = inject(MatBottomSheet);
+    private _dialog = inject(MatDialog);
     private _settings = inject(SettingsService);
 
     public sheet_ref: MatBottomSheetRef<NewDeskFlowConfirmComponent>;
@@ -138,6 +146,35 @@ export class NewDeskFlowFormComponent implements OnInit {
         this.sheet_ref.instance.show_close.set(true);
         this.sheet_ref.afterDismissed().subscribe((value) => {
             if (value) {
+                this._state.setView('success');
+                this._router.navigate(['/book', 'desks', 'success']);
+            }
+        });
+    };
+
+    public readonly autoAssignDesk = () => {
+        // Get current form values for date and duration
+        const form_value = this.form.getRawValue();
+        const { date, duration } = form_value;
+
+        // Open the auto-assigned desk modal
+        const dialog_ref = this._dialog.open(AutoAssignedDeskModalComponent, {
+            maxWidth: '100vw',
+            maxHeight: '100vh',
+            panelClass: 'auto-assigned-desk-modal',
+        });
+        dialog_ref.componentInstance.show_close.set(true);
+
+        // Pass date and duration if they're set
+        if (date) {
+            dialog_ref.componentInstance.date.set(date);
+        }
+        if (duration) {
+            dialog_ref.componentInstance.duration.set(duration);
+        }
+
+        dialog_ref.afterClosed().subscribe((confirmed) => {
+            if (confirmed) {
                 this._state.setView('success');
                 this._router.navigate(['/book', 'desks', 'success']);
             }

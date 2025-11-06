@@ -7,7 +7,7 @@ import { MeetingFlowSuccessComponent } from '../meeting-flow/meeting-flow-succes
 import { MeetingFlowComponent } from './meeting-flow.component';
 
 @Component({
-    selector: 'placeos-book-meeting-flow',
+    selector: 'book-meeting-flow-new',
     template: `
         <div class="z-50 h-full w-full bg-base-100">
             @switch (view()) {

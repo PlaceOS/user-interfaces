@@ -1,7 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { MatRippleModule } from '@angular/material/core';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { IconComponent } from '@placeos/components';
+import { AutoAssignedDeskModalComponent } from '../book/desk-flow/auto-assigned-desk-modal.component';
 
 @Component({
     selector: 'landing-quick-actions',
@@ -12,7 +14,12 @@ import { IconComponent } from '@placeos/components';
             <div class="mb-2 flex items-center justify-between">
                 <h3 class="text-lg font-medium">Quick Actions</h3>
             </div>
-            <button btn matRipple class="h-16 w-full">
+            <button
+                btn
+                matRipple
+                class="h-16 w-full"
+                (click)="autoAssignDesk()"
+            >
                 <div class="space-y-1">
                     <div class="flex items-center space-x-2">
                         <icon class="text-xl">bolt</icon>
@@ -66,4 +73,23 @@ import { IconComponent } from '@placeos/components';
     `,
     imports: [MatRippleModule, RouterModule, IconComponent],
 })
-export class LandingQuickActionsComponent {}
+export class LandingQuickActionsComponent {
+    private _dialog = inject(MatDialog);
+    private _router = inject(Router);
+
+    public readonly autoAssignDesk = () => {
+        // Open the auto-assigned desk modal
+        const dialog_ref = this._dialog.open(AutoAssignedDeskModalComponent, {
+            maxWidth: '100vw',
+            maxHeight: '100vh',
+            panelClass: 'auto-assigned-desk-modal',
+        });
+        dialog_ref.componentInstance.show_close.set(true);
+
+        dialog_ref.afterClosed().subscribe((confirmed) => {
+            if (confirmed) {
+                this._router.navigate(['/book', 'desks', 'success']);
+            }
+        });
+    };
+}

@@ -7,7 +7,6 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
-import { TranslatePipe } from '@placeos/components';
 import { FooterMenuComponent } from '../components/footer-menu.component';
 import { TopbarComponent } from '../components/topbar.component';
 import { ScheduleDayViewComponent } from './schedule-day-view.component';
@@ -92,7 +91,6 @@ import { ScheduleWeekViewComponent } from './schedule-week-view.component';
         MatProgressBarModule,
         MatFormFieldModule,
         MatSelectModule,
-        TranslatePipe,
         FooterMenuComponent,
         ScheduleFiltersComponent,
         ScheduleSidebarComponent,

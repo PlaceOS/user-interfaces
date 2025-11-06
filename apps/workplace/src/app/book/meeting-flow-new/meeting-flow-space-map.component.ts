@@ -7,7 +7,7 @@ import {
     SettingsService,
     Space,
 } from '@placeos/common';
-import { InteractiveMapComponent, TranslatePipe } from '@placeos/components';
+import { InteractiveMapComponent } from '@placeos/components';
 import { EventFormService } from '@placeos/events';
 import { DEFAULT_COLOURS } from '@placeos/explore';
 import { NewSpaceLocationPinComponent } from 'libs/events/src/lib/new-space-select-modal/new-space-location-pin.component';
@@ -29,7 +29,7 @@ import { BehaviorSubject, combineLatest, debounceTime, map, tap } from 'rxjs';
         </div>
     `,
     styles: [``],
-    imports: [AsyncPipe, InteractiveMapComponent, TranslatePipe],
+    imports: [AsyncPipe, InteractiveMapComponent],
 })
 export class MeetingFlowSpaceMapComponent
     extends AsyncHandler
