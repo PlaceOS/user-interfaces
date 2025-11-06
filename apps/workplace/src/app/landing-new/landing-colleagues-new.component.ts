@@ -61,7 +61,7 @@ import { LandingStateService } from '../landing/landing-state.service';
             }
             <button btn matRipple class="mt-4 w-full">
                 <icon class="text-xl">person_add</icon>
-                <div>Add Colleagues</div>
+                <div>{{ 'APP.WORKPLACE.ADD_COLLEAGUES' | translate }}</div>
             </button>
         </div>
     `,

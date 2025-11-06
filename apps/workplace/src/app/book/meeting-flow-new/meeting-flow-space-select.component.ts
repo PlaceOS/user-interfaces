@@ -14,6 +14,7 @@ import {
     SettingsService,
     Space,
     unique,
+    i18n,
 } from '@placeos/common';
 import {
     BuildingPipe,
@@ -43,7 +44,7 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
             >
                 <div class="flex items-center space-x-2">
                     <icon>info</icon>
-                    <div>Select Meeting Room</div>
+                    <div>{{ 'CALENDAR_EVENT.SELECT_ROOM_HEADER' | translate }}</div>
                 </div>
                 <button
                     icon
@@ -67,10 +68,10 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                     class="hidden sm:sticky sm:top-0 sm:block sm:w-[20rem] sm:max-w-[20rem]"
                 >
                     <div class="flex w-full items-center justify-between p-2">
-                        <h3 class="px-2 text-xl font-medium">Filters</h3>
+                        <h3 class="px-2 text-xl font-medium">{{ 'COMMON.FILTERS' | translate }}</h3>
                     </div>
                     <div class="flex flex-col overflow-y-auto px-4 pb-4">
-                        <label for="location">Location</label>
+                        <label for="location">{{ 'COMMON.LOCATION' | translate }}</label>
                         @if (use_region() && (regions | async)?.length) {
                             <mat-form-field appearance="outline" class="w-full">
                                 <mat-select
@@ -148,13 +149,13 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                                 }
                             </mat-select>
                         </mat-form-field>
-                        <label for="date">Date</label>
+                        <label for="date">{{ 'FORM.DATE' | translate }}</label>
                         <date-field formControlName="date" />
                         <settings-toggle class="mb-2" formControlName="all_day"
-                            >All Day</settings-toggle
+                            >{{ 'COMMON.ALL_DAY' | translate }}</settings-toggle
                         >
                         @if (!field('all_day')) {
-                            <label for="date">Time</label>
+                            <label for="date">{{ 'FORM.TIME' | translate }}</label>
                             <div class="flex space-x-2">
                                 <time-field
                                     class="flex-1"
@@ -178,9 +179,9 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                             </div>
                         }
                         <settings-toggle class="mb-4" formControlName="all_day"
-                            >Favourites Only</settings-toggle
+                            >{{ 'COMMON.FAVOURITES_ONLY' | translate }}</settings-toggle
                         >
-                        <h2 class="text-lg font-medium">Facilities</h2>
+                        <h2 class="text-lg font-medium">{{ 'CALENDAR_EVENT.FACILITIES' | translate }}</h2>
                         <div class="mb-4 flex flex-col space-y-2">
                             @for (feat of features | async; track feat) {
                                 @if (!hide_features().includes(feat)) {
@@ -278,7 +279,7 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                                 (click)="view.set('list')"
                             >
                                 <icon class="text-2xl">list</icon>
-                                <div class="pr-2">List</div>
+                                <div class="pr-2">{{ 'COMMON.LIST' | translate }}</div>
                             </button>
                             <button
                                 btn
@@ -288,7 +289,7 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                                 (click)="view.set('map')"
                             >
                                 <icon class="text-2xl">Map</icon>
-                                <div class="pr-2">Map</div>
+                                <div class="pr-2">{{ 'COMMON.MAP' | translate }}</div>
                             </button>
                         </div>
                     </div>
@@ -320,13 +321,13 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                 [formGroup]="form()"
             >
                 <div class="flex w-full items-center justify-between border-b border-base-300 p-2">
-                    <h3 class="px-2 text-xl font-medium">Filters</h3>
+                    <h3 class="px-2 text-xl font-medium">{{ 'COMMON.FILTERS' | translate }}</h3>
                     <button icon matRipple (click)="filters_open.set(false)">
                         <icon>close</icon>
                     </button>
                 </div>
                 <div class="flex max-h-[60vh] flex-col overflow-y-auto px-4 pb-4">
-                    <label for="location">Location</label>
+                    <label for="location">{{ 'COMMON.LOCATION' | translate }}</label>
                     @if (use_region() && (regions | async)?.length) {
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
@@ -398,13 +399,13 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                             }
                         </mat-select>
                     </mat-form-field>
-                    <label for="date">Date</label>
+                    <label for="date">{{ 'FORM.DATE' | translate }}</label>
                     <date-field formControlName="date" />
                     <settings-toggle class="mb-2" formControlName="all_day"
-                        >All Day</settings-toggle
+                        >{{ 'COMMON.ALL_DAY' | translate }}</settings-toggle
                     >
                     @if (!field('all_day')) {
-                        <label for="date">Time</label>
+                        <label for="date">{{ 'FORM.TIME' | translate }}</label>
                         <div class="flex space-x-2">
                             <time-field
                                 class="flex-1"
@@ -428,9 +429,9 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                         </div>
                     }
                     <settings-toggle class="mb-4" formControlName="all_day"
-                        >Favourites Only</settings-toggle
+                        >{{ 'COMMON.FAVOURITES_ONLY' | translate }}</settings-toggle
                     >
-                    <h2 class="text-lg font-medium">Facilities</h2>
+                    <h2 class="text-lg font-medium">{{ 'CALENDAR_EVENT.FACILITIES' | translate }}</h2>
                     <div class="mb-4 flex flex-col space-y-2">
                         @for (feat of features | async; track feat) {
                             @if (!hide_features().includes(feat)) {
@@ -462,7 +463,7 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                 [routerLink]="[]"
                 [queryParams]="{ view: 0 }"
             >
-                Back
+                {{ 'COMMON.BACK' | translate }}
             </a>
             <button
                 btn
@@ -470,7 +471,7 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                 class="w-40"
                 (click)="continue()"
             >
-                Continue
+                {{ 'COMMON.CONTINUE' | translate }}
             </button>
         </div>
     `,
@@ -668,7 +669,7 @@ export class MeetingFlowSpaceSelectComponent implements OnInit {
 
     public continue() {
         if (!this.has_space()) {
-            notifyError('Please select a meeting room before continuing');
+            notifyError(i18n('CALENDAR_EVENT.ERROR_ROOM_REQUIRED'));
             return;
         }
 

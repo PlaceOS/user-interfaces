@@ -13,6 +13,7 @@ import {
     OrganisationService,
     settingSignal,
     SettingsService,
+    i18n,
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { EventFormService } from '@placeos/events';
@@ -32,7 +33,7 @@ import { BehaviorSubject, combineLatest, map, tap } from 'rxjs';
                 class="gradient relative flex items-center space-x-2 border-l-8 border-base-content px-4 py-3 text-xl font-medium"
             >
                 <icon>task_alt</icon>
-                <div>Review & Confirm Booking</div>
+                <div>{{ 'CALENDAR_EVENT.REVIEW_CONFIRM_HEADER' | translate }}</div>
             </div>
             <div class="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2">
                 <div>
@@ -43,7 +44,7 @@ import { BehaviorSubject, combineLatest, map, tap } from 'rxjs';
                             <icon class="text-2xl">done</icon>
                         </div>
                         <h3 class="text-xl">
-                            {{ event.title || 'Meeting Details' }}
+                            {{ event.title || ('CALENDAR_EVENT.MEETING_DETAILS_HEADER' | translate) }}
                         </h3>
                     </div>
                     <div class="space-y-1 pl-10">
@@ -78,7 +79,7 @@ import { BehaviorSubject, combineLatest, map, tap } from 'rxjs';
                             >
                                 <icon class="text-2xl">done</icon>
                             </div>
-                            <h3 class="text-xl">Selected Room</h3>
+                            <h3 class="text-xl">{{ 'CALENDAR_EVENT.SELECTED_ROOM_HEADER' | translate }}</h3>
                         </div>
                         <div class="space-y-1 pl-10">
                             @for (space of event.resources; track space.id) {
@@ -92,7 +93,7 @@ import { BehaviorSubject, combineLatest, map, tap } from 'rxjs';
                                     <div class="flex items-center space-x-2">
                                         <icon class="text-2xl">group</icon>
                                         <div>
-                                            Capacity: {{ space.capacity }} people
+                                            {{ 'CALENDAR_EVENT.CAPACITY_PEOPLE' | translate: { capacity: space.capacity } }}
                                         </div>
                                     </div>
                                 }
@@ -126,7 +127,7 @@ import { BehaviorSubject, combineLatest, map, tap } from 'rxjs';
                                                     +{{
                                                         space.features.length - 5
                                                     }}
-                                                    more
+                                                    {{ 'CALENDAR_EVENT.FEATURES_MORE' | translate }}
                                                 </span>
                                             }
                                         </div>
@@ -141,10 +142,10 @@ import { BehaviorSubject, combineLatest, map, tap } from 'rxjs';
                 class="gradient relative flex items-center space-x-2 border-l-8 border-base-content px-4 py-3 text-xl font-medium"
             >
                 <icon>fork_right</icon>
-                <div>Optional Extras</div>
+                <div>{{ 'CALENDAR_EVENT.OPTIONAL_EXTRAS_HEADER' | translate }}</div>
             </div>
             <div class="p-4" [formGroup]="form()">
-                <h3 class="flex items-center space-x-2 text-xl">Attendees</h3>
+                <h3 class="flex items-center space-x-2 text-xl">{{ 'CALENDAR_EVENT.ATTENDEES' | translate }}</h3>
                 <a-user-list-field
                     formControlName="attendees"
                     [time]="event.date"
@@ -268,7 +269,7 @@ import { BehaviorSubject, combineLatest, map, tap } from 'rxjs';
             <button btn matRipple class="">
                 <div class="flex items-center space-x-2">
                     <icon class="text-2xl">task_alt</icon>
-                    <div class="flex-1 pr-4">Confirm</div>
+                    <div class="flex-1 pr-4">{{ 'COMMON.CONFIRM' | translate }}</div>
                     <icon class="text-2xl">keyboard_arrow_right</icon>
                 </div>
             </button>
@@ -374,9 +375,9 @@ export class MeetingFlowOptionsComponent {
         if (!recurrence?.pattern) return '';
 
         const pattern = recurrence.pattern;
-        if (pattern === 'daily') return 'Daily';
-        if (pattern === 'weekly') return 'Weekly';
-        if (pattern === 'monthly') return 'Monthly';
+        if (pattern === 'daily') return i18n('FORM.RECURRENCE_DAILY');
+        if (pattern === 'weekly') return i18n('CALENDAR_EVENT.RECURRENCE_WEEKLY');
+        if (pattern === 'monthly') return i18n('CALENDAR_EVENT.RECURRENCE_MONTHLY');
         return pattern.charAt(0).toUpperCase() + pattern.slice(1);
     }
 
@@ -393,7 +394,7 @@ export class MeetingFlowOptionsComponent {
         if (this.is_multiday) {
             return `${start_date}${all_day ? '' : ', ' + start_time} - ${end_date}${all_day ? '' : ', ' + end_time}`;
         } else if (all_day) {
-            return 'All Day';
+            return i18n('COMMON.ALL_DAY');
         }
         return `${start_time} - ${end_time} ${'(' + tz_format + ')'}`;
     }

@@ -53,7 +53,7 @@ import { LandingUpcomingBookingComponent } from './landing-upcoming-booking.comp
                     icon
                     matRipple
                     class="absolute left-2 top-60 h-14 w-14 bg-secondary text-secondary-content shadow"
-                    matTooltip="Virtual Concierge"
+                    [matTooltip]="'APP.WORKPLACE.VIRTUAL_CONCIERGE' | translate"
                     matTooltipPosition="right"
                     (click)="openConciergeChat()"
                 >

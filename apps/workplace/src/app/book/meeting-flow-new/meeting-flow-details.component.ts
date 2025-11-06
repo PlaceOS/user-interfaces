@@ -6,8 +6,8 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { notifyError } from '@placeos/common';
-import { IconComponent } from '@placeos/components';
+import { notifyError, i18n } from '@placeos/common';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { EventFormService } from '@placeos/events';
 import {
     DateFieldComponent,
@@ -26,28 +26,28 @@ import {
                     class="gradient relative flex items-center space-x-2 border-l-8 border-base-content px-4 py-3 text-xl font-medium"
                 >
                     <icon>info</icon>
-                    <div>Meeting Details</div>
+                    <div>{{ 'CALENDAR_EVENT.MEETING_DETAILS_HEADER' | translate }}</div>
                 </div>
                 <div class="flex flex-col p-4" [formGroup]="form()">
                     <label class="uppercase"
-                        >Meeting Title <span required>*</span></label
+                        >{{ 'CALENDAR_EVENT.MEETING_TITLE_LABEL' | translate }} <span required>*</span></label
                     >
                     <mat-form-field appearance="outline">
                         <input
                             matInput
                             formControlName="title"
-                            placeholder="Meeting title"
+                            [placeholder]="'CALENDAR_EVENT.TITLE_PLACEHOLDER' | translate"
                         />
                     </mat-form-field>
                     <div
                         class="flex flex-col space-y-2 sm:flex-row sm:space-x-2 sm:space-y-0"
                     >
                         <div class="flex-1">
-                            <label for="date" class="uppercase">Date</label>
+                            <label for="date" class="uppercase">{{ 'FORM.DATE' | translate }}</label>
                             <date-field name="date" formControlName="date" />
                         </div>
                         <div class="flex-1">
-                            <label for="time" class="uppercase">Time</label>
+                            <label for="time" class="uppercase">{{ 'FORM.TIME' | translate }}</label>
                             <time-field
                                 name="time"
                                 [ngModel]="form().getRawValue().date"
@@ -59,7 +59,7 @@ import {
                         </div>
                         <div class="flex-1">
                             <label for="duration" class="uppercase"
-                                >Duration</label
+                                >{{ 'FORM.DURATION' | translate }}</label
                             >
                             <duration-field
                                 name="duration"
@@ -72,7 +72,7 @@ import {
                     class="gradient relative flex items-center space-x-2 border-l-8 border-base-content px-4 py-3 text-xl font-medium"
                 >
                     <icon>info</icon>
-                    <div>Room Size</div>
+                    <div>{{ 'CALENDAR_EVENT.ROOM_SIZE_LABEL' | translate }}</div>
                 </div>
                 <div class="-mx-1 flex flex-wrap p-4">
                     @let capacity = (options | async)?.capacity || -1;
@@ -85,7 +85,7 @@ import {
                     >
                         <div class="flex items-center space-x-2">
                             <icon>person</icon>
-                            <div>1&ndash;2 people</div>
+                            <div>{{ 'CALENDAR_EVENT.ROOM_SIZE_1_2' | translate }}</div>
                         </div>
                         @if (!(capacity !== 1 && capacity !== -1)) {
                             <icon class="absolute right-0 top-0">task_alt</icon>
@@ -100,7 +100,7 @@ import {
                     >
                         <div class="flex items-center space-x-2">
                             <icon>group</icon>
-                            <div>3-4 people</div>
+                            <div>{{ 'CALENDAR_EVENT.ROOM_SIZE_3_4' | translate }}</div>
                         </div>
                         @if (capacity === 3) {
                             <icon class="absolute right-0 top-0">task_alt</icon>
@@ -115,7 +115,7 @@ import {
                     >
                         <div class="flex items-center space-x-2">
                             <icon>groups</icon>
-                            <div>5-8 people</div>
+                            <div>{{ 'CALENDAR_EVENT.ROOM_SIZE_5_8' | translate }}</div>
                         </div>
                         @if (capacity === 5) {
                             <icon class="absolute right-0 top-0">task_alt</icon>
@@ -130,7 +130,7 @@ import {
                     >
                         <div class="flex items-center space-x-2">
                             <icon>groups</icon>
-                            <div>9+ people</div>
+                            <div>{{ 'CALENDAR_EVENT.ROOM_SIZE_9_PLUS' | translate }}</div>
                         </div>
                         @if (capacity === 9) {
                             <icon class="absolute right-0 top-0">task_alt</icon>
@@ -150,7 +150,7 @@ import {
                 >
                     <div class="flex items-center space-x-2">
                         <icon class="text-2xl">search</icon>
-                        <div class="flex-1 pr-4">Search available rooms</div>
+                        <div class="flex-1 pr-4">{{ 'CALENDAR_EVENT.SEARCH_ROOMS_BUTTON' | translate }}</div>
                         <icon class="text-2xl">keyboard_arrow_right</icon>
                     </div>
                 </button>
@@ -181,6 +181,7 @@ import {
         FormsModule,
         ReactiveFormsModule,
         RouterModule,
+        TranslatePipe,
     ],
 })
 export class MeetingFlowDetailsComponent {
@@ -205,7 +206,7 @@ export class MeetingFlowDetailsComponent {
 
     public searchRooms() {
         if (!this.has_title()) {
-            notifyError('Please enter a meeting title before searching for rooms');
+            notifyError(i18n('CALENDAR_EVENT.ERROR_TITLE_REQUIRED_SEARCH'));
             return;
         }
 

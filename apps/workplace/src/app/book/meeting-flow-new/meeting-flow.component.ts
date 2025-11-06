@@ -2,8 +2,8 @@ import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { AsyncHandler, notifyError } from '@placeos/common';
-import { IconComponent } from '@placeos/components';
+import { AsyncHandler, notifyError, i18n } from '@placeos/common';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { EventFormService } from '@placeos/events';
 import { MeetingFlowDetailsComponent } from './meeting-flow-details.component';
 import { MeetingFlowOptionsComponent } from './meeting-flow-options.component';
@@ -20,7 +20,7 @@ import { MeetingFlowSpaceSelectComponent } from './meeting-flow-space-select.com
                     class="w-full rounded-xl border border-base-300 bg-base-100 p-4"
                 >
                     <h3 class="mb-4 text-2xl font-medium">
-                        Book a meeting room
+                        {{ 'CALENDAR_EVENT.MEETING_FLOW_HEADER' | translate }}
                     </h3>
                     <div class="flex items-center justify-center space-x-2">
                         <a
@@ -39,7 +39,7 @@ import { MeetingFlowSpaceSelectComponent } from './meeting-flow-space-select.com
                             >
                                 <icon>{{ view() > 0 ? 'done' : 'edit' }}</icon>
                             </div>
-                            <div class="hidden sm:block">Details</div>
+                            <div class="hidden sm:block">{{ 'COMMON.DETAILS' | translate }}</div>
                         </a>
                         <div class="h-0.5 w-16 bg-base-200"></div>
                         <a
@@ -59,7 +59,7 @@ import { MeetingFlowSpaceSelectComponent } from './meeting-flow-space-select.com
                                     view() > 1 ? 'done' : 'room_preferences'
                                 }}</icon>
                             </div>
-                            <div class="hidden sm:block">Select Room</div>
+                            <div class="hidden sm:block">{{ 'CALENDAR_EVENT.MEETING_FLOW_STEP_SELECT_ROOM' | translate }}</div>
                         </a>
                         <div class="h-0.5 w-16 bg-base-200"></div>
                         <a
@@ -79,7 +79,7 @@ import { MeetingFlowSpaceSelectComponent } from './meeting-flow-space-select.com
                                     view() > 2 ? 'done' : 'task_alt'
                                 }}</icon>
                             </div>
-                            <div class="hidden sm:block">Confirm & Options</div>
+                            <div class="hidden sm:block">{{ 'CALENDAR_EVENT.MEETING_FLOW_STEP_CONFIRM' | translate }}</div>
                         </a>
                     </div>
                 </div>
@@ -110,6 +110,7 @@ import { MeetingFlowSpaceSelectComponent } from './meeting-flow-space-select.com
         MeetingFlowSpaceSelectComponent,
         MeetingFlowOptionsComponent,
         RouterModule,
+        TranslatePipe,
     ],
 })
 export class MeetingFlowComponent extends AsyncHandler implements OnInit {
@@ -140,11 +141,11 @@ export class MeetingFlowComponent extends AsyncHandler implements OnInit {
     public navigateToView(target_view: number) {
         // Check requirements based on target view
         if (target_view === 1 && !this.has_title()) {
-            notifyError('Please enter a meeting title before selecting a room');
+            notifyError(i18n('CALENDAR_EVENT.ERROR_TITLE_REQUIRED_SELECT'));
             return;
         }
         if (target_view === 2 && !this.has_space()) {
-            notifyError('Please select a meeting room before continuing');
+            notifyError(i18n('CALENDAR_EVENT.ERROR_ROOM_REQUIRED'));
             return;
         }
 

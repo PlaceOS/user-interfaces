@@ -8,7 +8,7 @@ import {
     ParkingSpace,
 } from '@placeos/bookings';
 import { Desk, settingSignal, Space } from '@placeos/common';
-import { IconComponent, TranslatePipe } from '@placeos/components';
+import { IconComponent, LevelPipe, TranslatePipe } from '@placeos/components';
 import { ExploreSpacesService } from '@placeos/explore';
 
 export interface FavoriteEntry {
@@ -27,8 +27,8 @@ export interface FavoriteEntry {
             class="flex flex-col rounded-lg border border-base-300 bg-base-100 p-4"
         >
             <div class="mb-2">
-                <h3 class="text-lg font-medium">Favourites</h3>
-                <div class="text-sm">{{ favourites().length }} favourites</div>
+                <h3 class="text-lg font-medium">{{ 'COMMON.FAVOURITES' | translate }}</h3>
+                <div class="text-sm">{{ 'APP.WORKPLACE.FAVOURITES_COUNT' | translate: { count: favourites().length } : favourites().length }}</div>
             </div>
             @if (favourites().length) {
                 <div
@@ -106,7 +106,7 @@ export interface FavoriteEntry {
         </div>
     `,
     providers: [ExploreSpacesService],
-    imports: [CommonModule, IconComponent, TranslatePipe],
+    imports: [CommonModule, IconComponent, TranslatePipe, LevelPipe],
 })
 export class LandingFavouritesNewComponent {
     private _explore = inject(ExploreSpacesService);

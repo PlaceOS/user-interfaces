@@ -120,7 +120,7 @@ const FAV_SPACE_KEY = 'favourite_rooms';
                                             {{
                                                 space.display_name ||
                                                     space.name ||
-                                                    'Meeting Space'
+                                                    ('CALENDAR_EVENT.MEETING_SPACE_DEFAULT' | translate)
                                             }}
                                         </div>
                                         <div
