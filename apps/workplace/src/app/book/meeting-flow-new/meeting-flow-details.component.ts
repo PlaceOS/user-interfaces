@@ -1,10 +1,12 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { notifyError } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
 import { EventFormService } from '@placeos/events';
 import {
@@ -141,19 +143,17 @@ import {
                 class="sticky bottom-0 z-20 flex justify-between rounded-t-xl border-x border-t border-base-300 bg-base-100 p-3"
             >
                 <div></div>
-                <a
+                <button
                     btn
                     matRipple
-                    [attr.disabled]="!form()?.value.title"
-                    [routerLink]="[]"
-                    [queryParams]="{ view: 1 }"
+                    (click)="searchRooms()"
                 >
                     <div class="flex items-center space-x-2">
                         <icon class="text-2xl">search</icon>
                         <div class="flex-1 pr-4">Search available rooms</div>
                         <icon class="text-2xl">keyboard_arrow_right</icon>
                     </div>
-                </a>
+                </button>
             </div>
         </div>
     `,
@@ -184,12 +184,35 @@ import {
     ],
 })
 export class MeetingFlowDetailsComponent {
+    private _route = inject(ActivatedRoute);
+    private _router = inject(Router);
     private _event_form = inject(EventFormService);
 
     public readonly form = signal(this._event_form.form);
     public readonly options = this._event_form.filters$;
 
+    private readonly form_value = toSignal(this._event_form.form.valueChanges, {
+        initialValue: this._event_form.form.value,
+    });
+
+    public readonly has_title = computed(
+        () => !!this.form_value()?.title?.trim(),
+    );
+
     public readonly setCapacity = (capacity: number) => {
         this._event_form.setFilters({ capacity });
     };
+
+    public searchRooms() {
+        if (!this.has_title()) {
+            notifyError('Please enter a meeting title before searching for rooms');
+            return;
+        }
+
+        this._router.navigate([], {
+            relativeTo: this._route,
+            queryParams: { view: 1 },
+            queryParamsHandling: 'merge',
+        });
+    }
 }

@@ -1,11 +1,14 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit, output, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, output, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import {
     flatten,
+    notifyError,
     OrganisationService,
     settingSignal,
     SettingsService,
@@ -33,23 +36,40 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
     selector: 'meeting-flow-space-select',
     template: `
         <div
-            class="w-full overflow-hidden rounded-lg border border-base-300 bg-base-100"
+            class="relative w-full rounded-lg border border-base-300 bg-base-100"
         >
             <div
-                class="gradient relative flex items-center space-x-2 border-l-8 border-base-content px-4 py-3 text-xl font-medium"
+                class="gradient relative flex items-center justify-between space-x-2 border-l-8 border-base-content px-4 py-3 text-xl font-medium"
             >
-                <icon>info</icon>
-                <div>Select Meeting Room</div>
+                <div class="flex items-center space-x-2">
+                    <icon>info</icon>
+                    <div>Select Meeting Room</div>
+                </div>
+                <button
+                    icon
+                    matRipple
+                    class="sm:hidden"
+                    (click)="filters_open.set(!filters_open())"
+                >
+                    <icon>{{ filters_open() ? 'close' : 'filter_list' }}</icon>
+                </button>
             </div>
-            <div class="flex w-full space-x-2 p-2" [formGroup]="form()">
-                <div class="sticky top-0 w-[20rem] max-w-[20rem]">
+            <!-- Mobile backdrop -->
+            @if (filters_open()) {
+                <div
+                    class="fixed inset-0 z-20 bg-black/50 sm:hidden"
+                    (click)="filters_open.set(false)"
+                ></div>
+            }
+            <div class="relative flex w-full overflow-hidden p-2 sm:space-x-2" [formGroup]="form()">
+                <!-- Filters Sidebar - Desktop -->
+                <div
+                    class="hidden sm:sticky sm:top-0 sm:block sm:w-[20rem] sm:max-w-[20rem]"
+                >
                     <div class="flex w-full items-center justify-between p-2">
                         <h3 class="px-2 text-xl font-medium">Filters</h3>
-                        <button icon matRipple>
-                            <icon>close</icon>
-                        </button>
                     </div>
-                    <div class="flex flex-col px-4">
+                    <div class="flex flex-col overflow-y-auto px-4 pb-4">
                         <label for="location">Location</label>
                         @if (use_region() && (regions | async)?.length) {
                             <mat-form-field appearance="outline" class="w-full">
@@ -182,7 +202,8 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                         </div>
                     </div>
                 </div>
-                <div class="flex flex-1 flex-col">
+                <!-- Main content area -->
+                <div class="flex min-w-0 flex-1 flex-col">
                     <div class="mb-2 flex space-x-2">
                         <div
                             filters
@@ -190,8 +211,8 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                         >
                             @let feature_list =
                                 (options | async)?.features || [];
-                            @let zones = (options | async)?.features || [];
-                            @let capacity = (options | async)?.capacity || [];
+                            @let zones = (options | async)?.zones || [];
+                            @let capacity = (filters | async)?.capacity || -1;
                             @let event = form().getRawValue();
                             @let zone = (zones | level) || (zones | building);
                             @let location =
@@ -272,7 +293,10 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                         </div>
                     </div>
                     <div
-                        class="relative flex flex-1 flex-col overflow-hidden rounded-lg border border-base-300 bg-base-200 p-2"
+                        class="relative flex flex-col overflow-hidden rounded-lg border border-base-300 bg-base-200 p-2"
+                        [class.flex-1]="view() !== 'map'"
+                        [class.h-[600px]]="view() === 'map'"
+                        [class.min-h-[600px]]="view() === 'map'"
                     >
                         @if (view() === 'map') {
                             <meeting-flow-space-map
@@ -288,15 +312,164 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                     </div>
                 </div>
             </div>
+            <!-- Mobile Filters Panel - Bottom Sheet -->
+            <div
+                class="filters-panel-mobile fixed bottom-0 left-0 right-0 z-30 w-full border-t border-base-300 bg-base-100 shadow-lg transition-transform duration-300 sm:hidden"
+                [class.translate-y-full]="!filters_open()"
+                [class.translate-y-0]="filters_open()"
+                [formGroup]="form()"
+            >
+                <div class="flex w-full items-center justify-between border-b border-base-300 p-2">
+                    <h3 class="px-2 text-xl font-medium">Filters</h3>
+                    <button icon matRipple (click)="filters_open.set(false)">
+                        <icon>close</icon>
+                    </button>
+                </div>
+                <div class="flex max-h-[60vh] flex-col overflow-y-auto px-4 pb-4">
+                    <label for="location">Location</label>
+                    @if (use_region() && (regions | async)?.length) {
+                        <mat-form-field appearance="outline" class="w-full">
+                            <mat-select
+                                name="region"
+                                [ngModel]="region"
+                                (ngModelChange)="setRegion($event)"
+                                [ngModelOptions]="{ standalone: true }"
+                                [placeholder]="
+                                    'CALENDAR_EVENT.SPACE_REGION_ANY' | translate
+                                "
+                            >
+                                @for (reg of regions | async; track reg) {
+                                    <mat-option [value]="reg">
+                                        {{ reg.display_name || reg.name }}
+                                    </mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
+                    }
+                    @if (!use_region() && (buildings | async)?.length > 1) {
+                        <mat-form-field appearance="outline" class="w-full">
+                            <mat-select
+                                name="building"
+                                [ngModel]="building | async"
+                                (ngModelChange)="setBuilding($event)"
+                                [ngModelOptions]="{ standalone: true }"
+                                [placeholder]="
+                                    (building | async)?.display_name ||
+                                    (building | async)?.name
+                                "
+                            >
+                                @for (bld of buildings | async; track bld) {
+                                    <mat-option [value]="bld">
+                                        {{ bld.display_name || bld.name }}
+                                    </mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
+                    }
+                    <mat-form-field appearance="outline" class="w-full">
+                        <mat-select
+                            name="location"
+                            [ngModel]="(options | async)?.zones"
+                            (ngModelChange)="setOptions({ zones: $event })"
+                            [ngModelOptions]="{ standalone: true }"
+                            [placeholder]="
+                                'CALENDAR_EVENT.SPACE_LEVEL_ANY' | translate
+                            "
+                            [multiple]="true"
+                        >
+                            @for (lvl of levels | async; track lvl) {
+                                <mat-option [value]="lvl.id">
+                                    <div class="flex flex-col-reverse">
+                                        @if (use_region) {
+                                            <div class="text-xs opacity-30">
+                                                {{
+                                                    (
+                                                        lvl?.parent_id | building
+                                                    )?.display_name
+                                                }}
+                                                <span class="opacity-0"> - </span>
+                                            </div>
+                                        }
+                                        <div>
+                                            {{ lvl.display_name || lvl.name }}
+                                        </div>
+                                    </div>
+                                </mat-option>
+                            }
+                        </mat-select>
+                    </mat-form-field>
+                    <label for="date">Date</label>
+                    <date-field formControlName="date" />
+                    <settings-toggle class="mb-2" formControlName="all_day"
+                        >All Day</settings-toggle
+                    >
+                    @if (!field('all_day')) {
+                        <label for="date">Time</label>
+                        <div class="flex space-x-2">
+                            <time-field
+                                class="flex-1"
+                                [ngModel]="field('date')"
+                                (ngModelChange)="
+                                    form().patchValue({ date: $event })
+                                "
+                                [ngModelOptions]="{ standalone: true }"
+                                [disabled]="form().controls.date.disabled"
+                                [use_24hr]="use_24hr()"
+                                [timezone]="timezone"
+                            />
+                            <duration-field
+                                class="w-1/3 flex-1"
+                                formControlName="duration"
+                                [time]="field('date')"
+                                [max]="max_duration()"
+                                [use_24hr]="use_24hr()"
+                                [timezone]="timezone"
+                            />
+                        </div>
+                    }
+                    <settings-toggle class="mb-4" formControlName="all_day"
+                        >Favourites Only</settings-toggle
+                    >
+                    <h2 class="text-lg font-medium">Facilities</h2>
+                    <div class="mb-4 flex flex-col space-y-2">
+                        @for (feat of features | async; track feat) {
+                            @if (!hide_features().includes(feat)) {
+                                <settings-toggle
+                                    class="w-full"
+                                    [name]="feature_display()[feat] || feat"
+                                    [ngModel]="
+                                        (options | async)?.features?.includes(
+                                            feat
+                                        )
+                                    "
+                                    (ngModelChange)="toggleFeature(feat, $event)"
+                                    [ngModelOptions]="{ standalone: true }"
+                                ></settings-toggle>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="h-4"></div>
         <div
-            class="sticky bottom-0 z-20 flex justify-between rounded-t-xl border-x border-t border-base-300 bg-base-100 p-3"
+            class="sticky bottom-0 z-10 flex justify-between rounded-t-xl border-x border-t border-base-300 bg-base-100 p-3 sm:z-40"
         >
-            <button btn matRipple class="inverse w-40" (click)="prev.emit()">
+            <a
+                btn
+                matRipple
+                class="inverse w-40 cursor-pointer"
+                [routerLink]="[]"
+                [queryParams]="{ view: 0 }"
+            >
                 Back
-            </button>
-            <button btn matRipple class="w-40" (click)="next.emit()">
+            </a>
+            <button
+                btn
+                matRipple
+                class="w-40"
+                (click)="continue()"
+            >
                 Continue
             </button>
         </div>
@@ -311,6 +484,12 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                     var(--base-100) 100%
                 );
             }
+
+            .filters-panel-mobile {
+                border-radius: 1rem 1rem 0 0;
+                max-height: 70vh;
+            }
+
             [filter-item] {
                 display: flex;
                 align-items: center;
@@ -351,9 +530,12 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
         LevelPipe,
         MeetingFlowSpaceListComponent,
         MeetingFlowSpaceMapComponent,
+        RouterModule,
     ],
 })
 export class MeetingFlowSpaceSelectComponent implements OnInit {
+    private _route = inject(ActivatedRoute);
+    private _router = inject(Router);
     private _event_form = inject(EventFormService);
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
@@ -376,13 +558,24 @@ export class MeetingFlowSpaceSelectComponent implements OnInit {
     public readonly form = signal(this._event_form.form);
     public readonly selected = signal<string[]>([]);
     public readonly view = signal<'map' | 'list'>('list');
+    public readonly filters_open = signal(false);
+
+    private readonly form_value = toSignal(this._event_form.form.valueChanges, {
+        initialValue: this._event_form.form.value,
+    });
+
+    public readonly has_space = computed(
+        () =>
+            !!this.form_value()?.resources &&
+            this.form_value()?.resources.length > 0,
+    );
 
     public readonly options = this._event_form.options$;
     public readonly filters = this._event_form.filters$;
 
     public readonly building = this._org.active_building;
     public readonly buildings = this._org.active_buildings;
-
+    public readonly region = this._org.active_region;
     public readonly regions = this._org.region_list;
 
     public readonly setBuilding = (bld) => (this._org.building = bld);
@@ -428,6 +621,10 @@ export class MeetingFlowSpaceSelectComponent implements OnInit {
             : '';
     }
 
+    public get time_format() {
+        return this.use_24hr() ? 'HH:mm' : 'h:mm a';
+    }
+
     public ngOnInit() {
         this.selected.set((this.field('resources') || []).map(({ id }) => id));
     }
@@ -443,6 +640,16 @@ export class MeetingFlowSpaceSelectComponent implements OnInit {
         this._event_form.setFilters({ features: new_list });
     }
 
+    public removeFeature(feat: string) {
+        const { features } = this._event_form.filters;
+        const new_list = (features || []).filter((_) => feat !== _);
+        this._event_form.setFilters({ features: new_list });
+    }
+
+    public removeAllFeatures() {
+        this._event_form.setFilters({ features: [] });
+    }
+
     public toggleSpace(space: Space) {
         const resources = this.field('resources') || [];
         if (this._settings.get('app.events.allow_multiple_spaces')) {
@@ -454,6 +661,21 @@ export class MeetingFlowSpaceSelectComponent implements OnInit {
         } else {
             this.form().patchValue({ resources: [space] });
             this.selected.set([space.id]);
+            // Close filters on mobile after selecting a space
+            this.filters_open.set(false);
         }
+    }
+
+    public continue() {
+        if (!this.has_space()) {
+            notifyError('Please select a meeting room before continuing');
+            return;
+        }
+
+        this._router.navigate([], {
+            relativeTo: this._route,
+            queryParams: { view: 2 },
+            queryParamsHandling: 'merge',
+        });
     }
 }

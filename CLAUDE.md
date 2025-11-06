@@ -197,3 +197,5 @@ nx migrate --run-migrations
 - Use PascalCase for classes, types and interfaces
 - Use kebab-case for file names, directories and CSS selectors(id, class, attribute)
 - Use CAPS_CASE for constants
+- Prefix private variables and functions with an underscore(`_`)
+- Prefer `rem` units over `px`

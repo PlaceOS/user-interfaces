@@ -1,28 +1,32 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
-import {
-    AsyncHandler,
-    Booking,
-    CalendarEvent,
-    notifySuccess,
-    notifyError,
-    OrganisationService,
-} from '@placeos/common';
-import { IconComponent, MapLocateModalComponent, TranslatePipe } from '@placeos/components';
+import { MatDialog } from '@angular/material/dialog';
 import {
     BookingDetailsModalComponent,
     checkinBooking,
 } from '@placeos/bookings';
 import {
+    AsyncHandler,
+    Booking,
+    CalendarEvent,
+    notifyError,
+    notifySuccess,
+    OrganisationService,
+} from '@placeos/common';
+import {
+    IconComponent,
+    MapLocateModalComponent,
+    TranslatePipe,
+} from '@placeos/components';
+import {
     EventDetailsModalComponent,
     GroupEventDetailsModalComponent,
 } from '@placeos/events';
+import { differenceInMinutes, format, isSameDay } from 'date-fns';
 import { LandingStateService } from '../landing/landing-state.service';
 import { ScheduleStateService } from '../schedule/schedule-state.service';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { differenceInMinutes, format, isSameDay } from 'date-fns';
 
 @Component({
     selector: 'landing-upcoming-booking',
@@ -54,7 +58,9 @@ import { differenceInMinutes, format, isSameDay } from 'date-fns';
                             class="flex w-48 items-center space-x-2 px-2 text-center"
                         >
                             <icon>timelapse</icon>
-                            <div>Starts in {{ minutesUntilStart() }} minutes</div>
+                            <div>
+                                Starts in {{ minutesUntilStart() }} minutes
+                            </div>
                         </div>
                     }
                 </div>
@@ -122,6 +128,20 @@ import { differenceInMinutes, format, isSameDay } from 'date-fns';
                     </div>
                 </div>
             </div>
+        } @else {
+            <div
+                class="col-span-2 flex min-h-48 flex-col items-center justify-center space-y-4 rounded-lg border border-base-300 bg-base-100 p-8"
+            >
+                <img src="assets/img/no-events.svg" class="h-24" />
+                <div class="text-center">
+                    <h3 class="text-lg font-medium">
+                        {{ 'APP.WORKPLACE.UPCOMING_EMPTY' | translate }}
+                    </h3>
+                    <p class="text-sm opacity-60">
+                        You have no upcoming bookings or events today
+                    </p>
+                </div>
+            </div>
         }
     `,
     styles: [
@@ -183,7 +203,9 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
         if (!event) return '';
         const start = format(event.date, 'h:mm a');
         const end = format(event.date + event.duration * 60 * 1000, 'h:mm a');
-        const day = isSameDay(event.date, Date.now()) ? 'Today' : format(event.date, 'MMM d');
+        const day = isSameDay(event.date, Date.now())
+            ? 'Today'
+            : format(event.date, 'MMM d');
         return `${start} - ${end} · ${day}`;
     });
 

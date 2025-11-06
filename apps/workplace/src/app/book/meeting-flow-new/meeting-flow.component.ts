@@ -1,8 +1,10 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
-import { ActivatedRoute, RouterModule } from '@angular/router';
-import { AsyncHandler } from '@placeos/common';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { AsyncHandler, notifyError } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
+import { EventFormService } from '@placeos/events';
 import { MeetingFlowDetailsComponent } from './meeting-flow-details.component';
 import { MeetingFlowOptionsComponent } from './meeting-flow-options.component';
 import { MeetingFlowSpaceSelectComponent } from './meeting-flow-space-select.component';
@@ -42,8 +44,8 @@ import { MeetingFlowSpaceSelectComponent } from './meeting-flow-space-select.com
                         <div class="h-0.5 w-16 bg-base-200"></div>
                         <a
                             matRipple
-                            class="flex items-center space-x-2 rounded p-2"
-                            (click)="view.set(1)"
+                            class="flex items-center space-x-2 rounded p-2 cursor-pointer"
+                            (click)="navigateToView(1)"
                         >
                             <div
                                 class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
@@ -62,9 +64,8 @@ import { MeetingFlowSpaceSelectComponent } from './meeting-flow-space-select.com
                         <div class="h-0.5 w-16 bg-base-200"></div>
                         <a
                             matRipple
-                            class="flex items-center space-x-2 rounded p-2"
-                            [routerLink]="[]"
-                            [queryParams]="{ view: 2 }"
+                            class="flex items-center space-x-2 rounded p-2 cursor-pointer"
+                            (click)="navigateToView(2)"
                         >
                             <div
                                 class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
@@ -113,12 +114,47 @@ import { MeetingFlowSpaceSelectComponent } from './meeting-flow-space-select.com
 })
 export class MeetingFlowComponent extends AsyncHandler implements OnInit {
     private _route = inject(ActivatedRoute);
+    private _router = inject(Router);
+    private _event_form = inject(EventFormService);
 
     public readonly view = signal(0);
+
+    private readonly form_value = toSignal(this._event_form.form.valueChanges, {
+        initialValue: this._event_form.form.value,
+    });
+
+    public readonly has_title = computed(
+        () => !!this.form_value()?.title?.trim(),
+    );
+
+    public readonly has_space = computed(
+        () =>
+            !!this.form_value()?.resources &&
+            this.form_value()?.resources.length > 0,
+    );
 
     public readonly previous = () =>
         this.view.update((u) => Math.max(0, u - 1));
     public readonly next = () => this.view.update((u) => u + 1);
+
+    public navigateToView(target_view: number) {
+        // Check requirements based on target view
+        if (target_view === 1 && !this.has_title()) {
+            notifyError('Please enter a meeting title before selecting a room');
+            return;
+        }
+        if (target_view === 2 && !this.has_space()) {
+            notifyError('Please select a meeting room before continuing');
+            return;
+        }
+
+        // Navigate if requirements are met
+        this._router.navigate([], {
+            relativeTo: this._route,
+            queryParams: { view: target_view },
+            queryParamsHandling: 'merge',
+        });
+    }
 
     public ngOnInit() {
         this.subscription(

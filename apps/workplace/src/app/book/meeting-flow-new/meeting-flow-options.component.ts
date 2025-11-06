@@ -1,6 +1,9 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
+import { Component, ElementRef, inject, signal, ViewChild } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import { AssetListFieldComponent } from '@placeos/assets';
 import {
     CateringListFieldComponent,
@@ -31,7 +34,7 @@ import { BehaviorSubject, combineLatest, map, tap } from 'rxjs';
                 <icon>task_alt</icon>
                 <div>Review & Confirm Booking</div>
             </div>
-            <div class="grid grid-cols-1 p-4 sm:grid-cols-2">
+            <div class="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2">
                 <div>
                     <div class="mb-2 flex items-center space-x-4">
                         <div
@@ -67,6 +70,72 @@ import { BehaviorSubject, combineLatest, map, tap } from 'rxjs';
                         </div>
                     </div>
                 </div>
+                @if (event.resources?.length) {
+                    <div>
+                        <div class="mb-2 flex items-center space-x-4">
+                            <div
+                                class="flex items-center justify-center rounded-full border border-success text-success"
+                            >
+                                <icon class="text-2xl">done</icon>
+                            </div>
+                            <h3 class="text-xl">Selected Room</h3>
+                        </div>
+                        <div class="space-y-1 pl-10">
+                            @for (space of event.resources; track space.id) {
+                                <div class="flex items-center space-x-2">
+                                    <icon class="text-2xl">room_preferences</icon>
+                                    <div class="font-medium">
+                                        {{ space.display_name || space.name }}
+                                    </div>
+                                </div>
+                                @if (space.capacity) {
+                                    <div class="flex items-center space-x-2">
+                                        <icon class="text-2xl">group</icon>
+                                        <div>
+                                            Capacity: {{ space.capacity }} people
+                                        </div>
+                                    </div>
+                                }
+                                @if (getSpaceLocation(space)) {
+                                    <div class="flex items-center space-x-2">
+                                        <icon class="text-2xl">location_on</icon>
+                                        <div>{{ getSpaceLocation(space) }}</div>
+                                    </div>
+                                }
+                                @if (space.features?.length) {
+                                    <div class="flex items-start space-x-2">
+                                        <icon class="text-2xl">feature_search</icon>
+                                        <div class="flex flex-wrap gap-1">
+                                            @for (
+                                                feature of space.features.slice(
+                                                    0,
+                                                    5
+                                                );
+                                                track feature
+                                            ) {
+                                                <span
+                                                    class="rounded-full bg-base-200 px-2 py-0.5 text-xs"
+                                                >
+                                                    {{ feature }}
+                                                </span>
+                                            }
+                                            @if (space.features.length > 5) {
+                                                <span
+                                                    class="rounded-full bg-base-200 px-2 py-0.5 text-xs"
+                                                >
+                                                    +{{
+                                                        space.features.length - 5
+                                                    }}
+                                                    more
+                                                </span>
+                                            }
+                                        </div>
+                                    </div>
+                                }
+                            }
+                        </div>
+                    </div>
+                }
             </div>
             <div
                 class="gradient relative flex items-center space-x-2 border-l-8 border-base-content px-4 py-3 text-xl font-medium"
@@ -89,7 +158,7 @@ import { BehaviorSubject, combineLatest, map, tap } from 'rxjs';
                         formControlName="catering"
                         [options]="{
                             date: event.date,
-                            duration: eventduration,
+                            duration: event.duration,
                             all_day: event.all_day,
                             zone_id: event.resources?.length
                                 ? event.resources[0]?.level?.parent_id
@@ -224,6 +293,9 @@ import { BehaviorSubject, combineLatest, map, tap } from 'rxjs';
         UserListFieldComponent,
         ReactiveFormsModule,
         FormsModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatSelectModule,
         CateringListFieldComponent,
         AssetListFieldComponent,
         RichTextInputComponent,
@@ -235,6 +307,8 @@ export class MeetingFlowOptionsComponent {
     private _org = inject(OrganisationService);
     private _catering = inject(CateringOrderStateService);
     private _date = new DatePipe('en');
+
+    @ViewChild('input') private _input: ElementRef<HTMLInputElement>;
 
     public readonly form = signal(this._event_form.form);
     public readonly allow_externals = settingSignal(
@@ -248,6 +322,7 @@ export class MeetingFlowOptionsComponent {
         false,
     );
     public code_filter = new BehaviorSubject('');
+    public invalid_assets = [];
 
     public get is_multiday() {
         return this.form().getRawValue().duration > 24 * 60;
@@ -290,6 +365,21 @@ export class MeetingFlowOptionsComponent {
             : '';
     }
 
+    public get tz() {
+        return this.timezone;
+    }
+
+    public get formatted_recurrence() {
+        const recurrence = this.event.recurrence;
+        if (!recurrence?.pattern) return '';
+
+        const pattern = recurrence.pattern;
+        if (pattern === 'daily') return 'Daily';
+        if (pattern === 'weekly') return 'Weekly';
+        if (pattern === 'monthly') return 'Monthly';
+        return pattern.charAt(0).toUpperCase() + pattern.slice(1);
+    }
+
     public formattedTime(tz?: string) {
         const date = this.form().getRawValue().date;
         const date_end = this.form().getRawValue().date_end;
@@ -306,5 +396,35 @@ export class MeetingFlowOptionsComponent {
             return 'All Day';
         }
         return `${start_time} - ${end_time} ${'(' + tz_format + ')'}`;
+    }
+
+    public getSpaceLocation(space: any): string {
+        if (!space) return '';
+
+        const parts: string[] = [];
+
+        // Get level information
+        if (space.level) {
+            const level = this._org.levelWithID([space.level.id || space.level]);
+            if (level) {
+                parts.push(level.display_name || level.name);
+            }
+        }
+
+        // Get building information
+        if (space.zones?.length) {
+            const building = this._org.buildings.find((b) =>
+                space.zones.includes(b.id)
+            );
+            if (building) {
+                parts.push(building.display_name || building.name);
+            }
+        }
+
+        return parts.filter(Boolean).join(', ');
+    }
+
+    public focusInput() {
+        setTimeout(() => this._input?.nativeElement?.focus(), 100);
     }
 }
