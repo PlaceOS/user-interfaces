@@ -36,7 +36,7 @@ export class AppComponent implements OnInit {
     private _placeos = inject(PlaceOS_Service);
     private _uploads = inject(UploadsService);
 
-    public readonly has_chat = settingSignal('chat.enabled');
+    public readonly has_chat = settingSignal('chat.enabled', false);
 
     public async ngOnInit() {
         setMocks(mocksInit);

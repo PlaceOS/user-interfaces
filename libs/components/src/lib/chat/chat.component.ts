@@ -14,6 +14,7 @@ import {
     SettingsService,
     User,
     current_user,
+    settingSignal,
 } from '@placeos/common';
 import { map } from 'rxjs/operators';
 import { DateFromPipe } from '../date-from.pipe';
@@ -246,7 +247,7 @@ export class ChatComponent extends AsyncHandler implements OnInit {
     public readonly show_time = signal<Record<string, boolean>>({});
     public readonly offset = signal(0);
     public readonly height = signal(56);
-    public readonly can_show = this._settings.signal('chat.enabled');
+    public readonly can_show = settingSignal('chat.enabled', false);
 
     public readonly icons = {
         list_function_schemas: 'help',
