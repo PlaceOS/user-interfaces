@@ -16,6 +16,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { notifyError } from '@placeos/common';
 import {
+    AuthenticatedImageDirective,
     CustomTooltipComponent,
     IconComponent,
     MediaDurationPipe,
@@ -328,6 +329,7 @@ import { SignageStateService } from './signage-state.service';
         DragDropModule,
         MatTooltipModule,
         MediaDurationPipe,
+        AuthenticatedImageDirective,
     ],
 })
 export class SignageMediaListComponent implements OnChanges {
