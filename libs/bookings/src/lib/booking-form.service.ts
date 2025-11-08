@@ -1,4 +1,4 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { inject, Injectable, signal, WritableSignal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Event, NavigationEnd, Router } from '@angular/router';
 import {
@@ -15,6 +15,8 @@ import {
     notifyWarn,
     OrganisationService,
     rulesForResource,
+    SETTING_KEYS,
+    settingSignal,
     SettingsService,
     unique,
     User,
@@ -124,6 +126,18 @@ export class BookingFormService extends AsyncHandler {
     private _booking = new BehaviorSubject<Booking>(null);
     private _resource_use: Record<string, string> = {};
     private _loading = new BehaviorSubject<string>('');
+    private _favourites: Record<BookingType, WritableSignal<string[]>> = {
+        ' ': settingSignal('favorites', [], true),
+        room: settingSignal(SETTING_KEYS.FAVOURITE_ROOMS, [], true),
+        desk: settingSignal(SETTING_KEYS.FAVORITE_DESKS, [], true),
+        locker: settingSignal(SETTING_KEYS.FAVORITE_LOCKERS, [], true),
+        parking: settingSignal(SETTING_KEYS.FAVORITE_PARKING_SPACES, [], true),
+        staff: settingSignal('favorites', [], true),
+        visitor: settingSignal('favorites', [], true),
+        'group-event': settingSignal('favorites', [], true),
+        'asset-request': settingSignal('favorites', [], true),
+        'catering-order': settingSignal('favorites', [], true),
+    };
 
     public last_success: Booking = new Booking(
         JSON.parse(
@@ -224,6 +238,7 @@ export class BookingFormService extends AsyncHandler {
                 date = startOfDay(date).valueOf();
                 duration = 24 * 60 - 1;
             }
+            const favourites = this._favourites[options.type]?.() || [];
             return bookedResourceList({
                 period_start: getUnixTime(date),
                 period_end: getUnixTime(addMinutes(date, duration)),
@@ -255,6 +270,8 @@ export class BookingFormService extends AsyncHandler {
                         ).hidden;
                         return (
                             !is_restricted &&
+                            (!options.show_fav ||
+                                favourites.includes(asset.id)) &&
                             (!asset.groups?.length ||
                                 asset.groups.some((grp) =>
                                     currentUser().groups.includes(grp),

@@ -5,6 +5,7 @@ import { BookComponent } from './book.component';
 import { CodeFlowErrorComponent } from './code-flow-error.component';
 import { CodeFlowSuccessComponent } from './code-flow-success.component';
 import { BookCodeFlowComponent } from './code-flow.component';
+import { DeskFlowNewComponent } from './desk-flow-new/desk-flow.component';
 import { NewDeskFlowComponent } from './desk-flow.component';
 import { BookLockerFlowComponent } from './locker-flow.component';
 import { MeetingFlowNewComponent } from './meeting-flow-new/meeting-flow-new.component';
@@ -22,7 +23,7 @@ const ROUTES: Route[] = [
             { path: 'code/error', component: CodeFlowErrorComponent },
             { path: 'desk', redirectTo: 'desk/form' },
             { path: 'desks', redirectTo: 'desk/form' },
-            { path: 'desk/:step', component: NewDeskFlowComponent },
+            { path: 'desk/:step', component: DeskFlowNewComponent },
             { path: 'meeting', redirectTo: 'meeting/form' },
             { path: 'meeting/:step', component: MeetingFlowNewComponent },
             // { path: 'meeting', redirectTo: 'meeting/form' },
