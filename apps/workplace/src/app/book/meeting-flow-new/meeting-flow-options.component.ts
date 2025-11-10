@@ -1,21 +1,36 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component, ElementRef, inject, signal, ViewChild } from '@angular/core';
+import {
+    Component,
+    ElementRef,
+    inject,
+    signal,
+    ViewChild,
+} from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { Router } from '@angular/router';
 import { AssetListFieldComponent } from '@placeos/assets';
 import {
     CateringListFieldComponent,
     CateringOrderStateService,
 } from '@placeos/catering';
 import {
+    currentUser,
+    i18n,
+    notifyError,
+    notifySuccess,
     OrganisationService,
     settingSignal,
     SettingsService,
-    i18n,
 } from '@placeos/common';
-import { IconComponent, TranslatePipe } from '@placeos/components';
+import {
+    IconComponent,
+    openConfirmModal,
+    TranslatePipe,
+} from '@placeos/components';
 import { EventFormService } from '@placeos/events';
 import {
     RichTextInputComponent,
@@ -33,7 +48,9 @@ import { BehaviorSubject, combineLatest, map, tap } from 'rxjs';
                 class="gradient relative flex items-center space-x-2 border-l-8 border-base-content px-4 py-3 text-xl font-medium"
             >
                 <icon>task_alt</icon>
-                <div>{{ 'CALENDAR_EVENT.REVIEW_CONFIRM_HEADER' | translate }}</div>
+                <div>
+                    {{ 'CALENDAR_EVENT.REVIEW_CONFIRM_HEADER' | translate }}
+                </div>
             </div>
             <div class="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2">
                 <div>
@@ -44,7 +61,11 @@ import { BehaviorSubject, combineLatest, map, tap } from 'rxjs';
                             <icon class="text-2xl">done</icon>
                         </div>
                         <h3 class="text-xl">
-                            {{ event.title || ('CALENDAR_EVENT.MEETING_DETAILS_HEADER' | translate) }}
+                            {{
+                                event.title ||
+                                    ('CALENDAR_EVENT.MEETING_DETAILS_HEADER'
+                                        | translate)
+                            }}
                         </h3>
                     </div>
                     <div class="space-y-1 pl-10">
@@ -79,12 +100,19 @@ import { BehaviorSubject, combineLatest, map, tap } from 'rxjs';
                             >
                                 <icon class="text-2xl">done</icon>
                             </div>
-                            <h3 class="text-xl">{{ 'CALENDAR_EVENT.SELECTED_ROOM_HEADER' | translate }}</h3>
+                            <h3 class="text-xl">
+                                {{
+                                    'CALENDAR_EVENT.SELECTED_ROOM_HEADER'
+                                        | translate
+                                }}
+                            </h3>
                         </div>
                         <div class="space-y-1 pl-10">
                             @for (space of event.resources; track space.id) {
                                 <div class="flex items-center space-x-2">
-                                    <icon class="text-2xl">room_preferences</icon>
+                                    <icon class="text-2xl"
+                                        >room_preferences</icon
+                                    >
                                     <div class="font-medium">
                                         {{ space.display_name || space.name }}
                                     </div>
@@ -93,19 +121,30 @@ import { BehaviorSubject, combineLatest, map, tap } from 'rxjs';
                                     <div class="flex items-center space-x-2">
                                         <icon class="text-2xl">group</icon>
                                         <div>
-                                            {{ 'CALENDAR_EVENT.CAPACITY_PEOPLE' | translate: { capacity: space.capacity } }}
+                                            {{
+                                                'CALENDAR_EVENT.CAPACITY_PEOPLE'
+                                                    | translate
+                                                        : {
+                                                              capacity:
+                                                                  space.capacity,
+                                                          }
+                                            }}
                                         </div>
                                     </div>
                                 }
                                 @if (getSpaceLocation(space)) {
                                     <div class="flex items-center space-x-2">
-                                        <icon class="text-2xl">location_on</icon>
+                                        <icon class="text-2xl"
+                                            >location_on</icon
+                                        >
                                         <div>{{ getSpaceLocation(space) }}</div>
                                     </div>
                                 }
                                 @if (space.features?.length) {
                                     <div class="flex items-start space-x-2">
-                                        <icon class="text-2xl">feature_search</icon>
+                                        <icon class="text-2xl"
+                                            >feature_search</icon
+                                        >
                                         <div class="flex flex-wrap gap-1">
                                             @for (
                                                 feature of space.features.slice(
@@ -125,9 +164,13 @@ import { BehaviorSubject, combineLatest, map, tap } from 'rxjs';
                                                     class="rounded-full bg-base-200 px-2 py-0.5 text-xs"
                                                 >
                                                     +{{
-                                                        space.features.length - 5
+                                                        space.features.length -
+                                                            5
                                                     }}
-                                                    {{ 'CALENDAR_EVENT.FEATURES_MORE' | translate }}
+                                                    {{
+                                                        'CALENDAR_EVENT.FEATURES_MORE'
+                                                            | translate
+                                                    }}
                                                 </span>
                                             }
                                         </div>
@@ -142,10 +185,14 @@ import { BehaviorSubject, combineLatest, map, tap } from 'rxjs';
                 class="gradient relative flex items-center space-x-2 border-l-8 border-base-content px-4 py-3 text-xl font-medium"
             >
                 <icon>fork_right</icon>
-                <div>{{ 'CALENDAR_EVENT.OPTIONAL_EXTRAS_HEADER' | translate }}</div>
+                <div>
+                    {{ 'CALENDAR_EVENT.OPTIONAL_EXTRAS_HEADER' | translate }}
+                </div>
             </div>
             <div class="p-4" [formGroup]="form()">
-                <h3 class="flex items-center space-x-2 text-xl">{{ 'CALENDAR_EVENT.ATTENDEES' | translate }}</h3>
+                <h3 class="flex items-center space-x-2 text-xl">
+                    {{ 'CALENDAR_EVENT.ATTENDEES' | translate }}
+                </h3>
                 <a-user-list-field
                     formControlName="attendees"
                     [time]="event.date"
@@ -215,7 +262,7 @@ import { BehaviorSubject, combineLatest, map, tap } from 'rxjs';
                             appearance="outline"
                             class="w-full"
                             [class.mt-2]="
-                                !(event.catering?.length && has_codes | async)
+                                !(event.catering?.length && (has_codes | async))
                             "
                         >
                             <textarea
@@ -266,10 +313,12 @@ import { BehaviorSubject, combineLatest, map, tap } from 'rxjs';
         <div
             class="sticky bottom-0 mt-4 flex justify-end rounded-t-xl border-x border-t border-base-300 bg-base-100 p-3"
         >
-            <button btn matRipple class="">
+            <button btn matRipple class="" (click)="confirmBooking()">
                 <div class="flex items-center space-x-2">
                     <icon class="text-2xl">task_alt</icon>
-                    <div class="flex-1 pr-4">{{ 'COMMON.CONFIRM' | translate }}</div>
+                    <div class="flex-1 pr-4">
+                        {{ 'COMMON.CONFIRM' | translate }}
+                    </div>
                     <icon class="text-2xl">keyboard_arrow_right</icon>
                 </div>
             </button>
@@ -307,6 +356,8 @@ export class MeetingFlowOptionsComponent {
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
     private _catering = inject(CateringOrderStateService);
+    private _dialog = inject(MatDialog);
+    private _router = inject(Router);
     private _date = new DatePipe('en');
 
     @ViewChild('input') private _input: ElementRef<HTMLInputElement>;
@@ -376,8 +427,10 @@ export class MeetingFlowOptionsComponent {
 
         const pattern = recurrence.pattern;
         if (pattern === 'daily') return i18n('FORM.RECURRENCE_DAILY');
-        if (pattern === 'weekly') return i18n('CALENDAR_EVENT.RECURRENCE_WEEKLY');
-        if (pattern === 'monthly') return i18n('CALENDAR_EVENT.RECURRENCE_MONTHLY');
+        if (pattern === 'weekly')
+            return i18n('CALENDAR_EVENT.RECURRENCE_WEEKLY');
+        if (pattern === 'monthly')
+            return i18n('CALENDAR_EVENT.RECURRENCE_MONTHLY');
         return pattern.charAt(0).toUpperCase() + pattern.slice(1);
     }
 
@@ -406,7 +459,9 @@ export class MeetingFlowOptionsComponent {
 
         // Get level information
         if (space.level) {
-            const level = this._org.levelWithID([space.level.id || space.level]);
+            const level = this._org.levelWithID([
+                space.level.id || space.level,
+            ]);
             if (level) {
                 parts.push(level.display_name || level.name);
             }
@@ -415,7 +470,7 @@ export class MeetingFlowOptionsComponent {
         // Get building information
         if (space.zones?.length) {
             const building = this._org.buildings.find((b) =>
-                space.zones.includes(b.id)
+                space.zones.includes(b.id),
             );
             if (building) {
                 parts.push(building.display_name || building.name);
@@ -427,5 +482,29 @@ export class MeetingFlowOptionsComponent {
 
     public focusInput() {
         setTimeout(() => this._input?.nativeElement?.focus(), 100);
+    }
+
+    public async confirmBooking() {
+        const space = this.event.resources[0];
+        if (!this.event.host) {
+            this._event_form.form.patchValue({ host: currentUser()?.email });
+        }
+        if (!space) {
+            const result = await openConfirmModal(
+                {
+                    title: i18n('APP.WORKPLACE.MEETING_WITHOUT_ROOM_TITLE'),
+                    content: i18n('APP.WORKPLACE.MEETING_WITHOUT_ROOM_MSG'),
+                    icon: { content: 'event_available' },
+                },
+                this._dialog,
+            );
+            if (result.reason !== 'done') return;
+        }
+        await this._event_form.postForm().catch((_) => {
+            notifyError(_);
+            throw _;
+        });
+        this._router.navigate(['/book/meeting']);
+        notifySuccess(i18n('APP.WORKPLACE.MEETING_BOOKED_SUCCESS'));
     }
 }
