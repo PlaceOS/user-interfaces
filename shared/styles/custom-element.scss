@@ -1239,3 +1239,127 @@ survey-widget *::-webkit-scrollbar-thumb {
         visibility: visible;
     }
 }
+
+#placeos .sun-editor {
+    border-radius: 0.5rem 0.5rem 0.25rem 0.25rem;
+    background-color: var(--base-100);
+    border-color: var(--base-300);
+    .se-toolbar {
+        border-radius: 0.5rem 0.5rem 0 0;
+        background-color: var(--base-200);
+        border-color: var(--base-300);
+        outline-color: var(--base-300);
+    }
+    .se-btn {
+        color: var(--base-content);
+        border-color: var(--base-300);
+        outline-color: var(--base-300);
+
+        &.on {
+            background-color: var(--base-300);
+        }
+    }
+
+    .se-btn-list.default_value {
+        color: var(--base-content);
+        border-color: var(--base-300);
+        background-color: var(--base-200);
+    }
+
+    .se-btn-module {
+        color: var(--base-content);
+        border-color: var(--base-400);
+    }
+
+    .se-btn:hover,
+    .se-btn:focus {
+        background-color: var(--base-300);
+        color: var(--base-content);
+    }
+
+    .se-btn.active {
+        background-color: var(--secondary);
+        color: var(--secondary-content);
+        border-color: var(--secondary);
+    }
+
+    .se-wrapper,
+    .se-wrapper-inner {
+        background-color: var(--base-100);
+    }
+
+    .se-wrapper-wysiwyg {
+        color: var(--base-content);
+    }
+
+    .se-placeholder {
+        color: var(--base-300);
+    }
+
+    .se-resizing-bar {
+        border-radius: 0 0 0.25rem 0.25rem;
+        background-color: var(--base-200);
+        border-color: var(--base-300);
+    }
+
+    .se-dialog {
+        background-color: var(--base-100);
+        border-color: var(--base-300);
+    }
+    .se-dialog-header {
+        background-color: var(--base-200);
+        border-color: var(--base-300);
+    }
+
+    .se-dialog-content {
+        background-color: var(--base-100);
+    }
+
+    .se-dialog-body {
+        color: var(--base-content);
+    }
+
+    .se-dialog-form-footer {
+        background-color: var(--base-200);
+        border-color: var(--base-300);
+    }
+
+    .se-dropdown-list {
+        background-color: var(--base-100);
+        border-color: var(--base-300);
+    }
+
+    .se-list-layer {
+        background-color: var(--base-100);
+        border-color: var(--base-300);
+    }
+
+    .se-list-inner li button {
+        color: var(--base-content);
+    }
+
+    .se-list-inner li button:hover,
+    .se-list-inner li button:focus {
+        background-color: var(--base-200);
+    }
+
+    .se-input-form,
+    .se-input-select {
+        background-color: var(--base-100);
+        color: var(--base-content);
+        border-color: var(--base-300);
+    }
+
+    .se-input-form:focus,
+    .se-input-select:focus {
+        border-color: var(--primary);
+    }
+
+    /* Custom plugin buttons in dark mode */
+    .se-toolbar button i.material-symbols-outlined {
+        color: var(--base-content);
+    }
+    .se-toolbar button:hover i.material-symbols-outlined {
+        color: var(--base-content);
+    }
+}

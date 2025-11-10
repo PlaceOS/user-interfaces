@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, OnInit, output, signal } from '@angular/core';
+import {
+    Component,
+    computed,
+    inject,
+    OnInit,
+    output,
+    signal,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
@@ -8,13 +15,13 @@ import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import {
     flatten,
+    i18n,
     notifyError,
     OrganisationService,
     settingSignal,
     SettingsService,
     Space,
     unique,
-    i18n,
 } from '@placeos/common';
 import {
     BuildingPipe,
@@ -37,14 +44,16 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
     selector: 'meeting-flow-space-select',
     template: `
         <div
-            class="relative w-full rounded-lg border border-base-300 bg-base-100"
+            class="relative w-full overflow-hidden rounded-lg border border-base-300 bg-base-100"
         >
             <div
                 class="gradient relative flex items-center justify-between space-x-2 border-l-8 border-base-content px-4 py-3 text-xl font-medium"
             >
                 <div class="flex items-center space-x-2">
                     <icon>info</icon>
-                    <div>{{ 'CALENDAR_EVENT.SELECT_ROOM_HEADER' | translate }}</div>
+                    <div>
+                        {{ 'CALENDAR_EVENT.SELECT_ROOM_HEADER' | translate }}
+                    </div>
                 </div>
                 <button
                     icon
@@ -62,16 +71,23 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                     (click)="filters_open.set(false)"
                 ></div>
             }
-            <div class="relative flex w-full overflow-hidden p-2 sm:space-x-2" [formGroup]="form()">
+            <div
+                class="relative flex w-full overflow-hidden p-2 sm:space-x-2"
+                [formGroup]="form()"
+            >
                 <!-- Filters Sidebar - Desktop -->
                 <div
                     class="hidden sm:sticky sm:top-0 sm:block sm:w-[20rem] sm:max-w-[20rem]"
                 >
                     <div class="flex w-full items-center justify-between p-2">
-                        <h3 class="px-2 text-xl font-medium">{{ 'COMMON.FILTERS' | translate }}</h3>
+                        <h3 class="px-2 text-xl font-medium">
+                            {{ 'COMMON.FILTERS' | translate }}
+                        </h3>
                     </div>
-                    <div class="flex flex-col overflow-y-auto px-4 pb-4">
-                        <label for="location">{{ 'COMMON.LOCATION' | translate }}</label>
+                    <div class="flex flex-col overflow-y-auto p-4">
+                        <label for="location">{{
+                            'COMMON.LOCATION' | translate
+                        }}</label>
                         @if (use_region() && (regions | async)?.length) {
                             <mat-form-field appearance="outline" class="w-full">
                                 <mat-select
@@ -118,9 +134,7 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                                 [ngModel]="(options | async)?.zones"
                                 (ngModelChange)="setOptions({ zones: $event })"
                                 [ngModelOptions]="{ standalone: true }"
-                                [placeholder]="
-                                    'CALENDAR_EVENT.SPACE_LEVEL_ANY' | translate
-                                "
+                                [placeholder]="'COMMON.LEVEL_ANY' | translate"
                                 [multiple]="true"
                             >
                                 @for (lvl of levels | async; track lvl) {
@@ -151,11 +165,15 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                         </mat-form-field>
                         <label for="date">{{ 'FORM.DATE' | translate }}</label>
                         <date-field formControlName="date" />
-                        <settings-toggle class="mb-2" formControlName="all_day"
+                        <settings-toggle
+                            class="mb-2"
+                            formControlName="all_day"
                             >{{ 'COMMON.ALL_DAY' | translate }}</settings-toggle
                         >
                         @if (!field('all_day')) {
-                            <label for="date">{{ 'FORM.TIME' | translate }}</label>
+                            <label for="date">{{
+                                'FORM.TIME' | translate
+                            }}</label>
                             <div class="flex space-x-2">
                                 <time-field
                                     class="flex-1"
@@ -178,10 +196,16 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                                 />
                             </div>
                         }
-                        <settings-toggle class="mb-4" formControlName="all_day"
-                            >{{ 'COMMON.FAVOURITES_ONLY' | translate }}</settings-toggle
+                        <settings-toggle
+                            class="mb-4"
+                            formControlName="all_day"
+                            >{{
+                                'COMMON.FAVOURITES_ONLY' | translate
+                            }}</settings-toggle
                         >
-                        <h2 class="text-lg font-medium">{{ 'CALENDAR_EVENT.FACILITIES' | translate }}</h2>
+                        <h2 class="text-lg font-medium">
+                            {{ 'CALENDAR_EVENT.FACILITIES' | translate }}
+                        </h2>
                         <div class="mb-4 flex flex-col space-y-2">
                             @for (feat of features | async; track feat) {
                                 @if (!hide_features().includes(feat)) {
@@ -279,7 +303,9 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                                 (click)="view.set('list')"
                             >
                                 <icon class="text-2xl">list</icon>
-                                <div class="pr-2">{{ 'COMMON.LIST' | translate }}</div>
+                                <div class="pr-2">
+                                    {{ 'COMMON.LIST' | translate }}
+                                </div>
                             </button>
                             <button
                                 btn
@@ -289,7 +315,9 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                                 (click)="view.set('map')"
                             >
                                 <icon class="text-2xl">Map</icon>
-                                <div class="pr-2">{{ 'COMMON.MAP' | translate }}</div>
+                                <div class="pr-2">
+                                    {{ 'COMMON.MAP' | translate }}
+                                </div>
                             </button>
                         </div>
                     </div>
@@ -320,14 +348,20 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                 [class.translate-y-0]="filters_open()"
                 [formGroup]="form()"
             >
-                <div class="flex w-full items-center justify-between border-b border-base-300 p-2">
-                    <h3 class="px-2 text-xl font-medium">{{ 'COMMON.FILTERS' | translate }}</h3>
+                <div
+                    class="flex w-full items-center justify-between border-b border-base-300 p-2"
+                >
+                    <h3 class="px-2 text-xl font-medium">
+                        {{ 'COMMON.FILTERS' | translate }}
+                    </h3>
                     <button icon matRipple (click)="filters_open.set(false)">
                         <icon>close</icon>
                     </button>
                 </div>
-                <div class="flex max-h-[60vh] flex-col overflow-y-auto px-4 pb-4">
-                    <label for="location">{{ 'COMMON.LOCATION' | translate }}</label>
+                <div class="flex max-h-[60vh] flex-col overflow-y-auto p-4">
+                    <label for="location">{{
+                        'COMMON.LOCATION' | translate
+                    }}</label>
                     @if (use_region() && (regions | async)?.length) {
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
@@ -336,7 +370,8 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                                 (ngModelChange)="setRegion($event)"
                                 [ngModelOptions]="{ standalone: true }"
                                 [placeholder]="
-                                    'CALENDAR_EVENT.SPACE_REGION_ANY' | translate
+                                    'CALENDAR_EVENT.SPACE_REGION_ANY'
+                                        | translate
                                 "
                             >
                                 @for (reg of regions | async; track reg) {
@@ -373,9 +408,7 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                             [ngModel]="(options | async)?.zones"
                             (ngModelChange)="setOptions({ zones: $event })"
                             [ngModelOptions]="{ standalone: true }"
-                            [placeholder]="
-                                'CALENDAR_EVENT.SPACE_LEVEL_ANY' | translate
-                            "
+                            [placeholder]="'COMMON.LEVEL_ANY' | translate"
                             [multiple]="true"
                         >
                             @for (lvl of levels | async; track lvl) {
@@ -384,11 +417,12 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                                         @if (use_region) {
                                             <div class="text-xs opacity-30">
                                                 {{
-                                                    (
-                                                        lvl?.parent_id | building
-                                                    )?.display_name
+                                                    (lvl?.parent_id | building)
+                                                        ?.display_name
                                                 }}
-                                                <span class="opacity-0"> - </span>
+                                                <span class="opacity-0">
+                                                    -
+                                                </span>
                                             </div>
                                         }
                                         <div>
@@ -401,9 +435,9 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                     </mat-form-field>
                     <label for="date">{{ 'FORM.DATE' | translate }}</label>
                     <date-field formControlName="date" />
-                    <settings-toggle class="mb-2" formControlName="all_day"
-                        >{{ 'COMMON.ALL_DAY' | translate }}</settings-toggle
-                    >
+                    <settings-toggle class="mb-2" formControlName="all_day">{{
+                        'COMMON.ALL_DAY' | translate
+                    }}</settings-toggle>
                     @if (!field('all_day')) {
                         <label for="date">{{ 'FORM.TIME' | translate }}</label>
                         <div class="flex space-x-2">
@@ -428,10 +462,12 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                             />
                         </div>
                     }
-                    <settings-toggle class="mb-4" formControlName="all_day"
-                        >{{ 'COMMON.FAVOURITES_ONLY' | translate }}</settings-toggle
-                    >
-                    <h2 class="text-lg font-medium">{{ 'CALENDAR_EVENT.FACILITIES' | translate }}</h2>
+                    <settings-toggle class="mb-4" formControlName="all_day">{{
+                        'COMMON.FAVOURITES_ONLY' | translate
+                    }}</settings-toggle>
+                    <h2 class="text-lg font-medium">
+                        {{ 'CALENDAR_EVENT.FACILITIES' | translate }}
+                    </h2>
                     <div class="mb-4 flex flex-col space-y-2">
                         @for (feat of features | async; track feat) {
                             @if (!hide_features().includes(feat)) {
@@ -443,7 +479,9 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                                             feat
                                         )
                                     "
-                                    (ngModelChange)="toggleFeature(feat, $event)"
+                                    (ngModelChange)="
+                                        toggleFeature(feat, $event)
+                                    "
                                     [ngModelOptions]="{ standalone: true }"
                                 ></settings-toggle>
                             }
@@ -465,12 +503,7 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
             >
                 {{ 'COMMON.BACK' | translate }}
             </a>
-            <button
-                btn
-                matRipple
-                class="w-40"
-                (click)="continue()"
-            >
+            <button btn matRipple class="w-40" (click)="continue()">
                 {{ 'COMMON.CONTINUE' | translate }}
             </button>
         </div>

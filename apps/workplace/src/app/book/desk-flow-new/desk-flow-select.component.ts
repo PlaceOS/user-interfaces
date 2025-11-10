@@ -123,9 +123,7 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
                                 [ngModel]="(options | async)?.zones"
                                 (ngModelChange)="setOptions({ zones: $event })"
                                 [ngModelOptions]="{ standalone: true }"
-                                [placeholder]="
-                                    'CALENDAR_EVENT.SPACE_LEVEL_ANY' | translate
-                                "
+                                [placeholder]="'COMMON.LEVEL_ANY' | translate"
                                 [multiple]="true"
                             >
                                 @for (lvl of levels | async; track lvl) {
@@ -341,9 +339,7 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
                         <icon>close</icon>
                     </button>
                 </div>
-                <div
-                    class="flex max-h-[60vh] flex-col overflow-y-auto px-4 pb-4"
-                >
+                <div class="flex max-h-[60vh] flex-col overflow-y-auto p-4">
                     <label for="location">{{
                         'COMMON.LOCATION' | translate
                     }}</label>
@@ -393,9 +389,7 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
                             [ngModel]="(options | async)?.zones"
                             (ngModelChange)="setOptions({ zones: $event })"
                             [ngModelOptions]="{ standalone: true }"
-                            [placeholder]="
-                                'CALENDAR_EVENT.SPACE_LEVEL_ANY' | translate
-                            "
+                            [placeholder]="'COMMON.LEVEL_ANY' | translate"
                             [multiple]="true"
                         >
                             @for (lvl of levels | async; track lvl) {

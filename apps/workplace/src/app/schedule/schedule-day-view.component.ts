@@ -12,11 +12,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { BookingDetailsModalComponent } from '@placeos/bookings';
-import {
-    BOOKING_TYPE_COLORS,
-    Booking,
-    CalendarEvent,
-} from '@placeos/common';
+import { Booking, BOOKING_TYPE_COLORS, CalendarEvent } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
 import {
     EventDetailsModalComponent,
@@ -45,11 +41,13 @@ interface PositionedBooking {
     template: `
         <div class="h-full w-full overflow-auto" #scrollContainer>
             <div class="m-2">
-                <div class="mb-4 flex items-center justify-between px-4">
+                <div class="mb-4 flex items-center justify-between px-4 py-2">
                     <h2 class="text-xl font-medium">
                         {{ date() | date: 'EEEE, MMMM d, yyyy' }}
                     </h2>
-                    <div class="text-base-content/60 text-sm">
+                    <div
+                        class="rounded-md border border-base-300 bg-base-100 px-2 py-1 text-sm text-base-content"
+                    >
                         {{ bookings().length }} booking{{
                             bookings().length !== 1 ? 's' : ''
                         }}
@@ -63,13 +61,17 @@ interface PositionedBooking {
                                 <div
                                     class="flex h-16 items-start justify-end text-xs text-base-content opacity-60"
                                 >
-                                    {{ slot.label }}
+                                    <div class="relative -translate-y-1/2">
+                                        {{ slot.label }}
+                                    </div>
                                 </div>
                             }
                         </div>
 
                         <!-- Calendar grid -->
-                        <div class="relative flex-1">
+                        <div
+                            class="relative flex-1 overflow-hidden rounded-xl border-x border-b border-base-300 bg-base-100"
+                        >
                             <!-- Grid lines -->
                             <div class="absolute inset-0">
                                 @for (slot of timeSlots(); track slot.hour) {
@@ -78,7 +80,7 @@ interface PositionedBooking {
                                             class="absolute inset-x-0 top-0 border-t border-base-300"
                                         ></div>
                                         <div
-                                            class="absolute inset-x-0 top-8 border-t border-dashed border-base-300 opacity-50"
+                                            class="absolute inset-x-0 top-8 border-t border-dashed border-base-300"
                                         ></div>
                                     </div>
                                 }
@@ -92,7 +94,7 @@ interface PositionedBooking {
                                     [style.top.%]="currentTimePosition()"
                                 >
                                     <div
-                                        class="h-2 w-2 -ml-1 rounded-full bg-error"
+                                        class="-ml-1 h-2 w-2 rounded-full bg-error"
                                     ></div>
                                     <div
                                         class="flex-1 border-t-2 border-error"
