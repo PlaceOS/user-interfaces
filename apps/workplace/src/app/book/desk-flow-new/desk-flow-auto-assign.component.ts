@@ -9,7 +9,7 @@ import { AutoAssignedDeskModalComponent } from '../desk-flow/auto-assigned-desk-
     selector: 'desk-flow-auto-assign',
     template: `
         <div
-            class="relative mx-auto w-full max-w-full space-y-2 rounded-xl border border-base-300 bg-brand-400 p-4 text-base-100 shadow"
+            class="bg-grad relative mx-auto w-full max-w-full space-y-2 rounded-xl border border-base-300 p-4 text-base-100 shadow"
         >
             <div class="flex items-center justify-between pb-2">
                 <div
@@ -55,7 +55,17 @@ import { AutoAssignedDeskModalComponent } from '../desk-flow/auto-assigned-desk-
             </div>
         </div>
     `,
-    styles: [``],
+    styles: [
+        `
+            .bg-grad {
+                background: linear-gradient(
+                    105deg,
+                    var(--brand-400) 0%,
+                    var(--brand-500) 100%
+                );
+            }
+        `,
+    ],
     imports: [IconComponent],
 })
 export class DeskFlowAutoAssignComponent {

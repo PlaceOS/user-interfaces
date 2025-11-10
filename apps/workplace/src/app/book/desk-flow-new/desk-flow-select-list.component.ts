@@ -1,5 +1,13 @@
-import { AsyncPipe, CommonModule } from '@angular/common';
-import { Component, inject, model, output } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import {
+    Component,
+    computed,
+    inject,
+    model,
+    output,
+    signal,
+} from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { BookingFormService } from '@placeos/bookings';
@@ -16,19 +24,24 @@ const FAV_DESK_KEY = 'favourite_desks';
 @Component({
     selector: 'desk-flow-select-list',
     template: `
-        @let loadn = loading | async;
-        @let desks = available_items | async;
-
-        @if (!loadn) {
-            @if (desks?.length) {
+        @if (!loading()) {
+            @if (available_items()?.length) {
                 <div class="mb-2 text-sm font-medium">
                     {{
                         'COMMON.RESULTS_COUNT'
-                            | translate: { count: desks.length } : desks.length
+                            | translate
+                                : { count: available_items().length }
+                                : available_items().length
                     }}
                 </div>
-                <ul class="list-style-none space-y-2">
-                    @for (item of desks; track item.id) {
+                <ul class="list-style-none flex-1 space-y-2">
+                    @for (
+                        item of available_items()
+                            | slice
+                                : page() * page_size()
+                                : page() * page_size() + page_size();
+                        track item.id
+                    ) {
                         <li
                             item
                             [class.!border-success]="
@@ -124,6 +137,40 @@ const FAV_DESK_KEY = 'favourite_desks';
                         </li>
                     }
                 </ul>
+                @if (available_items().length > page_size()) {
+                    <div
+                        class="mt-2 flex w-full items-center space-x-2 rounded-xl border border-base-300 bg-base-100 p-1"
+                    >
+                        <div
+                            class="!ml-2 rounded-md bg-base-200 px-2 py-1 font-mono text-xs"
+                        >
+                            {{ page() * page_size() }} -
+                            {{ page() * page_size() + page_size() }}
+                        </div>
+                        <div class="flex-1"></div>
+                        <div class="p-2">
+                            Page {{ page() + 1 }} of {{ max_pages() }}
+                        </div>
+                        <button
+                            icon
+                            matRipple
+                            [disabled]="page() <= 0"
+                            (click)="page.set(page() - 1)"
+                            class="rounded-xl border border-base-300"
+                        >
+                            <icon>keyboard_arrow_left</icon>
+                        </button>
+                        <button
+                            icon
+                            matRipple
+                            [disabled]="page() + 1 >= max_pages()"
+                            (click)="page.set(page() + 1)"
+                            class="rounded-xl border border-base-300"
+                        >
+                            <icon>keyboard_arrow_right</icon>
+                        </button>
+                    </div>
+                }
             } @else {
                 <div
                     empty
@@ -148,10 +195,17 @@ const FAV_DESK_KEY = 'favourite_desks';
             </div>
         }
     `,
-    styles: [``],
+    styles: [
+        `
+            :host {
+                display: flex;
+                flex-direction: column;
+                min-height: 100%;
+            }
+        `,
+    ],
     imports: [
         CommonModule,
-        AsyncPipe,
         TranslatePipe,
         MatProgressSpinnerModule,
         IconComponent,
@@ -165,8 +219,18 @@ export class DeskFlowSelectListComponent {
     public readonly selected_items = model<string[]>([]);
     public readonly item_selected = output<Space>();
 
-    public readonly loading = this._booking_form.loading;
-    public readonly available_items = this._booking_form.available_resources;
+    public readonly loading = toSignal(this._booking_form.loading, {
+        initialValue: '',
+    });
+    public readonly available_items = toSignal(
+        this._booking_form.available_resources,
+        { initialValue: [] },
+    );
+    public readonly page = signal(0);
+    public readonly page_size = signal(10);
+    public readonly max_pages = computed(() =>
+        Math.ceil(this.available_items().length / this.page_size()),
+    );
 
     public readonly favourites = settingSignal<string[]>(
         SETTING_KEYS.FAVORITE_DESKS,
