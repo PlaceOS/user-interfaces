@@ -4,11 +4,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { BookingDetailsModalComponent } from '@placeos/bookings';
-import {
-    BOOKING_TYPE_COLORS,
-    Booking,
-    CalendarEvent,
-} from '@placeos/common';
+import { BOOKING_TYPE_COLORS, Booking, CalendarEvent } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
 import {
     EventDetailsModalComponent,
@@ -77,7 +73,7 @@ interface Weekday {
                             ) {
                                 <button
                                     matRipple
-                                    class="w-full rounded-lg border bg-base-100 p-2 text-left"
+                                    class="w-full rounded-lg border bg-base-100 p-2 text-left text-black"
                                     [style.border-color]="colors[type(bkn)][1]"
                                     [style.background-color]="
                                         colors[type(bkn)][0]

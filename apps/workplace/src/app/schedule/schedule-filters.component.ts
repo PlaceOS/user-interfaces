@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatRippleModule } from '@angular/material/core';
 import { Booking, CalendarEvent, SettingsService } from '@placeos/common';
@@ -18,14 +18,21 @@ import { ScheduleStateService } from './schedule-state.service';
                         hasFeature(item.feat)
                     ) {
                         <div
-                            class="m-1 flex h-8 items-center rounded-full border border-base-200 text-sm"
+                            class="m-0.5 flex items-center rounded-3xl border border-base-200 bg-base-100 pl-2 text-sm"
                         >
                             <div class="px-2">{{ item.name | translate }}</div>
+                            <div
+                                class="flex h-5 w-5 items-center justify-center rounded-full bg-base-200 font-mono text-[0.625rem] opacity-50"
+                            >
+                                {{ counts()[item.type] || 0 }}
+                            </div>
                             <button
                                 icon
                                 matRipple
                                 [name]="
-                                    'schedule-remove-' + item.type + '-filter'
+                                    'schedule-remove-' +
+                                    item.type +
+                                    '-filter-mobile'
                                 "
                                 (click)="toggleType(item.type, true)"
                             >
@@ -43,7 +50,7 @@ import { ScheduleStateService } from './schedule-state.service';
                 btn
                 matRipple
                 name="schedule-open-filter-edit"
-                class="min-w-12 sm:w-24"
+                class="h-10 min-h-10 min-w-10 sm:min-h-12 sm:w-24"
                 (click)="openFilters()"
             >
                 <div class="flex items-center justify-center space-x-2">
@@ -58,7 +65,12 @@ import { ScheduleStateService } from './schedule-state.service';
                     <div
                         class="flex items-center rounded-3xl border border-base-200 bg-base-100 pl-2 text-sm"
                     >
-                        <div>{{ item.name | translate }}</div>
+                        <div class="px-2">{{ item.name | translate }}</div>
+                        <div
+                            class="flex h-5 w-5 items-center justify-center rounded-full bg-base-200 font-mono text-[0.625rem] opacity-50"
+                        >
+                            {{ counts()[item.type] || 0 }}
+                        </div>
                         <button
                             icon
                             matRipple
@@ -86,6 +98,23 @@ export class ScheduleFiltersComponent {
 
     public readonly filters = this._state.filters;
     public readonly bookings = input<(Booking | CalendarEvent)[]>([]);
+
+    public readonly counts = computed(() => {
+        const mapping: Record<string, number> = {};
+        const bkn_list = this.bookings() || [];
+        for (const bkn of bkn_list) {
+            if (bkn instanceof CalendarEvent) {
+                const type = bkn.extension_data?.shared_event
+                    ? 'group-event'
+                    : 'event';
+                mapping[type] = (mapping[type] || 0) + 1;
+            } else {
+                const type = bkn.booking_type;
+                mapping[type] = (mapping[type] || 0) + 1;
+            }
+        }
+        return mapping;
+    });
 
     public readonly feature_list = [
         { type: 'event', feat: 'spaces', name: 'RESOURCE.ROOMS' },

@@ -56,7 +56,7 @@ interface PositionedBooking {
                 @if (bookings().length > 0) {
                     <div class="relative flex">
                         <!-- Time labels -->
-                        <div class="w-16 flex-shrink-0 pr-2">
+                        <div class="w-12 flex-shrink-0 pr-2">
                             @for (slot of timeSlots(); track slot.hour) {
                                 <div
                                     class="flex h-16 items-start justify-end text-xs text-base-content opacity-60"
@@ -113,7 +113,7 @@ interface PositionedBooking {
                                 ) {
                                     <button
                                         matRipple
-                                        class="absolute overflow-hidden rounded-lg border p-2 text-left shadow-sm transition-shadow hover:shadow-md"
+                                        class="absolute overflow-hidden rounded-lg border p-2 text-left text-black shadow-sm transition-shadow hover:shadow-md"
                                         [style.top.%]="item.top"
                                         [style.height.%]="item.height"
                                         [style.left.%]="item.left"
