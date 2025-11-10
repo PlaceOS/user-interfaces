@@ -75,11 +75,11 @@
 
 .theme-dark {
     /* Brand */
-    --brand-100: hsl(336, 57%, 48%); /* #C52B67 */
+    --brand-100: hsla(336, 57%, 48%, 1); /* #C52B67 */
     --brand-200: hsla(217, 91%, 60%, 1); /* #C52B67 */
-    --brand-300: rgb(63, 81, 181); /* #C52B67 */
-    --brand-400: hsl(336, 57%, 48%); /* #C52B67 */
-    --brand-500: hsl(336, 57%, 48%); /* #C52B67 */
+    --brand-300: rgb(236, 239, 241); /* #C52B67 */
+    --brand-400: rgb(92, 107, 192); /* #C52B67 */
+    --brand-500: rgb(69, 39, 160); /* #C52B67 */
     --brand-600: hsl(336, 57%, 48%); /* #C52B67 */
     --brand-content: hsl(0, 0%, 100%); /* White content for contrast */
 

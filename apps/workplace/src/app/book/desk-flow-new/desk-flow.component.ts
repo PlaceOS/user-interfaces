@@ -6,6 +6,7 @@ import {
     AsyncHandler,
     getInvalidFields,
     i18n,
+    nextValueFrom,
     notifyError,
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
@@ -107,7 +108,7 @@ export class DeskFlowNewComponent extends AsyncHandler implements OnInit {
         this._booking_form.setOptions({ type: 'desk' });
     }
 
-    public confirmBooking() {
+    public async confirmBooking() {
         this._booking_form.form.markAllAsTouched();
         if (!this._booking_form.form.valid) {
             return notifyError(
@@ -118,6 +119,18 @@ export class DeskFlowNewComponent extends AsyncHandler implements OnInit {
                 }),
             );
         }
-        console.log('Booking confirmed');
+        try {
+            if ((await nextValueFrom(this._booking_form.options))?.group) {
+                await this._booking_form.postFormForGroup();
+            } else {
+                await this._booking_form.postForm();
+            }
+        } catch (e) {
+            notifyError(
+                typeof e === 'string'
+                    ? e
+                    : i18n(`BOOKINGS.DESK_AVAILABLE_ERROR`),
+            );
+        }
     }
 }
