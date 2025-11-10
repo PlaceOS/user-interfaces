@@ -1,9 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, OnInit, inject } from '@angular/core';
+import { Component, ElementRef, inject, OnInit, signal } from '@angular/core';
 import {
     CalendarEvent,
     MAP_FEATURE_DATA,
-    SettingsService,
+    settingSignal,
     Space,
 } from '@placeos/common';
 
@@ -93,6 +93,11 @@ export interface SpaceInfoData {
                         <h4 class="mb-2 px-2 text-xl font-medium">
                             {{ space.display_name || space.name }}
                         </h4>
+                        @if (next()) {
+                            <div class="px-2 text-base">
+                                Free until {{ next().date | date: 'shortTime' }}
+                            </div>
+                        }
                         @if (space.capacity >= 0) {
                             <div capacity class="mb-2 px-2 text-base">
                                 <span
@@ -101,7 +106,7 @@ export interface SpaceInfoData {
                                 {{ space.capacity === 1 ? 'person' : 'people' }}
                             </div>
                         }
-                        @if (space.features?.length > 0 && show_features) {
+                        @if (space.features?.length > 0 && !hide_features()) {
                             <ul class="flex flex-wrap">
                                 @for (
                                     feature of space.features;
@@ -152,26 +157,28 @@ export interface SpaceInfoData {
 })
 export class ExploreSpaceInfoComponent implements OnInit {
     private _details = inject<SpaceInfoData>(MAP_FEATURE_DATA);
-    private _settings = inject(SettingsService);
     private _element = inject<ElementRef<HTMLElement>>(ElementRef);
 
+    public y_pos: 'top' | 'bottom';
+    public x_pos: 'start' | 'end';
     /** Space to display details for */
     public readonly space = this._details.space;
     /** List of upcoming events for space */
     public readonly events = this._details.events;
+    /** List of upcoming events for space */
+    public readonly next = signal<CalendarEvent>(null);
     /** Current status of the space */
     public readonly status = this._details.status;
 
-    public y_pos: 'top' | 'bottom';
-
-    public x_pos: 'start' | 'end';
-
-    public get show_features() {
-        return !this._settings.get('app.spaces.hide_features');
-    }
+    public readonly hide_features = settingSignal(
+        'spaces.hide_features',
+        false,
+    );
 
     public ngOnInit() {
         setTimeout(() => this.updateOffset(), 200);
+        this.events.sort((a, b) => a.date - b.date);
+        this.next.set(this.events[0]);
     }
 
     public updateOffset() {
