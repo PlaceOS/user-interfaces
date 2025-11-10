@@ -2,7 +2,7 @@ import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { AsyncHandler, notifyError, i18n } from '@placeos/common';
+import { AsyncHandler, i18n, notifyError } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { EventFormService } from '@placeos/events';
 import { MeetingFlowDetailsComponent } from './meeting-flow-details.component';
@@ -10,7 +10,7 @@ import { MeetingFlowOptionsComponent } from './meeting-flow-options.component';
 import { MeetingFlowSpaceSelectComponent } from './meeting-flow-space-select.component';
 
 @Component({
-    selector: 'meeting-flow',
+    selector: 'meeting-flow-new',
     template: `
         <div class="h-full w-full overflow-auto bg-base-200">
             <div
@@ -39,12 +39,14 @@ import { MeetingFlowSpaceSelectComponent } from './meeting-flow-space-select.com
                             >
                                 <icon>{{ view() > 0 ? 'done' : 'edit' }}</icon>
                             </div>
-                            <div class="hidden sm:block">{{ 'COMMON.DETAILS' | translate }}</div>
+                            <div class="hidden sm:block">
+                                {{ 'COMMON.DETAILS' | translate }}
+                            </div>
                         </a>
                         <div class="h-0.5 w-16 bg-base-200"></div>
                         <a
                             matRipple
-                            class="flex items-center space-x-2 rounded p-2 cursor-pointer"
+                            class="flex cursor-pointer items-center space-x-2 rounded p-2"
                             (click)="navigateToView(1)"
                         >
                             <div
@@ -59,12 +61,17 @@ import { MeetingFlowSpaceSelectComponent } from './meeting-flow-space-select.com
                                     view() > 1 ? 'done' : 'room_preferences'
                                 }}</icon>
                             </div>
-                            <div class="hidden sm:block">{{ 'CALENDAR_EVENT.MEETING_FLOW_STEP_SELECT_ROOM' | translate }}</div>
+                            <div class="hidden sm:block">
+                                {{
+                                    'CALENDAR_EVENT.MEETING_FLOW_STEP_SELECT_ROOM'
+                                        | translate
+                                }}
+                            </div>
                         </a>
                         <div class="h-0.5 w-16 bg-base-200"></div>
                         <a
                             matRipple
-                            class="flex items-center space-x-2 rounded p-2 cursor-pointer"
+                            class="flex cursor-pointer items-center space-x-2 rounded p-2"
                             (click)="navigateToView(2)"
                         >
                             <div
@@ -79,7 +86,12 @@ import { MeetingFlowSpaceSelectComponent } from './meeting-flow-space-select.com
                                     view() > 2 ? 'done' : 'task_alt'
                                 }}</icon>
                             </div>
-                            <div class="hidden sm:block">{{ 'CALENDAR_EVENT.MEETING_FLOW_STEP_CONFIRM' | translate }}</div>
+                            <div class="hidden sm:block">
+                                {{
+                                    'CALENDAR_EVENT.MEETING_FLOW_STEP_CONFIRM'
+                                        | translate
+                                }}
+                            </div>
                         </a>
                     </div>
                 </div>
@@ -113,7 +125,7 @@ import { MeetingFlowSpaceSelectComponent } from './meeting-flow-space-select.com
         TranslatePipe,
     ],
 })
-export class MeetingFlowComponent extends AsyncHandler implements OnInit {
+export class MeetingFlowNewComponent extends AsyncHandler implements OnInit {
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
     private _event_form = inject(EventFormService);

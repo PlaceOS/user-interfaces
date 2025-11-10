@@ -15,7 +15,10 @@ import {
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import {
+    DateFieldComponent,
+    DurationFieldComponent,
     RecurrenceFieldComponent,
+    TimeFieldComponent,
     UserListFieldComponent,
     UserSearchFieldComponent,
 } from '@placeos/form-fields';
@@ -88,6 +91,40 @@ type FormType = 'single' | 'group' | 'other';
                         }}</mat-error>
                     </mat-form-field>
                 </div>
+                <div
+                    class="flex flex-col space-y-2 sm:hidden sm:flex-row sm:space-x-2 sm:space-y-0"
+                >
+                    <div class="relative flex-1">
+                        <label for="date">{{ 'FORM.DATE' | translate }}</label>
+                        <date-field name="date" formControlName="date" />
+                        @if (allow_all_day()) {
+                            <mat-checkbox
+                                formControlName="all_day"
+                                class="absolute -top-2 right-2"
+                            >
+                                {{ 'COMMON.ALL_DAY' | translate }}
+                            </mat-checkbox>
+                        }
+                    </div>
+                    <div class="flex-1">
+                        <label for="time">{{ 'FORM.TIME' | translate }}</label>
+                        <time-field
+                            name="time"
+                            [ngModel]="form_value().date"
+                            (ngModelChange)="form.patchValue({ date: $event })"
+                            [ngModelOptions]="{ standalone: true }"
+                        />
+                    </div>
+                    <div class="flex-1">
+                        <label for="duration">{{
+                            'FORM.DURATION' | translate
+                        }}</label>
+                        <duration-field
+                            name="duration"
+                            formControlName="duration"
+                        />
+                    </div>
+                </div>
                 @if (can_recurr()) {
                     <div class="flex flex-col">
                         <label for="recurrence">
@@ -140,6 +177,9 @@ type FormType = 'single' | 'group' | 'other';
         MatFormFieldModule,
         MatInputModule,
         MatCheckboxModule,
+        DateFieldComponent,
+        DurationFieldComponent,
+        TimeFieldComponent,
         FormsModule,
         ReactiveFormsModule,
         TranslatePipe,

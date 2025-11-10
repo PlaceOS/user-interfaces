@@ -8,7 +8,7 @@ import { BookCodeFlowComponent } from './code-flow.component';
 import { DeskFlowNewComponent } from './desk-flow-new/desk-flow.component';
 import { NewDeskFlowComponent } from './desk-flow.component';
 import { BookLockerFlowComponent } from './locker-flow.component';
-import { MeetingFlowNewComponent } from './meeting-flow-new/meeting-flow-new.component';
+import { MeetingFlowNewComponent } from './meeting-flow-new/meeting-flow.component';
 import { BookMeetingFlowComponent } from './meeting-flow.component';
 import { NewParkingFlowComponent } from './parking-flow.component';
 import { VisitorFlowComponent } from './visitor-flow.component';
