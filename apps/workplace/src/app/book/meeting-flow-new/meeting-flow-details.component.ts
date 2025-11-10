@@ -2,6 +2,7 @@ import { AsyncPipe } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -214,6 +215,7 @@ import {
         ReactiveFormsModule,
         RouterModule,
         TranslatePipe,
+        MatCheckboxModule,
     ],
 })
 export class MeetingFlowDetailsComponent {

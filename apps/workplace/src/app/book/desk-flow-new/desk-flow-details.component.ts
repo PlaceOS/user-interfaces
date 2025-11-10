@@ -6,6 +6,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import { BookingFormService } from '@placeos/bookings';
 import {
     currentUser,
@@ -30,8 +31,51 @@ type FormType = 'single' | 'group' | 'other';
     selector: 'desk-flow-details',
     template: `
         <div class="w-full p-4">
+            <!-- Mobile select dropdown -->
+            <div class="mb-4 flex w-full sm:hidden">
+                <mat-form-field
+                    appearance="outline"
+                    class="no-subscript w-full"
+                >
+                    <mat-select
+                        [ngModel]="active_form()"
+                        (ngModelChange)="setActiveForm($event)"
+                        [ngModelOptions]="{ standalone: true }"
+                    >
+                        <mat-select-trigger>
+                            <div class="flex items-center space-x-2">
+                                <icon class="text-xl">{{
+                                    form_type_config()[active_form()].icon
+                                }}</icon>
+                                <span>{{
+                                    form_type_config()[active_form()].label
+                                }}</span>
+                            </div>
+                        </mat-select-trigger>
+                        <mat-option value="single">
+                            <div class="flex items-center space-x-2">
+                                <icon class="text-xl">person</icon>
+                                <span>Single</span>
+                            </div>
+                        </mat-option>
+                        <mat-option value="group">
+                            <div class="flex items-center space-x-2">
+                                <icon class="text-xl">group_add</icon>
+                                <span>Group</span>
+                            </div>
+                        </mat-option>
+                        <mat-option value="other">
+                            <div class="flex items-center space-x-2">
+                                <icon class="text-xl">person_add</icon>
+                                <span>Book for other</span>
+                            </div>
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+            <!-- Desktop button toggle -->
             <div
-                class="flex w-full items-center space-x-1 rounded-lg bg-base-200 p-1"
+                class="hidden w-full items-center space-x-1 rounded-lg bg-base-200 p-1 sm:flex"
             >
                 <button
                     btn
@@ -177,6 +221,7 @@ type FormType = 'single' | 'group' | 'other';
         MatFormFieldModule,
         MatInputModule,
         MatCheckboxModule,
+        MatSelectModule,
         DateFieldComponent,
         DurationFieldComponent,
         TimeFieldComponent,
@@ -195,6 +240,11 @@ export class DeskFlowDetailsComponent {
     private _settings = inject(SettingsService);
 
     public readonly active_form = signal<FormType>('single');
+    public readonly form_type_config = signal({
+        single: { icon: 'person', label: 'Single' },
+        group: { icon: 'group_add', label: 'Group' },
+        other: { icon: 'person_add', label: 'Book for other' },
+    });
     public readonly form_value = toSignal(this.form.valueChanges, {
         initialValue: this.form.value,
     });

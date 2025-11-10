@@ -1,15 +1,17 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
 import {
     AsyncHandler,
     getInvalidFields,
     i18n,
-    nextValueFrom,
     notifyError,
+    notifySuccess,
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
+import { NewDeskFlowSuccessComponent } from '../desk-flow/desk-flow-success.component';
 import { DeskFlowAutoAssignComponent } from './desk-flow-auto-assign.component';
 import { DeskFlowDetailsComponent } from './desk-flow-details.component';
 import { DeskFlowSelectComponent } from './desk-flow-select.component';
@@ -17,43 +19,66 @@ import { DeskFlowSelectComponent } from './desk-flow-select.component';
 @Component({
     selector: 'desk-flow-new',
     template: `
-        <div
-            class="relative z-0 flex h-full w-full flex-col overflow-auto bg-base-200"
-        >
+        @if (view() !== 'success') {
             <div
-                class="mx-auto min-h-full w-[64rem] max-w-full flex-1 space-y-4 px-4 pt-4"
+                class="relative z-0 flex h-full w-full flex-col overflow-auto bg-base-200"
             >
-                <desk-flow-auto-assign />
                 <div
-                    class="flex w-full flex-col overflow-hidden rounded-xl border border-base-300 bg-base-100"
+                    class="mx-auto min-h-full w-[64rem] max-w-full flex-1 space-y-4 px-4 pt-4"
                 >
+                    <desk-flow-auto-assign />
                     <div
-                        class="gradient relative flex items-center space-x-2 border-l-8 border-base-content px-4 py-3 text-xl font-medium"
+                        class="flex w-full flex-col overflow-hidden rounded-xl border border-base-300 bg-base-100"
                     >
-                        <icon>info</icon>
-                        <div>
-                            {{ 'BOOKINGS.DESK_DETAILS_HEADER' | translate }}
-                        </div>
-                    </div>
-                    <desk-flow-details />
-                    <desk-flow-select />
-                </div>
-                <div
-                    class="sticky bottom-0 z-20 flex justify-between rounded-t-xl border-x border-t border-base-300 bg-base-100 p-3"
-                >
-                    <div></div>
-                    <button btn matRipple (click)="confirmBooking()">
-                        <div class="flex items-center space-x-2">
-                            <icon class="text-2xl">task_alt</icon>
-                            <div class="flex-1 pr-4">
-                                {{ 'COMMON.CONFIRM' | translate }}
+                        <div
+                            class="gradient relative flex items-center space-x-2 border-l-8 border-base-content px-4 py-3 text-xl font-medium"
+                        >
+                            <icon>info</icon>
+                            <div>
+                                {{ 'BOOKINGS.DESK_DETAILS_HEADER' | translate }}
                             </div>
-                            <icon class="text-2xl">keyboard_arrow_right</icon>
                         </div>
-                    </button>
+                        <desk-flow-details />
+                        <desk-flow-select />
+                    </div>
+                    <div
+                        class="sticky bottom-0 z-20 flex justify-between rounded-t-xl border-x border-t border-base-300 bg-base-100 p-3"
+                    >
+                        <div></div>
+                        <button
+                            btn
+                            matRipple
+                            (click)="confirmBooking()"
+                            [disabled]="loading()"
+                        >
+                            <div class="flex items-center space-x-2">
+                                @if (loading()) {
+                                    <icon class="animate-spin text-2xl"
+                                        >progress_activity</icon
+                                    >
+                                } @else {
+                                    <icon class="text-2xl">task_alt</icon>
+                                }
+                                <div class="flex-1 pr-4">
+                                    {{
+                                        loading()
+                                            ? ('COMMON.CONFIRMING' | translate)
+                                            : ('COMMON.CONFIRM' | translate)
+                                    }}
+                                </div>
+                                @if (!loading()) {
+                                    <icon class="text-2xl"
+                                        >keyboard_arrow_right</icon
+                                    >
+                                }
+                            </div>
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
+        } @else {
+            <desk-flow-success />
+        }
     `,
     styles: [
         `
@@ -79,14 +104,19 @@ import { DeskFlowSelectComponent } from './desk-flow-select.component';
         DeskFlowAutoAssignComponent,
         DeskFlowDetailsComponent,
         DeskFlowSelectComponent,
+        NewDeskFlowSuccessComponent,
     ],
 })
 export class DeskFlowNewComponent extends AsyncHandler implements OnInit {
     private _booking_form = inject(BookingFormService);
+    private _router = inject(Router);
+    private _route = inject(ActivatedRoute);
 
-    public readonly view = signal(0);
+    public readonly view = this._booking_form.view;
+    public readonly loading = signal(false);
+    public readonly options = toSignal(this._booking_form.options);
 
-    private readonly form_value = toSignal(
+    public readonly form_value = toSignal(
         this._booking_form.form.valueChanges,
         {
             initialValue: this._booking_form.form.value,
@@ -106,6 +136,13 @@ export class DeskFlowNewComponent extends AsyncHandler implements OnInit {
     public ngOnInit() {
         this._booking_form.form.patchValue({ booking_type: 'desk' });
         this._booking_form.setOptions({ type: 'desk' });
+        this.subscription(
+            'route.params',
+            this._route.paramMap.subscribe((param) => {
+                if (param.has('step'))
+                    this._booking_form.setView(param.get('step') as any);
+            }),
+        );
     }
 
     public async confirmBooking() {
@@ -119,18 +156,21 @@ export class DeskFlowNewComponent extends AsyncHandler implements OnInit {
                 }),
             );
         }
+        this.loading.set(true);
         try {
-            if ((await nextValueFrom(this._booking_form.options))?.group) {
-                await this._booking_form.postFormForGroup();
-            } else {
-                await this._booking_form.postForm();
-            }
+            await (this.options()?.group
+                ? this._booking_form.postFormForGroup()
+                : this._booking_form.postForm());
+            notifySuccess(i18n('APP.CONCIERGE.DESKS_BOOKING_SUCCESS'));
+            this._router.navigate(['/book/desk/success']);
         } catch (e) {
             notifyError(
                 typeof e === 'string'
                     ? e
                     : i18n(`BOOKINGS.DESK_AVAILABLE_ERROR`),
             );
+        } finally {
+            this.loading.set(false);
         }
     }
 }

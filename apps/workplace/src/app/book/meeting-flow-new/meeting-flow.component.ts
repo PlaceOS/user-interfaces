@@ -5,6 +5,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AsyncHandler, i18n, notifyError } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { EventFormService } from '@placeos/events';
+import { MeetingFlowSuccessComponent } from '../meeting-flow/meeting-flow-success.component';
 import { MeetingFlowDetailsComponent } from './meeting-flow-details.component';
 import { MeetingFlowOptionsComponent } from './meeting-flow-options.component';
 import { MeetingFlowSpaceSelectComponent } from './meeting-flow-space-select.component';
@@ -12,109 +13,123 @@ import { MeetingFlowSpaceSelectComponent } from './meeting-flow-space-select.com
 @Component({
     selector: 'meeting-flow-new',
     template: `
-        <div class="h-full w-full overflow-auto bg-base-200">
-            <div
-                class="mx-auto min-h-full w-[64rem] max-w-full space-y-4 px-4 pt-4"
-            >
+        @if (flow_view() !== 'success') {
+            <div class="h-full w-full overflow-auto bg-base-200">
                 <div
-                    class="w-full rounded-xl border border-base-300 bg-base-100 p-4"
+                    class="mx-auto min-h-full w-[64rem] max-w-full space-y-4 px-4 pt-4"
                 >
-                    <h3 class="mb-4 text-2xl font-medium">
-                        {{ 'CALENDAR_EVENT.MEETING_FLOW_HEADER' | translate }}
-                    </h3>
-                    <div class="flex items-center justify-center space-x-2">
-                        <a
-                            matRipple
-                            class="flex items-center space-x-2 rounded p-2"
-                            [routerLink]="[]"
-                            [queryParams]="{ view: 0 }"
-                        >
-                            <div
-                                class="flex h-8 w-8 items-center justify-center rounded-full"
-                                [class.bg-base-200]="view() < 0"
-                                [class.bg-info]="view() === 0"
-                                [class.text-info-content]="view() === 0"
-                                [class.bg-success]="view() > 0"
-                                [class.text-success-content]="view() > 0"
+                    <div
+                        class="w-full rounded-xl border border-base-300 bg-base-100 p-4"
+                    >
+                        <h3 class="mb-4 text-2xl font-medium">
+                            {{
+                                'CALENDAR_EVENT.MEETING_FLOW_HEADER' | translate
+                            }}
+                        </h3>
+                        <div class="flex items-center justify-center space-x-2">
+                            <a
+                                matRipple
+                                class="flex items-center space-x-2 rounded p-2"
+                                [routerLink]="[]"
+                                [queryParams]="{ view: 0 }"
                             >
-                                <icon>{{ view() > 0 ? 'done' : 'edit' }}</icon>
-                            </div>
-                            <div class="hidden sm:block">
-                                {{ 'COMMON.DETAILS' | translate }}
-                            </div>
-                        </a>
-                        <div class="h-0.5 w-16 bg-base-200"></div>
-                        <a
-                            matRipple
-                            class="flex cursor-pointer items-center space-x-2 rounded p-2"
-                            (click)="navigateToView(1)"
-                        >
-                            <div
-                                class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
-                                [class.bg-base-200]="view() < 1"
-                                [class.bg-info]="view() === 1"
-                                [class.text-info-content]="view() === 1"
-                                [class.bg-success]="view() > 1"
-                                [class.text-success-content]="view() > 1"
+                                <div
+                                    class="flex h-8 w-8 items-center justify-center rounded-full"
+                                    [class.bg-base-200]="view() < 0"
+                                    [class.bg-info]="view() === 0"
+                                    [class.text-info-content]="view() === 0"
+                                    [class.bg-success]="view() > 0"
+                                    [class.text-success-content]="view() > 0"
+                                >
+                                    <icon>{{
+                                        view() > 0 ? 'done' : 'edit'
+                                    }}</icon>
+                                </div>
+                                <div class="hidden sm:block">
+                                    {{ 'COMMON.DETAILS' | translate }}
+                                </div>
+                            </a>
+                            <div class="h-0.5 w-16 bg-base-200"></div>
+                            <a
+                                matRipple
+                                class="flex cursor-pointer items-center space-x-2 rounded p-2"
+                                (click)="navigateToView(1)"
                             >
-                                <icon>{{
-                                    view() > 1 ? 'done' : 'room_preferences'
-                                }}</icon>
-                            </div>
-                            <div class="hidden sm:block">
-                                {{
-                                    'CALENDAR_EVENT.MEETING_FLOW_STEP_SELECT_ROOM'
-                                        | translate
-                                }}
-                            </div>
-                        </a>
-                        <div class="h-0.5 w-16 bg-base-200"></div>
-                        <a
-                            matRipple
-                            class="flex cursor-pointer items-center space-x-2 rounded p-2"
-                            (click)="navigateToView(2)"
-                        >
-                            <div
-                                class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
-                                [class.bg-base-200]="view() < 2"
-                                [class.bg-info]="view() === 2"
-                                [class.text-info-content]="view() === 2"
-                                [class.bg-success]="view() > 2"
-                                [class.text-success-content]="view() > 2"
+                                <div
+                                    class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
+                                    [class.bg-base-200]="view() < 1"
+                                    [class.bg-info]="view() === 1"
+                                    [class.text-info-content]="view() === 1"
+                                    [class.bg-success]="view() > 1"
+                                    [class.text-success-content]="view() > 1"
+                                >
+                                    <icon>{{
+                                        view() > 1 ? 'done' : 'room_preferences'
+                                    }}</icon>
+                                </div>
+                                <div class="hidden sm:block">
+                                    {{
+                                        'CALENDAR_EVENT.MEETING_FLOW_STEP_SELECT_ROOM'
+                                            | translate
+                                    }}
+                                </div>
+                            </a>
+                            <div class="h-0.5 w-16 bg-base-200"></div>
+                            <a
+                                matRipple
+                                class="flex cursor-pointer items-center space-x-2 rounded p-2"
+                                (click)="navigateToView(2)"
                             >
-                                <icon>{{
-                                    view() > 2 ? 'done' : 'task_alt'
-                                }}</icon>
-                            </div>
-                            <div class="hidden sm:block">
-                                {{
-                                    'CALENDAR_EVENT.MEETING_FLOW_STEP_CONFIRM'
-                                        | translate
-                                }}
-                            </div>
-                        </a>
+                                <div
+                                    class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
+                                    [class.bg-base-200]="view() < 2"
+                                    [class.bg-info]="view() === 2"
+                                    [class.text-info-content]="view() === 2"
+                                    [class.bg-success]="view() > 2"
+                                    [class.text-success-content]="view() > 2"
+                                >
+                                    <icon>{{
+                                        view() > 2 ? 'done' : 'task_alt'
+                                    }}</icon>
+                                </div>
+                                <div class="hidden sm:block">
+                                    {{
+                                        'CALENDAR_EVENT.MEETING_FLOW_STEP_CONFIRM'
+                                            | translate
+                                    }}
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="w-full">
+                        @switch (view()) {
+                            @case (0) {
+                                <meeting-flow-details />
+                            }
+                            @case (1) {
+                                <meeting-flow-space-select
+                                    (prev)="previous()"
+                                    (next)="next()"
+                                />
+                            }
+                            @case (2) {
+                                <meeting-flow-options />
+                            }
+                        }
                     </div>
                 </div>
-                <div class="w-full">
-                    @switch (view()) {
-                        @case (0) {
-                            <meeting-flow-details />
-                        }
-                        @case (1) {
-                            <meeting-flow-space-select
-                                (prev)="previous()"
-                                (next)="next()"
-                            />
-                        }
-                        @case (2) {
-                            <meeting-flow-options />
-                        }
-                    }
-                </div>
             </div>
-        </div>
+        } @else {
+            <meeting-flow-success />
+        }
     `,
-    styles: [``],
+    styles: [
+        `
+            :host {
+                height: 100%;
+            }
+        `,
+    ],
     imports: [
         IconComponent,
         MatRippleModule,
@@ -123,6 +138,7 @@ import { MeetingFlowSpaceSelectComponent } from './meeting-flow-space-select.com
         MeetingFlowOptionsComponent,
         RouterModule,
         TranslatePipe,
+        MeetingFlowSuccessComponent,
     ],
 })
 export class MeetingFlowNewComponent extends AsyncHandler implements OnInit {
@@ -131,8 +147,8 @@ export class MeetingFlowNewComponent extends AsyncHandler implements OnInit {
     private _event_form = inject(EventFormService);
 
     public readonly view = signal(0);
-
-    private readonly form_value = toSignal(this._event_form.form.valueChanges, {
+    public readonly flow_view = toSignal(this._event_form.view$);
+    public readonly form_value = toSignal(this._event_form.form.valueChanges, {
         initialValue: this._event_form.form.value,
     });
 
@@ -173,9 +189,11 @@ export class MeetingFlowNewComponent extends AsyncHandler implements OnInit {
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
+                if (params.has('step'))
+                    this._event_form.setView(params.get('step') as any);
                 if (params.has('view')) {
                     if (Number.isNaN(+params.get('view'))) return;
-                    this.view.update((old) => +params.get('view'));
+                    this.view.update((o) => +params.get('view'));
                 }
             }),
         );
