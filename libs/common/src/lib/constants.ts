@@ -15,7 +15,7 @@ export const BOOKING_TYPE_COLORS: Record<string, [string, string]> = {
     'group-event': ['#FCD34D', '#D97706'],
 };
 
-export const SETTING_KEYS: Record<string, string> = {
+export const SETTING_KEYS = {
     FAVORITE_ROOMS: 'favourite_rooms',
     FAVORITE_DESKS: 'favourite_desks',
     FAVORITE_PARKING_SPACES: 'favourite_parking',

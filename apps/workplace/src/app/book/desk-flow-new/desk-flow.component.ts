@@ -2,7 +2,12 @@ import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { BookingFormService } from '@placeos/bookings';
-import { AsyncHandler } from '@placeos/common';
+import {
+    AsyncHandler,
+    getInvalidFields,
+    i18n,
+    notifyError,
+} from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { DeskFlowAutoAssignComponent } from './desk-flow-auto-assign.component';
 import { DeskFlowDetailsComponent } from './desk-flow-details.component';
@@ -11,7 +16,9 @@ import { DeskFlowSelectComponent } from './desk-flow-select.component';
 @Component({
     selector: 'desk-flow-new',
     template: `
-        <div class="flex h-full w-full flex-col overflow-auto bg-base-200">
+        <div
+            class="relative z-0 flex h-full w-full flex-col overflow-auto bg-base-200"
+        >
             <div
                 class="mx-auto min-h-full w-[64rem] max-w-full flex-1 space-y-4 px-4 pt-4"
             >
@@ -101,6 +108,16 @@ export class DeskFlowNewComponent extends AsyncHandler implements OnInit {
     }
 
     public confirmBooking() {
+        this._booking_form.form.markAllAsTouched();
+        if (!this._booking_form.form.valid) {
+            return notifyError(
+                i18n('FORM.INVALID_FIELDS', {
+                    field_list: getInvalidFields(this._booking_form.form)
+                        .join(', ')
+                        .replace('asset_id', i18n('RESOURCE.DESK')),
+                }),
+            );
+        }
         console.log('Booking confirmed');
     }
 }

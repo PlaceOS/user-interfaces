@@ -36,7 +36,7 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
     template: `
         <div class="relative w-full bg-base-100">
             <div
-                class="gradient relative flex items-center justify-between space-x-2 border-l-8 border-base-content px-4 py-3 text-xl font-medium"
+                class="gradient relative flex h-14 items-center justify-between space-x-2 border-l-8 border-base-content px-4 text-xl font-medium"
             >
                 <div class="flex items-center space-x-2">
                     <icon>desk</icon>

@@ -32,7 +32,9 @@ import { AutoAssignedDeskModalComponent } from '../desk-flow/auto-assigned-desk-
                     it's full, we'll find you a spot nearby.
                 </p>
             </div>
-            <div class="flex items-center space-x-4 pt-2">
+            <div
+                class="flex flex-col items-center space-y-2 pt-2 sm:flex-row sm:space-x-4 sm:space-y-0"
+            >
                 <button
                     btn
                     matRipple

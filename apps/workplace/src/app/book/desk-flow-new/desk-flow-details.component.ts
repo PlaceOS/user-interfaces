@@ -15,10 +15,7 @@ import {
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import {
-    DateFieldComponent,
-    DurationFieldComponent,
     RecurrenceFieldComponent,
-    TimeFieldComponent,
     UserListFieldComponent,
     UserSearchFieldComponent,
 } from '@placeos/form-fields';
@@ -147,9 +144,6 @@ type FormType = 'single' | 'group' | 'other';
         ReactiveFormsModule,
         TranslatePipe,
         IconComponent,
-        DateFieldComponent,
-        TimeFieldComponent,
-        DurationFieldComponent,
         RecurrenceFieldComponent,
         UserSearchFieldComponent,
         UserListFieldComponent,

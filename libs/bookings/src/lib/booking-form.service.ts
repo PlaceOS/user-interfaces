@@ -128,7 +128,7 @@ export class BookingFormService extends AsyncHandler {
     private _loading = new BehaviorSubject<string>('');
     private _favourites: Record<BookingType, WritableSignal<string[]>> = {
         ' ': settingSignal('favorites', [], true),
-        room: settingSignal(SETTING_KEYS.FAVOURITE_ROOMS, [], true),
+        room: settingSignal(SETTING_KEYS.FAVORITE_ROOMS, [], true),
         desk: settingSignal(SETTING_KEYS.FAVORITE_DESKS, [], true),
         locker: settingSignal(SETTING_KEYS.FAVORITE_LOCKERS, [], true),
         parking: settingSignal(SETTING_KEYS.FAVORITE_PARKING_SPACES, [], true),

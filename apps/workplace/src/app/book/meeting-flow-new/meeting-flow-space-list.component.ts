@@ -2,11 +2,14 @@ import { AsyncPipe } from '@angular/common';
 import { Component, inject, model, output } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { settingSignal, SettingsService, Space } from '@placeos/common';
+import {
+    SETTING_KEYS,
+    settingSignal,
+    SettingsService,
+    Space,
+} from '@placeos/common';
 import { IconComponent, LevelPipe, TranslatePipe } from '@placeos/components';
 import { EventFormService } from '@placeos/events';
-
-const FAV_SPACE_KEY = 'favourite_rooms';
 
 @Component({
     selector: 'meeting-flow-space-list',
@@ -120,7 +123,8 @@ const FAV_SPACE_KEY = 'favourite_rooms';
                                             {{
                                                 space.display_name ||
                                                     space.name ||
-                                                    ('CALENDAR_EVENT.MEETING_SPACE_DEFAULT' | translate)
+                                                    ('CALENDAR_EVENT.MEETING_SPACE_DEFAULT'
+                                                        | translate)
                                             }}
                                         </div>
                                         <div
@@ -235,7 +239,7 @@ export class MeetingFlowSpaceListComponent {
     public readonly room_alerts = this._event_form.room_alerts;
 
     public readonly favourites = settingSignal<string[]>(
-        FAV_SPACE_KEY,
+        SETTING_KEYS.FAVORITE_ROOMS,
         [],
         true,
     );
@@ -245,11 +249,11 @@ export class MeetingFlowSpaceListComponent {
         console.log('Toggle Favourites:', space, existing);
         if (existing.find((id) => space.id === id)) {
             this._settings.saveUserSetting(
-                FAV_SPACE_KEY,
+                SETTING_KEYS.FAVORITE_ROOMS,
                 existing.filter((id) => id !== space.id),
             );
         } else {
-            this._settings.saveUserSetting(FAV_SPACE_KEY, [
+            this._settings.saveUserSetting(SETTING_KEYS.FAVORITE_ROOMS, [
                 ...existing,
                 space.id,
             ]);

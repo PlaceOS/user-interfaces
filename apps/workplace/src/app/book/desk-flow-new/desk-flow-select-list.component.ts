@@ -24,7 +24,7 @@ const FAV_DESK_KEY = 'favourite_desks';
                 <div class="mb-2 text-sm font-medium">
                     {{
                         'COMMON.RESULTS_COUNT'
-                            | translate: { count: desks.length }
+                            | translate: { count: desks.length } : desks.length
                     }}
                 </div>
                 <ul class="list-style-none space-y-2">
