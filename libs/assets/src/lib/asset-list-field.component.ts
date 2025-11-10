@@ -32,163 +32,201 @@ const EMPTY_FAVS: string[] = [];
 @Component({
     selector: `asset-list-field`,
     template: `
-        <div list class="space-y-2">
-            @for (request of asset_requests; track request) {
-                <div
-                    request
-                    class="overflow-hidden rounded-xl border bg-base-100 shadow"
-                    [class.border-error]="end_time < request.deliver_at"
-                    [class.border-base-300]="end_time >= request.deliver_at"
-                >
-                    <div class="flex items-center space-x-2 p-4">
-                        <div class="flex-1">
-                            <div class="flex items-center space-x-4">
-                                <div>
-                                    {{
-                                        'FORM.ASSETS_REQUESTED_FOR_DATE'
-                                            | translate
-                                                : {
-                                                      date:
-                                                          request.deliver_at_time
-                                                          | date: 'mediumDate',
-                                                      time:
-                                                          request.deliver_at_time
-                                                          | date: time_format,
-                                                  }
-                                    }}
-                                </div>
-                                @if (
-                                    end_time <= request.deliver_at ||
-                                    rejected_ids().includes(request.id) ||
-                                    request.conflict
-                                ) {
-                                    <div
-                                        class="flex h-6 w-6 items-center justify-center rounded-full bg-error text-error-content"
-                                        [matTooltip]="err_tooltip(request)"
-                                    >
-                                        <icon>priority_high</icon>
-                                    </div>
-                                }
-                            </div>
-                        </div>
-                        <button
-                            icon
-                            matRipple
-                            [matTooltip]="'FORM.ASSETS_DUPLICATE' | translate"
-                            (click)="duplicateRequest(request)"
-                        >
-                            <icon>content_copy</icon>
-                        </button>
-                        <button
-                            icon
-                            matRipple
-                            [matTooltip]="'FORM.ASSETS_EDIT' | translate"
-                            (click)="editRequest(request)"
-                        >
-                            <icon>edit</icon>
-                        </button>
-                        <button
-                            icon
-                            matRipple
-                            [matTooltip]="'FORM.ASSETS_REMOVE' | translate"
-                            class="text-error"
-                            (click)="removeRequest(request)"
-                        >
-                            <icon>delete</icon>
-                        </button>
-                        <button
-                            icon
-                            matRipple
-                            [matTooltip]="
-                                (show_request[request.id]
-                                    ? 'FORM.ASSETS_HIDE'
-                                    : 'FORM.ASSETS_SHOW'
-                                ) | translate
-                            "
-                            (click)="
-                                show_request[request.id] =
-                                    !show_request[request.id]
-                            "
-                        >
-                            <icon>
-                                {{
-                                    show_request[request.id]
-                                        ? 'expand_less'
-                                        : 'expand_more'
-                                }}
-                            </icon>
-                        </button>
-                    </div>
+        @if (asset_requests.length) {
+            <div list class="space-y-2">
+                @for (request of asset_requests; track request) {
                     <div
-                        class="flex flex-col divide-y divide-base-100 bg-base-200"
-                        [@show]="show_request[request.id] ? 'show' : 'hide'"
+                        request
+                        class="overflow-hidden rounded-xl border bg-base-100 shadow"
+                        [class.border-error]="end_time < request.deliver_at"
+                        [class.border-base-300]="end_time >= request.deliver_at"
                     >
-                        @for (item of request.items; track item) {
-                            <div
-                                class="flex items-center space-x-2 px-4 py-1 hover:opacity-90"
-                            >
-                                <div class="flex flex-1 items-center">
-                                    {{ item.name || 'Item' }}
+                        <div class="flex items-center space-x-2 p-4">
+                            <div class="flex-1">
+                                <div class="flex items-center space-x-4">
+                                    <div>
+                                        {{
+                                            'FORM.ASSETS_REQUESTED_FOR_DATE'
+                                                | translate
+                                                    : {
+                                                          date:
+                                                              request.deliver_at_time
+                                                              | date
+                                                                  : 'mediumDate',
+                                                          time:
+                                                              request.deliver_at_time
+                                                              | date
+                                                                  : time_format,
+                                                      }
+                                        }}
+                                    </div>
+                                    @if (
+                                        end_time <= request.deliver_at ||
+                                        rejected_ids().includes(request.id) ||
+                                        request.conflict
+                                    ) {
+                                        <div
+                                            class="flex h-6 w-6 items-center justify-center rounded-full bg-error text-error-content"
+                                            [matTooltip]="err_tooltip(request)"
+                                        >
+                                            <icon>priority_high</icon>
+                                        </div>
+                                    }
                                 </div>
-                                <div
-                                    class="rounded bg-success px-2 py-1 text-xs text-success-content"
-                                >
-                                    x{{ item.quantity }}
-                                </div>
-                                <button
-                                    icon
-                                    matRipple
-                                    [matTooltip]="
-                                        'FORM.ASSETS_REMOVE_ITEM' | translate
-                                    "
-                                    class="text-error"
-                                    (click)="removeRequestItem(request, item)"
-                                >
-                                    <icon>delete</icon>
-                                </button>
-                                <button
-                                    icon
-                                    matRipple
-                                    name="toggle-catering-item-favourite"
-                                    [matTooltip]="
-                                        (favorites.includes(item.id)
-                                            ? 'COMMON.FAVOURITES_REMOVE'
-                                            : 'COMMON.FAVOURITES_ADD'
-                                        ) | translate
-                                    "
-                                    [class.text-info]="
-                                        favorites.includes(item.id)
-                                    "
-                                    (click)="toggleFavourite(item)"
-                                >
-                                    <icon
-                                        [className]="
-                                            favorites.includes(item.id)
-                                                ? 'material-symbols-rounded'
-                                                : 'material-symbols-outlined'
-                                        "
-                                        >favorite</icon
-                                    >
-                                </button>
                             </div>
-                        }
+                            <button
+                                icon
+                                matRipple
+                                [matTooltip]="
+                                    'FORM.ASSETS_DUPLICATE' | translate
+                                "
+                                (click)="duplicateRequest(request)"
+                            >
+                                <icon>content_copy</icon>
+                            </button>
+                            <button
+                                icon
+                                matRipple
+                                [matTooltip]="'FORM.ASSETS_EDIT' | translate"
+                                (click)="editRequest(request)"
+                            >
+                                <icon>edit</icon>
+                            </button>
+                            <button
+                                icon
+                                matRipple
+                                [matTooltip]="'FORM.ASSETS_REMOVE' | translate"
+                                class="text-error"
+                                (click)="removeRequest(request)"
+                            >
+                                <icon>delete</icon>
+                            </button>
+                            <button
+                                icon
+                                matRipple
+                                [matTooltip]="
+                                    (show_request[request.id]
+                                        ? 'FORM.ASSETS_HIDE'
+                                        : 'FORM.ASSETS_SHOW'
+                                    ) | translate
+                                "
+                                (click)="
+                                    show_request[request.id] =
+                                        !show_request[request.id]
+                                "
+                            >
+                                <icon>
+                                    {{
+                                        show_request[request.id]
+                                            ? 'expand_less'
+                                            : 'expand_more'
+                                    }}
+                                </icon>
+                            </button>
+                        </div>
+                        <div
+                            class="flex flex-col divide-y divide-base-100 bg-base-200"
+                            [@show]="show_request[request.id] ? 'show' : 'hide'"
+                        >
+                            @for (item of request.items; track item) {
+                                <div
+                                    class="flex items-center space-x-2 px-4 py-1 hover:opacity-90"
+                                >
+                                    <div class="flex flex-1 items-center">
+                                        {{ item.name || 'Item' }}
+                                    </div>
+                                    <div
+                                        class="rounded bg-success px-2 py-1 text-xs text-success-content"
+                                    >
+                                        x{{ item.quantity }}
+                                    </div>
+                                    <button
+                                        icon
+                                        matRipple
+                                        [matTooltip]="
+                                            'FORM.ASSETS_REMOVE_ITEM'
+                                                | translate
+                                        "
+                                        class="text-error"
+                                        (click)="
+                                            removeRequestItem(request, item)
+                                        "
+                                    >
+                                        <icon>delete</icon>
+                                    </button>
+                                    <button
+                                        icon
+                                        matRipple
+                                        name="toggle-catering-item-favourite"
+                                        [matTooltip]="
+                                            (favorites.includes(item.id)
+                                                ? 'COMMON.FAVOURITES_REMOVE'
+                                                : 'COMMON.FAVOURITES_ADD'
+                                            ) | translate
+                                        "
+                                        [class.text-info]="
+                                            favorites.includes(item.id)
+                                        "
+                                        (click)="toggleFavourite(item)"
+                                    >
+                                        <icon
+                                            [className]="
+                                                favorites.includes(item.id)
+                                                    ? 'material-symbols-rounded'
+                                                    : 'material-symbols-outlined'
+                                            "
+                                            >favorite</icon
+                                        >
+                                    </button>
+                                </div>
+                            }
+                        </div>
                     </div>
+                }
+            </div>
+            <button
+                btn
+                matRipple
+                add-space
+                class="inverse mt-2 w-full"
+                [disabled]="disabled"
+                (click)="editRequest()"
+            >
+                <div class="flex items-center justify-center space-x-2">
+                    <icon>search</icon>
+                    <span>{{ 'FORM.ASSETS_ADD' | translate }}</span>
+                </div>
+            </button>
+        } @else {
+            @if (disabled) {
+                <div
+                    class="flex w-full flex-col items-center space-y-2 rounded-xl bg-base-200 p-8"
+                >
+                    <icon class="text-6xl opacity-30">hand_meal</icon>
+                    <p class="opacity-30">
+                        Assets are not available for the selected space and/or
+                        time
+                    </p>
+                </div>
+            } @else {
+                <div
+                    class="flex w-full flex-col items-center space-y-2 rounded-xl bg-base-200 p-8"
+                >
+                    <p>No asset requests for this booking</p>
+                    <button
+                        btn
+                        matRipple
+                        class="inverse space-x-2"
+                        (click)="editRequest()"
+                    >
+                        <icon class="text-2xl">add_notes</icon>
+                        <span class="pr-3">
+                            {{ 'FORM.ASSETS_ADD' | translate }}
+                        </span>
+                    </button>
                 </div>
             }
-        </div>
-        <button
-            btn
-            matRipple
-            add-space
-            class="inverse mt-2 w-full"
-            [disabled]="disabled"
-            (click)="editRequest()"
-        >
-            <div class="flex items-center justify-center space-x-2">
-                <icon>search</icon>
-                <span>{{ 'FORM.ASSETS_ADD' | translate }}</span>
-            </div>
-        </button>
+        }
     `,
     styles: [``],
     providers: [
