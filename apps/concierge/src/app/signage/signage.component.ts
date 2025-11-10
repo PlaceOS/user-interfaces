@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTabsModule } from '@angular/material/tabs';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
-import { AsyncHandler, i18n } from '@placeos/common';
+import { AsyncHandler, i18n, settingSignal } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
 import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
@@ -15,7 +15,9 @@ import { SignageStateService } from './signage-state.service';
     template: `
         <app-topbar />
         <div class="flex h-px flex-1">
-            <app-sidebar></app-sidebar>
+            @if (!hide_sidebar()) {
+                <app-sidebar></app-sidebar>
+            }
             <main class="flex h-full w-1/2 flex-1 flex-col">
                 <div class="flex h-20 items-center justify-between p-8">
                     <h2 class="text-2xl font-medium">
@@ -94,6 +96,7 @@ export class SignageComponent extends AsyncHandler implements OnInit {
     public readonly loading = this._state.loading;
     public links = [];
     public active_link = this.links[0]?.id;
+    public readonly hide_sidebar = settingSignal('hide_sidebar', false);
 
     public readonly previewFile = (event) =>
         this._state.previewFileFromInput(event);
