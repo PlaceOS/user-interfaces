@@ -144,8 +144,8 @@ const FAV_DESK_KEY = 'favourite_desks';
                         <div
                             class="!ml-2 rounded-md bg-base-200 px-2 py-1 font-mono text-xs"
                         >
-                            {{ page() * page_size() }} -
-                            {{ page() * page_size() + page_size() }}
+                            @let range = active_range();
+                            {{ range[0] }} - {{ range[1] }}
                         </div>
                         <div class="flex-1"></div>
                         <div class="p-2">
@@ -231,6 +231,13 @@ export class DeskFlowSelectListComponent {
     public readonly max_pages = computed(() =>
         Math.ceil(this.available_items().length / this.page_size()),
     );
+    public readonly active_range = computed(() => [
+        this.page() * this.page_size() + 1,
+        Math.min(
+            this.page() * this.page_size() + this.page_size(),
+            this.available_items()?.length,
+        ),
+    ]);
 
     public readonly favourites = settingSignal<string[]>(
         SETTING_KEYS.FAVORITE_DESKS,

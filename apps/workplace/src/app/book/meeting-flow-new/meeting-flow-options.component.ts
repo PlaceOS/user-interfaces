@@ -7,6 +7,7 @@ import {
     ViewChild,
 } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -313,13 +314,31 @@ import { BehaviorSubject, combineLatest, map, tap } from 'rxjs';
         <div
             class="sticky bottom-0 mt-4 flex justify-end rounded-t-xl border-x border-t border-base-300 bg-base-100 p-3"
         >
-            <button btn matRipple class="" (click)="confirmBooking()">
+            <button
+                btn
+                matRipple
+                class=""
+                (click)="confirmBooking()"
+                [disabled]="loading()"
+            >
                 <div class="flex items-center space-x-2">
-                    <icon class="text-2xl">task_alt</icon>
+                    @if (loading()) {
+                        <icon class="animate-spin text-2xl"
+                            >progress_activity</icon
+                        >
+                    } @else {
+                        <icon class="text-2xl">task_alt</icon>
+                    }
                     <div class="flex-1 pr-4">
-                        {{ 'COMMON.CONFIRM' | translate }}
+                        {{
+                            loading()
+                                ? ('COMMON.CONFIRMING' | translate)
+                                : ('COMMON.CONFIRM' | translate)
+                        }}
                     </div>
-                    <icon class="text-2xl">keyboard_arrow_right</icon>
+                    @if (!loading()) {
+                        <icon class="text-2xl">keyboard_arrow_right</icon>
+                    }
                 </div>
             </button>
         </div>
@@ -343,6 +362,7 @@ import { BehaviorSubject, combineLatest, map, tap } from 'rxjs';
         UserListFieldComponent,
         ReactiveFormsModule,
         FormsModule,
+        MatRippleModule,
         MatFormFieldModule,
         MatInputModule,
         MatSelectModule,
@@ -363,6 +383,7 @@ export class MeetingFlowOptionsComponent {
     @ViewChild('input') private _input: ElementRef<HTMLInputElement>;
 
     public readonly form = signal(this._event_form.form);
+    public readonly loading = signal(false);
     public readonly allow_externals = settingSignal(
         'events.allow_externals',
         false,
@@ -500,11 +521,16 @@ export class MeetingFlowOptionsComponent {
             );
             if (result.reason !== 'done') return;
         }
-        await this._event_form.postForm().catch((_) => {
-            notifyError(_);
-            throw _;
-        });
-        this._router.navigate(['/book/meeting']);
-        notifySuccess(i18n('APP.WORKPLACE.MEETING_BOOKED_SUCCESS'));
+        this.loading.set(true);
+        try {
+            await this._event_form.postForm().catch((_) => {
+                notifyError(_);
+                throw _;
+            });
+            this._router.navigate(['/book/meeting']);
+            notifySuccess(i18n('APP.WORKPLACE.MEETING_BOOKED_SUCCESS'));
+        } finally {
+            this.loading.set(false);
+        }
     }
 }
