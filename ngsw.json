@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1762311559495,
+  "timestamp": 1762825080231,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -13,7 +13,7 @@
       "urls": [
         "./favicon.ico",
         "./index.html",
-        "./main-LRBJB35Y.js",
+        "./main-5JN2J3HI.js",
         "./manifest.webmanifest",
         "./styles-JINTDGXW.css"
       ],
@@ -202,8 +202,8 @@
     "./assets/support/opera-logo.svg": "23f8e25409598ac843eefe81ea3c09b4f460844d",
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
-    "./index.html": "d42f2dca5971b7f9515f306b622ec3ef21f8bfd9",
-    "./main-LRBJB35Y.js": "4c6892c7265e01e562fadaa31b72f835fbe5ee8c",
+    "./index.html": "1348bba25980f93e7fbec068edce425f835068ca",
+    "./main-5JN2J3HI.js": "ef6d3d4e26ec028d6359f388318cdca2eb4adad7",
     "./manifest.webmanifest": "b77d510a22ab8c2bbb2bd38f11b3b266666784f3",
     "./styles-JINTDGXW.css": "5f4c41a2f20a62d2509391a9575fbd5f8173c7dc"
   },
