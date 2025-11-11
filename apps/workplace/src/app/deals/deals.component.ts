@@ -9,7 +9,11 @@ import {
     SettingsService,
     unique,
 } from '@placeos/common';
-import { IconComponent, TranslatePipe } from '@placeos/components';
+import {
+    AuthenticatedImageDirective,
+    IconComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { BehaviorSubject, combineLatest, map } from 'rxjs';
 import { FooterMenuComponent } from '../components/footer-menu.component';
 import { TopbarComponent } from '../components/topbar.component';
@@ -193,6 +197,7 @@ import { DealsService } from './deals.service';
         MatMenuModule,
         TopbarComponent,
         FooterMenuComponent,
+        AuthenticatedImageDirective,
     ],
 })
 export class DealsComponent implements OnInit {
