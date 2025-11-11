@@ -27,8 +27,17 @@ export interface FavoriteEntry {
             class="flex flex-col rounded-lg border border-base-300 bg-base-100 p-4"
         >
             <div class="mb-2">
-                <h3 class="text-lg font-medium">{{ 'COMMON.FAVOURITES' | translate }}</h3>
-                <div class="text-sm">{{ 'APP.WORKPLACE.FAVOURITES_COUNT' | translate: { count: favourites().length } : favourites().length }}</div>
+                <h3 class="text-lg font-medium">
+                    {{ 'COMMON.FAVOURITES' | translate }}
+                </h3>
+                <div class="text-sm">
+                    {{
+                        'APP.WORKPLACE.FAVOURITES_COUNT'
+                            | translate
+                                : { count: favourites().length }
+                                : favourites().length
+                    }}
+                </div>
             </div>
             @if (favourites().length) {
                 <div

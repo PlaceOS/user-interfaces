@@ -1,9 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { Router, RouterLink } from '@angular/router';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
+import { Router, RouterLink } from '@angular/router';
 import {
     BookingDetailsModalComponent,
     checkinBooking,
@@ -131,11 +131,9 @@ import { ScheduleStateService } from '../schedule/schedule-state.service';
             </div>
         } @else {
             <div
-                class="col-span-2 flex min-h-48 flex-col items-start justify-center space-y-2 rounded-lg border border-base-300 bg-grad p-4 text-brand-content"
+                class="bg-grad col-span-2 flex min-h-48 flex-col items-start justify-center space-y-2 rounded-lg border border-base-300 p-4 text-brand-content"
             >
-                <div
-                    class="relative overflow-hidden rounded px-2 py-1 text-sm "
-                >
+                <div class="relative overflow-hidden rounded px-2 py-1 text-sm">
                     <div
                         class="absolute inset-0 bg-brand-content opacity-20"
                     ></div>
@@ -145,11 +143,11 @@ import { ScheduleStateService } from '../schedule/schedule-state.service';
                 <p class="text-base opacity-90">
                     Ready to plan your day? Book a space or find a colleague.
                 </p>
-                <div class="flex flex-wrap gap-3 pt-2 w-full max-w-[24rem]">
+                <div class="flex w-full max-w-[24rem] flex-wrap gap-3 pt-2">
                     <a
                         btn
                         matRipple
-                        class="white space-x-2 flex-1"
+                        class="white flex-1 space-x-2"
                         [routerLink]="['/book', 'meeting']"
                     >
                         <div>Book a Space</div>
@@ -157,7 +155,7 @@ import { ScheduleStateService } from '../schedule/schedule-state.service';
                     <button
                         btn
                         matRipple
-                        class="inverse white space-x-2 flex-1"
+                        class="inverse white flex-1 space-x-2"
                         (click)="findColleagues()"
                     >
                         <div>Find Colleagues</div>
@@ -177,7 +175,13 @@ import { ScheduleStateService } from '../schedule/schedule-state.service';
             }
         `,
     ],
-    imports: [CommonModule, MatRippleModule, IconComponent, TranslatePipe, RouterLink]
+    imports: [
+        CommonModule,
+        MatRippleModule,
+        IconComponent,
+        TranslatePipe,
+        RouterLink,
+    ],
 })
 export class LandingUpcomingBookingComponent extends AsyncHandler {
     private _state = inject(LandingStateService);

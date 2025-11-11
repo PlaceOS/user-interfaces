@@ -88,7 +88,10 @@ import { LandingUpcomingBookingComponent } from './landing-upcoming-booking.comp
         LandingColleaguesNewComponent,
     ],
 })
-export class LandingNewComponent extends AsyncHandler implements OnInit, OnDestroy {
+export class LandingNewComponent
+    extends AsyncHandler
+    implements OnInit, OnDestroy
+{
     private _bottom_sheet = inject(MatBottomSheet);
     private _state = inject(LandingStateService);
 

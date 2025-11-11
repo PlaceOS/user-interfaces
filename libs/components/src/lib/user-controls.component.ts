@@ -4,10 +4,11 @@ import {
     currentUser,
     hasNewVersion,
     i18n,
-    LocaleService, settingSignal,
+    LocaleService,
+    settingSignal,
     SettingsService,
     VERSION,
-    WorktimePreference
+    WorktimePreference,
 } from '@placeos/common';
 import { logout } from '@placeos/ts-client';
 import { format, set, startOfMinute } from 'date-fns';
@@ -437,7 +438,7 @@ export class UserControlsComponent implements OnInit {
     public readonly language_tooltip = LanguageSelectComponent;
     public readonly work_location_tooltip = WorkLocationTooltipComponent;
     public readonly parking_tooltip = UserParkingTooltipComponent;
-    public readonly features = settingSignal('features', [])
+    public readonly features = settingSignal('features', []);
     public pref_locations = [];
     public work_prefs: WorktimePreference[] = [];
     public overrides: Record<string, WorktimePreference> = {};
@@ -500,7 +501,6 @@ export class UserControlsComponent implements OnInit {
     public get version() {
         return VERSION;
     }
-
 
     public get active_locale(): string {
         const locale_list = this.locales;

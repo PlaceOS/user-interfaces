@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
 import { MatRippleModule } from '@angular/material/core';
+import { MatDialog } from '@angular/material/dialog';
 import { Router, RouterModule } from '@angular/router';
 import { IconComponent } from '@placeos/components';
 import { AutoAssignedDeskModalComponent } from '../book/desk-flow/auto-assigned-desk-modal.component';

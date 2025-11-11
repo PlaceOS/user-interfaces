@@ -215,86 +215,90 @@ export class BookingFormService extends AsyncHandler {
         shareReplay(1),
     );
 
-    public readonly available_resources: Observable<BookingAsset[]> = combineLatest([
-        this.options,
-        this.resources,
-        this.booking_rules,
-        merge(this.form.get('user').valueChanges, timer(1000)),
-        merge(this.form.get('date').valueChanges, timer(1000)),
-        merge(this.form.get('duration').valueChanges, timer(1000)),
-    ]).pipe(
-        filter(
-            () =>
-                this.form.getRawValue().date > 0 &&
-                this.form.getRawValue().duration > 0,
-        ),
-        debounceTime(500),
-        tap(([{ type }]) =>
-            this._loading.next(i18n('BOOKINGS.LOADING_AVAILABILITY', { type })),
-        ),
-        switchMap(([options, resources, restrictions]) => {
-            let { all_day, date, duration, user } = this.form.getRawValue();
-            if (all_day) {
-                date = startOfDay(date).valueOf();
-                duration = 24 * 60 - 1;
-            }
-            const favourites = this._favourites[options.type]?.() || [];
-            return bookedResourceList({
-                period_start: getUnixTime(date),
-                period_end: getUnixTime(addMinutes(date, duration)),
-                type: options.type,
-                zones:
-                    options.zone_id ||
-                    (this._settings.get('app.use_region')
-                        ? this._org.region?.id
-                        : this._org.building?.id) ||
-                    this._org.organisation.id,
-            }).pipe(
-                map((booked_ids) => {
-                    this._resource_use = {};
-                    for (const id of booked_ids) {
-                        this._resource_use[id] = ' ';
-                    }
-                    const available = resources.filter((asset) => {
-                        const is_restricted = rulesForResource(
-                            {
-                                date,
-                                duration,
-                                resource: asset,
-                                host: user || currentUser(),
-                            },
-                            restrictions[asset.zone?.id] ||
-                                restrictions[asset.zone?.parent_id] ||
-                                restrictions[this._org.building.id] ||
-                                [],
-                        ).hidden;
-                        return (
-                            !is_restricted &&
-                            (!options.show_fav ||
-                                favourites.includes(asset.id)) &&
-                            (!asset.groups?.length ||
-                                asset.groups.some((grp) =>
-                                    currentUser().groups.includes(grp),
-                                )) &&
-                            asset.bookable !== false &&
-                            (!options.features ||
-                                options.features?.every((_) =>
-                                    asset.features.includes(_),
-                                )) &&
-                            (!options.zone_id ||
-                                options.zone_id === asset.zone?.id ||
-                                options.zone_id === asset.zone?.parent_id) &&
-                            !booked_ids.includes(asset.id)
-                        );
-                    });
-                    return available;
-                }),
-                catchError(() => of([])),
-            );
-        }),
-        tap(() => this._loading.next('')),
-        shareReplay(1),
-    );
+    public readonly available_resources: Observable<BookingAsset[]> =
+        combineLatest([
+            this.options,
+            this.resources,
+            this.booking_rules,
+            merge(this.form.get('user').valueChanges, timer(1000)),
+            merge(this.form.get('date').valueChanges, timer(1000)),
+            merge(this.form.get('duration').valueChanges, timer(1000)),
+        ]).pipe(
+            filter(
+                () =>
+                    this.form.getRawValue().date > 0 &&
+                    this.form.getRawValue().duration > 0,
+            ),
+            debounceTime(500),
+            tap(([{ type }]) =>
+                this._loading.next(
+                    i18n('BOOKINGS.LOADING_AVAILABILITY', { type }),
+                ),
+            ),
+            switchMap(([options, resources, restrictions]) => {
+                let { all_day, date, duration, user } = this.form.getRawValue();
+                if (all_day) {
+                    date = startOfDay(date).valueOf();
+                    duration = 24 * 60 - 1;
+                }
+                const favourites = this._favourites[options.type]?.() || [];
+                return bookedResourceList({
+                    period_start: getUnixTime(date),
+                    period_end: getUnixTime(addMinutes(date, duration)),
+                    type: options.type,
+                    zones:
+                        options.zone_id ||
+                        (this._settings.get('app.use_region')
+                            ? this._org.region?.id
+                            : this._org.building?.id) ||
+                        this._org.organisation.id,
+                }).pipe(
+                    map((booked_ids) => {
+                        this._resource_use = {};
+                        for (const id of booked_ids) {
+                            this._resource_use[id] = ' ';
+                        }
+                        const available = resources.filter((asset) => {
+                            const is_restricted = rulesForResource(
+                                {
+                                    date,
+                                    duration,
+                                    resource: asset,
+                                    host: user || currentUser(),
+                                },
+                                restrictions[asset.zone?.id] ||
+                                    restrictions[asset.zone?.parent_id] ||
+                                    restrictions[this._org.building.id] ||
+                                    [],
+                            ).hidden;
+                            return (
+                                !is_restricted &&
+                                (!options.show_fav ||
+                                    favourites.includes(asset.id)) &&
+                                (!asset.groups?.length ||
+                                    asset.groups.some((grp) =>
+                                        currentUser().groups.includes(grp),
+                                    )) &&
+                                asset.bookable !== false &&
+                                (!options.features ||
+                                    options.features?.every((_) =>
+                                        asset.features.includes(_),
+                                    )) &&
+                                (!options.zone_id ||
+                                    options.zone_id === asset.zone?.id ||
+                                    options.zone_id ===
+                                        asset.zone?.parent_id) &&
+                                !booked_ids.includes(asset.id)
+                            );
+                        });
+                        return available;
+                    }),
+                    catchError(() => of([])),
+                );
+            }),
+            tap(() => this._loading.next('')),
+            shareReplay(1),
+        );
 
     public readonly grouped_availability = combineLatest([
         this.options,

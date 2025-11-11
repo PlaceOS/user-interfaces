@@ -396,44 +396,46 @@ export class ScheduleStateService extends AsyncHandler {
     );
 
     /** List of events and bookings for the selected date */
-    public readonly bookings: Observable<(CalendarEvent | Booking)[]> = combineLatest([
-        this.events,
-        this.visitors,
-        this.desks,
-        this.parking,
-        this.lockers,
-        this.locker_bookings,
-        this.group_events,
-    ]).pipe(
-        map(
-            ([
-                events,
-                visitors,
-                desks,
-                parking,
-                lockers,
-                locker_bookings,
-                group_events,
-            ]: any) => {
-                const filtered_events = events.filter(
-                    (ev) =>
-                        !desks.find(
-                            (bkn) => `${ev.meeting_id}` === `${bkn.id}`,
-                        ) &&
-                        ev.linked_bookings[0]?.booking_type !== 'group-event',
-                );
-                return [
-                    ...filtered_events,
-                    ...visitors,
-                    ...desks,
-                    ...parking,
-                    ...lockers,
-                    ...locker_bookings,
-                    ...group_events,
-                ].sort((a, b) => a.date - b.date);
-            },
-        ),
-    );
+    public readonly bookings: Observable<(CalendarEvent | Booking)[]> =
+        combineLatest([
+            this.events,
+            this.visitors,
+            this.desks,
+            this.parking,
+            this.lockers,
+            this.locker_bookings,
+            this.group_events,
+        ]).pipe(
+            map(
+                ([
+                    events,
+                    visitors,
+                    desks,
+                    parking,
+                    lockers,
+                    locker_bookings,
+                    group_events,
+                ]: any) => {
+                    const filtered_events = events.filter(
+                        (ev) =>
+                            !desks.find(
+                                (bkn) => `${ev.meeting_id}` === `${bkn.id}`,
+                            ) &&
+                            ev.linked_bookings[0]?.booking_type !==
+                                'group-event',
+                    );
+                    return [
+                        ...filtered_events,
+                        ...visitors,
+                        ...desks,
+                        ...parking,
+                        ...lockers,
+                        ...locker_bookings,
+                        ...group_events,
+                    ].sort((a, b) => a.date - b.date);
+                },
+            ),
+        );
     /** Filtered list of events and bookings for the selected date */
     public readonly filtered_bookings = combineLatest([
         this.bookings,
@@ -443,7 +445,9 @@ export class ScheduleStateService extends AsyncHandler {
             booking_list.filter((_) => {
                 if (
                     this._deleted.includes(
-                        (_ as any).instance ? `${_.id}|${(_ as any).instance}` : _.id,
+                        (_ as any).instance
+                            ? `${_.id}|${(_ as any).instance}`
+                            : _.id,
                     )
                 )
                     return false;

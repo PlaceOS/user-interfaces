@@ -1,15 +1,17 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
-import { IconComponent, TranslatePipe, UserAvatarComponent } from '@placeos/components';
+import {
+    IconComponent,
+    TranslatePipe,
+    UserAvatarComponent,
+} from '@placeos/components';
 import { LandingStateService } from '../landing/landing-state.service';
 
 @Component({
     selector: 'landing-colleagues-new',
     template: `
-        <div
-            class="rounded-lg border border-base-300 bg-base-100 p-4"
-        >
+        <div class="rounded-lg border border-base-300 bg-base-100 p-4">
             @let contact_list = contacts | async;
             <div class="mb-2">
                 <h3 class="text-lg font-medium">
