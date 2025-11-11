@@ -101,7 +101,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                                         [disabled]="checking_in()"
                                         (click)="toggleCheckedIn()"
                                     >
-                                        @if (!checking_in) {
+                                        @if (!checking_in()) {
                                             <div
                                                 class="flex items-center justify-center space-x-2"
                                             >
@@ -471,11 +471,11 @@ export class BookingDetailsModalComponent {
         () =>
             !settingSignal(
                 `${(this.booking()?.type || 'booking') + 's'}.hide_checkin`,
-            ) &&
+            )() &&
             !settingSignal(
                 `${this.booking()?.type || 'bookings'}.hide_checkin`,
-            ) &&
-            !settingSignal('bookings.hide_checkin'),
+            )() &&
+            !settingSignal('bookings.hide_checkin')(),
     );
 
     public readonly allow_series_delete = computed(() => {
@@ -496,8 +496,9 @@ export class BookingDetailsModalComponent {
         return false;
     });
 
-    public readonly auto_checkin = computed(() =>
-        settingSignal(`${this.booking()?.type || 'bookings'}.auto_checkin`),
+    public readonly auto_checkin = settingSignal(
+        `${this.booking()?.type || 'bookings'}.auto_checkin`,
+        false,
     );
     public readonly is_checked_in = computed(() => this.booking().checked_in);
     public readonly desk_height_enabled = computed(
