@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { Router, RouterLink } from '@angular/router';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
@@ -130,16 +131,37 @@ import { ScheduleStateService } from '../schedule/schedule-state.service';
             </div>
         } @else {
             <div
-                class="col-span-2 flex min-h-48 flex-col items-center justify-center space-y-4 rounded-lg border border-base-300 bg-base-100 p-8"
+                class="col-span-2 flex min-h-48 flex-col items-start justify-center space-y-2 rounded-lg border border-base-300 bg-grad p-4 text-brand-content"
             >
-                <img src="assets/img/no-events.svg" class="h-24" />
-                <div class="text-center">
-                    <h3 class="text-lg font-medium">
-                        {{ 'APP.WORKPLACE.UPCOMING_EMPTY' | translate }}
-                    </h3>
-                    <p class="text-sm opacity-60">
-                        You have no upcoming bookings or events today
-                    </p>
+                <div
+                    class="relative overflow-hidden rounded px-2 py-1 text-sm "
+                >
+                    <div
+                        class="absolute inset-0 bg-brand-content opacity-20"
+                    ></div>
+                    <div class="capitalize">No Upcoming Bookings</div>
+                </div>
+                <h2 class="text-3xl font-medium">Your schedule is clear</h2>
+                <p class="text-base opacity-90">
+                    Ready to plan your day? Book a space or find a colleague.
+                </p>
+                <div class="flex flex-wrap gap-3 pt-2 w-full max-w-[24rem]">
+                    <a
+                        btn
+                        matRipple
+                        class="white space-x-2 flex-1"
+                        [routerLink]="['/book', 'meeting']"
+                    >
+                        <div>Book a Space</div>
+                    </a>
+                    <button
+                        btn
+                        matRipple
+                        class="inverse white space-x-2 flex-1"
+                        (click)="findColleagues()"
+                    >
+                        <div>Find Colleagues</div>
+                    </button>
                 </div>
             </div>
         }
@@ -155,13 +177,14 @@ import { ScheduleStateService } from '../schedule/schedule-state.service';
             }
         `,
     ],
-    imports: [CommonModule, MatRippleModule, IconComponent, TranslatePipe],
+    imports: [CommonModule, MatRippleModule, IconComponent, TranslatePipe, RouterLink]
 })
 export class LandingUpcomingBookingComponent extends AsyncHandler {
     private _state = inject(LandingStateService);
     private _schedule = inject(ScheduleStateService);
     private _dialog = inject(MatDialog);
     private _org = inject(OrganisationService);
+    private _router = inject(Router);
 
     public readonly upcomingEvents = toSignal(this._state.upcoming_events);
 
@@ -330,5 +353,9 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
                 data: { item: itemData },
             });
         }
+    }
+
+    public findColleagues() {
+        this._router.navigate(['/explore']);
     }
 }
