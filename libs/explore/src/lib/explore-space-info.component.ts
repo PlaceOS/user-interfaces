@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, ElementRef, inject, OnInit, signal } from '@angular/core';
 import {
+    AsyncHandler,
     CalendarEvent,
     MAP_FEATURE_DATA,
     settingSignal,
@@ -95,7 +96,13 @@ export interface SpaceInfoData {
                         </h4>
                         @if (next()) {
                             <div class="px-2 text-base">
-                                Free until {{ next().date | date: 'shortTime' }}
+                                Free {{ next().date > now() ? 'until' : 'at' }}
+                                {{
+                                    (next().date > now()
+                                        ? next().date
+                                        : next().date_end
+                                    ) | date: 'shortTime'
+                                }}
                             </div>
                         }
                         @if (space.capacity >= 0) {
@@ -155,7 +162,7 @@ export interface SpaceInfoData {
         AuthenticatedImageDirective,
     ],
 })
-export class ExploreSpaceInfoComponent implements OnInit {
+export class ExploreSpaceInfoComponent extends AsyncHandler implements OnInit {
     private _details = inject<SpaceInfoData>(MAP_FEATURE_DATA);
     private _element = inject<ElementRef<HTMLElement>>(ElementRef);
 
@@ -165,6 +172,8 @@ export class ExploreSpaceInfoComponent implements OnInit {
     public readonly space = this._details.space;
     /** List of upcoming events for space */
     public readonly events = this._details.events;
+    /** List of upcoming events for space */
+    public readonly now = signal(Date.now());
     /** List of upcoming events for space */
     public readonly next = signal<CalendarEvent>(null);
     /** Current status of the space */
@@ -176,9 +185,12 @@ export class ExploreSpaceInfoComponent implements OnInit {
     );
 
     public ngOnInit() {
-        setTimeout(() => this.updateOffset(), 200);
-        this.events.sort((a, b) => a.date - b.date);
-        this.next.set(this.events[0]);
+        this.timeout('update_offset', () => this.updateOffset(), 200);
+        const events = this.events
+            .sort((a, b) => a.date - b.date)
+            .filter((i) => i.date_end > Date.now());
+        this.next.set(events[0]);
+        this.interval('time', () => this.now.set(Date.now()), 5000);
     }
 
     public updateOffset() {
