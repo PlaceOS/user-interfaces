@@ -396,7 +396,7 @@ export class ScheduleStateService extends AsyncHandler {
     );
 
     /** List of events and bookings for the selected date */
-    public readonly bookings = combineLatest([
+    public readonly bookings: Observable<(CalendarEvent | Booking)[]> = combineLatest([
         this.events,
         this.visitors,
         this.desks,
@@ -439,11 +439,11 @@ export class ScheduleStateService extends AsyncHandler {
         this.bookings,
         this._filters,
     ]).pipe(
-        map(([bkns, filters]) =>
-            bkns.filter((_) => {
+        map(([booking_list, filters]) =>
+            booking_list.filter((_) => {
                 if (
                     this._deleted.includes(
-                        _.instance ? `${_.id}|${_.instance}` : _.id,
+                        (_ as any).instance ? `${_.id}|${(_ as any).instance}` : _.id,
                     )
                 )
                     return false;

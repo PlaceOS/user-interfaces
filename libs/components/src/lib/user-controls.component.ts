@@ -4,10 +4,10 @@ import {
     currentUser,
     hasNewVersion,
     i18n,
-    LocaleService,
+    LocaleService, settingSignal,
     SettingsService,
     VERSION,
-    WorktimePreference,
+    WorktimePreference
 } from '@placeos/common';
 import { logout } from '@placeos/ts-client';
 import { format, set, startOfMinute } from 'date-fns';
@@ -54,7 +54,7 @@ export interface AppLocale {
                 <div class="">{{ user?.name }}</div>
                 <div class="truncate text-xs opacity-60">{{ user?.email }}</div>
             </div>
-            @if (features.includes('wfh') && active_block) {
+            @if (features().includes('wfh') && active_block) {
                 <div class="w-full rounded border border-base-200 py-2">
                     <h3 class="w-full px-4 pb-2 text-sm font-medium">
                         Today's Work Location
@@ -185,7 +185,7 @@ export interface AppLocale {
                     </button>
                 </div>
             }
-            @if (features.includes('help')) {
+            @if (features().includes('help')) {
                 <div customTooltip [content]="help_tooltip">
                     <button
                         btn
@@ -208,7 +208,7 @@ export interface AppLocale {
                     </button>
                 </div>
             }
-            @if (features.includes('wfh')) {
+            @if (features().includes('wfh')) {
                 <div customTooltip [content]="work_location_tooltip">
                     <button
                         btn
@@ -283,7 +283,7 @@ export interface AppLocale {
                 <desk-height-presets></desk-height-presets>
             </ng-template>
 
-            @if (features.includes('parking')) {
+            @if (features().includes('parking')) {
                 <div
                     customTooltip
                     [content]="parking_tooltip"
@@ -358,7 +358,7 @@ export interface AppLocale {
                 </div>
             }
 
-            @if (features.includes('support-ticket')) {
+            @if (features().includes('support-ticket')) {
                 <button
                     btn
                     matRipple
@@ -437,6 +437,7 @@ export class UserControlsComponent implements OnInit {
     public readonly language_tooltip = LanguageSelectComponent;
     public readonly work_location_tooltip = WorkLocationTooltipComponent;
     public readonly parking_tooltip = UserParkingTooltipComponent;
+    public readonly features = settingSignal('features', [])
     public pref_locations = [];
     public work_prefs: WorktimePreference[] = [];
     public overrides: Record<string, WorktimePreference> = {};
@@ -500,9 +501,6 @@ export class UserControlsComponent implements OnInit {
         return VERSION;
     }
 
-    public get features(): string[] {
-        return this._settings.get('app.features') || [];
-    }
 
     public get active_locale(): string {
         const locale_list = this.locales;

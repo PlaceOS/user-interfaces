@@ -1,8 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
-import { IconComponent } from '@placeos/components';
+import { BuildingPipe, IconComponent } from '@placeos/components';
 import { LandingStateService } from '../landing/landing-state.service';
+import { BookingType, OrganisationService, settingSignal } from '@placeos/common';
+import { BookingFormService } from '@placeos/bookings';
+import { EventFormService } from '@placeos/events';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { RouterLink } from '@angular/router';
 
 @Component({
     selector: 'landing-available-now',
@@ -20,56 +25,103 @@ import { LandingStateService } from '../landing/landing-state.service';
             <div
                 class="flex w-full items-center space-x-1 rounded bg-base-200 p-1"
             >
-                <button
-                    btn
-                    matRipple
-                    class="flex-1 hover:bg-base-300"
-                    [class.clear]="active_tab() !== 'desks'"
-                    (click)="active_tab.set('desks')"
-                >
-                    Desks
-                </button>
-                <button
-                    btn
-                    matRipple
-                    class="flex-1 hover:bg-base-300"
-                    [class.clear]="active_tab() !== 'rooms'"
-                    (click)="active_tab.set('rooms')"
-                >
-                    Rooms
-                </button>
-                <button
-                    btn
-                    matRipple
-                    class="flex-1 hover:bg-base-300"
-                    [class.clear]="active_tab() !== 'lockers'"
-                    (click)="active_tab.set('lockers')"
-                >
-                    Lockers
-                </button>
+                @if (features().includes('desks')) {
+                    <button
+                        btn
+                        matRipple
+                        class="flex-1 hover:bg-base-300"
+                        [class.clear]="active_tab() !== 'desks'"
+                        (click)="active_tab.set('desks');setBookingType('desk')"
+                    >
+                        Desks
+                    </button>
+                }
+                @if (features().includes('spaces')) {
+                    <button
+                        btn
+                        matRipple
+                        class="flex-1 hover:bg-base-300"
+                        [class.clear]="active_tab() !== 'rooms'"
+                        (click)="active_tab.set('rooms')"
+                    >
+                        Rooms
+                    </button>
+                }
+                @if (features().includes('lockers')) {
+                    <button
+                        btn
+                        matRipple
+                        class="flex-1 hover:bg-base-300"
+                        [class.clear]="active_tab() !== 'lockers'"
+                        (click)="active_tab.set('lockers');setBookingType('locker')"
+                    >
+                        Lockers
+                    </button>
+                }
             </div>
             <div class="flex flex-col space-y-2 pt-2">
                 @for (lvl of levels_free | async; track lvl) {
-                    <a btn matRipple class="inverse w-full space-x-4 text-left">
-                        <icon class="text-xl">desk</icon>
+                    <a btn matRipple [routerLink]="['/explore']" [queryParams]="{ zone: lvl.id }" class="inverse w-full space-x-4 text-left h-14">
+                        <icon class="text-xl">{{ active_tab() === 'desks' ? 'desk' : active_tab() === 'lockers' ? 'lock' : 'meeting_room' }}</icon>
                         <div class="flex-1">
-                            {{ lvl.display_name || lvl.name }}
+                            @let bld = lvl.parent_id | building;
+                            <div>{{ lvl.display_name || lvl.name }}</div>
+                            @if (bld) {
+                                <div class="text-xs opacity-60">{{ bld.display_name || bld.name }}</div>
+                            }
                         </div>
-                        <div class="rounded bg-base-200 px-2 py-1 text-xs">
-                            0 free
+                        <div class="rounded bg-secondary text-secondary-content px-2 py-1 text-xs">
+                            {{ active_tab() === 'rooms' ? spaces_by_level()[lvl.id] || 0 : resources_by_level()[lvl.id] || 0 }} free
                         </div>
                         <icon class="text-xl">chevron_right</icon>
                     </a>
                 }
             </div>
-            <a btn matRipple class="clear w-full underline"> View Live Map </a>
+            <a btn matRipple class="clear w-full underline" [routerLink]="['/explore']">View Live Map</a>
         </div>
     `,
-    imports: [CommonModule, MatRippleModule, IconComponent],
+    imports: [CommonModule, MatRippleModule, IconComponent, RouterLink, BuildingPipe]
 })
 export class LandingAvailableNowComponent {
     private _state = inject(LandingStateService);
+    private _booking_form = inject(BookingFormService);
+    private _event_form = inject(EventFormService);
+    private _org = inject(OrganisationService)
 
     public readonly active_tab = signal('desks');
     public readonly levels_free = this._state.level_occupancy;
+    public readonly features = settingSignal<string[]>('features', [])
+
+    public readonly available_spaces = toSignal(this._event_form.available_spaces, { initialValue: [] });
+    public readonly available_resources = toSignal(this._booking_form.available_resources, { initialValue: [] });
+
+    public readonly spaces_by_level = computed(() => {
+        const spaces = this.available_spaces();
+        const mapping: Record<string, number> = {};
+        for (const space of spaces) {
+            const lvl = this._org.levelWithID(space.zones);
+            if (lvl) {
+                if (!mapping[lvl.id]) mapping[lvl.id] = 0;
+                mapping[lvl.id] += 1;
+            }
+        }
+        return mapping;
+    })
+
+    public readonly resources_by_level = computed(() => {
+        const items = this.available_resources();
+        const mapping: Record<string, number> = {};
+        for (const item of items) {
+            const lvl = this._org.levelWithID([item.zone.id]);
+            if (lvl) {
+                if (!mapping[lvl.id]) mapping[lvl.id] = 0;
+                mapping[lvl.id] += 1;
+            }
+        }
+        return mapping;
+    })
+
+    public setBookingType(type: BookingType) {
+        this._booking_form.setOptions({ type });
+    }
 }

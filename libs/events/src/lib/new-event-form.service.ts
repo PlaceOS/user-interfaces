@@ -234,7 +234,7 @@ export class EventFormService extends AsyncHandler {
             return list;
         }),
     );
-    public readonly available_spaces = combineLatest([
+    public readonly available_spaces: Observable<Space[]> = combineLatest([
         this.filtered_spaces,
         this.booking_rules$,
         this._event,
@@ -274,7 +274,7 @@ export class EventFormService extends AsyncHandler {
                     ) as Space[];
                     return list;
                 }),
-                catchError(() => of([])),
+                catchError(() => of([] as Space[])),
             );
         }),
         tap(() => this.removeLoadingTag(Tags.Availability)),

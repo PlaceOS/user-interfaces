@@ -215,7 +215,7 @@ export class BookingFormService extends AsyncHandler {
         shareReplay(1),
     );
 
-    public readonly available_resources = combineLatest([
+    public readonly available_resources: Observable<BookingAsset[]> = combineLatest([
         this.options,
         this.resources,
         this.booking_rules,
