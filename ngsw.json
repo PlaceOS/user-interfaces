@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1762311609663,
+  "timestamp": 1762825057212,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -13,7 +13,7 @@
       "urls": [
         "./favicon.ico",
         "./index.html",
-        "./main-3DNNB5D5.js",
+        "./main-5UJUNGLO.js",
         "./manifest.webmanifest",
         "./styles-LJOZBXJB.css"
       ],
@@ -196,8 +196,8 @@
     "./assets/tick.svg": "6cf0d60587d8a17cc39b91b6d1ba6743f45cb91f",
     "./assets/tick_success.svg": "84c88546933b8055d960b3194eca112f05ae685f",
     "./favicon.ico": "4e23d0f9b6ddaf3c9ddef90dbaed2342941297b5",
-    "./index.html": "658e6088a3bde3c03b5b77549cf3d31a10515ada",
-    "./main-3DNNB5D5.js": "daa60019e4894ba5fbd469b9da7bf9018e970d36",
+    "./index.html": "1a769f994ef5577580e98a9567d547ee7648ab0f",
+    "./main-5UJUNGLO.js": "f2ae7fc74e9492eb3d8730d5a3cd8aa75615590c",
     "./manifest.webmanifest": "2014fddbdc89ea5ee44c8f7270013dada56d40e1",
     "./styles-LJOZBXJB.css": "8de2146730e088aa017d68983078936e5f8dfeab"
   },
