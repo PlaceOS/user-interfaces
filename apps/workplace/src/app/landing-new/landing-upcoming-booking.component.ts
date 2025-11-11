@@ -56,7 +56,7 @@ import { ScheduleStateService } from '../schedule/schedule-state.service';
                         </div>
                     } @else if (minutesUntilStart() >= 0) {
                         <div
-                            class="flex w-48 items-center space-x-2 px-2 text-center"
+                            class="flex min-w-48 items-center space-x-2 px-2 text-center"
                         >
                             <icon>timelapse</icon>
                             <div>
@@ -95,17 +95,16 @@ import { ScheduleStateService } from '../schedule/schedule-state.service';
                     <div
                         class="flex w-full flex-col items-end space-y-2 sm:flex-1"
                     >
-                        @if (isBooking()) {
-                            <button
-                                btn
-                                matRipple
-                                class="white w-full space-x-2 sm:w-48"
-                                (click)="checkIn()"
-                            >
-                                <icon class="text-2xl">check_circle</icon>
-                                <div class="mr-2">Check-in</div>
-                            </button>
-                        }
+                        <button
+                            btn
+                            matRipple
+                            [disabled]="!canCheckin()"
+                            class="white w-full space-x-2 sm:w-48"
+                            (click)="checkIn()"
+                        >
+                            <icon class="text-2xl">check_circle</icon>
+                            <div class="mr-2">Check-in</div>
+                        </button>
                         <button
                             btn
                             matRipple
@@ -202,9 +201,19 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
         return events?.[0];
     });
 
-    public readonly isBooking = computed(() => {
+    public readonly canCheckin = computed(() => {
         const event = this.nextEvent();
-        return event instanceof Booking;
+        const can_checkin =
+            event instanceof Booking
+                ? !event.checked_out_at
+                : event?.can_check_in;
+        return (
+            can_checkin &&
+            (event.state === 'upcoming' ||
+                event.state === 'started' ||
+                event.state === 'in_progress') &&
+            event.status !== 'declined'
+        );
     });
 
     public readonly eventTitle = computed(() => {
@@ -240,8 +249,7 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
         const event = this.nextEvent();
         if (!event) return false;
         const now = Date.now();
-        const end_time = event.date + event.duration * 60 * 1000;
-        return now >= event.date && now < end_time;
+        return now >= event.date && now < event.date_end;
     });
 
     public readonly minutesUntilStart = computed(() => {
