@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, computed, inject, input } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatRippleModule } from '@angular/material/core';
-import { Booking, CalendarEvent, SettingsService } from '@placeos/common';
+import { Booking, CalendarEvent, settingSignal, SettingsService } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { ScheduleFilterCardComponent } from './schedule-filter-card.component';
 import { ScheduleStateService } from './schedule-state.service';
@@ -98,6 +98,7 @@ export class ScheduleFiltersComponent {
 
     public readonly filters = this._state.filters;
     public readonly bookings = input<(Booking | CalendarEvent)[]>([]);
+    public readonly features = settingSignal<string[]>('features', []);
 
     public readonly counts = computed(() => {
         const mapping: Record<string, number> = {};
@@ -128,7 +129,7 @@ export class ScheduleFiltersComponent {
     public readonly toggleType = (t, c = false) => this._state.toggleType(t, c);
 
     public hasFeature(feature: string) {
-        return this._settings.get('app.features')?.includes(feature);
+        return this.features()?.includes(feature);
     }
 
     public openFilters() {

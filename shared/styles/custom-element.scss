@@ -616,6 +616,18 @@ a[btn] {
     }
 }
 
+.theme-dark {
+
+
+    button[btn]:not([icon]),
+    a[btn] {
+        &.inverse {
+            --bg-color: #fff;
+            --color: #000;
+        }
+    }
+}
+
 #placeos .mdc-icon-button,
 button[icon],
 a[icon] {
