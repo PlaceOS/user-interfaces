@@ -205,28 +205,32 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                                 'COMMON.FAVOURITES_ONLY' | translate
                             }}</settings-toggle
                         >
-                        <h2 class="text-lg font-medium">
-                            {{ 'CALENDAR_EVENT.FACILITIES' | translate }}
-                        </h2>
-                        <div class="mb-4 flex flex-col space-y-2">
-                            @for (feat of features | async; track feat) {
-                                @if (!hide_features().includes(feat)) {
-                                    <settings-toggle
-                                        class="w-full"
-                                        [name]="feature_display()[feat] || feat"
-                                        [ngModel]="
-                                            (
-                                                options | async
-                                            )?.features?.includes(feat)
-                                        "
-                                        (ngModelChange)="
-                                            toggleFeature(feat, $event)
-                                        "
-                                        [ngModelOptions]="{ standalone: true }"
-                                    ></settings-toggle>
+                        @if ((features | async)?.length) {
+                            <h2 class="text-lg font-medium">
+                                {{ 'CALENDAR_EVENT.FACILITIES' | translate }}
+                            </h2>
+                            <div class="mb-4 flex flex-col space-y-2">
+                                @for (feat of features | async; track feat) {
+                                    @if (!hide_features().includes(feat)) {
+                                        <settings-toggle
+                                            class="w-full"
+                                            [name]="
+                                                feature_display()[feat] || feat
+                                            "
+                                            [ngModel]="
+                                                (
+                                                    options | async
+                                                )?.features?.includes(feat)
+                                            "
+                                            (ngModelChange)="
+                                                toggleFeature(feat, $event)
+                                            "
+                                            [ngModelOptions]="{ standalone: true }"
+                                        ></settings-toggle>
+                                    }
                                 }
-                            }
-                        </div>
+                            </div>
+                        }
                     </div>
                 </div>
                 <!-- Main content area -->
@@ -469,28 +473,30 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                     <settings-toggle class="mb-4" formControlName="all_day">{{
                         'COMMON.FAVOURITES_ONLY' | translate
                     }}</settings-toggle>
-                    <h2 class="text-lg font-medium">
-                        {{ 'CALENDAR_EVENT.FACILITIES' | translate }}
-                    </h2>
-                    <div class="mb-4 flex flex-col space-y-2">
-                        @for (feat of features | async; track feat) {
-                            @if (!hide_features().includes(feat)) {
-                                <settings-toggle
-                                    class="w-full"
-                                    [name]="feature_display()[feat] || feat"
-                                    [ngModel]="
-                                        (options | async)?.features?.includes(
-                                            feat
-                                        )
-                                    "
-                                    (ngModelChange)="
-                                        toggleFeature(feat, $event)
-                                    "
-                                    [ngModelOptions]="{ standalone: true }"
-                                ></settings-toggle>
+                    @if ((features | async)?.length) {
+                        <h2 class="text-lg font-medium">
+                            {{ 'CALENDAR_EVENT.FACILITIES' | translate }}
+                        </h2>
+                        <div class="mb-4 flex flex-col space-y-2">
+                            @for (feat of features | async; track feat) {
+                                @if (!hide_features().includes(feat)) {
+                                    <settings-toggle
+                                        class="w-full"
+                                        [name]="feature_display()[feat] || feat"
+                                        [ngModel]="
+                                            (options | async)?.features?.includes(
+                                                feat
+                                            )
+                                        "
+                                        (ngModelChange)="
+                                            toggleFeature(feat, $event)
+                                        "
+                                        [ngModelOptions]="{ standalone: true }"
+                                    ></settings-toggle>
+                                }
                             }
-                        }
-                    </div>
+                        </div>
+                    }
                 </div>
             </div>
         </div>

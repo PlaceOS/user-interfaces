@@ -1,5 +1,5 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, inject, input, OnInit, output } from '@angular/core';
+import { Component, inject, input, OnInit, output, signal } from '@angular/core';
 import {
     AsyncHandler,
     BuildingLevel,
@@ -44,9 +44,9 @@ export class MeetingFlowSpaceMapComponent
     public readonly is_displayed = input(false);
     public readonly space_selected = output<Space>();
 
-    public zoom = 1;
-    public center = { x: 0.5, y: 0.5 };
-    public coordinates = undefined;
+    public readonly zoom = signal(1);
+    public readonly center = signal({ x: 0.5, y: 0.5 });
+    public readonly coordinates = signal(undefined);
 
     private _selectedSpace = (s) => () => {
         this.space_selected.emit(s);
@@ -154,17 +154,17 @@ export class MeetingFlowSpaceMapComponent
             const [latitude, longitude] = (level.location || bld.location)
                 .split(',')
                 .map((_) => parseFloat(_));
-            this.coordinates = { latitude, longitude };
+            this.coordinates.set({ latitude, longitude });
         }
         this.level = level;
     }
 
     public setZoom(new_zoom: number) {
-        this.zoom = Math.max(0.5, Math.min(10, new_zoom));
+        this.zoom.set(Math.max(0.5, Math.min(10, new_zoom)));
     }
 
     public resetMap() {
-        this.zoom = 1;
-        this.center = { x: 0.5, y: 0.5 };
+        this.zoom.set(1);
+        this.center.set({ x: 0.5, y: 0.5 });
     }
 }
