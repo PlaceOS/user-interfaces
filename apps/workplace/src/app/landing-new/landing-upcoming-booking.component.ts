@@ -152,14 +152,14 @@ import { ScheduleStateService } from '../schedule/schedule-state.service';
                     >
                         <div>Book a Space</div>
                     </a>
-                    <button
+                    <a
                         btn
                         matRipple
                         class="inverse white flex-1 space-x-2"
-                        (click)="findColleagues()"
+                        [routerLink]="['/book', 'desk']"
                     >
-                        <div>Find Colleagues</div>
-                    </button>
+                        <div>Find Desk</div>
+                    </a>
                 </div>
             </div>
         }
