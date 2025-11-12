@@ -1,5 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, input } from '@angular/core';
+import {
+    Component,
+    computed,
+    effect,
+    ElementRef,
+    inject,
+    input,
+    viewChild,
+} from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -30,13 +38,15 @@ interface Weekday {
 @Component({
     selector: `schedule-week-view`,
     template: `
-        <div class="h-full w-full overflow-auto">
+        <div #scrollContainer class="h-full w-full overflow-auto">
             <div class="m-2">
                 <div class="grid w-full min-w-[87.5rem] grid-cols-7 gap-2">
                     @for (day of weekdays(); track day.id) {
                         <div
+                            #dayColumn
                             header
                             class="flex items-center justify-center space-x-2 py-2"
+                            [attr.data-is-today]="day.is_today"
                         >
                             <div
                                 [matTooltip]="
@@ -122,6 +132,51 @@ export class ScheduleWeekViewComponent {
     public readonly date = input(Date.now());
     public readonly bookings = input<(Booking | CalendarEvent)[]>([]);
     public readonly colors = BOOKING_TYPE_COLORS;
+
+    private readonly _scroll_container =
+        viewChild<ElementRef<HTMLDivElement>>('scrollContainer');
+
+    constructor() {
+        effect(() => {
+            this.weekdays(); // Track weekdays changes
+            this._scrollToCurrentDay();
+        });
+    }
+
+    private _scrollToCurrentDay() {
+        const container = this._scroll_container()?.nativeElement;
+        if (!container) return;
+
+        // Use setTimeout to ensure DOM is fully rendered
+        setTimeout(() => {
+            const today_column = container.querySelector(
+                '[data-is-today="true"]'
+            ) as HTMLElement;
+            if (!today_column) return;
+
+            // Get positions relative to viewport
+            const container_rect = container.getBoundingClientRect();
+            const column_rect = today_column.getBoundingClientRect();
+
+            // Calculate the current scroll offset
+            const current_scroll = container.scrollLeft;
+
+            // Calculate where the column currently is relative to container
+            const column_relative_to_container =
+                column_rect.left - container_rect.left + current_scroll;
+
+            // Calculate scroll position to center the column
+            const container_center = container.clientWidth / 2;
+            const column_center = column_rect.width / 2;
+            const scroll_position =
+                column_relative_to_container - container_center + column_center;
+
+            container.scrollTo({
+                left: scroll_position,
+                behavior: 'smooth',
+            });
+        }, 0);
+    }
 
     public readonly weekdays = computed(() => {
         const days: Weekday[] = [];

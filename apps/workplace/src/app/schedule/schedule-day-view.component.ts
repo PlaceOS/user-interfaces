@@ -48,12 +48,12 @@ interface PositionedBooking {
                     <div
                         class="rounded-md border border-base-300 bg-base-100 px-2 py-1 text-sm text-base-content"
                     >
-                        {{ bookings().length }} booking{{
-                            bookings().length !== 1 ? 's' : ''
+                        {{ bookings()?.length || 0 }} booking{{
+                            bookings()?.length !== 1 ? 's' : ''
                         }}
                     </div>
                 </div>
-                @if (bookings().length > 0) {
+                @if (bookings()?.length > 0) {
                     <div class="relative flex">
                         <!-- Time labels -->
                         <div class="w-12 flex-shrink-0 pr-2">
