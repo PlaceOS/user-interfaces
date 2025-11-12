@@ -1,5 +1,12 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, inject, input, OnInit, output, signal } from '@angular/core';
+import {
+    Component,
+    inject,
+    input,
+    OnInit,
+    output,
+    signal,
+} from '@angular/core';
 import {
     AsyncHandler,
     BuildingLevel,

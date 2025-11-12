@@ -223,10 +223,10 @@ export class EventFormService extends AsyncHandler {
             if (filters.capacity > 0) {
                 // Map capacity values to ranges based on room size categories
                 const capacityRanges = {
-                    1: { min: 1, max: 2 },    // 1-2 people
-                    3: { min: 3, max: 4 },    // 3-4 people
-                    5: { min: 5, max: 8 },    // 5-8 people
-                    9: { min: 9, max: 999 },  // 9+ people
+                    1: { min: 1, max: 2 }, // 1-2 people
+                    3: { min: 3, max: 4 }, // 3-4 people
+                    5: { min: 5, max: 8 }, // 5-8 people
+                    9: { min: 9, max: 999 }, // 9+ people
                 };
                 const range = capacityRanges[filters.capacity] || {
                     min: filters.capacity,

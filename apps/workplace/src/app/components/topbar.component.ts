@@ -1,9 +1,10 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { RouterModule } from '@angular/router';
 import {
     currentUser,
     OrganisationService,
+    settingSignal,
     SettingsService,
 } from '@placeos/common';
 import {
@@ -34,7 +35,7 @@ const EMPTY = [];
                     class="h-10 sm:block"
                     [class.hidden]="title"
                     alt="Logo"
-                    [source]="logo?.src || logo"
+                    [source]="logo()?.src || logo()"
                 />
                 @if (title) {
                     <span>{{ title }}</span>
@@ -87,13 +88,12 @@ export class TopbarComponent {
     public show_menu: boolean;
     public readonly user_controls = UserControlsComponent;
 
-    public get logo() {
-        return (
-            (this._settings.theme === 'dark'
-                ? this._settings.get('app.logo_dark')
-                : this._settings.get('app.logo_light')) || {}
-        );
-    }
+    public readonly logo = computed(() => {
+        return this._settings.theme_signal() === 'dark'
+            ? settingSignal('logo_dark', '')()
+            : settingSignal('logo_light', '')();
+    });
+
     /** Text to display for page title */
     public get title(): string {
         return this._settings.value('page_title');

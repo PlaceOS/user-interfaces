@@ -1,4 +1,10 @@
-import { Injectable, type WritableSignal, inject, signal } from '@angular/core';
+import {
+    Injectable,
+    type WritableSignal,
+    computed,
+    inject,
+    signal,
+} from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { showMetadata, updateMetadata, updateUser } from '@placeos/ts-client';
 import { format, isSameDay } from 'date-fns';
@@ -81,6 +87,13 @@ export class SettingsService extends AsyncHandler {
         return allow_dark_mode ? this.get('theme') : 'light';
     }
 
+    public readonly theme_signal = computed(() => {
+        const allow_dark_mode = this.signal('allow_dark_mode', true)();
+        return allow_dark_mode
+            ? this.signal('theme', 'light', true)()
+            : 'light';
+    });
+
     /** Get observable for key */
     public listen<T = any>(name: string): Observable<T> {
         if (!this._observables[name]) {
@@ -105,8 +118,12 @@ export class SettingsService extends AsyncHandler {
             : this._subjects[name].getValue();
     }
 
-    public signal<T = any>(name: string): WritableSignal<T> {
-        return settingSignal<T>(name);
+    public signal<T = any>(
+        name: string,
+        default_value?: T,
+        root?: boolean,
+    ): WritableSignal<T> {
+        return settingSignal<T>(name, default_value, root);
     }
 
     /** Page title */
