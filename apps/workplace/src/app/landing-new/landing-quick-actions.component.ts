@@ -27,7 +27,9 @@ import { AutoAssignedDeskModalComponent } from '../book/desk-flow/auto-assigned-
                             <icon class="text-xl">bolt</icon>
                             <div class="pr-2 font-medium">Auto-assign Desk</div>
                         </div>
-                        <div class="text-xs">We'll find you a desk for today</div>
+                        <div class="text-xs">
+                            We'll find you a desk for today
+                        </div>
                     </div>
                 </button>
             }

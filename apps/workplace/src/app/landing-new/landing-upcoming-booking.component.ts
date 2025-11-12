@@ -11,10 +11,11 @@ import {
 import {
     AsyncHandler,
     Booking,
-    CalendarEvent, i18n,
+    CalendarEvent,
+    i18n,
     notifyError,
     notifySuccess,
-    OrganisationService
+    OrganisationService,
 } from '@placeos/common';
 import {
     IconComponent,
@@ -347,7 +348,10 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
                 level: this._org.levelWithID([...zones]),
             };
         } else if (event instanceof CalendarEvent) {
-            const resource = { ...(event.resources?.[0] || {}), ...( event.system || {}) };
+            const resource = {
+                ...(event.resources?.[0] || {}),
+                ...(event.system || {}),
+            };
             zones = resource?.zones || [];
             itemData = {
                 id: resource?.id,
@@ -365,7 +369,7 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
                 data: { item: itemData },
             });
         } else {
-            notifyError(i18n("Unable to validate location for booking."))
+            notifyError(i18n('Unable to validate location for booking.'));
         }
     }
 

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, effect, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
@@ -7,7 +7,12 @@ import { MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { AsyncHandler, notifyError, notifySuccess, User } from '@placeos/common';
+import {
+    AsyncHandler,
+    notifyError,
+    notifySuccess,
+    User,
+} from '@placeos/common';
 import {
     IconComponent,
     TranslatePipe,
@@ -43,7 +48,7 @@ import { LandingStateService } from '../landing/landing-state.service';
                 <!-- Search Filter -->
                 <mat-form-field
                     appearance="outline"
-                    class="mb-4 w-full no-subscript"
+                    class="no-subscript mb-4 w-full"
                 >
                     <icon
                         matPrefix
@@ -53,7 +58,9 @@ import { LandingStateService } from '../landing/landing-state.service';
                     <input
                         matInput
                         [(ngModel)]="search_term"
-                        [placeholder]="'APP.WORKPLACE.COLLEAGUE_SEARCH' | translate"
+                        [placeholder]="
+                            'APP.WORKPLACE.COLLEAGUE_SEARCH' | translate
+                        "
                         [disabled]="loading_users()"
                     />
                     @if (loading_users()) {
@@ -71,46 +78,77 @@ import { LandingStateService } from '../landing/landing-state.service';
                     } @else if (user_list.length > 0) {
                         <div class="mb-4 space-y-2">
                             <div class="text-sm font-medium">
-                                {{ 'APP.WORKPLACE.COLLEAGUES_AVAILABLE' | translate }}
+                                {{
+                                    'APP.WORKPLACE.COLLEAGUES_AVAILABLE'
+                                        | translate
+                                }}
                             </div>
                             <div class="max-h-64 space-y-2 overflow-auto">
                                 @for (user of user_list; track user.email) {
                                     <button
                                         class="flex w-full items-center space-x-2 rounded border border-base-300 bg-base-100 p-2 text-left hover:bg-base-200"
                                         matRipple
-                                        [disabled]="loading() || isUserSelected(user) || isExistingContact(user)"
+                                        [disabled]="
+                                            loading() ||
+                                            isUserSelected(user) ||
+                                            isExistingContact(user)
+                                        "
                                         (click)="toggleUser(user)"
                                     >
                                         <a-user-avatar [user]="user" />
-                                        <div class="flex w-16 flex-1 flex-col leading-tight">
-                                            <div class="truncate">{{ user.name }}</div>
-                                            <div class="truncate text-xs opacity-60">
+                                        <div
+                                            class="flex w-16 flex-1 flex-col leading-tight"
+                                        >
+                                            <div class="truncate">
+                                                {{ user.name }}
+                                            </div>
+                                            <div
+                                                class="truncate text-xs opacity-60"
+                                            >
                                                 {{ user.email }}
                                             </div>
                                         </div>
                                         @if (isExistingContact(user)) {
                                             <div class="text-xs opacity-60">
-                                                {{ 'APP.WORKPLACE.COLLEAGUES_EXISTS' | translate }}
+                                                {{
+                                                    'APP.WORKPLACE.COLLEAGUES_EXISTS'
+                                                        | translate
+                                                }}
                                             </div>
                                         } @else if (isUserSelected(user)) {
-                                            <icon class="text-success">check_circle</icon>
+                                            <icon class="text-success"
+                                                >check_circle</icon
+                                            >
                                         } @else {
-                                            <icon class="opacity-30">radio_button_unchecked</icon>
+                                            <icon class="opacity-30"
+                                                >radio_button_unchecked</icon
+                                            >
                                         }
                                     </button>
                                 }
                             </div>
                         </div>
                     } @else {
-                        <div class="flex flex-col items-center justify-center py-16 text-sm opacity-60 bg-base-200 rounded-xl">
+                        <div
+                            class="flex flex-col items-center justify-center rounded-xl bg-base-200 py-16 text-sm opacity-60"
+                        >
                             <icon class="mb-2 text-4xl">person_cancel</icon>
                             <div>{{ 'FORM.USER_EMPTY' | translate }}</div>
                         </div>
                     }
                 } @else {
-                    <div class="flex flex-col items-center justify-center py-16 text-sm opacity-60 bg-base-200 rounded-xl">
+                    <div
+                        class="flex flex-col items-center justify-center rounded-xl bg-base-200 py-16 text-sm opacity-60"
+                    >
                         <icon class="mb-2 text-4xl">search</icon>
-                        <p>{{ (search_term ? 'APP.WORKPLACE.COLLEAGUE_SEARCH_NO_MATCH' : 'APP.WORKPLACE.COLLEAGUE_SEARCH_EMPTY') | translate }}</p>
+                        <p>
+                            {{
+                                (search_term
+                                    ? 'APP.WORKPLACE.COLLEAGUE_SEARCH_NO_MATCH'
+                                    : 'APP.WORKPLACE.COLLEAGUE_SEARCH_EMPTY'
+                                ) | translate
+                            }}
+                        </p>
                     </div>
                 }
 
@@ -129,10 +167,12 @@ import { LandingStateService } from '../landing/landing-state.service';
                         </div>
                         @for (user of selected_users(); track user.email) {
                             <div
-                                class="flex items-center space-x-2 rounded border border-base-300 bg-success/10 p-2"
+                                class="bg-success/10 flex items-center space-x-2 rounded border border-base-300 p-2"
                             >
                                 <a-user-avatar [user]="user" />
-                                <div class="flex w-16 flex-1 flex-col leading-tight">
+                                <div
+                                    class="flex w-16 flex-1 flex-col leading-tight"
+                                >
                                     <div class="truncate">{{ user.name }}</div>
                                     <div class="truncate text-xs opacity-60">
                                         {{ user.email }}
@@ -207,7 +247,10 @@ import { LandingStateService } from '../landing/landing-state.service';
         UserAvatarComponent,
     ],
 })
-export class AddColleaguesModalComponent extends AsyncHandler implements OnInit {
+export class AddColleaguesModalComponent
+    extends AsyncHandler
+    implements OnInit
+{
     private _state = inject(LandingStateService);
     private _dialog_ref = inject(MatDialogRef<AddColleaguesModalComponent>, {
         optional: true,
@@ -229,7 +272,9 @@ export class AddColleaguesModalComponent extends AsyncHandler implements OnInit 
 
     public readonly loading_users = computed(() => !!this._loading_state());
     public readonly available_users = computed(() => this._search_results());
-    public readonly existing_contacts = computed(() => this._existing_contacts());
+    public readonly existing_contacts = computed(() =>
+        this._existing_contacts(),
+    );
 
     public get search_term() {
         return this.search_term_signal();

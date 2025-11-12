@@ -26,7 +26,11 @@ import { ScheduleWeekViewComponent } from './schedule-week-view.component';
         @if (!hide_nav) {
             <topbar />
         }
-        <schedule-topbar [(view)]="view" [date]="date | async" (dateChange)="setDate($event)" />
+        <schedule-topbar
+            [(view)]="view"
+            [date]="date | async"
+            (dateChange)="setDate($event)"
+        />
         <div
             class="relative flex h-1/2 flex-1 flex-col bg-base-200 sm:flex-row"
         >

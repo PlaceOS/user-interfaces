@@ -1,16 +1,16 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
 import { MatRippleModule } from '@angular/material/core';
+import { MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { Router } from '@angular/router';
+import { CalendarEvent, i18n, notifySuccess, User } from '@placeos/common';
 import {
     IconComponent,
     openConfirmModal,
     TranslatePipe,
     UserAvatarComponent,
 } from '@placeos/components';
-import { CalendarEvent, i18n, notifySuccess, User } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
 import { LandingStateService } from '../landing/landing-state.service';
 import { AddColleaguesModalComponent } from './add-colleagues-modal.component';
@@ -52,24 +52,38 @@ import { AddColleaguesModalComponent } from './add-colleagues-modal.component';
                                     >{{ user.email }}</a
                                 >
                             </div>
-                            <button
-                                icon
-                                matRipple
-                                [matMenuTriggerFor]="menu"
-                            >
+                            <button icon matRipple [matMenuTriggerFor]="menu">
                                 <icon>more_vert</icon>
                             </button>
                             <mat-menu #menu="matMenu">
-                                <button mat-menu-item (click)="bookMeeting(user)">
+                                <button
+                                    mat-menu-item
+                                    (click)="bookMeeting(user)"
+                                >
                                     <div class="flex items-center space-x-2">
                                         <icon class="text-2xl">event</icon>
-                                        <div>{{ 'APP.WORKPLACE.COLLEAGUES_BOOK_MEETING' | translate }}</div>
+                                        <div>
+                                            {{
+                                                'APP.WORKPLACE.COLLEAGUES_BOOK_MEETING'
+                                                    | translate
+                                            }}
+                                        </div>
                                     </div>
                                 </button>
-                                <button mat-menu-item (click)="removeColleague(user)">
+                                <button
+                                    mat-menu-item
+                                    (click)="removeColleague(user)"
+                                >
                                     <div class="flex items-center space-x-2">
-                                    <icon class="text-2xl text-error">person_remove</icon>
-                                    <div>{{ 'APP.WORKPLACE.COLLEAGUES_REMOVE' | translate }}</div>
+                                        <icon class="text-2xl text-error"
+                                            >person_remove</icon
+                                        >
+                                        <div>
+                                            {{
+                                                'APP.WORKPLACE.COLLEAGUES_REMOVE'
+                                                    | translate
+                                            }}
+                                        </div>
                                     </div>
                                 </button>
                             </mat-menu>
@@ -86,7 +100,12 @@ import { AddColleaguesModalComponent } from './add-colleagues-modal.component';
                     </p>
                 </div>
             }
-            <button btn matRipple class="mt-4 w-full" (click)="openAddColleaguesModal()">
+            <button
+                btn
+                matRipple
+                class="mt-4 w-full"
+                (click)="openAddColleaguesModal()"
+            >
                 <icon class="text-xl">person_add</icon>
                 <div>{{ 'APP.WORKPLACE.COLLEAGUES_ADD' | translate }}</div>
             </button>
