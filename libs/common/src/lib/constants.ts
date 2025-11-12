@@ -20,6 +20,7 @@ export const SETTING_KEYS = {
     FAVORITE_DESKS: 'favourite_desks',
     FAVORITE_PARKING_SPACES: 'favourite_parking',
     FAVORITE_LOCKERS: 'favourite_lockers',
+    FAVORITE_CATERING: 'favourite_menu_items',
 };
 
 ///////////////////////////////////////////////////////////////

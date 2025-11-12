@@ -5,7 +5,7 @@ import {
     MatDialogModule,
     MatDialogRef,
 } from '@angular/material/dialog';
-import { SettingsService } from '@placeos/common';
+import { SETTING_KEYS, SettingsService } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import {
@@ -18,8 +18,6 @@ import { ParkingSpaceFiltersDisplayComponent } from './parking-filters-display.c
 import { ParkingSpaceFiltersComponent } from './parking-filters.component';
 import { ParkingSpaceListComponent } from './parking-list.component';
 import { ParkingSpaceMapComponent } from './parking-map.component';
-
-export const FAV_PARKING_KEY = 'favourite_parking_spaces';
 
 @Component({
     selector: 'parking-space-select-modal',
@@ -204,7 +202,11 @@ export class ParkingSpaceSelectModalComponent {
     }
 
     public get favorites() {
-        return this._settings.get<string[]>(FAV_PARKING_KEY) || [];
+        return (
+            this._settings.get<string[]>(
+                SETTING_KEYS.FAVORITE_PARKING_SPACES,
+            ) || []
+        );
     }
 
     constructor() {
@@ -229,13 +231,13 @@ export class ParkingSpaceSelectModalComponent {
         const fav_list = this.favorites;
         const new_state = !fav_list.includes(item.id);
         if (new_state) {
-            this._settings.saveUserSetting(FAV_PARKING_KEY, [
-                ...fav_list,
-                item.id,
-            ]);
+            this._settings.saveUserSetting(
+                SETTING_KEYS.FAVORITE_PARKING_SPACES,
+                [...fav_list, item.id],
+            );
         } else {
             this._settings.saveUserSetting(
-                FAV_PARKING_KEY,
+                SETTING_KEYS.FAVORITE_PARKING_SPACES,
                 fav_list.filter((_) => _ !== item.id),
             );
         }

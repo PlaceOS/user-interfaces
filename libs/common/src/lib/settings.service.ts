@@ -8,7 +8,7 @@ import {
 import { Title } from '@angular/platform-browser';
 import { showMetadata, updateMetadata, updateUser } from '@placeos/ts-client';
 import { format, isSameDay } from 'date-fns';
-import { BehaviorSubject, Observable, lastValueFrom } from 'rxjs';
+import { BehaviorSubject, Observable, filter, lastValueFrom } from 'rxjs';
 
 import { AsyncHandler } from './async-handler.class';
 import {
@@ -169,8 +169,13 @@ export class SettingsService extends AsyncHandler {
             window.app.settings = this;
             window.setting = (key) => this.get(key);
         }
-        const user = await firstTruthyValueFrom(current_user);
+        console.log('Get User');
+        const user = await firstTruthyValueFrom(
+            current_user.pipe(filter((_) => !!_.id)),
+        );
+        console.log('User:', user);
         const data = await lastValueFrom(showMetadata(user.id, 'settings'));
+        console.log('User Settings:', data);
         this._user_settings.next(data.details || {});
         this.timeout(
             'init',

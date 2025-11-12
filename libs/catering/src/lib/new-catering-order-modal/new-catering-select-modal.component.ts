@@ -5,6 +5,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     CateringItem,
     OrganisationService,
+    SETTING_KEYS,
     SettingsService,
 } from '@placeos/common';
 
@@ -16,7 +17,6 @@ import { NewCateringItemFiltersComponent } from './new-catering-item-filters.com
 import { NewCateringItemListComponent } from './new-catering-item-list.component';
 
 const EMPTY_FAVS: string[] = [];
-const FAV_KEY = 'favourite_menu_items';
 
 @Component({
     selector: 'new-catering-select-modal',
@@ -167,7 +167,10 @@ export class NewCateringSelectModalComponent {
     public show_filters = false;
 
     public get favorites() {
-        return this._settings.get<string[]>(FAV_KEY) || EMPTY_FAVS;
+        return (
+            this._settings.get<string[]>(SETTING_KEYS.FAVORITE_DESKS) ||
+            EMPTY_FAVS
+        );
     }
 
     public get selected_ids() {
@@ -222,10 +225,13 @@ export class NewCateringSelectModalComponent {
         const new_state = !fav_list.includes(item);
         console.log('Favourites:', item, new_state);
         if (new_state) {
-            this._settings.saveUserSetting(FAV_KEY, [...fav_list, item]);
+            this._settings.saveUserSetting(SETTING_KEYS.FAVORITE_DESKS, [
+                ...fav_list,
+                item,
+            ]);
         } else {
             this._settings.saveUserSetting(
-                FAV_KEY,
+                SETTING_KEYS.FAVORITE_DESKS,
                 fav_list.filter((_) => _ !== item),
             );
         }

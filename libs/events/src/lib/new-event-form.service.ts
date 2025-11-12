@@ -15,6 +15,7 @@ import {
     nextValueFrom,
     rulesForResource,
     setDefaultCreator,
+    SETTING_KEYS,
     SettingsService,
     Space,
     unique,
@@ -334,7 +335,7 @@ export class EventFormService extends AsyncHandler {
     }
 
     public get favorite_spaces() {
-        return this._settings.get<string[]>('favourite_spaces') || [];
+        return this._settings.get<string[]>(SETTING_KEYS.FAVORITE_ROOMS) || [];
     }
 
     public get book_internal() {

@@ -15,7 +15,12 @@ import { MatRadioModule } from '@angular/material/radio';
 import { BehaviorSubject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 
-import { OrganisationService, SettingsService, Space } from '@placeos/common';
+import {
+    OrganisationService,
+    SETTING_KEYS,
+    SettingsService,
+    Space,
+} from '@placeos/common';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
@@ -217,9 +222,15 @@ export class SpaceListFieldComponent
 
     private _onChange: (_: Space[]) => void;
     private _onTouch: (_: Space[]) => void;
+    private _favorites_cache: string[] | null = null;
 
     public get favorites() {
-        return this._settings.get<string[]>('favourite_spaces') || EMPTY_FAVS;
+        // Return cache if available for instant updates
+        if (this._favorites_cache !== null) return this._favorites_cache;
+        return (
+            this._settings.get<string[]>(SETTING_KEYS.FAVORITE_ROOMS) ||
+            EMPTY_FAVS
+        );
     }
 
     public ngOnDestroy() {
@@ -281,16 +292,14 @@ export class SpaceListFieldComponent
         if (!space?.id) return;
         const fav_list = this.favorites;
         const new_state = !fav_list.includes(space.id);
-        if (new_state) {
-            this._settings.saveUserSetting('favourite_spaces', [
-                ...fav_list,
-                space.id,
-            ]);
-        } else {
-            this._settings.saveUserSetting(
-                'favourite_spaces',
-                fav_list.filter((_) => _ !== space.id),
-            );
-        }
+        const updated = new_state
+            ? [...fav_list, space.id]
+            : fav_list.filter((_) => _ !== space.id);
+
+        // Optimistically update cache for instant UI update
+        this._favorites_cache = updated;
+
+        // Save to settings in background
+        this._settings.saveUserSetting(SETTING_KEYS.FAVORITE_ROOMS, updated);
     }
 }

@@ -6,7 +6,7 @@ import {
     MatDialogModule,
     MatDialogRef,
 } from '@angular/material/dialog';
-import { SettingsService, Space } from '@placeos/common';
+import { SETTING_KEYS, SettingsService, Space } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import {
@@ -205,12 +205,16 @@ export class SpaceSelectModalComponent {
     public readonly multiday = !!this._data.multiday;
     public readonly room_alerts = this._event_form.room_alerts;
 
+    private _favorites_cache: string[] | null = null;
+
     public get selected_ids() {
         return this.selected.map((_) => _.id).join(',');
     }
 
     public get favorites() {
-        return this._settings.get<string[]>('favourite_spaces') || [];
+        // Return cache if available for instant updates
+        if (this._favorites_cache !== null) return this._favorites_cache;
+        return this._settings.get<string[]>(SETTING_KEYS.FAVORITE_ROOMS) || [];
     }
 
     constructor() {
@@ -238,16 +242,14 @@ export class SpaceSelectModalComponent {
     public toggleFavourite(item: Space) {
         const fav_list = this.favorites;
         const new_state = !fav_list.includes(item.id);
-        if (new_state) {
-            this._settings.saveUserSetting('favourite_spaces', [
-                ...fav_list,
-                item.id,
-            ]);
-        } else {
-            this._settings.saveUserSetting(
-                'favourite_spaces',
-                fav_list.filter((_) => _ !== item.id),
-            );
-        }
+        const updated = new_state
+            ? [...fav_list, item.id]
+            : fav_list.filter((_) => _ !== item.id);
+
+        // Optimistically update cache for instant UI update
+        this._favorites_cache = updated;
+
+        // Save to settings in background
+        this._settings.saveUserSetting(SETTING_KEYS.FAVORITE_ROOMS, updated);
     }
 }

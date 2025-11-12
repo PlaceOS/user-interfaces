@@ -7,7 +7,7 @@ import {
 } from '@angular/material/dialog';
 
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { isMobileSafari, SettingsService } from '@placeos/common';
+import { isMobileSafari, SETTING_KEYS, SettingsService } from '@placeos/common';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
@@ -22,8 +22,6 @@ import { NewParkingFiltersDisplayComponent } from './new-parking-filters-display
 import { NewParkingFiltersComponent } from './new-parking-filters.component';
 import { NewParkingListComponent } from './new-parking-list.component';
 import { NewParkingMapComponent } from './new-parking-map.component';
-
-export const FAV_PARKING_KEY = 'favourite_parking_spaces';
 
 @Component({
     selector: 'new-parking-select-modal',
@@ -222,7 +220,11 @@ export class NewParkingSelectModalComponent {
     }
 
     public get favorites() {
-        return this._settings.get<string[]>(FAV_PARKING_KEY) || [];
+        return (
+            this._settings.get<string[]>(
+                SETTING_KEYS.FAVORITE_PARKING_SPACES,
+            ) || []
+        );
     }
 
     constructor() {
@@ -247,13 +249,13 @@ export class NewParkingSelectModalComponent {
         const fav_list = this.favorites;
         const new_state = !fav_list.includes(item.id);
         if (new_state) {
-            this._settings.saveUserSetting(FAV_PARKING_KEY, [
-                ...fav_list,
-                item.id,
-            ]);
+            this._settings.saveUserSetting(
+                SETTING_KEYS.FAVORITE_PARKING_SPACES,
+                [...fav_list, item.id],
+            );
         } else {
             this._settings.saveUserSetting(
-                FAV_PARKING_KEY,
+                SETTING_KEYS.FAVORITE_PARKING_SPACES,
                 fav_list.filter((_) => _ !== item.id),
             );
         }

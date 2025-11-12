@@ -319,16 +319,14 @@ export class MeetingFlowSpaceListComponent {
     public toggleFavourite(space: Space) {
         const existing = this.favourites();
         console.log('Toggle Favourites:', space, existing);
-        if (existing.find((id) => space.id === id)) {
-            this._settings.saveUserSetting(
-                SETTING_KEYS.FAVORITE_ROOMS,
-                existing.filter((id) => id !== space.id),
-            );
-        } else {
-            this._settings.saveUserSetting(SETTING_KEYS.FAVORITE_ROOMS, [
-                ...existing,
-                space.id,
-            ]);
-        }
+        const updated = existing.find((id) => space.id === id)
+            ? existing.filter((id) => id !== space.id)
+            : [...existing, space.id];
+
+        // Optimistically update UI
+        this.favourites.set(updated);
+
+        // Save to settings in background
+        this._settings.saveUserSetting(SETTING_KEYS.FAVORITE_ROOMS, updated);
     }
 }

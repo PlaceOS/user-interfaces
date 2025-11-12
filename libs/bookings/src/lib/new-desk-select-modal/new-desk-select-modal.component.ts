@@ -7,7 +7,7 @@ import {
 } from '@angular/material/dialog';
 
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { isMobileSafari, SettingsService } from '@placeos/common';
+import { isMobileSafari, SETTING_KEYS, SettingsService } from '@placeos/common';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
@@ -17,8 +17,6 @@ import { NewDeskFiltersDisplayComponent } from './new-desk-filters-display.compo
 import { NewDeskFiltersComponent } from './new-desk-filters.component';
 import { NewDeskListComponent } from './new-desk-list.component';
 import { NewDeskMapComponent } from './new-desk-map.component';
-
-export const FAV_DESK_KEY = 'favourite_desks';
 
 @Component({
     selector: 'new-desk-select-modal',
@@ -234,6 +232,8 @@ export class NewDeskSelectModalComponent {
     public readonly displayed = signal<BookingAsset | null>(null);
     public readonly show_filters = signal(false);
 
+    private _favorites_cache: string[] | null = null;
+
     public get is_safari() {
         return isMobileSafari();
     }
@@ -243,7 +243,9 @@ export class NewDeskSelectModalComponent {
     }
 
     public get favorites() {
-        return this._settings.get<string[]>(FAV_DESK_KEY) || [];
+        // Return cache if available for instant updates
+        if (this._favorites_cache !== null) return this._favorites_cache;
+        return this._settings.get<string[]>(SETTING_KEYS.FAVORITE_DESKS) || [];
     }
 
     public isSelected(id: string) {
@@ -263,16 +265,14 @@ export class NewDeskSelectModalComponent {
     public toggleFavourite(item: BookingAsset) {
         const fav_list = this.favorites;
         const new_state = !fav_list.includes(item.id);
-        if (new_state) {
-            this._settings.saveUserSetting(FAV_DESK_KEY, [
-                ...fav_list,
-                item.id,
-            ]);
-        } else {
-            this._settings.saveUserSetting(
-                FAV_DESK_KEY,
-                fav_list.filter((_) => _ !== item.id),
-            );
-        }
+        const updated = new_state
+            ? [...fav_list, item.id]
+            : fav_list.filter((_) => _ !== item.id);
+
+        // Optimistically update cache for instant UI update
+        this._favorites_cache = updated;
+
+        // Save to settings in background
+        this._settings.saveUserSetting(SETTING_KEYS.FAVORITE_DESKS, updated);
     }
 }

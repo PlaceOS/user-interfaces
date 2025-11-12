@@ -901,6 +901,8 @@
             "QUICK_LINK_PARKING": "Book parking",
             "QUICK_LINK_LOCKERS": "Book a locker",
             "FAVOURITES_COUNT": "{{ count }} favourite(s)",
+            "FAVOURITES_COUNT_1": "{{ count }} favourite",
+            "FAVOURITES_COUNT_N": "{{ count }} favourites",
             "FAVOURITES_REMOVE": "Remove favourite",
             "FAVOURITES_EMPTY": "No favourites",
             "FAVOURITES_SHOW": "Show only favourites",

@@ -19,8 +19,6 @@ import {
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 
-const FAV_DESK_KEY = 'favourite_desks';
-
 @Component({
     selector: 'desk-flow-select-list',
     template: `
@@ -248,16 +246,14 @@ export class DeskFlowSelectListComponent {
     public toggleFavourite(item: Space) {
         const existing = this.favourites();
         console.log('Toggle Favourites:', item, existing);
-        if (existing.find((id) => item.id === id)) {
-            this._settings.saveUserSetting(
-                FAV_DESK_KEY,
-                existing.filter((id) => id !== item.id),
-            );
-        } else {
-            this._settings.saveUserSetting(FAV_DESK_KEY, [
-                ...existing,
-                item.id,
-            ]);
-        }
+        const updated = existing.find((id) => item.id === id)
+            ? existing.filter((id) => id !== item.id)
+            : [...existing, item.id];
+
+        // Optimistically update UI
+        this.favourites.set(updated);
+
+        // Save to settings in background
+        this._settings.saveUserSetting(SETTING_KEYS.FAVORITE_DESKS, updated);
     }
 }

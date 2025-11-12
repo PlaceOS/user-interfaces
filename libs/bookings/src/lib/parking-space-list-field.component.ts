@@ -3,15 +3,13 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 
 import { MatRippleModule } from '@angular/material/core';
+import { SETTING_KEYS } from '@placeos/common';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { BookingAsset } from './booking-form.service';
-import {
-    FAV_PARKING_KEY,
-    NewParkingSelectModalComponent,
-} from './new-parking-select-modal/new-parking-select-modal.component';
+import { NewParkingSelectModalComponent } from './new-parking-select-modal/new-parking-select-modal.component';
 
 const EMPTY_FAVS: string[] = [];
 
@@ -200,13 +198,13 @@ export class ParkingSpaceListFieldComponent implements ControlValueAccessor {
         const fav_list = this.favorites;
         const new_state = !fav_list.includes(space.id);
         if (new_state) {
-            this._settings.saveUserSetting(FAV_PARKING_KEY, [
-                ...fav_list,
-                space.id,
-            ]);
+            this._settings.saveUserSetting(
+                SETTING_KEYS.FAVORITE_PARKING_SPACES,
+                [...fav_list, space.id],
+            );
         } else {
             this._settings.saveUserSetting(
-                FAV_PARKING_KEY,
+                SETTING_KEYS.FAVORITE_PARKING_SPACES,
                 fav_list.filter((_) => _ !== space.id),
             );
         }

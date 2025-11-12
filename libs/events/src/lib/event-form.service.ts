@@ -10,6 +10,7 @@ import {
     getInvalidFields,
     i18n,
     notifyError,
+    SETTING_KEYS,
     unique,
     User,
 } from '@placeos/common';
@@ -383,7 +384,7 @@ export class OldEventFormService extends AsyncHandler {
     }
 
     public get favorite_spaces() {
-        return this._settings.get<string[]>('favourite_spaces') || [];
+        return this._settings.get<string[]>(SETTING_KEYS.FAVORITE_ROOMS) || [];
     }
 
     public get has_calendar() {

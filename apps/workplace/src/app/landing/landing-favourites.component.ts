@@ -3,11 +3,12 @@ import { Router } from '@angular/router';
 import { BehaviorSubject, combineLatest, lastValueFrom } from 'rxjs';
 import { map, shareReplay, tap } from 'rxjs/operators';
 
-import { BookingFormService, FAV_PARKING_KEY } from '@placeos/bookings';
+import { BookingFormService } from '@placeos/bookings';
 import {
     AsyncHandler,
     BookingType,
     OrganisationService,
+    SETTING_KEYS,
     SettingsService,
     Space,
 } from '@placeos/common';
@@ -17,7 +18,6 @@ import { showMetadata } from '@placeos/ts-client';
 import { CommonModule } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
-import { FAV_DESK_KEY, FAV_LOCKER_KEY } from '@placeos/bookings';
 import {
     AuthenticatedImageDirective,
     IconComponent,
@@ -320,19 +320,29 @@ export class LandingFavouritesComponent extends AsyncHandler implements OnInit {
     );
 
     public get spaces() {
-        return this._settings.get<string[]>('favourite_spaces') || EMPTY;
+        return (
+            this._settings.get<string[]>(SETTING_KEYS.FAVORITE_ROOMS) || EMPTY
+        );
     }
 
     public get desks() {
-        return this._settings.get<string[]>(FAV_DESK_KEY) || EMPTY;
+        return (
+            this._settings.get<string[]>(SETTING_KEYS.FAVORITE_DESKS) || EMPTY
+        );
     }
 
     public get parking_spaces() {
-        return this._settings.get<string[]>(FAV_PARKING_KEY) || EMPTY;
+        return (
+            this._settings.get<string[]>(
+                SETTING_KEYS.FAVORITE_PARKING_SPACES,
+            ) || EMPTY
+        );
     }
 
     public get locker_banks() {
-        return this._settings.get<string[]>(FAV_LOCKER_KEY) || EMPTY;
+        return (
+            this._settings.get<string[]>(SETTING_KEYS.FAVORITE_LOCKERS) || EMPTY
+        );
     }
 
     public level(space: Space) {
@@ -359,19 +369,19 @@ export class LandingFavouritesComponent extends AsyncHandler implements OnInit {
         id: string,
     ) {
         let fav_list = this.spaces;
-        let key = 'favourite_spaces';
+        let key = SETTING_KEYS.FAVORITE_ROOMS;
         switch (type) {
             case 'desk':
                 fav_list = this.desks;
-                key = FAV_DESK_KEY;
+                key = SETTING_KEYS.FAVORITE_DESKS;
                 break;
             case 'parking':
                 fav_list = this.parking_spaces;
-                key = FAV_PARKING_KEY;
+                key = SETTING_KEYS.FAVORITE_PARKING_SPACES;
                 break;
             case 'locker':
                 fav_list = this.locker_banks;
-                key = FAV_LOCKER_KEY;
+                key = SETTING_KEYS.FAVORITE_LOCKERS;
                 break;
         }
         this._settings.saveUserSetting(

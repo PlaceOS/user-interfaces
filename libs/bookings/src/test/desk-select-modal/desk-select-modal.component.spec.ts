@@ -4,7 +4,7 @@ import {
     MatDialogRef,
 } from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { Desk, SettingsService } from '@placeos/common';
+import { Desk, SETTING_KEYS, SettingsService } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 import { BookingFormService } from '../../lib/booking-form.service';
@@ -13,10 +13,7 @@ import { DeskFiltersDisplayComponent } from '../../lib/desk-select-modal/desk-fi
 import { DeskFiltersComponent } from '../../lib/desk-select-modal/desk-filters.component';
 import { DeskListComponent } from '../../lib/desk-select-modal/desk-list.component';
 import { DeskMapComponent } from '../../lib/desk-select-modal/desk-map.component';
-import {
-    DeskSelectModalComponent,
-    FAV_DESK_KEY,
-} from '../../lib/desk-select-modal/desk-select-modal.component';
+import { DeskSelectModalComponent } from '../../lib/desk-select-modal/desk-select-modal.component';
 
 describe('DeskSelectModalComponent', () => {
     let spectator: Spectator<DeskSelectModalComponent>;
@@ -61,7 +58,7 @@ describe('DeskSelectModalComponent', () => {
         spectator.component.toggleFavourite(new Desk({ id: '1' }));
         expect(
             spectator.inject(SettingsService).saveUserSetting,
-        ).toBeCalledWith(FAV_DESK_KEY, ['1']);
+        ).toBeCalledWith(SETTING_KEYS.FAVORITE_DESKS, ['1']);
     });
 
     it('should allow un-favouriting a space', () => {
@@ -71,7 +68,7 @@ describe('DeskSelectModalComponent', () => {
         spectator.component.toggleFavourite(new Desk({ id: '1' }));
         expect(
             spectator.inject(SettingsService).saveUserSetting,
-        ).toBeCalledWith(FAV_DESK_KEY, []);
+        ).toBeCalledWith(SETTING_KEYS.FAVORITE_DESKS, []);
     });
 
     it('should show desk map view', () => {

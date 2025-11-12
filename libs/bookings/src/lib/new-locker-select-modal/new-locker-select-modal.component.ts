@@ -7,7 +7,12 @@ import {
 } from '@angular/material/dialog';
 
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { AsyncHandler, isMobileSafari, SettingsService } from '@placeos/common';
+import {
+    AsyncHandler,
+    isMobileSafari,
+    SETTING_KEYS,
+    SettingsService,
+} from '@placeos/common';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
@@ -22,8 +27,6 @@ import { NewLockerBankListComponent } from './new-locker-bank-list.component';
 import { NewLockerFiltersDisplayComponent } from './new-locker-filters-display.component';
 import { NewLockerFiltersComponent } from './new-locker-filters.component';
 import { NewLockerMapComponent } from './new-locker-map.component';
-
-export const FAV_LOCKER_KEY = 'favourite_lockers';
 
 @Component({
     selector: 'new-locker-select-modal',
@@ -232,7 +235,9 @@ export class NewLockerSelectModalComponent extends AsyncHandler {
     }
 
     public get favorites() {
-        return this._settings.get<string[]>(FAV_LOCKER_KEY) || [];
+        return (
+            this._settings.get<string[]>(SETTING_KEYS.FAVORITE_LOCKERS) || []
+        );
     }
 
     constructor() {
@@ -265,13 +270,13 @@ export class NewLockerSelectModalComponent extends AsyncHandler {
         const fav_list = this.favorites;
         const new_state = !fav_list.includes(item.id);
         if (new_state) {
-            this._settings.saveUserSetting(FAV_LOCKER_KEY, [
+            this._settings.saveUserSetting(SETTING_KEYS.FAVORITE_LOCKERS, [
                 ...fav_list,
                 item.id,
             ]);
         } else {
             this._settings.saveUserSetting(
-                FAV_LOCKER_KEY,
+                SETTING_KEYS.FAVORITE_LOCKERS,
                 fav_list.filter((_) => _ !== item.id),
             );
         }
