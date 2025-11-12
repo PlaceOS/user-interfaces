@@ -526,8 +526,7 @@ const EMPTY_ACTIONS = [];
                                 notes
                                 class="mx-4 max-w-full overflow-hidden"
                                 [innerHTML]="
-                                    (body() | sanitize) ||
-                                    'Unable to sanitize notes contents'
+                                    (body() | sanitize) || (empty_notes)
                                 "
                             ></div>
                         }
@@ -777,6 +776,7 @@ export class EventDetailsModalComponent implements OnInit {
     public readonly edit = this._data.edit_fn;
     public readonly remove = this._data.remove_fn;
 
+    public readonly empty_notes = "<div class=\"p-4 w-full rounded-md bg-base-200 text-center\"><span class=\"opacity-30\">No notes</span></div>"
     public readonly show_order = {};
     public readonly show_request = {};
     public readonly room_status = signal('');
@@ -874,7 +874,7 @@ export class EventDetailsModalComponent implements OnInit {
     );
 
     public readonly body = computed(() =>
-        this.event().body.replace(/\\n\\n\[ID\|.*\]/gm, ''),
+        (this.event().body || '').replace(/\\n\\n\[ID\|.*\]/gm, ''),
     );
 
     public readonly allow_edit = computed(
@@ -982,7 +982,7 @@ export class EventDetailsModalComponent implements OnInit {
         if (metadata) {
             this.event.set(
                 new CalendarEvent({
-                    ...this.event,
+                    ...this.event(),
                     extension_data: {
                         ...this.event().extension_data,
                         ...metadata,
