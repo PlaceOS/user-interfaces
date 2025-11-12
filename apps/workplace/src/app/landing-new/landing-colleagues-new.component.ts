@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { MatRippleModule } from '@angular/material/core';
 import {
     IconComponent,
@@ -7,6 +8,7 @@ import {
     UserAvatarComponent,
 } from '@placeos/components';
 import { LandingStateService } from '../landing/landing-state.service';
+import { AddColleaguesModalComponent } from './add-colleagues-modal.component';
 
 @Component({
     selector: 'landing-colleagues-new',
@@ -61,9 +63,9 @@ import { LandingStateService } from '../landing/landing-state.service';
                     </p>
                 </div>
             }
-            <button btn matRipple class="mt-4 w-full">
+            <button btn matRipple class="mt-4 w-full" (click)="openAddColleaguesModal()">
                 <icon class="text-xl">person_add</icon>
-                <div>{{ 'APP.WORKPLACE.ADD_COLLEAGUES' | translate }}</div>
+                <div>{{ 'APP.WORKPLACE.COLLEAGUES_ADD' | translate }}</div>
             </button>
         </div>
     `,
@@ -77,6 +79,22 @@ import { LandingStateService } from '../landing/landing-state.service';
 })
 export class LandingColleaguesNewComponent {
     private _state = inject(LandingStateService);
+    private _dialog = inject(MatDialog);
 
     public readonly contacts = this._state.contacts;
+
+    public openAddColleaguesModal() {
+        const dialog_ref = this._dialog.open(AddColleaguesModalComponent, {
+            maxWidth: '100vw',
+            maxHeight: '100vh',
+            panelClass: 'panel',
+            data: {},
+        });
+
+        dialog_ref.afterClosed().subscribe((result) => {
+            if (result) {
+                // Colleagues were added, the state service will update automatically
+            }
+        });
+    }
 }
