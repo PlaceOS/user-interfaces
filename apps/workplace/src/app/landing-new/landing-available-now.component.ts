@@ -61,7 +61,8 @@ import { LandingStateService } from '../landing/landing-state.service';
                             class="flex-1 hover:bg-base-300"
                             [class.clear]="active_tab() !== 'lockers'"
                             (click)="
-                                active_tab.set('lockers'); setBookingType('locker')
+                                active_tab.set('lockers');
+                                setBookingType('locker')
                             "
                         >
                             Lockers
@@ -138,7 +139,7 @@ export class LandingAvailableNowComponent {
         () =>
             (this.features().includes('desks') ? 1 : 0) +
             (this.features().includes('lockers') ? 1 : 0) +
-            (this.features().includes('spaces') ? 1 : 0)
+            (this.features().includes('spaces') ? 1 : 0),
     );
 
     public readonly available_spaces = toSignal(

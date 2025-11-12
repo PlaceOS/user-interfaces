@@ -11,10 +11,10 @@ import {
 import {
     AsyncHandler,
     Booking,
-    CalendarEvent,
+    CalendarEvent, i18n,
     notifyError,
     notifySuccess,
-    OrganisationService,
+    OrganisationService
 } from '@placeos/common';
 import {
     IconComponent,
@@ -335,7 +335,7 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
         if (!event) return;
 
         let itemData: any;
-        let zones: string[] = [];
+        let zones: readonly string[] = [];
 
         if (event instanceof Booking) {
             zones = event.zones || [];
@@ -344,17 +344,17 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
                 name: event.asset_name || event.description,
                 map_id: event.extension_data?.map_id || event.asset_id,
                 zones,
-                level: this._org.levelWithID(zones),
+                level: this._org.levelWithID([...zones]),
             };
         } else if (event instanceof CalendarEvent) {
-            const resource = event.resources?.[0];
+            const resource = { ...(event.resources?.[0] || {}), ...( event.system || {}) };
             zones = resource?.zones || [];
             itemData = {
                 id: resource?.id,
                 name: resource?.display_name || resource?.name || event.title,
                 map_id: resource?.map_id || resource?.id,
                 zones,
-                level: this._org.levelWithID(zones),
+                level: this._org.levelWithID([...zones]),
             };
         }
 
@@ -364,6 +364,8 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
                 maxHeight: '95vh',
                 data: { item: itemData },
             });
+        } else {
+            notifyError(i18n("Unable to validate location for booking."))
         }
     }
 
