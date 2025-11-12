@@ -1,5 +1,5 @@
 import { AsyncPipe, CommonModule } from '@angular/common';
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, effect, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -8,7 +8,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { AsyncHandler, settingSignal } from '@placeos/common';
+import { AsyncHandler, OrganisationService, settingSignal } from '@placeos/common';
 import { IconComponent, SimpleTableComponent } from '@placeos/components';
 import { SpacePipe } from 'libs/events/src/lib/space.pipe';
 import { DashboardsService } from './dashboards/dashboards.service';
@@ -138,7 +138,8 @@ import { SidebarComponent } from './ui/sidebar.component';
                                 >
                                 <input
                                     matInput
-                                    [(ngModel)]="search"
+                                    [ngModel]="search()"
+                                    (ngModelChange)="search.set($event)"
                                     placeholder="Search for alert or location..."
                                 />
                             </mat-form-field>
@@ -222,7 +223,7 @@ import { SidebarComponent } from './ui/sidebar.component';
                         <simple-table
                             class="block w-full min-w-[56rem] overflow-hidden bg-base-100 text-sm"
                             [data]="filtered_alerts()"
-                            [filter]="search"
+                            [filter]="search()"
                             [columns]="[
                                 {
                                     key: 'actions',
@@ -407,7 +408,10 @@ export class AlertsComponent extends AsyncHandler implements OnInit {
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
     private _dashboards = inject(DashboardsService);
-    public search = '';
+    private _org = inject(OrganisationService);
+    private _initialized = false;
+
+    public readonly search = signal('');
     public readonly severity_types = {
         critical: { icon: 'dangerous', class: 'text-error', text: 'Critical' },
         high: { icon: 'warning', class: 'text-warning', text: 'Warning' },
@@ -424,6 +428,36 @@ export class AlertsComponent extends AsyncHandler implements OnInit {
     public readonly severity = signal('');
     public readonly device_type = signal('');
     public readonly status = signal('');
+
+    private _query_sync = effect(() => {
+        const search = this.search();
+        const severity = this.severity();
+        const device_type = this.device_type();
+        const status = this.status();
+        const region = this._dashboards.region_id();
+        const building = this._dashboards.building_id();
+
+        // Skip until after we've loaded from query params
+        if (!this._initialized) {
+            return;
+        }
+
+        const query_params: Record<string, string | undefined> = {
+            search: search || undefined,
+            severity: severity || undefined,
+            device_type: device_type || undefined,
+            status: status || undefined,
+            region: region || undefined,
+            // Only include building if region is selected
+            building: region && building ? building : undefined,
+        };
+
+        this._router.navigate([], {
+            relativeTo: this._route,
+            queryParams: query_params,
+            replaceUrl: true,
+        });
+    });
     public readonly alert_list = this._dashboards.dashboard_alerts;
     public readonly dashboard = signal(null);
     public readonly dashboards = this._dashboards.dashboard_list.asReadonly();
@@ -465,6 +499,42 @@ export class AlertsComponent extends AsyncHandler implements OnInit {
     );
 
     public ngOnInit() {
+        // Load filters from query parameters
+        const query_params = this._route.snapshot.queryParams;
+        if (query_params['search']) {
+            this.search.set(query_params['search']);
+        }
+        if (query_params['severity']) {
+            this.severity.set(query_params['severity']);
+        }
+        if (query_params['device_type']) {
+            this.device_type.set(query_params['device_type']);
+        }
+        if (query_params['status']) {
+            this.status.set(query_params['status']);
+        }
+        if (query_params['region']) {
+            const region = this._org.regions.find(
+                (r) => r.id === query_params['region'],
+            );
+            if (region) {
+                this._org.region = region;
+
+                // Only apply building if region is set
+                if (query_params['building']) {
+                    const building = this._org.buildings.find(
+                        (b) => b.id === query_params['building'],
+                    );
+                    if (building) {
+                        this._org.building = building;
+                    }
+                }
+            }
+        }
+
+        // Enable effect after loading from query params
+        this._initialized = true;
+
         this._dashboards.loadDashboards();
         this.timeout('apply_dash', () => this._applyDashboard(''));
         this.subscription(
