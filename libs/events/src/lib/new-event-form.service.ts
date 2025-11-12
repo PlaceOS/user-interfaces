@@ -234,6 +234,7 @@ export class EventFormService extends AsyncHandler {
             return list;
         }),
     );
+
     public readonly available_spaces: Observable<Space[]> = combineLatest([
         this.filtered_spaces,
         this.booking_rules$,
@@ -346,6 +347,9 @@ export class EventFormService extends AsyncHandler {
         );
         this.form.controls.duration.valueChanges.subscribe((duration) =>
             this.setOptions({ duration }),
+        );
+        this.form.controls.all_day.valueChanges.subscribe((all_day) =>
+            this.setOptions({ all_day }),
         );
         this.subscription(
             'router.events',

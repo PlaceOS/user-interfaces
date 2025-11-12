@@ -165,11 +165,13 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                         </mat-form-field>
                         <label for="date">{{ 'FORM.DATE' | translate }}</label>
                         <date-field formControlName="date" />
-                        <settings-toggle
-                            class="mb-2"
-                            formControlName="all_day"
-                            >{{ 'COMMON.ALL_DAY' | translate }}</settings-toggle
-                        >
+                        @if (allow_all_day()) {
+                            <settings-toggle
+                                class="mb-2"
+                                formControlName="all_day"
+                                >{{ 'COMMON.ALL_DAY' | translate }}</settings-toggle
+                            >
+                        }
                         @if (!field('all_day')) {
                             <label for="date">{{
                                 'FORM.TIME' | translate
@@ -435,9 +437,11 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                     </mat-form-field>
                     <label for="date">{{ 'FORM.DATE' | translate }}</label>
                     <date-field formControlName="date" />
-                    <settings-toggle class="mb-2" formControlName="all_day">{{
-                        'COMMON.ALL_DAY' | translate
-                    }}</settings-toggle>
+                    @if (allow_all_day()) {
+                        <settings-toggle class="mb-2" formControlName="all_day">{{
+                            'COMMON.ALL_DAY' | translate
+                        }}</settings-toggle>
+                    }
                     @if (!field('all_day')) {
                         <label for="date">{{ 'FORM.TIME' | translate }}</label>
                         <div class="flex space-x-2">
@@ -581,6 +585,7 @@ export class MeetingFlowSpaceSelectComponent implements OnInit {
     public readonly use_24hr = settingSignal('use_24_hour_time', false);
     public readonly use_region = settingSignal('use_region', false);
     public readonly max_duration = settingSignal('events.max_duration', 8 * 60);
+    public readonly allow_all_day = settingSignal('events.allow_all_day', false);
     public readonly feature_display = settingSignal<Record<string, string>>(
         'events.feature_decriptions',
         {},
