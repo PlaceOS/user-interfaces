@@ -2,7 +2,7 @@ import { Injectable, type WritableSignal, inject, signal } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { showMetadata, updateMetadata, updateUser } from '@placeos/ts-client';
 import { format, isSameDay } from 'date-fns';
-import { BehaviorSubject, Observable, lastValueFrom } from 'rxjs';
+import { BehaviorSubject, Observable, lastValueFrom, filter } from 'rxjs';
 
 import { AsyncHandler } from './async-handler.class';
 import {
@@ -154,7 +154,7 @@ export class SettingsService extends AsyncHandler {
             window.app.settings = this;
             window.setting = (key) => this.get(key);
         }
-        const user = await firstTruthyValueFrom(current_user);
+        const user = await firstTruthyValueFrom(current_user.pipe(filter(_ => !!_.id)));
         const data = await lastValueFrom(showMetadata(user.id, 'settings'));
         this._user_settings.next(data.details || {});
         this.timeout(
