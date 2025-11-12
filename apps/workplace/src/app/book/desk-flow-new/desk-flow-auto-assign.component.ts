@@ -50,7 +50,7 @@ import { AutoAssignedDeskModalComponent } from '../desk-flow/auto-assigned-desk-
                     class="inverse white w-full flex-1 space-x-2"
                 >
                     <icon class="text-2xl">map</icon>
-                    <div>View Neighbourhood</div>
+                    <div>View Homebase</div>
                 </button>
             </div>
         </div>

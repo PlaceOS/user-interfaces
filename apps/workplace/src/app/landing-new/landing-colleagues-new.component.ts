@@ -2,11 +2,16 @@ import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatRippleModule } from '@angular/material/core';
+import { MatMenuModule } from '@angular/material/menu';
+import { Router } from '@angular/router';
 import {
     IconComponent,
+    openConfirmModal,
     TranslatePipe,
     UserAvatarComponent,
 } from '@placeos/components';
+import { CalendarEvent, i18n, notifySuccess, User } from '@placeos/common';
+import { EventFormService } from '@placeos/events';
 import { LandingStateService } from '../landing/landing-state.service';
 import { AddColleaguesModalComponent } from './add-colleagues-modal.component';
 
@@ -47,9 +52,27 @@ import { AddColleaguesModalComponent } from './add-colleagues-modal.component';
                                     >{{ user.email }}</a
                                 >
                             </div>
-                            <button icon matRipple>
+                            <button
+                                icon
+                                matRipple
+                                [matMenuTriggerFor]="menu"
+                            >
                                 <icon>more_vert</icon>
                             </button>
+                            <mat-menu #menu="matMenu">
+                                <button mat-menu-item (click)="bookMeeting(user)">
+                                    <div class="flex items-center space-x-2">
+                                        <icon class="text-2xl">event</icon>
+                                        <div>{{ 'APP.WORKPLACE.COLLEAGUES_BOOK_MEETING' | translate }}</div>
+                                    </div>
+                                </button>
+                                <button mat-menu-item (click)="removeColleague(user)">
+                                    <div class="flex items-center space-x-2">
+                                    <icon class="text-2xl text-error">person_remove</icon>
+                                    <div>{{ 'APP.WORKPLACE.COLLEAGUES_REMOVE' | translate }}</div>
+                                    </div>
+                                </button>
+                            </mat-menu>
                         </div>
                     }
                 </div>
@@ -72,6 +95,7 @@ import { AddColleaguesModalComponent } from './add-colleagues-modal.component';
     imports: [
         CommonModule,
         MatRippleModule,
+        MatMenuModule,
         IconComponent,
         TranslatePipe,
         UserAvatarComponent,
@@ -80,6 +104,8 @@ import { AddColleaguesModalComponent } from './add-colleagues-modal.component';
 export class LandingColleaguesNewComponent {
     private _state = inject(LandingStateService);
     private _dialog = inject(MatDialog);
+    private _event_form = inject(EventFormService);
+    private _router = inject(Router);
 
     public readonly contacts = this._state.contacts;
 
@@ -96,5 +122,32 @@ export class LandingColleaguesNewComponent {
                 // Colleagues were added, the state service will update automatically
             }
         });
+    }
+
+    public async bookMeeting(user: User) {
+        this._router.navigate(['/book', 'meeting', 'form']);
+        const event = new CalendarEvent({
+            attendees: [user],
+        });
+        setTimeout(() => this._event_form.newForm(event), 300);
+    }
+
+    public async removeColleague(user: User) {
+        const resp = await openConfirmModal(
+            {
+                title: i18n('APP.WORKPLACE.COLLEAGUES_REMOVE_TITLE'),
+                content: i18n('APP.WORKPLACE.COLLEAGUES_REMOVE_MSG', {
+                    name: user.name,
+                }),
+                icon: { content: 'person_remove' },
+            },
+            this._dialog,
+        );
+
+        if (resp.reason !== 'done') return;
+        resp.loading(i18n('APP.WORKPLACE.COLLEAGUES_REMOVE_LOADING'));
+        await this._state.removeContact(user);
+        notifySuccess(i18n('APP.WORKPLACE.COLLEAGUES_REMOVE_SUCCESS'));
+        this._dialog.closeAll();
     }
 }
