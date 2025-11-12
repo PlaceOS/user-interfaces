@@ -101,7 +101,6 @@ export class DeskFlowAutoAssignComponent {
         dialog_ref.afterClosed().subscribe((confirmed) => {
             if (confirmed) {
                 this._booking_form.setView('success');
-                this._router.navigate(['/book', 'desks', 'success']);
             }
         });
     };

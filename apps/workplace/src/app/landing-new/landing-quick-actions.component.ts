@@ -85,11 +85,5 @@ export class LandingQuickActionsComponent {
             panelClass: 'auto-assigned-desk-modal',
         });
         dialog_ref.componentInstance.show_close.set(true);
-
-        dialog_ref.afterClosed().subscribe((confirmed) => {
-            if (confirmed) {
-                this._router.navigate(['/book', 'desks', 'success']);
-            }
-        });
     };
 }

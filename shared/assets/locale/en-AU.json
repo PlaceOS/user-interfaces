@@ -559,6 +559,7 @@
         "DESK_LIST_EMPTY": "No available desks for selected time and/or filters",
         "DESK_SELECT_MSG": "Select a desk to view its details",
         "DESK_AUTO_ASSIGNED_TITLE": "Auto-Assigned Desk",
+        "DESK_REQUESTING": "Requesting desk...",
         "DESK_FOUND": "Desk Found!",
         "DESK_PERFECT_DESK_MESSAGE": "We've found the perfect desk for you",
         "DESK_NEIGHBOURHOOD": "Neighbourhood",
@@ -566,6 +567,7 @@
         "DESK_NO_MAP_AVAILABLE": "No map available",
         "DESK_CONFIRM_BOOKING": "Confirm Booking",
         "ITEM_BOOKED": "{{ name }} booked!",
+        "DESK_SELECT_EMPTY": "No available desks for selected time and/or filters",
         "DESK_SUCCESS_LONE": "Your desk booking at {{ location }} has been successfully booked for {{ date }} at {{ time }}",
         "DESK_SUCCESS_GROUP": "Your group of {{ size }} desks at {{ location }} have been successfully booked for {{ date }} at {{ time }}",
         "DESK_SUCCESS_LONE_ALLDAY": "Your desk booking at {{ location }} has been successfully booked for {{ date }}",
@@ -623,7 +625,6 @@
         "INDUCTED": "Inducted",
         "PASS_NUMBER": "Pass Number",
         "FACILITIES": "Features",
-        "DESK_SELECT_EMPTY": "No available desks for selected time and/or filters",
 
         "RECURRING_TOOLTIP": "This booking is part of a recurring series",
         "ASSETS_ADD_HEADER": "Add Assets",

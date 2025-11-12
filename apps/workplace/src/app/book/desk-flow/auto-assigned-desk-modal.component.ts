@@ -18,9 +18,9 @@ import {
     firstTruthyValueFrom,
     i18n,
     nextValueFrom,
-    notifyError,
+    notifyError, notifySuccess,
     OrganisationService,
-    SettingsService,
+    SettingsService
 } from '@placeos/common';
 import {
     IconComponent,
@@ -29,9 +29,10 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { isBefore, startOfMinute } from 'date-fns';
+import { Router } from '@angular/router';
 
 @Component({
-    selector: 'placeos-auto-assigned-desk-modal',
+    selector: 'auto-assigned-desk-modal',
     standalone: true,
     template: `
         <div
@@ -65,9 +66,9 @@ import { isBefore, startOfMinute } from 'date-fns';
                     <div
                         class="flex h-full min-h-[20rem] flex-col items-center justify-center"
                     >
-                        <mat-spinner [diameter]="64"></mat-spinner>
-                        <p class="mt-4 text-sm opacity-60">
-                            {{ 'BOOKINGS.DESK_LIST_LOADING' | translate }}
+                        <mat-spinner [diameter]="32"></mat-spinner>
+                        <p class="mt-4 opacity-60">
+                            {{ ( loading() == 'booking' ? 'BOOKINGS.DESK_REQUESTING' : 'BOOKINGS.DESK_LIST_LOADING') | translate }}
                         </p>
                     </div>
                 } @else {
@@ -210,12 +211,13 @@ export class AutoAssignedDeskModalComponent
     private _state = inject(BookingFormService);
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
+    private _router = inject(Router);
     private _dialog_ref = inject(MatDialogRef<AutoAssignedDeskModalComponent>, {
         optional: true,
     });
 
     public readonly show_close = model(false);
-    public readonly loading = signal(true);
+    public readonly loading = signal('');
     public readonly assigned_desk = signal<BookingAsset | Desk | null>(null);
     public readonly date = model<number | undefined>(undefined);
     public readonly duration = model<number | undefined>(undefined);
@@ -229,7 +231,7 @@ export class AutoAssignedDeskModalComponent
 
     private async initializeAndAutoAssign() {
         try {
-            this.loading.set(true);
+            this.loading.set('available');
 
             // Initialize booking state for desk
             this._state.setOptions({ type: 'desk' });
@@ -256,7 +258,7 @@ export class AutoAssignedDeskModalComponent
 
             // Get available resources (desks)
             const available_desks = await firstTruthyValueFrom(
-                this._state.resources,
+                this._state.available_resources,
             );
 
             if (!available_desks?.length) {
@@ -293,7 +295,7 @@ export class AutoAssignedDeskModalComponent
 
             this.assigned_desk.set(assigned_desk);
 
-            this.loading.set(false);
+            this.loading.set('');
         } catch (error) {
             console.error('Error auto-assigning desk:', error);
             notifyError(i18n('BOOKINGS.DESK_LIST_EMPTY'));
@@ -366,16 +368,17 @@ export class AutoAssignedDeskModalComponent
     });
 
     public readonly confirm = async () => {
-        this.loading.set(true);
+        this.loading.set('booking');
         try {
             if ((await nextValueFrom(this._state.options))?.group) {
                 await this._state.postFormForGroup();
             } else {
                 await this._state.postForm();
             }
+            await this._router.navigate(['/book', 'desk', 'success']);
             this._dialog_ref?.close(true);
         } catch (e) {
-            this.loading.set(false);
+            this.loading.set('');
             notifyError(
                 typeof e === 'string'
                     ? e
