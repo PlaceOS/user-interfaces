@@ -11,6 +11,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { Router } from '@angular/router';
 import { BookingAsset, BookingFormService } from '@placeos/bookings';
 import {
     AsyncHandler,
@@ -18,9 +19,9 @@ import {
     firstTruthyValueFrom,
     i18n,
     nextValueFrom,
-    notifyError, notifySuccess,
+    notifyError,
     OrganisationService,
-    SettingsService
+    SettingsService,
 } from '@placeos/common';
 import {
     IconComponent,
@@ -29,7 +30,6 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { isBefore, startOfMinute } from 'date-fns';
-import { Router } from '@angular/router';
 
 @Component({
     selector: 'auto-assigned-desk-modal',
@@ -68,7 +68,12 @@ import { Router } from '@angular/router';
                     >
                         <mat-spinner [diameter]="32"></mat-spinner>
                         <p class="mt-4 opacity-60">
-                            {{ ( loading() == 'booking' ? 'BOOKINGS.DESK_REQUESTING' : 'BOOKINGS.DESK_LIST_LOADING') | translate }}
+                            {{
+                                (loading() == 'booking'
+                                    ? 'BOOKINGS.DESK_REQUESTING'
+                                    : 'BOOKINGS.DESK_LIST_LOADING'
+                                ) | translate
+                            }}
                         </p>
                     </div>
                 } @else {

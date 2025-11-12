@@ -2,7 +2,12 @@ import { CommonModule } from '@angular/common';
 import { Component, computed, inject, input } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatRippleModule } from '@angular/material/core';
-import { Booking, CalendarEvent, settingSignal, SettingsService } from '@placeos/common';
+import {
+    Booking,
+    CalendarEvent,
+    settingSignal,
+    SettingsService,
+} from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { ScheduleFilterCardComponent } from './schedule-filter-card.component';
 import { ScheduleStateService } from './schedule-state.service';

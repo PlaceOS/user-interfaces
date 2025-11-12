@@ -12,7 +12,6 @@ import {
 import { IconComponent } from './icon.component';
 import { InteractiveMapComponent } from './interactive-map.component';
 import { MapPinComponent } from './map-pin.component';
-import { TranslatePipe } from './translate.pipe';
 
 export interface Locatable {
     id: string;
@@ -28,7 +27,7 @@ export interface Locatable {
     template: `
         <div class="h-[calc(100vh-4rem)] w-screen sm:h-auto sm:w-auto">
             <header
-                class="sticky top-0 z-10 m-2 h-14 w-[calc(100%-1rem)] min-w-[20rem] rounded border-none bg-base-200 p-2 flex items-center space-x-2"
+                class="sticky top-0 z-10 m-2 flex h-14 w-[calc(100%-1rem)] min-w-[20rem] items-center space-x-2 rounded border-none bg-base-200 p-2"
             >
                 <icon class="text-2xl">place</icon>
                 <h2 class="text-xl font-medium">
@@ -40,31 +39,31 @@ export interface Locatable {
                 </button>
             </header>
             <div class="px-2 pb-2">
-            @if (level()) {
-                <div
-                    body
-                    class="relative h-[65vh] w-full overflow-hidden sm:max-h-[65vh] rounded-lg border border-base-300"
-                >
-                    <interactive-map
-                        class="pointer-events-none"
-                        [src]="level().map_id"
-                        [focus]="item().map_id"
-                        [features]="features()"
-                        [options]="{
-                            disable_pan: true,
-                            disable_zoom: true,
-                        }"
-                    >
-                        <mat-spinner diameter="64"></mat-spinner
-                    ></interactive-map>
+                @if (level()) {
                     <div
-                        class="absolute right-2 top-2 rounded-xl bg-base-200 border border-base-300 px-4 py-2 font-medium"
+                        body
+                        class="relative h-[65vh] w-full overflow-hidden rounded-lg border border-base-300 sm:max-h-[65vh]"
                     >
-                        {{ level().display_name || level().name }}
+                        <interactive-map
+                            class="pointer-events-none"
+                            [src]="level().map_id"
+                            [focus]="item().map_id"
+                            [features]="features()"
+                            [options]="{
+                                disable_pan: true,
+                                disable_zoom: true,
+                            }"
+                        >
+                            <mat-spinner diameter="64"></mat-spinner
+                        ></interactive-map>
+                        <div
+                            class="absolute right-2 top-2 rounded-xl border border-base-300 bg-base-200 px-4 py-2 font-medium"
+                        >
+                            {{ level().display_name || level().name }}
+                        </div>
                     </div>
-                </div>
-            }
-                </div>
+                }
+            </div>
         </div>
     `,
     styles: [
@@ -101,9 +100,11 @@ export class MapLocateModalComponent extends AsyncHandler implements OnInit {
 
     public ngOnInit(): void {
         this.item.set(this._data.item);
-        this.level.set(this.item().level || this._org.levelWithID(this.item().zones || []))
+        this.level.set(
+            this.item().level || this._org.levelWithID(this.item().zones || []),
+        );
         if (!this.level().id) {
-            this.level.set(this._org.levelWithID(this.item().zones || []))
+            this.level.set(this._org.levelWithID(this.item().zones || []));
         }
         this.timeout(
             'init',

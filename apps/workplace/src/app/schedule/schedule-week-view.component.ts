@@ -12,7 +12,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { BookingDetailsModalComponent } from '@placeos/bookings';
-import { BOOKING_TYPE_COLORS, Booking, CalendarEvent } from '@placeos/common';
+import { Booking, BOOKING_TYPE_COLORS, CalendarEvent } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
 import {
     EventDetailsModalComponent,
@@ -150,7 +150,7 @@ export class ScheduleWeekViewComponent {
         // Use setTimeout to ensure DOM is fully rendered
         setTimeout(() => {
             const today_column = container.querySelector(
-                '[data-is-today="true"]'
+                '[data-is-today="true"]',
             ) as HTMLElement;
             if (!today_column) return;
 

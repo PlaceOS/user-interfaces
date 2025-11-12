@@ -31,7 +31,7 @@ import { ScheduleWeekViewComponent } from './schedule-week-view.component';
             class="relative flex h-1/2 flex-1 flex-col bg-base-200 sm:flex-row"
         >
             <schedule-sidebar
-                class="hidden bg-base-100 sm:block relative z-50"
+                class="relative z-50 hidden bg-base-100 sm:block"
                 [bookings]="b_list | async"
             ></schedule-sidebar>
             <div class="flex h-full flex-1 flex-col overflow-auto">
