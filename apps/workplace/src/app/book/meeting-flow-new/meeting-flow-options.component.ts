@@ -527,6 +527,7 @@ export class MeetingFlowOptionsComponent {
                 notifyError(_);
                 throw _;
             });
+            this._event_form.setView('success');
             this._router.navigate(['/book", "meeting", "success']);
             notifySuccess(i18n('APP.WORKPLACE.MEETING_BOOKED'));
         } finally {
