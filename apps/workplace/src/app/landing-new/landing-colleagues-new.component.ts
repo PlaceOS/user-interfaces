@@ -48,6 +48,8 @@ import { AddColleaguesModalComponent } from './add-colleagues-modal.component';
                                 <div class="truncate">{{ user.name }}</div>
                                 <a
                                     [href]="'mailto:' + user.email"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
                                     class="truncate text-xs underline opacity-60"
                                     >{{ user.email }}</a
                                 >
