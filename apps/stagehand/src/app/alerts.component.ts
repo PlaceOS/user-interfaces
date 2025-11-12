@@ -7,13 +7,9 @@ import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AsyncHandler, settingSignal } from '@placeos/common';
-import {
-    IconComponent,
-    SimpleTableComponent,
-    TranslatePipe,
-} from '@placeos/components';
+import { IconComponent, SimpleTableComponent } from '@placeos/components';
 import { SpacePipe } from 'libs/events/src/lib/space.pipe';
 import { DashboardsService } from './dashboards/dashboards.service';
 import { SidebarComponent } from './ui/sidebar.component';
@@ -26,10 +22,25 @@ import { SidebarComponent } from './ui/sidebar.component';
 
             <div class="flex w-px flex-1 flex-col">
                 <header
-                    class="flex h-[4.5rem] w-full items-center justify-between border-base-400 bg-base-100 p-4"
+                    class="flex h-[4.5rem] w-full items-center justify-between space-x-2 border-base-400 bg-base-100 p-4"
                 >
                     <h1 class="text-2xl font-bold">AV Systems Alerts</h1>
-
+                    <div class="flex-1"></div>
+                    @if (dashboard()) {
+                        <a
+                            icon
+                            matRipple
+                            class="rounded-xl hover:bg-base-200"
+                            [routerLink]="[
+                                '/dashboards',
+                                dashboard(),
+                                'alerts',
+                            ]"
+                            matTooltip="Manage Dashboard"
+                        >
+                            <icon>settings</icon>
+                        </a>
+                    }
                     <mat-form-field
                         appearance="outline"
                         class="no-subscript min-w-64"
@@ -382,7 +393,6 @@ import { SidebarComponent } from './ui/sidebar.component';
         MatRippleModule,
         SimpleTableComponent,
         IconComponent,
-        TranslatePipe,
         MatFormFieldModule,
         MatSelectModule,
         MatInputModule,
@@ -390,6 +400,7 @@ import { SidebarComponent } from './ui/sidebar.component';
         FormsModule,
         SpacePipe,
         MatTooltipModule,
+        RouterLink,
     ],
 })
 export class AlertsComponent extends AsyncHandler implements OnInit {
