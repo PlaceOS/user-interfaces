@@ -7,12 +7,18 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { i18n, notifyError, settingSignal } from '@placeos/common';
+import {
+    i18n,
+    notifyError,
+    settingSignal,
+    SettingsService,
+} from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { EventFormService } from '@placeos/events';
 import {
     DateFieldComponent,
     DurationFieldComponent,
+    RecurrenceFieldComponent,
     TimeFieldComponent,
 } from '@placeos/form-fields';
 
@@ -87,6 +93,25 @@ import {
                             />
                         </div>
                     </div>
+                    @if (allow_recurrence()) {
+                        <div class="flex w-full flex-col">
+                            <label for="recurrence" class="uppercase">
+                                {{ 'FORM.RECURRENCE' | translate
+                                }}<span>*</span>
+                            </label>
+                            <recurrence-field
+                                name="recurrence"
+                                type="event"
+                                [date]="form().getRawValue().date"
+                                formControlName="recurrence"
+                            ></recurrence-field>
+                            @if (form().value.id) {
+                                <mat-checkbox formControlName="update_master">
+                                    {{ 'FORM.UPDATE_FUTURE' | translate }}
+                                </mat-checkbox>
+                            }
+                        </div>
+                    }
                 </div>
                 <div
                     class="gradient relative flex items-center space-x-2 border-l-8 border-base-content px-4 py-3 text-xl font-medium"
@@ -210,6 +235,7 @@ import {
         MatInputModule,
         DateFieldComponent,
         DurationFieldComponent,
+        RecurrenceFieldComponent,
         TimeFieldComponent,
         FormsModule,
         ReactiveFormsModule,
@@ -222,6 +248,7 @@ export class MeetingFlowDetailsComponent {
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
     private _event_form = inject(EventFormService);
+    private _settings = inject(SettingsService);
 
     public readonly form = signal(this._event_form.form);
     public readonly options = this._event_form.filters$;
@@ -238,6 +265,12 @@ export class MeetingFlowDetailsComponent {
     public readonly setCapacity = (capacity: number) => {
         this._event_form.setFilters({ capacity });
     };
+
+    public readonly allow_recurrence = computed(
+        () =>
+            settingSignal('events.allow_recurrence') &&
+            this.form_value().duration <= 24 * 60,
+    );
 
     public searchRooms() {
         if (!this.has_title()) {
