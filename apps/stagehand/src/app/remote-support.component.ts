@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal, untracked } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -126,7 +126,6 @@ function contains(str: string, substr: string) {
                         <simple-table
                             class="block w-full min-w-[64rem] overflow-hidden bg-base-100 text-sm"
                             [data]="filtered_rooms()"
-                            [filter]="search_term()"
                             [columns]="[
                                 {
                                     key: 'actions',
@@ -400,15 +399,47 @@ export class RemoteSupportComponent extends AsyncHandler implements OnInit {
 
     public readonly filtered_rooms = computed(() => {
         const term = this.search_term().toLowerCase();
-        return this.room_data().filter((room) => {
-            switch (this.state()) {
+        const current_state = this.state();
+
+        // Get base room list with location filtering
+        const r_id = this._dashboard.region_id();
+        const bld_id = this._dashboard.building_id();
+        const base_rooms = this.room_list().filter(
+            (rm) =>
+                (!bld_id && !r_id) ||
+                rm.zones.includes(bld_id) ||
+                (!bld_id && rm.zones.includes(r_id)),
+        );
+
+        // Only track alerts when filtering by issues
+        const alerts_list = current_state === 'issues'
+            ? this.alerts()
+            : untracked(() => this.alerts());
+
+        // Only read status as reactive dependency when filtering by status
+        const status_map = current_state === 'in_use' || current_state === 'available'
+            ? this.status()
+            : untracked(() => this.status());
+
+        // Map rooms with their issues
+        const rooms = base_rooms.map((rm) => ({
+            ...rm,
+            issues: alerts_list.filter((a) => a.location == rm.id),
+        }));
+
+        return rooms.filter((room) => {
+            switch (current_state) {
                 case 'in_use':
-                    return this.status[room.id] === 'busy';
+                    if (status_map[room.id] !== 'busy') return false;
+                    break;
                 case 'available':
-                    return this.status[room.id] === 'free';
+                    if (status_map[room.id] !== 'free') return false;
+                    break;
                 case 'issues':
-                    return (room as any).issues?.length > 0;
+                    if (!room.issues?.length) return false;
+                    break;
             }
+
             if (term) {
                 if (
                     !room.name.toLowerCase().includes(term) &&
@@ -433,10 +464,18 @@ export class RemoteSupportComponent extends AsyncHandler implements OnInit {
     }
 
     public setNextBooking(space: Space, event: CalendarEvent) {
-        this.next.update((old) => ({ ...old, [space.id]: event }));
+        const current = this.next();
+        // Only update if the event actually changed
+        if (JSON.stringify(current[space.id]) !== JSON.stringify(event)) {
+            this.next.update((old) => ({ ...old, [space.id]: event }));
+        }
     }
 
     public setStatus(space: Space, status: string) {
-        this.status.update((old) => ({ ...old, [space.id]: status }));
+        const current = this.status();
+        // Only update if the status actually changed
+        if (current[space.id] !== status) {
+            this.status.update((old) => ({ ...old, [space.id]: status }));
+        }
     }
 }
