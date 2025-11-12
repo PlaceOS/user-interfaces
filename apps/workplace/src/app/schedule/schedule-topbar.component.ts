@@ -92,10 +92,10 @@ export class ScheduleTopbarComponent {
     public readonly resetDate = () => this.date.set(Date.now());
     public readonly previousDate = () =>
         this.date.set(
-            subDays(Date.now(), this.view() === 'week' ? 7 : 1).valueOf(),
+            subDays(this.date(), this.view() === 'week' ? 7 : 1).valueOf(),
         );
     public readonly nextDate = () =>
         this.date.set(
-            addDays(Date.now(), this.view() === 'week' ? 7 : 1).valueOf(),
+            addDays(this.date(), this.view() === 'week' ? 7 : 1).valueOf(),
         );
 }
