@@ -177,7 +177,7 @@ const FAV_DESK_KEY = 'favourite_desks';
                     class="flex flex-col items-center justify-center space-y-2 p-16"
                 >
                     <p class="text-center opacity-30">
-                        {{ 'BOOKINGS.DESK_SELECT_EMPTY' | translate }}
+                        {{ 'BOOKINGS.DESK_LIST_EMPTY' | translate }}
                     </p>
                 </div>
             }
@@ -188,7 +188,7 @@ const FAV_DESK_KEY = 'favourite_desks';
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <p class="opacity-30">
-                    {{ 'BOOKINGS.DESK_SELECT_LOADING' | translate }}
+                    {{ 'BOOKINGS.DESK_LIST_LOADING' | translate }}
                     <!-- <br />
   {{ loading | async | json }} -->
                 </p>

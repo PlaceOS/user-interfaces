@@ -48,7 +48,7 @@ export class MeetingFlowSpaceMapComponent
     public center = { x: 0.5, y: 0.5 };
     public coordinates = undefined;
 
-    private _seletedSpace = (s) => () => {
+    private _selectedSpace = (s) => () => {
         this.space_selected.emit(s);
         this._change.next(Date.now());
     };
@@ -107,7 +107,7 @@ export class MeetingFlowSpaceMapComponent
             l.map((space) => ({
                 id: space.map_id,
                 action: ['touchend', 'mouseup'],
-                callback: this._seletedSpace(space),
+                callback: this._selectedSpace(space),
             })),
         ),
     );

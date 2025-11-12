@@ -527,8 +527,8 @@ export class MeetingFlowOptionsComponent {
                 notifyError(_);
                 throw _;
             });
-            this._router.navigate(['/book/meeting']);
-            notifySuccess(i18n('APP.WORKPLACE.MEETING_BOOKED_SUCCESS'));
+            this._router.navigate(['/book", "meeting", "success']);
+            notifySuccess(i18n('APP.WORKPLACE.MEETING_BOOKED'));
         } finally {
             this.loading.set(false);
         }

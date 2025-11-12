@@ -91,7 +91,7 @@ const DENIED_FILE_TYPES = [
                                                     item?.email
                                                     | placeuser
                                                     | async
-                                                )?.location_name_time(time())
+                                                )?.location_name_time?.(time())
                                             "
                                         >
                                             {{
@@ -99,7 +99,7 @@ const DENIED_FILE_TYPES = [
                                                     item?.email
                                                     | placeuser
                                                     | async
-                                                )?.location_icon(time())
+                                                )?.location_icon?.(time())
                                             }}
                                         </icon>
                                     }

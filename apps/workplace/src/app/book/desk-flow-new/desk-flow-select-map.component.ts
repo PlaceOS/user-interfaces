@@ -45,7 +45,7 @@ export class DeskFlowSelectMapComponent extends AsyncHandler implements OnInit {
     public center = { x: 0.5, y: 0.5 };
     public coordinates = undefined;
 
-    private _seletedItem = (s) => () => {
+    private _selectedItem = (s) => () => {
         this.item_selected.emit(s);
         this._change.next(Date.now());
     };
@@ -104,7 +104,7 @@ export class DeskFlowSelectMapComponent extends AsyncHandler implements OnInit {
             l.map((space) => ({
                 id: space.map_id,
                 action: ['touchend', 'mouseup'],
-                callback: this._seletedItem(space),
+                callback: this._selectedItem(space),
             })),
         ),
     );
@@ -137,8 +137,8 @@ export class DeskFlowSelectMapComponent extends AsyncHandler implements OnInit {
     public ngOnInit() {
         this.subscription(
             'levels_update',
-            this._booking_form.options.subscribe(({ zone_id }) => {
-                const level = this._org.levelWithID([zone_id]);
+            this._booking_form.options.subscribe((details) => {
+                const level = this._org.levelWithID((details as any).zones || [details.zone_id]);
                 if (level) this.level = level;
             }),
         );

@@ -26,47 +26,49 @@ import { LandingStateService } from '../landing/landing-state.service';
                     <icon>keyboard_arrow_down</icon>
                 </button>
             </div>
-            <div
-                class="flex w-full items-center space-x-1 rounded bg-base-200 p-1"
-            >
-                @if (features().includes('desks')) {
-                    <button
-                        btn
-                        matRipple
-                        class="flex-1 hover:bg-base-300"
-                        [class.clear]="active_tab() !== 'desks'"
-                        (click)="
-                            active_tab.set('desks'); setBookingType('desk')
-                        "
-                    >
-                        Desks
-                    </button>
-                }
-                @if (features().includes('spaces')) {
-                    <button
-                        btn
-                        matRipple
-                        class="flex-1 hover:bg-base-300"
-                        [class.clear]="active_tab() !== 'rooms'"
-                        (click)="active_tab.set('rooms')"
-                    >
-                        Rooms
-                    </button>
-                }
-                @if (features().includes('lockers')) {
-                    <button
-                        btn
-                        matRipple
-                        class="flex-1 hover:bg-base-300"
-                        [class.clear]="active_tab() !== 'lockers'"
-                        (click)="
-                            active_tab.set('lockers'); setBookingType('locker')
-                        "
-                    >
-                        Lockers
-                    </button>
-                }
-            </div>
+            @if (feature_count() > 0) {
+                <div
+                    class="flex w-full items-center space-x-1 rounded bg-base-200 p-1"
+                >
+                    @if (features().includes('desks')) {
+                        <button
+                            btn
+                            matRipple
+                            class="flex-1 hover:bg-base-300"
+                            [class.clear]="active_tab() !== 'desks'"
+                            (click)="
+                                active_tab.set('desks'); setBookingType('desk')
+                            "
+                        >
+                            Desks
+                        </button>
+                    }
+                    @if (features().includes('spaces')) {
+                        <button
+                            btn
+                            matRipple
+                            class="flex-1 hover:bg-base-300"
+                            [class.clear]="active_tab() !== 'rooms'"
+                            (click)="active_tab.set('rooms')"
+                        >
+                            Rooms
+                        </button>
+                    }
+                    @if (features().includes('lockers')) {
+                        <button
+                            btn
+                            matRipple
+                            class="flex-1 hover:bg-base-300"
+                            [class.clear]="active_tab() !== 'lockers'"
+                            (click)="
+                                active_tab.set('lockers'); setBookingType('locker')
+                            "
+                        >
+                            Lockers
+                        </button>
+                    }
+                </div>
+            }
             <div class="flex flex-col space-y-2 pt-2">
                 @for (lvl of levels_free | async; track lvl) {
                     <a
@@ -132,6 +134,12 @@ export class LandingAvailableNowComponent {
     public readonly active_tab = signal('desks');
     public readonly levels_free = this._state.level_occupancy;
     public readonly features = settingSignal<string[]>('features', []);
+    public readonly feature_count = computed(
+        () =>
+            (this.features().includes('desks') ? 1 : 0) +
+            (this.features().includes('lockers') ? 1 : 0) +
+            (this.features().includes('spaces') ? 1 : 0)
+    );
 
     public readonly available_spaces = toSignal(
         this._event_form.available_spaces,
