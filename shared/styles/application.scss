@@ -4,11 +4,11 @@
     /* Brand */
     --brand-100: oklch(0.585 0.204 277.117); /* #C52B67 */
     --brand-200: oklch(0.606 0.219 292.717); /* #C52B67 */
-    --brand-300: rgb(236, 239, 241); /* #C52B67 */
+    --brand-300: oklch(0.95 0.004 236.498); /* #C52B67 */
     --brand-400: oklch(0.696 0.149 162.48); /* #C52B67 */
     --brand-500: oklch(0.6 0.149 162.48); /* #C52B67 */
-    --brand-600: hsl(336, 57%, 48%); /* #C52B67 */
-    --brand-content: hsl(0, 0%, 100%); /* White content for contrast */
+    --brand-600: oklch(0.553 0.18 1.051); /* #C52B67 */
+    --brand-content: oklch(1 0 89.876); /* White content for contrast */
 
     /* Primary */
     --primary: hsl(336, 57%, 48%); /* #C52B67 */
@@ -77,11 +77,11 @@
     /* Brand */
     --brand-100: oklch(0.585 0.204 277.117); /* #C52B67 */
     --brand-200: oklch(0.606 0.219 292.717); /* #C52B67 */
-    --brand-300: rgb(236, 239, 241); /* #C52B67 */
+    --brand-300: oklch(0.95 0.004 236.498); /* #C52B67 */
     --brand-400: oklch(0.6 0.149 162.48); /* #C52B67 */
     --brand-500: oklch(0.55 0.149 162.48); /* #C52B67 */
-    --brand-600: hsl(336, 57%, 48%); /* #C52B67 */
-    --brand-content: hsl(0, 0%, 100%); /* White content for contrast */
+    --brand-600: oklch(0.553 0.18 1.051); /* #C52B67 */
+    --brand-content: oklch(1 0 89.876); /* White content for contrast */
 
     /* Primary */
     --primary: hsl(336, 57%, 48%); /* #C52B67 */

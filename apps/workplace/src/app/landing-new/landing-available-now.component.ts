@@ -12,6 +12,7 @@ import {
 import { BuildingPipe, IconComponent } from '@placeos/components';
 import { EventFormService } from '@placeos/events';
 import { LandingStateService } from '../landing/landing-state.service';
+import { MatMenuModule } from '@angular/material/menu';
 
 @Component({
     selector: 'landing-available-now',
@@ -21,10 +22,44 @@ import { LandingStateService } from '../landing/landing-state.service';
         >
             <div class="mb-2 flex items-center justify-between">
                 <h3 class="px-2 text-lg font-medium">Available Now</h3>
-                <button matRipple class="flex items-center rounded px-2 py-1">
-                    <div class="ml-2 text-sm underline">Nearby</div>
+                <button matRipple class="flex items-center justify-center rounded-md px-2 py-1 border border-base-300 w-32" [matMenuTriggerFor]="menu">
+                    <div class="ml-2 text-sm underline capitalize">{{ active_filter() }}</div>
                     <icon>keyboard_arrow_down</icon>
                 </button>
+                <mat-menu #menu="matMenu">
+                    <button mat-menu-item (click)="active_filter.set('nearest')">
+                        <div class="flex space-x-2 items-center">
+                            <div class="flex-1 min-w-32">Nearest</div>
+                            @if (active_filter() === "nearest") {
+                                <icon class="text-2xl">done</icon>
+                            }
+                        </div>
+                    </button>
+                    <button mat-menu-item (click)="active_filter.set('quiet')">
+                        <div class="flex space-x-2  items-center">
+                            <div class="flex-1">Quiet</div>
+                            @if (active_filter() === "quiet") {
+                                <icon class="text-2xl">done</icon>
+                            }
+                        </div>
+                    </button>
+                    <button mat-menu-item (click)="active_filter.set('equipment')">
+                        <div class="flex space-x-2  items-center">
+                            <div class="flex-1">Equipment</div>
+                            @if (active_filter() === "equipment") {
+                                <icon class="text-2xl">done</icon>
+                            }
+                        </div>
+                    </button>
+                    <button mat-menu-item (click)="active_filter.set('accessible')">
+                        <div class="flex space-x-2  items-center">
+                            <div class="flex-1">Accessible</div>
+                            @if (active_filter() === "accessible") {
+                                <icon class="text-2xl">done</icon>
+                            }
+                        </div>
+                    </button>
+                </mat-menu>
             </div>
             @if (feature_count() > 0) {
                 <div
@@ -124,6 +159,7 @@ import { LandingStateService } from '../landing/landing-state.service';
         IconComponent,
         RouterLink,
         BuildingPipe,
+        MatMenuModule,
     ],
 })
 export class LandingAvailableNowComponent {
@@ -133,6 +169,7 @@ export class LandingAvailableNowComponent {
     private _org = inject(OrganisationService);
 
     public readonly active_tab = signal('desks');
+    public readonly active_filter = signal('nearest');
     public readonly levels_free = this._state.level_occupancy;
     public readonly features = settingSignal<string[]>('features', []);
     public readonly feature_count = computed(
