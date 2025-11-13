@@ -437,7 +437,7 @@ export class ScheduleDayViewComponent {
                     bkn.booking_type === 'group-event'
                         ? { booking: bkn, concierge: false }
                         : bkn,
-                edit_fn: (i) => this._state.edit(i),
+                edit_fn: (i) => this._state.editBooking(i),
                 remove_fn: (i, t) => this._state.remove(i, t),
                 end_fn: (i) => this._state.end(i),
             };

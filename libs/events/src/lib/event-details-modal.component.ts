@@ -785,7 +785,7 @@ export class EventDetailsModalComponent implements OnInit {
     public readonly raw_body = signal('');
     public readonly print = signal(false);
     public readonly show_attendees = signal(false);
-    public readonly event = signal(this._data.event);
+    public readonly event = signal(new CalendarEvent(this._data.event));
     public readonly no_edit_message = signal(
         'Editing bookings long than \n a day is not available',
     );
@@ -848,21 +848,21 @@ export class EventDetailsModalComponent implements OnInit {
     });
 
     public readonly accept_count = computed(() =>
-        this.event().attendees.reduce(
+        this.event().attendees?.reduce(
             (count, user) =>
                 (count += user.response_status === 'accepted' ? 1 : 0),
             0,
-        ),
+        ) || 0,
     );
     public readonly declined_count = computed(() =>
-        this.event().attendees.reduce(
+        this.event().attendees?.reduce(
             (count, user) =>
                 (count += user.response_status === 'declined' ? 1 : 0),
             0,
-        ),
+        ) || 0,
     );
     public readonly pending_count = computed(() =>
-        this.event().attendees.reduce(
+        this.event().attendees?.reduce(
             (count, user) =>
                 (count +=
                     user.response_status === 'tentative' ||
@@ -870,7 +870,7 @@ export class EventDetailsModalComponent implements OnInit {
                         ? 1
                         : 0),
             0,
-        ),
+        ) || 0,
     );
 
     public readonly body = computed(() =>
