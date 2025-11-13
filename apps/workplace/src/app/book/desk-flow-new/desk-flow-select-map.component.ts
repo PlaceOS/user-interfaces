@@ -11,7 +11,14 @@ import {
 import { InteractiveMapComponent } from '@placeos/components';
 import { DEFAULT_COLOURS } from '@placeos/explore';
 import { NewSpaceLocationPinComponent } from 'libs/events/src/lib/new-space-select-modal/new-space-location-pin.component';
-import { BehaviorSubject, combineLatest, debounceTime, map, tap } from 'rxjs';
+import {
+    BehaviorSubject,
+    combineLatest,
+    debounceTime,
+    map,
+    startWith,
+    tap,
+} from 'rxjs';
 
 @Component({
     selector: 'desk-flow-select-map',
@@ -52,6 +59,33 @@ export class DeskFlowSelectMapComponent extends AsyncHandler implements OnInit {
     public level: BuildingLevel = null;
     private _change = new BehaviorSubject(0);
 
+    // Include currently booked resource in edit mode
+    public readonly available_resources_with_current = combineLatest([
+        this._booking_form.available_resources,
+        this._booking_form.form.valueChanges.pipe(
+            startWith(this._booking_form.form.value),
+        ),
+    ]).pipe(
+        map(([available, form]) => {
+            const resources = form.resources || [];
+
+            // If in edit mode and we have a resource selected, ensure it's in the list
+            if (form.id && resources.length > 0) {
+                const existing_ids = available.map((r) => r.id);
+                const missing_resources = resources.filter(
+                    (r) => !existing_ids.includes(r.id),
+                );
+
+                if (missing_resources.length > 0) {
+                    // Add the currently booked desk(s) to the available list
+                    return [...missing_resources, ...available];
+                }
+            }
+
+            return available;
+        }),
+    );
+
     public get map_url() {
         return this.level?.map_id || '';
     }
@@ -82,7 +116,7 @@ export class DeskFlowSelectMapComponent extends AsyncHandler implements OnInit {
     public readonly setOptions = (o) => this._booking_form.setOptions(o);
 
     public readonly features = combineLatest([
-        this._booking_form.available_resources,
+        this.available_resources_with_current,
         this._change,
     ]).pipe(
         debounceTime(300),
@@ -99,7 +133,7 @@ export class DeskFlowSelectMapComponent extends AsyncHandler implements OnInit {
         ),
     );
 
-    public readonly actions = this._booking_form.available_resources.pipe(
+    public readonly actions = this.available_resources_with_current.pipe(
         map((l) =>
             l.map((space) => ({
                 id: space.map_id,
@@ -111,7 +145,7 @@ export class DeskFlowSelectMapComponent extends AsyncHandler implements OnInit {
 
     public readonly styles = combineLatest([
         this._booking_form.resources,
-        this._booking_form.available_resources,
+        this.available_resources_with_current,
     ]).pipe(
         map(([spaces, free_spaces]) =>
             spaces.reduce((styles, space) => {

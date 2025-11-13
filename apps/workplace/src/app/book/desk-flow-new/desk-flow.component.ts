@@ -26,7 +26,9 @@ import { DeskFlowSelectComponent } from './desk-flow-select.component';
                 <div
                     class="mx-auto min-h-full w-[64rem] max-w-full flex-1 space-y-4 px-4 pt-4"
                 >
-                    <desk-flow-auto-assign />
+                    @if (!is_edit_mode()) {
+                        <desk-flow-auto-assign />
+                    }
                     <div
                         class="flex w-full flex-col overflow-hidden rounded-xl border border-base-300 bg-base-100"
                     >
@@ -132,6 +134,8 @@ export class DeskFlowNewComponent extends AsyncHandler implements OnInit {
             !!this.form_value()?.resources &&
             this.form_value()?.resources.length > 0,
     );
+
+    public readonly is_edit_mode = computed(() => !!this.form_value()?.id);
 
     public ngOnInit() {
         this._booking_form.form.patchValue({ booking_type: 'desk' });

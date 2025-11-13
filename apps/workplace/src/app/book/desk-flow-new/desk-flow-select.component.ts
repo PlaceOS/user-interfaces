@@ -7,6 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { BookingFormService } from '@placeos/bookings';
 import {
+    AsyncHandler,
     flatten,
     OrganisationService,
     settingSignal,
@@ -535,7 +536,7 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
         DeskFlowSelectMapComponent,
     ],
 })
-export class DeskFlowSelectComponent implements OnInit {
+export class DeskFlowSelectComponent extends AsyncHandler implements OnInit {
     private _booking_form = inject(BookingFormService);
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
@@ -625,7 +626,45 @@ export class DeskFlowSelectComponent implements OnInit {
     }
 
     public ngOnInit() {
-        this.selected.set((this.field('resources') || []).map(({ id }) => id));
+        const resources = this.field('resources') || [];
+        const selected_ids = resources.map(({ id }) => id);
+
+        // Handle edit mode: if form has an id and asset_id but no resources populated yet
+        if (this.field('id') && !resources.length) {
+            const asset_id = this.field('asset_id');
+            if (asset_id) {
+                // Set the selected ID immediately for UI feedback
+                selected_ids.push(asset_id);
+
+                // Subscribe to available resources to populate the full resource object
+                // once the resources are loaded
+                this.subscription(
+                    'load_existing_resource',
+                    this._booking_form.available_resources.subscribe(
+                        (available) => {
+                            if (!available.length) return;
+
+                            const matching_resource = available.find(
+                                (r) => r.id === asset_id,
+                            );
+
+                            // Only patch if we found the resource and resources array is still empty
+                            if (
+                                matching_resource &&
+                                !this.field('resources')?.length
+                            ) {
+                                this.form().patchValue({
+                                    resources: [matching_resource],
+                                });
+                                this.selected.set([matching_resource.id]);
+                            }
+                        },
+                    ),
+                );
+            }
+        }
+
+        this.selected.set(selected_ids);
     }
 
     public field(name: string) {

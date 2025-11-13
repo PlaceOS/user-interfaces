@@ -220,10 +220,40 @@ export class DeskFlowSelectListComponent {
     public readonly loading = toSignal(this._booking_form.loading, {
         initialValue: '',
     });
-    public readonly available_items = toSignal(
+
+    private readonly _available_items = toSignal(
         this._booking_form.available_resources,
         { initialValue: [] },
     );
+
+    private readonly form_value = toSignal(
+        this._booking_form.form.valueChanges,
+        {
+            initialValue: this._booking_form.form.value,
+        },
+    );
+
+    // Include currently booked resource in edit mode
+    public readonly available_items = computed(() => {
+        const available = this._available_items();
+        const form = this.form_value();
+        const resources = form.resources || [];
+
+        // If in edit mode and we have a resource selected, ensure it's in the list
+        if (form.id && resources.length > 0) {
+            const existing_ids = available.map((r) => r.id);
+            const missing_resources = resources.filter(
+                (r) => !existing_ids.includes(r.id),
+            );
+
+            if (missing_resources.length > 0) {
+                // Add the currently booked desk(s) to the available list
+                return [...missing_resources, ...available];
+            }
+        }
+
+        return available;
+    });
     public readonly page = signal(0);
     public readonly page_size = signal(10);
     public readonly max_pages = computed(() =>
