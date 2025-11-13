@@ -32,7 +32,7 @@ export class SpacesService {
     );
     /** List of available features */
     public readonly features = this.list.pipe(
-        map((_) => unique(flatten(_.map((i) => i.features)))),
+        map((_) => unique(flatten(_.map((i) => i.features.filter(_ => _.trim()))))),
     );
     /** Default predicate for filter method */
     protected _compare = (space: Space) =>
