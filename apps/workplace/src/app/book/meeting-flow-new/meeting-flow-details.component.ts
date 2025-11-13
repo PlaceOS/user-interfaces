@@ -76,11 +76,12 @@ import {
                             }}</label>
                             <time-field
                                 name="time"
-                                [ngModel]="form().getRawValue().date"
+                                [ngModel]="form_value().date"
                                 (ngModelChange)="
                                     form().patchValue({ date: $event })
                                 "
                                 [ngModelOptions]="{ standalone: true }"
+                                [disabled]="form_value().all_day"
                             />
                         </div>
                         <div class="flex-1">
@@ -90,6 +91,7 @@ import {
                             <duration-field
                                 name="duration"
                                 formControlName="duration"
+                                [disabled]="form_value().all_day"
                             />
                         </div>
                     </div>
@@ -252,8 +254,8 @@ export class MeetingFlowDetailsComponent {
 
     public readonly form = signal(this._event_form.form);
     public readonly options = this._event_form.filters$;
-    private readonly form_value = toSignal(this._event_form.form.valueChanges, {
-        initialValue: this._event_form.form.value,
+    public readonly form_value = toSignal(this._event_form.form.valueChanges, {
+        initialValue: this._event_form.form.getRawValue(),
     });
     public readonly allow_all_day = settingSignal(
         'events.allow_all_day',
