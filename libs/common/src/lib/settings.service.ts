@@ -1,8 +1,14 @@
-import { Injectable, type WritableSignal, inject, signal } from '@angular/core';
+import {
+    Injectable,
+    type WritableSignal,
+    computed,
+    inject,
+    signal,
+} from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { showMetadata, updateMetadata, updateUser } from '@placeos/ts-client';
 import { format, isSameDay } from 'date-fns';
-import { BehaviorSubject, Observable, lastValueFrom, filter } from 'rxjs';
+import { BehaviorSubject, Observable, filter, lastValueFrom } from 'rxjs';
 
 import { AsyncHandler } from './async-handler.class';
 import {
@@ -73,15 +79,23 @@ export class SettingsService extends AsyncHandler {
     public set overrides(value: HashMap[]) {
         this._overrides.next(value);
         this._applyCssVariables();
-        for (const key in _setting_signals) {
-            _setting_signals[key].update((old) => this.get(key) ?? old);
-        }
+        this._updateSignals();
+        this._applyTheme();
+        this._setFontSize();
+        this._setPrintFontSize();
     }
 
     public get theme() {
         const allow_dark_mode = this.get('app.allow_dark_mode');
         return allow_dark_mode ? this.get('theme') : 'light';
     }
+
+    public readonly theme_signal = computed(() => {
+        const allow_dark_mode = this.signal('allow_dark_mode', true)();
+        return allow_dark_mode
+            ? this.signal('theme', 'light', true)()
+            : 'light';
+    });
 
     /** Get observable for key */
     public listen<T = any>(name: string): Observable<T> {
@@ -107,8 +121,12 @@ export class SettingsService extends AsyncHandler {
             : this._subjects[name].getValue();
     }
 
-    public signal<T = any>(name: string): WritableSignal<T> {
-        return settingSignal<T>(name);
+    public signal<T = any>(
+        name: string,
+        default_value?: T,
+        root?: boolean,
+    ): WritableSignal<T> {
+        return settingSignal<T>(name, default_value, root);
     }
 
     /** Page title */
@@ -154,7 +172,9 @@ export class SettingsService extends AsyncHandler {
             window.app.settings = this;
             window.setting = (key) => this.get(key);
         }
-        const user = await firstTruthyValueFrom(current_user.pipe(filter(_ => !!_.id)));
+        const user = await firstTruthyValueFrom(
+            current_user.pipe(filter((_) => !!_.id)),
+        );
         const data = await lastValueFrom(showMetadata(user.id, 'settings'));
         this._user_settings.next(data.details || {});
         this.timeout(
@@ -254,6 +274,7 @@ export class SettingsService extends AsyncHandler {
     private async _savePendingChanges() {
         const user = currentUser();
         if (!user?.id || !Object.keys(this._pending_settings).length) return;
+        this._updateSignals();
         await lastValueFrom(
             updateMetadata(user.id, {
                 name: 'settings',
@@ -308,5 +329,11 @@ export class SettingsService extends AsyncHandler {
             ? window?.matchMedia('(prefers-color-scheme: dark)')?.matches
             : false;
         this.setTheme(os_dark ? 'dark' : '');
+    }
+
+    private _updateSignals() {
+        for (const key in _setting_signals) {
+            _setting_signals[key].update((old) => this.get(key) ?? old);
+        }
     }
 }
