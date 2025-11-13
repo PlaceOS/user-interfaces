@@ -80,6 +80,9 @@ export class SettingsService extends AsyncHandler {
         this._overrides.next(value);
         this._applyCssVariables();
         this._updateSignals();
+        this._applyTheme();
+        this._setFontSize();
+        this._setPrintFontSize();
     }
 
     public get theme() {
