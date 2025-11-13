@@ -106,7 +106,21 @@ import { MatMenuModule } from '@angular/material/menu';
                 </div>
             }
             <div class="flex flex-col space-y-2 pt-2">
-                @for (lvl of levels_free | async; track lvl) {
+                @if (filtered_levels().length <= 0) {
+                    <div class="flex flex-col items-center justify-center py-12 text-center rounded-xl bg-base-200">
+                        <icon class="text-4xl opacity-30">{{
+                            active_tab() === 'desks'
+                                ? 'desk'
+                                : active_tab() === 'lockers'
+                                  ? 'lock'
+                                  : 'meeting_room'
+                        }}</icon>
+                        <div class="mt-2 text-sm opacity-60">
+                            No {{ active_tab() === 'rooms' ? 'rooms' : active_tab() }} available at the moment
+                        </div>
+                    </div>
+                }
+                @for (lvl of filtered_levels(); track lvl.id) {
                     <a
                         btn
                         matRipple
@@ -125,7 +139,7 @@ import { MatMenuModule } from '@angular/material/menu';
                             @let bld = lvl.parent_id | building;
                             <div>{{ lvl.display_name || lvl.name }}</div>
                             @if (bld) {
-                                <div class="text-xs opacity-60">
+                                <div class="text-xs opacity-50 text-base-content">
                                     {{ bld.display_name || bld.name }}
                                 </div>
                             }
@@ -179,6 +193,10 @@ export class LandingAvailableNowComponent {
             (this.features().includes('spaces') ? 1 : 0),
     );
 
+    public readonly all_levels = toSignal(this.levels_free, {
+        initialValue: [],
+    });
+
     public readonly available_spaces = toSignal(
         this._event_form.available_spaces,
         { initialValue: [] },
@@ -212,6 +230,21 @@ export class LandingAvailableNowComponent {
             }
         }
         return mapping;
+    });
+
+    public readonly filtered_levels = computed(() => {
+        const levels = this.all_levels();
+        const tab = this.active_tab();
+        const spaces_map = this.spaces_by_level();
+        const resources_map = this.resources_by_level();
+
+        return levels.filter((lvl) => {
+            const count =
+                tab === 'rooms'
+                    ? spaces_map[lvl.id] || 0
+                    : resources_map[lvl.id] || 0;
+            return count > 0;
+        });
     });
 
     public setBookingType(type: BookingType) {
