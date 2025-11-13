@@ -31,6 +31,7 @@ import {
 import { UserLabelModalComponent } from '@placeos/users';
 import { ParkingStateService } from '../parking/parking-state.service';
 import { VisitorsStateService } from './visitors-state.service';
+import { FormsModule } from '@angular/forms';
 
 @Component({
     selector: 'guest-listings',
@@ -668,6 +669,7 @@ import { VisitorsStateService } from './visitors-state.service';
         TranslatePipe,
         IconComponent,
         SimpleTableComponent,
+        FormsModule,
     ],
 })
 export class GuestListingComponent extends AsyncHandler implements OnInit {
