@@ -191,11 +191,6 @@ export class ApplicationSidebarComponent
                     //     route: ['/facilities'],
                     // },
                     {
-                        id: 'zones',
-                        name: i18n('APP.CONCIERGE.MENU_MANAGE_ZONES'),
-                        route: ['/zone-management'],
-                    },
-                    {
                         id: 'catering',
                         name: i18n('APP.CONCIERGE.MENU_MANAGE_CATERING'),
                         route: ['/book/catering/menu'],
@@ -237,6 +232,12 @@ export class ApplicationSidebarComponent
                         route: ['/deals-n-offers'],
                     },
                 ],
+            },
+            {
+                id: 'zones',
+                name: i18n('APP.CONCIERGE.MENU_MANAGE_ZONES'),
+                icon: 'account_tree',
+                route: ['/zone-management'],
             },
             {
                 id: 'resources',

@@ -39,38 +39,65 @@ import { SearchbarComponent } from '../ui/searchbar.component';
     selector: 'resource-manager-topbar',
     template: `
         <div class="flex items-center space-x-2 bg-base-100 px-8 mb-4">
-            <mat-form-field appearance="outline" class="no-subscript w-60">
-                <mat-select
-                    [ngModel]="selected_zones"
-                    (ngModelChange)="updateZones($event)"
-                    [placeholder]="'COMMON.LEVEL_ALL' | translate"
-                    [multiple]="tab_index() !== 1"
-                >
-                    @if (tab_index() === 1) {
+            @if (tab_index() === 1) {
+                <mat-form-field appearance="outline" class="no-subscript w-60">
+                    <mat-select
+                        [ngModel]="selected_zones"
+                        (ngModelChange)="updateZones($event)"
+                        [placeholder]="'COMMON.LEVEL_ALL' | translate"
+                    >
                         <mat-option value="All">
                             {{ 'COMMON.LEVEL_ALL' | translate }}
                         </mat-option>
-                    }
-                    @for (level of levels | async; track level) {
-                        <mat-option [value]="level.id">
-                            <div class="flex flex-col-reverse">
-                                @if (use_region) {
-                                    <div class="text-xs opacity-30">
-                                        {{
-                                            (level.parent_id | building)
-                                                ?.display_name
-                                        }}
-                                        <span class="opacity-0"> - </span>
+                        @for (level of levels | async; track level) {
+                            <mat-option [value]="level.id">
+                                <div class="flex flex-col-reverse">
+                                    @if (use_region) {
+                                        <div class="text-xs opacity-30">
+                                            {{
+                                                (level.parent_id | building)
+                                                    ?.display_name
+                                            }}
+                                            <span class="opacity-0"> - </span>
+                                        </div>
+                                    }
+                                    <div>
+                                        {{ level.display_name || level.name }}
                                     </div>
-                                }
-                                <div>
-                                    {{ level.display_name || level.name }}
                                 </div>
-                            </div>
-                        </mat-option>
-                    }
-                </mat-select>
-            </mat-form-field>
+                            </mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
+            } @else {
+                <mat-form-field appearance="outline" class="no-subscript w-60">
+                    <mat-select
+                        [ngModel]="selected_zones"
+                        (ngModelChange)="updateZones($event)"
+                        [placeholder]="'COMMON.LEVEL_ALL' | translate"
+                        multiple
+                    >
+                        @for (level of levels | async; track level) {
+                            <mat-option [value]="level.id">
+                                <div class="flex flex-col-reverse">
+                                    @if (use_region) {
+                                        <div class="text-xs opacity-30">
+                                            {{
+                                                (level.parent_id | building)
+                                                    ?.display_name
+                                            }}
+                                            <span class="opacity-0"> - </span>
+                                        </div>
+                                    }
+                                    <div>
+                                        {{ level.display_name || level.name }}
+                                    </div>
+                                </div>
+                            </mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
+            }
             <div class="w-2 flex-1"></div>
             @if (tab_index() === 1) {
                 <button
