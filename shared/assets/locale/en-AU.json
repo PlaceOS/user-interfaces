@@ -984,6 +984,7 @@
             "MENU_EVENTS": "Events",
             "MENU_SURVEYS": "Surveys",
             "MENU_REPORTS": "Reports",
+            "REPORTS_DESCRIPTION": "Select a report to view analytics and insights",
             "MENU_REPORT_ROOMS": "Room Bookings",
             "MENU_REPORT_DESKS": "Desk Bookings",
             "MENU_REPORT_PARKING": "Parking Reservations",

@@ -8,13 +8,14 @@ import { CustomReportComponent } from './custom-report.component';
 import { ReportDesksComponent } from './desks/report-desks.component';
 import { LockersReportComponent } from './lockers/lockers-report.component';
 import { ParkingReportComponent } from './parking/parking-report.component';
+import { ReportsMenuComponent } from './reports-menu.component';
 import { ReportsOptionsComponent } from './reports-options.component';
 import { ReportsComponent } from './reports.component';
 import { ReportSpacesComponent } from './spaces/report-spaces.component';
 import { VisitorsReportComponent } from './visitors/visitors-report.component';
 
 const children: Route[] = [
-    { path: '', component: ReportsOptionsComponent },
+    { path: '', component: ReportsMenuComponent },
     { path: 'bookings', component: ReportSpacesComponent },
     { path: 'desks', component: ReportDesksComponent },
     { path: 'parking', component: ParkingReportComponent },
@@ -45,6 +46,7 @@ const ROUTES: Route[] = [{ path: '', component: ReportsComponent, children }];
         VisitorsReportComponent,
         ContactTracingReportComponent,
         CustomReportComponent,
+        ReportsMenuComponent,
         ReportsOptionsComponent,
         RouterModule.forChild(ROUTES),
     ],

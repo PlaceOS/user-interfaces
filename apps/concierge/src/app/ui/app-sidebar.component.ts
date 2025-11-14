@@ -296,51 +296,10 @@ export class ApplicationSidebarComponent
                 icon: 'add_reaction',
             },
             {
-                _id: 'reports',
+                id: 'reports',
                 name: i18n('APP.CONCIERGE.MENU_REPORTS'),
+                route: ['/reports'],
                 icon: 'analytics',
-                children: [
-                    {
-                        id: 'booking-report',
-                        name: i18n('APP.CONCIERGE.MENU_REPORT_ROOMS'),
-                        route: ['/reports/bookings'],
-                    },
-                    {
-                        id: 'desk-report',
-                        name: i18n('APP.CONCIERGE.MENU_REPORT_DESKS'),
-                        route: ['/reports/desks'],
-                    },
-                    {
-                        id: 'parking-report',
-                        name: i18n('APP.CONCIERGE.MENU_REPORT_PARKING'),
-                        route: ['/reports/parking'],
-                    },
-                    {
-                        id: 'lockers-report',
-                        name: i18n('APP.CONCIERGE.MENU_REPORT_LOCKERS'),
-                        route: ['/reports/lockers'],
-                    },
-                    {
-                        id: 'catering-report',
-                        name: i18n('APP.CONCIERGE.MENU_REPORT_CATERING'),
-                        route: ['/reports/catering'],
-                    },
-                    {
-                        id: 'contact-tracing-report',
-                        name: i18n('APP.CONCIERGE.MENU_REPORT_CONTACT_TRACING'),
-                        route: ['/reports/contact-tracing'],
-                    },
-                    {
-                        id: 'assets-report',
-                        name: i18n('APP.CONCIERGE.MENU_REPORT_ASSETS'),
-                        route: ['/reports/assets'],
-                    },
-                    {
-                        id: 'visitors-report',
-                        name: i18n('APP.CONCIERGE.MENU_REPORT_VISITORS'),
-                        route: ['/reports/visitors'],
-                    },
-                ],
             },
         ];
         this.updateFilteredLinks();
