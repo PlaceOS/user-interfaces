@@ -15,7 +15,6 @@ import {
 } from '@placeos/components';
 import { startOfDay } from 'date-fns';
 import { map } from 'rxjs/operators';
-import { DateOptionsComponent } from '../ui/date-options.component';
 import { AssetManagerStateService } from './asset-manager-state.service';
 import { AssetRequestDetailsComponent } from './asset-request-details.component';
 import { SplitJoinPipe } from './split-join.pipe';
@@ -23,86 +22,68 @@ import { SplitJoinPipe } from './split-join.pipe';
 @Component({
     selector: 'app-asset-request-list',
     template: `
-        <div class="relative flex h-[calc(100%-1rem)] w-full flex-col">
-            <div class="flex items-center justify-between">
-                <div class="p-4 text-sm opacity-60">
-                    {{
-                        'APP.CONCIERGE.ASSETS_REQUESTS_COUNT'
-                            | translate: { count: (requests | async)?.length }
-                    }}
-                </div>
-                <date-options
-                    [date]="(filters | async)?.date"
-                    (dateChange)="setDate($event)"
-                ></date-options>
-            </div>
-            <div class="h-1/2 w-full flex-1 overflow-auto pt-2">
-                <simple-table
-                    class="block min-w-[82rem] text-sm"
-                    asset-requests
-                    [data]="requests"
-                    [filter]="(filters | async)?.search"
-                    [columns]="[
-                        {
-                            key: 'user_name',
-                            name:
-                                'APP.CONCIERGE.ASSETS_REQUESTS_USER'
-                                | translate,
-                            content: user_template,
-                        },
-                        {
-                            key: 'date',
-                            name:
-                                'APP.CONCIERGE.ASSETS_REQUESTS_TIME'
-                                | translate,
-                            content: date_template,
-                            size: '8rem',
-                        },
-                        {
-                            key: 'assets',
-                            name: 'RESOURCE.ASSETS' | translate,
-                            content: assets_template,
-                            sortable: false,
-                        },
-                        {
-                            key: 'level_code',
-                            name: 'RESOURCE.LEVEL' | translate,
-                            content: level_template,
-                            size: '9rem',
-                        },
-                        {
-                            key: 'description',
-                            name: 'COMMON.LOCATION' | translate,
-                        },
-                        {
-                            key: 'status',
-                            name:
-                                'APP.CONCIERGE.ASSETS_REQUESTS_APPROVAL'
-                                | translate,
-                            content: approval_template,
-                            size: '11rem',
-                        },
-                        {
-                            key: 'tracking',
-                            name:
-                                'APP.CONCIERGE.ASSETS_REQUESTS_TRACKING'
-                                | translate,
-                            content: tracking_template,
-                            size: '12rem',
-                            sortable: false,
-                        },
-                    ]"
-                    [empty_message]="
-                        ((filters | async)?.search
-                            ? 'APP.CONCIERGE.ASSETS_REQUESTS_SEARCH_EMPTY'
-                            : 'APP.CONCIERGE.ASSETS_REQUESTS_EMPTY'
-                        ) | translate
-                    "
-                    [sortable]="true"
-                    (row_clicked)="request = $event"
-                ></simple-table>
-                <div class="h-20 w-full"></div>
-            </div>
+        <div class="absolute inset-0 overflow-auto px-8">
+            <simple-table
+                class="block min-w-[82rem] text-sm"
+                asset-requests
+                [data]="requests"
+                [filter]="(filters | async)?.search"
+                [columns]="[
+                    {
+                        key: 'user_name',
+                        name: 'APP.CONCIERGE.ASSETS_REQUESTS_USER' | translate,
+                        content: user_template,
+                    },
+                    {
+                        key: 'date',
+                        name: 'APP.CONCIERGE.ASSETS_REQUESTS_TIME' | translate,
+                        content: date_template,
+                        size: '8rem',
+                    },
+                    {
+                        key: 'assets',
+                        name: 'RESOURCE.ASSETS' | translate,
+                        content: assets_template,
+                        sortable: false,
+                    },
+                    {
+                        key: 'level_code',
+                        name: 'RESOURCE.LEVEL' | translate,
+                        content: level_template,
+                        size: '9rem',
+                    },
+                    {
+                        key: 'description',
+                        name: 'COMMON.LOCATION' | translate,
+                    },
+                    {
+                        key: 'status',
+                        name:
+                            'APP.CONCIERGE.ASSETS_REQUESTS_APPROVAL'
+                            | translate,
+                        content: approval_template,
+                        size: '11rem',
+                    },
+                    {
+                        key: 'tracking',
+                        name:
+                            'APP.CONCIERGE.ASSETS_REQUESTS_TRACKING'
+                            | translate,
+                        content: tracking_template,
+                        size: '12rem',
+                        sortable: false,
+                    },
+                ]"
+                [empty_message]="
+                    ((filters | async)?.search
+                        ? 'APP.CONCIERGE.ASSETS_REQUESTS_SEARCH_EMPTY'
+                        : 'APP.CONCIERGE.ASSETS_REQUESTS_EMPTY'
+                    ) | translate
+                "
+                [sortable]="true"
+                (row_clicked)="request = $event"
+            ></simple-table>
+            <div class="h-8 w-full"></div>
         </div>
         <ng-template #user_template let-row="row">
             <div class="flex flex-col px-4 py-2 text-left">
@@ -275,7 +256,6 @@ import { SplitJoinPipe } from './split-join.pipe';
     imports: [
         CommonModule,
         MatRippleModule,
-        DateOptionsComponent,
         SimpleTableComponent,
         AssetRequestDetailsComponent,
         MatMenuModule,

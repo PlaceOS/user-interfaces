@@ -42,6 +42,15 @@ const routes: Routes = [
         canLoad: [AuthorisedUserGuard],
     },
     {
+        path: 'bookings',
+        loadChildren: () =>
+            import('./booking-manager/booking-manager.module').then(
+                (m) => m.BookingManagerModule,
+            ),
+        canActivate: [AuthorisedUserGuard],
+        canLoad: [AuthorisedUserGuard],
+    },
+    {
         path: 'book/desks',
         loadChildren: () =>
             import('./desks/desks.module').then((m) => m.DesksModule),

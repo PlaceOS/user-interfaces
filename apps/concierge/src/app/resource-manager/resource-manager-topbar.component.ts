@@ -1,5 +1,5 @@
-import { Component, OnInit, inject, input } from '@angular/core';
 import { AsyncPipe } from '@angular/common';
+import { Component, OnInit, inject, input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
@@ -16,9 +16,7 @@ import {
     downloadFile,
     jsonToCsv,
     loadTextFileFromInputEvent,
-    nextValueFrom,
     notifyError,
-    notifyInfo,
     randomInt,
 } from '@placeos/common';
 import {
@@ -38,7 +36,7 @@ import { SearchbarComponent } from '../ui/searchbar.component';
 @Component({
     selector: 'resource-manager-topbar',
     template: `
-        <div class="flex items-center space-x-2 bg-base-100 px-8 mb-4">
+        <div class="mb-4 flex items-center space-x-2 bg-base-100 px-8">
             @if (tab_index() === 1) {
                 <mat-form-field appearance="outline" class="no-subscript w-60">
                     <mat-select
@@ -103,7 +101,7 @@ import { SearchbarComponent } from '../ui/searchbar.component';
                 <button
                     icon
                     matRipple
-                    class="rounded h-12 w-12 bg-secondary text-secondary-content"
+                    class="h-12 w-12 rounded bg-secondary text-secondary-content"
                     (click)="uploadCSV.click()"
                     [matTooltip]="'APP.CONCIERGE.DESKS_LIST_UPLOAD' | translate"
                 >
@@ -118,7 +116,7 @@ import { SearchbarComponent } from '../ui/searchbar.component';
                 <button
                     icon
                     matRipple
-                    class="rounded h-12 w-12 bg-secondary text-secondary-content"
+                    class="h-12 w-12 rounded bg-secondary text-secondary-content"
                     (click)="downloadTemplate()"
                     [matTooltip]="
                         'APP.CONCIERGE.DESKS_LIST_DOWNLOAD' | translate

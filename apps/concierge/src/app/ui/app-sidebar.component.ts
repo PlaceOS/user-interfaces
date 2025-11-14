@@ -130,55 +130,54 @@ export class ApplicationSidebarComponent
         await firstTruthyValueFrom(this._org.initialised);
         this.links = [
             {
+                id: 'spaces',
+                name: i18n('APP.CONCIERGE.MENU_ROOM_BOOKINGS'),
+                icon: 'meeting_room',
+                route: ['/book/rooms'],
+            },
+            {
+                id: 'bookings',
                 name: i18n('APP.CONCIERGE.MENU_BOOKINGS'),
-                icon: 'add_circle',
+                icon: 'book_online',
+                route: ['/bookings'],
                 children: [
-                    {
-                        id: 'spaces',
-                        name: i18n('APP.CONCIERGE.MENU_ROOM_BOOKINGS'),
-                        route: ['/book/rooms'],
-                    },
                     {
                         id: 'desks',
                         name: i18n('APP.CONCIERGE.MENU_DESK_BOOKINGS'),
-                        route: ['/book/desks/events'],
+                        route: ['/bookings'],
                     },
                     {
                         id: 'parking',
                         name: i18n('APP.CONCIERGE.MENU_PARKING_BOOKINGS'),
-                        route: ['/book/parking/events'],
+                        route: ['/bookings'],
                     },
                     {
                         id: 'parking-bookings',
                         name: i18n('APP.CONCIERGE.MENU_PARKING_BOOKINGS'),
-                        route: ['/book/parking/events'],
+                        route: ['/bookings'],
                     },
                     {
                         id: 'lockers',
                         name: i18n('APP.CONCIERGE.MENU_LOCKER_BOOKINGS'),
-                        route: ['/book/lockers/events'],
+                        route: ['/bookings'],
                     },
                     {
                         id: 'assets',
                         name: i18n('APP.CONCIERGE.MENU_ASSET_BOOKINGS'),
-                        route: ['/book/assets/list/requests'],
-                    },
-                    {
-                        id: 'catering',
-                        name: i18n('APP.CONCIERGE.MENU_CATERING_BOOKINGS'),
-                        route: ['/book/catering/orders'],
+                        route: ['/bookings'],
                     },
                     {
                         id: 'visitors',
                         name: i18n('APP.CONCIERGE.MENU_VISITOR_BOOKINGS'),
-                        route: ['/book/visitors'],
-                    },
-                    {
-                        id: 'visitor-rules',
-                        name: i18n('APP.CONCIERGE.MENU_VISITOR_RULES'),
-                        route: ['/book/visitors/rules'],
+                        route: ['/bookings'],
                     },
                 ],
+            },
+            {
+                id: 'catering',
+                name: i18n('APP.CONCIERGE.MENU_CATERING_BOOKINGS'),
+                icon: 'restaurant',
+                route: ['/book/catering/orders'],
             },
             {
                 id: 'facilities',
@@ -190,6 +189,11 @@ export class ApplicationSidebarComponent
                     //     name: 'Building Map',
                     //     route: ['/facilities'],
                     // },
+                    {
+                        id: 'visitor-rules',
+                        name: i18n('APP.CONCIERGE.MENU_VISITOR_RULES'),
+                        route: ['/book/visitors/rules'],
+                    },
                     {
                         id: 'catering',
                         name: i18n('APP.CONCIERGE.MENU_MANAGE_CATERING'),
@@ -271,12 +275,6 @@ export class ApplicationSidebarComponent
                         route: ['/resource-management'],
                     },
                 ],
-            },
-            {
-                id: 'assets',
-                name: i18n('APP.CONCIERGE.MENU_ASSETS'),
-                route: ['/book/assets/list/items'],
-                icon: 'vibration',
             },
             {
                 id: 'internal-users',
@@ -381,6 +379,11 @@ export class ApplicationSidebarComponent
                     // Convert resources to a simple link (not a dropdown)
                     // but only show if at least one resource feature is enabled
                     if (link.id === 'resources' && link.children?.length) {
+                        return { ...link, children: null };
+                    }
+                    // Convert bookings to a simple link (not a dropdown)
+                    // but only show if at least one booking feature is enabled
+                    if (link.id === 'bookings' && link.children?.length) {
                         return { ...link, children: null };
                     }
                     return link;

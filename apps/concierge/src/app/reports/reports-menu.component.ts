@@ -61,10 +61,12 @@ const REPORT_CONFIGS = [
                         class="flex h-64 min-w-64 flex-col items-center justify-center rounded-xl border border-base-300 bg-base-100 p-4 shadow hover:border-info"
                     >
                         <icon class="text-8xl">{{ report.icon }}</icon>
-                        <h3 class="mb-4 text-xl font-bold">{{ report.name }}</h3>
+                        <h3 class="mb-4 text-xl font-bold">
+                            {{ report.name }}
+                        </h3>
                         <div class="flex items-center">
                             <p class="underline">View Report</p>
-                            <icon class=" text-2xl">chevron_right</icon>
+                            <icon class="text-2xl">chevron_right</icon>
                         </div>
                     </a>
                 }
