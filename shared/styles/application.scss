@@ -18,8 +18,8 @@
     /* Secondary */
     --secondary: hsl(237, 37%, 20%); /* #292F5B */
     --secondary-focus: hsl(237, 37%, 10%); /* Darker shade */
-    --secondary-content: hsl(0, 0%, 100%); /* White content for contrast */    
-    
+    --secondary-content: hsl(0, 0%, 100%); /* White content for contrast */
+
     /* Ternary */
     --ternary: hsl(237, 37%, 20%); /* #292F5B */
     --ternary-focus: hsl(237, 37%, 10%); /* Darker shade (Hover etc.) */
@@ -36,10 +36,10 @@
     --neutral-content: hsl(0, 0%, 100%); /* White content on grey background */
 
     /* Base */
-    --base-100: hsl(0, 0%, 98%); /* Near White */
-    --base-200: hsl(0, 0%, 90%); /* Light Grey */
-    --base-300: hsl(0, 0%, 80%); /* Mid Grey */
-    --base-400: hsl(0, 0%, 80%); /* Mid Grey */
+    --base-100: oklch(98.5% 0.002 247.839); /* Near White */
+    --base-200: oklch(92.8% 0.006 264.531); /* Light Grey */
+    --base-300: oklch(87.2% 0.01 258.338); /* Mid Grey */
+    --base-400: oklch(70.7% 0.022 261.325); /* Mid Grey */
     --base-content: hsl(0, 0%, 0%); /* Black content on white background */
 
     /* Info */
@@ -92,7 +92,7 @@
     --secondary: hsl(336, 57%, 48%); /* #C52B67 */
     --secondary-focus: hsl(336, 57%, 38%); /* Darker shade */
     --secondary-content: hsl(0, 0%, 100%); /* White content for contrast */
-    
+
     /* Ternary */
     --ternary: hsl(206, 23%, 30%); /* #E5E5EA */
     --ternary-focus: hsl(206, 23%, 24%); /* Darker shade */

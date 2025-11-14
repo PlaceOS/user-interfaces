@@ -1,11 +1,13 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { OrganisationService } from '@placeos/common';
+import { ActivatedRoute, Router } from '@angular/router';
+import { AsyncHandler, OrganisationService } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
+import { first } from 'rxjs/operators';
 import { BuildingListComponent } from '../building-manager/building-list.component';
 import { BuildingManagementService } from '../building-manager/building-management.service';
 import { LevelListComponent } from '../level-manager/level-list.component';
@@ -162,14 +164,18 @@ import { PlaceZone } from '@placeos/ts-client';
         LevelListComponent,
     ],
 })
-export class ZoneManagerComponent {
+export class ZoneManagerComponent extends AsyncHandler implements OnInit {
     private readonly _region_service = inject(RegionManagementService);
     private readonly _building_service = inject(BuildingManagementService);
     private readonly _level_service = inject(LevelManagementService);
     private readonly _dialog = inject(MatDialog);
     private readonly _org = inject(OrganisationService);
+    private readonly _route = inject(ActivatedRoute);
+    private readonly _router = inject(Router);
 
     public readonly selected_tab = signal(0);
+
+    private readonly TAB_NAMES = ['regions', 'buildings', 'levels'];
 
     public readonly addButtonText = () => {
         const tab_index = this.selected_tab();
@@ -187,6 +193,27 @@ export class ZoneManagerComponent {
 
     public onTabChange(index: number) {
         this.selected_tab.set(index);
+        this._router.navigate([], {
+            relativeTo: this._route,
+            queryParams: { tab: this.TAB_NAMES[index] },
+            queryParamsHandling: 'merge',
+        });
+    }
+
+    public async ngOnInit() {
+        await this._org.initialised.pipe(first((_) => _)).toPromise();
+        this.subscription(
+            'route.query',
+            this._route.queryParamMap.subscribe((params) => {
+                if (params.has('tab')) {
+                    const tab_name = params.get('tab');
+                    const tab_index = this.TAB_NAMES.indexOf(tab_name);
+                    if (tab_index >= 0) {
+                        this.selected_tab.set(tab_index);
+                    }
+                }
+            }),
+        );
     }
 
     public editWorkplaceSettings() {
