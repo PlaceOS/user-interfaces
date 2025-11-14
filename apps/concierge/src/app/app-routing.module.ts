@@ -114,31 +114,25 @@ const routes: Routes = [
         canLoad: [AuthorisedUserGuard],
     },
     {
-        path: 'level-management',
+        path: 'zone-management',
         loadChildren: () =>
-            import('./level-manager/level-manager.module').then(
-                (m) => m.LevelManagerModule,
+            import('./zone-manager/zone-manager.module').then(
+                (m) => m.ZoneManagerModule,
             ),
         canActivate: [AuthorisedUserGuard],
         canLoad: [AuthorisedUserGuard],
+    },
+    {
+        path: 'level-management',
+        redirectTo: 'zone-management',
     },
     {
         path: 'building-management',
-        loadChildren: () =>
-            import('./building-manager/building-manager.module').then(
-                (m) => m.BuildingManagerModule,
-            ),
-        canActivate: [AuthorisedUserGuard],
-        canLoad: [AuthorisedUserGuard],
+        redirectTo: 'zone-management',
     },
     {
         path: 'region-management',
-        loadChildren: () =>
-            import('./region-manager/region-manager.module').then(
-                (m) => m.RegionManagerModule,
-            ),
-        canActivate: [AuthorisedUserGuard],
-        canLoad: [AuthorisedUserGuard],
+        redirectTo: 'zone-management',
     },
     {
         path: 'email-templates',
