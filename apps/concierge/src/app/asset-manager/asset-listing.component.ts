@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { MatTabsModule } from '@angular/material/tabs';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
@@ -67,7 +67,7 @@ import { AssetManagerTopbarComponent } from './asset-manager-topbar.component';
         AssetManagerTopbarComponent,
     ],
 })
-export class AssetListingComponent extends AsyncHandler {
+export class AssetListingComponent extends AsyncHandler implements OnInit {
     private _router = inject(Router);
     private _state = inject(AssetManagerStateService);
 

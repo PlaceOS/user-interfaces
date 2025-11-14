@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute } from '@angular/router';
 import {
@@ -96,7 +96,7 @@ import { ParkingReportService } from './parking-report.service';
         ReportsOptionsComponent,
     ],
 })
-export class ParkingReportComponent extends AsyncHandler {
+export class ParkingReportComponent extends AsyncHandler implements OnInit {
     private _state = inject(ParkingReportService);
     private _settings = inject(SettingsService);
     private _route = inject(ActivatedRoute);

@@ -15,9 +15,12 @@ import {
     notifyError,
     saveShortURL,
 } from '@placeos/common';
-import { SettingsToggleComponent, TranslatePipe } from '@placeos/components';
+import {
+    FullscreenModalShellComponent,
+    SettingsToggleComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { RichTextInputComponent } from '@placeos/form-fields';
-import { FullscreenModalShellComponent } from 'libs/components/src/lib/fullscreen-modal-shell.component';
 
 @Component({
     selector: 'short-url-modal',

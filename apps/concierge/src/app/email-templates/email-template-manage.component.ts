@@ -1,6 +1,6 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import {
     FormControl,
     FormGroup,
@@ -295,7 +295,10 @@ import {
         IconComponent,
     ],
 })
-export class EmailTemplateManageComponent extends AsyncHandler {
+export class EmailTemplateManageComponent
+    extends AsyncHandler
+    implements OnInit
+{
     private _org = inject(OrganisationService);
     private _state = inject(EmailTemplatesStateService);
     private _route = inject(ActivatedRoute);

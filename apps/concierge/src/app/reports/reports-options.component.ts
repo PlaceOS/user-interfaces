@@ -1,4 +1,4 @@
-import { Component, inject, input, output } from '@angular/core';
+import { Component, inject, input, OnInit, output } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { first, map } from 'rxjs/operators';
 
@@ -134,7 +134,7 @@ import { combineLatest } from 'rxjs';
         CommonModule,
     ],
 })
-export class ReportsOptionsComponent extends AsyncHandler {
+export class ReportsOptionsComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
     private _route = inject(ActivatedRoute);

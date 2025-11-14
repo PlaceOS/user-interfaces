@@ -130,14 +130,14 @@ export class ReportSpacesSpaceListingComponent {
     ]).pipe(
         debounceTime(300),
         switchMap(async ([stats, { start, end }]) => {
-            let list = [];
+            const list = [];
             let has_attendance = false;
             for (const booking of stats.events) {
-                let space_list: Space[] = unique(
+                const space_list: Space[] = unique(
                     booking.resources,
                     'email',
                 ) || [booking.system];
-                let resources = [];
+                const resources = [];
                 for (const space of space_list) {
                     const details = await this._space_pipe.transform(
                         space.email || space.id,

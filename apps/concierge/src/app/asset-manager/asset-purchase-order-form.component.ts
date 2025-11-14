@@ -19,10 +19,13 @@ import {
     notifyError,
     notifySuccess,
 } from '@placeos/common';
-import { SimpleTableComponent, TranslatePipe } from '@placeos/components';
+import {
+    FullscreenModalShellComponent,
+    SimpleTableComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { DateFieldComponent } from '@placeos/form-fields';
 import { addYears, getUnixTime } from 'date-fns';
-import { FullscreenModalShellComponent } from 'libs/components/src/lib/fullscreen-modal-shell.component';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { filter, shareReplay, switchMap } from 'rxjs/operators';
 import { AssetManagerStateService } from './asset-manager-state.service';

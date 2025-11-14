@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import {
     FormControl,
     FormGroup,
@@ -28,11 +28,11 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { VERSION } from '@placeos/common';
 import {
+    FullscreenModalShellComponent,
     IconComponent,
     SettingsToggleComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { FullscreenModalShellComponent } from 'libs/components/src/lib/fullscreen-modal-shell.component';
 import { lastValueFrom } from 'rxjs';
 import { UploadButtonComponent } from './upload-button.component';
 
@@ -1283,7 +1283,7 @@ import { UploadButtonComponent } from './upload-button.component';
         UploadButtonComponent,
     ],
 })
-export class ConciergeSettingsFormModalComponent {
+export class ConciergeSettingsFormModalComponent implements OnInit {
     private _data = inject<{
         zone: PlaceZone;
     }>(MAT_DIALOG_DATA);

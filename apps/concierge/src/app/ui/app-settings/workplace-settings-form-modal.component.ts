@@ -30,8 +30,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { VERSION } from '@placeos/common';
-import { IconComponent, SettingsToggleComponent } from '@placeos/components';
-import { FullscreenModalShellComponent } from 'libs/components/src/lib/fullscreen-modal-shell.component';
+import {
+    FullscreenModalShellComponent,
+    IconComponent,
+    SettingsToggleComponent,
+} from '@placeos/components';
 import { lastValueFrom } from 'rxjs';
 import { UploadButtonComponent } from './upload-button.component';
 

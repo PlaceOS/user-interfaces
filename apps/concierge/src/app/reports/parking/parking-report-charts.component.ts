@@ -1,4 +1,11 @@
-import { Component, inject, input, SimpleChanges } from '@angular/core';
+import {
+    Component,
+    inject,
+    input,
+    OnChanges,
+    OnInit,
+    SimpleChanges,
+} from '@angular/core';
 
 import {
     AsyncHandler,
@@ -59,7 +66,10 @@ import { ParkingReportService } from './parking-report.service';
     ],
     imports: [TranslatePipe],
 })
-export class ParkingReportChartsComponent extends AsyncHandler {
+export class ParkingReportChartsComponent
+    extends AsyncHandler
+    implements OnInit, OnChanges
+{
     private _state = inject(ParkingReportService);
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
@@ -70,7 +80,7 @@ export class ParkingReportChartsComponent extends AsyncHandler {
         this._state.counts$,
     ]).pipe(
         map(([days, counts]) => {
-            let list = [];
+            const list = [];
             const total_spaces = Object.values(counts).reduce(
                 (c, v) => c + (v || 0),
                 0,

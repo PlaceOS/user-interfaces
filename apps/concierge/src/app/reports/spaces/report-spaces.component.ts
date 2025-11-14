@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { debounceTime, map } from 'rxjs/operators';
 
 import { CommonModule } from '@angular/common';
@@ -103,7 +103,7 @@ import { ReportSpacesUserListingComponent } from './report-spaces-user-listing.c
         ReportSpacesUserListingComponent,
     ],
 })
-export class ReportSpacesComponent extends AsyncHandler {
+export class ReportSpacesComponent extends AsyncHandler implements OnInit {
     private _state = inject(ReportsStateService);
     private _settings = inject(SettingsService);
     private _route = inject(ActivatedRoute);

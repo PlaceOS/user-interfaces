@@ -36,6 +36,7 @@ import {
     unique,
 } from '@placeos/common';
 import {
+    FullscreenModalShellComponent,
     IconComponent,
     SettingsToggleComponent,
     TranslatePipe,
@@ -46,7 +47,6 @@ import {
     DurationFieldComponent,
     ImageListFieldComponent,
 } from '@placeos/form-fields';
-import { FullscreenModalShellComponent } from 'libs/components/src/lib/fullscreen-modal-shell.component';
 import { lastValueFrom } from 'rxjs';
 import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.component';
 

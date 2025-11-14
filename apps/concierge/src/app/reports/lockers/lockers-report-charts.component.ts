@@ -81,7 +81,7 @@ export class LockersReportChartsComponent
         this._state.counts$,
     ]).pipe(
         map(([days, counts]) => {
-            let list = [];
+            const list = [];
             const total_spaces = Object.values(counts).reduce(
                 (c, v) => c + (v || 0),
                 0,

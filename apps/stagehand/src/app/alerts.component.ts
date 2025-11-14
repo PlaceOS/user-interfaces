@@ -1,5 +1,12 @@
 import { AsyncPipe, CommonModule } from '@angular/common';
-import { Component, computed, effect, inject, OnInit, signal } from '@angular/core';
+import {
+    Component,
+    computed,
+    effect,
+    inject,
+    OnInit,
+    signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -8,7 +15,11 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { AsyncHandler, OrganisationService, settingSignal } from '@placeos/common';
+import {
+    AsyncHandler,
+    OrganisationService,
+    settingSignal,
+} from '@placeos/common';
 import { IconComponent, SimpleTableComponent } from '@placeos/components';
 import { SpacePipe } from 'libs/events/src/lib/space.pipe';
 import { DashboardsService } from './dashboards/dashboards.service';

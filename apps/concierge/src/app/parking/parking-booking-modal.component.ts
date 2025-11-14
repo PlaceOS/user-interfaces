@@ -21,7 +21,10 @@ import {
     SettingsService,
     User,
 } from '@placeos/common';
-import { TranslatePipe } from '@placeos/components';
+import {
+    FullscreenModalShellComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import {
     DateFieldComponent,
     DurationFieldComponent,
@@ -29,7 +32,6 @@ import {
     UserSearchFieldComponent,
 } from '@placeos/form-fields';
 import { addDays, endOfDay } from 'date-fns';
-import { FullscreenModalShellComponent } from 'libs/components/src/lib/fullscreen-modal-shell.component';
 
 @Component({
     selector: 'parking-booking-modal',

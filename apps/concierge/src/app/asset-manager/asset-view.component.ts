@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, signal, viewChild } from '@angular/core';
+import { Component, inject, OnInit, signal, viewChild } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -510,7 +510,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
         IconComponent,
     ],
 })
-export class AssetViewComponent extends AsyncHandler {
+export class AssetViewComponent extends AsyncHandler implements OnInit {
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
     private _state = inject(AssetManagerStateService);

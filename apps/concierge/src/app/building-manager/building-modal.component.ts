@@ -2,8 +2,10 @@ import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Building } from '@placeos/common';
-import { TranslatePipe } from '@placeos/components';
-import { FullscreenModalShellComponent } from 'libs/components/src/lib/fullscreen-modal-shell.component';
+import {
+    FullscreenModalShellComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { BuildingFormComponent } from './building-form.component';
 
 @Component({

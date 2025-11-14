@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import {
     FormControl,
     FormGroup,
@@ -441,7 +441,7 @@ import { UploadButtonComponent } from './upload-button.component';
         FormsModule,
     ],
 })
-export class VisitorKioskSettingsFormModalComponent {
+export class VisitorKioskSettingsFormModalComponent implements OnInit {
     private _data = inject<{
         zone: PlaceZone;
     }>(MAT_DIALOG_DATA);

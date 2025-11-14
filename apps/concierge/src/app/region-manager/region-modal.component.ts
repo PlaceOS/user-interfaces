@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import {
     FormControl,
     FormGroup,
@@ -12,15 +12,18 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import {
     AsyncHandler,
+    getInvalidFields,
+    notifyError,
     OrganisationService,
     Region,
     TIMEZONES_IANA,
-    getInvalidFields,
-    notifyError,
 } from '@placeos/common';
-import { IconComponent, TranslatePipe } from '@placeos/components';
+import {
+    FullscreenModalShellComponent,
+    IconComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { addZone, authority, updateZone } from '@placeos/ts-client';
-import { FullscreenModalShellComponent } from 'libs/components/src/lib/fullscreen-modal-shell.component';
 
 @Component({
     selector: 'region-modal',
@@ -94,7 +97,7 @@ import { FullscreenModalShellComponent } from 'libs/components/src/lib/fullscree
         ReactiveFormsModule,
     ],
 })
-export class RegionModalComponent extends AsyncHandler {
+export class RegionModalComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);
     private _data = inject<Region | undefined>(MAT_DIALOG_DATA);
     private _dialog_ref =

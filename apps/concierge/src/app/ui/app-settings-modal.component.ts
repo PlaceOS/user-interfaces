@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
@@ -9,10 +9,10 @@ import {
 } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
-    OrganisationService,
-    SettingsService,
     notifyError,
     notifySuccess,
+    OrganisationService,
+    SettingsService,
 } from '@placeos/common';
 import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
 
@@ -231,7 +231,7 @@ import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
         MatCheckboxModule,
     ],
 })
-export class AppSettingsModalComponent {
+export class AppSettingsModalComponent implements OnInit {
     private _data = inject<{
         zone: PlaceZone;
     }>(MAT_DIALOG_DATA);

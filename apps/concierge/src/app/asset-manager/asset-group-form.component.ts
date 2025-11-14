@@ -17,9 +17,12 @@ import {
     notifyError,
     unique,
 } from '@placeos/common';
-import { IconComponent, TranslatePipe } from '@placeos/components';
+import {
+    FullscreenModalShellComponent,
+    IconComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { ImageListFieldComponent } from '@placeos/form-fields';
-import { FullscreenModalShellComponent } from 'libs/components/src/lib/fullscreen-modal-shell.component';
 import { BehaviorSubject, combineLatest, lastValueFrom } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { AssetManagerStateService } from './asset-manager-state.service';
