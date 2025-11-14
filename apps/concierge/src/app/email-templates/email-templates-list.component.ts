@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { RouterModule } from '@angular/router';
 import {
@@ -23,34 +23,35 @@ import {
 
 @Component({
     selector: 'email-templates-list',
-    template: ` <div class="absolute inset-0 flex flex-col">
-        <div class="flex items-center justify-between space-x-2 p-8">
-            <h2 class="text-2xl font-medium">
-                {{ 'APP.CONCIERGE.EMAIL_TEMPLATES_HEADER' | translate }}
-            </h2>
-            <div class="flex-1"></div>
-            <!-- <mat-form-field appearance="outline" class="w-56 no-subscript">
-            <mat-select
-              [ngModel]="(filters | async)?.category"
-              [placeholder]="'COMMON.CATEGORY_ALL' | translate"
-              (ngModelChange)="setFilters({ category: $event })"
-              >
-              <mat-option value="">{{'COMMON.CATEGORY_ALL' | translate}}</mat-option>
-              <mat-option value="internal">{{'COMMON.TYPE_INTERNAL' | translate}}</mat-option>
-              <mat-option value="external">{{'COMMON.TYPE_EXTERNAL' | translate}}</mat-option>
-            </mat-select>
-          </mat-form-field> -->
-            <a btn matRipple [routerLink]="['/email-templates', 'manage']">
-                <div class="ml-2">
-                    {{ 'APP.CONCIERGE.EMAIL_TEMPLATES_ADD' | translate }}
-                </div>
-                <icon class="text-2xl">add</icon>
-            </a>
-        </div>
-        <div class="relative h-1/2 w-full flex-1 overflow-y-auto px-8">
-            <div class="min-h-full w-full overflow-x-auto">
+    template: `
+        <div class="absolute inset-0 overflow-auto px-8">
+        @if (!hide_header) {
+            <div class="flex items-center justify-between space-x-2 p-8">
+                <h2 class="text-2xl font-medium">
+                    {{ 'APP.CONCIERGE.EMAIL_TEMPLATES_HEADER' | translate }}
+                </h2>
+                <div class="flex-1"></div>
+                <!-- <mat-form-field appearance="outline" class="w-56 no-subscript">
+                <mat-select
+                  [ngModel]="(filters | async)?.category"
+                  [placeholder]="'COMMON.CATEGORY_ALL' | translate"
+                  (ngModelChange)="setFilters({ category: $event })"
+                  >
+                  <mat-option value="">{{'COMMON.CATEGORY_ALL' | translate}}</mat-option>
+                  <mat-option value="internal">{{'COMMON.TYPE_INTERNAL' | translate}}</mat-option>
+                  <mat-option value="external">{{'COMMON.TYPE_EXTERNAL' | translate}}</mat-option>
+                </mat-select>
+              </mat-form-field> -->
+                <a btn matRipple [routerLink]="['/email-templates', 'manage']">
+                    <div class="ml-2">
+                        {{ 'APP.CONCIERGE.EMAIL_TEMPLATES_ADD' | translate }}
+                    </div>
+                    <icon class="text-2xl">add</icon>
+                </a>
+            </div>
+        }
                 <simple-table
-                    class="block w-full min-w-[56rem] text-sm"
+                    class="block w-full min-w-[56rem] text-sm mb-8"
                     [data]="templates"
                     empty_message="No group events for selected period"
                     [columns]="[
@@ -167,8 +168,7 @@ import {
                     </mat-menu>
                 </ng-template>
             </div>
-        </div>
-    </div>`,
+    `,
     styles: [``],
     imports: [
         CommonModule,
@@ -183,6 +183,8 @@ import {
 export class EmailTemplatesListComponent {
     private _state = inject(EmailTemplatesStateService);
     private _org = inject(OrganisationService);
+
+    @Input() hide_header = false;
 
     public sending_email: string;
     public readonly filters = this._state.filters;

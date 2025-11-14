@@ -161,18 +161,17 @@ const routes: Routes = [
     },
     {
         path: 'points-of-interest',
-        loadChildren: () =>
-            import('./poi-manager/poi-manager.module').then(
-                (m) => m.POIManagerModule,
-            ),
-        canActivate: [AuthorisedUserGuard],
-        canLoad: [AuthorisedUserGuard],
+        redirectTo: 'settings-management',
     },
     {
         path: 'url-management',
+        redirectTo: 'settings-management',
+    },
+    {
+        path: 'settings-management',
         loadChildren: () =>
-            import('./url-management/url-manager.module').then(
-                (m) => m.UrlManagerModule,
+            import('./settings-manager/settings-manager.module').then(
+                (m) => m.SettingsManagerModule,
             ),
         canActivate: [AuthorisedUserGuard],
         canLoad: [AuthorisedUserGuard],

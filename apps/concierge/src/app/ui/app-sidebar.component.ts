@@ -180,68 +180,68 @@ export class ApplicationSidebarComponent
                 route: ['/book/catering/orders'],
             },
             {
-                id: 'facilities',
-                name: i18n('APP.CONCIERGE.MENU_MANAGEMENT'),
-                icon: 'place',
-                children: [
-                    // {
-                    //     id: 'facilities',
-                    //     name: 'Building Map',
-                    //     route: ['/facilities'],
-                    // },
-                    {
-                        id: 'visitor-rules',
-                        name: i18n('APP.CONCIERGE.MENU_VISITOR_RULES'),
-                        route: ['/book/visitors/rules'],
-                    },
-                    {
-                        id: 'catering',
-                        name: i18n('APP.CONCIERGE.MENU_MANAGE_CATERING'),
-                        route: ['/book/catering/menu'],
-                    },
-                    {
-                        id: 'points',
-                        name: i18n('APP.CONCIERGE.MENU_MANAGE_POINTS'),
-                        route: ['/points-management'],
-                    },
-                    {
-                        id: 'emergency-contacts',
-                        name: i18n('APP.CONCIERGE.MENU_MANAGE_CONTACTS'),
-                        icon: 'assignment_ind',
-                        route: ['/users/staff/emergency-contacts'],
-                    },
-                    {
-                        id: 'signage',
-                        name: i18n('APP.CONCIERGE.MENU_MANAGE_SIGNAGE'),
-                        route: ['/signage'],
-                    },
-                    {
-                        id: 'points-of-interest',
-                        name: i18n('APP.CONCIERGE.MENU_MANAGE_MAP_FEATURES'),
-                        route: ['/points-of-interest'],
-                    },
-                    {
-                        id: 'url-management',
-                        name: i18n('APP.CONCIERGE.MENU_MANAGE_URLS'),
-                        route: ['/url-management'],
-                    },
-                    {
-                        id: 'email-templates',
-                        name: i18n('APP.CONCIERGE.MENU_MANAGE_EMAILS'),
-                        route: ['/email-templates'],
-                    },
-                    {
-                        id: 'deals-n-offers',
-                        name: i18n('APP.CONCIERGE.MENU_MANAGE_DEALS'),
-                        route: ['/deals-n-offers'],
-                    },
-                ],
+                id: 'visitor-rules',
+                name: i18n('APP.CONCIERGE.MENU_VISITOR_RULES'),
+                icon: 'policy',
+                route: ['/book/visitors/rules'],
+            },
+            {
+                id: 'catering-menu',
+                name: i18n('APP.CONCIERGE.MENU_MANAGE_CATERING'),
+                icon: 'restaurant_menu',
+                route: ['/book/catering/menu'],
+            },
+            {
+                id: 'points',
+                name: i18n('APP.CONCIERGE.MENU_MANAGE_POINTS'),
+                icon: 'loyalty',
+                route: ['/points-management'],
+            },
+            {
+                id: 'signage',
+                name: i18n('APP.CONCIERGE.MENU_MANAGE_SIGNAGE'),
+                icon: 'tv',
+                route: ['/signage'],
+            },
+            {
+                id: 'deals-n-offers',
+                name: i18n('APP.CONCIERGE.MENU_MANAGE_DEALS'),
+                icon: 'local_offer',
+                route: ['/deals-n-offers'],
             },
             {
                 id: 'zones',
                 name: i18n('APP.CONCIERGE.MENU_MANAGE_ZONES'),
                 icon: 'account_tree',
                 route: ['/zone-management'],
+            },
+            {
+                id: 'settings',
+                name: i18n('APP.CONCIERGE.MENU_MANAGE_SETTINGS'),
+                icon: 'settings',
+                route: ['/settings-management'],
+                children: [
+                    {
+                        id: 'emergency-contacts',
+                        name: i18n('APP.CONCIERGE.MENU_MANAGE_CONTACTS'),
+                        route: ['/settings-management'],
+                    },
+                    {
+                        id: 'email-templates',
+                        name: i18n('APP.CONCIERGE.MENU_MANAGE_EMAILS'),
+                        route: ['/settings-management'],
+                    },
+                    {
+                        id: 'url-management',
+                        name: i18n('APP.CONCIERGE.MENU_MANAGE_URLS'),
+                        route: ['/settings-management'],
+                    },
+                    {
+                        id: 'points-of-interest',
+                        name: i18n('APP.CONCIERGE.MENU_MANAGE_MAP_FEATURES'),
+                        route: ['/settings-management'],
+                    },
+                ],
             },
             {
                 id: 'resources',
@@ -386,17 +386,17 @@ export class ApplicationSidebarComponent
                     if (link.id === 'bookings' && link.children?.length) {
                         return { ...link, children: null };
                     }
+                    // Convert settings to a simple link (not a dropdown)
+                    // but only show if at least one settings feature is enabled
+                    if (link.id === 'settings' && link.children?.length) {
+                        return { ...link, children: null };
+                    }
                     return link;
                 }),
         );
         if (this.filtered_links().find((_) => _.id === 'home')) {
             const link = this.filtered_links().find((_) => _.id === 'home');
             link.route = this._settings.get('app.default_route') || ['/'];
-        }
-        if (!this.is_admin) {
-            this.filtered_links.update((links) =>
-                links.filter((_) => _.id !== 'facilities'),
-            );
         }
     }
 
