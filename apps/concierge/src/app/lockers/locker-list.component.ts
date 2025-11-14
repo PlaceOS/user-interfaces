@@ -18,11 +18,12 @@ import { LockerStateService } from './locker-state.service';
 @Component({
     selector: 'locker-list',
     template: `
-        <mat-progress-bar
-            [class.opacity-0]="!(loading | async)?.includes('lockers')"
-            class="w-full"
-        />
-        <simple-table
+        <div class="h-full w-full overflow-auto px-8">
+            <mat-progress-bar
+                [class.opacity-0]="!(loading | async)?.includes('lockers')"
+                class="w-full"
+            />
+            <simple-table
             class="block min-w-[52rem] text-sm"
             [data]="locker_banks"
             [columns]="[
@@ -333,6 +334,8 @@ import { LockerStateService } from './locker-state.service';
                 </mat-menu>
             </ng-template>
         </ng-template>
+        <div class="h-20 w-full"></div>
+        </div>
     `,
     styles: [],
     imports: [

@@ -106,9 +106,13 @@ const routes: Routes = [
     },
     {
         path: 'room-management',
+        redirectTo: 'resource-management',
+    },
+    {
+        path: 'resource-management',
         loadChildren: () =>
-            import('./room-manager/room-manager.module').then(
-                (m) => m.RoomManagerModule,
+            import('./resource-manager/resource-manager.module').then(
+                (m) => m.ResourceManagerModule,
             ),
         canActivate: [AuthorisedUserGuard],
         canLoad: [AuthorisedUserGuard],

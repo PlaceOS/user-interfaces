@@ -17,11 +17,12 @@ import { ParkingStateService } from './parking-state.service';
 @Component({
     selector: 'parking-space-list',
     template: `
-        <mat-progress-bar
-            [class.opacity-0]="!(loading | async)?.includes('spaces')"
-            class="w-full"
-        />
-        <simple-table
+        <div class="h-full w-full overflow-auto px-8">
+            <mat-progress-bar
+                [class.opacity-0]="!(loading | async)?.includes('spaces')"
+                class="w-full"
+            />
+            <simple-table
             class="block min-w-[52rem] text-sm"
             [data]="spaces"
             [columns]="[
@@ -144,6 +145,7 @@ import { ParkingStateService } from './parking-state.service';
             </div>
         </ng-template>
         <div class="h-20 w-full"></div>
+        </div>
     `,
     styles: [],
     imports: [

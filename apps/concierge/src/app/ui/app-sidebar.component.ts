@@ -196,31 +196,6 @@ export class ApplicationSidebarComponent
                         route: ['/zone-management'],
                     },
                     {
-                        id: 'spaces',
-                        name: i18n('APP.CONCIERGE.MENU_MANAGE_ROOMS'),
-                        route: ['/room-management'],
-                    },
-                    {
-                        id: 'desks',
-                        name: i18n('APP.CONCIERGE.MENU_MANAGE_DESKS'),
-                        route: ['/book/desks/manage'],
-                    },
-                    {
-                        id: 'parking',
-                        name: i18n('APP.CONCIERGE.MENU_MANAGE_PARKING'),
-                        route: ['/book/parking/manage'],
-                    },
-                    {
-                        id: 'parking-manage',
-                        name: i18n('APP.CONCIERGE.MENU_MANAGE_PARKING'),
-                        route: ['/book/parking/manage'],
-                    },
-                    {
-                        id: 'lockers',
-                        name: i18n('APP.CONCIERGE.MENU_MANAGE_LOCKERS'),
-                        route: ['/book/lockers/manage'],
-                    },
-                    {
                         id: 'catering',
                         name: i18n('APP.CONCIERGE.MENU_MANAGE_CATERING'),
                         route: ['/book/catering/menu'],
@@ -260,6 +235,39 @@ export class ApplicationSidebarComponent
                         id: 'deals-n-offers',
                         name: i18n('APP.CONCIERGE.MENU_MANAGE_DEALS'),
                         route: ['/deals-n-offers'],
+                    },
+                ],
+            },
+            {
+                id: 'resources',
+                name: i18n('APP.CONCIERGE.MENU_MANAGE_RESOURCES'),
+                icon: 'category',
+                route: ['/resource-management'],
+                children: [
+                    {
+                        id: 'spaces',
+                        name: i18n('APP.CONCIERGE.MENU_MANAGE_ROOMS'),
+                        route: ['/resource-management'],
+                    },
+                    {
+                        id: 'desks',
+                        name: i18n('APP.CONCIERGE.MENU_MANAGE_DESKS'),
+                        route: ['/resource-management'],
+                    },
+                    {
+                        id: 'parking',
+                        name: i18n('APP.CONCIERGE.MENU_MANAGE_PARKING'),
+                        route: ['/resource-management'],
+                    },
+                    {
+                        id: 'parking-manage',
+                        name: i18n('APP.CONCIERGE.MENU_MANAGE_PARKING'),
+                        route: ['/resource-management'],
+                    },
+                    {
+                        id: 'lockers',
+                        name: i18n('APP.CONCIERGE.MENU_MANAGE_LOCKERS'),
+                        route: ['/resource-management'],
                     },
                 ],
             },
@@ -408,7 +416,15 @@ export class ApplicationSidebarComponent
                             this._isFeatureAvailable(_.id)) &&
                             _.route) ||
                         _.children?.length,
-                ),
+                )
+                .map((link) => {
+                    // Convert resources to a simple link (not a dropdown)
+                    // but only show if at least one resource feature is enabled
+                    if (link.id === 'resources' && link.children?.length) {
+                        return { ...link, children: null };
+                    }
+                    return link;
+                }),
         );
         if (this.filtered_links().find((_) => _.id === 'home')) {
             const link = this.filtered_links().find((_) => _.id === 'home');
