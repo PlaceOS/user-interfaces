@@ -1,14 +1,15 @@
 import {
     Component,
+    OnChanges,
     SimpleChanges,
     TemplateRef,
     input,
     output,
+    signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { IconComponent, TranslatePipe } from '@placeos/components';
-import { BehaviorSubject } from 'rxjs';
 
 @Component({
     selector: 'search-overlay',
@@ -25,8 +26,8 @@ import { BehaviorSubject } from 'rxjs';
             >
                 <input
                     class="w-full rounded-[4rem] border border-base-300 bg-base-100 py-4 pl-14 pr-6 text-xl text-base-content shadow"
-                    [ngModel]="search.getValue()"
-                    (ngModelChange)="search.next($event)"
+                    [ngModel]="search()"
+                    (ngModelChange)="search.set($event)"
                     [placeholder]="'COMMON.SEARCH' | translate"
                 />
                 <icon
@@ -87,19 +88,19 @@ import { BehaviorSubject } from 'rxjs';
     styles: [``],
     imports: [FormsModule, IconComponent, MatRippleModule, TranslatePipe],
 })
-export class SearchOverlayComponent<T extends {} = any> {
+export class SearchOverlayComponent<T extends {} = any> implements OnChanges {
     public readonly item_list = input<T[]>([]);
     public readonly result_template = input<TemplateRef<any>>(undefined);
 
     public readonly selected = output<T>();
     public readonly close = output<void>();
 
-    public readonly search = new BehaviorSubject('');
-    private _items = new BehaviorSubject<T[]>([]);
+    public readonly search = signal('');
+    private _items = signal<T[]>([]);
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.item_list) {
-            this._items.next(this.item_list() || []);
+            this._items.set(this.item_list() || []);
         }
     }
 }

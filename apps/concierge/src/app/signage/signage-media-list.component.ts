@@ -2,12 +2,14 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
 import {
     Component,
+    computed,
     inject,
     input,
     OnChanges,
     signal,
     SimpleChanges,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -16,6 +18,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { notifyError } from '@placeos/common';
 import {
+    AuthenticatedImageDirective,
     CustomTooltipComponent,
     IconComponent,
     MediaDurationPipe,
@@ -24,8 +27,7 @@ import {
 import { isValidUrl } from '@placeos/events';
 import { listSignagePlaylistMedia, SignageMedia } from '@placeos/ts-client';
 import { getUnixTime, startOfMinute } from 'date-fns';
-import { BehaviorSubject, combineLatest, lastValueFrom } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { lastValueFrom } from 'rxjs';
 import { SignageStateService } from './signage-state.service';
 
 @Component({
@@ -39,8 +41,8 @@ import { SignageStateService } from './signage-state.service';
                 <input
                     matInput
                     [placeholder]="'COMMON.SEARCH' | translate"
-                    [ngModel]="search.getValue()"
-                    (ngModelChange)="search.next($event)"
+                    [ngModel]="search()"
+                    (ngModelChange)="search.set($event)"
                 />
             </mat-form-field>
             <button
@@ -91,16 +93,16 @@ import { SignageStateService } from './signage-state.service';
                 />
             </button>
         </div>
-        @if ((media | async)?.length > 0) {
+        @if (media()?.length > 0) {
             <div
                 class="grid w-full gap-4 p-4 md:grid-cols-2 lg:grid-cols-3"
                 cdkDropList
                 id="media-list"
-                [cdkDropListData]="media | async"
+                [cdkDropListData]="media()"
                 [cdkDropListConnectedTo]="playlist_ids"
                 (cdkDropListDropped)="drop($event)"
             >
-                @for (media of media | async; track media.id) {
+                @for (media of media(); track media.id) {
                     <div
                         class="relative flex flex-col items-center justify-center rounded-lg border border-base-300 bg-base-100 p-3 hover:opacity-80"
                         cdkDrag
@@ -198,16 +200,14 @@ import { SignageStateService } from './signage-state.service';
                                             [placeholder]="
                                                 'COMMON.SEARCH' | translate
                                             "
-                                            [ngModel]="
-                                                playlist_search.getValue()
-                                            "
+                                            [ngModel]="playlist_search()"
                                             (ngModelChange)="
-                                                playlist_search.next($event)
+                                                playlist_search.set($event)
                                             "
                                         />
                                     </mat-form-field>
                                 </div>
-                                @if (!((playlists | async)?.length > 0)) {
+                                @if (!(playlists()?.length > 0)) {
                                     <button mat-menu-item [disabled]="true">
                                         {{
                                             'APP.CONCIERGE.SIGNAGE_PLAYLISTS_EMPTY'
@@ -217,7 +217,7 @@ import { SignageStateService } from './signage-state.service';
                                 }
 
                                 @for (
-                                    playlist of playlists | async;
+                                    playlist of playlists();
                                     track playlist.id
                                 ) {
                                     <button
@@ -328,6 +328,7 @@ import { SignageStateService } from './signage-state.service';
         DragDropModule,
         MatTooltipModule,
         MediaDurationPipe,
+        AuthenticatedImageDirective,
     ],
 })
 export class SignageMediaListComponent implements OnChanges {
@@ -336,28 +337,31 @@ export class SignageMediaListComponent implements OnChanges {
     public readonly link = signal('');
 
     public readonly playlist_count = input(0);
-    public readonly search = new BehaviorSubject<string>('');
-    public readonly playlist_search = new BehaviorSubject<string>('');
-    public readonly playlists = combineLatest([
-        this.playlist_search,
-        this._state.playlists,
-    ]).pipe(
-        map(([search, list]) =>
-            list.filter((_) =>
-                _.name.toLowerCase().includes(search.toLowerCase()),
-            ),
-        ),
-    );
-    public readonly media = combineLatest([
-        this.search,
-        this._state.media,
-    ]).pipe(
-        map(([search, media]) =>
-            media.filter((_) =>
-                _.name.toLowerCase().includes(search.toLowerCase()),
-            ),
-        ),
-    );
+    public readonly search = signal<string>('');
+    public readonly playlist_search = signal<string>('');
+
+    private readonly _playlists = toSignal(this._state.playlists, {
+        initialValue: [],
+    });
+    private readonly _media = toSignal(this._state.media, {
+        initialValue: [],
+    });
+
+    public readonly playlists = computed(() => {
+        const search_term = this.playlist_search();
+        const list = this._playlists();
+        return list.filter((_) =>
+            _.name.toLowerCase().includes(search_term.toLowerCase()),
+        );
+    });
+
+    public readonly media = computed(() => {
+        const search_term = this.search();
+        const media_list = this._media();
+        return media_list.filter((_) =>
+            _.name.toLowerCase().includes(search_term.toLowerCase()),
+        );
+    });
 
     public readonly previewFile = (event) =>
         this._state.previewFileFromInput(event);

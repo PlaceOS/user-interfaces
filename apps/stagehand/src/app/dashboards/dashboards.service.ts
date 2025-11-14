@@ -286,8 +286,8 @@ export class DashboardsService extends AsyncHandler {
     }
 
     private async _initialiseBroker() {
-        this._initialising.set(true);
         if (this._initialising()) return;
+        this._initialising.set(true);
         try {
             await firstTruthyValueFrom(this._org.initialised);
             this.unsubWith('alert:');

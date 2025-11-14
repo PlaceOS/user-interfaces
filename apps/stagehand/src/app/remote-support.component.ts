@@ -1,5 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import {
+    Component,
+    computed,
+    effect,
+    inject,
+    OnInit,
+    signal,
+    untracked,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -7,9 +15,11 @@ import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
     AsyncHandler,
     CalendarEvent,
+    OrganisationService,
     settingSignal,
     Space,
 } from '@placeos/common';
@@ -123,10 +133,19 @@ function contains(str: string, substr: string) {
                         </mat-form-field>
                     </div>
                     <div class="overflow-auto p-4">
+                        @for (space of room_list(); track space.id) {
+                            <i
+                                binding
+                                class="hidden"
+                                (modelChange)="setStatus(space, $event)"
+                                [sys]="space.id"
+                                mod="Bookings"
+                                bind="status"
+                            ></i>
+                        }
                         <simple-table
                             class="block w-full min-w-[64rem] overflow-hidden bg-base-100 text-sm"
                             [data]="filtered_rooms()"
-                            [filter]="search_term()"
                             [columns]="[
                                 {
                                     key: 'actions',
@@ -160,13 +179,6 @@ function contains(str: string, substr: string) {
                             empty_message="No rooms able to be remotely supported"
                         ></simple-table>
                         <ng-template #status_template let-space="row">
-                            <i
-                                binding
-                                (modelChange)="setStatus(space, $event)"
-                                [sys]="space.id"
-                                mod="Bookings"
-                                bind="status"
-                            ></i>
                             <div class="flex items-center space-x-2 p-4">
                                 <div
                                     class="h-3 w-3 rounded-full"
@@ -354,6 +366,10 @@ function contains(str: string, substr: string) {
 export class RemoteSupportComponent extends AsyncHandler implements OnInit {
     private readonly _dashboard = inject(DashboardsService);
     private readonly _support = inject(SupportService);
+    private readonly _org = inject(OrganisationService);
+    private readonly _router = inject(Router);
+    private readonly _route = inject(ActivatedRoute);
+    private _initialized = false;
 
     public readonly is_eduction = settingSignal('educational_environment');
 
@@ -368,6 +384,32 @@ export class RemoteSupportComponent extends AsyncHandler implements OnInit {
     public readonly status = signal<Record<string, string>>({});
     public readonly next = signal<Record<string, CalendarEvent>>({});
     public readonly state = signal('');
+    private _query_checks = effect(() => {
+        const search = this.search_term();
+        const state = this.state();
+        const region = this._dashboard.region_id();
+        const building = this._dashboard.building_id();
+
+        // Skip until after we've loaded from query params
+        if (!this._initialized) {
+            return;
+        }
+
+        const query_params: Record<string, string | undefined> = {
+            search: search || undefined,
+            state: state || undefined,
+            region: region || undefined,
+            // Only include building if region is selected
+            building: region && building ? building : undefined,
+        };
+
+        this._router.navigate([], {
+            relativeTo: this._route,
+            queryParams: query_params,
+            replaceUrl: true,
+        });
+    });
+
     public readonly room_list = signal<Space[]>([]);
     public readonly new_rooms = computed(() =>
         this.room_list().filter(
@@ -400,15 +442,49 @@ export class RemoteSupportComponent extends AsyncHandler implements OnInit {
 
     public readonly filtered_rooms = computed(() => {
         const term = this.search_term().toLowerCase();
-        return this.room_data().filter((room) => {
-            switch (this.state()) {
+        const current_state = this.state();
+
+        // Get base room list with location filtering
+        const r_id = this._dashboard.region_id();
+        const bld_id = this._dashboard.building_id();
+        const base_rooms = this.room_list().filter(
+            (rm) =>
+                (!bld_id && !r_id) ||
+                rm.zones.includes(bld_id) ||
+                (!bld_id && rm.zones.includes(r_id)),
+        );
+
+        // Only track alerts when filtering by issues
+        const alerts_list =
+            current_state === 'issues'
+                ? this.alerts()
+                : untracked(() => this.alerts());
+
+        // Only read status as reactive dependency when filtering by status
+        const status_map =
+            current_state === 'in_use' || current_state === 'available'
+                ? this.status()
+                : untracked(() => this.status());
+
+        // Map rooms with their issues
+        const rooms = base_rooms.map((rm) => ({
+            ...rm,
+            issues: alerts_list.filter((a) => a.location == rm.id),
+        }));
+
+        return rooms.filter((room) => {
+            switch (current_state) {
                 case 'in_use':
-                    return this.status[room.id] === 'busy';
+                    if (status_map[room.id] !== 'busy') return false;
+                    break;
                 case 'available':
-                    return this.status[room.id] === 'free';
+                    if (status_map[room.id] !== 'free') return false;
+                    break;
                 case 'issues':
-                    return (room as any).issues?.length > 0;
+                    if (!room.issues?.length) return false;
+                    break;
             }
+
             if (term) {
                 if (
                     !room.name.toLowerCase().includes(term) &&
@@ -422,6 +498,36 @@ export class RemoteSupportComponent extends AsyncHandler implements OnInit {
     });
 
     public ngOnInit() {
+        // Load filters from query parameters
+        const query_params = this._route.snapshot.queryParams;
+        if (query_params['search']) {
+            this.search_term.set(query_params['search']);
+        }
+        if (query_params['state']) {
+            this.state.set(query_params['state']);
+        }
+        if (query_params['region']) {
+            const region = this._org.regions.find(
+                (r) => r.id === query_params['region'],
+            );
+            if (region) {
+                this._org.region = region;
+
+                // Only apply building if region is set
+                if (query_params['building']) {
+                    const building = this._org.buildings.find(
+                        (b) => b.id === query_params['building'],
+                    );
+                    if (building) {
+                        this._org.building = building;
+                    }
+                }
+            }
+        }
+
+        // Enable effect after loading from query params
+        this._initialized = true;
+
         this.subscription(
             'room_list',
             this._support.space_list.subscribe((l) => {
@@ -433,10 +539,18 @@ export class RemoteSupportComponent extends AsyncHandler implements OnInit {
     }
 
     public setNextBooking(space: Space, event: CalendarEvent) {
-        this.next.update((old) => ({ ...old, [space.id]: event }));
+        const current = this.next();
+        // Only update if the event actually changed
+        if (JSON.stringify(current[space.id]) !== JSON.stringify(event)) {
+            this.next.update((old) => ({ ...old, [space.id]: event }));
+        }
     }
 
     public setStatus(space: Space, status: string) {
-        this.status.update((old) => ({ ...old, [space.id]: status }));
+        const current = this.status();
+        // Only update if the status actually changed
+        if (current[space.id] !== status) {
+            this.status.update((old) => ({ ...old, [space.id]: status }));
+        }
     }
 }

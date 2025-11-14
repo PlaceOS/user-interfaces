@@ -18,6 +18,7 @@ import {
 } from '@placeos/common';
 
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -668,6 +669,7 @@ import { VisitorsStateService } from './visitors-state.service';
         TranslatePipe,
         IconComponent,
         SimpleTableComponent,
+        FormsModule,
     ],
 })
 export class GuestListingComponent extends AsyncHandler implements OnInit {

@@ -172,13 +172,10 @@ export class SettingsService extends AsyncHandler {
             window.app.settings = this;
             window.setting = (key) => this.get(key);
         }
-        console.log('Get User');
         const user = await firstTruthyValueFrom(
             current_user.pipe(filter((_) => !!_.id)),
         );
-        console.log('User:', user);
         const data = await lastValueFrom(showMetadata(user.id, 'settings'));
-        console.log('User Settings:', data);
         this._user_settings.next(data.details || {});
         this.timeout(
             'init',

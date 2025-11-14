@@ -17,9 +17,12 @@ import {
     notifyError,
     OrganisationService,
 } from '@placeos/common';
-import { SettingsToggleComponent, TranslatePipe } from '@placeos/components';
+import {
+    FullscreenModalShellComponent,
+    SettingsToggleComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { addZone, authority, updateZone } from '@placeos/ts-client';
-import { FullscreenModalShellComponent } from 'libs/components/src/lib/fullscreen-modal-shell.component';
 
 @Component({
     selector: 'level-modal',

@@ -29,12 +29,12 @@ import {
     updateShortURL,
 } from '@placeos/common';
 import {
+    FullscreenModalShellComponent,
     IconComponent,
     SettingsToggleComponent,
     TranslatePipe,
 } from '@placeos/components';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
-import { FullscreenModalShellComponent } from 'libs/components/src/lib/fullscreen-modal-shell.component';
 import { ImageFieldComponent } from 'libs/form-fields/src/lib/image-field.component';
 import { UploadButtonComponent } from '../ui/app-settings/upload-button.component';
 import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.component';

@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { SafePipe } from '@placeos/components';
@@ -25,7 +25,7 @@ const EMPTY = {};
     ],
     imports: [SafePipe],
 })
-export class CustomReportComponent extends AsyncHandler {
+export class CustomReportComponent extends AsyncHandler implements OnInit {
     private _settings = inject(SettingsService);
     private _route = inject(ActivatedRoute);
 

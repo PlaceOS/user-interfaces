@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { first } from 'rxjs/operators';
 
@@ -97,7 +97,7 @@ import { BookingUIOptions, EventsStateService } from './events-state.service';
     ],
     standalone: false,
 })
-export class DayviewTopbarComponent extends AsyncHandler {
+export class DayviewTopbarComponent extends AsyncHandler implements OnInit {
     private _state = inject(EventsStateService);
     private _org = inject(OrganisationService);
     private _route = inject(ActivatedRoute);

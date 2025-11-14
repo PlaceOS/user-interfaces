@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { Router } from '@angular/router';
@@ -151,7 +151,7 @@ import { EventStateService } from './event-state.service';
         CustomTooltipComponent,
     ],
 })
-export class EventMonthViewComponent extends AsyncHandler {
+export class EventMonthViewComponent extends AsyncHandler implements OnInit {
     private _state = inject(EventStateService);
     private _settings = inject(SettingsService);
     private _dialog = inject(MatDialog);

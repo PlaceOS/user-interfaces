@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
 import { AsyncHandler } from '@placeos/common';
@@ -37,7 +37,7 @@ import { EventsStateService } from '../day-view/events-state.service';
         ExploreZoomControlComponent,
     ],
 })
-export class FacilitiesMapComponent extends AsyncHandler {
+export class FacilitiesMapComponent extends AsyncHandler implements OnInit {
     private _explore = inject(ExploreStateService);
     private _state = inject(EventsStateService);
 

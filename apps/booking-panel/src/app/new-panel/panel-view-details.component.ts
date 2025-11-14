@@ -139,7 +139,7 @@ export class PanelViewDetailsComponent extends AsyncHandler implements OnInit {
                                 custom_qr_color || '#fff',
                             ),
                         );
-                    } else if (!this.qr_code) {
+                    } else if (!this.qr_code()) {
                         const url = `${location.origin}${location.pathname}#/checkin/${this._state.system}`;
                         this.qr_code.set(
                             generateQRCode(

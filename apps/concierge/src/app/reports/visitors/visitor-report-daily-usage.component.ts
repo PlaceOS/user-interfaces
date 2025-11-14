@@ -95,7 +95,7 @@ export class VisitorReportDailyUsageComponent {
 
     public readonly daily_stats = this._state.daily_stats$.pipe(
         map((days) => {
-            let list = [];
+            const list = [];
             for (const date in days) {
                 list.push({
                     date,

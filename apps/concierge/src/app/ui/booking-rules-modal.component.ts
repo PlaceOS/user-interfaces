@@ -17,6 +17,7 @@ import {
     randomString,
 } from '@placeos/common';
 import {
+    FullscreenModalShellComponent,
     IconComponent,
     LevelPipe,
     SimpleTableComponent,
@@ -24,7 +25,6 @@ import {
     openConfirmModal,
 } from '@placeos/components';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
-import { FullscreenModalShellComponent } from 'libs/components/src/lib/fullscreen-modal-shell.component';
 import { BookingRulesFormComponent } from 'libs/form-fields/src/lib/booking-rules-form.component';
 import { BehaviorSubject, Observable, combineLatest, of } from 'rxjs';
 import {

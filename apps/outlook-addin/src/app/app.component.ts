@@ -42,7 +42,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
     private _locales = inject(LocaleService);
     private _uploads = inject(UploadsService);
 
-    title = 'outlook-addin';
+    public readonly title = 'outlook-addin';
 
     public async ngOnInit() {
         console.info(`Initialising application...`);
@@ -79,10 +79,11 @@ export class AppComponent extends AsyncHandler implements OnInit {
             this._finishInitialise();
         } catch (e) {
             console.info(JSON.stringify(e));
-            if (!Office?.context) {
+            if (!Office?.context?.auth) {
                 log('Outlook', `Error office API not loaded.`);
                 await this._initialiseAuth(false);
             } else {
+                log('Outlook', `Authenticating through Outlook...`);
                 await this._authenticateGraphAPI();
             }
         }

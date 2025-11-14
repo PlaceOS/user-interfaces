@@ -30,9 +30,11 @@ import {
     SettingsToggleComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { UserSearchFieldComponent } from '@placeos/form-fields';
+import {
+    ItemListFieldComponent,
+    UserSearchFieldComponent,
+} from '@placeos/form-fields';
 import { showStaff } from '@placeos/users';
-import { ItemListFieldComponent } from 'libs/form-fields/src/lib/item-list-field.component';
 import { lastValueFrom } from 'rxjs';
 import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.component';
 

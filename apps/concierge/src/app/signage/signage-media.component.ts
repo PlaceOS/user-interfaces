@@ -1,7 +1,8 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 
 import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -10,8 +11,6 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { listSignagePlaylistMedia, SignagePlaylist } from '@placeos/ts-client';
-import { BehaviorSubject, combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { SignageMediaListComponent } from './signage-media-list.component';
 import { SignagePlaylistMediaListComponent } from './signage-playlist-media-list.component';
 import { SignageStateService } from './signage-state.service';
@@ -34,31 +33,31 @@ import { SignageStateService } from './signage-state.service';
                     <input
                         matInput
                         [placeholder]="'COMMON.SEARCH' | translate"
-                        [ngModel]="search.getValue()"
-                        (ngModelChange)="search.next($event)"
+                        [ngModel]="search()"
+                        (ngModelChange)="search.set($event)"
                     />
                 </mat-form-field>
                 <a
                     matRipple
                     class="flex min-h-12 w-full items-center rounded-3xl px-6 hover:bg-base-200"
-                    [class.!bg-secondary]="!selected_playlist"
-                    [class.text-secondary-content]="!selected_playlist"
+                    [class.!bg-secondary]="!selected_playlist()"
+                    [class.text-secondary-content]="!selected_playlist()"
                     [routerLink]="[]"
                     [queryParams]="{ playlist: '' }"
                 >
                     {{ 'APP.CONCIERGE.SIGNAGE_MEDIA_ALL' | translate }}
                 </a>
                 <hr class="w-full" />
-                @if ((playlists | async)?.length > 0) {
-                    @for (playlist of playlists | async; track playlist.id) {
+                @if (playlists()?.length > 0) {
+                    @for (playlist of playlists(); track playlist.id) {
                         <a
                             matRipple
                             class="flex h-12 min-h-12 w-full items-center rounded-3xl px-6 hover:bg-base-200"
                             [class.!bg-secondary]="
-                                selected_playlist === playlist.id
+                                selected_playlist() === playlist.id
                             "
                             [class.text-secondary-content]="
-                                selected_playlist === playlist.id
+                                selected_playlist() === playlist.id
                             "
                             [routerLink]="[]"
                             [queryParams]="{ playlist: playlist.id }"
@@ -69,7 +68,7 @@ import { SignageStateService } from './signage-state.service';
                                 'playlist-list',
                             ]"
                             (cdkDropListDropped)="
-                                selected_playlist === playlist.id
+                                selected_playlist() === playlist.id
                                     ? ''
                                     : drop(playlist, $event)
                             "
@@ -86,14 +85,14 @@ import { SignageStateService } from './signage-state.service';
                         <icon class="text-6xl">hide_image</icon>
                         <p class="text-center">
                             {{
-                                (search.getValue()
+                                (search()
                                     ? 'APP.CONCIERGE.SIGNAGE_PLAYLISTS_SEARCH_EMPTY'
                                     : 'APP.CONCIERGE.SIGNAGE_PLAYLISTS_EMPTY'
                                 ) | translate
                             }}
                         </p>
                     </div>
-                    @if (!search.getValue()) {
+                    @if (!search()) {
                         <button
                             btn
                             matRipple
@@ -120,15 +119,15 @@ import { SignageStateService } from './signage-state.service';
                 (window:drop)="hideOverlay($event)"
             >
                 <div class="h-full w-full overflow-auto">
-                    @if (!selected_playlist) {
+                    @if (!selected_playlist()) {
                         <signage-media-list
-                            [playlist_count]="(playlists | async)?.length"
+                            [playlist_count]="playlists()?.length"
                         />
                     }
-                    @if (selected_playlist) {
+                    @if (selected_playlist()) {
                         <signage-playlist-media-list
-                            [playlist]="selected_playlist"
-                            [playlist_count]="(playlists | async)?.length"
+                            [playlist]="selected_playlist()"
+                            [playlist_count]="playlists()?.length"
                         />
                     }
                 </div>
@@ -183,25 +182,35 @@ import { SignageStateService } from './signage-state.service';
         FormsModule,
     ],
 })
-export class SignageMediaComponent extends AsyncHandler implements OnInit {
+export class SignageMediaComponent extends AsyncHandler {
     private _state = inject(SignageStateService);
     private _router = inject(Router);
     private _route = inject(ActivatedRoute);
 
-    public readonly search = new BehaviorSubject<string>('');
+    public readonly search = signal('');
     public readonly loading = this._state.loading;
-    public readonly playlists = combineLatest([
-        this.search,
-        this._state.playlists,
-    ]).pipe(
-        map(([search, list]) =>
-            list.filter((_) =>
-                _.name.toLowerCase().includes(search.toLowerCase()),
-            ),
-        ),
-    );
-    public selected_playlist = '';
+    private readonly _playlists_signal = toSignal(this._state.playlists, {
+        initialValue: [],
+    });
+    public readonly playlists = computed(() => {
+        const search_value = this.search();
+        const list = this._playlists_signal();
+        return list.filter((_) =>
+            _.name.toLowerCase().includes(search_value.toLowerCase()),
+        );
+    });
+    public readonly selected_playlist = signal('');
     public readonly show_dropzone = signal(false);
+
+    constructor() {
+        super();
+        effect(() => {
+            const params = toSignal(this._route.queryParamMap)();
+            if (params?.has('playlist')) {
+                this.selected_playlist.set(params.get('playlist'));
+            }
+        });
+    }
 
     public readonly addPlaylist = async () => {
         const result = await this._state.editPlaylist();
@@ -214,7 +223,7 @@ export class SignageMediaComponent extends AsyncHandler implements OnInit {
     };
     public readonly previewMedia = (item) => this._state.previewMedia(item);
     public readonly previewFile = (event) =>
-        this._state.previewFileFromInput(event, this.selected_playlist);
+        this._state.previewFileFromInput(event, this.selected_playlist());
 
     public onEnter(e) {
         this.clearTimeout('hide_overlay');
@@ -227,17 +236,6 @@ export class SignageMediaComponent extends AsyncHandler implements OnInit {
             e.preventDefault();
         }
         this.timeout('hide_overlay', () => this.show_dropzone.set(false));
-    }
-
-    public ngOnInit() {
-        this.subscription(
-            'route.params',
-            this._route.queryParamMap.subscribe((params) => {
-                if (params.has('playlist')) {
-                    this.selected_playlist = params.get('playlist');
-                }
-            }),
-        );
     }
 
     public async drop(

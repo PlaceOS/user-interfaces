@@ -192,18 +192,8 @@ export class ApplicationSidebarComponent
                     // },
                     {
                         id: 'zones',
-                        name: i18n('APP.CONCIERGE.MENU_MANAGE_REGIONS'),
-                        route: ['/region-management'],
-                    },
-                    {
-                        id: 'zones',
-                        name: i18n('APP.CONCIERGE.MENU_MANAGE_BUILDINGS'),
-                        route: ['/building-management'],
-                    },
-                    {
-                        id: 'zones',
-                        name: i18n('APP.CONCIERGE.MENU_MANAGE_LEVELS'),
-                        route: ['/level-management'],
+                        name: i18n('APP.CONCIERGE.MENU_MANAGE_ZONES'),
+                        route: ['/zone-management'],
                     },
                     {
                         id: 'spaces',

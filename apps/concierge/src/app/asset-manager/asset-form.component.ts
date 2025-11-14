@@ -19,8 +19,10 @@ import {
     notifyError,
     notifySuccess,
 } from '@placeos/common';
-import { TranslatePipe } from '@placeos/components';
-import { FullscreenModalShellComponent } from 'libs/components/src/lib/fullscreen-modal-shell.component';
+import {
+    FullscreenModalShellComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { AssetManagerStateService } from './asset-manager-state.service';
 
 @Component({

@@ -114,7 +114,7 @@ export class PointsOverviewComponent implements OnInit {
         this.loadPoints();
     }
 
-    public renderPrice(value: number = 0) {
+    public renderPrice(value = 0) {
         return `$${value?.toFixed(2)}`;
     }
 

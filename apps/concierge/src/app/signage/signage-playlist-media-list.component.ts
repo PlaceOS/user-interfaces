@@ -5,17 +5,21 @@ import {
     moveItemInArray,
 } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
-import { Component, inject, input, signal, SimpleChanges } from '@angular/core';
+import {
+    Component,
+    computed,
+    inject,
+    input,
+    OnChanges,
+    signal,
+    SimpleChanges,
+} from '@angular/core';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
-import {
-    currentUser,
-    nextValueFrom,
-    notifyInfo,
-    SettingsService,
-} from '@placeos/common';
+import { currentUser, notifyInfo, SettingsService } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
     IconComponent,
@@ -29,14 +33,11 @@ import {
     SignagePlaylist,
 } from '@placeos/ts-client';
 import { getUnixTime, startOfMinute } from 'date-fns';
-import { BehaviorSubject, combineLatest, of } from 'rxjs';
+import { of } from 'rxjs';
 import {
     catchError,
     debounceTime,
     filter,
-    map,
-    shareReplay,
-    startWith,
     switchMap,
     tap,
 } from 'rxjs/operators';
@@ -46,7 +47,7 @@ import { SignageStateService } from './signage-state.service';
     selector: 'signage-playlist-media-list',
     template: `
         <div class="relative flex h-full w-full flex-col space-y-4 p-4">
-            @let playlist = selected_playlist | async;
+            @let playlist = selected_playlist();
             <h3 class="text-center text-xl font-medium">
                 Playlist - {{ playlist?.name }}
             </h3>
@@ -126,23 +127,19 @@ import { SignageStateService } from './signage-state.service';
             <div details class="flex flex-wrap items-center">
                 <div
                     class="m-1 ml-2 rounded px-2 py-1 text-xs"
-                    [class.bg-success]="(selected_playlist | async)?.enabled"
-                    [class.text-success-content]="
-                        (selected_playlist | async)?.enabled
-                    "
-                    [class.bg-error]="!(selected_playlist | async)?.enabled"
-                    [class.text-error-content]="
-                        !(selected_playlist | async)?.enabled
-                    "
+                    [class.bg-success]="selected_playlist()?.enabled"
+                    [class.text-success-content]="selected_playlist()?.enabled"
+                    [class.bg-error]="!selected_playlist()?.enabled"
+                    [class.text-error-content]="!selected_playlist()?.enabled"
                 >
                     {{
-                        ((selected_playlist | async)?.enabled
+                        (selected_playlist()?.enabled
                             ? 'COMMON.ENABLED'
                             : 'COMMON.DISABLED'
                         ) | translate
                     }}
                 </div>
-                @if ((selected_playlist | async)?.random) {
+                @if (selected_playlist()?.random) {
                     <div
                         class="m-1 ml-2 rounded bg-secondary px-2 py-1 text-xs text-secondary-content"
                     >
@@ -158,7 +155,7 @@ import { SignageStateService } from './signage-state.service';
                         class="ml-1 rounded bg-base-300 px-2 py-1 uppercase"
                         >{{
                             animation_name(
-                                (selected_playlist | async)?.default_animation
+                                selected_playlist()?.default_animation
                             )
                         }}</span
                     >
@@ -171,7 +168,7 @@ import { SignageStateService } from './signage-state.service';
                     <span
                         class="ml-1 rounded bg-base-300 px-2 py-1 font-mono"
                         >{{
-                            (selected_playlist | async)?.default_duration / 1000
+                            selected_playlist()?.default_duration / 1000
                                 | mediaDuration
                         }}</span
                     >
@@ -183,10 +180,10 @@ import { SignageStateService } from './signage-state.service';
                     {{ 'APP.CONCIERGE.SIGNAGE_ORIENTATION' | translate }}
                     <span
                         class="ml-1 rounded bg-base-300 px-2 py-1 uppercase"
-                        >{{ (selected_playlist | async)?.orientation }}</span
+                        >{{ selected_playlist()?.orientation }}</span
                     >
                 </div>
-                @if (isScheduled(selected_playlist | async)) {
+                @if (isScheduled(selected_playlist())) {
                     <div
                         class="m-1 rounded bg-base-200 px-2 py-2 text-xs uppercase"
                     >
@@ -194,16 +191,16 @@ import { SignageStateService } from './signage-state.service';
                     </div>
                 }
             </div>
-            @if ((media | async).length > 0) {
+            @if (media().length > 0) {
                 <div
                     cdkDropList
                     class="flex h-1/2 flex-1 flex-col space-y-2 overflow-auto"
                     id="playlist-list"
-                    [cdkDropListData]="media | async"
+                    [cdkDropListData]="media()"
                     [cdkDropListConnectedTo]="playlist_ids"
                     (cdkDropListDropped)="drop($event)"
                 >
-                    @for (item of media | async; track item) {
+                    @for (item of media(); track item) {
                         <div
                             cdkDrag
                             class="relative flex h-20 w-full items-center space-x-2 rounded-lg border border-base-300 bg-base-100 p-2"
@@ -340,7 +337,7 @@ import { SignageStateService } from './signage-state.service';
         MediaDurationPipe,
     ],
 })
-export class SignagePlaylistMediaListComponent {
+export class SignagePlaylistMediaListComponent implements OnChanges {
     private _state = inject(SignageStateService);
     private _router = inject(Router);
     private _clipboard = inject(Clipboard);
@@ -352,7 +349,10 @@ export class SignagePlaylistMediaListComponent {
 
     public playlist_ids: string[] = [];
 
-    private _playlist = new BehaviorSubject<string>('');
+    private _playlist = signal<string>('');
+
+    private _playlists = toSignal(this._state.playlists, { initialValue: [] });
+    private _state_media = toSignal(this._state.media, { initialValue: [] });
 
     public get is_admin() {
         const groups = currentUser().groups || [];
@@ -360,16 +360,19 @@ export class SignagePlaylistMediaListComponent {
         return groups.includes(admin_group) || groups.includes('placeos_admin');
     }
 
-    public readonly editPlaylist = async () => {
-        const playlist = await nextValueFrom(this.selected_playlist);
-        this._state.editPlaylist(playlist);
+    public readonly editPlaylist = () => {
+        const playlist = this.selected_playlist();
+        if (playlist) {
+            this._state.editPlaylist(playlist);
+        }
     };
 
     public readonly removeItem = async (item: SignageMedia) => {
-        const playlist = await nextValueFrom(this._playlist_media);
+        const playlist = this._playlist_media();
+        if (!playlist) return;
         const list = playlist.items.filter((_) => _ !== item.id);
         await this._state.updatePlaylistMedia(this.playlist(), list);
-        this._playlist.next(this.playlist());
+        this._playlist.set(this.playlist());
     };
 
     public readonly previewItem = (item: SignageMedia) =>
@@ -378,49 +381,55 @@ export class SignagePlaylistMediaListComponent {
     public readonly editItem = (item: SignageMedia) =>
         this._state.editMedia(item);
 
-    public readonly removePlaylist = async () => {
-        this._state.removePlaylist(await nextValueFrom(this.selected_playlist));
-        this._router.navigate(['/signage/media', {}]);
+    public readonly removePlaylist = () => {
+        const playlist = this.selected_playlist();
+        if (playlist) {
+            this._state.removePlaylist(playlist);
+            this._router.navigate(['/signage/media', {}]);
+        }
     };
 
     public readonly approvePlaylist = async (plist) => {
         await this._state.approvePlaylist(plist);
     };
 
-    public readonly selected_playlist = combineLatest([
-        this._playlist,
-        this._state.playlists,
-    ]).pipe(
-        map(([playlist, list]) => {
-            const item = list.find((_) => _.id === playlist);
-            if (!item) this._router.navigate(['/signage/media', {}]);
-            return item;
-        }),
-    );
+    public readonly selected_playlist = computed(() => {
+        const playlist_id = this._playlist();
+        const list = this._playlists();
+        const item = list.find((_) => _.id === playlist_id);
+        if (!item && playlist_id) {
+            this._router.navigate(['/signage/media', {}]);
+        }
+        return item;
+    });
 
-    private _playlist_media = this.selected_playlist.pipe(
-        filter((playlist) => !!playlist),
-        debounceTime(300),
-        switchMap((playlist) =>
-            listSignagePlaylistMedia(playlist.id).pipe(
-                catchError(() => of({ id: '', items: [] })),
+    private _playlist_media_observable = computed(() => {
+        const playlist = this.selected_playlist();
+        return playlist;
+    });
+
+    private _playlist_media = toSignal(
+        toObservable(this._playlist_media_observable).pipe(
+            filter((playlist) => !!playlist),
+            debounceTime(300),
+            switchMap((playlist) =>
+                listSignagePlaylistMedia(playlist.id).pipe(
+                    catchError(() => of({ id: '', items: [], approved: 0 })),
+                ),
             ),
+            tap((_: any) => this.approved.set(_.approved)),
         ),
-        tap((_: any) => this.approved.set(_.approved)),
-        shareReplay(1),
+        { initialValue: { id: '', items: [], approved: 0 } },
     );
 
-    public readonly media = combineLatest([
-        this._playlist_media,
-        this._state.media,
-    ]).pipe(
-        map(([playlist, media]) =>
-            playlist.items
-                .map((_) => media.find((m) => m.id === _))
-                .filter((_) => _),
-        ),
-        startWith([]),
-    );
+    public readonly media = computed(() => {
+        const playlist = this._playlist_media();
+        const media_list = this._state_media();
+        if (!playlist) return [];
+        return playlist.items
+            .map((_) => media_list.find((m) => m.id === _))
+            .filter((_) => _);
+    });
 
     public get now() {
         return getUnixTime(startOfMinute(Date.now()));
@@ -437,7 +446,7 @@ export class SignagePlaylistMediaListComponent {
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.playlist) {
-            this._playlist.next(this.playlist());
+            this._playlist.set(this.playlist());
         }
         if (changes.playlist_count) {
             this.playlist_ids = new Array(this.playlist_count())
@@ -466,13 +475,13 @@ export class SignagePlaylistMediaListComponent {
 
     public async drop(event: CdkDragDrop<SignageMedia[]>) {
         if (event.previousIndex === event.currentIndex) return;
-        const id = await nextValueFrom(this._playlist);
-        const playlist = await nextValueFrom(this._playlist_media);
-        if (!id && playlist) return;
+        const id = this._playlist();
+        const playlist = this._playlist_media();
+        if (!id || !playlist) return;
         const list = [...playlist.items];
         moveItemInArray(list, event.previousIndex, event.currentIndex);
         await this._state.updatePlaylistMedia(id, list);
-        this._playlist.next(this.playlist());
+        this._playlist.set(this.playlist());
     }
 
     public async copyID(id: string) {

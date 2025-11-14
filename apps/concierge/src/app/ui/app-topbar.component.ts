@@ -8,11 +8,11 @@ import {
 } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
+    CustomTooltipComponent,
     IconComponent,
+    UserAvatarComponent,
     UserControlsComponent,
 } from '@placeos/components';
-import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
-import { UserAvatarComponent } from 'libs/components/src/lib/user-avatar.component';
 
 @Component({
     selector: 'app-topbar',
