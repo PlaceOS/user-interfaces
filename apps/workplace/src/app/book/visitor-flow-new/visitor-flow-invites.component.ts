@@ -164,7 +164,6 @@ import { UserListFieldComponent } from '@placeos/form-fields';
         MatAutocompleteModule,
         MatRippleModule,
         UserListFieldComponent,
-        IconComponent,
         TranslatePipe,
         ReactiveFormsModule,
         FormsModule,

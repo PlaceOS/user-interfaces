@@ -1,5 +1,4 @@
 import { Component, inject, model, OnInit, signal } from '@angular/core';
-import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatRippleModule } from '@angular/material/core';
 import { RouterModule } from '@angular/router';
 import {
@@ -8,7 +7,6 @@ import {
     SettingsService,
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
-import { ChatViewComponent } from '../landing-new/chat-view.component';
 
 @Component({
     selector: 'footer-menu',
@@ -114,17 +112,6 @@ import { ChatViewComponent } from '../landing-new/chat-view.component';
                             </div>
                         </a>
                     }
-                    <button
-                        matRipple
-                        name="footer-act-ben"
-                        class="flex flex-col items-center justify-center space-y-4 rounded-xl bg-secondary px-4 py-8 text-secondary-content"
-                        (click)="openAIPanel(); $event.stopPropagation()"
-                    >
-                        <img class="h-10" src="assets/icons/ben_icon.svg" />
-                        <div>
-                            {{ 'APP.WORKPLACE.MENU_AI' | translate }}
-                        </div>
-                    </button>
                 </div>
             </div>
         }
@@ -216,7 +203,6 @@ import { ChatViewComponent } from '../landing-new/chat-view.component';
 export class FooterMenuComponent extends AsyncHandler implements OnInit {
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
-    private _bottom_sheet = inject(MatBottomSheet);
 
     public readonly blur_backdrop = model(false);
     public readonly show_book_items = signal(false);
@@ -238,9 +224,5 @@ export class FooterMenuComponent extends AsyncHandler implements OnInit {
                 );
             }),
         );
-    }
-
-    public openAIPanel() {
-        const ref = this._bottom_sheet.open(ChatViewComponent);
     }
 }

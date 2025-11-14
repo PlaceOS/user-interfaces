@@ -238,6 +238,13 @@ const app = {
     },
     hide_contacts: false,
     schedule,
+    virtual_concierge: {
+        prompts: [
+            'Book a meeting room tomorrow at 2pm for 4 people',
+            'Find me an available desk near a window',
+            'Reserve parking for Friday morning',
+        ],
+    },
 };
 /**
  * ROOT SETTIGNS
