@@ -20,6 +20,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSliderModule } from '@angular/material/slider';
 import { notifyError, padLength } from '@placeos/common';
 import {
+    FullscreenModalShellComponent,
     MediaDurationPipe,
     SettingsToggleComponent,
     TranslatePipe,
@@ -38,7 +39,6 @@ import {
     set,
     startOfDay,
 } from 'date-fns';
-import { FullscreenModalShellComponent } from 'libs/components/src/lib/fullscreen-modal-shell.component';
 import { CronInputFieldComponent } from 'libs/form-fields/src/lib/cron-input-field.component';
 import { BehaviorSubject } from 'rxjs';
 import { SignageStateService } from './signage-state.service';

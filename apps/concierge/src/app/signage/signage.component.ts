@@ -1,10 +1,10 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, effect, inject, signal } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTabsModule } from '@angular/material/tabs';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
-import { AsyncHandler, i18n, settingSignal } from '@placeos/common';
+import { i18n, settingSignal } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
 import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
@@ -24,16 +24,17 @@ import { SignageStateService } from './signage-state.service';
                         {{ 'APP.CONCIERGE.SIGNAGE_HEADER' | translate }}
                     </h2>
                     @if (
-                        active_link === 'Media' || active_link === 'Displays'
+                        active_link() === 'Media' ||
+                        active_link() === 'Displays'
                     ) {
                         <button
                             btn
                             matRipple
                             class="w-40"
-                            (click)="newItem(active_link)"
+                            (click)="newItem(active_link())"
                         >
                             {{
-                                (active_link === 'Displays'
+                                (active_link() === 'Displays'
                                     ? 'APP.CONCIERGE.SIGNAGE_DISPLAYS_ADD'
                                     : 'APP.CONCIERGE.SIGNAGE_PLAYLISTS_ADD'
                                 ) | translate
@@ -44,14 +45,14 @@ import { SignageStateService } from './signage-state.service';
                 <div class="px-8">
                     <div class="overflow-hidden rounded bg-base-200">
                         <nav mat-tab-nav-bar [tabPanel]="tabPanel">
-                            @for (link of links; track link.id) {
+                            @for (link of links(); track link.id) {
                                 <a
                                     mat-tab-link
                                     [routerLink]="
                                         '/signage/' + (link.id | lowercase)
                                     "
-                                    (click)="active_link = link.id"
-                                    [active]="active_link == link.id"
+                                    (click)="active_link.set(link.id)"
+                                    [active]="active_link() == link.id"
                                 >
                                     {{ link.name }}
                                 </a>
@@ -89,14 +90,43 @@ import { SignageStateService } from './signage-state.service';
         RouterModule,
     ],
 })
-export class SignageComponent extends AsyncHandler implements OnInit {
+export class SignageComponent {
     private _state = inject(SignageStateService);
     private _router = inject(Router);
 
     public readonly loading = this._state.loading;
-    public links = [];
-    public active_link = this.links[0]?.id;
+    public readonly links = signal([
+        { id: 'Media', name: i18n('APP.CONCIERGE.SIGNAGE_MEDIA') },
+        { id: 'Displays', name: i18n('APP.CONCIERGE.SIGNAGE_DISPLAYS') },
+        { id: 'Zones', name: i18n('APP.CONCIERGE.SIGNAGE_ZONES') },
+    ]);
+    public readonly active_link = signal(this.links()[0]?.id);
     public readonly hide_sidebar = settingSignal('hide_sidebar', false);
+
+    constructor() {
+        // Update active link based on current URL
+        const current_url = this._router.url;
+        const matching_link = this.links().find((_) =>
+            current_url.includes(_.id.toLowerCase()),
+        );
+        if (matching_link) {
+            this.active_link.set(matching_link.id);
+        }
+
+        // Watch for navigation changes
+        effect(() => {
+            this._router.events.subscribe((event) => {
+                if (event instanceof NavigationEnd) {
+                    const link = this.links().find((_) =>
+                        event.url.includes(_.id.toLowerCase()),
+                    );
+                    if (link) {
+                        this.active_link.set(link.id);
+                    }
+                }
+            });
+        });
+    }
 
     public readonly previewFile = (event) =>
         this._state.previewFileFromInput(event);
@@ -121,29 +151,5 @@ export class SignageComponent extends AsyncHandler implements OnInit {
                 });
                 break;
         }
-    }
-
-    public ngOnInit() {
-        this.links = [
-            { id: 'Media', name: i18n('APP.CONCIERGE.SIGNAGE_MEDIA') },
-            { id: 'Displays', name: i18n('APP.CONCIERGE.SIGNAGE_DISPLAYS') },
-            { id: 'Zones', name: i18n('APP.CONCIERGE.SIGNAGE_ZONES') },
-        ];
-        this.active_link = this.links[0].id;
-        this.subscription(
-            'route.query',
-            this._router.events.subscribe((event) => {
-                if (event instanceof NavigationEnd) {
-                    this.active_link =
-                        this.links.find((_) =>
-                            this._router.url.includes(_.id.toLowerCase()),
-                        )?.id || this.active_link;
-                }
-            }),
-        );
-        this.active_link =
-            this.links.find((_) =>
-                this._router.url.includes(_.id.toLowerCase()),
-            )?.id || this.active_link;
     }
 }

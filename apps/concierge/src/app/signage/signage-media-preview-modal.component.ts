@@ -1,4 +1,4 @@
-import { Component, inject, output, signal } from '@angular/core';
+import { Component, inject, OnInit, output, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import {
@@ -81,7 +81,7 @@ import {
         SafePipe,
     ],
 })
-export class SignageMediaPreviewModalComponent {
+export class SignageMediaPreviewModalComponent implements OnInit {
     private _data = inject<{
         url: URL;
         type: 'image' | 'video' | 'webpage';

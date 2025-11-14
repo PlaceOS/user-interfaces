@@ -1,17 +1,13 @@
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { ActivatedRoute, RouterModule } from '@angular/router';
-import {
-    AsyncHandler,
-    i18n,
-    nextValueFrom,
-    notifySuccess,
-} from '@placeos/common';
+import { i18n, notifySuccess } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import {
     listZoneTriggers,
@@ -19,8 +15,7 @@ import {
     updateTrigger,
     updateZone,
 } from '@placeos/ts-client';
-import { BehaviorSubject, combineLatest } from 'rxjs';
-import { map, shareReplay, switchMap, tap } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 import { SearchOverlayComponent } from './search-overlay.component';
 import { SignageItemPlaylistsComponent } from './signage-item-playlists.component';
 import { SignageStateService } from './signage-state.service';
@@ -40,21 +35,19 @@ import { SignageStateService } from './signage-state.service';
                     <input
                         matInput
                         [placeholder]="'COMMON.SEARCH' | translate"
-                        [ngModel]="search.getValue()"
-                        (ngModelChange)="search.next($event)"
+                        [ngModel]="search()"
+                        (ngModelChange)="search.set($event)"
                     />
                 </mat-form-field>
-                @if ((zones | async)?.length > 0) {
+                @if (zones().length > 0) {
                     <div class="h-1/2 w-full flex-1 space-y-2 overflow-auto">
-                        @for (zone of zones | async; track zone.id) {
+                        @for (zone of zones(); track zone.id) {
                             <a
                                 matRipple
                                 class="z-10 flex min-h-12 w-full items-center truncate rounded-3xl px-6 hover:bg-base-200"
-                                [class.!bg-secondary]="
-                                    selected.getValue() === zone.id
-                                "
+                                [class.!bg-secondary]="selected() === zone.id"
                                 [class.text-secondary-content]="
-                                    selected.getValue() === zone.id
+                                    selected() === zone.id
                                 "
                                 [routerLink]="[]"
                                 [queryParams]="{ zone: zone.id }"
@@ -62,13 +55,9 @@ import { SignageStateService } from './signage-state.service';
                                 {{ zone.display_name || zone.name }}
                             </a>
                             @if (
-                                (active_zone | async)?.id === zone.id &&
-                                !switching
+                                active_zone()?.id === zone.id && !switching()
                             ) {
-                                @for (
-                                    trigger of triggers | async;
-                                    track trigger.id
-                                ) {
+                                @for (trigger of triggers(); track trigger.id) {
                                     <div
                                         class="relative z-0 flex items-center space-x-2"
                                     >
@@ -81,11 +70,11 @@ import { SignageStateService } from './signage-state.service';
                                             matRipple
                                             class="flex min-h-12 w-full items-center truncate rounded-3xl px-6 hover:bg-base-200"
                                             [class.!bg-secondary]="
-                                                selected_trigger.getValue() ===
+                                                selected_trigger() ===
                                                 trigger?.id
                                             "
                                             [class.text-secondary-content]="
-                                                selected_trigger.getValue() ===
+                                                selected_trigger() ===
                                                 trigger?.id
                                             "
                                             [routerLink]="[]"
@@ -112,7 +101,7 @@ import { SignageStateService } from './signage-state.service';
                         <icon class="text-6xl">hide_image</icon>
                         <p class="text-center">
                             {{
-                                (search.getValue()
+                                (search()
                                     ? 'APP.CONCIERGE.SIGNAGE_ZONES_SEARCH_EMPTY'
                                     : 'APP.CONCIERGE.SIGNAGE_ZONES_EMPTY'
                                 ) | translate
@@ -124,14 +113,12 @@ import { SignageStateService } from './signage-state.service';
             <div
                 class="relative flex h-full w-1/2 flex-1 flex-col space-y-4 overflow-auto rounded-lg border border-base-300 p-4 shadow"
             >
-                @if (active_zone | async) {
+                @if (active_zone()) {
                     <signage-item-playlists
                         class="flex flex-1 flex-col"
-                        [item]="
-                            (active_trigger | async) || (active_zone | async)
-                        "
-                        [name]="(active_trigger | async) ? 'trigger' : 'zone'"
-                        (add)="this.adding = true"
+                        [item]="active_trigger() || active_zone()"
+                        [name]="active_trigger() ? 'trigger' : 'zone'"
+                        (add)="this.adding.set(true)"
                         (remove)="removePlaylist($event)"
                         (ondrop)="drop($event)"
                     ></signage-item-playlists>
@@ -147,11 +134,11 @@ import { SignageStateService } from './signage-state.service';
                         </p>
                     </div>
                 }
-                @if (adding) {
+                @if (adding()) {
                     <search-overlay
-                        [item_list]="playlists | async"
+                        [item_list]="playlists()"
                         (selected)="addPlaylist($event)"
-                        (close)="adding = false"
+                        (close)="adding.set(false)"
                     ></search-overlay>
                 }
             </div>
@@ -171,71 +158,90 @@ import { SignageStateService } from './signage-state.service';
         FormsModule,
     ],
 })
-export class SignageZonesComponent extends AsyncHandler implements OnInit {
+export class SignageZonesComponent {
     private _state = inject(SignageStateService);
     private _route = inject(ActivatedRoute);
 
-    public adding = false;
-    public switching = false;
-    public readonly search = new BehaviorSubject<string>('');
+    public readonly adding = signal(false);
+    public readonly switching = signal(false);
+    public readonly search = signal('');
     public readonly loading = this._state.loading;
-    public readonly zones = combineLatest([
-        this.search,
-        this._state.zones,
-    ]).pipe(
-        map(([search, list]) =>
-            list.filter((_) =>
-                _.name.toLowerCase().includes(search.toLowerCase()),
-            ),
-        ),
-    );
-    public readonly selected = new BehaviorSubject('');
-    public readonly selected_trigger = new BehaviorSubject('');
-    public readonly active_zone = combineLatest([
-        this.zones,
-        this.selected,
-    ]).pipe(map(([zones, id]) => zones.find((item) => item.id === id)));
 
-    public readonly triggers = this.selected.pipe(
-        switchMap((id) => listZoneTriggers(id)),
-        map((_) => _.data),
-        tap((_) => setTimeout(() => (this.switching = false), 100)),
-        shareReplay(1),
-    );
+    private readonly _state_zones = toSignal(this._state.zones, {
+        initialValue: [],
+    });
+    public readonly zones = computed(() => {
+        const search_value = this.search().toLowerCase();
+        const list = this._state_zones();
+        return list.filter((_) => _.name.toLowerCase().includes(search_value));
+    });
 
-    public readonly active_trigger = combineLatest([
-        this.triggers,
-        this.selected_trigger,
-    ]).pipe(map(([list, id]) => list.find((item) => item.id === id)));
+    public readonly selected = signal('');
+    public readonly selected_trigger = signal('');
 
-    public readonly playlists = combineLatest([
-        this.active_zone,
-        this.active_trigger,
-        this._state.playlists,
-        this._state.has_changed,
-    ]).pipe(
-        map(([zone, trigger, playlists]) =>
-            playlists.filter(
-                (_) => !(trigger || zone)?.playlists.find((id) => _.id === id),
-            ),
-        ),
-    );
+    public readonly active_zone = computed(() => {
+        const zones = this.zones();
+        const id = this.selected();
+        return zones.find((item) => item.id === id);
+    });
 
-    public ngOnInit() {
-        this.subscription(
-            'route.params',
-            this._route.queryParamMap.subscribe((params) => {
-                this.switching =
-                    params.get('zone') !== this.selected.getValue();
-                this.selected.next(params.get('zone') || '');
-                this.selected_trigger.next(params.get('trigger') || '');
-            }),
+    private readonly _triggers = signal<any[]>([]);
+    public readonly triggers = this._triggers.asReadonly();
+
+    public readonly active_trigger = computed(() => {
+        const list = this.triggers();
+        const id = this.selected_trigger();
+        return list.find((item) => item.id === id);
+    });
+
+    private readonly _state_playlists = toSignal(this._state.playlists, {
+        initialValue: [],
+    });
+    private readonly _state_has_changed = toSignal(this._state.has_changed, {
+        initialValue: 0,
+    });
+
+    public readonly playlists = computed(() => {
+        const zone = this.active_zone();
+        const trigger = this.active_trigger();
+        const playlists = this._state_playlists();
+        this._state_has_changed(); // Track changes
+        return playlists.filter(
+            (_) => !(trigger || zone)?.playlists.find((id) => _.id === id),
         );
+    });
+
+    constructor() {
+        const queryParams = toSignal(this._route.queryParamMap);
+        effect(() => {
+            const params = queryParams();
+            if (!params) return;
+            this.switching.set(params.get('zone') !== this.selected());
+            this.selected.set(params.get('zone') || '');
+            this.selected_trigger.set(params.get('trigger') || '');
+        });
+
+        // Watch for changes to selected zone and fetch triggers
+        effect(() => {
+            const id = this.selected();
+            if (!id) {
+                this._triggers.set([]);
+                return;
+            }
+            listZoneTriggers(id)
+                .pipe(
+                    map((_) => _.data),
+                    tap((_) =>
+                        setTimeout(() => this.switching.set(false), 100),
+                    ),
+                )
+                .subscribe((data) => this._triggers.set(data));
+        });
     }
 
     public async addPlaylist(playlist: SignagePlaylist) {
-        const zone = await nextValueFrom(this.active_zone);
-        const trigger = await nextValueFrom(this.active_trigger);
+        const zone = this.active_zone();
+        const trigger = this.active_trigger();
         const item = trigger || zone;
         const playlists = [...item.playlists, playlist.id];
         const method: any = trigger ? updateTrigger : updateZone;
@@ -252,14 +258,14 @@ export class SignageZonesComponent extends AsyncHandler implements OnInit {
             ),
         );
         this._state.changed();
-        this.adding = false;
+        this.adding.set(false);
     }
 
     public async removePlaylist(playlist: SignagePlaylist) {
-        const zone = await nextValueFrom(this.active_zone);
-        const trigger = await nextValueFrom(this.active_trigger);
+        const zone = this.active_zone();
+        const trigger = this.active_trigger();
         const item = trigger || zone;
-        const playlists = item.filter((id) => playlist.id !== id);
+        const playlists = item.playlists.filter((id) => playlist.id !== id);
         const method: any = trigger ? updateTrigger : updateZone;
         await method(
             item.id,
@@ -274,12 +280,12 @@ export class SignageZonesComponent extends AsyncHandler implements OnInit {
             ),
         );
         this._state.changed();
-        this.adding = false;
+        this.adding.set(false);
     }
 
     public async drop(event: CdkDragDrop<SignagePlaylist[]>) {
-        const zone = await nextValueFrom(this.active_zone);
-        const trigger = await nextValueFrom(this.active_trigger);
+        const zone = this.active_zone();
+        const trigger = this.active_trigger();
         const item = trigger || zone;
         const old_playlist = item.playlists;
         const playlists = [...old_playlist];

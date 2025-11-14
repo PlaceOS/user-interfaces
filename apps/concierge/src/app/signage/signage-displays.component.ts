@@ -1,6 +1,7 @@
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -8,23 +9,21 @@ import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import {
-    AsyncHandler,
     i18n,
-    nextValueFrom,
     notifyError,
     notifySuccess,
     SettingsService,
     unique,
 } from '@placeos/common';
-import { IconComponent, TranslatePipe } from '@placeos/components';
+import { IconComponent, TranslatePipe, ZonePipe } from '@placeos/components';
 import {
     listSystemTriggers,
     SignagePlaylist,
     updateSystem,
     updateTrigger,
 } from '@placeos/ts-client';
-import { BehaviorSubject, combineLatest, lastValueFrom } from 'rxjs';
-import { map, shareReplay, switchMap, tap } from 'rxjs/operators';
+import { lastValueFrom } from 'rxjs';
+import { map, tap } from 'rxjs/operators';
 import { SearchOverlayComponent } from './search-overlay.component';
 import { SignageItemPlaylistsComponent } from './signage-item-playlists.component';
 import { SignageStateService } from './signage-state.service';
@@ -45,21 +44,21 @@ import { ZoneSelectModalComponent } from './zone-select-modal.component';
                     <input
                         matInput
                         [placeholder]="'COMMON.SEARCH' | translate"
-                        [ngModel]="search.getValue()"
-                        (ngModelChange)="search.next($event)"
+                        [ngModel]="search()"
+                        (ngModelChange)="search.set($event)"
                     />
                 </mat-form-field>
-                @if ((displays | async)?.length > 0) {
+                @if (displays().length > 0) {
                     <div class="h-1/2 w-full flex-1 space-y-2 overflow-auto">
-                        @for (display of displays | async; track display.id) {
+                        @for (display of displays(); track display.id) {
                             <a
                                 matRipple
                                 class="z-10 flex min-h-12 w-full items-center truncate rounded-3xl px-6 hover:bg-base-200"
                                 [class.!bg-secondary]="
-                                    selected.getValue() === display.id
+                                    selected() === display.id
                                 "
                                 [class.text-secondary-content]="
-                                    selected.getValue() === display.id
+                                    selected() === display.id
                                 "
                                 [routerLink]="[]"
                                 [queryParams]="{ display: display.id }"
@@ -67,13 +66,10 @@ import { ZoneSelectModalComponent } from './zone-select-modal.component';
                                 {{ display.display_name || display.name }}
                             </a>
                             @if (
-                                (active_display | async)?.id === display.id &&
-                                !switching
+                                active_display()?.id === display.id &&
+                                !switching()
                             ) {
-                                @for (
-                                    trigger of triggers | async;
-                                    track trigger.id
-                                ) {
+                                @for (trigger of triggers(); track trigger.id) {
                                     <div
                                         class="relative z-0 flex items-center space-x-2"
                                     >
@@ -86,11 +82,11 @@ import { ZoneSelectModalComponent } from './zone-select-modal.component';
                                             matRipple
                                             class="flex min-h-12 w-1/2 flex-1 items-center truncate rounded-3xl px-6 hover:bg-base-200"
                                             [class.!bg-secondary]="
-                                                selected_trigger.getValue() ===
+                                                selected_trigger() ===
                                                 trigger?.id
                                             "
                                             [class.text-secondary-content]="
-                                                selected_trigger.getValue() ===
+                                                selected_trigger() ===
                                                 trigger?.id
                                             "
                                             [routerLink]="[]"
@@ -117,7 +113,7 @@ import { ZoneSelectModalComponent } from './zone-select-modal.component';
                         <icon class="text-6xl">hide_image</icon>
                         <p class="text-center">
                             {{
-                                (search.getValue()
+                                (search()
                                     ? 'APP.CONCIERGE.SIGNAGE_DISPLAYS_SEARCH_EMPTY'
                                     : 'APP.CONCIERGE.SIGNAGE_DISPLAYS_EMPTY'
                                 ) | translate
@@ -129,9 +125,9 @@ import { ZoneSelectModalComponent } from './zone-select-modal.component';
             <div
                 class="relative flex h-full w-1/2 flex-1 flex-col space-y-4 overflow-auto rounded-lg border border-base-300 p-4 shadow"
             >
-                @if (active_display | async) {
-                    @let display = active_display | async;
-                    @let trigger = active_trigger | async;
+                @if (active_display()) {
+                    @let display = active_display();
+                    @let trigger = active_trigger();
                     <signage-item-playlists
                         class="flex flex-1 flex-col"
                         [item]="trigger || display"
@@ -145,7 +141,7 @@ import { ZoneSelectModalComponent } from './zone-select-modal.component';
                                   display?.id +
                                   '?debug=true'
                         "
-                        (add)="this.adding = true"
+                        (add)="this.adding.set(true)"
                         (remove)="removePlaylist($event)"
                         (ondrop)="drop($event)"
                     >
@@ -193,7 +189,7 @@ import { ZoneSelectModalComponent } from './zone-select-modal.component';
                                 [href]="
                                     signage_path +
                                     '/#/signage/' +
-                                    (active_display | async)?.id +
+                                    active_display()?.id +
                                     '?debug=true'
                                 "
                                 target="_blank"
@@ -317,11 +313,11 @@ import { ZoneSelectModalComponent } from './zone-select-modal.component';
                         </p>
                     </div>
                 }
-                @if (adding) {
+                @if (adding()) {
                     <search-overlay
-                        [item_list]="playlists | async"
+                        [item_list]="playlists()"
                         (selected)="addPlaylist($event)"
-                        (close)="adding = false"
+                        (close)="adding.set(false)"
                     ></search-overlay>
                 }
             </div>
@@ -331,98 +327,113 @@ import { ZoneSelectModalComponent } from './zone-select-modal.component';
     imports: [
         CommonModule,
         TranslatePipe,
+        IconComponent,
         MatFormFieldModule,
         MatInputModule,
         FormsModule,
         MatMenuModule,
-        IconComponent,
         SearchOverlayComponent,
         RouterModule,
         SignageItemPlaylistsComponent,
+        ZonePipe,
     ],
 })
-export class SignageDisplaysComponent extends AsyncHandler implements OnInit {
+export class SignageDisplaysComponent {
     private _state = inject(SignageStateService);
     private _route = inject(ActivatedRoute);
     private _settings = inject(SettingsService);
     private _dialog = inject(MatDialog);
 
-    public adding = false;
-    public switching = false;
-    public readonly search = new BehaviorSubject<string>('');
+    public readonly adding = signal(false);
+    public readonly switching = signal(false);
+    public readonly search = signal('');
     public readonly loading = this._state.loading;
-    public readonly displays = combineLatest([
-        this.search,
-        this._state.displays,
-    ]).pipe(
-        map(([search, list]) =>
-            list.filter((_) =>
-                _.name.toLowerCase().includes(search.toLowerCase()),
-            ),
-        ),
-    );
-    public readonly selected = new BehaviorSubject('');
-    public readonly selected_trigger = new BehaviorSubject('');
-    public readonly active_display = combineLatest([
-        this.displays,
-        this.selected,
-    ]).pipe(map(([displays, id]) => displays.find((item) => item.id === id)));
 
-    public readonly triggers = this.selected.pipe(
-        switchMap((id) => listSystemTriggers(id)),
-        map((_) => _.data),
-        tap((_) => setTimeout(() => (this.switching = false), 200)),
-        shareReplay(1),
-    );
+    private readonly _state_displays = toSignal(this._state.displays, {
+        initialValue: [],
+    });
+    public readonly displays = computed(() => {
+        const search_value = this.search().toLowerCase();
+        const list = this._state_displays();
+        return list.filter((_) => _.name.toLowerCase().includes(search_value));
+    });
 
-    public readonly active_trigger = combineLatest([
-        this.triggers,
-        this.selected_trigger,
-        this.selected,
-    ]).pipe(
-        map(([list, id, sys_id]) =>
-            list.find(
-                (item) => item.id === id && item.control_system_id === sys_id,
-            ),
-        ),
-    );
+    public readonly selected = signal('');
+    public readonly selected_trigger = signal('');
 
-    public readonly playlists = combineLatest([
-        this.active_display,
-        this.active_trigger,
-        this._state.playlists,
-        this._state.has_changed,
-    ]).pipe(
-        map(([display, trigger, playlists]) =>
-            playlists.filter(
-                (_) =>
-                    !(trigger || display)?.playlists.find((id) => _.id === id),
-            ),
-        ),
-    );
+    public readonly active_display = computed(() => {
+        const displays = this.displays();
+        const id = this.selected();
+        return displays.find((item) => item.id === id);
+    });
+
+    private readonly _triggers = signal<any[]>([]);
+    public readonly triggers = this._triggers.asReadonly();
+
+    public readonly active_trigger = computed(() => {
+        const list = this.triggers();
+        const id = this.selected_trigger();
+        const sys_id = this.selected();
+        return list.find(
+            (item) => item.id === id && item.control_system_id === sys_id,
+        );
+    });
+
+    private readonly _state_playlists = toSignal(this._state.playlists, {
+        initialValue: [],
+    });
+    private readonly _state_has_changed = toSignal(this._state.has_changed, {
+        initialValue: 0,
+    });
+
+    public readonly playlists = computed(() => {
+        const display = this.active_display();
+        const trigger = this.active_trigger();
+        const playlists = this._state_playlists();
+        this._state_has_changed(); // Track changes
+        return playlists.filter(
+            (_) => !(trigger || display)?.playlists.find((id) => _.id === id),
+        );
+    });
 
     public readonly removeDisplay = async () =>
-        this._state.removeDisplay(await nextValueFrom(this.active_display));
+        this._state.removeDisplay(this.active_display());
 
     public get signage_path() {
         return this._settings.get('app.signage_path') || '/signage';
     }
 
-    public ngOnInit() {
-        this.subscription(
-            'route.params',
-            this._route.queryParamMap.subscribe((params) => {
-                this.switching =
-                    params.get('display') !== this.selected.getValue();
-                this.selected.next(params.get('display') || '');
-                this.selected_trigger.next(params.get('trigger') || '');
-            }),
-        );
+    constructor() {
+        const queryParams = toSignal(this._route.queryParamMap);
+        effect(() => {
+            const params = queryParams();
+            if (!params) return;
+            this.switching.set(params.get('display') !== this.selected());
+            this.selected.set(params.get('display') || '');
+            this.selected_trigger.set(params.get('trigger') || '');
+        });
+
+        // Watch for changes to selected display and fetch triggers
+        effect(() => {
+            const id = this.selected();
+            if (!id) {
+                this._triggers.set([]);
+                return;
+            }
+            listSystemTriggers(id)
+                .pipe(
+                    map((_) => _.data),
+                    tap((_) =>
+                        setTimeout(() => this.switching.set(false), 200),
+                    ),
+                )
+                .subscribe((data) => this._triggers.set(data));
+        });
     }
 
     public async addPlaylist(playlist: SignagePlaylist) {
-        const display = await nextValueFrom(this.active_display);
-        const trigger = await nextValueFrom(this.active_trigger);
+        const display = this.active_display();
+        const trigger = this.active_trigger();
         const item = trigger || display;
         const playlists = [...item.playlists, playlist.id];
         const method: any = trigger ? updateTrigger : updateSystem;
@@ -439,12 +450,12 @@ export class SignageDisplaysComponent extends AsyncHandler implements OnInit {
             ),
         );
         this._state.changed();
-        this.adding = false;
+        this.adding.set(false);
     }
 
     public async removePlaylist(playlist: SignagePlaylist) {
-        const display = await nextValueFrom(this.active_display);
-        const trigger = await nextValueFrom(this.active_trigger);
+        const display = this.active_display();
+        const trigger = this.active_trigger();
         const item = trigger || display;
         const playlists = item.playlists.filter((id) => playlist.id !== id);
         const method: any = trigger ? updateTrigger : updateSystem;
@@ -461,12 +472,12 @@ export class SignageDisplaysComponent extends AsyncHandler implements OnInit {
             ),
         );
         this._state.changed();
-        this.adding = false;
+        this.adding.set(false);
     }
 
     public async drop(event: CdkDragDrop<SignagePlaylist[]>) {
-        const display = await nextValueFrom(this.active_display);
-        const trigger = await nextValueFrom(this.active_trigger);
+        const display = this.active_display();
+        const trigger = this.active_trigger();
         const item = trigger || display;
         const old_playlist = item.playlists;
         const playlists = [...old_playlist];
@@ -492,7 +503,7 @@ export class SignageDisplaysComponent extends AsyncHandler implements OnInit {
     }
 
     public async setOrientation(orientation: any) {
-        const display = await nextValueFrom(this.active_display);
+        const display = this.active_display();
         if (!display) return;
         await lastValueFrom(
             updateSystem(
@@ -513,7 +524,7 @@ export class SignageDisplaysComponent extends AsyncHandler implements OnInit {
     }
 
     public async addZone() {
-        const display = await nextValueFrom(this.active_display);
+        const display = this.active_display();
         if (!display) return;
         const ref = this._dialog.open(ZoneSelectModalComponent, {
             data: { ignore: display.zones },

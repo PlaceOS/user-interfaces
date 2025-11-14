@@ -13,6 +13,7 @@ import { MatSliderModule } from '@angular/material/slider';
 import { i18n, notifyError, notifySuccess } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
+    FullscreenModalShellComponent,
     MediaDurationPipe,
     TranslatePipe,
 } from '@placeos/components';
@@ -23,7 +24,6 @@ import {
     updateSignageMedia,
 } from '@placeos/ts-client';
 import { addYears, endOfDay, getUnixTime, startOfDay } from 'date-fns';
-import { FullscreenModalShellComponent } from 'libs/components/src/lib/fullscreen-modal-shell.component';
 import { lastValueFrom } from 'rxjs';
 
 @Component({
