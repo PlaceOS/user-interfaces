@@ -9,7 +9,7 @@ import {
     currentUser,
     firstTruthyValueFrom,
     i18n,
-    unique,
+    unique, settingSignal
 } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
 import { debounceTime, filter } from 'rxjs/operators';
@@ -18,7 +18,7 @@ import { debounceTime, filter } from 'rxjs/operators';
     selector: 'app-sidebar',
     template: `
         <div
-            class="h-full w-64 overflow-auto border-r border-base-200 py-2 pr-3"
+            class="h-full min-w-60 overflow-auto border-r border-base-200 py-2 pr-3"
         >
             @for (link of filtered_links(); track link.id + '' + $index) {
                 @if (!link.children) {
@@ -108,13 +108,8 @@ export class ApplicationSidebarComponent
 
     public filtered_links = signal([]);
 
-    public get feature_list() {
-        return this._settings.get('app.features') || [];
-    }
-
-    public get feature_groups() {
-        return this._settings.get('app.feature_groups') || {};
-    }
+    public readonly feature_list = settingSignal<string[]>('features', []);
+    public readonly feature_groups = settingSignal<Record<string, string[]>>('feature_groups', {});
 
     public get is_admin() {
         const groups = currentUser().groups || [];
@@ -180,46 +175,48 @@ export class ApplicationSidebarComponent
                 route: ['/book/catering/orders'],
             },
             {
-                id: 'visitor-rules',
-                name: i18n('APP.CONCIERGE.MENU_VISITOR_RULES'),
-                icon: 'policy',
-                route: ['/book/visitors/rules'],
-            },
-            {
                 id: 'catering-menu',
                 name: i18n('APP.CONCIERGE.MENU_MANAGE_CATERING'),
                 icon: 'restaurant_menu',
                 route: ['/book/catering/menu'],
+                admin: true,
+                alias: 'catering',
             },
             {
                 id: 'points',
                 name: i18n('APP.CONCIERGE.MENU_MANAGE_POINTS'),
                 icon: 'loyalty',
                 route: ['/points-management'],
+                admin: true,
             },
             {
                 id: 'signage',
                 name: i18n('APP.CONCIERGE.MENU_MANAGE_SIGNAGE'),
                 icon: 'tv',
                 route: ['/signage'],
+                admin: true,
             },
             {
                 id: 'deals-n-offers',
                 name: i18n('APP.CONCIERGE.MENU_MANAGE_DEALS'),
                 icon: 'local_offer',
                 route: ['/deals-n-offers'],
+                admin: true,
             },
             {
                 id: 'zones',
                 name: i18n('APP.CONCIERGE.MENU_MANAGE_ZONES'),
                 icon: 'account_tree',
                 route: ['/zone-management'],
+                admin: true,
             },
             {
                 id: 'settings',
                 name: i18n('APP.CONCIERGE.MENU_MANAGE_SETTINGS'),
                 icon: 'settings',
                 route: ['/settings-management'],
+                admin: true,
+                alias: ['emergency-contacts', 'email-templates', 'url-management', 'points-of-interest'],
                 children: [
                     {
                         id: 'emergency-contacts',
@@ -248,6 +245,8 @@ export class ApplicationSidebarComponent
                 name: i18n('APP.CONCIERGE.MENU_MANAGE_RESOURCES'),
                 icon: 'category',
                 route: ['/resource-management'],
+                admin: true,
+                alias: ['spaces', 'desks', 'parking', 'lockers'],
                 children: [
                     {
                         id: 'spaces',
@@ -287,12 +286,14 @@ export class ApplicationSidebarComponent
                 name: i18n('APP.CONCIERGE.MENU_EVENTS'),
                 route: ['/entertainment/events'],
                 icon: 'confirmation_number',
+                admin: true,
             },
             {
                 id: 'surveys',
                 name: i18n('APP.CONCIERGE.MENU_SURVEYS'),
                 route: ['/surveys'],
                 icon: 'add_reaction',
+                admin: true,
             },
             {
                 id: 'reports',
@@ -321,22 +322,55 @@ export class ApplicationSidebarComponent
         this.timeout('update_links', () => this.updateFilteredLinks(), 500);
     }
 
-    private _isFeatureAvailable(name: string): boolean {
+    private _isFeatureAvailable(link: any): boolean {
+        const name = link.id || link._id;
         if (name.startsWith('*')) {
             return true;
         }
-        const has_feature = this.feature_list.includes(name);
-        const feature_groups = this.feature_groups[name] || [];
+
+        // Use alias if provided (can be string or array), otherwise use the item's id
+        const aliases = link.alias
+            ? (Array.isArray(link.alias) ? link.alias : [link.alias])
+            : [name];
+
+        // Check if at least one alias matches a feature
+        const matching_features = aliases.filter(alias =>
+            this.feature_list().includes(alias)
+        );
+
+        if (!matching_features.length) {
+            return false;
+        }
+
         const groups = currentUser().groups;
-        if (
-            has_feature &&
-            (this.is_admin ||
-                !feature_groups.length ||
-                groups.find((grp) => feature_groups.includes(grp)))
-        ) {
+
+        // Special handling for items marked with admin: true
+        if (link.admin) {
+            // Check if user is admin or in feature groups for any of the matching features
+            return this.is_admin || matching_features.some(feature_name => {
+                const feature_groups = this.feature_groups()[feature_name] || [];
+                return feature_groups.length && groups.find((grp) => feature_groups.includes(grp));
+            });
+        }
+
+        // For other features: check each matching feature
+        // If any feature has no groups defined, allow access
+        // Otherwise, require admin or group membership for at least one feature
+        const features_with_groups = matching_features.filter(feature_name => {
+            const feature_groups = this.feature_groups()[feature_name] || [];
+            return feature_groups.length > 0;
+        });
+
+        // If no features have groups defined, just having the feature is enough
+        if (!features_with_groups.length) {
             return true;
         }
-        return false;
+
+        // If some features have groups, check admin or group membership for any of them
+        return this.is_admin || features_with_groups.some(feature_name => {
+            const feature_groups = this.feature_groups()[feature_name] || [];
+            return groups.find((grp) => feature_groups.includes(grp));
+        });
     }
 
     public updateFilteredLinks() {
@@ -363,7 +397,7 @@ export class ApplicationSidebarComponent
                     ...link,
                     children: link.children
                         ? link.children.filter((_) =>
-                              this._isFeatureAvailable(_.id),
+                              this._isFeatureAvailable(_),
                           )
                         : null,
                 }))
@@ -371,7 +405,7 @@ export class ApplicationSidebarComponent
                     (_) =>
                         ((!_.id ||
                             _.id === 'home' ||
-                            this._isFeatureAvailable(_.id)) &&
+                            this._isFeatureAvailable(_)) &&
                             _.route) ||
                         _.children?.length,
                 )
