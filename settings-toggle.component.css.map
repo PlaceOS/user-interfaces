@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;09d472dfc67150cf01347a580874515fc3cc343b61a90041f2b167ad15a01cf4;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/settings-toggle.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: flex;\n            }\n\n            [toggle] {\n                transition:\n                    background 200ms,\n                    left 200ms;\n            }\n        "],
+  "mappings": ";AACY;AACI,WAAS;AACb;AAEA,CAAC;AACG,cACI,WAAW,KAAK,EAChB,KAAK;AACb;",
+  "names": []
+}
