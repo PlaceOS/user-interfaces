@@ -2,10 +2,10 @@ import { FormsModule } from '@angular/forms';
 import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
 import { MockComponent } from 'ng-mocks';
 
+import { CateringItem } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { ImageCarouselComponent } from 'libs/components/src/lib/image-carousel.component';
 import { CounterComponent } from 'libs/form-fields/src/lib/counter.component';
-import { CateringItem } from '../../lib/catering-item.class';
 import { CateringItemDetailsComponent } from '../../lib/catering-order-modal/catering-item-details.component';
 
 describe('CateringItemDetailsComponent', () => {
@@ -47,14 +47,25 @@ describe('CateringItemDetailsComponent', () => {
     });
 
     it('should allow toggling active state', (done) => {
-        spectator.setInput({ item: new CateringItem({ id: '1' }) });
+        spectator.setInput({
+            item: new CateringItem({ id: '1' }),
+            active: false,
+        });
         spectator.detectChanges();
-        spectator.component.activeChange.subscribe((state) => {
-            if (state)
+        let callCount = 0;
+        spectator.component.active.subscribe((state) => {
+            callCount++;
+            if (callCount === 1) {
+                expect(state).toBe(true);
+                spectator.setInput({ active: true });
+                spectator.detectChanges();
                 setTimeout(() =>
                     spectator.click('[name="select-catering-item-details"]'),
                 );
-            else done();
+            } else {
+                expect(state).toBe(false);
+                done();
+            }
         });
         spectator.click('[name="select-catering-item-details"]');
     });

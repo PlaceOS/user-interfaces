@@ -4,9 +4,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
-import { DateFieldComponent } from 'libs/form-fields/src/lib/date-field.component';
-import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-field.component';
-import { MockComponent, MockModule } from 'ng-mocks';
+import { MockModule } from 'ng-mocks';
 
 import { DeskConfirmModalComponent } from '../lib/desk-confirm-modal.component';
 
@@ -14,18 +12,15 @@ describe('DeskConfirmModalComponent', () => {
     let spectator: Spectator<DeskConfirmModalComponent>;
     const createComponent = createComponentFactory({
         component: DeskConfirmModalComponent,
-        declarations: [
-            MockComponent(DateFieldComponent),
-            MockComponent(UserSearchFieldComponent),
-        ],
+        shallow: true,
         providers: [
             { provide: SettingsService, useValue: { get: jest.fn() } },
             { provide: MAT_DIALOG_DATA, useValue: {} },
         ],
         imports: [
+            FormsModule,
             MockModule(MatFormFieldModule),
             MockModule(MatProgressSpinnerModule),
-            FormsModule,
         ],
     });
 
@@ -36,12 +31,8 @@ describe('DeskConfirmModalComponent', () => {
 
     it('should allow setting the date', () => {
         expect('[date]').toExist();
-        expect('[date] div').toExist();
+        expect('div[date]').toExist();
         expect('a-date-field').not.toExist();
-        (spectator.component as any).can_set_date = true;
-        spectator.detectChanges();
-        expect('[date] div').not.toExist();
-        expect('a-date-field').toExist();
     });
 
     it('should allow setting the host', () => {
@@ -50,6 +41,13 @@ describe('DeskConfirmModalComponent', () => {
         (settings.get as any).mockImplementation(() => true);
         spectator.detectChanges();
         expect('[host]').toExist();
+    });
+
+    it('should show date field', () => {
+        spectator.component.can_set_date.set(true);
+        spectator.detectChanges();
+        expect('div[date]').not.toExist();
+        expect('a-date-field').toExist();
     });
 
     it('should show load state', () => {

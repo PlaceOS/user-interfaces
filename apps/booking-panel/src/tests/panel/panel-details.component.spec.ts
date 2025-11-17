@@ -1,69 +1,53 @@
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
-
-import { IconComponent } from '@placeos/components';
-import { MockComponent } from 'ng-mocks';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 
 import { BehaviorSubject } from 'rxjs';
 import { PanelStateService } from '../../app/panel-state.service';
-import { PanelDetailsComponent } from '../../app/panel/panel-details.component';
+import { PanelViewDetailsComponent } from '../../app/new-panel/panel-view-details.component';
 
-describe('PanelDetailsComponent', () => {
-    let spectator: SpectatorRouting<PanelDetailsComponent>;
-    const createComponent = createRoutingFactory({
-        component: PanelDetailsComponent,
-        declarations: [MockComponent(IconComponent)],
+describe('PanelViewDetailsComponent', () => {
+    let spectator: Spectator<PanelViewDetailsComponent>;
+    const createComponent = createComponentFactory({
+        component: PanelViewDetailsComponent,
         providers: [
             {
                 provide: PanelStateService,
                 useValue: {
                     space: new BehaviorSubject(null),
+                    current: new BehaviorSubject(null),
                     settings: new BehaviorSubject({}),
-                    newBooking: jest.fn(),
-                    confirmWaiter: jest.fn(),
-                    viewControl: jest.fn(),
+                    setting: jest.fn(),
+                    system: 'test-system',
                 },
             },
         ],
     });
 
     beforeEach(() => {
-        localStorage.setItem('PLACEOS.BOOKINGS.system', 'a-system');
         spectator = createComponent();
     });
-
-    afterEach(() => localStorage.clear());
 
     it('should create component', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should allow for creating new events', () => {
+    it('should display system name', () => {
         const service = spectator.inject(PanelStateService);
-        expect('[event]').toExist();
-        spectator.click('[event]');
-        expect(service.newBooking).toHaveBeenCalled();
-        (service.settings as any).next({ disable_book_now: true });
+        (service.space as any).next({ display_name: 'Test Room' });
         spectator.detectChanges();
-        expect('[event]').not.toExist();
+        expect('[name]').toContainText('Test Room');
     });
 
-    it('should allow for calling waiter', () => {
-        expect('[waiter]').not.toExist();
+    it('should display QR code when enabled', () => {
         const service = spectator.inject(PanelStateService);
-        (service.settings as any).next({ catering_ui: true });
+        (service.setting as jest.Mock).mockReturnValue(true);
         spectator.detectChanges();
-        expect('[waiter]').toExist();
-        spectator.click('[waiter]');
-        expect(service.confirmWaiter).toHaveBeenCalled();
+        expect(spectator.component.checkin).toBe(true);
     });
 
-    it('should allow for viewing control UI', () => {
-        expect('[control]').not.toExist();
+    it('should hide QR code when disabled', () => {
         const service = spectator.inject(PanelStateService);
-        (service.settings as any).next({ control_ui: 'here' });
+        (service.setting as jest.Mock).mockReturnValue(false);
         spectator.detectChanges();
-        expect('[control]').toExist();
-        spectator.click('[control]');
-        expect(service.viewControl).toHaveBeenCalled();
+        expect(spectator.component.checkin).toBe(false);
     });
 });

@@ -1,4 +1,4 @@
-import { Space } from '../lib/space.class';
+import { Space } from '@placeos/common';
 
 describe('Space', () => {
     let space: Space;

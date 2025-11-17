@@ -5,9 +5,10 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router } from '@angular/router';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { mockComponent } from '@placeos/common/tests';
 import { IconComponent } from '@placeos/components';
 import { generateGuestForm } from '@placeos/users';
-import { MockComponent, MockProvider } from 'ng-mocks';
+import { MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
 import { SettingsService } from '@placeos/common';
@@ -18,12 +19,12 @@ describe('CheckinDetailsComponent', () => {
     let spectator: SpectatorRouting<CheckinDetailsComponent>;
     const createComponent = createRoutingFactory({
         component: CheckinDetailsComponent,
-        declarations: [MockComponent(IconComponent)],
+        declarations: [mockComponent(IconComponent)],
         providers: [
             MockProvider(CheckinStateService, {
                 updateGuest: jest.fn(),
                 checkinGuest: jest.fn(async () => null),
-                form: of(generateGuestForm({} as any)),
+                form: of(generateGuestForm({ extension_data: {} } as any)),
                 event: of({}),
             } as any),
             MockProvider(SettingsService, { get: jest.fn() }),

@@ -1,5 +1,5 @@
 import { Validators } from '@angular/forms';
-import { Space } from '@placeos/events';
+import { Space } from '@placeos/common';
 
 export const mockForm = {
     id: 1,
@@ -104,7 +104,6 @@ export const mockSpace: Space = {
     map_id: 'map-id-1',
     bookable: true,
     zones: [''],
-    configurations: [''] as any,
     images: [],
     response_status: '' as any,
     approval: false,
@@ -132,7 +131,7 @@ export const mockSpace: Space = {
         },
     ],
     inUseAt: () => false,
-};
+} as any;
 
 export const mockSpaceWithViews: Space = {
     id: '1',
@@ -145,7 +144,6 @@ export const mockSpaceWithViews: Space = {
     map_id: 'map-id-1',
     bookable: true,
     zones: [''],
-    configurations: [''] as any,
     images: [],
     response_status: '' as any,
     approval: false,
@@ -173,7 +171,7 @@ export const mockSpaceWithViews: Space = {
         },
     ],
     inUseAt: () => false,
-};
+} as any;
 
 export const mockCalendarEvent: any = {
     id: '123',

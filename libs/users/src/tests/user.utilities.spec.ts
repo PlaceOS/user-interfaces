@@ -1,5 +1,5 @@
 import { FormGroup } from '@angular/forms';
-import { GuestUser, User } from '../lib/user.class';
+import { GuestUser, User } from '@placeos/common';
 import {
     generateGuestForm,
     generateMockUser,

@@ -455,7 +455,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
      */
     public bootstrapKiosk() {
         this.loading.set('Bootstrapping application...');
-        if (this.active_level) {
+        if (this.active_level()) {
             if (localStorage) {
                 localStorage.setItem(
                     'KIOSK.building',

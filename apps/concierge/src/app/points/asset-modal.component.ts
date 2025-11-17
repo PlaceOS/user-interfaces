@@ -1,3 +1,4 @@
+import { AsyncPipe } from '@angular/common';
 import { Component, EventEmitter, Output, inject } from '@angular/core';
 import {
     FormControl,
@@ -12,7 +13,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { AsyncHandler, DialogEvent } from '@placeos/common';
-import { SettingsToggleComponent, TranslatePipe } from '@placeos/components';
+import {
+    IconComponent,
+    SettingsToggleComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { SpacesService } from '@placeos/events';
 import { CounterComponent, TimeFieldComponent } from '@placeos/form-fields';
 import { addHours, startOfHour } from 'date-fns';
@@ -257,8 +262,10 @@ import { DesksStateService } from '../desks/desks-state.service';
         `,
     ],
     imports: [
+        AsyncPipe,
         MatRippleModule,
         TranslatePipe,
+        IconComponent,
         CounterComponent,
         TimeFieldComponent,
         TimeFieldComponent,

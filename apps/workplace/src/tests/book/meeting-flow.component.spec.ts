@@ -1,6 +1,8 @@
+import { signal } from '@angular/core';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { mockComponent } from '@placeos/common/tests';
 import { EventFormService } from '@placeos/events';
-import { MockComponent, MockProvider } from 'ng-mocks';
+import { MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 import { BookMeetingFlowComponent } from '../../app/book/meeting-flow.component';
 import { MeetingFlowConfirmComponent } from '../../app/book/meeting-flow/meeting-flow-confirm.component';
@@ -9,6 +11,7 @@ import { MeetingFlowSuccessComponent } from '../../app/book/meeting-flow/meeting
 
 describe('BookMeetingFlowComponent', () => {
     let spectator: SpectatorRouting<BookMeetingFlowComponent>;
+    const viewSubject = new BehaviorSubject('form');
     const createComponent = createRoutingFactory({
         component: BookMeetingFlowComponent,
         providers: [
@@ -16,16 +19,16 @@ describe('BookMeetingFlowComponent', () => {
                 loadForm: jest.fn(),
                 newForm: jest.fn(),
                 setView: jest.fn(),
-                view: '',
+                view$: viewSubject,
                 listenForStatusChanges: jest.fn(),
-                last_success: null,
+                last_success: signal(null),
                 available_spaces: new BehaviorSubject([]),
             } as any),
         ],
         declarations: [
-            MockComponent(MeetingFlowFormComponent),
-            MockComponent(MeetingFlowSuccessComponent),
-            MockComponent(MeetingFlowConfirmComponent),
+            mockComponent(MeetingFlowFormComponent),
+            mockComponent(MeetingFlowSuccessComponent),
+            mockComponent(MeetingFlowConfirmComponent),
         ],
     });
 
@@ -33,7 +36,7 @@ describe('BookMeetingFlowComponent', () => {
         spectator = createComponent();
         const event_service: any = spectator.inject(EventFormService);
         event_service.setView.mockImplementation((_) => {
-            event_service.view = _;
+            viewSubject.next(_);
             spectator.detectChanges();
         });
         event_service.setView('form');

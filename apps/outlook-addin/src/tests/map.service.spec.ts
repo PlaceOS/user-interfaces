@@ -8,13 +8,14 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
-import { MockComponent, ngMocks } from 'ng-mocks';
+import { ngMocks } from 'ng-mocks';
 import { of } from 'rxjs';
 import { BookModule } from '../app/rooms/book.module';
 import { MapService } from '../app/rooms/map.service';
 
 import { nextValueFrom } from '@placeos/common';
-import { ComponentsModule, MapPinComponent } from '@placeos/components';
+import { mockComponent } from '@placeos/common/tests';
+import { MapPinComponent } from '@placeos/components';
 import { RoomConfirmService } from '../app/rooms/room-confirm.service';
 import { RoomTileComponent } from '../app/rooms/room-tile.component';
 import { mockSpace } from './test-mocks';
@@ -33,7 +34,8 @@ describe('MapService', () => {
             BrowserModule,
             BrowserAnimationsModule,
             MatBottomSheetModule,
-            ComponentsModule,
+            mockComponent(RoomTileComponent),
+            mockComponent(MapPinComponent),
         ],
         providers: [
             {
@@ -51,10 +53,6 @@ describe('MapService', () => {
                     handleBookEvent: jest.fn((space, flat) => {}),
                 },
             },
-        ],
-        declarations: [
-            MockComponent(RoomTileComponent),
-            MockComponent(MapPinComponent),
         ],
     });
 

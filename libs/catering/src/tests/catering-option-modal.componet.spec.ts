@@ -8,7 +8,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { MockComponent } from 'ng-mocks';
-import { CateringItem } from '../lib/catering-item.class';
+import { CateringItem } from '@placeos/common';
 
 import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
 import { CateringItemOptionModalComponent } from '../lib/catering-option-modal.component';

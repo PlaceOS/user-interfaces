@@ -37,7 +37,7 @@ describe('MapPinComponent', () => {
 
     it('should allow for actions on pin', (done) => {
         (spectator.component as any).action = () => done();
-        spectator.component.show = true;
+        spectator.component.show.set(true);
         spectator.detectChanges();
         spectator.query('[name="pin"]').dispatchEvent(new Event('click'));
     });

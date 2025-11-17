@@ -1,4 +1,4 @@
-import { Component, SimpleChanges, input, output } from '@angular/core';
+import { Component, SimpleChanges, input, model, output } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { AssetGroup } from '@placeos/common';
 
@@ -84,7 +84,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                     select
                     [class.inverse]="active()"
                     class="w-full"
-                    (click)="active = !active(); activeChange.emit(active())"
+                    (click)="active.set(!active())"
                 >
                     <div class="flex items-center justify-center">
                         <icon class="text-2xl">
@@ -133,11 +133,10 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 })
 export class AssetDetailsComponent {
     public readonly item = input<AssetGroup>(undefined);
-    public readonly active = input(false);
     public readonly fav = input(false);
+    public readonly active = model(false);
 
     public readonly toggleFav = output<void>();
-    public readonly activeChange = output<boolean>();
     public readonly countChange = output<number>();
     public readonly close = output<void>();
 

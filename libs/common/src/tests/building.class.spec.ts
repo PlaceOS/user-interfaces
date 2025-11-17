@@ -1,7 +1,7 @@
 import { HashMap } from '@placeos/common';
 
-import { Building } from '../lib/building.class';
-import { generateMockBuilding } from '../lib/building.utilities';
+import { Building } from '../lib/types/org.classes';
+import { generateMockBuilding } from '../lib/org/building.utilities';
 
 describe('Building', () => {
     let init_data: HashMap;

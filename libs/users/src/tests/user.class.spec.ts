@@ -1,4 +1,4 @@
-import { GuestUser, StaffUser, User } from '../lib/user.class';
+import { GuestUser, StaffUser, User } from '@placeos/common';
 
 describe('[User]', () => {
     let user: User;

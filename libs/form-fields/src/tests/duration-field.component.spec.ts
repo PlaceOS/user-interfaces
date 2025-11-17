@@ -36,7 +36,7 @@ describe('DurationFieldComponent', () => {
         spectator.setInput({ min: Math.floor(Math.random() * 10 + 2) * 15 });
         spectator.detectChanges();
         expect(spectator.component.duration_options[0].id).toBe(
-            spectator.component.min,
+            spectator.component.min(),
         );
     });
 
@@ -48,7 +48,7 @@ describe('DurationFieldComponent', () => {
         spectator.setInput({ max: Math.floor(Math.random() * 10 + 10) * 15 });
         spectator.detectChanges();
         options = spectator.component.duration_options;
-        expect(options[options.length - 1].id).toBe(spectator.component.max);
+        expect(options[options.length - 1].id).toBe(spectator.component.max());
     });
 
     it('should allow changing the duration step', () => {
@@ -63,7 +63,7 @@ describe('DurationFieldComponent', () => {
         diff =
             +spectator.component.duration_options[1].id -
             +spectator.component.duration_options[0].id;
-        expect(diff).toBe(spectator.component.step);
+        expect(diff).toBe(spectator.component.step());
     });
 
     it('should allow changing the reference time', () => {

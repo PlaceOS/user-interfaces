@@ -1,10 +1,9 @@
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { IconComponent } from '@placeos/components';
-import { CalendarEvent } from '@placeos/events';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 
-import { SettingsService } from '@placeos/common';
+import { CalendarEvent, SettingsService } from '@placeos/common';
 import { DayviewEventComponent } from '../../app/day-view/dayview-event.component';
 import { EventsStateService } from '../../app/day-view/events-state.service';
 

@@ -1,9 +1,8 @@
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
-import { OrganisationService, SettingsService } from '@placeos/common';
+import { OrganisationService, SettingsService, CateringItem } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { MockComponent, MockProvider } from 'ng-mocks';
-import { CateringItem } from '../../lib/catering-item.class';
 import { CateringItemDetailsComponent } from '../../lib/catering-order-modal/catering-item-details.component';
 import { CateringItemFiltersComponent } from '../../lib/catering-order-modal/catering-item-filters.component';
 import { CateringItemListComponent } from '../../lib/catering-order-modal/catering-item-list.component';

@@ -30,6 +30,7 @@ describe('DeskFiltersComponent', () => {
     let spectator: Spectator<DeskFiltersComponent>;
     const createComponent = createComponentFactory({
         component: DeskFiltersComponent,
+        shallow: true,
         providers: [
             MockProvider(MatBottomSheetRef, { dismiss: jest.fn() }),
             MockProvider(SettingsService, { get: jest.fn() }),
@@ -56,18 +57,12 @@ describe('DeskFiltersComponent', () => {
                 options: new BehaviorSubject({}),
             } as any),
         ],
-        declarations: [
-            MockComponent(DateFieldComponent),
-            MockComponent(TimeFieldComponent),
-            MockComponent(DurationFieldComponent),
-            MockComponent(IconComponent),
-        ],
         imports: [
+            FormsModule,
+            ReactiveFormsModule,
             MockModule(MatCheckboxModule),
             MockModule(MatFormFieldModule),
             MockModule(MatSelectModule),
-            MockModule(FormsModule),
-            MockModule(ReactiveFormsModule),
         ],
     });
 

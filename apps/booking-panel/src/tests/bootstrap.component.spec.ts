@@ -7,7 +7,7 @@ import { Router } from '@angular/router';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { MockModule, MockProvider } from 'ng-mocks';
 
-import { SettingsService } from '@placeos/common';
+import { OrganisationService, SettingsService } from '@placeos/common';
 import { SpacesService } from '@placeos/events';
 import { of } from 'rxjs';
 import { BootstrapComponent } from '../app/bootstrap.component';
@@ -22,6 +22,10 @@ describe('BootstrapComponent', () => {
                 space_list: [{ id: '1', name: 'Space 1' }],
             } as any),
             MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(OrganisationService, {
+                organisation: { id: 'org-123', name: 'Test Org' },
+                initialised: of(true),
+            } as any),
         ],
         imports: [
             FormsModule,

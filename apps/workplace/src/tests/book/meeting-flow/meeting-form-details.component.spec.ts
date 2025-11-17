@@ -9,6 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
+import { mockComponent } from '@placeos/common/tests';
 import { EventFormService } from '@placeos/events';
 import {
     DateFieldComponent,
@@ -17,7 +18,7 @@ import {
     TimeFieldComponent,
 } from '@placeos/form-fields';
 import { MeetingFormDetailsComponent } from 'apps/workplace/src/app/book/meeting-flow/meeting-form-details.component';
-import { MockComponent, MockProvider } from 'ng-mocks';
+import { MockProvider } from 'ng-mocks';
 
 describe('MeetingFormDetailsComponent', () => {
     let spectator: Spectator<MeetingFormDetailsComponent>;
@@ -28,10 +29,10 @@ describe('MeetingFormDetailsComponent', () => {
             MockProvider(EventFormService, { is_multiday: false }),
         ],
         declarations: [
-            MockComponent(DateFieldComponent),
-            MockComponent(TimeFieldComponent),
-            MockComponent(DurationFieldComponent),
-            MockComponent(HostSelectFieldComponent),
+            mockComponent(DateFieldComponent),
+            mockComponent(TimeFieldComponent),
+            mockComponent(DurationFieldComponent),
+            mockComponent(HostSelectFieldComponent),
         ],
         imports: [
             MatFormFieldModule,

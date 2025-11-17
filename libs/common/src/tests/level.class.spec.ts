@@ -1,4 +1,4 @@
-import { BuildingLevel } from '../lib/level.class';
+import { BuildingLevel } from '../lib/types/org.classes';
 
 describe('Level', () => {
     let item: BuildingLevel;

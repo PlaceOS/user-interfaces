@@ -1,5 +1,5 @@
 import { PlaceZone } from '@placeos/ts-client';
-import { Desk } from '../lib/desk.class';
+import { Desk } from '../lib/types/desk.class';
 
 describe('Desk', () => {
     let item: Desk;

@@ -100,7 +100,7 @@ export class DesksService {
             period_end: getUnixTime(endOfDay(date || new Date())),
         }).toPromise();
         const desk_list = bookings.filter(
-            (d) => d.user_email.toLowerCase() === host.email.toLowerCase(),
+            (d) => d.user_email?.toLowerCase() === host.email?.toLowerCase(),
         );
         if (desk_list?.length) {
             ref.close();

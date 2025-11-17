@@ -8,9 +8,9 @@ jest.mock('@placeos/common');
 jest.mock('../lib/bookings.fn');
 
 import * as common_mod from '@placeos/common';
-import { StaffUser, User } from '@placeos/users';
+import { StaffUser, User } from '@placeos/common';
 import { of } from 'rxjs';
-import { Booking } from '../lib/booking.class';
+import { Booking } from '@placeos/common';
 import * as booking_fn from '../lib/bookings.fn';
 
 describe('DesksService', () => {
@@ -26,7 +26,13 @@ describe('DesksService', () => {
                 provide: MatDialog,
                 useValue: {
                     open: jest.fn(() => ({
-                        componentInstance: { event: of({ reason: 'done' }) },
+                        componentInstance: {
+                            event: of({ reason: 'done' }),
+                            host: new StaffUser({ email: 'test@example.com' }),
+                            date: new Date(),
+                            reason: 'Test reason',
+                            loading: '',
+                        },
                         afterClosed: () => of(''),
                         close: () => null,
                     })),
@@ -43,6 +49,7 @@ describe('DesksService', () => {
 
     it('should prevent booking without a host', async () => {
         (common_mod as any).notifyError = jest.fn();
+        (booking_fn as any).queryBookings = jest.fn(() => of([]));
         expect(common_mod.notifyError).not.toHaveBeenCalled();
         await spectator.service.bookDesk({ desks: [new Desk()] });
         expect(common_mod.notifyError).toHaveBeenCalledWith(
@@ -50,20 +57,31 @@ describe('DesksService', () => {
         );
         (common_mod.notifyError as any).mockReset();
         spectator.service.error_on_host = false;
+        // Mock dialog to return no host
+        (spectator.inject(MatDialog).open as any).mockImplementation(() => ({
+            componentInstance: {
+                event: of({ reason: 'done' }),
+                host: null,
+                date: new Date(),
+                reason: 'Test reason',
+                loading: '',
+            },
+            afterClosed: () => of(''),
+            close: () => null,
+        }));
         await spectator.service.bookDesk({ desks: [new Desk()] });
         expect(common_mod.notifyError).toHaveBeenCalledWith(
             'You need to select a host to book a desk. ',
         );
-        await spectator.service.bookDesk({ desks: [new Desk()] });
     });
 
     it('should allow booking a desk', async () => {
         (common_mod as any).notifyError = jest.fn();
         expect(common_mod.notifyError).not.toHaveBeenCalled();
-        (booking_fn as any).queryBookings = jest.fn(() => of([new Booking()]));
+        (booking_fn as any).queryBookings = jest.fn(() => of([new Booking({ user_email: 'test@example.com' })]));
         await spectator.service.bookDesk({
             desks: [new Desk()],
-            host: new StaffUser(),
+            host: new StaffUser({ email: 'test@example.com' }),
         });
         expect(common_mod.notifyError).toHaveBeenCalledWith(
             'You currently already have a desk booked for the selected date.',

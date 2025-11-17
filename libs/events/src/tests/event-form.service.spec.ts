@@ -11,12 +11,11 @@ import { PaymentsService } from 'libs/payments/src/lib/payments.service';
 
 import { OldEventFormService } from '../lib/event-form.service';
 
-jest.mock('libs/common/src/lib/calendar.fn');
 jest.mock('libs/events/src/lib/events.fn');
 jest.mock('@placeos/ts-client');
 
 import * as ts_client from '@placeos/ts-client';
-import * as cal_mod from 'libs/common/src/lib/calendar.fn';
+import * as events_fn from 'libs/events/src/lib/events.fn';
 
 describe('EventFormService', () => {
     let spectator: SpectatorService<OldEventFormService>;
@@ -45,7 +44,7 @@ describe('EventFormService', () => {
     });
 
     beforeEach(() => {
-        (cal_mod as any).querySpaceAvailability = jest.fn(() => of([]));
+        (events_fn as any).querySpaceAvailability = jest.fn(() => of([]));
         (ts_client as any).querySystems = jest.fn(() => of({ data: [] }));
         spectator = createService();
     });

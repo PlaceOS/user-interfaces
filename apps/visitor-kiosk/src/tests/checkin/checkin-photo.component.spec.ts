@@ -1,6 +1,6 @@
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { mockComponent } from '@placeos/common/tests';
 import { IconComponent } from '@placeos/components';
-import { MockComponent } from 'ng-mocks';
 import { of } from 'rxjs';
 
 import { CheckinPhotoComponent } from '../../app/checkin/checkin-photo.component';
@@ -18,8 +18,8 @@ describe('CheckinPhotoComponent', () => {
             },
         ],
         declarations: [
-            MockComponent(TakePhotoComponent),
-            MockComponent(IconComponent),
+            mockComponent(TakePhotoComponent),
+            mockComponent(IconComponent),
         ],
     });
 
