@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;72d850109ca25647193e9bb25821c91bda71dcd8685eeba7f1c8c5dfa1a1f848;/home/runner/work/user-interfaces/user-interfaces/apps/booking-panel/src/app/checkin/checkin-timetable.component.ts"],
+  "sourcesContent": ["\n            [event] {\n                --color1: #969696;\n                --color2: #424242;\n                background: repeating-linear-gradient(\n                    -45deg,\n                    var(--color1),\n                    var(--color1) 6px,\n                    var(--color2) 6px,\n                    var(--color2) 8px\n                );\n            }\n        "],
+  "mappings": ";AACY,CAAC;AACG,YAAU;AACV,YAAU;AACV;AAAA,IAAY;AAAA,MACR,MAAM;AAAA,MACN,IAAI,SAAS;AAAA,MACb,IAAI,UAAU,GAAG;AAAA,MACjB,IAAI,UAAU,GAAG;AAAA,MACjB,IAAI,UAAU;AAEtB;",
+  "names": []
+}

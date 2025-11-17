@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;8d0e49ce05f4619b253c26c4ab7aa7fd76467b364cc074030499c05c469734a7;/home/runner/work/user-interfaces/user-interfaces/apps/booking-panel/src/app/overlays/embedded-control-modal.component.ts"],
+  "sourcesContent": ["\n            [modal] {\n                height: calc(100vh - 3em);\n                box-sizing: content-box;\n                border: 2px solid #fff;\n                border-top: 1px solid #ccc;\n                transform: translate(-50%, calc(-50% + 1.75em));\n            }\n\n            .overlay {\n                position: absolute;\n                top: 0;\n                right: 0;\n                display: flex;\n                align-items: center;\n                height: 3em;\n            }\n        "],
+  "mappings": ";AACY,CAAC;AACG,UAAQ,KAAK,MAAM,EAAE;AACrB,cAAY;AACZ,UAAQ,IAAI,MAAM;AAClB,cAAY,IAAI,MAAM;AACtB,aAAW,UAAU,IAAI,EAAE,KAAK,KAAK,EAAE;AAC3C;AAEA,CAAC;AACG,YAAU;AACV,OAAK;AACL,SAAO;AACP,WAAS;AACT,eAAa;AACb,UAAQ;AACZ;",
+  "names": []
+}
