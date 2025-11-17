@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;5a2d56206ea3c48b09789f001d41a622bbc3d2a2c34668ecfe492742875574c1;/home/runner/work/user-interfaces/user-interfaces/apps/control/src/app/tabbed-view/tab-outlet.component.ts"],
+  "sourcesContent": ["\n            a {\n                color: #000;\n            }\n        "],
+  "mappings": ";AACY;AACI,SAAO;AACX;",
+  "names": []
+}

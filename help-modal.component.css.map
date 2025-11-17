@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;9937b39ee753ab75243902992fd3d159674860b56da24ae473743700a5153f7e;/home/runner/work/user-interfaces/user-interfaces/apps/control/src/app/ui/help-modal.component.ts"],
+  "sourcesContent": ["\n            li.active {\n                background-color: var(--base-100);\n                color: var(--base-content);\n                overflow: visible !important;\n            }\n        "],
+  "mappings": ";AACY,EAAE,CAAC;AACC,oBAAkB,IAAI;AACtB,SAAO,IAAI;AACX,YAAU;AACd;",
+  "names": []
+}

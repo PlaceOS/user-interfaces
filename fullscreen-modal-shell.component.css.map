@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;9cba738a8b61f6e8c0fc50691e933d058b687b91fec8fff6415921963f4014b6;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/fullscreen-modal-shell.component.ts"],
+  "sourcesContent": ["\n            main {\n                scroll-margin-top: 60px;\n            }\n        "],
+  "mappings": ";AACY;AACI,qBAAmB;AACvB;",
+  "names": []
+}
