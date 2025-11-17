@@ -1,6 +1,6 @@
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { User } from '@placeos/users';
+import { User } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { UserAvatarComponent } from 'libs/components/src/lib/user-avatar.component';
 import { MockComponent, MockModule } from 'ng-mocks';

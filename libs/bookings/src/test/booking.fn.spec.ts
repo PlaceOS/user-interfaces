@@ -1,6 +1,6 @@
 import { of } from 'rxjs';
 
-import { Booking } from '../lib/booking.class';
+import { Booking } from '@placeos/common';
 import {
     approveBooking,
     checkinBooking,

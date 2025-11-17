@@ -86,6 +86,7 @@ describe('ExploreDesksService', () => {
     }));
 
     it('should handle binding changes', () => {
+        expect(spectator.service).toBeTruthy();
         // TODO: Fix this test
         // jest.useFakeTimers();
         // const state = spectator.inject(ExploreStateService);

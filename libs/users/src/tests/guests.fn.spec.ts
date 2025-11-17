@@ -10,9 +10,8 @@ import {
 
 jest.mock('@placeos/ts-client');
 
-import { CalendarEvent } from '@placeos/events';
+import { CalendarEvent, GuestUser } from '@placeos/common';
 import * as ts_client from '@placeos/ts-client';
-import { GuestUser } from '../lib/user.class';
 
 describe('[Guest API]', () => {
     describe('searchGuests', () => {

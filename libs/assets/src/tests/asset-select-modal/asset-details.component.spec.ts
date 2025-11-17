@@ -2,11 +2,11 @@ import { FormsModule } from '@angular/forms';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { MockComponent } from 'ng-mocks';
 
+import { AssetGroup } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { ImageCarouselComponent } from 'libs/components/src/lib/image-carousel.component';
 import { CounterComponent } from 'libs/form-fields/src/lib/counter.component';
 import { AssetDetailsComponent } from '../../lib/asset-select-modal/asset-details.component';
-import { AssetGroup } from '../../lib/asset.class';
 
 describe('AssetDetailsComponent', () => {
     let spectator: Spectator<AssetDetailsComponent>;
@@ -49,9 +49,13 @@ describe('AssetDetailsComponent', () => {
     it('should allow toggling active state', (done) => {
         spectator.setInput({ item: new AssetGroup() });
         spectator.detectChanges();
-        spectator.component.activeChange.subscribe((state) => {
-            if (state) setTimeout(() => spectator.click('[select]'));
-            else done();
+        spectator.component.active.subscribe((state) => {
+            if (state) {
+                spectator.setInput({ active: true });
+                setTimeout(() => spectator.click('[select]'));
+            } else {
+                done();
+            }
         });
         spectator.click('[select]');
     });

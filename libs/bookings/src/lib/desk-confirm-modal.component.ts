@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, output } from '@angular/core';
+import { Component, inject, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
@@ -52,14 +52,13 @@ export interface DeskConfirmModalData {
                         ></a-user-search-field>
                     </div>
                 }
-                <div date class="mb-4">
+                <div class="mb-4">
                     <label>{{ 'FORM.DATE' | translate }}</label>
-                    @if (!can_set_date) {
-                        <div>
+                    @if (!can_set_date()) {
+                        <div date>
                             {{ date | date: 'mediumDate' }}
                         </div>
-                    }
-                    @if (can_set_date) {
+                    } @else {
                         <a-date-field [(ngModel)]="date"></a-date-field>
                     }
                 </div>
@@ -124,7 +123,7 @@ export class DeskConfirmModalComponent {
     public date = this._data.date;
     public host = this._data.host;
 
-    public readonly can_set_date = this._data.can_set_date;
+    public readonly can_set_date = signal(this._data.can_set_date);
 
     public reason = this._data.reason;
 

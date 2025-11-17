@@ -2,7 +2,7 @@ import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
-import { OrganisationService, SettingsService } from '@placeos/common';
+import { OrganisationService, SettingsService, Space } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
@@ -10,7 +10,6 @@ import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { SpaceSelectMapComponent } from '../../lib/space-select-modal/space-map.component';
-import { Space } from '../../lib/spaces';
 
 describe('SpaceSelectMapComponent', () => {
     let spectator: Spectator<SpaceSelectMapComponent>;

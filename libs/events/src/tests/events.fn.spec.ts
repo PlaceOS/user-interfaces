@@ -1,6 +1,5 @@
-import { GuestUser } from '@placeos/users';
+import { CalendarEvent, GuestUser } from '@placeos/common';
 import { of } from 'rxjs';
-import { CalendarEvent } from '../lib/event.class';
 import {
     approveEvent,
     checkinEventGuest,

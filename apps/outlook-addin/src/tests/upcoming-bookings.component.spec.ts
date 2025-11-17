@@ -1,7 +1,8 @@
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { BookingCardComponent } from '@placeos/bookings';
-import { CalendarEvent, EventCardComponent } from '@placeos/events';
+import { CalendarEvent } from '@placeos/common';
+import { EventCardComponent } from '@placeos/events';
 import { MockComponent } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 import { UpcomingBookingsComponent } from '../app/rooms/upcoming-bookings.component';

@@ -48,19 +48,20 @@ describe('ExploreSpacesService', () => {
     });
 
     it('should bind to spaces', fakeAsync(() => {
-        const bind = jest.fn(() => jest.fn());
-        const binding = jest.fn(() => ({ listen: jest.fn(() => of()), bind }));
-        (ts_client as any).getModule = jest.fn(() => ({ binding }));
+        const bindThenSubscribe = jest.fn(() => of().subscribe());
+        const variableBinding = { bindThenSubscribe };
+        const binding = jest.fn(() => variableBinding);
+        const getModuleMock = jest.fn(() => ({ variable: binding }));
+        (ts_client as any).getModule = getModuleMock;
         const state = spectator.inject(ExploreStateService);
         (state.spaces as any).next([
             { id: 'space-1', name: 'Test', bookable: true },
         ]);
-        expect(ts_client.getModule).toHaveBeenCalledWith('space-1', 'Bookings');
-        expect(binding).toHaveBeenCalledTimes(3);
+        tick(100);
+        expect(getModuleMock).toHaveBeenCalledWith('space-1', 'Bookings');
         expect(binding).toHaveBeenCalledWith('bookings');
         expect(binding).toHaveBeenCalledWith('status');
-        expect(bind).toHaveBeenCalledTimes(3);
-        tick(100);
+        expect(binding).toHaveBeenCalledWith('presence');
         expect(state.setActions).toHaveBeenCalled();
     }));
 

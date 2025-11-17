@@ -2,17 +2,22 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { BehaviorSubject } from 'rxjs';
 
 import { PanelStateService } from '../../app/panel-state.service';
-import { PanelStatusComponent } from '../../app/panel/panel-status.component';
+import { PanelViewStatusComponent } from '../../app/new-panel/panel-view-status.component';
 
-describe('BookingPanelComponent', () => {
-    let spectator: Spectator<PanelStatusComponent>;
+describe('PanelViewStatusComponent', () => {
+    let spectator: Spectator<PanelViewStatusComponent>;
     const createComponent = createComponentFactory({
-        component: PanelStatusComponent,
+        component: PanelViewStatusComponent,
         providers: [
             {
                 provide: PanelStateService,
                 useValue: {
-                    settings: new BehaviorSubject({ status: 'not-bookable' }),
+                    status: new BehaviorSubject('free'),
+                    current: new BehaviorSubject(null),
+                    next: new BehaviorSubject(null),
+                    bookings: new BehaviorSubject([]),
+                    settings: new BehaviorSubject({}),
+                    setting: jest.fn(),
                 },
             },
         ],
@@ -24,31 +29,24 @@ describe('BookingPanelComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should show not bookable status', () => {
-        const service = spectator.inject(PanelStateService);
-        (service.settings as any).next({ status: 'not-bookable' });
-        spectator.detectChanges();
-        expect('[status]').toHaveClass('bg-base-200');
-    });
-
     it('should show pending status', () => {
         const service = spectator.inject(PanelStateService);
-        (service.settings as any).next({ status: 'pending' });
+        (service.status as any).next('pending');
         spectator.detectChanges();
-        expect('[status]').toHaveClass('bg-warning');
+        expect('div.bg-warning').toExist();
     });
 
     it('should show free status', () => {
         const service = spectator.inject(PanelStateService);
-        (service.settings as any).next({ status: 'free' });
+        (service.status as any).next('free');
         spectator.detectChanges();
-        expect('[status]').toHaveClass('bg-success');
+        expect('div.bg-success').toExist();
     });
 
     it('should show busy status', () => {
         const service = spectator.inject(PanelStateService);
-        (service.settings as any).next({ status: 'busy' });
+        (service.status as any).next('busy');
         spectator.detectChanges();
-        expect('[status]').toHaveClass('bg-error');
+        expect('div.bg-error').toExist();
     });
 });

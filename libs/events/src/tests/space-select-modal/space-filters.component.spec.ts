@@ -21,7 +21,8 @@ import {
     TimeFieldComponent,
 } from '@placeos/form-fields';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
+import { mockComponent } from 'libs/common/src/tests/test-helpers';
+import { MockModule, MockProvider } from 'ng-mocks';
 import { BehaviorSubject, of } from 'rxjs';
 import { SpaceFiltersComponent } from '../../lib/space-select-modal/space-filters.component';
 import { SpacesService } from '../../lib/spaces.service';
@@ -58,10 +59,10 @@ describe('SpaceFiltersComponent', () => {
             }),
         ],
         declarations: [
-            MockComponent(DateFieldComponent),
-            MockComponent(TimeFieldComponent),
-            MockComponent(DurationFieldComponent),
-            MockComponent(IconComponent),
+            mockComponent(DateFieldComponent),
+            mockComponent(TimeFieldComponent),
+            mockComponent(DurationFieldComponent),
+            mockComponent(IconComponent),
         ],
         imports: [
             MockModule(MatCheckboxModule),

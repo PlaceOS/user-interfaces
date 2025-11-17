@@ -10,7 +10,7 @@ import { SettingsService } from '@placeos/common';
 import { StatusPillComponent } from 'libs/components/src/lib/status-pill.component';
 import { BehaviorSubject } from 'rxjs';
 import { BookingCardComponent } from '../lib/booking-card.component';
-import { Booking } from '../lib/booking.class';
+import { Booking } from '@placeos/common';
 
 describe('BookingCardComponent', () => {
     let spectator: SpectatorRouting<BookingCardComponent>;

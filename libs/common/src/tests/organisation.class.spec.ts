@@ -1,4 +1,4 @@
-import { Organisation } from '../lib/organisation.class';
+import { Organisation } from '../lib/types/org.classes';
 
 describe('Level', () => {
     let item: Organisation;

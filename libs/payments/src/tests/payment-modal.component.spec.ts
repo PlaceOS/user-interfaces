@@ -2,7 +2,8 @@ import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { OrganisationService } from '@placeos/common';
-import { MockComponent, MockProvider } from 'ng-mocks';
+import { mockComponent } from '@placeos/common/tests';
+import { MockProvider } from 'ng-mocks';
 import { CardInputFieldComponent } from '../lib/card-input-field.component';
 import { PaymentModalComponent } from '../lib/payment-modal.component';
 
@@ -14,7 +15,7 @@ describe('PaymentModalComponent', () => {
             MockProvider(MAT_DIALOG_DATA, {}),
             MockProvider(OrganisationService, {}),
         ],
-        declarations: [MockComponent(CardInputFieldComponent)],
+        declarations: [mockComponent(CardInputFieldComponent)],
         imports: [FormsModule],
     });
 

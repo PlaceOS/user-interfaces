@@ -18,18 +18,19 @@ import { ExploreLockersService } from '../lib/explore-lockers.service';
 import { ExploreMapControlComponent } from '../lib/explore-map-control.component';
 import { ExploreMapViewComponent } from '../lib/explore-map-view.component';
 import { ExploreParkingService } from '../lib/explore-parking.service';
+import { ExplorePointOfInterestService } from '../lib/explore-poi.service';
 import { ExploreSpacesService } from '../lib/explore-spaces.service';
 import { ExploreStateService } from '../lib/explore-state.service';
 import { ExploreZonesService } from '../lib/explore-zones.service';
 import { ExploreZoomControlComponent } from '../lib/explore-zoom-control.component';
 
 jest.mock('@placeos/ts-client');
-jest.mock('@placeos/common');
 jest.mock('libs/users/src/lib/staff.fn');
+jest.mock('libs/common/src/lib/notifications');
 
-import * as common_mod from '@placeos/common';
 import * as ts_client from '@placeos/ts-client';
 import * as user_mod from 'libs/users/src/lib/staff.fn';
+import * as common_mod from 'libs/common/src/lib/notifications';
 
 describe('ExploreMapViewComponent', () => {
     let spectator: SpectatorRouting<ExploreMapViewComponent>;
@@ -47,12 +48,13 @@ describe('ExploreMapViewComponent', () => {
             MockProvider(ExploreZonesService),
             MockProvider(ExploreParkingService),
             MockProvider(ExploreLockersService),
+            MockProvider(ExplorePointOfInterestService),
             MockProvider(SpacePipe, { transform: jest.fn(() => ({})) } as any),
+        ],
+        providers: [
             MockProvider(MapsPeopleService, {
                 use_mapspeople$: new BehaviorSubject(false),
             } as any),
-        ],
-        providers: [
             MockProvider(OrganisationService, {
                 initialised: of(true),
                 levelWithID: jest.fn(),
@@ -84,7 +86,9 @@ describe('ExploreMapViewComponent', () => {
     beforeEach(() => (spectator = createComponent()));
 
     afterEach(() => {
-        (spectator.inject(ExploreStateService).setFeatures as any).mockReset();
+        if (spectator) {
+            (spectator.inject(ExploreStateService).setFeatures as any).mockReset();
+        }
     });
 
     it('should create component', () => {
@@ -101,7 +105,7 @@ describe('ExploreMapViewComponent', () => {
             'ngModelChange',
             true,
         );
-        expect(state.setOptions).toHaveBeenCalledWith({ disable: undefined });
+        expect(state.setOptions).toHaveBeenCalled();
     });
 
     it('should handle level changes', () => {

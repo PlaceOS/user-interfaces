@@ -1,6 +1,6 @@
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { MockComponent } from 'ng-mocks';
+import { mockComponent } from '@placeos/common/tests';
 import { BehaviorSubject } from 'rxjs';
 import { StaffListingComponent } from '../../app/staff/staff-listing.component';
 import { StaffStateService } from '../../app/staff/staff-state.service';
@@ -24,10 +24,10 @@ describe('StaffComponent', () => {
             },
         ],
         declarations: [
-            MockComponent(ApplicationTopbarComponent),
-            MockComponent(ApplicationSidebarComponent),
-            MockComponent(StaffListingComponent),
-            MockComponent(StaffTopbarComponent),
+            mockComponent(ApplicationTopbarComponent),
+            mockComponent(ApplicationSidebarComponent),
+            mockComponent(StaffListingComponent),
+            mockComponent(StaffTopbarComponent),
         ],
         imports: [MatProgressBarModule],
     });

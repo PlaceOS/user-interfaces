@@ -4,17 +4,17 @@ import {
     MatDialogRef,
 } from '@angular/material/dialog';
 import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
-import { SettingsService } from '@placeos/common';
+import { SettingsService, Space } from '@placeos/common';
 import { EventFormService, generateEventForm } from '@placeos/events';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
+import { mockComponent } from 'libs/common/src/tests/test-helpers';
+import { MockModule, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 import { NewSpaceSelectModalComponent } from '../../lib/new-space-select-modal/new-space-select-modal.component';
 import { SpaceDetailsComponent } from '../../lib/space-select-modal/space-details.component';
 import { SpaceFiltersDisplayComponent } from '../../lib/space-select-modal/space-filters-display.component';
 import { SpaceFiltersComponent } from '../../lib/space-select-modal/space-filters.component';
 import { SpaceListComponent } from '../../lib/space-select-modal/space-list.component';
-import { Space } from '../../lib/spaces';
 
 describe('NewSpaceSelectModalComponent', () => {
     let spectator: Spectator<NewSpaceSelectModalComponent>;
@@ -30,15 +30,19 @@ describe('NewSpaceSelectModalComponent', () => {
             MockProvider(EventFormService, {
                 room_alerts: new BehaviorSubject({}),
                 options$: new BehaviorSubject({}),
+                filters$: new BehaviorSubject({}),
+                available_spaces: new BehaviorSubject([]),
                 form: generateEventForm(),
+                setOptions: jest.fn(),
+                setFilters: jest.fn(),
             }),
         ],
         declarations: [
-            MockComponent(IconComponent),
-            MockComponent(SpaceDetailsComponent),
-            MockComponent(SpaceListComponent),
-            MockComponent(SpaceFiltersComponent),
-            MockComponent(SpaceFiltersDisplayComponent),
+            mockComponent(IconComponent),
+            mockComponent(SpaceDetailsComponent),
+            mockComponent(SpaceListComponent),
+            mockComponent(SpaceFiltersComponent),
+            mockComponent(SpaceFiltersDisplayComponent),
         ],
         imports: [MockModule(MatDialogModule)],
     });

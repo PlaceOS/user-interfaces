@@ -1,38 +1,24 @@
+jest.mock('@placeos/ts-client', () => {
+    const { of } = require('rxjs');
+    return {
+        showMetadata: jest.fn(() => of({ details: {} })),
+        currentUser: jest.fn(() => ({ id: 'test-user' })),
+    };
+});
+jest.mock('../lib/user-state', () => {
+    const { of } = require('rxjs');
+    return {
+        current_user: of({ id: 'test-user' }),
+        currentUser: jest.fn(() => ({ id: 'test-user' })),
+        reloadUserData: jest.fn(),
+    };
+});
+
 import { Title } from '@angular/platform-browser';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
 import { MockProvider } from 'ng-mocks';
-import { of } from 'rxjs';
 
 import { SettingsService } from '../lib/settings.service';
-
-const TEST_DATA = {
-    test: 1,
-    nest_test: {
-        level_1: {
-            level: true,
-        },
-    },
-    app: {
-        name: 'APPLICATION_NAME',
-    },
-};
-
-jest.mock('@placeos/ts-client', () => ({
-    showMetadata: jest.fn(() => of({ details: {} })),
-}));
-jest.mock('../lib/settings', () => ({
-    DEFAULT_SETTINGS: {
-        test: 1,
-        nest_test: {
-            level_1: {
-                level: true,
-            },
-        },
-        app: {
-            name: 'APPLICATION_NAME',
-        },
-    },
-}));
 
 describe('SettingsService', () => {
     let spectator: SpectatorService<SettingsService>;
@@ -49,8 +35,10 @@ describe('SettingsService', () => {
         const service = spectator.service;
         service.initialised.subscribe((state) => {
             if (!state) return;
-            expect(service.get('test')).toBe(TEST_DATA.test);
-            expect(service.app_name).toBe(TEST_DATA.app.name);
+            // Test getting default settings that exist in the actual DEFAULT_SETTINGS
+            expect(service.get('debug')).toBe(true);
+            expect(service.get('composer.domain')).toBe('');
+            expect(service.get('app.title')).toBe('PlaceOS');
             done();
         });
     });
@@ -59,13 +47,17 @@ describe('SettingsService', () => {
         const service = spectator.service;
         service.initialised.subscribe((state) => {
             if (!state) return;
-            expect(service.get('nest_test')).toStrictEqual(TEST_DATA.nest_test);
-            expect(service.get('nest_test.level_1')).toStrictEqual(
-                TEST_DATA.nest_test.level_1,
-            );
-            expect(service.get('nest_test.level_1.level')).toStrictEqual(
-                TEST_DATA.nest_test.level_1.level,
-            );
+            // Test getting nested settings from actual DEFAULT_SETTINGS
+            expect(service.get('composer')).toStrictEqual({
+                domain: '',
+                route: '/placeos',
+                protocol: '',
+                port: '',
+                use_domain: false,
+                local_login: false,
+            });
+            expect(service.get('composer.route')).toBe('/placeos');
+            expect(service.get('composer.local_login')).toBe(false);
             done();
         });
     });

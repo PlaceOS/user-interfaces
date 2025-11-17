@@ -1,7 +1,9 @@
 import { MatMenuModule } from '@angular/material/menu';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
-import { SettingsService } from '@placeos/common';
-import { MockComponent, MockDirective, MockProvider } from 'ng-mocks';
+import { Building, OrganisationService, SettingsService } from '@placeos/common';
+import { mockComponent, mockDirective } from '@placeos/common/tests';
+import { MockProvider } from 'ng-mocks';
+import { BehaviorSubject } from 'rxjs';
 
 import {
     AuthenticatedImageDirective,
@@ -19,15 +21,19 @@ describe('TopbarComponent', () => {
         component: TopbarComponent,
         providers: [
             MockProvider(SettingsService, { get: jest.fn(), value: jest.fn() }),
+            MockProvider(OrganisationService, {
+                active_building: new BehaviorSubject(new Building()),
+                building: new Building(),
+            }),
         ],
         imports: [MatMenuModule],
         declarations: [
-            MockComponent(UserAvatarComponent),
-            MockComponent(IconComponent),
-            MockComponent(GlobalSearchComponent),
-            MockComponent(TopMenuComponent),
-            MockComponent(CustomTooltipComponent),
-            MockDirective(AuthenticatedImageDirective),
+            mockComponent(UserAvatarComponent),
+            mockComponent(IconComponent),
+            mockComponent(GlobalSearchComponent),
+            mockComponent(TopMenuComponent),
+            mockComponent(CustomTooltipComponent),
+            mockDirective(AuthenticatedImageDirective),
         ],
     });
 

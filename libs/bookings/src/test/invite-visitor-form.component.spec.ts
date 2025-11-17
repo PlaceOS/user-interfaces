@@ -12,7 +12,7 @@ import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.componen
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 import { BehaviorSubject, of } from 'rxjs';
 import { BookingFormService } from '../lib/booking-form.service';
-import { Booking } from '../lib/booking.class';
+import { Booking } from '@placeos/common';
 import { generateBookingForm } from '../lib/booking.utilities';
 
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
@@ -23,6 +23,7 @@ describe('InviteVisitorFormComponent', () => {
     let spectator: SpectatorRouting<InviteVisitorFormComponent>;
     const createComponent = createRoutingFactory({
         component: InviteVisitorFormComponent,
+        shallow: true,
         providers: [
             MockProvider(BookingFormService, {
                 form: generateBookingForm(),
@@ -36,19 +37,14 @@ describe('InviteVisitorFormComponent', () => {
             }),
             MockProvider(SettingsService, { get: jest.fn() }),
         ],
-        declarations: [
-            MockComponent(DateFieldComponent),
-            MockComponent(TimeFieldComponent),
-            MockComponent(DurationFieldComponent),
-        ],
         imports: [
+            ReactiveFormsModule,
+            FormsModule,
             MockModule(MatFormFieldModule),
             MockModule(MatSelectModule),
             MockModule(MatInputModule),
             MockModule(MatProgressSpinnerModule),
             MockModule(MatAutocompleteModule),
-            ReactiveFormsModule,
-            FormsModule,
         ],
     });
 

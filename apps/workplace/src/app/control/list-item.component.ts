@@ -3,7 +3,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { RouterModule } from '@angular/router';
 
 import { OrganisationService, SettingsService, Space } from '@placeos/common';
-import { IconComponent } from '@placeos/components';
+import { IconComponent, SafePipe } from '@placeos/components';
 
 @Component({
     selector: 'a-control-space-list-item',
@@ -54,7 +54,7 @@ import { IconComponent } from '@placeos/components';
         }
     `,
     styles: [``],
-    imports: [MatRippleModule, RouterModule, IconComponent],
+    imports: [MatRippleModule, RouterModule, IconComponent, SafePipe],
 })
 export class ControlSpaceListItemComponent {
     private _settings = inject(SettingsService);

@@ -11,6 +11,7 @@ import {
     CateringOrderStateService,
 } from '@placeos/catering';
 import { SettingsService } from '@placeos/common';
+import { TranslatePipe } from '@placeos/components';
 import {
     DateFieldComponent,
     DurationFieldComponent,
@@ -236,6 +237,7 @@ import { map, tap } from 'rxjs/operators';
         TimeFieldComponent,
         DurationFieldComponent,
         MatSelectModule,
+        TranslatePipe,
         UserListFieldComponent,
         UserSearchFieldComponent,
         SpaceListFieldComponent,

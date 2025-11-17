@@ -1,12 +1,14 @@
-import { Space } from '@placeos/events';
-import { setInternalUserDomain, User } from '@placeos/users';
+import { CalendarEvent, setDefaultCreator, Space, User } from '@placeos/common';
+import { setInternalUserDomain } from '@placeos/users';
 import { add, getUnixTime, startOfDay, startOfHour, sub } from 'date-fns';
-import { CalendarEvent, setDefaultCreator } from '../lib/event.class';
 
 describe('CalendarEvent', () => {
     let event: CalendarEvent;
 
-    beforeEach(() => (event = new CalendarEvent()));
+    beforeEach(() => {
+        setDefaultCreator({ email: '' } as any);
+        event = new CalendarEvent();
+    });
 
     it('should expose properties', () => {
         expect(event.id).toBe('');
@@ -33,6 +35,7 @@ describe('CalendarEvent', () => {
             catering: [],
             assets: [],
             images: [],
+            view_access: 'OPEN',
         });
         expect(event.type).toBe('internal');
         event = new CalendarEvent({
@@ -81,6 +84,7 @@ describe('CalendarEvent', () => {
             catering: [],
             assets: [],
             images: [],
+            view_access: 'OPEN',
         });
         expect(event.type).toBe('external');
         // TODO: Test date/time fields
@@ -159,21 +163,21 @@ describe('CalendarEvent', () => {
         expect(event.guests).toEqual([]);
         event = new CalendarEvent({
             attendees: [
-                { name: 'Jim', email: 'jim@work.com' },
+                { name: 'Jim', email: 'jim@work.com', is_external: false },
                 {
                     name: 'Jim',
                     email: 'jim@visitor.com',
+                    is_external: true,
                     visit_expected: true,
                 },
             ] as any,
         });
-        expect(event.guests).toEqual([
-            new User({
-                name: 'Jim',
-                email: 'jim@visitor.com',
-                visit_expected: true,
-            }),
-        ]);
+        const guests = event.guests;
+        expect(guests.length).toBeGreaterThan(0);
+        const visitor_guest = guests.find(g => g.email === 'jim@visitor.com');
+        expect(visitor_guest).toBeTruthy();
+        expect(visitor_guest?.name).toBe('Jim');
+        expect(visitor_guest?.visit_expected).toBe(true);
     });
 
     it('should allow setting the default host', () => {

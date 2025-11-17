@@ -4,6 +4,7 @@ import {
     OnChanges,
     SimpleChanges,
     input,
+    model,
     output,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -74,9 +75,7 @@ interface CateringOptionGroup {
                     </div>
                     <a-counter
                         [(ngModel)]="item().quantity"
-                        (ngModelChange)="
-                            active() ? activeChange.emit(active()) : ''
-                        "
+                        (ngModelChange)="active() ? active.set(active()) : ''"
                         [min]="1"
                         [max]="item().count || 10"
                     ></a-counter>
@@ -215,7 +214,7 @@ interface CateringOptionGroup {
                     name="select-catering-item-details"
                     [class.inverse]="active()"
                     class="w-full"
-                    (click)="active = !active(); activeChange.emit(active())"
+                    (click)="active.set(!active())"
                 >
                     <div class="flex items-center justify-center">
                         <icon class="text-2xl">{{
@@ -269,12 +268,11 @@ interface CateringOptionGroup {
 })
 export class CateringItemDetailsComponent implements OnChanges {
     public readonly item = input<CateringItem>(undefined);
-    public readonly active = input(false);
+    public readonly active = model(false);
     public readonly fav = input(false);
     public readonly code = input('USD');
 
     public readonly toggleFav = output<void>();
-    public readonly activeChange = output<boolean>();
     public readonly close = output<void>();
 
     public option_state: Record<string, boolean> = {};

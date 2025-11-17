@@ -1,4 +1,4 @@
-import { CateringItem } from '../lib/catering-item.class';
+import { CateringItem } from '@placeos/common';
 
 describe('CateringItem', () => {
     let item: CateringItem;

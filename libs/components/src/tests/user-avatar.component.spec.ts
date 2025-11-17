@@ -1,5 +1,5 @@
 import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
-import { User } from '@placeos/users';
+import { User } from '@placeos/common';
 import { SafePipe } from '../lib/safe.pipe';
 
 import { MockDirective } from 'ng-mocks';
@@ -20,17 +20,17 @@ describe('UserAvatarComponent', () => {
     });
 
     it("should show the user's image", () => {
-        spectator.component.user = new User({
+        spectator.setInput('user', new User({
             name: 'John Smith',
             photo: 'true.png',
-        });
+        }));
         spectator.detectChanges();
         expect('img').toExist();
         expect('[initials]').not.toExist();
     });
 
     it("should show the user's initials", () => {
-        spectator.component.user = new User({ name: 'John Smith' });
+        spectator.setInput('user', new User({ name: 'John Smith' }));
         spectator.detectChanges();
         expect('img').not.toExist();
         expect('[initials]').toExist();
