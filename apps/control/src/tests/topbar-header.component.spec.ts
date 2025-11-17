@@ -1,7 +1,8 @@
 import { MatMenuModule } from '@angular/material/menu';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { SettingsService } from '@placeos/common';
-import { MockComponent, MockDirective, MockProvider } from 'ng-mocks';
+import { OrganisationService, SettingsService } from '@placeos/common';
+import { mockComponent, mockDirective } from '@placeos/common/tests';
+import { MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 import { ControlStateService } from '../app/control-state.service';
 
@@ -18,12 +19,15 @@ describe('TopbarHeaderComponent', () => {
     const createComponent = createComponentFactory({
         component: TopbarHeaderComponent,
         declarations: [
-            MockComponent(IconComponent),
-            MockComponent(CustomTooltipComponent),
-            MockDirective(AuthenticatedImageDirective),
+            mockComponent(IconComponent),
+            mockComponent(CustomTooltipComponent),
+            mockDirective(AuthenticatedImageDirective),
         ],
         providers: [
-            MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(SettingsService, { get: jest.fn(), theme: 'light' }),
+            MockProvider(OrganisationService, {
+                active_building: new BehaviorSubject({} as any),
+            } as any),
             MockProvider(ControlStateService, {
                 system: new BehaviorSubject([]),
                 mic_list: new BehaviorSubject([]),

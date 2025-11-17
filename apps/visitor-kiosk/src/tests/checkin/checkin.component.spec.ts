@@ -1,6 +1,6 @@
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
-import { MockComponent } from 'ng-mocks';
+import { mockComponent } from '@placeos/common/tests';
 import { CheckinComponent } from '../../app/checkin/checkin.component';
 import { TopbarHeaderComponent } from '../../app/components/topbar-header.component';
 
@@ -9,7 +9,7 @@ describe('CheckinComponent', () => {
     const createComponent = createRoutingFactory({
         component: CheckinComponent,
         providers: [{ provide: SettingsService, useValue: { get: jest.fn() } }],
-        declarations: [MockComponent(TopbarHeaderComponent)],
+        declarations: [mockComponent(TopbarHeaderComponent)],
     });
 
     beforeEach(() => (spectator = createComponent()));

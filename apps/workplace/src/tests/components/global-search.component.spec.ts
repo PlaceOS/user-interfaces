@@ -38,7 +38,7 @@ describe('GlobalSearchComponent', () => {
         spectator.detectChanges();
         expect(service.setFilter).toHaveBeenCalled();
         // expect(document.querySelector('[empty]')).toExist();
-        spectator.component.filter_str = 'Alex';
+        spectator.component.filter_str.set('Alex');
         (service.search_results as any).next([
             { id: '1', type: 'user', name: 'Alex S', description: '' },
         ]);
@@ -50,7 +50,7 @@ describe('GlobalSearchComponent', () => {
     it('should navigate to selected item', () => {
         expect(document.querySelector('a')).not.toExist();
         const service = spectator.inject(ExploreSearchService);
-        spectator.component.filter_str = 'Alex';
+        spectator.component.filter_str.set('Alex');
         (service.search_results as any).next([
             { id: '1', type: 'user', name: 'Alex S', description: '' },
         ]);

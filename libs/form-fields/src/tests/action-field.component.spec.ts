@@ -1,6 +1,5 @@
 import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
 import { MockComponent, MockPipe } from 'ng-mocks';
-import { first } from 'rxjs/operators';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { SafePipe } from 'libs/components/src/lib/safe.pipe';
@@ -20,13 +19,13 @@ describe('ActionFieldComponent', () => {
     });
 
     it('should emit user click actions', (done) => {
-        spectator.component.on_action.pipe(first()).subscribe(() => done());
+        spectator.component.on_action.subscribe(() => done());
         expect('[placeholder]').toExist();
         spectator.click('[placeholder]');
     });
 
     it('should emit user enter keypress ', (done) => {
-        spectator.component.on_action.pipe(first()).subscribe(() => done());
+        spectator.component.on_action.subscribe(() => done());
         expect('[form-field]').toExist();
         spectator.dispatchKeyboardEvent('[form-field]', 'keydown', 'Enter');
     });

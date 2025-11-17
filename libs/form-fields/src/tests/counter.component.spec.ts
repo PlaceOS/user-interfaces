@@ -49,13 +49,13 @@ describe('CounterComponent', () => {
     it('should not allow value to go out of range', () => {
         spectator.component.remove();
         expect(spectator.component.value).toBe(0);
-        spectator.component.value = spectator.component.max;
+        spectator.component.value = spectator.component.max();
         spectator.component.add();
-        expect(spectator.component.value).toBe(spectator.component.max);
+        expect(spectator.component.value).toBe(spectator.component.max());
     });
 
     it('should allow qualifiers to multiple added/removed value', () => {
-        spectator.component.max = 1000;
+        spectator.setInput({ max: 1000 });
         spectator.component.value = 5;
         spectator.component.shift_key = true;
         spectator.component.add();

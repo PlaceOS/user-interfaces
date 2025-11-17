@@ -1,11 +1,12 @@
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { MockComponent } from 'ng-mocks';
-
-import { ActionIconComponent } from '@placeos/components';
-import { StaffUser } from '@placeos/users';
-
-import { IconComponent, UserAvatarComponent } from '@placeos/components';
+import { StaffUser } from '@placeos/common';
+import { mockComponent } from '@placeos/common/tests';
+import {
+    ActionIconComponent,
+    IconComponent,
+    UserAvatarComponent,
+} from '@placeos/components';
 import { StaffDetailsComponent } from '../../app/staff/staff-details.component';
 import { StaffStateService } from '../../app/staff/staff-state.service';
 
@@ -23,9 +24,9 @@ describe('StaffDetailsComponent', () => {
             },
         ],
         declarations: [
-            MockComponent(ActionIconComponent),
-            MockComponent(IconComponent),
-            MockComponent(UserAvatarComponent),
+            mockComponent(ActionIconComponent),
+            mockComponent(IconComponent),
+            mockComponent(UserAvatarComponent),
         ],
         imports: [MatTooltipModule],
     });

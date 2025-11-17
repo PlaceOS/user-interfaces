@@ -30,7 +30,7 @@ describe('CateringReportOverallComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should show order count', () => {
+    it('should show order count', async () => {
         const stats: any = spectator.inject(CateringReportStateService).stats;
         await expect('[count]').toContainText('0');
         stats.next({ order_count: 32 });
@@ -38,7 +38,7 @@ describe('CateringReportOverallComponent', () => {
         await expect('[count]').toContainText('32');
     });
 
-    it('should show unique number of items', () => {
+    it('should show unique number of items', async () => {
         const stats: any = spectator.inject(CateringReportStateService).stats;
         await expect('[unique]').toContainText('0');
         stats.next({ unique_items: 32 });
@@ -46,7 +46,7 @@ describe('CateringReportOverallComponent', () => {
         await expect('[unique]').toContainText('32');
     });
 
-    it('should show number of items ordered', () => {
+    it('should show number of items ordered', async () => {
         const stats: any = spectator.inject(CateringReportStateService).stats;
         await expect('[items]').toContainText('0');
         stats.next({ item_count: 32 });
@@ -54,7 +54,7 @@ describe('CateringReportOverallComponent', () => {
         await expect('[items]').toContainText('32');
     });
 
-    it('should show total cost', () => {
+    it('should show total cost', async () => {
         const stats: any = spectator.inject(CateringReportStateService).stats;
         await expect('[total]').toContainText('$0');
         stats.next({ total_cost: 3200 });
@@ -62,7 +62,7 @@ describe('CateringReportOverallComponent', () => {
         await expect('[total]').toContainText('$32');
     });
 
-    it('should show order count', () => {
+    it('should show average cost', async () => {
         const stats: any = spectator.inject(CateringReportStateService).stats;
         await expect('[average]').toContainText('$0');
         stats.next({ avg_cost: 3200 });

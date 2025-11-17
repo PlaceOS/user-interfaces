@@ -3,6 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { mockComponent } from '@placeos/common/tests';
 import {
     ActionFieldComponent,
     DateFieldComponent,
@@ -11,7 +12,7 @@ import {
     UserListFieldComponent,
     UserSearchFieldComponent,
 } from '@placeos/form-fields';
-import { MockComponent, MockProvider } from 'ng-mocks';
+import { MockProvider } from 'ng-mocks';
 
 import { AssetListFieldComponent } from '@placeos/assets';
 import { CateringListFieldComponent } from '@placeos/catering';
@@ -25,15 +26,15 @@ describe('EventFormComponent', () => {
     const createComponent = createComponentFactory({
         component: EventFormComponent,
         declarations: [
-            MockComponent(DateFieldComponent),
-            MockComponent(TimeFieldComponent),
-            MockComponent(DurationFieldComponent),
-            MockComponent(UserSearchFieldComponent),
-            MockComponent(UserListFieldComponent),
-            MockComponent(ActionFieldComponent),
-            MockComponent(CateringListFieldComponent),
-            MockComponent(AssetListFieldComponent),
-            MockComponent(SpaceListFieldComponent),
+            mockComponent(DateFieldComponent),
+            mockComponent(TimeFieldComponent),
+            mockComponent(DurationFieldComponent),
+            mockComponent(UserSearchFieldComponent),
+            mockComponent(UserListFieldComponent),
+            mockComponent(ActionFieldComponent),
+            mockComponent(CateringListFieldComponent),
+            mockComponent(AssetListFieldComponent),
+            mockComponent(SpaceListFieldComponent),
         ],
         providers: [
             MockProvider(MatDialog, { open: jest.fn() }),

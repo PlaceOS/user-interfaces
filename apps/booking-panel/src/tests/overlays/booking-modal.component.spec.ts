@@ -4,8 +4,9 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { MockComponent, MockModule } from 'ng-mocks';
+import { MockModule } from 'ng-mocks';
 
+import { mockComponent } from '@placeos/common/tests';
 import { IconComponent } from '@placeos/components';
 import {
     DurationFieldComponent,
@@ -20,10 +21,10 @@ describe('BookingModalComponent', () => {
         component: BookingModalComponent,
         providers: [{ provide: MAT_DIALOG_DATA, useValue: {} }],
         declarations: [
-            MockComponent(UserSearchFieldComponent),
-            MockComponent(TimeFieldComponent),
-            MockComponent(DurationFieldComponent),
-            MockComponent(IconComponent),
+            mockComponent(UserSearchFieldComponent),
+            mockComponent(TimeFieldComponent),
+            mockComponent(DurationFieldComponent),
+            mockComponent(IconComponent),
         ],
         imports: [
             MockModule(MatDialogModule),

@@ -32,7 +32,6 @@ import { ControlStateService } from '../control-state.service';
                         class="relative min-w-[20rem] rounded border border-base-300 p-2"
                     >
                         <div
-                            [for]="mic.id"
                             class="absolute left-2 top-0 -translate-y-1/2 rounded rounded-full bg-base-100 px-2 py-1 text-sm font-medium"
                         >
                             {{ mic.name }}
@@ -126,7 +125,6 @@ import { ControlStateService } from '../control-state.service';
                         class="relative min-w-[20rem] rounded border border-base-300 p-2"
                     >
                         <div
-                            [for]="mic.name"
                             class="absolute left-2 top-0 -translate-y-1/2 rounded rounded-full bg-base-100 px-2 py-1 text-sm font-medium"
                         >
                             {{ mic.name }}

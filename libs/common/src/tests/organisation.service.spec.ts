@@ -4,7 +4,7 @@ import { MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
 import { SettingsService } from 'libs/common/src/lib/settings.service';
-import { OrganisationService } from '../lib/organisation.service';
+import { OrganisationService } from '../lib/org/organisation.service';
 
 jest.mock('@placeos/ts-client');
 

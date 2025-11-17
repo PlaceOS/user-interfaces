@@ -1,22 +1,14 @@
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
-import { MockComponent } from 'ng-mocks';
-import { of } from 'rxjs';
+import { mockComponent } from '@placeos/common/tests';
 
 import { SpaceEventDetailsComponent } from '../app/space-event-details.component';
 import { SpaceTimetableComponent } from '../app/space-timetable.component';
-import { TimetableStateService } from '../app/timetable-state.service';
 
 describe('SpaceTimetableComponent', () => {
     let spectator: SpectatorRouting<SpaceTimetableComponent>;
     const createComponent = createRoutingFactory({
         component: SpaceTimetableComponent,
-        providers: [
-            {
-                provide: TimetableStateService,
-                useValue: { bookingsFor: jest.fn(() => of([{}])) },
-            },
-        ],
-        declarations: [MockComponent(SpaceEventDetailsComponent)],
+        declarations: [mockComponent(SpaceEventDetailsComponent)],
     });
 
     beforeEach(() => (spectator = createComponent()));

@@ -8,6 +8,7 @@ import {
     CateringOrderStateService,
 } from '@placeos/catering';
 import { OrganisationService, SettingsService } from '@placeos/common';
+import { mockComponent } from '@placeos/common/tests';
 import { IconComponent } from '@placeos/components';
 import { EventFormService, generateEventForm } from '@placeos/events';
 import {
@@ -17,7 +18,7 @@ import {
 } from '@placeos/form-fields';
 import { MeetingFlowFormComponent } from 'apps/workplace/src/app/book/meeting-flow/meeting-flow-form.component';
 import { MeetingFormDetailsComponent } from 'apps/workplace/src/app/book/meeting-flow/meeting-form-details.component';
-import { MockComponent, MockProvider } from 'ng-mocks';
+import { MockProvider } from 'ng-mocks';
 import { BehaviorSubject, of } from 'rxjs';
 
 describe('MeetingFlowFormComponent', () => {
@@ -57,13 +58,13 @@ describe('MeetingFlowFormComponent', () => {
             } as any),
         ],
         declarations: [
-            MockComponent(MeetingFormDetailsComponent),
-            MockComponent(UserListFieldComponent),
-            MockComponent(SpaceListFieldComponent),
-            MockComponent(CateringListFieldComponent),
-            MockComponent(AssetListFieldComponent),
-            MockComponent(IconComponent),
-            MockComponent(RichTextInputComponent),
+            mockComponent(MeetingFormDetailsComponent),
+            mockComponent(UserListFieldComponent),
+            mockComponent(SpaceListFieldComponent),
+            mockComponent(CateringListFieldComponent),
+            mockComponent(AssetListFieldComponent),
+            mockComponent(IconComponent),
+            mockComponent(RichTextInputComponent),
         ],
         imports: [ReactiveFormsModule, FormsModule],
     });

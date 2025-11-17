@@ -1,10 +1,9 @@
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
-import { SettingsService } from '@placeos/common';
+import { OrganisationService, SettingsService, Organisation } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 import { BehaviorSubject, of } from 'rxjs';
 
-import { CalendarService, OrganisationService } from '@placeos/common';
-import { Organisation } from '@placeos/organisation';
+import { CalendarService } from '@placeos/events';
 import { LandingStateService } from '../../app/landing/landing-state.service';
 import { ScheduleStateService } from '../../app/schedule/schedule-state.service';
 

@@ -1,7 +1,7 @@
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { IconComponent } from '@placeos/components';
-import { MockComponent } from 'ng-mocks';
+import { mockComponent } from '@placeos/common/tests';
 
 import { SourceSelectModalComponent } from '../../app/ui/source-select-modal.component';
 import { SourceSelectComponent } from '../../app/ui/source-select.component';
@@ -11,8 +11,8 @@ describe('SourceSelectModalComponent', () => {
     const createComponent = createComponentFactory({
         component: SourceSelectModalComponent,
         declarations: [
-            MockComponent(SourceSelectComponent),
-            MockComponent(IconComponent),
+            mockComponent(SourceSelectComponent),
+            mockComponent(IconComponent),
         ],
         providers: [
             {

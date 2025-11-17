@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
@@ -8,8 +9,8 @@ describe('MeetingFlowSuccessComponent', () => {
     const createComponent = createRoutingFactory({
         component: MeetingFlowSuccessComponent,
         providers: [
-            { provide: SettingsService, useValue: { get: jest.fn() } },
-            { provide: EventFormService, useValue: { last_success: {} } },
+            { provide: SettingsService, useValue: { get: jest.fn(() => []) } },
+            { provide: EventFormService, useValue: { last_success: signal(null) } },
         ],
         declarations: [],
     });

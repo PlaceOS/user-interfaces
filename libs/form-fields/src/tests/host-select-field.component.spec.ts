@@ -5,14 +5,14 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { MockModule } from 'ng-mocks';
 import { of } from 'rxjs';
 
-import { StaffUser } from 'libs/users/src/lib/user.class';
+import { StaffUser } from '@placeos/common';
 import { HostSelectFieldComponent } from '../lib/host-select-field.component';
 
 jest.mock('@placeos/users');
-jest.mock('libs/common/src/lib/calendar.fn');
+jest.mock('@placeos/events');
 
 import * as user_mod from '@placeos/users';
-import * as cal_fns from 'libs/common/src/lib/calendar.fn';
+import * as cal_fns from '@placeos/events';
 
 describe('HostSelectFieldComponent', () => {
     let spectator: Spectator<HostSelectFieldComponent>;
@@ -42,6 +42,7 @@ describe('HostSelectFieldComponent', () => {
         expect(spectator.component.item).toBeUndefined();
         const user = new StaffUser({ email: 'test@t.com' });
         spectator.component.writeValue(user);
+        spectator.detectChanges();
         expect(spectator.component.item).toBe(user);
     });
 

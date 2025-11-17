@@ -19,11 +19,12 @@ import * as events_mod from '@placeos/events';
 import { MockProvider } from 'ng-mocks';
 
 import {
+    Building,
     nextValueFrom,
     OrganisationService,
+    Region,
     SettingsService,
 } from '@placeos/common';
-import { Building, Region } from '@placeos/organisation';
 
 describe('EventsStateService', () => {
     let spectator: SpectatorService<EventsStateService>;

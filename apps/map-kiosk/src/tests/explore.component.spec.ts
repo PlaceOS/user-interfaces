@@ -5,6 +5,7 @@ import {
     Region,
     SettingsService,
 } from '@placeos/common';
+import { mockComponent } from '@placeos/common/tests';
 import {
     ExploreDesksService,
     ExploreParkingService,
@@ -14,7 +15,7 @@ import {
     ExploreZonesService,
     ExploreZoomControlComponent,
 } from '@placeos/explore';
-import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
+import { MockModule, MockProvider } from 'ng-mocks';
 import { BehaviorSubject, of } from 'rxjs';
 
 import { FormsModule } from '@angular/forms';
@@ -36,13 +37,13 @@ describe('ExploreComponent', () => {
     const createComponent = createRoutingFactory({
         component: ExploreComponent,
         declarations: [
-            MockComponent(InteractiveMapComponent),
-            MockComponent(ExploreZoomControlComponent),
-            MockComponent(ExploreLevelSelectComponent),
-            MockComponent(ExploreSearchComponent),
-            MockComponent(IconComponent),
-            MockComponent(CustomTooltipComponent),
-            MockComponent(AccessibilityControlsComponent),
+            mockComponent(InteractiveMapComponent),
+            mockComponent(ExploreZoomControlComponent),
+            mockComponent(ExploreLevelSelectComponent),
+            mockComponent(ExploreSearchComponent),
+            mockComponent(IconComponent),
+            mockComponent(CustomTooltipComponent),
+            mockComponent(AccessibilityControlsComponent),
         ],
         componentProviders: [
             MockProvider(ExploreSpacesService),
@@ -72,6 +73,7 @@ describe('ExploreComponent', () => {
                 initialised: of(true),
                 active_region: new BehaviorSubject(new Region({})),
                 active_building: new BehaviorSubject(new Building({ id: '1' })),
+                active_levels: new BehaviorSubject([]),
             }),
         ],
         imports: [MockModule(MatSlideToggleModule), FormsModule, MatMenuModule],

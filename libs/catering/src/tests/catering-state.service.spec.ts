@@ -4,17 +4,14 @@ import { MockProvider } from 'ng-mocks';
 import { BehaviorSubject, of } from 'rxjs';
 import { delay } from 'rxjs/operators';
 
-import { OrganisationService } from '@placeos/common';
+import { OrganisationService, Building, CateringItem, CateringOrder } from '@placeos/common';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
-import { Building } from 'libs/organisation/src/lib/building.class';
 
-import { CateringOrder } from '../lib/catering-order.class';
 import { CateringStateService } from '../lib/catering-state.service';
 
 jest.mock('@placeos/ts-client');
 
 import * as ts_client from '@placeos/ts-client';
-import { CateringItem } from '../lib/catering-item.class';
 
 const dialog_fn = (has_delay, metadata?) => () => ({
     componentInstance: {

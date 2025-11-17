@@ -17,18 +17,19 @@ describe('IconComponent', () => {
     });
 
     it('should show font icons', () => {
-        spectator.component.icon = {
+        spectator.setInput('icon', {
             type: 'icon',
-            class: 'test-icon',
+            class: 'rounded',
             content: 'test-contents',
-        };
+        });
         spectator.detectChanges();
-        expect('.test-icon').toBeTruthy();
-        expect('.test-icon').toContainText('test-contents');
+        expect('i').toBeTruthy();
+        expect('i').toContainText('test-contents');
+        expect('i').toHaveClass('material-symbols-rounded');
     });
 
     it('should show images', () => {
-        spectator.component.icon = { type: 'img', src: '/test-image.png' };
+        spectator.setInput('icon', { type: 'img', src: '/test-image.png' });
         spectator.detectChanges();
         expect('img').toBeTruthy();
         expect('img').toContainProperty(

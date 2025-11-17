@@ -1,9 +1,8 @@
 import { FormsModule } from '@angular/forms';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { MockComponent } from 'ng-mocks';
-import { BehaviorSubject, of } from 'rxjs';
-
 import { OrganisationService } from '@placeos/common';
+import { mockComponent } from '@placeos/common/tests';
+import { BehaviorSubject, of } from 'rxjs';
 import {
     ExploreDesksService,
     ExploreStateService,
@@ -56,9 +55,9 @@ describe('DeskMapViewComponent', () => {
             },
         ],
         declarations: [
-            MockComponent(InteractiveMapComponent),
-            MockComponent(ExploreZoomControlComponent),
-            MockComponent(UserSearchFieldComponent),
+            mockComponent(InteractiveMapComponent),
+            mockComponent(ExploreZoomControlComponent),
+            mockComponent(UserSearchFieldComponent),
         ],
         imports: [FormsModule],
     });

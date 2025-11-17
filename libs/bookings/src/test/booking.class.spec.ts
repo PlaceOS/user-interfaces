@@ -1,5 +1,5 @@
 import { addDays, subDays } from 'date-fns';
-import { Booking } from '../lib/booking.class';
+import { Booking } from '@placeos/common';
 
 describe('Booking class', () => {
     let booking: Booking;

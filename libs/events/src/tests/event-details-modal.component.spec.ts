@@ -1,17 +1,18 @@
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { OrganisationService, SettingsService } from '@placeos/common';
-import { Space } from '@placeos/events';
 import {
-    MockComponent,
-    MockDirective,
-    MockModule,
-    MockProvider,
-} from 'ng-mocks';
+    CalendarEvent,
+    OrganisationService,
+    SettingsService,
+    Space,
+} from '@placeos/common';
+import { MockDirective, MockModule, MockPipe, MockProvider } from 'ng-mocks';
 import { AttendeeListComponent } from '../lib/attendee-list.component';
 
+import { DatePipe } from '@angular/common';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { mockComponent } from 'libs/common/src/tests/test-helpers';
 import { BindingDirective } from 'libs/components/src/lib/binding.directive';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { ImageCarouselComponent } from 'libs/components/src/lib/image-carousel.component';
@@ -20,17 +21,21 @@ import { StatusPillComponent } from 'libs/components/src/lib/status-pill.compone
 import { UserAvatarComponent } from 'libs/components/src/lib/user-avatar.component';
 import { SpacePipe } from 'libs/events/src/lib/space.pipe';
 import { EventDetailsModalComponent } from '../lib/event-details-modal.component';
-import { CalendarEvent } from '../lib/event.class';
 
 describe('EventDetailsModalComponent', () => {
     let spectator: Spectator<EventDetailsModalComponent>;
     const createComponent = createComponentFactory({
         component: EventDetailsModalComponent,
         providers: [
-            MockProvider(MAT_DIALOG_DATA, { event: new CalendarEvent() }),
+            MockProvider(MAT_DIALOG_DATA, {
+                event: new CalendarEvent(),
+                edit_fn: jest.fn(),
+                remove_fn: jest.fn(),
+            }),
             MockProvider(OrganisationService, {
                 levelWithID: jest.fn(),
                 buildings: [],
+                building: { timezone: 'UTC' } as any,
             }),
             MockProvider(SettingsService, {
                 get: jest.fn(),
@@ -44,18 +49,19 @@ describe('EventDetailsModalComponent', () => {
             }),
         ],
         declarations: [
-            MockComponent(ImageCarouselComponent),
-            MockComponent(InteractiveMapComponent),
-            MockComponent(IconComponent),
-            MockComponent(UserAvatarComponent),
-            MockComponent(AttendeeListComponent),
+            mockComponent(ImageCarouselComponent),
+            mockComponent(InteractiveMapComponent),
+            mockComponent(IconComponent),
+            mockComponent(UserAvatarComponent),
+            mockComponent(AttendeeListComponent),
             MockDirective(BindingDirective),
-            MockComponent(StatusPillComponent),
+            mockComponent(StatusPillComponent),
         ],
         imports: [
             MockModule(MatMenuModule),
             MockModule(MatDialogModule),
             MockModule(MatTooltipModule),
+            MockPipe(DatePipe),
         ],
     });
 
@@ -66,9 +72,11 @@ describe('EventDetailsModalComponent', () => {
 
     it('should show images', () => {
         expect('image-carousel').not.toExist();
-        (spectator.component as any).event = new CalendarEvent({
-            system: { images: ['test.png'] },
-        } as any);
+        (spectator.component as any).event.set(
+            new CalendarEvent({
+                system: { images: ['test.png'] },
+            } as any),
+        );
         spectator.detectChanges();
         expect('image-carousel').toExist();
     });

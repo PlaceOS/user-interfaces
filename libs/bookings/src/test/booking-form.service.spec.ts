@@ -63,9 +63,9 @@ describe('BookingFormService', () => {
     });
 
     it('should handle view changes', () => {
-        expect(spectator.service.view).toBe('form');
+        expect(spectator.service.view()).toBe('form');
         spectator.service.setView('map');
-        expect(spectator.service.view).toBe('map');
+        expect(spectator.service.view()).toBe('map');
     });
 
     it('should handle form changes', () => {

@@ -4,8 +4,9 @@ import {
     MatDialogRef,
 } from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { MockComponent, MockModule } from 'ng-mocks';
+import { MockModule } from 'ng-mocks';
 
+import { mockComponent } from '@placeos/common/tests';
 import { IconComponent, SafePipe } from '@placeos/components';
 import { EmbeddedControlModalComponent } from '../../app/overlays/embedded-control-modal.component';
 
@@ -13,7 +14,7 @@ describe('EmbeddedControlModalComponent', () => {
     let spectator: Spectator<EmbeddedControlModalComponent>;
     const createComponent = createComponentFactory({
         component: EmbeddedControlModalComponent,
-        declarations: [SafePipe, MockComponent(IconComponent)],
+        declarations: [SafePipe, mockComponent(IconComponent)],
         imports: [MockModule(MatDialogModule)],
         providers: [
             { provide: MAT_DIALOG_DATA, useValue: { control_url: '' } },
@@ -38,7 +39,7 @@ describe('EmbeddedControlModalComponent', () => {
         spectator.detectChanges();
         expect('[countdown]').toHaveText('28');
         const spy = jest.spyOn(spectator.component, 'close');
-        spectator.component.countdown = 0;
+        spectator.component.countdown.set(0);
         jest.advanceTimersByTime(1000);
         expect(spy).toHaveBeenCalled();
         spectator.component.reset();

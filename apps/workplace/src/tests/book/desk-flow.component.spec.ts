@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { BookingFormService } from '@placeos/bookings';
@@ -19,7 +20,7 @@ describe('NewDeskFlowComponent', () => {
                 setView: jest.fn(),
                 setOptions: jest.fn(),
                 form: new FormGroup({}),
-                view: '',
+                view: signal(''),
                 last_success: null,
             } as any),
             MockProvider(OrganisationService, {
@@ -36,7 +37,7 @@ describe('NewDeskFlowComponent', () => {
         spectator = createComponent();
         const book_service: any = spectator.inject(BookingFormService);
         book_service.setView.mockImplementation((e) => {
-            book_service.view = e;
+            book_service.view.set(e);
             spectator.detectChanges();
         });
         book_service.setView('form');

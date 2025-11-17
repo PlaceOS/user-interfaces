@@ -8,9 +8,10 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { MockComponent, MockProvider } from 'ng-mocks';
+import { mockComponent } from '@placeos/common/tests';
 
 import { CateringItemModalComponent } from '../lib/catering-item-modal.component';
-import { CateringItem } from '../lib/catering-item.class';
+import { CateringItem } from '@placeos/common';
 
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -25,7 +26,7 @@ describe('CateringItemModalComponent', () => {
         declarations: [
             MockComponent(IconComponent),
             MockComponent(CounterComponent),
-            MockComponent(ImageListFieldComponent),
+            mockComponent(ImageListFieldComponent),
             MockComponent(SettingsToggleComponent),
         ],
         providers: [

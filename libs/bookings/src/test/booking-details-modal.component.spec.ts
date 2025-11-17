@@ -15,7 +15,7 @@ import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map
 import { StatusPillComponent } from 'libs/components/src/lib/status-pill.component';
 import { BehaviorSubject } from 'rxjs';
 import { BookingDetailsModalComponent } from '../lib/booking-details-modal.component';
-import { Booking } from '../lib/booking.class';
+import { Booking } from '@placeos/common';
 
 describe('BookingDetailsModalComponent', () => {
     let spectator: Spectator<BookingDetailsModalComponent>;
@@ -52,9 +52,9 @@ describe('BookingDetailsModalComponent', () => {
 
     it('should show images', () => {
         expect('image-carousel').not.toExist();
-        (spectator.component as any).booking = new Booking({
+        (spectator.component as any).booking.set(new Booking({
             extension_data: { images: [''] },
-        });
+        }));
         spectator.detectChanges();
         expect('image-carousel').toExist();
     });

@@ -1,7 +1,9 @@
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { OrganisationService, SettingsService } from '@placeos/common';
+import { Building, OrganisationService, SettingsService } from '@placeos/common';
+import { mockComponent } from '@placeos/common/tests';
 import { IconComponent } from '@placeos/components';
-import { MockComponent, MockProvider } from 'ng-mocks';
+import { MockProvider } from 'ng-mocks';
+import { BehaviorSubject } from 'rxjs';
 import { FooterMenuComponent } from '../../app/components/footer-menu.component';
 import { TopbarComponent } from '../../app/components/topbar.component';
 import { LandingAvailabilityComponent } from '../../app/landing/landing-availability.component';
@@ -14,16 +16,21 @@ describe('LandingComponent', () => {
     const createComponent = createComponentFactory({
         component: LandingComponent,
         declarations: [
-            MockComponent(LandingColleaguesComponent),
-            MockComponent(LandingAvailabilityComponent),
-            MockComponent(LandingUpcomingComponent),
-            MockComponent(TopbarComponent),
-            MockComponent(FooterMenuComponent),
-            MockComponent(IconComponent),
+            mockComponent(LandingColleaguesComponent),
+            mockComponent(LandingAvailabilityComponent),
+            mockComponent(LandingUpcomingComponent),
+            mockComponent(TopbarComponent),
+            mockComponent(FooterMenuComponent),
+            mockComponent(IconComponent),
         ],
         providers: [
             MockProvider(SettingsService),
-            MockProvider(OrganisationService),
+            MockProvider(OrganisationService, {
+                active_building: new BehaviorSubject(new Building()),
+                building: new Building(),
+                initialised: new BehaviorSubject(true),
+                level_list: new BehaviorSubject([]),
+            }),
         ],
     });
 
@@ -34,7 +41,7 @@ describe('LandingComponent', () => {
     });
 
     it('should match snapshot', () => {
-        spectator.component.time = 1;
+        spectator.component.time.set(1);
         spectator.detectChanges();
         expect('[date]').toContainText('1970');
     });

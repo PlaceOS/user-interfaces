@@ -51,9 +51,11 @@ describe('BindingDirective', () => {
     it('should listen to binding changes', fakeAsync(() => {
         const value = new BehaviorSubject('');
         (ts_client as any).getModule = jest.fn(() => ({
-            binding: jest.fn(() => ({
-                bind: jest.fn(() => null),
-                listen: () => value.asObservable(),
+            variable: jest.fn(() => ({
+                bindThenSubscribe: jest.fn((callback) => {
+                    const sub = value.subscribe(callback);
+                    return sub;
+                }),
             })),
         }));
         spectator.setHostInput({

@@ -30,6 +30,45 @@ describe('CustomTooltipComponent', () => {
         imports: [PortalModule, OverlayModule],
     });
 
+    beforeEach(() => {
+        // Mock getBoundingClientRect for all elements
+        Element.prototype.getBoundingClientRect = jest.fn(() => ({
+            width: 100,
+            height: 100,
+            top: 0,
+            left: 0,
+            bottom: 100,
+            right: 100,
+            x: 0,
+            y: 0,
+            toJSON: () => {},
+        }));
+
+        // Mock window dimensions for CDK overlay
+        Object.defineProperty(window, 'innerWidth', {
+            writable: true,
+            configurable: true,
+            value: 1024,
+        });
+        Object.defineProperty(window, 'innerHeight', {
+            writable: true,
+            configurable: true,
+            value: 768,
+        });
+
+        // Mock document.documentElement dimensions
+        Object.defineProperty(document.documentElement, 'clientWidth', {
+            writable: true,
+            configurable: true,
+            value: 1024,
+        });
+        Object.defineProperty(document.documentElement, 'clientHeight', {
+            writable: true,
+            configurable: true,
+            value: 768,
+        });
+    });
+
     it('should create component', () => {
         spectator = createDirective('<div customTooltip></div>');
         expect(spectator.directive).toBeTruthy();

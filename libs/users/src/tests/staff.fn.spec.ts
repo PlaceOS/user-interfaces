@@ -4,7 +4,7 @@ import { locateStaff, searchStaff, showStaff } from '../lib/staff.fn';
 jest.mock('@placeos/ts-client');
 
 import * as ts_client from '@placeos/ts-client';
-import { StaffUser } from '../lib/user.class';
+import { StaffUser } from '@placeos/common';
 
 describe('[Staff API]', () => {
     describe('searchStaff', () => {

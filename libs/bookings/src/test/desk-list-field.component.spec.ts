@@ -52,11 +52,14 @@ describe('DeskListFieldComponent', () => {
     it('should handle desk changes', fakeAsync(() => {
         let count = 0;
         (spectator.inject(MatDialog).open as any).mockImplementation(
-            (_, { data: { items } }) =>
-                ({
+            (_, config) => {
+                const itemsSignal = config?.data?.items;
+                const items = typeof itemsSignal === 'function' ? itemsSignal() : (itemsSignal || []);
+                return {
                     afterClosed: () =>
-                        of([...(items || []), { id: `${count++}` }]),
-                }) as any,
+                        of([...items, { id: `${count++}` }]),
+                } as any;
+            },
         );
         spectator.click('button[name="add-desk"]');
         spectator.tick(1001);

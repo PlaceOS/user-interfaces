@@ -9,6 +9,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 
 import { randomInt } from '@placeos/common';
+import { mockComponent } from '@placeos/common/tests';
 import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { DateFieldComponent } from '../lib/date-field.component';
@@ -19,7 +20,7 @@ describe('DateFieldComponent', () => {
         component: DateFieldComponent,
         declarations: [
             MockComponent(IconComponent),
-            MockComponent(CustomTooltipComponent),
+            mockComponent(CustomTooltipComponent),
         ],
         providers: [MockProvider(NgControl)],
         imports: [
@@ -44,14 +45,14 @@ describe('DateFieldComponent', () => {
     });
 
     it('should handler external changes to the date selected', fakeAsync(() => {
-        expect(format(spectator.component.date, 'MMMM d, yyyy')).toEqual(
+        expect(format(spectator.component.date(), 'MMMM d, yyyy')).toEqual(
             format(new Date(), 'MMMM d, yyyy'),
         );
         const new_date = addDays(new Date(), randomInt(12, 2));
         spectator.component.writeValue(new_date.valueOf());
         spectator.detectChanges();
         spectator.tick(600);
-        expect(format(spectator.component.date, 'MMMM d, yyyy')).toEqual(
+        expect(format(spectator.component.date(), 'MMMM d, yyyy')).toEqual(
             format(new_date, 'MMMM d, yyyy'),
         );
     }));

@@ -62,8 +62,8 @@ describe('BootstrapComponent', () => {
         spectator.click(document.querySelector('mat-option'));
         spectator.detectChanges();
 
-        expect(spectator.component.active_building.id).toBe('1');
-        expect(spectator.component.active_level).toBeFalsy();
+        expect(spectator.component.active_building()?.id).toBe('1');
+        expect(spectator.component.active_level()).toBeFalsy();
         expect((await nextValueFrom(spectator.component.levels)).length).toBe(
             2,
         );
@@ -71,7 +71,7 @@ describe('BootstrapComponent', () => {
         spectator.click('[level]');
         spectator.click(document.querySelector('mat-option'));
         spectator.detectChanges();
-        expect(spectator.component.active_level).toBeTruthy();
+        expect(spectator.component.active_level()).toBeTruthy();
     });
 
     it('should allow selecting orientations', () => {
@@ -82,10 +82,10 @@ describe('BootstrapComponent', () => {
         expect(localStorage.setItem).not.toHaveBeenCalled();
         spectator.component.bootstrapKiosk();
         expect(localStorage.setItem).not.toHaveBeenCalled();
-        spectator.component.active_building = new Building({ id: 'bld-1' });
+        spectator.component.active_building.set(new Building({ id: 'bld-1' }));
         spectator.component.bootstrapKiosk();
         expect(localStorage.setItem).not.toHaveBeenCalled();
-        spectator.component.active_level = new BuildingLevel({ id: 'lvl-1' });
+        spectator.component.active_level.set(new BuildingLevel({ id: 'lvl-1' }));
         spectator.component.bootstrapKiosk();
         expect(localStorage.setItem).toHaveBeenCalledWith(
             'KIOSK.building',
