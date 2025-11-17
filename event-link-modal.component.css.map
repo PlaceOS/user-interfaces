@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;726748c2414197d0b1210ead97f5552a150ccdc9b0475e0053e8ed5e76b597ad;/home/runner/work/user-interfaces/user-interfaces/libs/events/src/lib/event-link-modal.component.ts"],
+  "sourcesContent": ["\n            :host {\n                position: relative;\n            }\n        "],
+  "mappings": ";AACY;AACI,YAAU;AACd;",
+  "names": []
+}

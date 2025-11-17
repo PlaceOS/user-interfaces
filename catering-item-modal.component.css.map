@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;0071b448c67ddef1a7c8d6ade3c25c1198c30917cef31717a0289d95812c8939;/home/runner/work/user-interfaces/user-interfaces/libs/catering/src/lib/catering-item-modal.component.ts"],
+  "sourcesContent": ["\n            [list] mat-checkbox {\n                margin: 0.5rem;\n            }\n        "],
+  "mappings": ";AACY,CAAC,MAAM;AACH,UAAQ;AACZ;",
+  "names": []
+}

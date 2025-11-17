@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;14c104e27b816f236ef6867be998c5d0dffab973e73a494beaad3760a220040a;/home/runner/work/user-interfaces/user-interfaces/libs/bookings/src/lib/new-desk-select-modal/new-desk-select-modal.component.ts"],
+  "sourcesContent": ["\n            @media screen and (max-width: 640px) {\n                [list] {\n                    width: 100% !important;\n                }\n            }\n        "],
+  "mappings": ";AACY,OAAO,OAAO,IAAI,CAAC,SAAS,EAAE;AAC1B,GAAC;AACG,WAAO;AACX;AACJ;",
+  "names": []
+}
