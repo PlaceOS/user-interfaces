@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;965d5fc51260a806920905aacaca18fa5aacb5936de272c2e6d4d33f0826de44;/home/runner/work/user-interfaces/user-interfaces/apps/concierge/src/app/surveys/new-survey-widget.component.ts"],
+  "sourcesContent": ["\n            svg circle {\n                fill: transparent;\n            }\n\n            .progress-bar {\n                stroke-linecap: round;\n                transition: stroke-dashoffset 0.5s ease-in-out;\n            }\n        "],
+  "mappings": ";AACY,IAAI;AACA,QAAM;AACV;AAEA,CAAC;AACG,kBAAgB;AAChB,cAAY,kBAAkB,KAAK;AACvC;",
+  "names": []
+}

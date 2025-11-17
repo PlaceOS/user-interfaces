@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;16f026b0cd79cf99fd5847e1262b1714d61b9cb4f6a812ea3e15fe855e48f1d1;/home/runner/work/user-interfaces/user-interfaces/apps/concierge/src/app/ui/app-sidebar.component.ts"],
+  "sourcesContent": ["\n            :host {\n                height: 100%;\n            }\n\n            a.active {\n                background-color: var(--secondary);\n                color: var(--secondary-content);\n            }\n\n            a.active:hover {\n                color: var(--base-content);\n                opacity: 0.75;\n            }\n        "],
+  "mappings": ";AACY;AACI,UAAQ;AACZ;AAEA,CAAC,CAAC;AACE,oBAAkB,IAAI;AACtB,SAAO,IAAI;AACf;AAEA,CAAC,CALC,MAKM;AACJ,SAAO,IAAI;AACX,WAAS;AACb;",
+  "names": []
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;fe3a41582605cf3009de7b680c40c834e0a9798f0c55a7c36913274cd6e0228c;/home/runner/work/user-interfaces/user-interfaces/apps/concierge/src/app/reports/reports-menu.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: flex;\n                flex-direction: row !important;\n                align-items: center;\n                justify-content: center;\n                background: inherit;\n            }\n\n            .grid {\n                display: grid;\n                grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));\n                /* This is better for small screens, once min() is better supported */\n                /* grid-template-columns: repeat(auto-fill, minmax(min(200px, 100%), 1fr)); */\n                gap: 0.75rem;\n                max-width: 100%;\n            }\n        "],
+  "mappings": ";AACY;AACI,WAAS;AACT,kBAAgB;AAChB,eAAa;AACb,mBAAiB;AACjB,cAAY;AAChB;AAEA,CAAC;AACG,WAAS;AACT,yBAAuB,OAAO,SAAS,EAAE,OAAO,KAAK,EAAE;AAGvD,OAAK;AACL,aAAW;AACf;",
+  "names": []
+}

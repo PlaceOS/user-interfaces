@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;b448d51f834330ddc6a6175ecfaf37bbbf1883194676e13ab13b8e1daf564bfd;/home/runner/work/user-interfaces/user-interfaces/apps/concierge/src/app/facilities/facilities-topbar.component.ts"],
+  "sourcesContent": ["\n            .flex-full {\n                flex: 1;\n                width: 0.5em;\n            }\n\n            mat-form-field {\n                height: 3.25em;\n                width: 8em;\n                margin-left: 1em;\n            }\n        "],
+  "mappings": ";AACY,CAAC;AACG,QAAM;AACN,SAAO;AACX;AAEA;AACI,UAAQ;AACR,SAAO;AACP,eAAa;AACjB;",
+  "names": []
+}

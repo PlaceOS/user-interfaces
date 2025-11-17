@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;82179a093a1237a0219e0de14f115a8c6a107062508b871f4aa73c902619b2f8;/home/runner/work/user-interfaces/user-interfaces/libs/form-fields/src/lib/duration-field.component.ts"],
+  "sourcesContent": ["\n            :host {\n                width: 100%;\n            }\n\n            mat-form-field {\n                width: 100%;\n            }\n        "],
+  "mappings": ";AACY;AACI,SAAO;AACX;AAEA;AACI,SAAO;AACX;",
+  "names": []
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;689216c244746a44ce8495e5ddc0d8a4ad407f0899332d9a6e20f4c6e02d0df2;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/image-carousel.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: block;\n                height: 100%;\n                width: 100%;\n            }\n\n            [image] {\n                transition: transform 300ms;\n            }\n\n            button[disabled] {\n                pointer-events: none;\n            }\n        "],
+  "mappings": ";AACY;AACI,WAAS;AACT,UAAQ;AACR,SAAO;AACX;AAEA,CAAC;AACG,cAAY,UAAU;AAC1B;AAEA,MAAM,CAAC;AACH,kBAAgB;AACpB;",
+  "names": []
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;2b342a13930d0056fd89d140b272ede9f36f097f9a82416d172d995bdca2d966;/home/runner/work/user-interfaces/user-interfaces/apps/concierge/src/app/day-view/room-timeline.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: flex;\n                flex-direction: column;\n                max-width: 100%;\n            }\n\n            [timeline] {\n                grid-template-columns: 4rem auto;\n                grid-template-rows: 3.5rem auto;\n            }\n        "],
+  "mappings": ";AACY;AACI,WAAS;AACT,kBAAgB;AAChB,aAAW;AACf;AAEA,CAAC;AACG,yBAAuB,KAAK;AAC5B,sBAAoB,OAAO;AAC/B;",
+  "names": []
+}

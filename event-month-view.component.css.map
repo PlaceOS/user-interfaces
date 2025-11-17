@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;621b776a5c5c572a196a31eafa7dd26229f2e236f44d1e7e1ede4ba9fb207c2d;/home/runner/work/user-interfaces/user-interfaces/apps/concierge/src/app/events/event-month-view.component.ts"],
+  "sourcesContent": ["\n            .grid {\n                grid-template-rows: 3rem repeat(6, minmax(0, 1fr));\n            }\n        "],
+  "mappings": ";AACY,CAAC;AACG,sBAAoB,KAAK,OAAO,CAAC,EAAE,OAAO,CAAC,EAAE;AACjD;",
+  "names": []
+}

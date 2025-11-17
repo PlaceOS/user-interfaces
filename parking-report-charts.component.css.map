@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;ac63e55dad7d0a2c941e4ae7736b361d69b7ce3e3f6f48e7ce092e1347b3dc1f;/home/runner/work/user-interfaces/user-interfaces/apps/concierge/src/app/reports/parking/parking-report-charts.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: block;\n            }\n\n            .is-print .ct-chart {\n                width: 20rem !important;\n            }\n        "],
+  "mappings": ";AACY;AACI,WAAS;AACb;AAEA,CAAC,SAAS,CAAC;AACP,SAAO;AACX;",
+  "names": []
+}

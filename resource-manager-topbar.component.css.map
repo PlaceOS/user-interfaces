@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;2bc8ca7aace10e46f51053cb2cf4127500bd9fcd06c7c0d1d5dc88d70d997800;/home/runner/work/user-interfaces/user-interfaces/apps/concierge/src/app/resource-manager/resource-manager-topbar.component.ts"],
+  "sourcesContent": ["\n            mat-form-field {\n                height: 3.25rem;\n            }\n        "],
+  "mappings": ";AACY;AACI,UAAQ;AACZ;",
+  "names": []
+}

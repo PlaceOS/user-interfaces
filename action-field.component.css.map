@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;9cd9dce2bbb81d8923cf4f4b4c09123e464ba3159f4138eeda239e31ab33a361;/home/runner/work/user-interfaces/user-interfaces/libs/form-fields/src/lib/action-field.component.ts"],
+  "sourcesContent": ["\n            :host > div:hover {\n                box-shadow: inset 0 0 0 1px #000;\n            }\n        "],
+  "mappings": ";AACY,MAAM,EAAE,GAAG;AACP,cAAY,MAAM,EAAE,EAAE,EAAE,IAAI;AAChC;",
+  "names": []
+}
