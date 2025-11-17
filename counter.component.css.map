@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["counter.component.ts"],
+  "sourcesContent": ["\n            [counter].disabled {\n                @apply pointer-events-none opacity-30;\n            }\n        "],
+  "mappings": ";AAEgB,CAAA,QAAA,CAAA;AAAA,kBAAA;AAAA,WAAA;AAAqC;",
+  "names": []
+}
