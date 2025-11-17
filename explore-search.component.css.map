@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;9f4945b2ccd61cdbcc08723b98fac624bfd389374b9fee892262ad25a3c5edf0;/home/runner/work/user-interfaces/user-interfaces/libs/explore/src/lib/explore-search.component.ts"],
+  "sourcesContent": ["\n            :host {\n                z-index: 99;\n                position: relative;\n            }\n\n            [role='search'] {\n                height: 3rem;\n                width: 0;\n                border-radius: 1.5rem;\n                border: 1px solid var(--base-300);\n                transition: width 200ms opacity 200ms;\n                opacity: 0;\n                pointer-events: none;\n            }\n\n            [role='search'].show {\n                width: 24rem;\n                opacity: 1;\n                pointer-events: auto;\n            }\n        "],
+  "mappings": ";AACY;AACI,WAAS;AACT,YAAU;AACd;AAEA,CAAC;AACG,UAAQ;AACR,SAAO;AACP,iBAAe;AACf,UAAQ,IAAI,MAAM,IAAI;AACtB,cAAY,MAAM,MAAM,QAAQ;AAChC,WAAS;AACT,kBAAgB;AACpB;AAEA,CAAC,YAAc,CAAC;AACZ,SAAO;AACP,WAAS;AACT,kBAAgB;AACpB;",
+  "names": []
+}

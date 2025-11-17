@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;a33792e615dc48068535fd49c6ab78561fd4fd12d78fb032c7f5187e35f7c658;/home/runner/work/user-interfaces/user-interfaces/apps/visitor-kiosk/src/app/checkin/checkin-details.component.ts"],
+  "sourcesContent": ["\n            form {\n                width: 32rem;\n                max-width: calc(100vw - 2rem);\n            }\n\n            [field] {\n                width: calc(100% - 2rem);\n            }\n\n            button {\n                margin-bottom: 1rem;\n                width: 8rem;\n            }\n        "],
+  "mappings": ";AACY;AACI,SAAO;AACP,aAAW,KAAK,MAAM,EAAE;AAC5B;AAEA,CAAC;AACG,SAAO,KAAK,KAAK,EAAE;AACvB;AAEA;AACI,iBAAe;AACf,SAAO;AACX;",
+  "names": []
+}

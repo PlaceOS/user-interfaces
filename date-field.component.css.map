@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;4616f4926c682fe7ceb0f98ecb8aa0ceeb383c5318a41af3f61a9c0da602fb9b;/home/runner/work/user-interfaces/user-interfaces/libs/form-fields/src/lib/date-field.component.ts"],
+  "sourcesContent": ["\n            :host.no-subscript > .error {\n                display: none;\n            }\n        "],
+  "mappings": ";AACY,KAAK,CAAC,aAAa,EAAE,CAAC;AAClB,WAAS;AACb;",
+  "names": []
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;e63d04c22f2df73bef976dac40737116b35c5759d42b86f0004e301d9e8ecd5b;/home/runner/work/user-interfaces/user-interfaces/apps/map-kiosk/src/app/explore-level-select.component.ts"],
+  "sourcesContent": ["\n            .active {\n                background: var(--secondary) !important;\n                color: #fff !important;\n            }\n\n            button:not(:first-child) {\n                border-top: 1px solid var(--base-300) !important;\n            }\n        "],
+  "mappings": ";AACY,CAAC;AACG,cAAY,IAAI;AAChB,SAAO;AACX;AAEA,MAAM,KAAK;AACP,cAAY,IAAI,MAAM,IAAI;AAC9B;",
+  "names": []
+}

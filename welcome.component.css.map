@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;cc9227079df7ac5301f9446791a6a855742622827223e39404093077fda285ac;/home/runner/work/user-interfaces/user-interfaces/apps/visitor-kiosk/src/app/welcome.component.ts"],
+  "sourcesContent": ["\n            a {\n                height: 3.5rem;\n            }\n        "],
+  "mappings": ";AACY;AACI,UAAQ;AACZ;",
+  "names": []
+}
