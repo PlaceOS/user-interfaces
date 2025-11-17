@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;d84628be6394a4ab204c469dc548d2d04b7c619d7a49b10690a47d4a374a3d83;/home/runner/work/user-interfaces/user-interfaces/libs/form-fields/src/lib/user-search-field.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: block;\n            }\n            icon {\n                top: 0.15em;\n                left: -0.15em;\n            }\n        "],
+  "mappings": ";AACY;AACI,WAAS;AACb;AACA;AACI,OAAK;AACL,QAAM;AACV;",
+  "names": []
+}

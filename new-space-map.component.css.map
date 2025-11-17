@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;5b4ed0a87238b487692a2c306efe479639b0f8e929cffac085c91f6d64279717;/home/runner/work/user-interfaces/user-interfaces/libs/events/src/lib/new-space-select-modal/new-space-map.component.ts"],
+  "sourcesContent": ["\n            :host {\n                position: relative;\n                background: rgba(0, 0, 0, 0.05);\n                display: flex;\n                flex-direction: column;\n            }\n        "],
+  "mappings": ";AACY;AACI,YAAU;AACV,cAAY,KAAK,CAAC,EAAE,CAAC,EAAE,CAAC,EAAE;AAC1B,WAAS;AACT,kBAAgB;AACpB;",
+  "names": []
+}

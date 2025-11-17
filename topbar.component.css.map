@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;a44fe1a1620c24b3fe7fa535fb11a46fbe2a82fc133187e049f6c240e05155eb;/home/runner/work/user-interfaces/user-interfaces/apps/workplace/src/app/components/topbar.component.ts"],
+  "sourcesContent": ["\n            .flex-3 {\n                flex: 3 3 0%;\n            }\n        "],
+  "mappings": ";AACY,CAAC;AACG,QAAM,EAAE,EAAE;AACd;",
+  "names": []
+}

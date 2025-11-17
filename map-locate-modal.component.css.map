@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;4eafd849b5558afe91ea7af778594acb8c513c30510cb1b857dbc0403f0fd5cc;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/map-locate-modal.component.ts"],
+  "sourcesContent": ["\n            [body] {\n                min-width: 80vw !important;\n            }\n        "],
+  "mappings": ";AACY,CAAC;AACG,aAAW;AACf;",
+  "names": []
+}
