@@ -1632,6 +1632,8 @@
             "POINTS_ASSETS_EDIT": "Edit Points Asset",
             "POINTS_TAB_OVERVIEW": "Overview",
             "POINTS_TAB_ASSETS": "Assets",
+            "TAB_POINTS_OVERVIEW": "Points Overview",
+            "TAB_POINTS_ASSETS": "Points Assets",
             "POINTS_OVERVIEW_HEADER": "Points Overview",
             "POINTS_VALUE_INFO": "Set point redemption caps on menu items",
             "POINTS_VALUE_HEADER": "Point Value",

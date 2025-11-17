@@ -9,7 +9,8 @@ import {
     currentUser,
     firstTruthyValueFrom,
     i18n,
-    unique, settingSignal
+    settingSignal,
+    unique,
 } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
 import { debounceTime, filter } from 'rxjs/operators';
@@ -109,7 +110,10 @@ export class ApplicationSidebarComponent
     public filtered_links = signal([]);
 
     public readonly feature_list = settingSignal<string[]>('features', []);
-    public readonly feature_groups = settingSignal<Record<string, string[]>>('feature_groups', {});
+    public readonly feature_groups = settingSignal<Record<string, string[]>>(
+        'feature_groups',
+        {},
+    );
 
     public get is_admin() {
         const groups = currentUser().groups || [];
@@ -183,13 +187,6 @@ export class ApplicationSidebarComponent
                 alias: 'catering',
             },
             {
-                id: 'points',
-                name: i18n('APP.CONCIERGE.MENU_MANAGE_POINTS'),
-                icon: 'loyalty',
-                route: ['/points-management'],
-                admin: true,
-            },
-            {
                 id: 'signage',
                 name: i18n('APP.CONCIERGE.MENU_MANAGE_SIGNAGE'),
                 icon: 'tv',
@@ -216,7 +213,13 @@ export class ApplicationSidebarComponent
                 icon: 'settings',
                 route: ['/settings-management'],
                 admin: true,
-                alias: ['emergency-contacts', 'email-templates', 'url-management', 'points-of-interest'],
+                alias: [
+                    'emergency-contacts',
+                    'email-templates',
+                    'url-management',
+                    'points-of-interest',
+                    'points',
+                ],
                 children: [
                     {
                         id: 'emergency-contacts',
@@ -236,6 +239,11 @@ export class ApplicationSidebarComponent
                     {
                         id: 'points-of-interest',
                         name: i18n('APP.CONCIERGE.MENU_MANAGE_MAP_FEATURES'),
+                        route: ['/settings-management'],
+                    },
+                    {
+                        id: 'points',
+                        name: i18n('APP.CONCIERGE.MENU_MANAGE_POINTS'),
                         route: ['/settings-management'],
                     },
                 ],
@@ -330,12 +338,14 @@ export class ApplicationSidebarComponent
 
         // Use alias if provided (can be string or array), otherwise use the item's id
         const aliases = link.alias
-            ? (Array.isArray(link.alias) ? link.alias : [link.alias])
+            ? Array.isArray(link.alias)
+                ? link.alias
+                : [link.alias]
             : [name];
 
         // Check if at least one alias matches a feature
-        const matching_features = aliases.filter(alias =>
-            this.feature_list().includes(alias)
+        const matching_features = aliases.filter((alias) =>
+            this.feature_list().includes(alias),
         );
 
         if (!matching_features.length) {
@@ -347,19 +357,29 @@ export class ApplicationSidebarComponent
         // Special handling for items marked with admin: true
         if (link.admin) {
             // Check if user is admin or in feature groups for any of the matching features
-            return this.is_admin || matching_features.some(feature_name => {
-                const feature_groups = this.feature_groups()[feature_name] || [];
-                return feature_groups.length && groups.find((grp) => feature_groups.includes(grp));
-            });
+            return (
+                this.is_admin ||
+                matching_features.some((feature_name) => {
+                    const feature_groups =
+                        this.feature_groups()[feature_name] || [];
+                    return (
+                        feature_groups.length &&
+                        groups.find((grp) => feature_groups.includes(grp))
+                    );
+                })
+            );
         }
 
         // For other features: check each matching feature
         // If any feature has no groups defined, allow access
         // Otherwise, require admin or group membership for at least one feature
-        const features_with_groups = matching_features.filter(feature_name => {
-            const feature_groups = this.feature_groups()[feature_name] || [];
-            return feature_groups.length > 0;
-        });
+        const features_with_groups = matching_features.filter(
+            (feature_name) => {
+                const feature_groups =
+                    this.feature_groups()[feature_name] || [];
+                return feature_groups.length > 0;
+            },
+        );
 
         // If no features have groups defined, just having the feature is enough
         if (!features_with_groups.length) {
@@ -367,10 +387,14 @@ export class ApplicationSidebarComponent
         }
 
         // If some features have groups, check admin or group membership for any of them
-        return this.is_admin || features_with_groups.some(feature_name => {
-            const feature_groups = this.feature_groups()[feature_name] || [];
-            return groups.find((grp) => feature_groups.includes(grp));
-        });
+        return (
+            this.is_admin ||
+            features_with_groups.some((feature_name) => {
+                const feature_groups =
+                    this.feature_groups()[feature_name] || [];
+                return groups.find((grp) => feature_groups.includes(grp));
+            })
+        );
     }
 
     public updateFilteredLinks() {

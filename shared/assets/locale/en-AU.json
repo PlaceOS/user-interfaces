@@ -1086,6 +1086,8 @@
             "TAB_URL_MANAGEMENT": "Short URLs",
             "TAB_EMAIL_TEMPLATES": "Email Templates",
             "TAB_POI": "Points of Interest",
+            "TAB_POINTS_OVERVIEW": "Points Overview",
+            "TAB_POINTS_ASSETS": "Points Assets",
             "SETTINGS_HEADER": "Organisation Settings",
             "MENU_MANAGE_SETTINGS": "Organisation Settings",
             "REGIONS_HEADER": "Region Management",

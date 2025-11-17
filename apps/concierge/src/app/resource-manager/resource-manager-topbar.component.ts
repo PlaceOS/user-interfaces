@@ -37,7 +37,7 @@ import { SearchbarComponent } from '../ui/searchbar.component';
     selector: 'resource-manager-topbar',
     template: `
         <div class="mb-4 flex items-center space-x-2 bg-base-100 px-8">
-            @if (tab_index() === 1) {
+            @if (tab_name() === 'desks') {
                 <mat-form-field appearance="outline" class="no-subscript w-60">
                     <mat-select
                         [ngModel]="selected_zones"
@@ -97,7 +97,7 @@ import { SearchbarComponent } from '../ui/searchbar.component';
                 </mat-form-field>
             }
             <div class="w-2 flex-1"></div>
-            @if (tab_index() === 1) {
+            @if (tab_name() === 'desks') {
                 <button
                     icon
                     matRipple
@@ -125,7 +125,7 @@ import { SearchbarComponent } from '../ui/searchbar.component';
                     <icon>download</icon>
                 </button>
             }
-            @if (tab_index() === 3) {
+            @if (tab_name() === 'lockers') {
                 <button
                     icon
                     matRipple
@@ -188,6 +188,7 @@ export class ResourceManagerTopbarComponent
     private _settings = inject(SettingsService);
 
     public readonly tab_index = input.required<number>();
+    public readonly tab_name = input<string>('');
 
     public selected_zones: string[] | string = [];
     public search_value: string = '';
@@ -209,13 +210,11 @@ export class ResourceManagerTopbarComponent
     }
 
     public readonly bookingRulesTooltip = () => {
-        const labels = [
-            'APP.CONCIERGE.ROOMS_BOOKING_RULES',
-            'APP.CONCIERGE.DESKS_BOOKING_RULES',
-            'APP.CONCIERGE.PARKING_BOOKING_RULES',
-            'APP.CONCIERGE.LOCKERS_BOOKING_RULES',
-        ];
-        return labels[this.tab_index()];
+        const tab = this.tab_name();
+        if (tab === 'rooms') return 'APP.CONCIERGE.ROOMS_BOOKING_RULES';
+        if (tab === 'desks') return 'APP.CONCIERGE.DESKS_BOOKING_RULES';
+        if (tab === 'parking') return 'APP.CONCIERGE.PARKING_BOOKING_RULES';
+        return 'APP.CONCIERGE.LOCKERS_BOOKING_RULES';
     };
 
     /** Update active zones */
@@ -230,19 +229,15 @@ export class ResourceManagerTopbarComponent
         });
 
         // Update the appropriate service based on tab
-        switch (this.tab_index()) {
-            case 0:
-                this._room_service.setFilters({ zones: filtered_zones });
-                break;
-            case 1:
-                this._desk_service.setFilters({ zones: filtered_zones });
-                break;
-            case 2:
-                this._parking_service.setOptions({ zones: filtered_zones });
-                break;
-            case 3:
-                this._locker_service.setFilters({ zones: filtered_zones });
-                break;
+        const tab = this.tab_name();
+        if (tab === 'rooms') {
+            this._room_service.setFilters({ zones: filtered_zones });
+        } else if (tab === 'desks') {
+            this._desk_service.setFilters({ zones: filtered_zones });
+        } else if (tab === 'parking') {
+            this._parking_service.setOptions({ zones: filtered_zones });
+        } else if (tab === 'lockers') {
+            this._locker_service.setFilters({ zones: filtered_zones });
         }
     };
 
@@ -256,26 +251,28 @@ export class ResourceManagerTopbarComponent
         });
 
         // Update the appropriate service
-        switch (this.tab_index()) {
-            case 0:
-                this._room_service.setSearchString(str);
-                break;
-            case 1:
-                this._desk_service.setFilters({ search: str });
-                break;
-            case 2:
-                this._parking_service.setOptions({ search: str });
-                break;
-            case 3:
-                this._locker_service.setSearch(str);
-                break;
+        const tab = this.tab_name();
+        if (tab === 'rooms') {
+            this._room_service.setSearchString(str);
+        } else if (tab === 'desks') {
+            this._desk_service.setFilters({ search: str });
+        } else if (tab === 'parking') {
+            this._parking_service.setOptions({ search: str });
+        } else if (tab === 'lockers') {
+            this._locker_service.setSearch(str);
         }
     };
 
     public manageRestrictions() {
-        const types = ['room', 'desk', 'parking', 'locker'];
+        const tab = this.tab_name();
+        const type_map = {
+            rooms: 'room',
+            desks: 'desk',
+            parking: 'parking',
+            lockers: 'locker',
+        };
         this._dialog.open(BookingRulesModalComponent, {
-            data: { type: types[this.tab_index()] },
+            data: { type: type_map[tab] || 'room' },
         });
     }
 
@@ -326,7 +323,7 @@ export class ResourceManagerTopbarComponent
                     const zone_list = (params.get('zone_ids') || '').split(',');
                     const zones = zone_list.filter((z) => z);
                     this.selected_zones =
-                        this.tab_index() === 1 && zones.length
+                        this.tab_name() === 'desks' && zones.length
                             ? zones[0]
                             : zones;
                 }
@@ -336,19 +333,15 @@ export class ResourceManagerTopbarComponent
                     const search = params.get('search') || '';
                     this.search_value = search;
                     // Update the appropriate service without triggering another navigation
-                    switch (this.tab_index()) {
-                        case 0:
-                            this._room_service.setSearchString(search);
-                            break;
-                        case 1:
-                            this._desk_service.setFilters({ search });
-                            break;
-                        case 2:
-                            this._parking_service.setOptions({ search });
-                            break;
-                        case 3:
-                            this._locker_service.setSearch(search);
-                            break;
+                    const tab = this.tab_name();
+                    if (tab === 'rooms') {
+                        this._room_service.setSearchString(search);
+                    } else if (tab === 'desks') {
+                        this._desk_service.setFilters({ search });
+                    } else if (tab === 'parking') {
+                        this._parking_service.setOptions({ search });
+                    } else if (tab === 'lockers') {
+                        this._locker_service.setSearch(search);
                     }
                 } else {
                     this.search_value = '';

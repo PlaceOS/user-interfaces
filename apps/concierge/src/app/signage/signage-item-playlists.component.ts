@@ -153,7 +153,9 @@ const PLAYLIST_ITEM_COUNTS = signal<Record<string, PlaylistCount>>({});
             <button btn matRipple (click)="add.emit()">
                 <div class="flex items-center space-x-2">
                     <icon class="text-2xl">playlist_add</icon>
-                    <div class="pr-2">{{ 'APP.CONCIERGE.SIGNAGE_PLAYLISTS_ADD' | translate }}</div>
+                    <div class="pr-2">
+                        {{ 'APP.CONCIERGE.SIGNAGE_PLAYLISTS_ADD' | translate }}
+                    </div>
                 </div>
             </button>
         } @else {
@@ -174,7 +176,12 @@ const PLAYLIST_ITEM_COUNTS = signal<Record<string, PlaylistCount>>({});
                 <button btn matRipple (click)="add.emit()" class="w-48">
                     <div class="flex items-center space-x-2">
                         <icon class="text-2xl">playlist_add</icon>
-                        <div class="pr-2">{{ 'APP.CONCIERGE.SIGNAGE_PLAYLISTS_ADD' | translate }}</div>
+                        <div class="pr-2">
+                            {{
+                                'APP.CONCIERGE.SIGNAGE_PLAYLISTS_ADD'
+                                    | translate
+                            }}
+                        </div>
                     </div>
                 </button>
             </div>

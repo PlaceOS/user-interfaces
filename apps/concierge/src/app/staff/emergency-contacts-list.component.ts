@@ -22,60 +22,67 @@ import {
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { filter, map, shareReplay, switchMap } from 'rxjs/operators';
-import { EmergencyContact } from './emergency-contacts.component';
 import { EmergencyContactModalComponent } from './emergency-contact-modal.component';
+import { EmergencyContact } from './emergency-contacts.component';
 import { RoleManagementModalComponent } from './role-management-modal.component';
 
 @Component({
     selector: 'emergency-contacts-list',
     template: `
         <div class="absolute inset-0 overflow-auto px-8">
-        <section class="flex flex-col sticky left-0">
-            <div class="mb-2 flex items-center justify-between space-x-2">
-                <mat-form-field class="no-subscript flex-1" appearance="outline">
-                    <icon class="text-2xl" matPrefix> search </icon>
-                    <input
-                        matInput
-                        [(ngModel)]="search"
-                        [placeholder]="
-                            'APP.CONCIERGE.CONTACTS_FILTER' | translate
-                        "
-                    />
-                </mat-form-field>
-                <mat-form-field class="no-subscript" appearance="outline">
-                    <mat-select
-                        [ngModel]="role_filter.getValue()"
-                        (ngModelChange)="role_filter.next($event)"
-                        [placeholder]="
-                            'APP.CONCIERGE.CONTACTS_ROLES_ALL' | translate
-                        "
+            <section class="sticky left-0 flex flex-col">
+                <div class="mb-2 flex items-center justify-between space-x-2">
+                    <mat-form-field
+                        class="no-subscript flex-1"
+                        appearance="outline"
                     >
-                        <mat-option value="">{{
-                            'APP.CONCIERGE.CONTACTS_ROLES_ALL' | translate
-                        }}</mat-option>
-                        @for (role of (roles | async) || []; track role + $index) {
-                            <mat-option [value]="role">
-                                {{ role }}
-                            </mat-option>
-                        }
-                    </mat-select>
-                </mat-form-field>
-                <div class="flex-1 w-px"></div>
-                <div class="flex items-center space-x-2">
-                    <button
-                        icon
-                        matRipple
-                        class="h-12 w-12 rounded bg-secondary text-secondary-content"
-                        [matTooltip]="
-                            'APP.CONCIERGE.CONTACTS_ROLES_MANAGE' | translate
-                        "
-                        (click)="manageRoles()"
-                    >
-                        <icon>list_alt</icon>
-                    </button>
+                        <icon class="text-2xl" matPrefix> search </icon>
+                        <input
+                            matInput
+                            [(ngModel)]="search"
+                            [placeholder]="
+                                'APP.CONCIERGE.CONTACTS_FILTER' | translate
+                            "
+                        />
+                    </mat-form-field>
+                    <mat-form-field class="no-subscript" appearance="outline">
+                        <mat-select
+                            [ngModel]="role_filter.getValue()"
+                            (ngModelChange)="role_filter.next($event)"
+                            [placeholder]="
+                                'APP.CONCIERGE.CONTACTS_ROLES_ALL' | translate
+                            "
+                        >
+                            <mat-option value="">{{
+                                'APP.CONCIERGE.CONTACTS_ROLES_ALL' | translate
+                            }}</mat-option>
+                            @for (
+                                role of (roles | async) || [];
+                                track role + $index
+                            ) {
+                                <mat-option [value]="role">
+                                    {{ role }}
+                                </mat-option>
+                            }
+                        </mat-select>
+                    </mat-form-field>
+                    <div class="w-px flex-1"></div>
+                    <div class="flex items-center space-x-2">
+                        <button
+                            icon
+                            matRipple
+                            class="h-12 w-12 rounded bg-secondary text-secondary-content"
+                            [matTooltip]="
+                                'APP.CONCIERGE.CONTACTS_ROLES_MANAGE'
+                                    | translate
+                            "
+                            (click)="manageRoles()"
+                        >
+                            <icon>list_alt</icon>
+                        </button>
+                    </div>
                 </div>
-            </div>
-        </section>
+            </section>
             <simple-table
                 class="block min-w-[52rem] text-sm"
                 [data]="filtered_contacts"
@@ -132,9 +139,7 @@ import { RoleManagementModalComponent } from './role-management-modal.component'
                 </div>
             </ng-template>
             <ng-template #actions_template let-row="row">
-                <div
-                    class="flex w-full items-center justify-end space-x-2 p-2"
-                >
+                <div class="flex w-full items-center justify-end space-x-2 p-2">
                     <button
                         icon
                         matRipple

@@ -1,8 +1,12 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTabsModule } from '@angular/material/tabs';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AsyncHandler, OrganisationService } from '@placeos/common';
+import {
+    AsyncHandler,
+    OrganisationService,
+    settingSignal,
+} from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { first } from 'rxjs/operators';
 import { DesksManageComponent } from '../desks/desks-manage.component';
@@ -46,36 +50,45 @@ import { ResourceManagerTopbarComponent } from './resource-manager-topbar.compon
                     [(selectedIndex)]="selected_tab"
                     (selectedIndexChange)="onTabChange($event)"
                 >
-                    <mat-tab
-                        [label]="'APP.CONCIERGE.TAB_ROOMS' | translate"
-                    ></mat-tab>
-                    <mat-tab
-                        [label]="'APP.CONCIERGE.TAB_DESKS' | translate"
-                    ></mat-tab>
-                    <mat-tab
-                        [label]="'APP.CONCIERGE.TAB_PARKING' | translate"
-                    ></mat-tab>
-                    <mat-tab
-                        [label]="'APP.CONCIERGE.TAB_LOCKERS' | translate"
-                    ></mat-tab>
+                    @if (show_rooms()) {
+                        <mat-tab
+                            [label]="'APP.CONCIERGE.TAB_ROOMS' | translate"
+                        ></mat-tab>
+                    }
+                    @if (show_desks()) {
+                        <mat-tab
+                            [label]="'APP.CONCIERGE.TAB_DESKS' | translate"
+                        ></mat-tab>
+                    }
+                    @if (show_parking()) {
+                        <mat-tab
+                            [label]="'APP.CONCIERGE.TAB_PARKING' | translate"
+                        ></mat-tab>
+                    }
+                    @if (show_lockers()) {
+                        <mat-tab
+                            [label]="'APP.CONCIERGE.TAB_LOCKERS' | translate"
+                        ></mat-tab>
+                    }
                 </mat-tab-group>
                 <resource-manager-topbar
                     [tab_index]="selected_tab()"
+                    [tab_name]="current_tab_name()"
                 ></resource-manager-topbar>
                 <div class="content-area flex-1">
-                    @if (selected_tab() === 0) {
+                    @if (current_tab_name() === 'rooms') {
                         <room-list
                             class="relative block h-full w-full"
                         ></room-list>
-                    } @else if (selected_tab() === 1) {
+                    } @else if (current_tab_name() === 'desks') {
                         <desks-manage
                             class="relative block h-full w-full"
                         ></desks-manage>
-                    } @else if (selected_tab() === 2) {
+                    } @else if (current_tab_name() === 'parking') {
                         <parking-space-list
                             class="relative block h-full w-full"
                         ></parking-space-list>
-                    } @else if (selected_tab() === 3) {
+                    } @else if (current_tab_name() === 'lockers') {
                         <locker-list
                             class="relative block h-full w-full"
                         ></locker-list>
@@ -119,32 +132,71 @@ export class ResourceManagerComponent extends AsyncHandler implements OnInit {
     private readonly _router = inject(Router);
 
     public readonly selected_tab = signal(0);
+    public readonly feature_list = settingSignal<string[]>('features', []);
+
+    // Feature availability computed signals
+    public readonly show_rooms = computed(
+        () =>
+            this.feature_list().includes('spaces') ||
+            this.feature_list().includes('zones'),
+    );
+    public readonly show_desks = computed(() =>
+        this.feature_list().includes('desks'),
+    );
+    public readonly show_parking = computed(() =>
+        this.feature_list().includes('parking'),
+    );
+    public readonly show_lockers = computed(() =>
+        this.feature_list().includes('lockers'),
+    );
+
+    // Available tabs based on features
+    public readonly available_tabs = computed(() => {
+        const tabs: Array<{ name: string; feature: string }> = [];
+        if (this.show_rooms()) tabs.push({ name: 'rooms', feature: 'spaces' });
+        if (this.show_desks()) tabs.push({ name: 'desks', feature: 'desks' });
+        if (this.show_parking())
+            tabs.push({ name: 'parking', feature: 'parking' });
+        if (this.show_lockers())
+            tabs.push({ name: 'lockers', feature: 'lockers' });
+        return tabs;
+    });
+
+    // Current tab name based on selected index
+    public readonly current_tab_name = computed(() => {
+        const available = this.available_tabs();
+        const index = this.selected_tab();
+        return available[index]?.name || '';
+    });
 
     private readonly TAB_NAMES = ['rooms', 'desks', 'parking', 'lockers'];
 
     public readonly addButtonText = () => {
-        const tab_index = this.selected_tab();
-        if (tab_index === 0) return 'APP.CONCIERGE.ROOMS_ADD';
-        if (tab_index === 1) return 'APP.CONCIERGE.DESKS_ADD';
-        if (tab_index === 2) return 'APP.CONCIERGE.PARKING_ADD';
+        const tab = this.current_tab_name();
+        if (tab === 'rooms') return 'APP.CONCIERGE.ROOMS_ADD';
+        if (tab === 'desks') return 'APP.CONCIERGE.DESKS_ADD';
+        if (tab === 'parking') return 'APP.CONCIERGE.PARKING_ADD';
         return 'APP.CONCIERGE.LOCKERS_ADD';
     };
 
     public readonly addItem = () => {
-        const tab_index = this.selected_tab();
-        if (tab_index === 0) this._room_service.editRoom();
-        else if (tab_index === 1) this._desk_service.editDesk();
-        else if (tab_index === 2) this._parking_service.editSpace();
-        else this._locker_service.editLockerBank();
+        const tab = this.current_tab_name();
+        if (tab === 'rooms') this._room_service.editRoom();
+        else if (tab === 'desks') this._desk_service.editDesk();
+        else if (tab === 'parking') this._parking_service.editSpace();
+        else if (tab === 'lockers') this._locker_service.editLockerBank();
     };
 
     public onTabChange(index: number) {
         this.selected_tab.set(index);
-        this._router.navigate([], {
-            relativeTo: this._route,
-            queryParams: { tab: this.TAB_NAMES[index] },
-            queryParamsHandling: 'merge',
-        });
+        const available = this.available_tabs();
+        if (available[index]) {
+            this._router.navigate([], {
+                relativeTo: this._route,
+                queryParams: { tab: available[index].name },
+                queryParamsHandling: 'merge',
+            });
+        }
     }
 
     public async ngOnInit() {
@@ -154,7 +206,10 @@ export class ResourceManagerComponent extends AsyncHandler implements OnInit {
             this._route.queryParamMap.subscribe((params) => {
                 if (params.has('tab')) {
                     const tab_name = params.get('tab');
-                    const tab_index = this.TAB_NAMES.indexOf(tab_name);
+                    const available = this.available_tabs();
+                    const tab_index = available.findIndex(
+                        (t) => t.name === tab_name,
+                    );
                     if (tab_index >= 0) {
                         this.selected_tab.set(tab_index);
                     }

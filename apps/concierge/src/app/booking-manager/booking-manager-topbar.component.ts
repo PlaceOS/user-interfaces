@@ -44,7 +44,7 @@ import { VisitorsStateService } from '../visitors/visitors-state.service';
                     [model]="search_value"
                     (modelChange)="setSearch($event)"
                 ></searchbar>
-                @if (tab_index() === 0) {
+                @if (tab_name() === 'desks') {
                     <button
                         btn
                         matRipple
@@ -56,7 +56,7 @@ import { VisitorsStateService } from '../visitors/visitors-state.service';
                         </div>
                         <icon class="text-2xl">add</icon>
                     </button>
-                } @else if (tab_index() === 1) {
+                } @else if (tab_name() === 'parking') {
                     <button
                         btn
                         matRipple
@@ -68,7 +68,7 @@ import { VisitorsStateService } from '../visitors/visitors-state.service';
                         </div>
                         <icon class="text-2xl">add</icon>
                     </button>
-                } @else if (tab_index() === 4) {
+                } @else if (tab_name() === 'visitors') {
                     <button
                         btn
                         matRipple
@@ -83,7 +83,7 @@ import { VisitorsStateService } from '../visitors/visitors-state.service';
             <div
                 class="mb-4 flex flex-nowrap items-center space-x-2 bg-base-100 px-8"
             >
-                @if (tab_index() === 3) {
+                @if (tab_name() === 'assets') {
                     <mat-form-field
                         appearance="outline"
                         class="no-subscript w-60"
@@ -208,6 +208,7 @@ export class BookingManagerTopbarComponent
     private _settings = inject(SettingsService);
 
     public readonly tab_index = input.required<number>();
+    public readonly tab_name = input<string>('');
     public readonly show_header = input.required<boolean>();
 
     public selected_zones: string[] | string = [];
@@ -231,12 +232,13 @@ export class BookingManagerTopbarComponent
 
     /** Set filtered date */
     public readonly setDate = (date) => {
-        const tab_index = this.tab_index();
-        if (tab_index === 0) this._desk_service.setFilters({ date });
-        else if (tab_index === 1) this._parking_service.setOptions({ date });
-        else if (tab_index === 2) this._locker_service.setFilters({ date });
-        else if (tab_index === 3) this._asset_service.setOptions({ date });
-        else if (tab_index === 4) this._visitors_service.setFilters({ date });
+        const tab = this.tab_name();
+        if (tab === 'desks') this._desk_service.setFilters({ date });
+        else if (tab === 'parking') this._parking_service.setOptions({ date });
+        else if (tab === 'lockers') this._locker_service.setFilters({ date });
+        else if (tab === 'assets') this._asset_service.setOptions({ date });
+        else if (tab === 'visitors')
+            this._visitors_service.setFilters({ date });
     };
 
     /** Update active zones */
@@ -251,14 +253,14 @@ export class BookingManagerTopbarComponent
         });
 
         // Update the appropriate service based on tab
-        const tab_index = this.tab_index();
-        if (tab_index === 0) {
+        const tab = this.tab_name();
+        if (tab === 'desks') {
             this._desk_service.setFilters({ zones: filtered_zones });
-        } else if (tab_index === 1) {
+        } else if (tab === 'parking') {
             this._parking_service.setOptions({ zones: filtered_zones });
-        } else if (tab_index === 2) {
+        } else if (tab === 'lockers') {
             this._locker_service.setFilters({ zones: filtered_zones });
-        } else if (tab_index === 4) {
+        } else if (tab === 'visitors') {
             this._visitors_service.setFilters({ zones: filtered_zones });
         }
     };
@@ -273,27 +275,27 @@ export class BookingManagerTopbarComponent
         });
 
         // Update the appropriate service
-        const tab_index = this.tab_index();
-        if (tab_index === 0) {
+        const tab = this.tab_name();
+        if (tab === 'desks') {
             this._desk_service.setFilters({ search: str });
-        } else if (tab_index === 1) {
+        } else if (tab === 'parking') {
             this._parking_service.setOptions({ search: str });
-        } else if (tab_index === 2) {
+        } else if (tab === 'lockers') {
             this._locker_service.setSearch(str);
-        } else if (tab_index === 3) {
+        } else if (tab === 'assets') {
             this._asset_service.setOptions({ search: str });
-        } else if (tab_index === 4) {
+        } else if (tab === 'visitors') {
             this._visitors_service.setSearchString(str);
         }
     };
 
     public refresh() {
-        const tab_index = this.tab_index();
-        if (tab_index === 0) this._desk_service.refresh();
-        else if (tab_index === 1) this._parking_service.startPolling();
-        else if (tab_index === 2) this._locker_service.refresh();
-        else if (tab_index === 3) this._asset_service.startPolling();
-        else if (tab_index === 4) this._visitors_service.startPolling();
+        const tab = this.tab_name();
+        if (tab === 'desks') this._desk_service.refresh();
+        else if (tab === 'parking') this._parking_service.startPolling();
+        else if (tab === 'lockers') this._locker_service.refresh();
+        else if (tab === 'assets') this._asset_service.startPolling();
+        else if (tab === 'visitors') this._visitors_service.startPolling();
     }
 
     public newDeskBooking() {
@@ -320,7 +322,7 @@ export class BookingManagerTopbarComponent
                     const zone_list = (params.get('zone_ids') || '').split(',');
                     const zones = zone_list.filter((z) => z);
                     this.selected_zones =
-                        this.tab_index() === 3 && zones.length
+                        this.tab_name() === 'assets' && zones.length
                             ? zones[0]
                             : zones;
                 }
