@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;baf1acba23f052fee0d31e6c1de13c7184721b4de5e2eed7d009b1a704666123;/home/runner/work/user-interfaces/user-interfaces/apps/signage/src/app/bootstrap.component.ts"],
+  "sourcesContent": ["\n            mat-form-field {\n                width: 100%;\n            }\n\n            [form] > div {\n                padding: 0 1em;\n            }\n        "],
+  "mappings": ";AACY;AACI,SAAO;AACX;AAEA,CAAC,MAAM,EAAE;AACL,WAAS,EAAE;AACf;",
+  "names": []
+}
