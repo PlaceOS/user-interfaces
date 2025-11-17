@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;a9cdc3eadab8bc3e96e10ae34e252be907dc13bc9405d57b9245726773f7c391;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/map-pin.component.ts"],
+  "sourcesContent": ["\n            [name='message'],\n            [name='pin'] {\n                animation: fade-in-top 1s;\n            }\n\n            @keyframes fade-in-top {\n                0% {\n                    opacity: 0;\n                    transform: translateY(-100%);\n                }\n                100% {\n                    opacity: 1;\n                    transform: translateY(0%);\n                }\n            }\n        "],
+  "mappings": ";AACY,CAAC;AACD,CAAC;AACG,aAAW,YAAY;AAC3B;AAEA,WAHe;AAIX;AACI,aAAS;AACT,eAAW,WAAW;AAC1B;AACA;AACI,aAAS;AACT,eAAW,WAAW;AAC1B;AACJ;",
+  "names": []
+}
