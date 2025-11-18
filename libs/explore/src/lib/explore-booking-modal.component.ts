@@ -1,4 +1,5 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import {
     MAT_DIALOG_DATA,
     MatDialogModule,
@@ -12,7 +13,7 @@ import {
     SettingsService,
 } from '@placeos/common';
 
-import { CommonModule } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -35,18 +36,22 @@ export interface ExploreBookingModalData {
 @Component({
     selector: 'explore-booking-modal',
     template: `
-        <header>
-            <h2>{{ 'EXPLORE.BOOKING_HEADER' | translate }}</h2>
+        <header
+            class="sticky top-0 z-10 m-2 h-14 w-[calc(100%-1rem)] rounded border-none bg-base-200 p-2"
+        >
+            <h2 class="px-2 text-xl font-medium">
+                {{ 'EXPLORE.BOOKING_HEADER' | translate }}
+            </h2>
             <div class="flex-1"></div>
-            @if (!(loading | async)) {
+            @if (!loading()) {
                 <button icon matRipple mat-dialog-close>
                     <icon>close</icon>
                 </button>
             }
         </header>
-        @if (!(loading | async)) {
+        @if (!loading()) {
             @if (form) {
-                <main [formGroup]="form" class="max-w-[85vw] p-4">
+                <main [formGroup]="form" class="max-w-[85vw] px-4">
                     <div class="flex flex-col">
                         <label for="title">Title<span>*</span>:</label>
                         <mat-form-field appearance="outline">
@@ -88,21 +93,23 @@ export interface ExploreBookingModalData {
                                     form.controls.resources?.value[0]?.name
                             }}
                         </div>
-                        @if (alert) {
+                        @if (alert()?.[0]) {
                             <div
                                 class="-mt-2 mb-4 rounded px-2 py-1 text-xs"
-                                [class.bg-info]="alert[0] === 'info'"
-                                [class.text-info-content]="alert[0] === 'info'"
-                                [class.bg-warning]="alert[0] === 'warn'"
-                                [class.text-warning-content]="
-                                    alert[0] === 'warn'
+                                [class.bg-info]="alert()[0] === 'info'"
+                                [class.text-info-content]="
+                                    alert()[0] === 'info'
                                 "
-                                [class.bg-error]="alert[0] === 'closed'"
+                                [class.bg-warning]="alert()[0] === 'warn'"
+                                [class.text-warning-content]="
+                                    alert()[0] === 'warn'
+                                "
+                                [class.bg-error]="alert()[0] === 'closed'"
                                 [class.text-error-content]="
-                                    alert[0] === 'closed'
+                                    alert()[0] === 'closed'
                                 "
                             >
-                                {{ alert[1] }}
+                                {{ alert()[1] }}
                             </div>
                         }
                     </div>
@@ -136,15 +143,15 @@ export interface ExploreBookingModalData {
                     </div>
                 </main>
             }
-            <footer class="flex justify-center border-t border-base-200 p-2">
-                <button btn matRipple class="w-32" (click)="save()">
+            <footer class="flex justify-end border-t border-base-300 p-2">
+                <button btn matRipple class="mx-2 w-32" (click)="save()">
                     {{ 'COMMON.SAVE' | translate }}
                 </button>
             </footer>
         } @else {
             <div load class="flex h-64 flex-col items-center justify-center">
                 <mat-spinner class="m-4" [diameter]="48"></mat-spinner>
-                <p>{{ loading | async }}</p>
+                <p>{{ 'CALENDAR_EVENT.CHECKING_AVAILABILITY' | translate }}</p>
             </div>
         }
     `,
@@ -161,7 +168,7 @@ export interface ExploreBookingModalData {
         `,
     ],
     imports: [
-        CommonModule,
+        DatePipe,
         TranslatePipe,
         MatRippleModule,
         MatProgressSpinnerModule,
@@ -182,8 +189,8 @@ export class ExploreBookingModalComponent implements OnInit {
         inject<MatDialogRef<ExploreBookingModalComponent>>(MatDialogRef);
     private _router = inject(Router);
 
-    public readonly loading = this._event_form.loading$;
-    public readonly alert = this._data.alert;
+    public readonly loading = toSignal(this._event_form.loading$);
+    public readonly alert = signal(this._data.alert);
 
     public get form() {
         return this._event_form.form;
