@@ -1,10 +1,15 @@
 import { MatMenuModule } from '@angular/material/menu';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
-import { Building, OrganisationService, SettingsService } from '@placeos/common';
+import {
+    Building,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
 import { mockComponent, mockDirective } from '@placeos/common/tests';
 import { MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 
+import { signal } from '@angular/core';
 import {
     AuthenticatedImageDirective,
     CustomTooltipComponent,
@@ -20,7 +25,11 @@ describe('TopbarComponent', () => {
     const createComponent = createRoutingFactory({
         component: TopbarComponent,
         providers: [
-            MockProvider(SettingsService, { get: jest.fn(), value: jest.fn() }),
+            MockProvider(SettingsService, {
+                get: jest.fn(),
+                value: jest.fn(),
+                theme_signal: signal(''),
+            }),
             MockProvider(OrganisationService, {
                 active_building: new BehaviorSubject(new Building()),
                 building: new Building(),

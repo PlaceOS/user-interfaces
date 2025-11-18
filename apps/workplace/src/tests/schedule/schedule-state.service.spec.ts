@@ -15,8 +15,10 @@ describe('ScheduleStateService', () => {
                 listen: jest.fn(() => of(0)),
             } as any),
             MockProvider(OrganisationService, {
+                initialised: of(true),
                 active_building: of({} as any),
                 level_list: of([]),
+                building_list: of([]),
             }),
         ],
     });

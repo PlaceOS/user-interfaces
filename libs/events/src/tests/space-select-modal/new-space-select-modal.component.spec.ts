@@ -6,8 +6,8 @@ import {
 import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
 import { SettingsService, Space } from '@placeos/common';
 import { EventFormService, generateEventForm } from '@placeos/events';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { mockComponent } from 'libs/common/src/tests/test-helpers';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { MockModule, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 import { NewSpaceSelectModalComponent } from '../../lib/new-space-select-modal/new-space-select-modal.component';
@@ -79,7 +79,7 @@ describe('NewSpaceSelectModalComponent', () => {
         spectator.component.toggleFavourite(new Space({ id: '1' }));
         expect(
             spectator.inject(SettingsService).saveUserSetting,
-        ).toBeCalledWith('favourite_spaces', ['1']);
+        ).toBeCalledWith('favourite_rooms', ['1']);
     });
 
     it('should allow un-favouriting a space', () => {
@@ -89,6 +89,6 @@ describe('NewSpaceSelectModalComponent', () => {
         spectator.component.toggleFavourite(new Space({ id: '1' }));
         expect(
             spectator.inject(SettingsService).saveUserSetting,
-        ).toBeCalledWith('favourite_spaces', []);
+        ).toBeCalledWith('favourite_rooms', []);
     });
 });
