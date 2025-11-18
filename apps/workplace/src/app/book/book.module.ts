@@ -11,8 +11,8 @@ import { BookLockerFlowComponent } from './locker-flow.component';
 import { MeetingFlowNewComponent } from './meeting-flow-new/meeting-flow.component';
 import { BookMeetingFlowComponent } from './meeting-flow.component';
 import { NewParkingFlowComponent } from './parking-flow.component';
-import { VisitorFlowComponent } from './visitor-flow.component';
 import { VisitorFlowNewComponent } from './visitor-flow-new/visitor-flow.component';
+import { VisitorFlowComponent } from './visitor-flow.component';
 
 const ROUTES: Route[] = [
     {
@@ -22,23 +22,23 @@ const ROUTES: Route[] = [
             { path: 'code', component: BookCodeFlowComponent },
             { path: 'code/success', component: CodeFlowSuccessComponent },
             { path: 'code/error', component: CodeFlowErrorComponent },
+            { path: 'desk/:step', component: DeskFlowNewComponent },
             { path: 'desk', redirectTo: 'desk/form' },
             { path: 'desks', redirectTo: 'desk/form' },
-            { path: 'desk/:step', component: DeskFlowNewComponent },
-            { path: 'meeting', redirectTo: 'meeting/form' },
             { path: 'meeting/:step', component: MeetingFlowNewComponent },
+            { path: 'meeting', redirectTo: 'meeting/form' },
             // { path: 'meeting', redirectTo: 'meeting/form' },
             // { path: 'meeting/:step', component: BookMeetingFlowComponent },
-            { path: 'parking', redirectTo: 'parking/form' },
             { path: 'parking/:step', component: NewParkingFlowComponent },
-            { path: 'visitor', redirectTo: 'visitor/form' },
+            { path: 'parking', redirectTo: 'parking/form' },
             { path: 'visitor/:step', component: VisitorFlowNewComponent },
-            { path: 'locker', redirectTo: 'locker/form' },
+            { path: 'visitor', redirectTo: 'visitor/form' },
             { path: 'locker/:step', component: BookLockerFlowComponent },
-            { path: '*', redirectTo: 'spaces/form' },
+            { path: 'locker', redirectTo: 'locker/form' },
+            { path: '*', redirectTo: 'meeting/form' },
         ],
     },
-    { path: '*', redirectTo: 'spaces/form' },
+    { path: '*', redirectTo: 'meeting/form' },
 ];
 
 const STANDALONE_COMPONENTS = [

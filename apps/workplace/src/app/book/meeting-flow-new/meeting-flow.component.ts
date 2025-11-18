@@ -187,10 +187,15 @@ export class MeetingFlowNewComponent extends AsyncHandler implements OnInit {
 
     public ngOnInit() {
         this.subscription(
+            'route.params',
+            this._route.paramMap.subscribe((param) => {
+                if (param.has('step'))
+                    this._event_form.setView(param.get('step') as any);
+            }),
+        );
+        this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
-                if (params.has('step'))
-                    this._event_form.setView(params.get('step') as any);
                 if (params.has('view')) {
                     if (Number.isNaN(+params.get('view'))) return;
                     this.view.update((o) => +params.get('view'));
