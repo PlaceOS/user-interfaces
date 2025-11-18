@@ -8,11 +8,11 @@ import {
     signal,
     viewChild,
 } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatRippleModule } from '@angular/material/core';
 import { RouterModule } from '@angular/router';
-import { SettingsService, userSignal } from '@placeos/common';
+import { settingSignal, SettingsService, userSignal } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
 
 @Component({
@@ -40,7 +40,9 @@ import { IconComponent } from '@placeos/components';
                             Welcome {{ user().name }}, it's
                             {{ time() | date: 'fullDate' }}
                         </h2>
-                        <p class="opacity-80">I'm Ben, your virtual concierge</p>
+                        <p class="opacity-80">
+                            I'm Ben, your virtual concierge
+                        </p>
                     </div>
                 </div>
 
@@ -59,10 +61,61 @@ import { IconComponent } from '@placeos/components';
                             <button
                                 btn
                                 matRipple
-                                class="inverse white m-1 h-10 min-h-0 rounded-full"
+                                class="inverse m-1 h-10 min-h-0 rounded-full"
                             >
                                 {{ prompt }}
                             </button>
+                        }
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="space-y-2 border-t border-base-300 pt-4">
+                    <h4 class="opacity-60">Quick actions:</h4>
+                    <div class="grid grid-cols-2 gap-2 md:grid-cols-4">
+                        @if (features().includes('spaces')) {
+                            <a
+                                btn
+                                matRipple
+                                [routerLink]="['/book', 'meeting']"
+                                class="inverse h-16 flex-col space-y-1"
+                            >
+                                <icon class="text-2xl">meeting_room</icon>
+                                <div class="text-xs">Book Room</div>
+                            </a>
+                        }
+                        @if (features().includes('desks')) {
+                            <a
+                                btn
+                                matRipple
+                                [routerLink]="['/book', 'desk']"
+                                class="inverse h-16 flex-col space-y-1"
+                            >
+                                <icon class="text-2xl">desk</icon>
+                                <div class="text-xs">Book Desk</div>
+                            </a>
+                        }
+                        @if (features().includes('parking')) {
+                            <a
+                                btn
+                                matRipple
+                                [routerLink]="['/book', 'parking']"
+                                class="inverse h-16 flex-col space-y-1"
+                            >
+                                <icon class="text-2xl">directions_car</icon>
+                                <div class="text-xs">Book Parking</div>
+                            </a>
+                        }
+                        @if (features().includes('lockers')) {
+                            <a
+                                btn
+                                matRipple
+                                [routerLink]="['/book', 'locker']"
+                                class="inverse h-16 flex-col space-y-1"
+                            >
+                                <icon class="text-2xl">lock</icon>
+                                <div class="text-xs">Book Locker</div>
+                            </a>
                         }
                     </div>
                 </div>
@@ -127,7 +180,7 @@ import { IconComponent } from '@placeos/components';
                                     <button
                                         btn
                                         matRipple
-                                        class="inverse white m-1 h-10 min-h-0 rounded-full"
+                                        class="inverse m-1 h-10 min-h-0 rounded-full"
                                     >
                                         {{ prompt }}
                                     </button>
@@ -155,13 +208,15 @@ export class LandingVirtualConciergeComponent {
     public readonly user = userSignal();
     public readonly time = signal(Date.now());
     public readonly is_fullscreen = signal(false);
+    public readonly features = settingSignal<string[]>('features', []);
 
     private readonly _fullscreen_input =
         viewChild<ElementRef<HTMLInputElement>>('fullscreenInput');
 
     public readonly prompts = computed(() => {
-        const config_prompts =
-            this._settings.signal('virtual_concierge.prompts')();
+        const config_prompts = this._settings.signal(
+            'virtual_concierge.prompts',
+        )();
         return config_prompts && Array.isArray(config_prompts)
             ? config_prompts
             : [

@@ -100,32 +100,35 @@ import { ScheduleStateService } from '../schedule/schedule-state.service';
                             btn
                             matRipple
                             [disabled]="!canCheckin()"
-                            class="white w-full space-x-2 sm:w-48"
+                            class="white w-full space-x-2 sm:w-52"
                             (click)="checkIn()"
                         >
                             <icon class="text-2xl">check_circle</icon>
-                            <div class="mr-2">Check-in</div>
+                            <div class="pr-2">Check-in</div>
                         </button>
                         <button
                             btn
                             matRipple
-                            class="inverse white w-full space-x-2 sm:w-48"
+                            class="inverse white w-full space-x-2 sm:w-52"
                             (click)="viewDetails()"
                         >
                             <icon class="text-2xl">info</icon>
-                            <div class="mr-2">View Details</div>
+                            <div class="pr-2">View Details</div>
                         </button>
-                        @if (eventLocation()) {
-                            <button
-                                btn
-                                matRipple
-                                class="inverse white w-full space-x-2 sm:w-48"
-                                (click)="viewDirections()"
-                            >
-                                <icon class="text-2xl">directions</icon>
-                                <div class="mr-2">Directions</div>
-                            </button>
-                        }
+                        <a
+                            btn
+                            matRipple
+                            class="inverse white w-full space-x-2 sm:w-52"
+                            [routerLink]="['/your-bookings']"
+                        >
+                            <icon class="text-2xl">open_in_new</icon>
+                            <div class="pr-2">
+                                {{
+                                    'APP.WORKPLACE.UPCOMING_VIEW_BOOKINGS'
+                                        | translate
+                                }}
+                            </div>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -143,22 +146,39 @@ import { ScheduleStateService } from '../schedule/schedule-state.service';
                 <p class="text-base opacity-90">
                     Ready to plan your day? Book a space or find a colleague.
                 </p>
-                <div class="flex w-full max-w-[24rem] flex-wrap gap-3 pt-2">
+                <div class="flex w-full flex-wrap gap-3 pt-2">
+                    <div class="flex w-full flex-wrap gap-3 sm:w-auto">
+                        <a
+                            btn
+                            matRipple
+                            class="white sm:flex-0 min-w-48 flex-1 space-x-2 sm:w-48"
+                            [routerLink]="['/book', 'meeting']"
+                        >
+                            <div>Book a Space</div>
+                        </a>
+                        <a
+                            btn
+                            matRipple
+                            class="inverse white sm:flex-0 min-w-48 flex-1 space-x-2 sm:w-48"
+                            [routerLink]="['/book', 'desk']"
+                        >
+                            <div>Find Desk</div>
+                        </a>
+                    </div>
+                    <div class="hidden w-px flex-1 sm:block"></div>
                     <a
                         btn
                         matRipple
-                        class="white flex-1 space-x-2"
-                        [routerLink]="['/book', 'meeting']"
+                        class="inverse white w-full space-x-2 sm:w-52"
+                        [routerLink]="['/your-bookings']"
                     >
-                        <div>Book a Space</div>
-                    </a>
-                    <a
-                        btn
-                        matRipple
-                        class="inverse white flex-1 space-x-2"
-                        [routerLink]="['/book', 'desk']"
-                    >
-                        <div>Find Desk</div>
+                        <icon class="text-2xl">open_in_new</icon>
+                        <div class="pr-2">
+                            {{
+                                'APP.WORKPLACE.UPCOMING_VIEW_BOOKINGS'
+                                    | translate
+                            }}
+                        </div>
                     </a>
                 </div>
             </div>

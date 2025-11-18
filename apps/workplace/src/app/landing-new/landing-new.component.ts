@@ -2,7 +2,6 @@ import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { RouterModule } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
-import { IconComponent, TranslatePipe } from '@placeos/components';
 import { FooterMenuComponent } from '../components/footer-menu.component';
 import { TopbarComponent } from '../components/topbar.component';
 import { LandingStateService } from '../landing/landing-state.service';
@@ -25,21 +24,7 @@ import { LandingVirtualConciergeComponent } from './landing-virtual-concierge.co
                     class="mx-auto grid w-[80rem] max-w-full grid-cols-1 gap-4 p-4 md:grid-cols-3"
                 >
                     <landing-upcoming-booking class="md:col-span-3" />
-                    <a
-                        matRipple
-                        [routerLink]="['/your-bookings']"
-                        class="flex min-h-8 items-center justify-center rounded-lg md:col-span-3"
-                    >
-                        <div class="underline">
-                            {{
-                                'APP.WORKPLACE.UPCOMING_VIEW_BOOKINGS'
-                                    | translate
-                            }}
-                        </div>
-                        <icon>arrow_forward</icon>
-                    </a>
-
-                    <landing-virtual-concierge  class="md:col-span-3" />
+                    <landing-virtual-concierge class="md:col-span-3" />
 
                     <landing-available-now class="md:col-span-2" />
                     <landing-quick-actions class="md:col-span-1" />
@@ -60,8 +45,6 @@ import { LandingVirtualConciergeComponent } from './landing-virtual-concierge.co
         RouterModule,
         TopbarComponent,
         FooterMenuComponent,
-        TranslatePipe,
-        IconComponent,
         LandingUpcomingBookingComponent,
         LandingVirtualConciergeComponent,
         LandingAvailableNowComponent,

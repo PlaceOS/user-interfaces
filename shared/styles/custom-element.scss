@@ -617,8 +617,6 @@ a[btn] {
 }
 
 .theme-dark {
-
-
     button[btn]:not([icon]),
     a[btn] {
         &.inverse {
@@ -1066,11 +1064,14 @@ a[icon] {
 
     .mdc-notched-outline__leading,
     .mdc-notched-outline__trailing {
-        border-color: var(--neutral);
+        border-color: var(--base-400);
     }
 
     .mdc-text-field__input {
         color: var(--base-content);
+        &::placeholder {
+            color: var(--base-400);
+        }
     }
 
     .mdc-text-field--focused {
