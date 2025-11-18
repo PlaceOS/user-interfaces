@@ -775,7 +775,8 @@
         "APPROVAL_REQUIRED_MSG": "Room selected for this booking requires approval and may not be confirmed until a later date.",
         "SETUP_BREAKDOWN_HEADER": "Set Event's Setup and Breakdown",
         "SETUP_DURATION": "Setup Duration",
-        "BREAKDOWN_DURATION": "Breakdown Duration"
+        "BREAKDOWN_DURATION": "Breakdown Duration",
+        "CHECKING_AVAILABILITY": "Checking space availability..."
     },
     "CATERING": {
         "MENU": "Catering Menu",

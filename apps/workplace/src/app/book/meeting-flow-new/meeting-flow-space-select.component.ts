@@ -140,7 +140,7 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                                 @for (lvl of levels | async; track lvl) {
                                     <mat-option [value]="lvl.id">
                                         <div class="flex flex-col-reverse">
-                                            @if (use_region) {
+                                            @if (use_region()) {
                                                 <div class="text-xs opacity-30">
                                                     {{
                                                         (
@@ -424,7 +424,7 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                             @for (lvl of levels | async; track lvl) {
                                 <mat-option [value]="lvl.id">
                                     <div class="flex flex-col-reverse">
-                                        @if (use_region) {
+                                        @if (use_region()) {
                                             <div class="text-xs opacity-30">
                                                 {{
                                                     (lvl?.parent_id | building)
@@ -646,7 +646,7 @@ export class MeetingFlowSpaceSelectComponent implements OnInit {
         this._org.active_building,
     ]).pipe(
         map(([region, bld]) => {
-            const level_list = this.use_region
+            const level_list = this.use_region()
                 ? this._org.levelsForRegion(region)
                 : this._org.levelsForBuilding(bld);
             const viewable_levels = level_list.filter(

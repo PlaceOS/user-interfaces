@@ -81,6 +81,8 @@ export interface BookingFlowOptions {
     type: BookingType;
     /** Zone to check available */
     zone_id?: string;
+    /** List of zones to check available */
+    zones?: string[];
     /** List of features that the asset should associate */
     features?: string[];
     /** Whether booking is for a group */
@@ -242,16 +244,19 @@ export class BookingFormService extends AsyncHandler {
                     duration = 24 * 60 - 1;
                 }
                 const favourites = this._favourites[options.type]?.() || [];
+                const default_zone = (this._settings.get('app.use_region')
+                    ? this._org.region?.id
+                    : this._org.building?.id) ||
+                    this._org.organisation.id;
                 return bookedResourceList({
                     period_start: getUnixTime(date),
                     period_end: getUnixTime(addMinutes(date, duration)),
                     type: options.type,
                     zones:
-                        options.zone_id ||
-                        (this._settings.get('app.use_region')
-                            ? this._org.region?.id
-                            : this._org.building?.id) ||
-                        this._org.organisation.id,
+                        options.zones?.length
+                            ? options.zones.join(',')
+                            : options.zone_id ||
+                              default_zone,
                 }).pipe(
                     map((booked_ids) => {
                         this._resource_use = {};
@@ -271,6 +276,17 @@ export class BookingFormService extends AsyncHandler {
                                     restrictions[this._org.building.id] ||
                                     [],
                             ).hidden;
+                            // Check zone filtering
+                            const zone_filter = options.zones?.length
+                                ? options.zones.some(
+                                      (zone_id) =>
+                                          zone_id === asset.zone?.id ||
+                                          zone_id === asset.zone?.parent_id,
+                                  )
+                                : options.zone_id
+                                  ? options.zone_id === asset.zone?.id ||
+                                    options.zone_id === asset.zone?.parent_id
+                                  : true;
                             return (
                                 !is_restricted &&
                                 (!options.show_fav ||
@@ -284,10 +300,7 @@ export class BookingFormService extends AsyncHandler {
                                     options.features?.every((_) =>
                                         asset.features.includes(_),
                                     )) &&
-                                (!options.zone_id ||
-                                    options.zone_id === asset.zone?.id ||
-                                    options.zone_id ===
-                                        asset.zone?.parent_id) &&
+                                zone_filter &&
                                 !booked_ids.includes(asset.id)
                             );
                         });
