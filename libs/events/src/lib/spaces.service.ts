@@ -77,7 +77,7 @@ export class SpacesService {
      * @param space_id ID/Email address associated with the space
      */
     public find(space_id: string) {
-        return this.space_list.find(({ id }) => space_id === id);
+        return this.space_list.find(({ id, email }) => space_id === id || space_id === email);
     }
 
     private async loadSpaces(): Promise<void> {

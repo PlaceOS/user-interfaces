@@ -35,6 +35,7 @@ import {
     queryEvents,
     removeEvent,
     requestSpacesForZone,
+    SpacesService,
 } from '@placeos/events';
 import { getModule } from '@placeos/ts-client';
 import {
@@ -90,6 +91,7 @@ export class ScheduleStateService extends AsyncHandler {
     private _booking_form = inject(BookingFormService);
     private _router = inject(Router);
     private _parking = inject(ParkingService);
+    private _spaces = inject(SpacesService);
 
     private _poll = new BehaviorSubject(0);
     private _poll_type = new BehaviorSubject<'api' | 'ws'>('api');
@@ -699,6 +701,38 @@ export class ScheduleStateService extends AsyncHandler {
                         ical_uid: event.ical_uid,
                     }).toPromise()
                 ).find((_) => _.ical_uid === event.ical_uid) || event;
+        }
+        // Load full space details for resources
+        if (event.resources?.length) {
+            const full_resources = await Promise.all(
+                event.resources.map(async (resource) => {
+                    // Use email or id as the lookup key
+                    const lookup_key = resource.email || resource.id;
+                    if (!lookup_key) return resource;
+
+                    // Try to find in cache first (by id or email)
+                    let space = this._spaces.find(lookup_key);
+                    if (!space) {
+                        // If not in cache, load from API
+                        try {
+                            await this._spaces.loadSpace(lookup_key);
+                            space = this._spaces.find(lookup_key);
+                        } catch (err) {
+                            console.warn(
+                                `Failed to load space ${lookup_key}:`,
+                                err,
+                            );
+                        }
+                    }
+                    // Return full space or fallback to original resource
+                    return space || resource;
+                }),
+            );
+            // Create new event with full resources
+            event = new CalendarEvent({
+                ...event.toJSON(),
+                resources: full_resources,
+            });
         }
         setTimeout(() => this._event_form.newForm(event), 300);
     }

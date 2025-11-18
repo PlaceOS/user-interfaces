@@ -1,12 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-    Component,
-    computed,
-    inject,
-    OnInit,
-    output,
-    signal,
-} from '@angular/core';
+import { Component, computed, inject, output, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
@@ -583,7 +576,7 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
         RouterModule,
     ],
 })
-export class MeetingFlowSpaceSelectComponent implements OnInit {
+export class MeetingFlowSpaceSelectComponent {
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
     private _event_form = inject(EventFormService);
@@ -610,12 +603,20 @@ export class MeetingFlowSpaceSelectComponent implements OnInit {
         [],
     );
     public readonly form = signal(this._event_form.form);
-    public readonly selected = signal<string[]>([]);
     public readonly view = signal<'map' | 'list'>('list');
     public readonly filters_open = signal(false);
 
-    private readonly form_value = toSignal(this._event_form.form.valueChanges, {
-        initialValue: this._event_form.form.value,
+    private readonly form_changes = toSignal(
+        this._event_form.form.valueChanges,
+    );
+    private readonly form_value = computed(() => {
+        this.form_changes();
+        return this._event_form.form.getRawValue();
+    });
+
+    public readonly selected = computed(() => {
+        const resources = this.form_value().resources || [];
+        return resources.map(({ id }) => id);
     });
 
     public readonly has_space = computed(
@@ -679,10 +680,6 @@ export class MeetingFlowSpaceSelectComponent implements OnInit {
         return this.use_24hr() ? 'HH:mm' : 'h:mm a';
     }
 
-    public ngOnInit() {
-        this.selected.set((this.field('resources') || []).map(({ id }) => id));
-    }
-
     public field(name: string) {
         return this.form()?.getRawValue()?.[name];
     }
@@ -711,10 +708,10 @@ export class MeetingFlowSpaceSelectComponent implements OnInit {
                 ? resources.filter(({ id }) => id !== space.id)
                 : [...resources, space];
             this.form().patchValue({ resources: new_resources });
-            this.selected.set(new_resources.map(({ id }) => id));
+            // selected signal will update automatically via computed
         } else {
             this.form().patchValue({ resources: [space] });
-            this.selected.set([space.id]);
+            // selected signal will update automatically via computed
             // Close filters on mobile after selecting a space
             this.filters_open.set(false);
         }
