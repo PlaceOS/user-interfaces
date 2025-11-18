@@ -72,13 +72,13 @@ import { IconComponent } from '@placeos/components';
                 <!-- Quick Actions -->
                 <div class="space-y-2 border-t border-base-300 pt-4">
                     <h4 class="opacity-60">Quick actions:</h4>
-                    <div class="grid grid-cols-2 gap-2 md:grid-cols-4">
+                    <div class="-m-1 flex flex-wrap">
                         @if (features().includes('spaces')) {
                             <a
                                 btn
                                 matRipple
                                 [routerLink]="['/book', 'meeting']"
-                                class="inverse h-16 flex-col space-y-1"
+                                class="inverse m-1 h-16 w-[calc(50%-0.5rem)] flex-col space-y-1 md:w-[calc(25%-0.5rem)]"
                             >
                                 <icon class="text-2xl">meeting_room</icon>
                                 <div class="text-xs">Book Room</div>
@@ -89,7 +89,7 @@ import { IconComponent } from '@placeos/components';
                                 btn
                                 matRipple
                                 [routerLink]="['/book', 'desk']"
-                                class="inverse h-16 flex-col space-y-1"
+                                class="inverse m-1 h-16 w-[calc(50%-0.5rem)] flex-col space-y-1 md:w-[calc(25%-0.5rem)]"
                             >
                                 <icon class="text-2xl">desk</icon>
                                 <div class="text-xs">Book Desk</div>
@@ -100,7 +100,7 @@ import { IconComponent } from '@placeos/components';
                                 btn
                                 matRipple
                                 [routerLink]="['/book', 'parking']"
-                                class="inverse h-16 flex-col space-y-1"
+                                class="inverse m-1 h-16 w-[calc(50%-0.5rem)] flex-col space-y-1 md:w-[calc(25%-0.5rem)]"
                             >
                                 <icon class="text-2xl">directions_car</icon>
                                 <div class="text-xs">Book Parking</div>
@@ -111,7 +111,7 @@ import { IconComponent } from '@placeos/components';
                                 btn
                                 matRipple
                                 [routerLink]="['/book', 'locker']"
-                                class="inverse h-16 flex-col space-y-1"
+                                class="inverse m-1 h-16 w-[calc(50%-0.5rem)] flex-col space-y-1 md:w-[calc(25%-0.5rem)]"
                             >
                                 <icon class="text-2xl">lock</icon>
                                 <div class="text-xs">Book Locker</div>
