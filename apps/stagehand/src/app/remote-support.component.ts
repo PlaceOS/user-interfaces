@@ -6,7 +6,6 @@ import {
     inject,
     OnInit,
     signal,
-    untracked,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
@@ -454,6 +453,7 @@ export class RemoteSupportComponent extends AsyncHandler implements OnInit {
     public readonly room_data = computed(() => {
         const r_id = this._dashboard.region_id();
         const bld_id = this._dashboard.building_id();
+        const alerts_list = this.alerts();
         return this.room_list()
             .filter(
                 (rm) =>
@@ -463,7 +463,7 @@ export class RemoteSupportComponent extends AsyncHandler implements OnInit {
             )
             .map((rm) => ({
                 ...rm,
-                issues: this.alerts().filter((a) => a.location == rm.id),
+                issues: alerts_list.filter((a) => a.location === rm.id),
             }));
     });
     public readonly backoffice_link = settingSignal(
@@ -478,36 +478,13 @@ export class RemoteSupportComponent extends AsyncHandler implements OnInit {
     public readonly filtered_rooms = computed(() => {
         const term = this.search_term().toLowerCase();
         const current_state = this.state();
+        const status_map = this.status();
 
-        // Get base room list with location filtering
-        const r_id = this._dashboard.region_id();
-        const bld_id = this._dashboard.building_id();
-        const base_rooms = this.room_list().filter(
-            (rm) =>
-                (!bld_id && !r_id) ||
-                rm.zones.includes(bld_id) ||
-                (!bld_id && rm.zones.includes(r_id)),
-        );
-
-        // Only track alerts when filtering by issues
-        const alerts_list =
-            current_state === 'issues'
-                ? this.alerts()
-                : untracked(() => this.alerts());
-
-        // Only read status as reactive dependency when filtering by status
-        const status_map =
-            current_state === 'in_use' || current_state === 'available'
-                ? this.status()
-                : untracked(() => this.status());
-
-        // Map rooms with their issues
-        const rooms = base_rooms.map((rm) => ({
-            ...rm,
-            issues: alerts_list.filter((a) => a.location == rm.id),
-        }));
+        // Use room_data as base which includes location filtering and issues
+        const rooms = this.room_data();
 
         return rooms.filter((room) => {
+            // Filter by state
             switch (current_state) {
                 case 'in_use':
                     if (status_map[room.id] !== 'busy') return false;
@@ -520,6 +497,7 @@ export class RemoteSupportComponent extends AsyncHandler implements OnInit {
                     break;
             }
 
+            // Filter by search term
             if (term) {
                 if (
                     !room.name.toLowerCase().includes(term) &&
@@ -528,6 +506,7 @@ export class RemoteSupportComponent extends AsyncHandler implements OnInit {
                     return false;
                 }
             }
+
             return true;
         });
     });
