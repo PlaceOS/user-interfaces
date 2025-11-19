@@ -19,6 +19,7 @@ export interface TableColumn {
     key: string;
     name: string;
     sortable?: boolean;
+    sort_fn?: (a, b) => number;
     filterable?: boolean;
     content?: string | TemplateRef<any> | Component;
     size?: string;
@@ -321,7 +322,7 @@ export class SimpleTableComponent<T extends object = any> extends AsyncHandler {
     public total_count = 0;
     public total_pages = 0;
     public active_row = -1;
-    public active_columns = [];
+    public active_columns: TableColumn[] = [];
 
     private _data$ = new BehaviorSubject<T[]>([]);
     private _filter$ = new BehaviorSubject<string>('');
@@ -342,6 +343,10 @@ export class SimpleTableComponent<T extends object = any> extends AsyncHandler {
 
     public get column_count() {
         return this.active_columns.length + (this.selectable() ? 1 : 0);
+    }
+
+    public column(key: string) {
+        return this.active_columns.find((_) => _.key === key);
     }
 
     public get column_template() {
@@ -388,23 +393,20 @@ export class SimpleTableComponent<T extends object = any> extends AsyncHandler {
                     }
                     if (sort && data.length) {
                         const type = typeof data[0][sort.key];
-                        if (type === 'number') {
-                            data = data.sort((a, b) => {
-                                const result = a[sort.key] - b[sort.key];
-                                return sort.reverse ? -result : result;
-                            });
-                        } else {
-                            data = data.sort((a, b) => {
-                                const a_value = JSON.stringify(
-                                    a[sort.key] || '',
-                                );
-                                const b_value = JSON.stringify(
-                                    b[sort.key] || '',
-                                );
-                                const result = a_value.localeCompare(b_value);
-                                return sort.reverse ? -result : result;
-                            });
-                        }
+                        const default_fn =
+                            type === 'number'
+                                ? (a, b) => a - b
+                                : (a, b) => {
+                                      const a_value = JSON.stringify(a);
+                                      const b_value = JSON.stringify(b);
+                                      return a_value.localeCompare(b_value);
+                                  };
+                        data = data.sort((a, b) => {
+                            const sort_fn =
+                                this.column(sort.key)?.sort_fn || default_fn;
+                            const result = sort_fn(a[sort.key], b[sort.key]);
+                            return sort.reverse ? -result : result;
+                        });
                     }
                     this.selected.set([]);
                     this.page = 0;
