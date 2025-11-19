@@ -1,12 +1,12 @@
 import {
   subMonths
-} from "./chunk-IP6ZS3W7.js";
+} from "./chunk-KZSHCOU6.js";
 import {
   subMinutes
-} from "./chunk-H2ESPPSD.js";
+} from "./chunk-7CI2VXNF.js";
 import {
   subDays
-} from "./chunk-4Y4OUXDK.js";
+} from "./chunk-WNTCVLQI.js";
 import {
   ANIMATION_MODULE_TYPE,
   AUTO_STYLE,
@@ -22,6 +22,7 @@ import {
   ErrorHandler,
   GlobalBannerComponent,
   GlobalLoadingComponent,
+  Ha,
   Inject,
   Injectable,
   Is,
@@ -76,7 +77,6 @@ import {
   timePeriodsIntersect,
   unique,
   withInterceptorsFromDi,
-  za,
   ɵPRE_STYLE,
   ɵsetClassDebugInfo,
   ɵɵadvance,
@@ -90,7 +90,7 @@ import {
   ɵɵelementEnd,
   ɵɵelementStart,
   ɵɵinject
-} from "./chunk-JMWE3Z3Z.js";
+} from "./chunk-I4HSLPYT.js";
 
 // node_modules/@angular/animations/fesm2022/util-CPU6TNml.mjs
 var LINE_START = "\n - ";
@@ -4441,85 +4441,85 @@ var routes = [
   { path: "unauthorised", component: UnauthorisedComponent },
   {
     path: "book/rooms",
-    loadChildren: () => import("./day-view.module-TWFGXLMR.js").then((m) => m.DayViewModule),
+    loadChildren: () => import("./day-view.module-JKCHTSVW.js").then((m) => m.DayViewModule),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "facilities",
-    loadChildren: () => import("./facilities.module-JTKMXBJL.js").then((m) => m.FacilitiesModule),
+    loadChildren: () => import("./facilities.module-O5SDF7B5.js").then((m) => m.FacilitiesModule),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "book/visitors",
-    loadChildren: () => import("./visitors.module-SOJ7GILI.js").then((m) => m.VisitorsModule),
+    loadChildren: () => import("./visitors.module-GAO2FYAT.js").then((m) => m.VisitorsModule),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "book/assets",
-    loadChildren: () => import("./asset-manager.module-Z6O4A43M.js").then((m) => m.AppAssetManangerModule),
+    loadChildren: () => import("./asset-manager.module-POEZLWOS.js").then((m) => m.AppAssetManangerModule),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "bookings",
-    loadChildren: () => import("./booking-manager.module-YDCMIZ3P.js").then((m) => m.BookingManagerModule),
+    loadChildren: () => import("./booking-manager.module-FSL3MMPP.js").then((m) => m.BookingManagerModule),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "book/desks",
-    loadChildren: () => import("./desks.module-UNHP756D.js").then((m) => m.DesksModule),
+    loadChildren: () => import("./desks.module-7VOSB4VL.js").then((m) => m.DesksModule),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "book/lockers",
-    loadChildren: () => import("./lockers.module-7ZW7ZCUY.js").then((m) => m.LockersModule),
+    loadChildren: () => import("./lockers.module-UBTQZMX3.js").then((m) => m.LockersModule),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "reports",
-    loadChildren: () => import("./reports.module-UKNPYRCV.js").then((m) => m.ReportsModule),
+    loadChildren: () => import("./reports.module-EZZ5ZGDD.js").then((m) => m.ReportsModule),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "entertainment/events",
-    loadChildren: () => import("./events.module-JHNMLXCO.js").then((m) => m.EventsModule),
+    loadChildren: () => import("./events.module-ZDAXARSV.js").then((m) => m.EventsModule),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "users/staff",
-    loadChildren: () => import("./staff.module-Q6JLEYYI.js").then((m) => m.StaffModule),
+    loadChildren: () => import("./staff.module-BZ5J52O3.js").then((m) => m.StaffModule),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "book/catering",
-    loadChildren: () => import("./catering.module-3PSKOJ6J.js").then((m) => m.CateringModule),
+    loadChildren: () => import("./catering.module-4HNJOVJW.js").then((m) => m.CateringModule),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "points-management",
-    loadChildren: () => import("./points.module-CC4ZHQS5.js").then((m) => m.PointsModule),
+    loadChildren: () => import("./points.module-OA24VAGA.js").then((m) => m.PointsModule),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "book/parking",
-    loadChildren: () => import("./parking.module-P4G2XFHU.js").then((m) => m.AppParkingModule),
+    loadChildren: () => import("./parking.module-3S4DJ5WD.js").then((m) => m.AppParkingModule),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "surveys",
-    loadChildren: () => import("./surveys.module-JS6JU7DC.js").then((m) => m.SurveysModule),
+    loadChildren: () => import("./surveys.module-CYQO66PQ.js").then((m) => m.SurveysModule),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
@@ -4529,13 +4529,13 @@ var routes = [
   },
   {
     path: "resource-management",
-    loadChildren: () => import("./resource-manager.module-6RSAKBPC.js").then((m) => m.ResourceManagerModule),
+    loadChildren: () => import("./resource-manager.module-NQUIB6B2.js").then((m) => m.ResourceManagerModule),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "zone-management",
-    loadChildren: () => import("./zone-manager.module-RHGE2RUX.js").then((m) => m.ZoneManagerModule),
+    loadChildren: () => import("./zone-manager.module-KTOFSSYZ.js").then((m) => m.ZoneManagerModule),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
@@ -4553,11 +4553,11 @@ var routes = [
   },
   {
     path: "email-templates",
-    loadChildren: () => import("./email-templates.module-XTXQC7JH.js").then((m) => m.EmailTemplatesModule)
+    loadChildren: () => import("./email-templates.module-PKJR3ZFW.js").then((m) => m.EmailTemplatesModule)
   },
   {
     path: "deals-n-offers",
-    loadChildren: () => import("./deals.module-5MZG3JWQ.js").then((m) => m.DealsModule)
+    loadChildren: () => import("./deals.module-76IHMOO4.js").then((m) => m.DealsModule)
   },
   {
     path: "points-of-interest",
@@ -4569,13 +4569,13 @@ var routes = [
   },
   {
     path: "settings-management",
-    loadChildren: () => import("./settings-manager.module-P4CNIS5G.js").then((m) => m.SettingsManagerModule),
+    loadChildren: () => import("./settings-manager.module-JKPJWP3K.js").then((m) => m.SettingsManagerModule),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "signage",
-    loadChildren: () => import("./signage.module-PDURNRNH.js").then((m) => m.SignageModule),
+    loadChildren: () => import("./signage.module-UFLTJXVG.js").then((m) => m.SignageModule),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
@@ -10656,7 +10656,7 @@ var createVideoConferenceModule = (space = {}, overrides = {}) => new VideoConfe
 
 // libs/mocks/src/lib/systems-bindings.mock.ts
 function createSystem(space) {
-  za(space.id, {
+  Ha(space.id, {
     System: [createSystemModule(space)],
     Bookings: [createBookingsModule(space)],
     ContactTracing: [createContactTracingModule(space)],
