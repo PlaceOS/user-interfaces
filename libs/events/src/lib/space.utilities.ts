@@ -34,6 +34,16 @@ export function generateSystemsFormFields(system?: PlaceSystem) {
         email: new FormControl(system.email || '', [Validators.email]),
         code: new FormControl(system.code || ''),
         support_url: new FormControl(system.support_url || '', [validateURL]),
+        timetable_url: new FormControl(system.timetable_url || '', [
+            validateURL,
+        ]),
+        camera_url: new FormControl(system.camera_url || '', [validateURL]),
+        camera_snapshot_url: new FormControl(system.camera_snapshot_url || '', [
+            validateURL,
+        ]),
+        room_booking_url: new FormControl(system.room_booking_url || '', [
+            validateURL,
+        ]),
         installed_ui_devices: new FormControl(
             system.installed_ui_devices || 0,
             [Validators.pattern('[0-9]*')],

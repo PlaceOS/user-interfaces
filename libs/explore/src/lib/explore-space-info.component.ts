@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { DatePipe, UpperCasePipe } from '@angular/common';
 import { Component, ElementRef, inject, OnInit, signal } from '@angular/core';
 import {
     AsyncHandler,
@@ -7,6 +7,8 @@ import {
     settingSignal,
     Space,
 } from '@placeos/common';
+import { IconComponent } from '@placeos/components';
+import { UserPipe } from '@placeos/users';
 
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
@@ -95,22 +97,36 @@ export interface SpaceInfoData {
                             {{ space.display_name || space.name }}
                         </h4>
                         @if (next()) {
-                            <div class="px-2 text-base">
-                                Free {{ next().date > now() ? 'until' : 'at' }}
-                                {{
-                                    (next().date > now()
-                                        ? next().date
-                                        : next().date_end
-                                    ) | date: 'shortTime'
-                                }}
+                            <div
+                                class="mb-1 flex items-center space-x-2 px-2 text-base"
+                            >
+                                <icon>alarm</icon>
+                                <div>
+                                    Free
+                                    {{ next().date > now() ? 'until' : 'at' }}
+                                    {{
+                                        (next().date > now()
+                                            ? next().date
+                                            : next().date_end
+                                        ) | date: 'shortTime'
+                                    }}
+                                </div>
                             </div>
                         }
                         @if (space.capacity >= 0) {
-                            <div capacity class="mb-2 px-2 text-base">
-                                <span
-                                    >{{ 'COMMON.CAPACITY' | translate }}: </span
-                                >{{ space.capacity }}
-                                {{ space.capacity === 1 ? 'person' : 'people' }}
+                            <div
+                                capacity
+                                class="mb-2 flex items-center space-x-2 px-2 text-base"
+                            >
+                                <icon>group</icon>
+                                <div>
+                                    {{
+                                        'COMMON.PEOPLE_COUNT'
+                                            | translate
+                                                : { count: space.capacity }
+                                                : space.capacity
+                                    }}
+                                </div>
                             </div>
                         }
                         @if (space.features?.length > 0 && !hide_features()) {
@@ -126,6 +142,15 @@ export interface SpaceInfoData {
                                     </li>
                                 }
                             </ul>
+                        }
+                        @if (show_event_details() && next()) {
+                            @let host = next().host | user;
+                            <div class="rounded-xl border border-base-300 p-2">
+                                <h3>{{ next().title }}</h3>
+                                <div class="text-xs opacity-50">
+                                    {{ host?.name || next().host }}
+                                </div>
+                            </div>
                         }
                     </div>
                 </div>
@@ -156,10 +181,13 @@ export interface SpaceInfoData {
     ],
 
     imports: [
-        CommonModule,
+        DatePipe,
+        UpperCasePipe,
+        IconComponent,
         CustomTooltipComponent,
         TranslatePipe,
         AuthenticatedImageDirective,
+        UserPipe,
     ],
 })
 export class ExploreSpaceInfoComponent extends AsyncHandler implements OnInit {
@@ -176,6 +204,11 @@ export class ExploreSpaceInfoComponent extends AsyncHandler implements OnInit {
     public readonly now = signal(Date.now());
     /** List of upcoming events for space */
     public readonly next = signal<CalendarEvent>(null);
+    /** Whether the event details should be display on the tooltip */
+    public readonly show_event_details = settingSignal(
+        'explore.show_event_details',
+        true,
+    );
     /** Current status of the space */
     public readonly status = this._details.status;
 

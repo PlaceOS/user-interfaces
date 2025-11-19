@@ -26,12 +26,14 @@ import {
 import {
     BindingDirective,
     IconComponent,
+    SafePipe,
     SimpleTableComponent,
 } from '@placeos/components';
 import { startOfMonth } from 'date-fns';
 import { DashboardsService } from './dashboards/dashboards.service';
 import { SupportService } from './support.service';
 import { SidebarComponent } from './ui/sidebar.component';
+import { ViewportImageDirective } from './viewport-image.directive';
 
 function contains(str: string, substr: string) {
     return str.toLowerCase().includes(substr.toLowerCase());
@@ -170,6 +172,12 @@ function contains(str: string, substr: string) {
                                     content: event_template,
                                 },
                                 {
+                                    key: 'camera',
+                                    name: 'Feed',
+                                    content: feed_template,
+                                    size: '5rem',
+                                },
+                                {
                                     key: 'issues',
                                     name: 'Alerts',
                                     content: issue_template,
@@ -279,10 +287,35 @@ function contains(str: string, substr: string) {
                                 }
                             </div>
                         </ng-template>
-                        <ng-template #feed_template>
-                            <div
-                                class="m-4 h-16 w-16 rounded bg-base-300"
-                            ></div>
+                        <ng-template #feed_template let-space="row">
+                            @if (space.camera_url) {
+                                <a
+                                    matRipple
+                                    class="m-2 flex h-16 w-16 items-center justify-center rounded bg-base-300"
+                                    [href]="space.camera_url | safe: 'url'"
+                                >
+                                    @if (space.camera_snapshot_url) {
+                                        <img
+                                            viewport
+                                            [source]="space.camera_snapshot_url"
+                                            class="h-full w-full object-cover"
+                                            alt="Camera Feed"
+                                        />
+                                    } @else {
+                                        <icon class="text-3xl opacity-30"
+                                            >hide_image</icon
+                                        >
+                                    }
+                                </a>
+                            } @else {
+                                <div
+                                    class="m-2 flex h-16 w-16 items-center justify-center rounded bg-base-300"
+                                >
+                                    <icon class="text-3xl opacity-30"
+                                        >hide_image</icon
+                                    >
+                                </div>
+                            }
                         </ng-template>
                         <ng-template #issue_template let-data="data">
                             @if (data?.length) {
@@ -361,6 +394,8 @@ function contains(str: string, substr: string) {
         SidebarComponent,
         FormsModule,
         MatTooltipModule,
+        SafePipe,
+        ViewportImageDirective,
     ],
 })
 export class RemoteSupportComponent extends AsyncHandler implements OnInit {

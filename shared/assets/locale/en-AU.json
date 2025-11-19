@@ -274,7 +274,13 @@
         "VISIBILITY_CONFIDENTIAL": "Confidential",
         "PARKING_SETTINGS_SAVE": "Successfully saved parking settings",
         "MODULE": "Module",
-        "ITEM_PRICE": "Price"
+        "ITEM_PRICE": "Price",
+        "ROOM_BOOKING_URL": "Room Booking URL",
+        "TIMETABLE_URL": "Timetable URL",
+        "SUPPORT_URL": "Support URL",
+        "URL_VALID": "URL is invalid",
+        "PEOPLE_COUNT": "{{ count }} people",
+        "PEOPLE_COUNT_1": "{{ count }} person"
     },
     "LANGUAGE": {
         "ENGLISH": "English",

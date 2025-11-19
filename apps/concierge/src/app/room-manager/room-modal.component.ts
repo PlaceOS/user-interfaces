@@ -392,6 +392,58 @@ import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.compone
                         ></image-list-field>
                     </div>
                 }
+                @if (form.controls.timetable_url) {
+                    <div class="flex flex-col">
+                        <label
+                            for="timetable-url"
+                            [class.error]="
+                                form.controls.timetable_url.invalid &&
+                                form.controls.timetable_url.touched
+                            "
+                        >
+                            {{ 'COMMON.TIMETABLE_URL' | translate }}
+                        </label>
+                        <mat-form-field appearance="outline">
+                            <input
+                                matInput
+                                name="timetable-url"
+                                [placeholder]="
+                                    'COMMON.TIMETABLE_URL' | translate
+                                "
+                                formControlName="timetable_url"
+                            />
+                            <mat-error>
+                                {{ 'SYSTEMS.URL_VALID' | translate }}
+                            </mat-error>
+                        </mat-form-field>
+                    </div>
+                }
+                @if (form.controls.room_booking_url) {
+                    <div class="flex flex-col">
+                        <label
+                            for="room-booking-url"
+                            [class.error]="
+                                form.controls.room_booking_url.invalid &&
+                                form.controls.room_booking_url.touched
+                            "
+                        >
+                            {{ 'COMMON.ROOM_BOOKING_URL' | translate }}
+                        </label>
+                        <mat-form-field appearance="outline">
+                            <input
+                                matInput
+                                name="room-booking-url"
+                                [placeholder]="
+                                    'COMMON.ROOM_BOOKING_URL' | translate
+                                "
+                                formControlName="room_booking_url"
+                            />
+                            <mat-error>
+                                {{ 'COMMON.URL_VALID' | translate }}
+                            </mat-error>
+                        </mat-form-field>
+                    </div>
+                }
             </form>
         </fullscreen-modal-shell>
     `,
