@@ -244,19 +244,17 @@ export class BookingFormService extends AsyncHandler {
                     duration = 24 * 60 - 1;
                 }
                 const favourites = this._favourites[options.type]?.() || [];
-                const default_zone = (this._settings.get('app.use_region')
-                    ? this._org.region?.id
-                    : this._org.building?.id) ||
-                    this._org.organisation.id;
+                const default_zone =
+                    (this._settings.get('app.use_region')
+                        ? this._org.region?.id
+                        : this._org.building?.id) || this._org.organisation.id;
                 return bookedResourceList({
                     period_start: getUnixTime(date),
                     period_end: getUnixTime(addMinutes(date, duration)),
                     type: options.type,
-                    zones:
-                        options.zones?.length
-                            ? options.zones.join(',')
-                            : options.zone_id ||
-                              default_zone,
+                    zones: options.zones?.length
+                        ? options.zones.join(',')
+                        : options.zone_id || default_zone,
                 }).pipe(
                     map((booked_ids) => {
                         this._resource_use = {};
@@ -941,8 +939,8 @@ export class BookingFormService extends AsyncHandler {
                 zone: _.zone,
             }));
         const id = use_region
-            ? this._org.building.parent_id
-            : this._org.building.id;
+            ? this._org.building?.parent_id
+            : this._org.building?.id;
         if (use_region) {
             const id = this._org.building.parent_id;
             const buildings = this._org.buildings.filter(
