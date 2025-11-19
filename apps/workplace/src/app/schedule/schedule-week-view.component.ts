@@ -221,7 +221,7 @@ export class ScheduleWeekViewComponent {
             } else {
                 this._dialog.open(EventDetailsModalComponent, {
                     data: {
-                        event: event,
+                        event: bkn,
                         edit_fn: (i) => this._state.edit(i),
                         remove_fn: (i, t) => this._state.remove(i, t),
                     },

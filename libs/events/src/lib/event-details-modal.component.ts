@@ -525,9 +525,7 @@ const EMPTY_ACTIONS = [];
                             <div
                                 notes
                                 class="mx-4 max-w-full overflow-hidden"
-                                [innerHTML]="
-                                    (body() | sanitize) || (empty_notes)
-                                "
+                                [innerHTML]="(body() | sanitize) || empty_notes"
                             ></div>
                         }
                     </div>
@@ -776,7 +774,8 @@ export class EventDetailsModalComponent implements OnInit {
     public readonly edit = this._data.edit_fn;
     public readonly remove = this._data.remove_fn;
 
-    public readonly empty_notes = "<div class=\"p-4 w-full rounded-md bg-base-200 text-center\"><span class=\"opacity-30\">No notes</span></div>"
+    public readonly empty_notes =
+        '<div class="p-4 w-full rounded-md bg-base-200 text-center"><span class="opacity-30">No notes</span></div>';
     public readonly show_order = {};
     public readonly show_request = {};
     public readonly room_status = signal('');
@@ -847,30 +846,33 @@ export class EventDetailsModalComponent implements OnInit {
             );
     });
 
-    public readonly accept_count = computed(() =>
-        this.event().attendees?.reduce(
-            (count, user) =>
-                (count += user.response_status === 'accepted' ? 1 : 0),
-            0,
-        ) || 0,
+    public readonly accept_count = computed(
+        () =>
+            this.event().attendees?.reduce(
+                (count, user) =>
+                    (count += user.response_status === 'accepted' ? 1 : 0),
+                0,
+            ) || 0,
     );
-    public readonly declined_count = computed(() =>
-        this.event().attendees?.reduce(
-            (count, user) =>
-                (count += user.response_status === 'declined' ? 1 : 0),
-            0,
-        ) || 0,
+    public readonly declined_count = computed(
+        () =>
+            this.event().attendees?.reduce(
+                (count, user) =>
+                    (count += user.response_status === 'declined' ? 1 : 0),
+                0,
+            ) || 0,
     );
-    public readonly pending_count = computed(() =>
-        this.event().attendees?.reduce(
-            (count, user) =>
-                (count +=
-                    user.response_status === 'tentative' ||
-                    user.response_status === 'needsAction'
-                        ? 1
-                        : 0),
-            0,
-        ) || 0,
+    public readonly pending_count = computed(
+        () =>
+            this.event().attendees?.reduce(
+                (count, user) =>
+                    (count +=
+                        user.response_status === 'tentative' ||
+                        user.response_status === 'needsAction'
+                            ? 1
+                            : 0),
+                0,
+            ) || 0,
     );
 
     public readonly body = computed(() =>
@@ -904,6 +906,8 @@ export class EventDetailsModalComponent implements OnInit {
     );
 
     public ngOnInit() {
+        console.log('Event:', this._data);
+        this.event.set(new CalendarEvent(this._data.event));
         const doc = new DOMParser().parseFromString(
             this.event().body,
             'text/html',
@@ -978,7 +982,7 @@ export class EventDetailsModalComponent implements OnInit {
         }
         const metadata = await lastValueFrom(
             getEventMetadata(this.event().id, this.space().id),
-        );
+        ).catch(() => null);
         if (metadata) {
             this.event.set(
                 new CalendarEvent({
