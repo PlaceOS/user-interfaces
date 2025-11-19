@@ -23,7 +23,6 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatProgressBar } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     IconComponent,
@@ -673,7 +672,6 @@ import { VisitorsStateService } from './visitors-state.service';
         IconComponent,
         SimpleTableComponent,
         FormsModule,
-        MatProgressBar,
     ],
 })
 export class GuestListingComponent extends AsyncHandler implements OnInit {

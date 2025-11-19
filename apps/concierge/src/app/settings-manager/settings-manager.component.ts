@@ -15,6 +15,8 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
 import { BehaviorSubject } from 'rxjs';
 import { first } from 'rxjs/operators';
 import { EmailTemplatesListComponent } from '../email-templates/email-templates-list.component';
+import { ParkingStateService } from '../parking/parking-state.service';
+import { ParkingUsersListComponent } from '../parking/parking-users-list.component';
 import { POIListComponent } from '../poi-manager/poi-list.component';
 import { POIManagementService } from '../poi-manager/poi-management.service';
 import { PointsAssetsComponent } from '../points/points-assets.component';
@@ -90,6 +92,13 @@ import { UrlManagementService } from '../url-management/url-management.service';
                             [label]="'APP.CONCIERGE.TAB_POI' | translate"
                         ></mat-tab>
                     }
+                    @if (show_parking_users()) {
+                        <mat-tab
+                            [label]="
+                                'APP.CONCIERGE.TAB_PARKING_USERS' | translate
+                            "
+                        ></mat-tab>
+                    }
                     @if (show_points_overview()) {
                         <mat-tab
                             [label]="
@@ -136,6 +145,10 @@ import { UrlManagementService } from '../url-management/url-management.service';
                         <poi-list
                             class="relative block h-full w-full"
                         ></poi-list>
+                    } @else if (current_tab_name() === 'parking-users') {
+                        <parking-users-list
+                            class="relative block h-full w-full"
+                        ></parking-users-list>
                     } @else if (current_tab_name() === 'points-overview') {
                         <points-overview
                             class="relative block h-full w-full"
@@ -171,6 +184,7 @@ import { UrlManagementService } from '../url-management/url-management.service';
         EmailTemplatesListComponent,
         UrlListComponent,
         POIListComponent,
+        ParkingUsersListComponent,
         PointsOverviewComponent,
         PointsAssetsComponent,
         FormsModule,
@@ -182,6 +196,7 @@ export class SettingsManagerComponent extends AsyncHandler implements OnInit {
     private readonly _poi_service = inject(POIManagementService);
     private readonly _url_service = inject(UrlManagementService);
     private readonly _points_service = inject(PointsStateService);
+    private readonly _parking_service = inject(ParkingStateService);
     private readonly _dialog = inject(MatDialog);
     private readonly _org = inject(OrganisationService);
     private readonly _route = inject(ActivatedRoute);
@@ -207,6 +222,9 @@ export class SettingsManagerComponent extends AsyncHandler implements OnInit {
     public readonly show_poi = computed(() =>
         this.feature_list().includes('points-of-interest'),
     );
+    public readonly show_parking_users = computed(() =>
+        this.feature_list().includes('parking'),
+    );
     public readonly show_points_overview = computed(() =>
         this.feature_list().includes('points'),
     );
@@ -227,6 +245,8 @@ export class SettingsManagerComponent extends AsyncHandler implements OnInit {
         if (this.show_url_management())
             tabs.push({ name: 'url-management', feature: 'url-management' });
         if (this.show_poi()) tabs.push({ name: 'poi', feature: 'poi' });
+        if (this.show_parking_users())
+            tabs.push({ name: 'parking-users', feature: 'parking' });
         if (this.show_points_overview())
             tabs.push({ name: 'points-overview', feature: 'points' });
         if (this.show_points_assets())
@@ -246,6 +266,7 @@ export class SettingsManagerComponent extends AsyncHandler implements OnInit {
         'email-templates',
         'url-management',
         'poi',
+        'parking-users',
         'points-overview',
         'points-assets',
     ];
@@ -257,6 +278,7 @@ export class SettingsManagerComponent extends AsyncHandler implements OnInit {
             return 'APP.CONCIERGE.EMAIL_TEMPLATES_ADD';
         if (tab === 'url-management') return 'APP.CONCIERGE.URLS_ADD';
         if (tab === 'poi') return 'APP.CONCIERGE.POI_ADD';
+        if (tab === 'parking-users') return 'APP.CONCIERGE.PARKING_USER_NEW';
         if (tab === 'points-assets') return 'APP.CONCIERGE.POINTS_ASSETS_ADD';
         return '';
     };
@@ -272,6 +294,8 @@ export class SettingsManagerComponent extends AsyncHandler implements OnInit {
             this._url_service.editURL();
         } else if (tab === 'poi') {
             this._poi_service.editPointOfInterest();
+        } else if (tab === 'parking-users') {
+            this._parking_service.editUser();
         } else if (tab === 'points-assets') {
             this._points_service.newAsset();
         }

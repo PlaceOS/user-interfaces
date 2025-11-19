@@ -3,7 +3,6 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatProgressBar } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { SettingsService } from '@placeos/common';
 import {
@@ -321,7 +320,6 @@ import { DesksStateService } from './desks-state.service';
         MatTooltipModule,
         SimpleTableComponent,
         UserPipe,
-        MatProgressBar,
     ],
 })
 export class DeskBookingsComponent {
