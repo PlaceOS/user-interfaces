@@ -396,7 +396,10 @@ export class SignageStateService extends AsyncHandler {
                             if (state && state.link) {
                                 resolved = true;
                                 resolve({
-                                    id: state.upload?.id || id,
+                                    id:
+                                        state.upload_id ||
+                                        state.upload?.id ||
+                                        id,
                                     link: state.link,
                                 });
                                 this.unsub(`upload-${id}`);
