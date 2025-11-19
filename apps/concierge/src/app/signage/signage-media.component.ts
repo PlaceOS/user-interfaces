@@ -201,11 +201,12 @@ export class SignageMediaComponent extends AsyncHandler {
     });
     public readonly selected_playlist = signal('');
     public readonly show_dropzone = signal(false);
+    private _route_query = toSignal(this._route.queryParamMap);
 
     constructor() {
         super();
         effect(() => {
-            const params = toSignal(this._route.queryParamMap)();
+            const params = this._route_query();
             if (params?.has('playlist')) {
                 this.selected_playlist.set(params.get('playlist'));
             }

@@ -300,6 +300,7 @@ export class DashboardsService extends AsyncHandler {
                 {
                     username: jwt,
                     password: jwt,
+                    keepalive: 30,
                 },
             );
             this._mqtt_broker.on('connect', () => (this._connected = true));

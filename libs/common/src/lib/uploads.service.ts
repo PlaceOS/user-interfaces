@@ -140,7 +140,9 @@ export class UploadsService extends AsyncHandler {
             let resolved = false;
             const update_fn = (details) => {
                 if (!resolved) {
-                    resolve(details.upload?.id || details.id);
+                    resolve(
+                        details.upload_id || details.upload?.id || details.id,
+                    );
                     resolved = true;
                 }
                 this._upload_list.next([
@@ -197,7 +199,7 @@ export class UploadsService extends AsyncHandler {
                 } as any);
                 const upload = upload_list[0];
                 const upload_details: UploadDetails = {
-                    id: upload?.id || `uploads-${randomString(8)}`,
+                    id: upload?.id || `upi-${randomString(8)}`,
                     name: file.name,
                     progress: 0,
                     link: '',
@@ -211,6 +213,8 @@ export class UploadsService extends AsyncHandler {
                         upload_details.upload_id = (
                             upload as any
                         )._request.upload_id;
+
+                        console.log('Upload:', state, upload_list);
                         if (upload.access_url) {
                             upload_details.link = !pub
                                 ? `${
