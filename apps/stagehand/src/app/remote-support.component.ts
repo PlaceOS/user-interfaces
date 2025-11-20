@@ -9,6 +9,7 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
+import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
@@ -19,6 +20,7 @@ import {
     AsyncHandler,
     CalendarEvent,
     OrganisationService,
+    randomInt,
     settingSignal,
     Space,
 } from '@placeos/common';
@@ -26,11 +28,11 @@ import {
     AuthenticatedImageDirective,
     BindingDirective,
     IconComponent,
-    SafePipe,
     SimpleTableComponent,
     ViewportVisibilityComponent,
 } from '@placeos/components';
 import { startOfMonth } from 'date-fns';
+import { CameraSnapshotModalComponent } from './camera-snapshot-modal.component';
 import { DashboardsService } from './dashboards/dashboards.service';
 import { SupportService } from './support.service';
 import { SidebarComponent } from './ui/sidebar.component';
@@ -292,50 +294,35 @@ function contains(str: string, substr: string) {
                             </div>
                         </ng-template>
                         <ng-template #feed_template let-space="row">
-                            @if (space.camera_url) {
-                                <a
+                            @if (space.camera_snapshot_url) {
+                                <button
                                     matRipple
-                                    class="m-2 flex h-16 w-16 items-center justify-center rounded bg-base-300"
-                                    [href]="space.camera_url | safe: 'url'"
-                                    matTooltip="Manage Camera"
+                                    class="m-2 flex h-16 w-16 items-center justify-center overflow-hidden rounded border border-base-300 bg-base-300"
+                                    (click)="openCameraSnapshot(space)"
+                                    (mouseenter)="setHovering(true)"
+                                    (mouseleave)="setHovering(false)"
+                                    matTooltip="View Camera Feed"
                                 >
-                                    @if (space.camera_snapshot_url) {
-                                        <div viewport-only>
-                                            <img
-                                                auth
-                                                [source]="
+                                    <div viewport-only class="h-full w-full">
+                                        <img
+                                            auth
+                                            [source]="
+                                                snapshotUrl(
                                                     space.camera_snapshot_url
-                                                "
-                                                class="h-full w-full object-cover"
-                                                alt="Camera Feed"
-                                            />
-                                        </div>
-                                    } @else {
-                                        <icon class="text-3xl opacity-30"
-                                            >hide_image</icon
-                                        >
-                                    }
-                                </a>
+                                                )
+                                            "
+                                            class="h-full w-full object-cover"
+                                            alt="Camera Feed"
+                                        />
+                                    </div>
+                                </button>
                             } @else {
                                 <div
-                                    class="m-2 flex h-16 w-16 items-center justify-center rounded bg-base-300"
+                                    class="m-2 flex h-16 w-16 items-center justify-center overflow-hidden rounded border border-base-300 bg-base-300"
                                 >
-                                    @if (space.camera_snapshot_url) {
-                                        <div viewport-only>
-                                            <img
-                                                auth
-                                                [source]="
-                                                    space.camera_snapshot_url
-                                                "
-                                                class="h-full w-full object-cover"
-                                                alt="Camera Feed"
-                                            />
-                                        </div>
-                                    } @else {
-                                        <icon class="text-3xl opacity-30"
-                                            >hide_image</icon
-                                        >
-                                    }
+                                    <icon class="text-3xl opacity-30"
+                                        >hide_image</icon
+                                    >
                                 </div>
                             }
                         </ng-template>
@@ -416,7 +403,6 @@ function contains(str: string, substr: string) {
         SidebarComponent,
         FormsModule,
         MatTooltipModule,
-        SafePipe,
         ViewportVisibilityComponent,
         AuthenticatedImageDirective,
     ],
@@ -427,6 +413,7 @@ export class RemoteSupportComponent extends AsyncHandler implements OnInit {
     private readonly _org = inject(OrganisationService);
     private readonly _router = inject(Router);
     private readonly _route = inject(ActivatedRoute);
+    private readonly _dialog = inject(MatDialog);
     private _initialized = false;
 
     public readonly is_eduction = settingSignal('educational_environment');
@@ -537,6 +524,41 @@ export class RemoteSupportComponent extends AsyncHandler implements OnInit {
         });
     });
 
+    private readonly _snapshot_timestamp = signal(Date.now());
+    private readonly _snapshot_interval = settingSignal(
+        'snapshot_interval',
+        10 * 1000,
+    );
+    private readonly _is_hovering = signal(false);
+
+    private _on_snapshot_interval = effect(() => {
+        const delay = this._snapshot_interval();
+        this._refreshSnapshots(delay);
+    });
+
+    public snapshotUrl(base_url: string): string {
+        if (!base_url) return '';
+        const timestamp = this._snapshot_timestamp();
+        const separator = base_url.includes('?') ? '&' : '?';
+        return `${base_url}${separator}t=${timestamp}`;
+    }
+
+    public setHovering(hovering: boolean) {
+        this._is_hovering.set(hovering);
+    }
+
+    private _refreshSnapshots(delay: number) {
+        const multiplier = this._is_hovering() ? 1 : 3;
+        this.timeout(
+            'refresh_snapshots',
+            () => {
+                this._snapshot_timestamp.set(Date.now());
+                this._refreshSnapshots(delay);
+            },
+            delay * multiplier + randomInt(1000),
+        );
+    }
+
     public ngOnInit() {
         // Load filters from query parameters
         const query_params = this._route.snapshot.queryParams;
@@ -597,5 +619,15 @@ export class RemoteSupportComponent extends AsyncHandler implements OnInit {
         if (current[space.id] !== status) {
             this.status.update((old) => ({ ...old, [space.id]: status }));
         }
+    }
+
+    public openCameraSnapshot(space: Space) {
+        this._dialog.open(CameraSnapshotModalComponent, {
+            data: {
+                camera_snapshot_url: space.camera_snapshot_url,
+                camera_url: space.camera_url,
+                room_name: space.display_name || space.name,
+            },
+        });
     }
 }
