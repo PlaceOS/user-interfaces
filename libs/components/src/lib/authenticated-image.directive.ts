@@ -9,8 +9,7 @@ import {
 import { apiKey, authority, token } from '@placeos/ts-client';
 
 import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
-
-const IMAGE_STORE = new Map<string, string>();
+import { IMAGE_STORE } from './authenticated-image.pipe';
 
 @Directive({
     selector: 'img[auth], video[auth], audio[auth]',

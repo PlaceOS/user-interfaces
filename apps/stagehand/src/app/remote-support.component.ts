@@ -23,16 +23,17 @@ import {
     Space,
 } from '@placeos/common';
 import {
+    AuthenticatedImageDirective,
     BindingDirective,
     IconComponent,
     SafePipe,
     SimpleTableComponent,
+    ViewportVisibilityComponent,
 } from '@placeos/components';
 import { startOfMonth } from 'date-fns';
 import { DashboardsService } from './dashboards/dashboards.service';
 import { SupportService } from './support.service';
 import { SidebarComponent } from './ui/sidebar.component';
-import { ViewportImageDirective } from './viewport-image.directive';
 
 function contains(str: string, substr: string) {
     return str.toLowerCase().includes(substr.toLowerCase());
@@ -160,8 +161,9 @@ function contains(str: string, substr: string) {
                                 },
                                 {
                                     key: 'available',
-                                    name: 'Occupancy Status',
+                                    name: 'Occupancy',
                                     content: status_template,
+                                    size: '8rem',
                                 },
                                 {
                                     key: 'event',
@@ -179,6 +181,7 @@ function contains(str: string, substr: string) {
                                 {
                                     key: 'issues',
                                     name: 'Alerts',
+                                    sort_fn: alert_sort,
                                     content: issue_template,
                                 },
                             ]"
@@ -292,14 +295,19 @@ function contains(str: string, substr: string) {
                                     matRipple
                                     class="m-2 flex h-16 w-16 items-center justify-center rounded bg-base-300"
                                     [href]="space.camera_url | safe: 'url'"
+                                    matTooltip="Manage Camera"
                                 >
                                     @if (space.camera_snapshot_url) {
-                                        <img
-                                            viewport
-                                            [source]="space.camera_snapshot_url"
-                                            class="h-full w-full object-cover"
-                                            alt="Camera Feed"
-                                        />
+                                        <div viewport-only>
+                                            <img
+                                                auth
+                                                [source]="
+                                                    space.camera_snapshot_url
+                                                "
+                                                class="h-full w-full object-cover"
+                                                alt="Camera Feed"
+                                            />
+                                        </div>
                                     } @else {
                                         <icon class="text-3xl opacity-30"
                                             >hide_image</icon
@@ -394,7 +402,8 @@ function contains(str: string, substr: string) {
         FormsModule,
         MatTooltipModule,
         SafePipe,
-        ViewportImageDirective,
+        ViewportVisibilityComponent,
+        AuthenticatedImageDirective,
     ],
 })
 export class RemoteSupportComponent extends AsyncHandler implements OnInit {
@@ -408,6 +417,8 @@ export class RemoteSupportComponent extends AsyncHandler implements OnInit {
     public readonly is_eduction = settingSignal('educational_environment');
 
     public readonly alerts = this._dashboard.dashboard_alerts;
+    public readonly alert_sort = (a: any[], b: any[]) =>
+        (a?.length || 0) - (b?.length || 0);
     public readonly critical_alerts = computed(
         () =>
             this.alerts().filter((alert) => alert.severity === 'critical')
