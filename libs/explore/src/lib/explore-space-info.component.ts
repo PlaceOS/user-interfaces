@@ -1,5 +1,12 @@
 import { DatePipe, UpperCasePipe } from '@angular/common';
-import { Component, ElementRef, inject, OnInit, signal } from '@angular/core';
+import {
+    Component,
+    computed,
+    ElementRef,
+    inject,
+    OnInit,
+    signal,
+} from '@angular/core';
 import {
     AsyncHandler,
     CalendarEvent,
@@ -9,6 +16,7 @@ import {
 } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
 import { UserPipe } from '@placeos/users';
+import { isSameDay } from 'date-fns';
 
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
@@ -38,7 +46,6 @@ export interface SpaceInfoData {
             [xPosition]="'center'"
             [yPosition]="'center'"
             [hover]="true"
-            [delay]="3000"
             [attr.id]="space?.map_id || space?.id"
             (mouseenter)="updateOffset()"
             class="pointer-events-auto relative hidden h-full w-full cursor-pointer sm:block"
@@ -47,7 +54,7 @@ export interface SpaceInfoData {
             <div
                 name="space-info"
                 [id]="space?.id"
-                class="pointer-events-none absolute left-0 top-0 w-64 transform overflow-hidden rounded bg-base-100 shadow"
+                class="pointer-events-none absolute left-0 top-0 w-64 transform overflow-hidden rounded border border-base-300 bg-base-100 shadow"
                 [class.-translate-x-full]="x_pos === 'end'"
                 [class.-translate-y-full]="y_pos === 'bottom'"
             >
@@ -67,7 +74,7 @@ export interface SpaceInfoData {
                             />
                         } @else {
                             <div
-                                class="absolute inset-0 bg-neutral opacity-30"
+                                class="absolute inset-0 bg-base-200 opacity-30"
                             ></div>
                         }
                     </div>
@@ -96,23 +103,6 @@ export interface SpaceInfoData {
                         <h4 class="mb-2 px-2 text-xl font-medium">
                             {{ space.display_name || space.name }}
                         </h4>
-                        @if (next()) {
-                            <div
-                                class="mb-1 flex items-center space-x-2 px-2 text-base"
-                            >
-                                <icon>alarm</icon>
-                                <div>
-                                    Free
-                                    {{ next().date > now() ? 'until' : 'at' }}
-                                    {{
-                                        (next().date > now()
-                                            ? next().date
-                                            : next().date_end
-                                        ) | date: 'shortTime'
-                                    }}
-                                </div>
-                            </div>
-                        }
                         @if (space.capacity >= 0) {
                             <div
                                 capacity
@@ -145,10 +135,33 @@ export interface SpaceInfoData {
                         }
                         @if (show_event_details() && next()) {
                             @let host = next().host | user;
-                            <div class="rounded-xl border border-base-300 p-2">
+                            <div class="rounded px-2 pb-1 text-xs opacity-30">
+                                {{ current() ? 'Current' : 'Upcoming' }}
+                                booking
+                            </div>
+                            <div
+                                class="mb-1 flex flex-col rounded-lg border border-base-300 p-2"
+                            >
                                 <h3>{{ next().title }}</h3>
                                 <div class="text-xs opacity-50">
                                     {{ host?.name || next().host }}
+                                </div>
+                            </div>
+                        }
+                        @if (next()) {
+                            <div
+                                class="mt-1 flex items-center space-x-2 px-2 text-base"
+                            >
+                                <icon>alarm</icon>
+                                <div>
+                                    Free
+                                    {{ next().date > now() ? 'until' : 'at' }}
+                                    {{
+                                        (next().date > now()
+                                            ? next().date
+                                            : next().date_end
+                                        ) | date: 'shortTime'
+                                    }}
                                 </div>
                             </div>
                         }
@@ -204,6 +217,12 @@ export class ExploreSpaceInfoComponent extends AsyncHandler implements OnInit {
     public readonly now = signal(Date.now());
     /** List of upcoming events for space */
     public readonly next = signal<CalendarEvent>(null);
+    public readonly current = computed(() =>
+        this.next()
+            ? this.next()?.date <= Date.now() &&
+              this.next()?.date_end > Date.now()
+            : false,
+    );
     /** Whether the event details should be display on the tooltip */
     public readonly show_event_details = settingSignal(
         'explore.show_event_details',
@@ -221,7 +240,9 @@ export class ExploreSpaceInfoComponent extends AsyncHandler implements OnInit {
         this.timeout('update_offset', () => this.updateOffset(), 200);
         const events = this.events
             .sort((a, b) => a.date - b.date)
-            .filter((i) => i.date_end > Date.now());
+            .filter(
+                (i) => i.date_end > Date.now() && isSameDay(i.date, Date.now()),
+            );
         this.next.set(events[0]);
         this.interval('time', () => this.now.set(Date.now()), 5000);
     }
