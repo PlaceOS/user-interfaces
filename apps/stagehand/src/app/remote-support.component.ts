@@ -233,7 +233,7 @@ function contains(str: string, substr: string) {
                                             | date: 'shortTime'
                                     }}
                                     &ndash;
-                                    {{ next()[space.id].title }}
+                                    {{ next()[space.id]?.title }}
                                 } @else {
                                     <span class="opacity-30">None</span>
                                 }
@@ -580,6 +580,11 @@ export class RemoteSupportComponent extends AsyncHandler implements OnInit {
 
     public setNextBooking(space: Space, event: CalendarEvent) {
         const current = this.next();
+        if (!event && current[space.id]) {
+            delete current[space.id];
+            this.next.set(current);
+            return;
+        }
         // Only update if the event actually changed
         if (JSON.stringify(current[space.id]) !== JSON.stringify(event)) {
             this.next.update((old) => ({ ...old, [space.id]: event }));
