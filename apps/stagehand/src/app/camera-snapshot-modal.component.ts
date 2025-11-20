@@ -32,7 +32,7 @@ export interface CameraSnapshotData {
                 class="mb-2 max-h-[65vh] w-[48rem] max-w-[calc(100vw-2rem)] space-y-4 overflow-auto px-2"
             >
                 <div
-                    class="relative flex min-h-[28vmin] min-w-[50vmin] items-center justify-center overflow-hidden rounded-lg border border-base-300 bg-base-300"
+                    class="relative flex min-h-[45vmin] min-w-[80vmin] max-w-full items-center justify-center overflow-hidden rounded-lg border border-base-300 bg-base-300"
                 >
                     @if (snapshot_url()) {
                         <img

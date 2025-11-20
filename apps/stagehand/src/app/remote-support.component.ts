@@ -296,8 +296,9 @@ function contains(str: string, substr: string) {
                         <ng-template #feed_template let-space="row">
                             @if (space.camera_snapshot_url) {
                                 <button
+                                    snap
                                     matRipple
-                                    class="m-2 flex h-16 w-16 items-center justify-center overflow-hidden rounded border border-base-300 bg-base-300"
+                                    class="relative m-2 flex h-16 w-16 items-center justify-center overflow-hidden rounded border border-base-300 bg-base-300 hover:border-2 hover:border-info"
                                     (click)="openCameraSnapshot(space)"
                                     (mouseenter)="setHovering(true)"
                                     (mouseleave)="setHovering(false)"
@@ -314,6 +315,11 @@ function contains(str: string, substr: string) {
                                             class="h-full w-full object-cover"
                                             alt="Camera Feed"
                                         />
+                                    </div>
+                                    <div class="absolute right-0 top-0">
+                                        <icon class="text-2xl text-white"
+                                            >expand_content</icon
+                                        >
                                     </div>
                                 </button>
                             } @else {
@@ -389,7 +395,21 @@ function contains(str: string, substr: string) {
             </div>
         </div>
     `,
-    styles: [``],
+    styles: [
+        `
+            [snap] {
+                transition: border 200ms;
+            }
+
+            [snap] icon {
+                display: none;
+            }
+
+            [snap]:hover icon {
+                display: block;
+            }
+        `,
+    ],
     imports: [
         CommonModule,
         MatRippleModule,
