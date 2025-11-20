@@ -57,33 +57,35 @@ function contains(str: string, substr: string) {
                         class="grid w-full flex-1 grid-cols-1 gap-4 p-4 sm:grid-cols-2"
                     >
                         <div
-                            class="rounded-lg border border-base-300 bg-base-100 p-4 shadow"
+                            class="flex items-center space-x-2 rounded-lg border border-base-300 bg-base-100 px-4 py-2 shadow"
                         >
-                            <div class="flex items-center justify-between">
+                            <icon class="mb-5 text-3xl text-info">sensors</icon>
+                            <div class="flex-1">
                                 <h3 class="text-xl font-medium">Total Rooms</h3>
-                                <icon class="text-3xl text-info">sensors</icon>
+                                <div class="text-sm opacity-40">
+                                    Total room count with devices
+                                </div>
                             </div>
-                            <div class="text-4xl font-bold">
+                            <div class="px-2 text-4xl font-bold">
                                 {{ room_list()?.length || '0' }}
                             </div>
-                            <!-- <div class="text-sm opacity-40">
-                                +{{ new_rooms()?.length || '0' }} this month
-                            </div> -->
                         </div>
                         <div
-                            class="rounded-lg border border-base-300 bg-base-100 p-4 shadow"
+                            class="flex items-center space-x-2 rounded-lg border border-base-300 bg-base-100 p-4 shadow"
                         >
-                            <div class="flex items-center justify-between">
+                            <icon class="mb-5 text-3xl text-error"
+                                >warning</icon
+                            >
+                            <div class="flex-1">
                                 <h3 class="text-xl font-medium">
                                     Active Alerts
                                 </h3>
-                                <icon class="text-3xl text-error">warning</icon>
+                                <div class="text-sm opacity-40">
+                                    {{ critical_alerts() }} critical
+                                </div>
                             </div>
-                            <div class="text-4xl font-bold">
+                            <div class="px-2 text-4xl font-bold">
                                 {{ alerts().length }}
-                            </div>
-                            <div class="text-sm opacity-40">
-                                {{ critical_alerts() }} critical
                             </div>
                         </div>
                         <!-- <div

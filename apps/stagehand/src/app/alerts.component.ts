@@ -78,59 +78,57 @@ import { SidebarComponent } from './ui/sidebar.component';
                         class="grid w-full flex-1 grid-cols-1 gap-4 p-4 sm:grid-cols-2 md:grid-cols-3"
                     >
                         <div
-                            class="rounded-lg border border-base-300 bg-base-100 p-4 shadow"
+                            class="flex items-center space-x-2 rounded-lg border border-base-300 bg-base-100 px-4 py-2 shadow"
                         >
-                            <div class="flex items-center justify-between">
-                                <h3 class="text-xl font-medium">
-                                    Critical Issues
-                                </h3>
-                                <icon
-                                    class="text-3xl text-error"
-                                    className="material-symbols-outlined"
-                                    >warning</icon
-                                >
+                            <icon
+                                class="mb-5 text-3xl text-error"
+                                className="outlined"
+                                >warning</icon
+                            >
+                            <div class="flex-1">
+                                <h3 class="text-xl font-medium">Critical</h3>
+                                <div class="text-sm opacity-40">
+                                    Attention required
+                                </div>
                             </div>
-                            <div class="text-4xl font-bold">
+                            <div class="px-2 text-4xl font-bold">
                                 {{ critical_alerts() || '0' }}
                             </div>
-                            <div class="text-sm opacity-40">
-                                Immediate attention required
-                            </div>
                         </div>
                         <div
-                            class="rounded-lg border border-base-300 bg-base-100 p-4 shadow"
+                            class="flex items-center space-x-2 rounded-lg border border-base-300 bg-base-100 px-4 py-2 shadow"
                         >
-                            <div class="flex items-center justify-between">
+                            <icon
+                                class="mb-5 text-3xl text-warning"
+                                className="outlined"
+                                >error</icon
+                            >
+                            <div class="flex-1">
                                 <h3 class="text-xl font-medium">Warnings</h3>
-                                <icon
-                                    class="text-3xl text-warning"
-                                    className="material-symbols-outlined"
-                                    >error</icon
-                                >
+                                <div class="text-sm opacity-40">
+                                    May require attention
+                                </div>
                             </div>
-                            <div class="text-4xl font-bold">
+                            <div class="px-2 text-4xl font-bold">
                                 {{ warning_alerts() || '0' }}
                             </div>
-                            <div class="text-sm opacity-40">
-                                Attention may be required
-                            </div>
                         </div>
                         <div
-                            class="rounded-lg border border-base-300 bg-base-100 p-4 shadow"
+                            class="flex items-center space-x-2 rounded-lg border border-base-300 bg-base-100 px-4 py-2 shadow"
                         >
-                            <div class="flex items-center justify-between">
-                                <h3 class="text-xl font-medium">Open Alerts</h3>
-                                <icon
-                                    class="text-3xl text-info"
-                                    className="material-symbols-outlined"
-                                    >schedule</icon
-                                >
+                            <icon
+                                class="mb-5 text-3xl text-info"
+                                className="outlined"
+                                >schedule</icon
+                            >
+                            <div class="flex-1">
+                                <h3 class="text-xl font-medium">Open</h3>
+                                <div class="text-sm opacity-40">
+                                    Pending resolution
+                                </div>
                             </div>
-                            <div class="text-4xl font-bold">
+                            <div class="px-2 text-4xl font-bold">
                                 {{ open_alerts() || '0' }}
-                            </div>
-                            <div class="text-sm opacity-40">
-                                Pending resolution
                             </div>
                         </div>
                     </div>
