@@ -13,7 +13,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { BookingDetailsModalComponent } from '@placeos/bookings';
 import { Booking, BOOKING_TYPE_COLORS, CalendarEvent } from '@placeos/common';
-import { IconComponent } from '@placeos/components';
 import {
     EventDetailsModalComponent,
     GroupEventDetailsModalComponent,
@@ -53,144 +52,130 @@ interface PositionedBooking {
                         }}
                     </div>
                 </div>
-                @if (bookings()?.length > 0) {
-                    <div class="relative flex">
-                        <!-- Time labels -->
-                        <div class="w-12 flex-shrink-0 pr-2">
-                            @for (slot of timeSlots(); track slot.hour) {
-                                <div
-                                    class="flex h-16 items-start justify-end text-xs text-base-content opacity-60"
-                                >
-                                    <div class="relative -translate-y-1/2">
-                                        {{ slot.label }}
-                                    </div>
-                                </div>
-                            }
-                        </div>
-
-                        <!-- Calendar grid -->
-                        <div
-                            class="relative flex-1 overflow-hidden rounded-xl border-x border-b border-base-300 bg-base-100"
-                        >
-                            <!-- Grid lines -->
-                            <div class="absolute inset-0">
-                                @for (slot of timeSlots(); track slot.hour) {
-                                    <div class="relative h-16">
-                                        <div
-                                            class="absolute inset-x-0 top-0 border-t border-base-300"
-                                        ></div>
-                                        <div
-                                            class="absolute inset-x-0 top-8 border-t border-dashed border-base-300"
-                                        ></div>
-                                    </div>
-                                }
-                            </div>
-
-                            <!-- Current time marker -->
-                            @if (currentTimePosition() !== null) {
-                                <div
-                                    #currentTimeMarker
-                                    class="pointer-events-none absolute inset-x-0 z-20 flex items-center"
-                                    [style.top.%]="currentTimePosition()"
-                                >
-                                    <div
-                                        class="-ml-1 h-2 w-2 rounded-full bg-error"
-                                    ></div>
-                                    <div
-                                        class="flex-1 border-t-2 border-error"
-                                    ></div>
-                                </div>
-                            }
-
-                            <!-- Bookings -->
+                <div class="relative flex">
+                    <!-- Time labels -->
+                    <div class="w-12 flex-shrink-0 pr-2">
+                        @for (slot of timeSlots(); track slot.hour) {
                             <div
-                                class="relative"
-                                [style.height.px]="gridHeight()"
+                                class="flex h-16 items-start justify-end text-xs text-base-content opacity-60"
                             >
-                                @for (
-                                    item of positionedBookings();
-                                    track item.booking.id
-                                ) {
-                                    <button
-                                        matRipple
-                                        class="absolute overflow-hidden rounded-lg border p-2 text-left text-black shadow-sm transition-shadow hover:shadow-md"
-                                        [style.top.%]="item.top"
-                                        [style.height.%]="item.height"
-                                        [style.left.%]="item.left"
-                                        [style.width.%]="item.width"
-                                        [style.border-color]="
-                                            colors[type(item.booking)][1]
-                                        "
-                                        [style.background-color]="
-                                            colors[type(item.booking)][0]
-                                        "
-                                        [style.z-index]="10"
-                                        (click)="viewBooking(item.booking)"
-                                        [matTooltip]="
-                                            item.booking.title +
-                                            '
-' +
-                                            (item.booking.user_name ||
-                                                item.booking.host) +
-                                            '
-' +
-                                            (item.booking.date
-                                                | date: 'shortTime') +
-                                            ' - ' +
-                                            (item.booking.date_end
-                                                | date: 'shortTime')
-                                        "
-                                    >
-                                        <div
-                                            class="truncate text-sm font-medium"
-                                        >
-                                            {{ item.booking.title }}
-                                        </div>
-                                        @if (item.height > 3) {
-                                            <div class="text-xs opacity-75">
-                                                {{
-                                                    item.booking.date
-                                                        | date: 'shortTime'
-                                                }}
-                                                -
-                                                {{
-                                                    item.booking.date_end
-                                                        | date: 'shortTime'
-                                                }}
-                                            </div>
-                                        }
-                                        @if (
-                                            item.height > 5 &&
-                                            (item.booking.user_name ||
-                                                item.booking.host)
-                                        ) {
-                                            <div
-                                                class="mt-1 truncate text-xs opacity-60"
-                                            >
-                                                {{
-                                                    item.booking.user_name ||
-                                                        item.booking.host
-                                                }}
-                                            </div>
-                                        }
-                                    </button>
-                                }
+                                <div class="relative -translate-y-1/2">
+                                    {{ slot.label }}
+                                </div>
                             </div>
+                        }
+                    </div>
+
+                    <!-- Calendar grid -->
+                    <div
+                        class="relative flex-1 overflow-hidden rounded-xl border-x border-b border-base-300 bg-base-100"
+                    >
+                        <!-- Grid lines -->
+                        <div class="absolute inset-0">
+                            @for (slot of timeSlots(); track slot.hour) {
+                                <div class="relative h-16">
+                                    <div
+                                        class="absolute inset-x-0 top-0 border-t border-base-300"
+                                    ></div>
+                                    <div
+                                        class="absolute inset-x-0 top-8 border-t border-dashed border-base-300"
+                                    ></div>
+                                </div>
+                            }
+                        </div>
+
+                        <!-- Current time marker -->
+                        @if (currentTimePosition() !== null) {
+                            <div
+                                #currentTimeMarker
+                                class="pointer-events-none absolute inset-x-0 z-20 flex items-center"
+                                [style.top.%]="currentTimePosition()"
+                            >
+                                <div
+                                    class="-ml-1 h-2 w-2 rounded-full bg-error"
+                                ></div>
+                                <div
+                                    class="flex-1 border-t-2 border-error"
+                                ></div>
+                            </div>
+                        }
+
+                        <!-- Bookings -->
+                        <div class="relative" [style.height.px]="gridHeight()">
+                            @for (
+                                item of positionedBookings();
+                                track item.booking.id
+                            ) {
+                                <button
+                                    matRipple
+                                    class="absolute overflow-hidden rounded-lg border p-2 text-left text-black shadow-sm transition-shadow hover:shadow-md"
+                                    [style.top.%]="item.top"
+                                    [style.height.%]="item.height"
+                                    [style.left.%]="item.left"
+                                    [style.width.%]="item.width"
+                                    [style.border-color]="
+                                        colors[type(item.booking)][1]
+                                    "
+                                    [style.background-color]="
+                                        colors[type(item.booking)][0]
+                                    "
+                                    [style.z-index]="10"
+                                    (click)="viewBooking(item.booking)"
+                                    [matTooltip]="
+                                        item.booking.title +
+                                        '
+' +
+                                        (item.booking.user_name ||
+                                            item.booking.host) +
+                                        '
+' +
+                                        (item.booking.date
+                                            | date: 'shortTime') +
+                                        ' - ' +
+                                        (item.booking.date_end
+                                            | date: 'shortTime')
+                                    "
+                                >
+                                    <div class="truncate text-sm font-medium">
+                                        {{ item.booking.title }}
+                                    </div>
+                                    @if (item.height > 3) {
+                                        <div class="text-xs opacity-75">
+                                            {{
+                                                item.booking.date
+                                                    | date: 'shortTime'
+                                            }}
+                                            -
+                                            {{
+                                                item.booking.date_end
+                                                    | date: 'shortTime'
+                                            }}
+                                        </div>
+                                    }
+                                    @if (
+                                        item.height > 5 &&
+                                        (item.booking.user_name ||
+                                            item.booking.host)
+                                    ) {
+                                        <div
+                                            class="mt-1 truncate text-xs opacity-60"
+                                        >
+                                            {{
+                                                item.booking.user_name ||
+                                                    item.booking.host
+                                            }}
+                                        </div>
+                                    }
+                                </button>
+                            }
                         </div>
                     </div>
-                } @else {
-                    <div
-                        class="flex h-full w-full flex-col items-center justify-center py-16 opacity-30"
-                    >
-                        <icon class="text-4xl">event_busy</icon>
-                        <div class="mt-2">No bookings for this day</div>
-                    </div>
-                }
+                </div>
             </div>
         </div>
     `,
     styles: [``],
-    imports: [CommonModule, IconComponent, MatRippleModule, MatTooltipModule],
+    imports: [CommonModule, MatRippleModule, MatTooltipModule],
 })
 export class ScheduleDayViewComponent {
     private _dialog = inject(MatDialog);

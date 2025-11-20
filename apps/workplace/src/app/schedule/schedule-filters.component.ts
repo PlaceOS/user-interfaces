@@ -19,7 +19,7 @@ import { ScheduleStateService } from './schedule-state.service';
             <div class="flex flex-wrap">
                 @for (item of feature_list; track item.type) {
                     @if (
-                        (filters | async)?.shown_types?.includes(item.type) &&
+                        filters()?.shown_types?.includes(item.type) &&
                         hasFeature(item.feat)
                     ) {
                         <div
@@ -64,7 +64,7 @@ import { ScheduleStateService } from './schedule-state.service';
             </button>
             @for (item of feature_list; track item.type) {
                 @if (
-                    (filters | async)?.shown_types?.includes(item.type) &&
+                    filters()?.shown_types?.includes(item.type) &&
                     hasFeature(item.feat)
                 ) {
                     <div

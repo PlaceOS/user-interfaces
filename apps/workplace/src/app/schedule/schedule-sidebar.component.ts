@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, computed, inject, input } from '@angular/core';
+import { Component, computed, inject, input, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
@@ -35,7 +35,7 @@ import {
             @if (period === 'day') {
                 <date-calendar
                     class="border-b border-base-200"
-                    [ngModel]="date | async"
+                    [ngModel]="date()"
                     (ngModelChange)="setDate($event)"
                     [offset_weekday]="offset_weekday"
                 ></date-calendar>
@@ -47,14 +47,11 @@ import {
                         class="no-subscript w-full"
                     >
                         <mat-select
-                            [ngModel]="week_date | async"
+                            [ngModel]="week_date()"
                             (ngModelChange)="setDate($event)"
                             placeholder="Select Week..."
                         >
-                            @for (
-                                option of week_options | async;
-                                track option
-                            ) {
+                            @for (option of week_options(); track option) {
                                 <mat-option
                                     [value]="option.id"
                                     class="leading-tight"
@@ -83,9 +80,7 @@ import {
                     @if (hasFeature(item.feat)) {
                         <settings-toggle
                             [ngModel]="
-                                (filters | async)?.shown_types?.includes(
-                                    item.type
-                                )
+                                filters()?.shown_types?.includes(item.type)
                             "
                             (click)="toggleType(item.type)"
                         >
@@ -140,7 +135,7 @@ export class ScheduleSidebarComponent extends AsyncHandler implements OnInit {
     private _settings = inject(SettingsService);
 
     public readonly filters = this._state.filters;
-    public readonly date = this._state.date.pipe(map((_) => startOfDay(_)));
+    public readonly date = computed(() => startOfDay(this._state.date()));
     public readonly toggleType = (t) => this._state.toggleType(t);
     public readonly setDate = (d) => this._state.setDate(d);
     public readonly bookings = input<(Booking | CalendarEvent)[]>([]);

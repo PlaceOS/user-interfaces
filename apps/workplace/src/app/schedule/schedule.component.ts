@@ -28,7 +28,7 @@ import { ScheduleWeekViewComponent } from './schedule-week-view.component';
         }
         <schedule-topbar
             [(view)]="view"
-            [date]="date | async"
+            [date]="date()"
             (dateChange)="setDate($event)"
         />
         <div
@@ -36,39 +36,39 @@ import { ScheduleWeekViewComponent } from './schedule-week-view.component';
         >
             <schedule-sidebar
                 class="relative z-50 hidden bg-base-100 sm:block"
-                [bookings]="b_list | async"
+                [bookings]="b_list()"
             ></schedule-sidebar>
             <div class="flex h-full flex-1 flex-col overflow-auto">
                 <schedule-filters
                     class="sticky top-0 z-20"
-                    [bookings]="b_list | async"
+                    [bookings]="b_list()"
                 ></schedule-filters>
                 @if (view() === 'day') {
                     <schedule-day-view
-                        [date]="date | async"
-                        [bookings]="bookings | async"
-                        [loading]="loading | async"
+                        [date]="date()"
+                        [bookings]="bookings()"
+                        [loading]="loading()"
                         class="relative z-10"
                     />
                 } @else if (view() === 'week') {
                     <schedule-week-view
                         class="h-1/2 flex-1"
-                        [date]="date | async"
-                        [bookings]="bookings | async"
-                        [loading]="loading | async"
+                        [date]="date()"
+                        [bookings]="bookings()"
+                        [loading]="loading()"
                     />
                 } @else {
                     <div class="p-4">
                         <schedule-list-view
-                            [date]="date | async"
-                            [bookings]="bookings | async"
-                            [loading]="loading | async"
+                            [date]="date()"
+                            [bookings]="bookings()"
+                            [loading]="loading()"
                             class="space-y-3"
                         />
                     </div>
                 }
             </div>
-            @if (loading | async) {
+            @if (loading()) {
                 <mat-progress-bar
                     class="absolute inset-x-0 bottom-0"
                     mode="indeterminate"
@@ -117,9 +117,6 @@ export class ScheduleComponent extends AsyncHandler implements OnInit {
     public readonly view = signal<'day' | 'week' | 'list'>('day');
     public readonly date = this._state.date;
     public readonly setDate = (d) => this._state.setDate(d);
-
-    public readonly week_date = this._state.week_date;
-    public readonly week_options = this._state.week_options;
 
     public get period() {
         return this._state.getOptions().period;

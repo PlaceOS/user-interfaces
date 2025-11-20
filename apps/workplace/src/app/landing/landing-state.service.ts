@@ -1,4 +1,5 @@
 import { inject, Injectable } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import {
     authority,
     getModule,
@@ -135,7 +136,9 @@ export class LandingStateService extends AsyncHandler {
         shareReplay(1),
     );
     /**  */
-    public readonly upcoming_events = this._schedule.filtered_bookings.pipe(
+    public readonly upcoming_events = toObservable(
+        this._schedule.filtered_bookings,
+    ).pipe(
         map((_) =>
             _.filter(
                 (i) => i.state !== 'done' && isSameDay(i.date, Date.now()),

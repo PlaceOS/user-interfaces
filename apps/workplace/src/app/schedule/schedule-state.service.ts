@@ -1,4 +1,5 @@
-import { inject, Injectable } from '@angular/core';
+import { computed, inject, Injectable, signal } from '@angular/core';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import {
@@ -55,14 +56,7 @@ import {
     startOfMinute,
     startOfWeek,
 } from 'date-fns';
-import {
-    BehaviorSubject,
-    combineLatest,
-    interval,
-    lastValueFrom,
-    Observable,
-    of,
-} from 'rxjs';
+import { combineLatest, interval, lastValueFrom, Observable, of } from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -93,11 +87,11 @@ export class ScheduleStateService extends AsyncHandler {
     private _parking = inject(ParkingService);
     private _spaces = inject(SpacesService);
 
-    private _poll = new BehaviorSubject(0);
-    private _poll_type = new BehaviorSubject<'api' | 'ws'>('api');
-    private _loading = new BehaviorSubject(false);
-    private _options = new BehaviorSubject<ScheduleOptions>({ period: 'day' });
-    private _filters = new BehaviorSubject({
+    private _poll = signal(0);
+    private _poll_type = signal<'api' | 'ws'>('api');
+    private _loading = signal(false);
+    private _options = signal<ScheduleOptions>({ period: 'day' });
+    private _filters = signal({
         shown_types: [
             'event',
             'desk',
@@ -107,13 +101,14 @@ export class ScheduleStateService extends AsyncHandler {
             'group-event',
         ],
     });
-    private _date = new BehaviorSubject(Date.now());
-    private _update = combineLatest([this._date, this._poll]).pipe(
-        debounceTime(500),
-        tap((_) => this._loading.next(true)),
-    );
+    private _date = signal(Date.now());
 
     private _deleted: string[] = [];
+
+    private _active_building = toSignal(
+        this._org.active_building.pipe(filter((_) => !!_)),
+        { requireSync: false },
+    );
 
     private _space_bookings: Observable<CalendarEvent[]> =
         this._org.active_building.pipe(
@@ -122,12 +117,12 @@ export class ScheduleStateService extends AsyncHandler {
             debounceTime(300),
             tap((_) => this.unsubWith('bind:')),
             switchMap(({ id }) => {
-                this._loading.next(true);
+                this._loading.set(true);
                 return requestSpacesForZone(id);
             }), // Get list of spaces for building
             distinctUntilChanged(([s1], [s2]) => s1 !== s2),
             switchMap((list) => {
-                this._loading.next(false);
+                this._loading.set(false);
                 return combineLatest(
                     (list || []).map((space) => {
                         const binding = getModule(
@@ -165,177 +160,193 @@ export class ScheduleStateService extends AsyncHandler {
             shareReplay(1),
         );
 
-    public readonly options = this._options.asObservable();
+    public readonly options = this._options.asReadonly();
     /** Currently selected date */
-    public readonly filters = this._filters.asObservable();
+    public readonly filters = this._filters.asReadonly();
     /** Currently selected date */
-    public readonly date = this._date.asObservable();
+    public readonly date = this._date.asReadonly();
     /** Whether events and bookings are loading */
-    public readonly loading = this._loading.asObservable();
+    public readonly loading = this._loading.asReadonly();
 
     public setOptions(options: ScheduleOptions) {
-        this._options.next(options);
+        this._options.set(options);
     }
 
     public getOptions() {
-        return this._options.getValue();
+        return this._options();
     }
-    public readonly week_date = combineLatest([
-        this._org.active_building,
-        this.date,
+
+    public readonly week_date = computed(() => {
+        const building = this._active_building();
+        const date = this.date();
+        if (!building) return Date.now();
+        return startOfWeek(date, {
+            weekStartsOn: this.offset_weekday as any,
+        }).valueOf();
+    });
+
+    public readonly week_options = computed(() => {
+        const building = this._active_building();
+        const date = this.date();
+        if (!building) return [];
+        const options = [];
+        const start_date = startOfDay(Date.now());
+        for (let i = -4; i < 48; i++) {
+            const day = addWeeks(start_date, i);
+            const week_s_date = startOfWeek(day, {
+                weekStartsOn: this.offset_weekday,
+            });
+            const week_e_date = endOfWeek(day, {
+                weekStartsOn: this.offset_weekday,
+            });
+            const this_week =
+                isAfter(Date.now(), week_s_date) &&
+                isBefore(Date.now(), week_e_date);
+            const week_start = format(week_s_date, 'dd MMM');
+            const week_end = format(week_e_date, 'dd MMM');
+            options.push({
+                id: week_s_date.valueOf(),
+                name: `${week_start} - ${week_end}`,
+                this_week,
+            });
+        }
+        return options;
+    });
+
+    private readonly _update$ = combineLatest([
+        toObservable(this._date),
+        toObservable(this._poll),
     ]).pipe(
-        map(([_, date]) =>
-            startOfWeek(date, {
-                weekStartsOn: this.offset_weekday as any,
-            }).valueOf(),
+        debounceTime(500),
+        tap((_) => this._loading.set(true)),
+    );
+
+    private readonly ws_events = toSignal(
+        combineLatest([this._space_bookings, this._update$]).pipe(
+            map(([_, [date]]) => {
+                const user = currentUser();
+                return _.filter(
+                    (_) =>
+                        isSameDay(_.date, date) &&
+                        (_.host.toLowerCase() === user.email.toLowerCase() ||
+                            _.attendees.find(
+                                (a) =>
+                                    a.email.toLowerCase() ===
+                                    user.email.toLowerCase(),
+                            )) &&
+                        !_.linked_bookings?.find(
+                            (b) => b.booking_type === 'group-event',
+                        ),
+                );
+            }),
         ),
+        { initialValue: [] },
     );
-
-    public readonly week_options = combineLatest([
-        this._org.active_building,
-        this.date,
-    ]).pipe(
-        filter(([bld]) => !!bld),
-        map(() => {
-            const options = [];
-            const date = startOfDay(Date.now());
-            for (let i = -4; i < 48; i++) {
-                const day = addWeeks(date, i);
-                const week_s_date = startOfWeek(day, {
-                    weekStartsOn: this.offset_weekday,
-                });
-                const week_e_date = endOfWeek(day, {
-                    weekStartsOn: this.offset_weekday,
-                });
-                const this_week =
-                    isAfter(Date.now(), week_s_date) &&
-                    isBefore(Date.now(), week_e_date);
-                const week_start = format(week_s_date, 'dd MMM');
-                const week_end = format(week_e_date, 'dd MMM');
-                options.push({
-                    id: week_s_date.valueOf(),
-                    name: `${week_start} - ${week_end}`,
-                    this_week,
-                });
-            }
-            return options;
-        }),
-    );
-
-    public readonly ws_events = combineLatest([
-        this._space_bookings,
-        this._update,
-    ]).pipe(
-        map(([_, [date]]) => {
-            const user = currentUser();
-            return _.filter(
-                (_) =>
-                    isSameDay(_.date, date) &&
-                    (_.host.toLowerCase() === user.email.toLowerCase() ||
-                        _.attendees.find(
-                            (a) =>
-                                a.email.toLowerCase() ===
-                                user.email.toLowerCase(),
-                        )) &&
-                    !_.linked_bookings?.find(
-                        (b) => b.booking_type === 'group-event',
+    /** List of calendar events for the selected date */
+    private readonly api_events = toSignal(
+        combineLatest([this._update$, toObservable(this._options)]).pipe(
+            switchMap(([[date], options]) => {
+                const period = options.period;
+                const query = {
+                    period_start: getUnixTime(
+                        period === 'day'
+                            ? startOfDay(date)
+                            : startOfWeek(date, {
+                                  weekStartsOn: this.offset_weekday as any,
+                              }),
                     ),
-            );
-        }),
-    );
-    /** List of calendar events for the selected date */
-    public readonly api_events: Observable<CalendarEvent[]> = combineLatest([
-        this._update,
-        this._options,
-    ]).pipe(
-        switchMap(([[date], { period }]) => {
-            const query = {
-                period_start: getUnixTime(
-                    period === 'day'
-                        ? startOfDay(date)
-                        : startOfWeek(date, {
-                              weekStartsOn: this.offset_weekday as any,
-                          }),
-                ),
-                period_end: getUnixTime(
-                    period === 'day'
-                        ? endOfDay(date)
-                        : endOfWeek(date, {
-                              weekStartsOn: this.offset_weekday as any,
-                          }),
-                ),
-            };
-            return this._settings.get('app.events.use_bookings')
-                ? queryBookings({ ...query, type: 'room' }).pipe(
-                      map((_) => _.map((i) => newCalendarEventFromBooking(i))),
-                      catchError((_) => of([])),
-                  )
-                : queryEvents({ ...query }).pipe(catchError((_) => of([])));
-        }),
-        shareReplay(1),
-    );
-    /** List of calendar events for the selected date */
-    public readonly raw_events = combineLatest([
-        this._poll_type,
-        this._options,
-    ]).pipe(
-        switchMap(([t, { period }]) =>
-            t === 'api' || period !== 'week' ? this.api_events : this.ws_events,
+                    period_end: getUnixTime(
+                        period === 'day'
+                            ? endOfDay(date)
+                            : endOfWeek(date, {
+                                  weekStartsOn: this.offset_weekday as any,
+                              }),
+                    ),
+                };
+                return this._settings.get('app.events.use_bookings')
+                    ? queryBookings({ ...query, type: 'room' }).pipe(
+                          map((_) =>
+                              _.map((i) => newCalendarEventFromBooking(i)),
+                          ),
+                          catchError((_) => of([])),
+                      )
+                    : queryEvents({ ...query }).pipe(catchError((_) => of([])));
+            }),
+            shareReplay(1),
         ),
-        tap(() => this.timeout('end_loading', () => this._loading.next(false))),
-        shareReplay(1),
+        { initialValue: [] },
     );
     /** List of calendar events for the selected date */
-    public readonly events = this.raw_events.pipe(
-        map((_) => _.filter((_) => !_.extension_data?.shared_event)),
+    public readonly raw_events = computed(() => {
+        const poll_type = this._poll_type();
+        const period = this._options().period;
+        const events =
+            poll_type === 'api' || period !== 'week'
+                ? this.api_events()
+                : this.ws_events();
+        this.timeout('end_loading', () => this._loading.set(false));
+        return events || [];
+    });
+
+    /** List of calendar events for the selected date */
+    public readonly events = computed(() =>
+        this.raw_events().filter((_) => !_.extension_data?.shared_event),
     );
     /** List of desk bookings for the selected date */
-    public readonly visitors: Observable<Booking[]> = combineLatest([
-        this._update,
-        this.options,
-    ]).pipe(
-        switchMap(([[date], { period }]) =>
-            this._bookingQuery('visitor', period, date),
+    public readonly visitors = toSignal(
+        combineLatest([this._update$, toObservable(this.options)]).pipe(
+            switchMap(([[date], options]) =>
+                this._bookingQuery('visitor', options.period, date),
+            ),
+            map((_) => _.filter((_) => !_.parent_id && !_.linked_event)),
+            tap(() =>
+                this.timeout('end_loading', () => this._loading.set(false)),
+            ),
+            shareReplay(1),
         ),
-        map((_) => _.filter((_) => !_.parent_id && !_.linked_event)),
-        tap(() => this.timeout('end_loading', () => this._loading.next(false))),
-        shareReplay(1),
+        { initialValue: [] },
     );
     /** List of desk bookings for the selected date */
-    public readonly desks: Observable<Booking[]> = combineLatest([
-        this._update,
-        this.options,
-    ]).pipe(
-        switchMap(([[date], { period }]) =>
-            this._bookingQuery('desk', period, date),
+    public readonly desks = toSignal(
+        combineLatest([this._update$, toObservable(this.options)]).pipe(
+            switchMap(([[date], options]) =>
+                this._bookingQuery('desk', options.period, date),
+            ),
+            tap(() =>
+                this.timeout('end_loading', () => this._loading.set(false)),
+            ),
+            shareReplay(1),
         ),
-        tap(() => this.timeout('end_loading', () => this._loading.next(false))),
-        shareReplay(1),
+        { initialValue: [] },
     );
     /** List of parking bookings for the selected date */
-    public readonly parking: Observable<Booking[]> = combineLatest([
-        this._update,
-        this.options,
-    ]).pipe(
-        switchMap(([[date], { period }]) =>
-            this._bookingQuery('parking', period, date),
+    public readonly parking = toSignal(
+        combineLatest([this._update$, toObservable(this.options)]).pipe(
+            switchMap(([[date], options]) =>
+                this._bookingQuery('parking', options.period, date),
+            ),
+            tap(() =>
+                this.timeout('end_loading', () => this._loading.set(false)),
+            ),
+            shareReplay(1),
         ),
-        tap(() => this.timeout('end_loading', () => this._loading.next(false))),
-        shareReplay(1),
+        { initialValue: [] },
     );
     /** List of calendar events for the selected date */
-    public readonly group_events = this.raw_events.pipe(
-        map((_) => _.filter((_) => _.extension_data?.shared_event)),
+    public readonly group_events = computed(() =>
+        this.raw_events().filter((_) => _.extension_data?.shared_event),
     );
-    public readonly locker_bookings: Observable<Booking[]> = combineLatest([
-        this._update,
-        this.options,
-    ]).pipe(
-        switchMap(([[date], { period }]) =>
-            this._bookingQuery('locker', period, date),
+    public readonly locker_bookings = toSignal(
+        combineLatest([this._update$, toObservable(this.options)]).pipe(
+            switchMap(([[date], options]) =>
+                this._bookingQuery('locker', options.period, date),
+            ),
+            tap(() =>
+                this.timeout('end_loading', () => this._loading.set(false)),
+            ),
+            shareReplay(1),
         ),
-        tap(() => this.timeout('end_loading', () => this._loading.next(false))),
-        shareReplay(1),
+        { initialValue: [] },
     );
     private _lockers_banks: Observable<LockerBank[]> = loadLockerBanks(
         this._org,
@@ -349,127 +360,114 @@ export class ScheduleStateService extends AsyncHandler {
         () => this._settings.get('app.use_region'),
     );
     /** List of parking bookings for the selected date */
-    public readonly lockers: Observable<Booking[]> = combineLatest([
-        this._lockers,
-        this._org.active_building.pipe(
-            filter((_) => !!_),
-            distinctUntilKeyChanged('id'),
+    public readonly lockers = toSignal(
+        combineLatest([
+            this._lockers,
+            this._org.active_building.pipe(
+                filter((_) => !!_),
+                distinctUntilKeyChanged('id'),
+            ),
+        ]).pipe(
+            debounceTime(300),
+            switchMap(async ([lockers]) => {
+                const mod = this._org.module('lockers', 'LockerLocations');
+                if (!mod) return [[], lockers];
+                const my_lockers = await mod
+                    .execute('lockers_allocated_to_me')
+                    .catch(() => []);
+                return [my_lockers, lockers];
+            }),
+            map(([my_lockers, lockers]) => {
+                return my_lockers
+                    .map((i) => {
+                        const locker = (lockers as Locker[]).find(
+                            (lkr) => lkr.id === i.locker_id,
+                        );
+                        if (!locker && (!i.level || !i.building)) return null;
+                        return new Booking({
+                            date: startOfDay(Date.now()).valueOf(),
+                            duration: 24 * 60 - 1,
+                            title: 'Locker Booking',
+                            description: i.locker_name,
+                            booking_type: 'locker',
+                            all_day: true,
+                            asset_id: locker.map_id,
+                            asset_name: i.locker_name,
+                            zones: [...(locker.bank?.zones || [])],
+                            extension_data: {
+                                // map_id: i.locker_id || locker.map_id,
+                            },
+                        });
+                    })
+                    .filter((item) => item);
+            }),
+            catchError((e) => {
+                console.error(e);
+                return of([]);
+            }),
+            tap(() =>
+                this.timeout('end_loading', () => this._loading.set(false)),
+            ),
+            shareReplay(1),
         ),
-    ]).pipe(
-        debounceTime(300),
-        switchMap(async ([lockers]) => {
-            const mod = this._org.module('lockers', 'LockerLocations');
-            if (!mod) return [[], lockers];
-            const my_lockers = await mod
-                .execute('lockers_allocated_to_me')
-                .catch(() => []);
-            return [my_lockers, lockers];
-        }),
-        map(([my_lockers, lockers]) => {
-            return my_lockers
-                .map((i) => {
-                    const locker = (lockers as Locker[]).find(
-                        (lkr) => lkr.id === i.locker_id,
-                    );
-                    if (!locker && (!i.level || !i.building)) return null;
-                    return new Booking({
-                        date: startOfDay(Date.now()).valueOf(),
-                        duration: 24 * 60 - 1,
-                        title: 'Locker Booking',
-                        description: i.locker_name,
-                        booking_type: 'locker',
-                        all_day: true,
-                        asset_id: locker.map_id,
-                        asset_name: i.locker_name,
-                        zones: [...(locker.bank?.zones || [])],
-                        extension_data: {
-                            // map_id: i.locker_id || locker.map_id,
-                        },
-                    });
-                })
-                .filter((item) => item);
-        }),
-        catchError((e) => {
-            console.error(e);
-            return of([]);
-        }),
-        tap(() => this.timeout('end_loading', () => this._loading.next(false))),
-        shareReplay(1),
+        { initialValue: [] },
     );
 
     /** List of events and bookings for the selected date */
-    public readonly bookings: Observable<(CalendarEvent | Booking)[]> =
-        combineLatest([
-            this.events,
-            this.visitors,
-            this.desks,
-            this.parking,
-            this.lockers,
-            this.locker_bookings,
-            this.group_events,
-        ]).pipe(
-            map(
-                ([
-                    events,
-                    visitors,
-                    desks,
-                    parking,
-                    lockers,
-                    locker_bookings,
-                    group_events,
-                ]: any) => {
-                    const filtered_events = events.filter(
-                        (ev) =>
-                            !desks.find(
-                                (bkn) => `${ev.meeting_id}` === `${bkn.id}`,
-                            ) &&
-                            ev.linked_bookings[0]?.booking_type !==
-                                'group-event',
-                    );
-                    return [
-                        ...filtered_events,
-                        ...visitors,
-                        ...desks,
-                        ...parking,
-                        ...lockers,
-                        ...locker_bookings,
-                        ...group_events,
-                    ].sort((a, b) => a.date - b.date);
-                },
-            ),
+    public readonly bookings = computed(() => {
+        const events = this.events() || [];
+        const visitors = this.visitors() || [];
+        const desks = this.desks() || [];
+        const parking = this.parking() || [];
+        const lockers = this.lockers() || [];
+        const locker_bookings = this.locker_bookings() || [];
+        const group_events = this.group_events() || [];
+
+        const filtered_events = events.filter(
+            (ev) =>
+                !desks.find((bkn) => `${ev.meeting_id}` === `${bkn.id}`) &&
+                ev.linked_bookings[0]?.booking_type !== 'group-event',
         );
+        return [
+            ...filtered_events,
+            ...visitors,
+            ...desks,
+            ...parking,
+            ...lockers,
+            ...locker_bookings,
+            ...group_events,
+        ].sort((a, b) => a.date - b.date);
+    });
+
     /** Filtered list of events and bookings for the selected date */
-    public readonly filtered_bookings = combineLatest([
-        this.bookings,
-        this._filters,
-    ]).pipe(
-        map(([booking_list, filters]) =>
-            booking_list.filter((_) => {
-                if (
-                    this._deleted.includes(
-                        (_ as any).instance
-                            ? `${_.id}|${(_ as any).instance}`
-                            : _.id,
-                    )
+    public readonly filtered_bookings = computed(() => {
+        const booking_list = this.bookings();
+        const filters = this.filters();
+        return booking_list.filter((_) => {
+            if (
+                this._deleted.includes(
+                    (_ as any).instance
+                        ? `${_.id}|${(_ as any).instance}`
+                        : _.id,
                 )
-                    return false;
-                if (
-                    _.extension_data?.shared_event &&
-                    !filters?.shown_types?.includes('group-event')
-                ) {
-                    return false;
-                }
-                if (
-                    _ instanceof CalendarEvent &&
-                    !_.extension_data?.shared_event &&
-                    !filters?.shown_types?.includes('event')
-                ) {
-                    return false;
-                } else if (_ instanceof CalendarEvent) return true;
-                return filters?.shown_types?.includes((_ as any).booking_type);
-            }),
-        ),
-    );
+            )
+                return false;
+            if (
+                _.extension_data?.shared_event &&
+                !filters?.shown_types?.includes('group-event')
+            ) {
+                return false;
+            }
+            if (
+                _ instanceof CalendarEvent &&
+                !_.extension_data?.shared_event &&
+                !filters?.shown_types?.includes('event')
+            ) {
+                return false;
+            } else if (_ instanceof CalendarEvent) return true;
+            return filters?.shown_types?.includes((_ as any).booking_type);
+        });
+    });
 
     public get offset_weekday(): 0 | 1 | 2 | 3 | 4 | 5 | 6 {
         return this._settings.get('app.week_start') || 0;
@@ -573,7 +571,7 @@ export class ScheduleStateService extends AsyncHandler {
     );
 
     public get dateValue() {
-        return this._date.getValue();
+        return this._date();
     }
 
     constructor() {
@@ -581,7 +579,7 @@ export class ScheduleStateService extends AsyncHandler {
         this.subscription(
             'poll_type',
             this._org.active_building.subscribe(() =>
-                this._poll_type.next(
+                this._poll_type.set(
                     this._settings.get('app.schedule.use_websocket')
                         ? 'ws'
                         : 'api',
@@ -601,11 +599,11 @@ export class ScheduleStateService extends AsyncHandler {
     }
 
     public triggerPoll() {
-        this._poll.next(Date.now());
+        this._poll.set(Date.now());
     }
 
     public startPolling(delay = 60 * 1000) {
-        this.interval('poll', () => this._poll.next(Date.now()), delay);
+        this.interval('poll', () => this._poll.set(Date.now()), delay);
         return () => this.stopPolling();
     }
 
@@ -614,14 +612,14 @@ export class ScheduleStateService extends AsyncHandler {
     }
 
     public setDate(date: number) {
-        this._date.next(date);
+        this._date.set(date);
     }
 
     public removeItem(item) {
         this.setAsDeleted(
             item.instance ? `${item.id}|${item.instance}` : item.id,
         );
-        this._poll.next(Date.now());
+        this._poll.set(Date.now());
     }
 
     public setAsDeleted(id: string) {
@@ -633,28 +631,28 @@ export class ScheduleStateService extends AsyncHandler {
     }
 
     public setType(name: string, state: boolean) {
-        const filters = this._filters.getValue() || { shown_types: [] };
+        const filters = this._filters();
         const { shown_types } = filters;
         if (shown_types.includes(name) === state) return;
         const new_types = state
             ? unique([...shown_types, name])
             : shown_types.filter((_) => _ !== name);
-        this._filters.next({
+        this._filters.set({
             ...filters,
             shown_types: new_types,
         });
     }
 
     public async toggleType(name: string, clear = false) {
-        const filters = this._filters.getValue() || { shown_types: [] };
+        const filters = this._filters();
         const { shown_types } = filters;
         if (shown_types && (shown_types.includes(name) || clear)) {
-            this._filters.next({
+            this._filters.set({
                 ...filters,
                 shown_types: shown_types.filter((_) => _ !== name),
             });
         } else {
-            this._filters.next({
+            this._filters.set({
                 ...filters,
                 shown_types: [...shown_types, name],
             });
