@@ -23,6 +23,7 @@ import {
     randomInt,
     settingSignal,
     Space,
+    unique,
 } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
@@ -69,7 +70,7 @@ function contains(str: string, substr: string) {
                                 </div>
                             </div>
                             <div class="px-2 text-4xl font-bold">
-                                {{ room_list()?.length || '0' }}
+                                {{ zone_rooms()?.length || '0' }}
                             </div>
                         </div>
                         <div
@@ -87,7 +88,7 @@ function contains(str: string, substr: string) {
                                 </div>
                             </div>
                             <div class="px-2 text-4xl font-bold">
-                                {{ alerts().length }}
+                                {{ room_alerts().length }}
                             </div>
                         </div>
                         <!-- <div
@@ -353,6 +354,11 @@ function contains(str: string, substr: string) {
                                     >
                                     <div>{{ issue.subject }}</div>
                                 </div>
+                                @if (data.length > 1) {
+                                    <div class="text-xs opacity-30">
+                                        +{{ data.length - 1 }} more issues
+                                    </div>
+                                }
                             } @else {
                                 <div class="p-4 opacity-30">No issues</div>
                             }
@@ -443,7 +449,7 @@ export class RemoteSupportComponent extends AsyncHandler implements OnInit {
         (a?.length || 0) - (b?.length || 0);
     public readonly critical_alerts = computed(
         () =>
-            this.alerts().filter((alert) => alert.severity === 'critical')
+            this.room_alerts().filter((alert) => alert.severity === 'critical')
                 .length,
     );
 
@@ -478,26 +484,35 @@ export class RemoteSupportComponent extends AsyncHandler implements OnInit {
     });
 
     public readonly room_list = signal<Space[]>([]);
+    public readonly zone_rooms = computed(() => {
+        const r_id = this._dashboard.region_id();
+        const bld_id = this._dashboard.building_id();
+        return this.room_list().filter(
+            (rm) =>
+                (!bld_id && !r_id) ||
+                rm.zones.includes(bld_id) ||
+                (!bld_id && rm.zones.includes(r_id)),
+        );
+    });
     public readonly new_rooms = computed(() =>
         this.room_list().filter(
             (rm) => rm.created_at * 1000 > startOfMonth(Date.now()).valueOf(),
         ),
     );
     public readonly room_data = computed(() => {
-        const r_id = this._dashboard.region_id();
-        const bld_id = this._dashboard.building_id();
         const alerts_list = this.alerts();
-        return this.room_list()
-            .filter(
-                (rm) =>
-                    (!bld_id && !r_id) ||
-                    rm.zones.includes(bld_id) ||
-                    (!bld_id && rm.zones.includes(r_id)),
-            )
-            .map((rm) => ({
-                ...rm,
-                issues: alerts_list.filter((a) => a.location === rm.id),
-            }));
+        return this.zone_rooms().map((rm) => ({
+            ...rm,
+            issues: alerts_list.filter((a) => a.location === rm.id),
+        }));
+    });
+    public readonly room_alerts = computed(() => {
+        const rooms = this.room_data();
+        const alerts = unique(
+            rooms.flatMap((room) => room.issues || []).filter((alert) => alert),
+            'id',
+        );
+        return alerts;
     });
     public readonly backoffice_link = settingSignal(
         'backoffice_link',
