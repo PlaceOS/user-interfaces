@@ -346,14 +346,14 @@ import { SidebarComponent } from './ui/sidebar.component';
                         </ng-template>
                         <ng-template #actions_template let-row="row">
                             <div class="flex space-x-2 p-2">
-                                {{ backoffice_link | json }}
                                 <a
                                     icon
                                     matRipple
                                     [href]="
                                         (backoffice_link() || '/backoffice/') +
                                         '#/systems/' +
-                                        row.location
+                                        row.location +
+                                        '/modules'
                                     "
                                     target="_blank"
                                     ref="noopener noreferrer"

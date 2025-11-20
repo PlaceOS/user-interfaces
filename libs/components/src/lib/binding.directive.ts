@@ -105,7 +105,7 @@ export class BindingDirective<T = any>
                     this.subscription(
                         'on_changes',
                         binding.bindThenSubscribe((value) => {
-                            if (value == null) return;
+                            // if (value == null) return;
                             setTimeout(() => {
                                 this._binding = false;
                                 this.clearTimeout('bound');
