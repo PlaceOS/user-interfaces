@@ -18,6 +18,7 @@ import {
     queryEvents,
     requestSpacesForZone,
 } from '@placeos/events';
+import { getModule } from '@placeos/ts-client';
 import {
     addMinutes,
     endOfDay,
@@ -170,11 +171,12 @@ export class EventsStateService extends AsyncHandler {
         this._period,
         this._zones,
         this._date,
+        this.spaces,
         this._poll,
     ]).pipe(
         filter(([period]) => !!period),
         debounceTime(300),
-        switchMap(([period, zones, date]) => {
+        switchMap(([period, zones, date, spaces]) => {
             if (!zones?.length) return of([]);
             if (zones[0] === this._org.region?.id) {
                 zones = (this._settings.get('app.use_region')
@@ -192,12 +194,66 @@ export class EventsStateService extends AsyncHandler {
             );
             this._removed_events.next([]);
             this._added_events.next([]);
-            return queryEvents({
-                strict: 'limit',
-                zone_ids: zones.join(','),
-                period_start: getUnixTime(start),
-                period_end: getUnixTime(end),
-            }).pipe(catchError(() => of([])));
+
+            // Split spaces into driver-bound and API-fetched
+            const spaces_with_driver = spaces.filter((s) => s.room_booking_url);
+            const spaces_without_driver = spaces.filter(
+                (s) => !s.room_booking_url,
+            );
+
+            const observables: Observable<CalendarEvent[]>[] = [];
+
+            // Get events from API for spaces without room_booking_url
+            if (spaces_without_driver.length > 0) {
+                observables.push(
+                    queryEvents({
+                        strict: 'limit',
+                        zone_ids: zones.join(','),
+                        period_start: getUnixTime(start),
+                        period_end: getUnixTime(end),
+                    }).pipe(
+                        map((events) =>
+                            events.filter((event) =>
+                                event.resources.some((resource) =>
+                                    spaces_without_driver.some(
+                                        (space) =>
+                                            space.id === resource.id ||
+                                            space.email === resource.email,
+                                    ),
+                                ),
+                            ),
+                        ),
+                        catchError(() => of([])),
+                    ),
+                );
+            }
+
+            // Get events from driver for spaces with room_booking_url
+            for (const space of spaces_with_driver) {
+                const driver_events$ = new Observable<CalendarEvent[]>(
+                    (subscriber) => {
+                        const mod = getModule(space.id, 'Booking');
+                        const binding = mod.variable('bookings');
+                        const unsub = binding.bindThenSubscribe((value) => {
+                            const events = (value || []).map(
+                                (bkn) => new CalendarEvent(bkn),
+                            );
+                            subscriber.next(events);
+                        });
+                        this.subscription(`bind:${space.id}`, unsub);
+                        return () => this.unsubWith(`bind:${space.id}`);
+                    },
+                );
+                observables.push(driver_events$.pipe(catchError(() => of([]))));
+            }
+
+            // Combine all event sources
+            if (observables.length === 0) return of([]);
+            if (observables.length === 1) return observables[0];
+
+            return combineLatest(observables).pipe(
+                map((event_lists) => flatten(event_lists)),
+            );
         }),
         tap(() => this._loading.next(false)),
         shareReplay(1),

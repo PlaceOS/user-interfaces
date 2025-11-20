@@ -22,7 +22,7 @@ import { NewDeskMapComponent } from './new-desk-map.component';
     selector: 'new-desk-select-modal',
     template: `
         <div
-            class="mb-10 flex h-[calc(100vh-2.5rem)] max-h-[calc(100vh-2.5rem)] w-screen flex-col space-y-2 overflow-hidden bg-base-100 p-2 sm:m-0 sm:h-auto sm:w-auto"
+            class="mb-[4.5rem] flex h-[calc(100vh-4.5rem)] max-h-[calc(100vh-4.5rem)] w-screen flex-col space-y-2 overflow-hidden bg-base-100 p-2 sm:m-0 sm:h-auto sm:w-auto"
             [style.height]="is_safari ? 'calc(100vh - 80px)' : ''"
         >
             <header

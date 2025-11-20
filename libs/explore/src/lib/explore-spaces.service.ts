@@ -163,6 +163,10 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
         if (this._settings.get('app.events.booking_unavailable')) {
             return this._event_form.openEventLinkModal();
         }
+        if (space.room_booking_url) {
+            window.open(space.room_booking_url, '_blank', 'noopener noreferer');
+            return;
+        }
         this._dialog.open(
             (this._settings.get('app.explore.show_booking_qr')
                 ? ExploreBookQrComponent

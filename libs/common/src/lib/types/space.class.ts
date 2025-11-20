@@ -28,6 +28,12 @@ export class Space {
     public readonly feature_list: string[];
     /** URL to a supporting site for space */
     public readonly support_url: string;
+    /** URL to a supporting site for space */
+    public readonly camera_url: string;
+    /** URL to a supporting site for space */
+    public readonly camera_snapshot_url: string;
+    /** URL to an external booking service */
+    public readonly room_booking_url: string;
     /** ID of the space on the associated map */
     public readonly map_id: string;
     /** Whether resource is bookable */
@@ -59,6 +65,9 @@ export class Space {
         this.bookable = !!data.bookable;
         this.zones = data.zones || [];
         this.support_url = data.support_url || '';
+        this.camera_url = data.camera_url || '';
+        this.camera_snapshot_url = data.camera_snapshot_url || '';
+        this.room_booking_url = data.room_booking_url || '';
         this.map_id = data.map_id || '';
         this.images = data.images || [];
         this.features = data.features || [];

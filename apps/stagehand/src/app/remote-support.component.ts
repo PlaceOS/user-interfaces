@@ -6,10 +6,10 @@ import {
     inject,
     OnInit,
     signal,
-    untracked,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
+import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
@@ -20,15 +20,20 @@ import {
     AsyncHandler,
     CalendarEvent,
     OrganisationService,
+    randomInt,
     settingSignal,
     Space,
+    unique,
 } from '@placeos/common';
 import {
+    AuthenticatedImageDirective,
     BindingDirective,
     IconComponent,
     SimpleTableComponent,
+    ViewportVisibilityComponent,
 } from '@placeos/components';
 import { startOfMonth } from 'date-fns';
+import { CameraSnapshotModalComponent } from './camera-snapshot-modal.component';
 import { DashboardsService } from './dashboards/dashboards.service';
 import { SupportService } from './support.service';
 import { SidebarComponent } from './ui/sidebar.component';
@@ -55,33 +60,35 @@ function contains(str: string, substr: string) {
                         class="grid w-full flex-1 grid-cols-1 gap-4 p-4 sm:grid-cols-2"
                     >
                         <div
-                            class="rounded-lg border border-base-300 bg-base-100 p-4 shadow"
+                            class="flex items-center space-x-2 rounded-lg border border-base-300 bg-base-100 px-4 py-2 shadow"
                         >
-                            <div class="flex items-center justify-between">
+                            <icon class="mb-5 text-3xl text-info">sensors</icon>
+                            <div class="flex-1">
                                 <h3 class="text-xl font-medium">Total Rooms</h3>
-                                <icon class="text-3xl text-info">sensors</icon>
+                                <div class="text-sm opacity-40">
+                                    Total room count with devices
+                                </div>
                             </div>
-                            <div class="text-4xl font-bold">
-                                {{ room_list()?.length || '0' }}
+                            <div class="px-2 text-4xl font-bold">
+                                {{ zone_rooms()?.length || '0' }}
                             </div>
-                            <!-- <div class="text-sm opacity-40">
-                                +{{ new_rooms()?.length || '0' }} this month
-                            </div> -->
                         </div>
                         <div
-                            class="rounded-lg border border-base-300 bg-base-100 p-4 shadow"
+                            class="flex items-center space-x-2 rounded-lg border border-base-300 bg-base-100 p-4 shadow"
                         >
-                            <div class="flex items-center justify-between">
+                            <icon class="mb-5 text-3xl text-error"
+                                >warning</icon
+                            >
+                            <div class="flex-1">
                                 <h3 class="text-xl font-medium">
                                     Active Alerts
                                 </h3>
-                                <icon class="text-3xl text-error">warning</icon>
+                                <div class="text-sm opacity-40">
+                                    {{ critical_alerts() }} critical
+                                </div>
                             </div>
-                            <div class="text-4xl font-bold">
-                                {{ alerts().length }}
-                            </div>
-                            <div class="text-sm opacity-40">
-                                {{ critical_alerts() }} critical
+                            <div class="px-2 text-4xl font-bold">
+                                {{ room_alerts().length }}
                             </div>
                         </div>
                         <!-- <div
@@ -159,8 +166,9 @@ function contains(str: string, substr: string) {
                                 },
                                 {
                                     key: 'available',
-                                    name: 'Occupancy Status',
+                                    name: 'Occupancy',
                                     content: status_template,
+                                    size: '8rem',
                                 },
                                 {
                                     key: 'event',
@@ -170,8 +178,15 @@ function contains(str: string, substr: string) {
                                     content: event_template,
                                 },
                                 {
+                                    key: 'camera',
+                                    name: 'Feed',
+                                    content: feed_template,
+                                    size: '5rem',
+                                },
+                                {
                                     key: 'issues',
                                     name: 'Alerts',
+                                    sort_fn: alert_sort,
                                     content: issue_template,
                                 },
                             ]"
@@ -221,7 +236,7 @@ function contains(str: string, substr: string) {
                                             | date: 'shortTime'
                                     }}
                                     &ndash;
-                                    {{ next()[space.id].title }}
+                                    {{ next()[space.id]?.title }}
                                 } @else {
                                     <span class="opacity-30">None</span>
                                 }
@@ -279,10 +294,44 @@ function contains(str: string, substr: string) {
                                 }
                             </div>
                         </ng-template>
-                        <ng-template #feed_template>
-                            <div
-                                class="m-4 h-16 w-16 rounded bg-base-300"
-                            ></div>
+                        <ng-template #feed_template let-space="row">
+                            @if (space.camera_snapshot_url) {
+                                <button
+                                    snap
+                                    matRipple
+                                    class="relative m-2 flex h-16 w-16 items-center justify-center overflow-hidden rounded border border-base-300 bg-base-300 hover:border-2 hover:border-info"
+                                    (click)="openCameraSnapshot(space)"
+                                    (mouseenter)="setHovering(true)"
+                                    (mouseleave)="setHovering(false)"
+                                    matTooltip="View Camera Feed"
+                                >
+                                    <div viewport-only class="h-full w-full">
+                                        <img
+                                            auth
+                                            [source]="
+                                                snapshotUrl(
+                                                    space.camera_snapshot_url
+                                                )
+                                            "
+                                            class="h-full w-full object-cover"
+                                            alt="Camera Feed"
+                                        />
+                                    </div>
+                                    <div class="absolute right-0 top-0">
+                                        <icon class="text-2xl text-white"
+                                            >expand_content</icon
+                                        >
+                                    </div>
+                                </button>
+                            } @else {
+                                <div
+                                    class="m-2 flex h-16 w-16 items-center justify-center overflow-hidden rounded border border-base-300 bg-base-300"
+                                >
+                                    <icon class="text-3xl opacity-30"
+                                        >hide_image</icon
+                                    >
+                                </div>
+                            }
                         </ng-template>
                         <ng-template #issue_template let-data="data">
                             @if (data?.length) {
@@ -305,6 +354,11 @@ function contains(str: string, substr: string) {
                                     >
                                     <div>{{ issue.subject }}</div>
                                 </div>
+                                @if (data.length > 1) {
+                                    <div class="text-xs opacity-30">
+                                        +{{ data.length - 1 }} more issues
+                                    </div>
+                                }
                             } @else {
                                 <div class="p-4 opacity-30">No issues</div>
                             }
@@ -347,7 +401,21 @@ function contains(str: string, substr: string) {
             </div>
         </div>
     `,
-    styles: [``],
+    styles: [
+        `
+            [snap] {
+                transition: border 200ms;
+            }
+
+            [snap] icon {
+                display: none;
+            }
+
+            [snap]:hover icon {
+                display: block;
+            }
+        `,
+    ],
     imports: [
         CommonModule,
         MatRippleModule,
@@ -361,6 +429,8 @@ function contains(str: string, substr: string) {
         SidebarComponent,
         FormsModule,
         MatTooltipModule,
+        ViewportVisibilityComponent,
+        AuthenticatedImageDirective,
     ],
 })
 export class RemoteSupportComponent extends AsyncHandler implements OnInit {
@@ -369,14 +439,17 @@ export class RemoteSupportComponent extends AsyncHandler implements OnInit {
     private readonly _org = inject(OrganisationService);
     private readonly _router = inject(Router);
     private readonly _route = inject(ActivatedRoute);
+    private readonly _dialog = inject(MatDialog);
     private _initialized = false;
 
     public readonly is_eduction = settingSignal('educational_environment');
 
     public readonly alerts = this._dashboard.dashboard_alerts;
+    public readonly alert_sort = (a: any[], b: any[]) =>
+        (a?.length || 0) - (b?.length || 0);
     public readonly critical_alerts = computed(
         () =>
-            this.alerts().filter((alert) => alert.severity === 'critical')
+            this.room_alerts().filter((alert) => alert.severity === 'critical')
                 .length,
     );
 
@@ -411,25 +484,35 @@ export class RemoteSupportComponent extends AsyncHandler implements OnInit {
     });
 
     public readonly room_list = signal<Space[]>([]);
+    public readonly zone_rooms = computed(() => {
+        const r_id = this._dashboard.region_id();
+        const bld_id = this._dashboard.building_id();
+        return this.room_list().filter(
+            (rm) =>
+                (!bld_id && !r_id) ||
+                rm.zones.includes(bld_id) ||
+                (!bld_id && rm.zones.includes(r_id)),
+        );
+    });
     public readonly new_rooms = computed(() =>
         this.room_list().filter(
             (rm) => rm.created_at * 1000 > startOfMonth(Date.now()).valueOf(),
         ),
     );
     public readonly room_data = computed(() => {
-        const r_id = this._dashboard.region_id();
-        const bld_id = this._dashboard.building_id();
-        return this.room_list()
-            .filter(
-                (rm) =>
-                    (!bld_id && !r_id) ||
-                    rm.zones.includes(bld_id) ||
-                    (!bld_id && rm.zones.includes(r_id)),
-            )
-            .map((rm) => ({
-                ...rm,
-                issues: this.alerts().filter((a) => a.location == rm.id),
-            }));
+        const alerts_list = this.alerts();
+        return this.zone_rooms().map((rm) => ({
+            ...rm,
+            issues: alerts_list.filter((a) => a.location === rm.id),
+        }));
+    });
+    public readonly room_alerts = computed(() => {
+        const rooms = this.room_data();
+        const alerts = unique(
+            rooms.flatMap((room) => room.issues || []).filter((alert) => alert),
+            'id',
+        );
+        return alerts;
     });
     public readonly backoffice_link = settingSignal(
         'backoffice_link',
@@ -443,36 +526,13 @@ export class RemoteSupportComponent extends AsyncHandler implements OnInit {
     public readonly filtered_rooms = computed(() => {
         const term = this.search_term().toLowerCase();
         const current_state = this.state();
+        const status_map = this.status();
 
-        // Get base room list with location filtering
-        const r_id = this._dashboard.region_id();
-        const bld_id = this._dashboard.building_id();
-        const base_rooms = this.room_list().filter(
-            (rm) =>
-                (!bld_id && !r_id) ||
-                rm.zones.includes(bld_id) ||
-                (!bld_id && rm.zones.includes(r_id)),
-        );
-
-        // Only track alerts when filtering by issues
-        const alerts_list =
-            current_state === 'issues'
-                ? this.alerts()
-                : untracked(() => this.alerts());
-
-        // Only read status as reactive dependency when filtering by status
-        const status_map =
-            current_state === 'in_use' || current_state === 'available'
-                ? this.status()
-                : untracked(() => this.status());
-
-        // Map rooms with their issues
-        const rooms = base_rooms.map((rm) => ({
-            ...rm,
-            issues: alerts_list.filter((a) => a.location == rm.id),
-        }));
+        // Use room_data as base which includes location filtering and issues
+        const rooms = this.room_data();
 
         return rooms.filter((room) => {
+            // Filter by state
             switch (current_state) {
                 case 'in_use':
                     if (status_map[room.id] !== 'busy') return false;
@@ -485,6 +545,7 @@ export class RemoteSupportComponent extends AsyncHandler implements OnInit {
                     break;
             }
 
+            // Filter by search term
             if (term) {
                 if (
                     !room.name.toLowerCase().includes(term) &&
@@ -493,9 +554,45 @@ export class RemoteSupportComponent extends AsyncHandler implements OnInit {
                     return false;
                 }
             }
+
             return true;
         });
     });
+
+    private readonly _snapshot_timestamp = signal(Date.now());
+    private readonly _snapshot_interval = settingSignal(
+        'snapshot_interval',
+        10 * 1000,
+    );
+    private readonly _is_hovering = signal(false);
+
+    private _on_snapshot_interval = effect(() => {
+        const delay = this._snapshot_interval();
+        this._refreshSnapshots(delay);
+    });
+
+    public snapshotUrl(base_url: string): string {
+        if (!base_url) return '';
+        const timestamp = this._snapshot_timestamp();
+        const separator = base_url.includes('?') ? '&' : '?';
+        return `${base_url}${separator}t=${timestamp}`;
+    }
+
+    public setHovering(hovering: boolean) {
+        this._is_hovering.set(hovering);
+    }
+
+    private _refreshSnapshots(delay: number) {
+        const multiplier = this._is_hovering() ? 1 : 3;
+        this.timeout(
+            'refresh_snapshots',
+            () => {
+                this._snapshot_timestamp.set(Date.now());
+                this._refreshSnapshots(delay);
+            },
+            delay * multiplier + randomInt(1000),
+        );
+    }
 
     public ngOnInit() {
         // Load filters from query parameters
@@ -540,6 +637,11 @@ export class RemoteSupportComponent extends AsyncHandler implements OnInit {
 
     public setNextBooking(space: Space, event: CalendarEvent) {
         const current = this.next();
+        if (!event && current[space.id]) {
+            delete current[space.id];
+            this.next.set(current);
+            return;
+        }
         // Only update if the event actually changed
         if (JSON.stringify(current[space.id]) !== JSON.stringify(event)) {
             this.next.update((old) => ({ ...old, [space.id]: event }));
@@ -552,5 +654,15 @@ export class RemoteSupportComponent extends AsyncHandler implements OnInit {
         if (current[space.id] !== status) {
             this.status.update((old) => ({ ...old, [space.id]: status }));
         }
+    }
+
+    public openCameraSnapshot(space: Space) {
+        this._dialog.open(CameraSnapshotModalComponent, {
+            data: {
+                camera_snapshot_url: space.camera_snapshot_url,
+                camera_url: space.camera_url,
+                room_name: space.display_name || space.name,
+            },
+        });
     }
 }

@@ -389,13 +389,17 @@ export class SignageStateService extends AsyncHandler {
                     `upload-${id}`,
                     this._uploads.upload_list.subscribe(
                         (list) => {
+                            console.log('Upload List:', list);
                             state = list.find(
                                 (s) => s.upload?.id === id || s.id,
                             );
                             if (state && state.link) {
                                 resolved = true;
                                 resolve({
-                                    id: state.upload.id || id,
+                                    id:
+                                        state.upload_id ||
+                                        state.upload?.id ||
+                                        id,
                                     link: state.link,
                                 });
                                 this.unsub(`upload-${id}`);

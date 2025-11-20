@@ -1,6 +1,7 @@
 export * from './lib/action-icon.component';
 export * from './lib/attached-resource-config-modal.component';
 export * from './lib/authenticated-image.directive';
+export * from './lib/authenticated-image.pipe';
 export * from './lib/available-rooms-state-modal.component';
 export * from './lib/changelog-modal.component';
 export * from './lib/chat/chat.component';
@@ -46,3 +47,4 @@ export * from './lib/authorised-admin.guard';
 export * from './lib/authorised-user.guard';
 
 export * from './lib/binding.directive';
+export * from './lib/viewport-visibility.component';

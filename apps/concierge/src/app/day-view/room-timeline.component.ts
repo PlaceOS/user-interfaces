@@ -90,7 +90,7 @@ import { RoomBookingSearchComponent } from './room-booking-search.component';
                     <div
                         class="relative flex h-full w-56 items-center justify-center px-4"
                     >
-                        <div class="truncate">
+                        <div class="truncate px-4">
                             {{ space.display_name || space.name }}
                         </div>
                         <div

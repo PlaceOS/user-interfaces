@@ -43,7 +43,20 @@ describe('EventsStateService', () => {
         ],
     });
 
-    beforeEach(() => (spectator = createService()));
+    beforeEach(() => {
+        // Mock requestSpacesForZone to return spaces without room_booking_url
+        (events_mod as any).requestSpacesForZone = jest.fn(() =>
+            of([
+                { id: 'space-1', email: '1', bookable: true },
+                { id: 'space-2', email: '2', bookable: true },
+            ]),
+        );
+        spectator = createService();
+    });
+
+    afterEach(() => {
+        jest.clearAllMocks();
+    });
 
     it('should create service', () => {
         expect(spectator.service).toBeTruthy();
@@ -103,7 +116,7 @@ describe('EventsStateService', () => {
         spectator.service.startPolling('day', 2);
         await timer(5).toPromise();
         spectator.service.stopPolling();
-        await timer(305).toPromise();
+        await timer(650).toPromise(); // Increased wait time for spaces + event_list debounce
         expect(events_mod.queryEvents).toBeCalledWith({
             zone_ids: 'bld-123',
             strict: 'limit',
@@ -120,7 +133,7 @@ describe('EventsStateService', () => {
         spectator.service.startPolling('week', 2);
         await timer(5).toPromise();
         spectator.service.stopPolling();
-        await timer(305).toPromise();
+        await timer(650).toPromise(); // Increased wait time for spaces + event_list debounce
         expect(events_mod.queryEvents).toBeCalledWith({
             zone_ids: 'bld-123',
             strict: 'limit',
@@ -137,7 +150,7 @@ describe('EventsStateService', () => {
         spectator.service.startPolling('month', 2);
         await timer(5).toPromise();
         spectator.service.stopPolling();
-        await timer(305).toPromise();
+        await timer(650).toPromise(); // Increased wait time for spaces + event_list debounce
         expect(events_mod.queryEvents).toBeCalledWith({
             zone_ids: 'bld-123',
             strict: 'limit',
