@@ -356,7 +356,7 @@ export class SimpleTableComponent<T extends object = any> {
                     : (a, b) => {
                           const a_value = JSON.stringify(a);
                           const b_value = JSON.stringify(b);
-                          return a_value.localeCompare(b_value);
+                          return a_value?.localeCompare(b_value);
                       };
             data = data.sort((a, b) => {
                 const sort_fn =

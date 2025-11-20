@@ -107,7 +107,8 @@ import { EventsStateService } from './events-state.service';
                         <h3 class="font-medium">{{ event.title }}</h3>
                         <p class="mb-2 text-xs opacity-30">
                             {{ event.date | date: 'mediumDate' : tz }}
-                            {{ event.date | date: time_format : tz }}
+                            {{ event.date | date: time_format : tz }} &ndash;
+                            {{ event.date_end | date: time_format : tz }}
                             @if (tz) {
                                 <span>{{
                                     event.date | date: 'zzzz' : tz
