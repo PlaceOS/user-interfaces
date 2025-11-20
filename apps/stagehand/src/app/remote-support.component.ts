@@ -318,9 +318,22 @@ function contains(str: string, substr: string) {
                                 <div
                                     class="m-2 flex h-16 w-16 items-center justify-center rounded bg-base-300"
                                 >
-                                    <icon class="text-3xl opacity-30"
-                                        >hide_image</icon
-                                    >
+                                    @if (space.camera_snapshot_url) {
+                                        <div viewport-only>
+                                            <img
+                                                auth
+                                                [source]="
+                                                    space.camera_snapshot_url
+                                                "
+                                                class="h-full w-full object-cover"
+                                                alt="Camera Feed"
+                                            />
+                                        </div>
+                                    } @else {
+                                        <icon class="text-3xl opacity-30"
+                                            >hide_image</icon
+                                        >
+                                    }
                                 </div>
                             }
                         </ng-template>
