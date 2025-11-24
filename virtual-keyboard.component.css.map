@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;f83a68bed7b4e6c38ee6e7baf1614ba272382824acbf6219b6ea0194540d994a;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/virtual-keyboard.component.ts"],
+  "sourcesContent": ["\n            [key] {\n                height: 3.5rem;\n                width: 4rem;\n                transition: box-shadow 200ms, top 200ms;\n                box-shadow: 0 4px 0 0.04px rgba(0, 0, 0, 0.1);\n            }\n\n            [key].special {\n                width: 10rem;\n            }\n\n            [key].space {\n                flex: 1;\n                min-width: 10rem;\n                max-width: 25rem;\n            }\n\n            [key]:hover {\n                top: 2px;\n                box-shadow: 0 2px 0 0.04px rgba(0, 0, 0, 0.1);\n            }\n\n            [key]:active {\n                top: 4px;\n                box-shadow: 0 0 0 0.04px rgba(0, 0, 0, 0.1);\n            }\n        "],
+  "mappings": ";AACY,CAAC;AACG,UAAQ;AACR,SAAO;AACP,cAAY,WAAW,KAAK,EAAE,IAAI;AAClC,cAAY,EAAE,IAAI,EAAE,OAAO,KAAK,CAAC,EAAE,CAAC,EAAE,CAAC,EAAE;AAC7C;AAEA,CAAC,IAAI,CAAC;AACF,SAAO;AACX;AAEA,CAAC,IAAI,CAAC;AACF,QAAM;AACN,aAAW;AACX,aAAW;AACf;AAEA,CAAC,IAAI;AACD,OAAK;AACL,cAAY,EAAE,IAAI,EAAE,OAAO,KAAK,CAAC,EAAE,CAAC,EAAE,CAAC,EAAE;AAC7C;AAEA,CAAC,IAAI;AACD,OAAK;AACL,cAAY,EAAE,EAAE,EAAE,OAAO,KAAK,CAAC,EAAE,CAAC,EAAE,CAAC,EAAE;AAC3C;",
+  "names": []
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;0959a8279159e2589d106339b636cabdefc94315ba1f7ffe415616deff894a80;/home/runner/work/user-interfaces/user-interfaces/libs/bookings/src/lib/locker-select-modal/locker-filters-display.component.ts"],
+  "sourcesContent": ["\n            [filter-item] {\n                display: flex;\n                align-items: center;\n                padding: 0 1rem;\n                height: 2rem;\n                font-size: 0.875rem;\n                border: 1px solid rgba(0, 0, 0, 0.2);\n                border-radius: 1.25rem;\n                margin-right: 0.5rem;\n                margin-bottom: 0.5rem;\n            }\n\n            [filter-item]:hover {\n                background: rgba(0, 0, 0, 0.1);\n            }\n\n            [filter-item] > * + * {\n                margin-left: 0.5rem;\n            }\n        "],
+  "mappings": ";AACY,CAAC;AACG,WAAS;AACT,eAAa;AACb,WAAS,EAAE;AACX,UAAQ;AACR,aAAW;AACX,UAAQ,IAAI,MAAM,KAAK,CAAC,EAAE,CAAC,EAAE,CAAC,EAAE;AAChC,iBAAe;AACf,gBAAc;AACd,iBAAe;AACnB;AAEA,CAAC,YAAY;AACT,cAAY,KAAK,CAAC,EAAE,CAAC,EAAE,CAAC,EAAE;AAC9B;AAEA,CAAC,aAAa,EAAE,EAAE,EAAE;AAChB,eAAa;AACjB;",
+  "names": []
+}

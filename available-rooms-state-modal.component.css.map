@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;44b25fd2b68917ac2104b8130dd323b9c27f1ea1ae596877dd198a37a47771fe;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/available-rooms-state-modal.component.ts"],
+  "sourcesContent": ["\n            td {\n                padding: 0.5rem;\n            }\n        "],
+  "mappings": ";AACY;AACI,WAAS;AACb;",
+  "names": []
+}

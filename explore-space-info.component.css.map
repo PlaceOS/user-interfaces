@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;4f3e5464bee94c924a883f86a6b5ca8ac727cb844904db7b9de35fd4337d48ca;/home/runner/work/user-interfaces/user-interfaces/libs/explore/src/lib/explore-space-info.component.ts"],
+  "sourcesContent": ["\n            [name='space-info'] {\n                width: 16rem;\n            }\n\n            [status] {\n                background-color: #43a047;\n                font-weight: 500;\n            }\n\n            [status].busy {\n                background-color: #e53935;\n            }\n\n            [status].pending {\n                background-color: #ffb300;\n            }\n\n            [status].not-bookable {\n                background-color: #757575;\n            }\n        "],
+  "mappings": ";AACY,CAAC;AACG,SAAO;AACX;AAEA,CAAC;AACG,oBAAkB;AAClB,eAAa;AACjB;AAEA,CAAC,OAAO,CAAC;AACL,oBAAkB;AACtB;AAEA,CAAC,OAAO,CAAC;AACL,oBAAkB;AACtB;AAEA,CAAC,OAAO,CAAC;AACL,oBAAkB;AACtB;",
+  "names": []
+}
