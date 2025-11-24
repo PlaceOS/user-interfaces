@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;821d01dab8357abbcd2041d80333fea88fb956c9a7f9e70d883fdba3fa941016;/home/runner/work/user-interfaces/user-interfaces/apps/control/src/app/tabbed-view/output-list.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: flex;\n                width: 100%;\n                height: 100%;\n                overflow: auto;\n                align-items: center;\n                margin-bottom: -0.5rem;\n            }\n\n            :host > * {\n                min-width: 25%;\n            }\n        "],
+  "mappings": ";AACY;AACI,WAAS;AACT,SAAO;AACP,UAAQ;AACR,YAAU;AACV,eAAa;AACb,iBAAe;AACnB;AAEA,MAAM,EAAE;AACJ,aAAW;AACf;",
+  "names": []
+}

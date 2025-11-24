@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;f55a4bf39067e90ed3019f5becc3dc90a5ce31ed785856557a0b9e4c225fc6f8;/home/runner/work/user-interfaces/user-interfaces/apps/control/src/app/ui/output-display.component.ts"],
+  "sourcesContent": ["\n            [view] {\n                width: 28vw;\n            }\n        "],
+  "mappings": ";AACY,CAAC;AACG,SAAO;AACX;",
+  "names": []
+}

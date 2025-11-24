@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;252788f1fd3dfe6526bef8efafd7e1f46286402468abf0b3fe478bff674c8d3f;/home/runner/work/user-interfaces/user-interfaces/libs/explore/src/lib/explore-desk-info.component.ts"],
+  "sourcesContent": ["\n            [name='space-info'] {\n                width: 16rem;\n            }\n\n            [name='status'] {\n                background-color: #43a047;\n                font-weight: 500;\n            }\n\n            [name='status'].busy {\n                background-color: #e53935;\n            }\n\n            [name='status'].pending {\n                background-color: #ffb300;\n            }\n\n            [name='status'].not-bookable {\n                background-color: #757575;\n            }\n        "],
+  "mappings": ";AACY,CAAC;AACG,SAAO;AACX;AAEA,CAAC;AACG,oBAAkB;AAClB,eAAa;AACjB;AAEA,CAAC,YAAc,CAAC;AACZ,oBAAkB;AACtB;AAEA,CAAC,YAAc,CAAC;AACZ,oBAAkB;AACtB;AAEA,CAAC,YAAc,CAAC;AACZ,oBAAkB;AACtB;",
+  "names": []
+}

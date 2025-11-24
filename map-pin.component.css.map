@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;79d50e7cf32d7a73d6ce20eb6adb74ea5a209e9e9c4adc5775ea8e1ccbe77ef9;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/map-pin.component.ts"],
+  "sourcesContent": ["\n            :host {\n                position: absolute;\n                bottom: 50%;\n                left: 50%;\n                width: 24rem;\n                display: flex;\n                flex-direction: column;\n                align-items: center;\n                transform: translateX(-50%);\n                z-index: -1;\n            }\n\n            div {\n                animation: fade-in-top 1s;\n            }\n\n            .action {\n                pointer-events: auto;\n            }\n\n            svg {\n                width: 2rem;\n                animation: fade-in-top 1s;\n            }\n\n            @keyframes fade-in-top {\n                0% {\n                    opacity: 0;\n                    transform: translateY(-100%);\n                }\n                100% {\n                    opacity: 1;\n                    transform: translateY(0%);\n                }\n            }\n        "],
+  "mappings": ";AACY;AACI,YAAU;AACV,UAAQ;AACR,QAAM;AACN,SAAO;AACP,WAAS;AACT,kBAAgB;AAChB,eAAa;AACb,aAAW,WAAW;AACtB,WAAS;AACb;AAEA;AACI,aAAW,YAAY;AAC3B;AAEA,CAAC;AACG,kBAAgB;AACpB;AAEA;AACI,SAAO;AACP,aAAW,YAAY;AAC3B;AAEA,WAZe;AAaX;AACI,aAAS;AACT,eAAW,WAAW;AAC1B;AACA;AACI,aAAS;AACT,eAAW,WAAW;AAC1B;AACJ;",
+  "names": []
+}

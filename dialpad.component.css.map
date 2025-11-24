@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;0df2324e69eaaf768ea4ead73090de372e97619bd7cf09deb0c0b31ab930fb97;/home/runner/work/user-interfaces/user-interfaces/apps/control/src/app/ui/dialpad.component.ts"],
+  "sourcesContent": ["\n            [digit] {\n                box-shadow: 0px 4px 0px 0px var(--b3);\n                border: 2px solid var(--b3);\n                transition: top 200ms, bottom 200ms, box-shadow 200ms;\n            }\n\n            [digit]:active {\n                box-shadow: none;\n            }\n        "],
+  "mappings": ";AACY,CAAC;AACG,cAAY,IAAI,IAAI,IAAI,IAAI,IAAI;AAChC,UAAQ,IAAI,MAAM,IAAI;AACtB;AAAA,IAAY,IAAI,KAAK;AAAA,IAAE,OAAO,KAAK;AAAA,IAAE,WAAW;AACpD;AAEA,CAAC,MAAM;AACH,cAAY;AAChB;",
+  "names": []
+}

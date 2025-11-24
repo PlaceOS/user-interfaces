@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;c7f37c1e60a5fae4a31dda6fbae0d3cc845b39f17b3f09824fe872f6bf4e7f79;/home/runner/work/user-interfaces/user-interfaces/libs/bookings/src/lib/desk-questions-modal.component.ts"],
+  "sourcesContent": ["\n            main {\n                width: 24rem;\n                max-width: calc(100vw - 4.5rem);\n            }\n\n            [close] {\n                position: absolute;\n                top: 0.5rem;\n                right: 0.5rem;\n            }\n        "],
+  "mappings": ";AACY;AACI,SAAO;AACP,aAAW,KAAK,MAAM,EAAE;AAC5B;AAEA,CAAC;AACG,YAAU;AACV,OAAK;AACL,SAAO;AACX;",
+  "names": []
+}
