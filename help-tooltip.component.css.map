@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;f2bdd72119b41c195c0bba73ca8e98be6518badd30835cd7423e81fec3ecd0d7;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/help-tooltip.component.ts"],
+  "sourcesContent": ["\n            a:not(:last-child) {\n                border-bottom-width: 1px !important;\n                border-bottom-style: solid !important;\n                border-radius: 0;\n            }\n        "],
+  "mappings": ";AACY,CAAC,KAAK;AACF,uBAAqB;AACrB,uBAAqB;AACrB,iBAAe;AACnB;",
+  "names": []
+}

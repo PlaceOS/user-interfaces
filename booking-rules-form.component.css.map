@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;94296c5b19cec9dc229d12b089ea557cec999147ccdf8508f1eb67d15b789294;/home/runner/work/user-interfaces/user-interfaces/libs/form-fields/src/lib/booking-rules-form.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: block;\n                padding: 0.5rem;\n            }\n        "],
+  "mappings": ";AACY;AACI,WAAS;AACT,WAAS;AACb;",
+  "names": []
+}
