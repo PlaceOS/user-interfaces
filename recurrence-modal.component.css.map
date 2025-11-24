@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;08e87cc84ad893ed080b10ccb1ca1d9025acb8f4d3e0d639abb60b4f021cfe92;/home/runner/work/user-interfaces/user-interfaces/libs/form-fields/src/lib/recurrence-modal.component.ts"],
+  "sourcesContent": ["\n            mat-form-field,\n            a-date-field {\n                height: 3.25rem;\n            }\n\n            mat-radio-button {\n                width: 8rem;\n            }\n        "],
+  "mappings": ";AACY;AACA;AACI,UAAQ;AACZ;AAEA;AACI,SAAO;AACX;",
+  "names": []
+}

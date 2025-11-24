@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;ad78d988eece7e2380c0d534ff389ba1adf6fae4909b416f4ad28a5d006a41d8;/home/runner/work/user-interfaces/user-interfaces/libs/form-fields/src/lib/user-list-field.component.ts"],
+  "sourcesContent": ["\n            [search] {\n            }\n        "],
+  "mappings": ";AACY,CAAC;AACD;",
+  "names": []
+}
