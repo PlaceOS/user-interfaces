@@ -7,6 +7,8 @@ import {
     Building,
     BuildingLevel,
     firstTruthyValueFrom,
+    formatRecurrence,
+    fromBookingRecurrence,
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
@@ -88,6 +90,17 @@ import {
                             }
                         }
                     </p>
+                }
+                @if (
+                    last_event.recurrence_type &&
+                    last_event.recurrence_type !== 'none'
+                ) {
+                    <div
+                        class="flex items-center space-x-2 rounded-lg bg-base-200 px-4 py-2"
+                    >
+                        <icon class="text-xl">update</icon>
+                        <div class="text-sm">{{ formatted_recurrence }}</div>
+                    </div>
                 }
                 @if (last_event?.extension_data?.assets?.length) {
                     <p assets>
@@ -216,6 +229,13 @@ export class NewDeskFlowSuccessComponent implements OnInit {
 
     public get time_format() {
         return this._settings.time_format;
+    }
+
+    public get formatted_recurrence() {
+        const event = this.last_event;
+        const recurrence = fromBookingRecurrence(event);
+        if (!recurrence.type || recurrence.type == 'none') return '';
+        return formatRecurrence(recurrence);
     }
 
     public async ngOnInit() {

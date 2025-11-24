@@ -11,10 +11,10 @@ import {
     notifySuccess,
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
-import { NewDeskFlowSuccessComponent } from '../desk-flow/desk-flow-success.component';
 import { DeskFlowAutoAssignComponent } from './desk-flow-auto-assign.component';
 import { DeskFlowDetailsComponent } from './desk-flow-details.component';
 import { DeskFlowSelectComponent } from './desk-flow-select.component';
+import { NewDeskFlowSuccessComponent } from './desk-flow-success.component';
 
 @Component({
     selector: 'desk-flow-new',

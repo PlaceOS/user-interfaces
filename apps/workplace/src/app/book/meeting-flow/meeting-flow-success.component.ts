@@ -4,13 +4,15 @@ import { Router, RouterModule } from '@angular/router';
 import { BookingFormService, findNearbyFeature } from '@placeos/bookings';
 import {
     currentUser,
+    formatRecurrence,
+    fromEventRecurrence,
     i18n,
     nextValueFrom,
     notifyError,
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
-import { TranslatePipe } from '@placeos/components';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { EventFormService, SpacePipe } from '@placeos/events';
 import { set } from 'date-fns';
 
@@ -60,6 +62,14 @@ import { set } from 'date-fns';
                             }}
                         }
                     </p>
+                    @if (last_event()?.recurrence?.pattern) {
+                        <div
+                            class="flex items-center space-x-2 rounded-lg bg-base-200 px-4 py-2"
+                        >
+                            <icon class="text-xl">update</icon>
+                            <div class="text-sm">{{ formatted_recurrence }}</div>
+                        </div>
+                    }
                     @if (true) {
                         <p>
                             {{
@@ -97,7 +107,7 @@ import { set } from 'date-fns';
         }
     `,
     styles: [``],
-    imports: [CommonModule, RouterModule, TranslatePipe],
+    imports: [CommonModule, RouterModule, TranslatePipe, IconComponent],
 })
 export class MeetingFlowSuccessComponent implements OnInit {
     private _event_form = inject(EventFormService);
@@ -128,6 +138,18 @@ export class MeetingFlowSuccessComponent implements OnInit {
 
     public get time_format() {
         return this._settings.time_format;
+    }
+
+    public get formatted_recurrence() {
+        const event = this.last_event();
+        if (!event?.recurrence?.pattern) return '';
+
+        return formatRecurrence(
+            fromEventRecurrence({
+                ...event.recurrence,
+                start: event.date || event.recurrence.start,
+            }),
+        );
     }
 
     public ngOnInit() {

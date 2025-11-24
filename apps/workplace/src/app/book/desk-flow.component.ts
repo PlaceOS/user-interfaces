@@ -10,8 +10,8 @@ import {
     OrganisationService,
 } from '@placeos/common';
 import { lastValueFrom, timer } from 'rxjs';
+import { NewDeskFlowSuccessComponent } from './desk-flow-new/desk-flow-success.component';
 import { NewDeskFlowFormComponent } from './desk-flow/desk-flow-form.component';
-import { NewDeskFlowSuccessComponent } from './desk-flow/desk-flow-success.component';
 
 @Component({
     selector: 'placeos-new-book-desk-flow',

@@ -20,6 +20,8 @@ import {
 } from '@placeos/catering';
 import {
     currentUser,
+    formatRecurrence,
+    fromEventRecurrence,
     i18n,
     notifyError,
     notifySuccess,
@@ -443,16 +445,12 @@ export class MeetingFlowOptionsComponent {
     }
 
     public get formatted_recurrence() {
-        const recurrence = this.event.recurrence;
-        if (!recurrence?.pattern) return '';
-
-        const pattern = recurrence.pattern;
-        if (pattern === 'daily') return i18n('FORM.RECURRENCE_DAILY');
-        if (pattern === 'weekly')
-            return i18n('CALENDAR_EVENT.RECURRENCE_WEEKLY');
-        if (pattern === 'monthly')
-            return i18n('CALENDAR_EVENT.RECURRENCE_MONTHLY');
-        return pattern.charAt(0).toUpperCase() + pattern.slice(1);
+        return formatRecurrence(
+            fromEventRecurrence({
+                ...this.event.recurrence,
+                start: this.event.date || this.event.recurrence.start,
+            }),
+        );
     }
 
     public formattedTime(tz?: string) {
