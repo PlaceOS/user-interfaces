@@ -102316,15 +102316,15 @@ var DEFAULT_SETTINGS = {
 // libs/common/src/lib/version.ts
 var VERSION8 = {
   "dirty": false,
-  "raw": "e80d833",
-  "hash": "e80d833",
+  "raw": "5da9a62",
+  "hash": "5da9a62",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "e80d833",
+  "suffix": "5da9a62",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1759851154427
+  "time": 1763944678351
 };
 
 // libs/users/src/lib/user.utilities.ts
