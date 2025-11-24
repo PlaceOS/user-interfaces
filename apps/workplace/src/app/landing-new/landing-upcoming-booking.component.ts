@@ -96,29 +96,49 @@ import { ScheduleStateService } from '../schedule/schedule-state.service';
                     <div
                         class="flex w-full flex-col items-end space-y-2 sm:flex-1"
                     >
-                        <button
-                            btn
-                            matRipple
-                            [disabled]="!canCheckin()"
-                            class="white w-full space-x-2 sm:w-52"
-                            (click)="checkIn()"
-                        >
-                            <icon class="text-2xl">check_circle</icon>
-                            <div class="pr-2">Check-in</div>
-                        </button>
-                        <button
-                            btn
-                            matRipple
-                            class="inverse white w-full space-x-2 sm:w-52"
-                            (click)="viewDetails()"
-                        >
-                            <icon class="text-2xl">info</icon>
-                            <div class="pr-2">View Details</div>
-                        </button>
+                        <div class="flex w-full items-center space-x-2 sm:w-56">
+                            <button
+                                btn
+                                matRipple
+                                [disabled]="!canCheckin()"
+                                class="white flex-1 space-x-2"
+                                (click)="checkIn()"
+                            >
+                                <icon class="text-2xl">check_circle</icon>
+                                <div class="pr-2">Check-in</div>
+                            </button>
+                            <button
+                                btn
+                                matRiple
+                                class="white inverse h-12 w-12 px-0"
+                                (click)="edit()"
+                            >
+                                <icon class="text-2xl">edit</icon>
+                            </button>
+                        </div>
+                        <div class="flex w-full items-center space-x-2 sm:w-56">
+                            <button
+                                btn
+                                matRipple
+                                class="inverse white flex flex-1 space-x-2"
+                                (click)="viewDetails()"
+                            >
+                                <icon class="text-2xl">info</icon>
+                                <div class="pr-2">View Details</div>
+                            </button>
+                            <button
+                                btn
+                                matRiple
+                                class="white inverse h-12 w-12 px-0"
+                                (click)="remove()"
+                            >
+                                <icon class="text-2xl">delete</icon>
+                            </button>
+                        </div>
                         <a
                             btn
                             matRipple
-                            class="inverse white w-full space-x-2 sm:w-52"
+                            class="inverse white w-full space-x-2 sm:w-56"
                             [routerLink]="['/your-bookings']"
                         >
                             <icon class="text-2xl">open_in_new</icon>
@@ -349,6 +369,18 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
                 });
             }
         });
+    }
+
+    public edit() {
+        const event = this.nextEvent();
+        event instanceof CalendarEvent
+            ? this.edit_fn(event)
+            : this.edit_booking_fn(event);
+    }
+
+    public remove() {
+        const event = this.nextEvent();
+        this.remove_fn(event);
     }
 
     public viewDirections() {
