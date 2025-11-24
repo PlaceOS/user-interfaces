@@ -23,6 +23,7 @@ import {
     removeSystem,
     SignageMedia,
     SignagePlaylist,
+    token,
     updateSignageMedia,
     updateSignagePlaylist,
     updateSignagePlaylistMedia,
@@ -45,6 +46,7 @@ import {
 } from 'rxjs/operators';
 
 import { MatDialog } from '@angular/material/dialog';
+import { SignedRequest } from '@placeos/cloud-uploads';
 import { openConfirmModal } from '@placeos/components';
 import { SignageApprovePlaylistModalComponent } from './signage-approve-playlist-modal.component';
 import { SignageDisplayModalComponent } from './signage-display-modal.component';
@@ -385,6 +387,7 @@ export class SignageStateService extends AsyncHandler {
             new Promise<{ id: string; link: string }>((resolve, reject) => {
                 let state = null;
                 let resolved = false;
+
                 this.subscription(
                     `upload-${id}`,
                     this._uploads.upload_list.subscribe(
@@ -415,6 +418,7 @@ export class SignageStateService extends AsyncHandler {
             720,
         ).catch(() => null);
         const media_id = await this._uploads.uploadFileWithPermissions(file);
+        SignedRequest.setToken(token());
         const media = await uploadDetails(media_id);
         let thumbnail = null;
         if (thumbnail_image) {
