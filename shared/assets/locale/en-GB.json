@@ -413,7 +413,7 @@
         "SENSORS_QUEUE": "Queue Size: {{ value }}",
         "SENSORS_COUNT": "Count: {{ value }}",
         "SPACES_PERMISSIONS_ERROR": "You do not have permission to book this space at this time.",
-        "SPACES_UNAVAILABLE_ERROR": "{{ name }}  is unavailable for the selected time and duration",
+        "SPACES_UNAVAILABLE_ERROR": "{{ name }} is unavailable at the current time",
         "PARKING_PERMISSIONS_ERROR": "Your user account has been denied parking access to {{ name }}",
         "PARKING_ASSIGNED_ERROR": "You are already assigned to parking space \"{{ name }}\"",
         "PARKING_EXISTING_ERROR": "You already have a parking space booked for the selected time.",

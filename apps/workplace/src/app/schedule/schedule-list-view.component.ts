@@ -70,8 +70,9 @@ export class ScheduleListViewComponent {
     public readonly booking_dates = computed(() => {
         if (this.loading()) return [];
         const sorted = (this.bookings() || []).sort((a, b) => a.date - b.date);
+        const filtered = sorted.filter((b) => isSameDay(b.date, this.date()));
         const dates = new Set<string>();
-        for (const booking of sorted) {
+        for (const booking of filtered) {
             const date = format(booking.date, 'yyyy-MM-dd');
             if (!dates.has(date)) dates.add(date);
         }

@@ -756,7 +756,7 @@ export class ScheduleStateService extends AsyncHandler {
         const time = `${format(item.date, 'dd MMM yyyy h:mma')}`;
         const resource_name =
             item instanceof CalendarEvent
-                ? item.space?.display_name
+                ? item.space?.display_name || item.title
                 : item.asset_name || item.asset_id;
         const resp = await openConfirmModal(
             {
