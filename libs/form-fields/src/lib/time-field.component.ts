@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import {
+    AfterViewInit,
     Component,
     forwardRef,
     input,
@@ -11,8 +12,7 @@ import {
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatSelect } from '@angular/material/select';
+import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import {
     AsyncHandler,
     getTimezoneOffsetString,
@@ -87,6 +87,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
             @for (option of time_options; track option.id) {
                 <button
                     mat-menu-item
+                    [attr.data-time]="option.id"
                     [value]="option.id"
                     class="text-left"
                     (click)="setValue(option.id)"
@@ -135,7 +136,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
 })
 export class TimeFieldComponent
     extends AsyncHandler
-    implements OnInit, OnChanges, ControlValueAccessor
+    implements OnInit, OnChanges, AfterViewInit, ControlValueAccessor
 {
     /** Time step between each allowed time option */
     public readonly step = input(15);
@@ -165,8 +166,8 @@ export class TimeFieldComponent
     /** Form control on touch handler */
     private _onTouch: (_: number) => void;
 
-    /** Select field for selecting the time */
-    private readonly select_field = viewChild<MatSelect>('select');
+    /** Menu trigger for the time selection dropdown */
+    private readonly _menu_trigger = viewChild(MatMenuTrigger);
 
     public get time_format() {
         return this.use_24hr() ? 'HH : mm' : 'h : mm a';
@@ -204,6 +205,69 @@ export class TimeFieldComponent
                 this.step(),
             );
         }
+    }
+
+    public ngAfterViewInit(): void {
+        const trigger = this._menu_trigger();
+        if (trigger) {
+            this.subscription(
+                'menu_opened',
+                trigger.menuOpened.subscribe(() => {
+                    this._scrollToSelectedTime();
+                }),
+            );
+        }
+    }
+
+    /** Scroll the menu to the selected or nearest time option */
+    private _scrollToSelectedTime(): void {
+        // Use requestAnimationFrame for immediate execution after render
+        requestAnimationFrame(() => {
+            const trigger = this._menu_trigger();
+            if (!trigger?.menu) return;
+
+            const panel = document.querySelector('.mat-mdc-menu-panel');
+            if (!panel) return;
+
+            // Find the selected time, or fallback to the nearest time
+            const target_time = this.time || format(new Date(), 'HH:mm');
+            let target_element = panel.querySelector(
+                `[data-time="${target_time}"]`,
+            );
+
+            // If exact time not found, find the nearest option
+            if (!target_element && this._time_options?.length) {
+                const current_minutes = this._timeToMinutes(target_time);
+                let closest_option = this._time_options[0];
+                let closest_diff = Infinity;
+
+                for (const option of this._time_options) {
+                    const option_minutes = this._timeToMinutes(option.id);
+                    const diff = Math.abs(option_minutes - current_minutes);
+                    if (diff < closest_diff) {
+                        closest_diff = diff;
+                        closest_option = option;
+                    }
+                }
+
+                target_element = panel.querySelector(
+                    `[data-time="${closest_option.id}"]`,
+                );
+            }
+
+            if (target_element) {
+                target_element.scrollIntoView({
+                    block: 'center',
+                    behavior: 'instant',
+                });
+            }
+        });
+    }
+
+    /** Convert time string (HH:mm) to minutes since midnight */
+    private _timeToMinutes(time_str: string): number {
+        const [hours, minutes] = time_str.split(':').map(Number);
+        return hours * 60 + minutes;
     }
 
     /** Available time blocks for the selected date */
@@ -291,28 +355,6 @@ export class TimeFieldComponent
      */
     public registerOnTouched(fn: (_: number) => void): void {
         this._onTouch = fn;
-    }
-
-    /**
-     * Show select field for time options
-     */
-    public showSelect() {
-        this.show_select = true;
-        this.timeout('on_shown', () => {
-            const select_field = this.select_field();
-            if (select_field) {
-                select_field.focus();
-                select_field.open();
-                this.subscription(
-                    'listen_close',
-                    select_field.openedChange.subscribe((state) => {
-                        if (!state) {
-                            this.show_select = false;
-                        }
-                    }),
-                );
-            }
-        });
     }
 
     /**
