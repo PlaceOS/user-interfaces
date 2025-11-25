@@ -12,7 +12,12 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { BookingDetailsModalComponent } from '@placeos/bookings';
-import { Booking, BOOKING_TYPE_COLORS, CalendarEvent } from '@placeos/common';
+import {
+    Booking,
+    BOOKING_TYPE_COLORS,
+    CalendarEvent,
+    OrganisationService,
+} from '@placeos/common';
 import {
     EventDetailsModalComponent,
     GroupEventDetailsModalComponent,
@@ -123,6 +128,8 @@ interface PositionedBooking {
                                     (click)="viewBooking(item.booking)"
                                     [matTooltip]="
                                         item.booking.title +
+                                        (location(item.booking) ? '
+' + location(item.booking) : '') +
                                         '
 ' +
                                         (item.booking.user_name ||
@@ -154,6 +161,16 @@ interface PositionedBooking {
                                     }
                                     @if (
                                         item.height > 5 &&
+                                        location(item.booking)
+                                    ) {
+                                        <div
+                                            class="mt-1 truncate text-xs opacity-60"
+                                        >
+                                            {{ location(item.booking) }}
+                                        </div>
+                                    }
+                                    @if (
+                                        item.height > 7 &&
                                         (item.booking.user_name ||
                                             item.booking.host)
                                     ) {
@@ -180,6 +197,7 @@ interface PositionedBooking {
 export class ScheduleDayViewComponent {
     private _dialog = inject(MatDialog);
     private _state = inject(ScheduleStateService);
+    private _org = inject(OrganisationService);
 
     public readonly date = input(Date.now());
     public readonly bookings = input<(Booking | CalendarEvent)[]>([]);
@@ -389,6 +407,40 @@ export class ScheduleDayViewComponent {
     public type(booking: Booking | CalendarEvent) {
         if (booking instanceof Booking) return booking.booking_type;
         return booking.extension_data?.shared_event ? 'group-event' : 'event';
+    }
+
+    public location(booking: Booking | CalendarEvent): string {
+        let location = '';
+        let level_name = '';
+
+        if (booking instanceof Booking) {
+            location = booking.location || booking.asset_name || '';
+            const level = this._org.levelWithID(booking.zones);
+            level_name = level?.display_name || level?.name || '';
+        } else {
+            location =
+                booking.location ||
+                booking.space?.display_name ||
+                booking.space?.name ||
+                (booking.system as any)?.name ||
+                '';
+            level_name =
+                booking.space?.level?.display_name ||
+                booking.space?.level?.name ||
+                (booking.system as any)?.zones
+                    ? this._org.levelWithID(
+                          (booking.system as any)?.zones || [],
+                      )?.display_name ||
+                      this._org.levelWithID(
+                          (booking.system as any)?.zones || [],
+                      )?.name
+                    : '';
+        }
+
+        if (location && level_name) {
+            return `${location} - ${level_name}`;
+        }
+        return location || level_name || '';
     }
 
     public viewBooking(bkn: CalendarEvent | Booking) {

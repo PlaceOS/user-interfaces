@@ -12,7 +12,12 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { BookingDetailsModalComponent } from '@placeos/bookings';
-import { Booking, BOOKING_TYPE_COLORS, CalendarEvent } from '@placeos/common';
+import {
+    Booking,
+    BOOKING_TYPE_COLORS,
+    CalendarEvent,
+    OrganisationService,
+} from '@placeos/common';
 import { IconComponent } from '@placeos/components';
 import {
     EventDetailsModalComponent,
@@ -91,6 +96,8 @@ interface Weekday {
                                     (click)="viewBooking(bkn)"
                                     [matTooltip]="
                                         bkn.title +
+                                        (location(bkn) ? '
+' + location(bkn) : '') +
                                         '
 ' +
                                         (bkn.user_name || bkn.host) +
@@ -104,6 +111,11 @@ interface Weekday {
                                     <div class="truncate text-sm">
                                         {{ bkn.title }}
                                     </div>
+                                    @if (location(bkn)) {
+                                        <div class="truncate text-xs opacity-75">
+                                            {{ location(bkn) }}
+                                        </div>
+                                    }
                                     <div class="text-xs">
                                         {{ bkn.date | date: 'shortTime' }}
                                     </div>
@@ -129,6 +141,7 @@ interface Weekday {
 export class ScheduleWeekViewComponent {
     private _dialog = inject(MatDialog);
     private _state = inject(ScheduleStateService);
+    private _org = inject(OrganisationService);
     public readonly date = input(Date.now());
     public readonly bookings = input<(Booking | CalendarEvent)[]>([]);
     public readonly colors = BOOKING_TYPE_COLORS;
@@ -204,6 +217,40 @@ export class ScheduleWeekViewComponent {
     public type(booking: Booking | CalendarEvent) {
         if (booking instanceof Booking) return booking.booking_type;
         return booking.extension_data?.shared_event ? 'group-event' : 'event';
+    }
+
+    public location(booking: Booking | CalendarEvent): string {
+        let location = '';
+        let level_name = '';
+
+        if (booking instanceof Booking) {
+            location = booking.location || booking.asset_name || '';
+            const level = this._org.levelWithID(booking.zones);
+            level_name = level?.display_name || level?.name || '';
+        } else {
+            location =
+                booking.location ||
+                booking.space?.display_name ||
+                booking.space?.name ||
+                (booking.system as any)?.name ||
+                '';
+            level_name =
+                booking.space?.level?.display_name ||
+                booking.space?.level?.name ||
+                (booking.system as any)?.zones
+                    ? this._org.levelWithID(
+                          (booking.system as any)?.zones || [],
+                      )?.display_name ||
+                      this._org.levelWithID(
+                          (booking.system as any)?.zones || [],
+                      )?.name
+                    : '';
+        }
+
+        if (location && level_name) {
+            return `${location} - ${level_name}`;
+        }
+        return location || level_name || '';
     }
 
     public viewBooking(bkn: CalendarEvent | Booking) {
