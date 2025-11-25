@@ -1,3 +1,4 @@
+import { computed, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -6,7 +7,6 @@ import { BookingCardComponent } from '@placeos/bookings';
 import { SettingsService } from '@placeos/common';
 import { EventCardComponent, EventFormService } from '@placeos/events';
 import { MockComponent, MockProvider } from 'ng-mocks';
-import { BehaviorSubject } from 'rxjs';
 import { FooterMenuComponent } from '../../app/components/footer-menu.component';
 import { TopbarComponent } from '../../app/components/topbar.component';
 import { ScheduleFiltersComponent } from '../../app/schedule/schedule-filters.component';
@@ -30,9 +30,10 @@ describe('ScheduleComponent', () => {
         ],
         providers: [
             MockProvider(ScheduleStateService, {
-                filtered_bookings: new BehaviorSubject([]),
-                loading: new BehaviorSubject(false),
-                date: new BehaviorSubject(0),
+                bookings: computed(() => []),
+                filtered_bookings: computed(() => []),
+                loading: signal(false),
+                date: signal(0),
                 toggleType: jest.fn(),
                 setDate: jest.fn(),
                 getOptions: jest.fn(() => ({ period: 'day' })),

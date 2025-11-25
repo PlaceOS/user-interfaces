@@ -1,3 +1,4 @@
+import { computed } from '@angular/core';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
 import { OrganisationService, SettingsService, Organisation } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
@@ -16,7 +17,7 @@ describe('LandingStateService', () => {
                 freeBusy: jest.fn(() => of([])),
             }),
             MockProvider(ScheduleStateService, {
-                filtered_bookings: new BehaviorSubject([]),
+                filtered_bookings: computed(() => []),
             }),
             MockProvider(OrganisationService, {
                 levels: [],

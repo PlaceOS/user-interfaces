@@ -7,7 +7,7 @@ import { MockComponent, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 import { NewDeskFlowComponent } from '../../app/book/desk-flow.component';
 import { NewDeskFlowFormComponent } from '../../app/book/desk-flow/desk-flow-form.component';
-import { NewDeskFlowSuccessComponent } from '../../app/book/desk-flow/desk-flow-success.component';
+import { NewDeskFlowSuccessComponent } from '../../app/book/desk-flow-new/desk-flow-success.component';
 
 describe('NewDeskFlowComponent', () => {
     let spectator: SpectatorRouting<NewDeskFlowComponent>;
