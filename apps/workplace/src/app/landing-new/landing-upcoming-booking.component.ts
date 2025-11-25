@@ -3,6 +3,7 @@ import { Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router, RouterLink } from '@angular/router';
 import {
     BookingDetailsModalComponent,
@@ -110,6 +111,8 @@ import { ScheduleStateService } from '../schedule/schedule-state.service';
                             <button
                                 btn
                                 matRiple
+                                matTooltip="Edit Booking"
+                                matTooltipPosition="left"
                                 class="white inverse h-12 w-12 px-0"
                                 (click)="edit()"
                             >
@@ -129,6 +132,8 @@ import { ScheduleStateService } from '../schedule/schedule-state.service';
                             <button
                                 btn
                                 matRiple
+                                matTooltip="Delete Booking"
+                                matTooltipPosition="left"
                                 class="white inverse h-12 w-12 px-0"
                                 (click)="remove()"
                             >
@@ -221,6 +226,7 @@ import { ScheduleStateService } from '../schedule/schedule-state.service';
         IconComponent,
         TranslatePipe,
         RouterLink,
+        MatTooltipModule,
     ],
 })
 export class LandingUpcomingBookingComponent extends AsyncHandler {

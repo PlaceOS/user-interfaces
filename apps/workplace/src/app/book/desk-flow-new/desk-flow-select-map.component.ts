@@ -128,6 +128,7 @@ export class DeskFlowSelectMapComponent extends AsyncHandler implements OnInit {
                     ...space,
                     active: this.active() === space.id,
                     selected: this.selected_items().includes(space.id),
+                    onSelect: this._selectedItem(space),
                 },
             })),
         ),
