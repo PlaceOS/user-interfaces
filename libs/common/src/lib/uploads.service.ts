@@ -213,16 +213,14 @@ export class UploadsService extends AsyncHandler {
                         upload_details.upload_id = (
                             upload as any
                         )._request.upload_id;
-
                         console.log('Upload:', state, upload_list);
                         if (upload.access_url) {
-                            upload_details.link = !pub
-                                ? `${
-                                      location.origin
-                                  }/api/engine/v2/uploads/${encodeURIComponent(
-                                      upload_details.upload_id || upload.id,
-                                  )}/url`
-                                : upload.access_url;
+                            const local_url = `${
+                                location.origin
+                            }/api/engine/v2/uploads/${encodeURIComponent(
+                                upload_details.upload_id || upload.id,
+                            )}/url`;
+                            upload_details.link = local_url;
                         }
                         upload_details.progress = state.progress;
                         observer.next(upload_details);

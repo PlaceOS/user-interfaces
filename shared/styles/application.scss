@@ -36,10 +36,10 @@
     --neutral-content: hsl(0, 0%, 100%); /* White content on grey background */
 
     /* Base */
-    --base-100: oklch(98.4% 0.003 247.858); /* Near White */
-    --base-200: oklch(92.9% 0.013 255.508); /* Light Grey */
-    --base-300: oklch(86.9% 0.022 252.894); /* Mid Grey */
-    --base-400: oklch(55.4% 0.046 257.417); /* Mid Grey */
+    --base-100: hsl(0, 0%, 98.5%); /* Near White */
+    --base-200: hsl(49, 2%, 92%); /* Light Grey */
+    --base-300: hsl(56, 5%, 71%); /* Mid Grey */
+    --base-400: hsl(58, 7%, 55%); /* Mid Grey */
     --base-content: hsl(0, 0%, 0%); /* Black content on white background */
 
     /* Info */

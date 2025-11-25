@@ -371,7 +371,8 @@ function contains(str: string, substr: string) {
                                     [href]="
                                         (backoffice_link() || '/backoffice/') +
                                         '#/systems/' +
-                                        row.id
+                                        row.id +
+                                        '/modules'
                                     "
                                     target="_blank"
                                     ref="noopener noreferrer"
@@ -636,6 +637,7 @@ export class RemoteSupportComponent extends AsyncHandler implements OnInit {
     }
 
     public setNextBooking(space: Space, event: CalendarEvent) {
+        console.log('Next:', space, event);
         const current = this.next();
         if (!event && current[space.id]) {
             delete current[space.id];
