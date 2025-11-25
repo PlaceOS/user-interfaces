@@ -217,6 +217,7 @@ export class ExploreBookingModalComponent implements OnInit {
             notifyError(
                 'Error intialising Ad-hoc booking form. [Space missing]',
             );
+            console.error('Book Modal Data:', this._data);
             this._dialog_ref.close();
             return;
         }
