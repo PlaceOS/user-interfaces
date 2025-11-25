@@ -128,8 +128,10 @@ interface PositionedBooking {
                                     (click)="viewBooking(item.booking)"
                                     [matTooltip]="
                                         item.booking.title +
-                                        (location(item.booking) ? '
-' + location(item.booking) : '') +
+                                        (location(item.booking)
+                                            ? '
+' + location(item.booking)
+                                            : '') +
                                         '
 ' +
                                         (item.booking.user_name ||
@@ -143,8 +145,18 @@ interface PositionedBooking {
                                             | date: 'shortTime')
                                     "
                                 >
-                                    <div class="truncate text-sm font-medium">
-                                        {{ item.booking.title }}
+                                    <div
+                                        class="flex items-center space-x-1 truncate text-sm font-medium"
+                                    >
+                                        <div>{{ item.booking.title }}</div>
+                                        @if (
+                                            item.height <= 5 &&
+                                            location(item.booking)
+                                        ) {
+                                            <div class="text-xs opacity-60">
+                                                · {{ location(item.booking) }}
+                                            </div>
+                                        }
                                     </div>
                                     @if (item.height > 3) {
                                         <div class="text-xs opacity-75">
