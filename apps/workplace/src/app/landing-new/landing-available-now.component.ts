@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
+import { MatMenuModule } from '@angular/material/menu';
 import { RouterLink } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
 import {
@@ -12,7 +13,6 @@ import {
 import { BuildingPipe, IconComponent } from '@placeos/components';
 import { EventFormService } from '@placeos/events';
 import { LandingStateService } from '../landing/landing-state.service';
-import { MatMenuModule } from '@angular/material/menu';
 
 @Component({
     selector: 'landing-available-now',
@@ -22,44 +22,6 @@ import { MatMenuModule } from '@angular/material/menu';
         >
             <div class="mb-2 flex items-center justify-between">
                 <h3 class="px-2 text-lg font-medium">Available Now</h3>
-                <button matRipple class="flex items-center justify-center rounded-md px-2 py-1 border border-base-300 w-32" [matMenuTriggerFor]="menu">
-                    <div class="ml-2 text-sm underline capitalize">{{ active_filter() }}</div>
-                    <icon>keyboard_arrow_down</icon>
-                </button>
-                <mat-menu #menu="matMenu">
-                    <button mat-menu-item (click)="active_filter.set('nearest')">
-                        <div class="flex space-x-2 items-center">
-                            <div class="flex-1 min-w-32">Nearest</div>
-                            @if (active_filter() === "nearest") {
-                                <icon class="text-2xl">done</icon>
-                            }
-                        </div>
-                    </button>
-                    <button mat-menu-item (click)="active_filter.set('quiet')">
-                        <div class="flex space-x-2  items-center">
-                            <div class="flex-1">Quiet</div>
-                            @if (active_filter() === "quiet") {
-                                <icon class="text-2xl">done</icon>
-                            }
-                        </div>
-                    </button>
-                    <button mat-menu-item (click)="active_filter.set('equipment')">
-                        <div class="flex space-x-2  items-center">
-                            <div class="flex-1">Equipment</div>
-                            @if (active_filter() === "equipment") {
-                                <icon class="text-2xl">done</icon>
-                            }
-                        </div>
-                    </button>
-                    <button mat-menu-item (click)="active_filter.set('accessible')">
-                        <div class="flex space-x-2  items-center">
-                            <div class="flex-1">Accessible</div>
-                            @if (active_filter() === "accessible") {
-                                <icon class="text-2xl">done</icon>
-                            }
-                        </div>
-                    </button>
-                </mat-menu>
             </div>
             @if (feature_count() > 0) {
                 <div
@@ -107,7 +69,9 @@ import { MatMenuModule } from '@angular/material/menu';
             }
             <div class="flex flex-col space-y-2 pt-2">
                 @if (filtered_levels().length <= 0) {
-                    <div class="flex flex-col items-center justify-center py-12 text-center rounded-xl bg-base-200">
+                    <div
+                        class="flex flex-col items-center justify-center rounded-xl bg-base-200 py-12 text-center"
+                    >
                         <icon class="text-4xl opacity-30">{{
                             active_tab() === 'desks'
                                 ? 'desk'
@@ -116,7 +80,13 @@ import { MatMenuModule } from '@angular/material/menu';
                                   : 'meeting_room'
                         }}</icon>
                         <div class="mt-2 text-sm opacity-60">
-                            No {{ active_tab() === 'rooms' ? 'rooms' : active_tab() }} available at the moment
+                            No
+                            {{
+                                active_tab() === 'rooms'
+                                    ? 'rooms'
+                                    : active_tab()
+                            }}
+                            available at the moment
                         </div>
                     </div>
                 }
@@ -139,7 +109,9 @@ import { MatMenuModule } from '@angular/material/menu';
                             @let bld = lvl.parent_id | building;
                             <div>{{ lvl.display_name || lvl.name }}</div>
                             @if (bld) {
-                                <div class="text-xs opacity-50 text-base-content">
+                                <div
+                                    class="text-xs text-base-content opacity-50"
+                                >
                                     {{ bld.display_name || bld.name }}
                                 </div>
                             }
