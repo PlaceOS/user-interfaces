@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
     MAT_DIALOG_DATA,
@@ -189,7 +189,11 @@ export class ExploreBookingModalComponent implements OnInit {
         inject<MatDialogRef<ExploreBookingModalComponent>>(MatDialogRef);
     private _router = inject(Router);
 
-    public readonly loading = toSignal(this._event_form.loading$);
+    private _service_loading = toSignal(this._event_form.loading$);
+    private _min_loading = signal(true);
+    public readonly loading = computed(
+        () => this._min_loading() || this._service_loading(),
+    );
     public readonly alert = signal(this._data.alert);
 
     public get form() {
@@ -227,6 +231,7 @@ export class ExploreBookingModalComponent implements OnInit {
             host: currentUser().email,
             organiser: currentUser(),
         });
+        setTimeout(() => this._min_loading.set(false), 500);
     }
 
     public async save() {
