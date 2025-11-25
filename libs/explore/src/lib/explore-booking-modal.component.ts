@@ -213,6 +213,13 @@ export class ExploreBookingModalComponent implements OnInit {
     }
 
     public ngOnInit() {
+        if (!this._data.space) {
+            notifyError(
+                'Error intialising Ad-hoc booking form. [Space missing]',
+            );
+            this._dialog_ref.close();
+            return;
+        }
         this._event_form.newForm();
         this.form.patchValue({
             resources: [this._data.space],
