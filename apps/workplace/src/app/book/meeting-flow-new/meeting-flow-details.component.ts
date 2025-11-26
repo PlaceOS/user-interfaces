@@ -90,6 +90,7 @@ import {
                             }}</label>
                             <duration-field
                                 name="duration"
+                                [step]="duration_step()"
                                 formControlName="duration"
                                 [disabled]="form_value().all_day"
                             />
@@ -261,6 +262,7 @@ export class MeetingFlowDetailsComponent {
         'events.allow_all_day',
         false,
     );
+    public readonly duration_step = settingSignal('events.duration_step', 15);
     public readonly has_title = computed(
         () => !!this.form_value()?.title?.trim(),
     );
