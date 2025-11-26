@@ -181,6 +181,7 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
                                     formControlName="duration"
                                     [time]="field('date')"
                                     [max]="max_duration()"
+                                    [step]="duration_step()"
                                     [use_24hr]="use_24hr()"
                                     [timezone]="timezone"
                                 />
@@ -544,6 +545,11 @@ export class DeskFlowSelectComponent extends AsyncHandler implements OnInit {
 
     public readonly use_24hr = settingSignal('use_24_hour_time', false);
     public readonly use_region = settingSignal('use_region', false);
+    public readonly duration_step = computed(
+        () =>
+            settingSignal('desks.duration_step')() ||
+            settingSignal('bookings.duration_step', 15)(),
+    );
     public readonly max_duration = settingSignal(
         'bookings.max_duration',
         8 * 60,
