@@ -1,9 +1,17 @@
-import { Component, ElementRef, OnInit, inject } from '@angular/core';
+import {
+    Component,
+    ElementRef,
+    afterNextRender,
+    computed,
+    inject,
+    signal,
+} from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { getModule } from '@placeos/ts-client';
 import { differenceInMinutes, formatDistanceToNow } from 'date-fns';
 import { Observable } from 'rxjs';
 
-import { AsyncHandler, SettingsService } from '@placeos/common';
+import { SettingsService } from '@placeos/common';
 import { MAP_FEATURE_DATA } from 'libs/common/src/lib/types';
 import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
@@ -21,15 +29,15 @@ export interface DeviceInfoData {
     zoom$?: Observable<number>;
 }
 
-const EMPTY = [];
+const EMPTY: string[] = [];
 
 @Component({
     selector: '[explore-device-info]',
     template: `
         <div
             name="radius"
-            class="radius center border-blue-600 absolute rounded-full border-8 border-dashed bg-info opacity-30"
-            [style]="'height: ' + diameter + '%; width: ' + diameter + '%;'"
+            class="radius center border-blue-600 absolute rounded-full border-8 border-dashed border-info bg-info opacity-30"
+            [style]="'height: ' + diameter() + '%; width: ' + diameter() + '%;'"
         ></div>
         <div
             shadow
@@ -45,8 +53,8 @@ const EMPTY = [];
             customTooltip
             [content]="device_tooltip"
             [backdrop]="false"
-            [xPosition]="x_pos"
-            [yPosition]="y_pos"
+            [xPosition]="x_pos()"
+            [yPosition]="y_pos()"
             [hover]="true"
             (mouseenter)="loadUser()"
             class="pointer-events-auto absolute inset-0"
@@ -56,11 +64,10 @@ const EMPTY = [];
             <div
                 name="device-info"
                 class="pointer-events-none left-0 top-0 mx-2 w-64 rounded bg-base-100 p-4 shadow"
-                (mouseleave)="close()"
             >
                 <div class="arrow"></div>
                 <div class="details">
-                    @if (mac && !hide_fields.includes('mac')) {
+                    @if (mac && !hide_fields().includes('mac')) {
                         <p class="break-words">
                             <label
                                 >{{ 'EXPLORE.DEVICE_MAC' | translate }}:</label
@@ -80,10 +87,10 @@ const EMPTY = [];
                                 'EXPLORE.DEVICE_LAST_SEEN' | translate
                             }}:</label
                         >
-                        {{ last_seen }}
+                        {{ last_seen() }}
                     </p>
                     @if (
-                        manufacturer && !hide_fields.includes('manufacturer')
+                        manufacturer && !hide_fields().includes('manufacturer')
                     ) {
                         <p type>
                             <label
@@ -94,7 +101,7 @@ const EMPTY = [];
                             {{ manufacturer }}
                         </p>
                     }
-                    @if (os && !hide_fields.includes('os')) {
+                    @if (os && !hide_fields().includes('os')) {
                         <p os>
                             <label
                                 >{{ 'EXPLORE.DEVICE_OS' | translate }}:</label
@@ -102,7 +109,7 @@ const EMPTY = [];
                             {{ os }}
                         </p>
                     }
-                    @if (ssid && !hide_fields.includes('ssid')) {
+                    @if (ssid && !hide_fields().includes('ssid')) {
                         <p ssid>
                             <label
                                 >{{ 'EXPLORE.DEVICE_SSID' | translate }}:</label
@@ -110,17 +117,17 @@ const EMPTY = [];
                             {{ ssid }}
                         </p>
                     }
-                    @if (username && !hide_fields.includes('username')) {
+                    @if (username() && !hide_fields().includes('username')) {
                         <p username>
                             <label
                                 >{{
                                     'EXPLORE.DEVICE_USERNAME' | translate
                                 }}:</label
                             >
-                            {{ user?.name || user?.username || username }}
+                            {{ user?.name || user?.username || username() }}
                         </p>
                     }
-                    @if (user && !hide_fields.includes('user')) {
+                    @if (user && !hide_fields().includes('user')) {
                         <p user>
                             <label
                                 >{{ 'EXPLORE.DEVICE_TYPE' | translate }}:</label
@@ -155,13 +162,13 @@ const EMPTY = [];
     ],
     imports: [TranslatePipe, CustomTooltipComponent],
 })
-export class ExploreDeviceInfoComponent extends AsyncHandler implements OnInit {
+export class ExploreDeviceInfoComponent {
     private _details = inject<DeviceInfoData>(MAP_FEATURE_DATA);
     private _settings = inject(SettingsService);
     private _element = inject<ElementRef<HTMLElement>>(ElementRef);
 
     /** Name of the user associated with the mac address */
-    public username = '';
+    public username = signal('');
     /** User details associated with device */
     public readonly user = this._details.user;
     /** Mac Address of the device */
@@ -175,30 +182,34 @@ export class ExploreDeviceInfoComponent extends AsyncHandler implements OnInit {
     /** Accuracy of the location data */
     public readonly variance = this._details.variance?.toFixed(2);
     /** Background color for the dot */
-    public readonly bg_color = this._details.bg_color || this.distance_color;
+    public readonly bg_color = this._details.bg_color || this._distance_color;
 
-    public zoom = 1;
+    public zoom = toSignal(this._details.zoom$, { initialValue: 1 });
 
-    public get hide_fields() {
-        return this._settings.get('app.explore.hide_device_fields') || EMPTY;
-    }
+    public hide_fields = computed(() => {
+        return (
+            this._settings.get<string[]>('app.explore.hide_device_fields') ||
+            EMPTY
+        );
+    });
 
     /** Time of the last update */
-    public get last_seen() {
+    public last_seen = computed(() => {
         return formatDistanceToNow((this._details.last_seen || 0) * 1000, {
             addSuffix: true,
         });
-    }
+    });
 
-    public y_pos: 'top' | 'bottom';
+    public y_pos = signal<'top' | 'bottom'>('top');
 
-    public x_pos: 'end' | 'start';
+    public x_pos = signal<'end' | 'start'>('start');
+
     /** Diameter of the radius circle */
-    public get diameter() {
-        return this._details.variance * 100 * this.zoom;
-    }
+    public diameter = computed(() => {
+        return this._details.variance * 100 * this.zoom();
+    });
 
-    public get distance() {
+    private get _distance() {
         return Math.abs(
             differenceInMinutes(
                 (this._details.last_seen || 0) * 1000,
@@ -207,46 +218,43 @@ export class ExploreDeviceInfoComponent extends AsyncHandler implements OnInit {
         );
     }
 
-    public get distance_color() {
-        return this.distance < 10
+    private get _distance_color() {
+        return this._distance < 10
             ? '#43a047'
-            : this.distance < 20
+            : this._distance < 20
               ? '#ffb300'
               : '#e53935';
     }
 
     constructor() {
-        super();
+        afterNextRender(() => this._initPosition());
     }
 
-    public ngOnInit(tries: number = 0) {
+    private _initPosition(tries: number = 0) {
         if (tries > 10) return;
-        setTimeout(() => {
-            const parent =
-                this._element.nativeElement.parentElement?.parentElement;
-            if (!parent) return this.ngOnInit(++tries);
-            const position = {
-                y: parseInt(parent.style.top, 10) / 100,
-                x: parseInt(parent.style.left, 10) / 100,
-            };
-            this.y_pos = position.y >= 0.5 ? 'bottom' : 'top';
-            this.x_pos = position.x >= 0.5 ? 'end' : 'start';
-            this.subscription(
-                'zoom',
-                this._details.zoom$.subscribe((_) => (this.zoom = _)),
-            );
-        }, 200);
+        const parent = this._element.nativeElement.parentElement?.parentElement;
+        if (!parent) {
+            setTimeout(() => this._initPosition(++tries), 200);
+            return;
+        }
+        const position = {
+            y: parseInt(parent.style.top, 10) / 100,
+            x: parseInt(parent.style.left, 10) / 100,
+        };
+        this.y_pos.set(position.y >= 0.5 ? 'bottom' : 'top');
+        this.x_pos.set(position.x >= 0.5 ? 'end' : 'start');
     }
 
     public async loadUser() {
-        if (this.username) return;
+        if (this.username()) return;
         const mod = getModule(this._details.system, 'LocationServices');
         if (!mod) return;
-        this.username = 'Loading...';
+        this.username.set('Loading...');
         const details = await mod
             .execute('check_ownership_of', [this.mac])
             .catch(() => null);
-        this.username =
-            details && details.assigned_to ? details.assigned_to : '';
+        this.username.set(
+            details && details.assigned_to ? details.assigned_to : '',
+        );
     }
 }
