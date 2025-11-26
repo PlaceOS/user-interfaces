@@ -212,9 +212,13 @@ export class DateFieldComponent
             hours: old_date.getHours(),
             minutes: old_date.getMinutes(),
         }).valueOf();
-        // Check that new date is before from
+        // Check that new date is not before from date
         if (new_date < this.from.valueOf()) {
             new_date = this.from.valueOf();
+        }
+        // Ensure we don't select a past datetime when switching dates
+        if (new_date < Date.now()) {
+            new_date = Date.now();
         }
         this.date.set(new_date);
         if (this._onChange) this._onChange(new_date);
