@@ -96,8 +96,10 @@ interface Weekday {
                                     (click)="viewBooking(bkn)"
                                     [matTooltip]="
                                         bkn.title +
-                                        (location(bkn) ? '
-' + location(bkn) : '') +
+                                        (location(bkn)
+                                            ? '
+' + location(bkn)
+                                            : '') +
                                         '
 ' +
                                         (bkn.user_name || bkn.host) +
@@ -112,7 +114,9 @@ interface Weekday {
                                         {{ bkn.title }}
                                     </div>
                                     @if (location(bkn)) {
-                                        <div class="truncate text-xs opacity-75">
+                                        <div
+                                            class="truncate text-xs opacity-75"
+                                        >
                                             {{ location(bkn) }}
                                         </div>
                                     }
@@ -284,7 +288,7 @@ export class ScheduleWeekViewComponent {
                     bkn.booking_type === 'group-event'
                         ? { booking: bkn, concierge: false }
                         : bkn,
-                edit_fn: (i) => this._state.edit(i),
+                edit_fn: (i) => this._state.editBooking(i),
                 remove_fn: (i, t) => this._state.remove(i, t),
                 end_fn: (i) => this._state.end(i),
             };
