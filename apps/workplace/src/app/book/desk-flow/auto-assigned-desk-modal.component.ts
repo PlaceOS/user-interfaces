@@ -374,6 +374,12 @@ export class AutoAssignedDeskModalComponent
 
     public readonly confirm = async () => {
         this.loading.set('booking');
+        this._state.setOptions({ type: 'desk' });
+        this._state.form.patchValue({ booking_type: 'desk' });
+        this._state.form.patchValue({
+            asset_id: this.assigned_desk().id,
+            resources: [this.assigned_desk()],
+        });
         try {
             if ((await nextValueFrom(this._state.options))?.group) {
                 await this._state.postFormForGroup();
