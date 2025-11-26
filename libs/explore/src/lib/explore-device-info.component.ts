@@ -34,14 +34,22 @@ const EMPTY: string[] = [];
 @Component({
     selector: '[explore-device-info]',
     template: `
-        <div
-            name="radius"
-            class="radius center border-blue-600 absolute rounded-full border-8 border-dashed border-info bg-info opacity-30"
-            [style]="'height: ' + diameter() + '%; width: ' + diameter() + '%;'"
-        ></div>
+        @if (show_radius()) {
+            <div
+                name="radius"
+                class="radius center border-blue-600 absolute rounded-full border-8 border-dashed border-info bg-info opacity-30"
+                [style]="
+                    'height: ' + diameter() + '%; width: ' + diameter() + '%;'
+                "
+            ></div>
+        }
         <div
             shadow
-            class="center absolute h-8 w-8 rounded-full bg-black opacity-30"
+            class="center pointer-events-auto absolute h-8 w-8 rounded-full bg-black opacity-30"
+            (mouseenter)="show_radius.set(true)"
+            (window:click)="show_radius.set(false)"
+            (click)="show_radius.set(true)"
+            (mouseleave)="show_radius.set(false)"
         ></div>
         <div
             name="dot"
@@ -169,6 +177,7 @@ export class ExploreDeviceInfoComponent {
 
     /** Name of the user associated with the mac address */
     public username = signal('');
+    public readonly show_radius = signal(false);
     /** User details associated with device */
     public readonly user = this._details.user;
     /** Mac Address of the device */
