@@ -104,6 +104,7 @@ export class MeetingFlowSpaceMapComponent
                     ...space,
                     active: this.active() === space.id,
                     selected: this.selected_spaces().includes(space.id),
+                    onSelect: this._selectedSpace(space),
                 },
             })),
         ),
