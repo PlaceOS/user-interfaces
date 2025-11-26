@@ -618,7 +618,13 @@ export class DeskFlowSelectComponent extends AsyncHandler implements OnInit {
     public readonly features = combineLatest([
         this._booking_form.resources,
     ]).pipe(
-        map(([resources]) => unique(flatten(resources.map((_) => _.features)))),
+        map(([resources]) =>
+            unique(
+                flatten(resources.map((_) => _.features)).filter((_) =>
+                    _.trim(),
+                ),
+            ),
+        ),
     );
 
     public get timezone() {
