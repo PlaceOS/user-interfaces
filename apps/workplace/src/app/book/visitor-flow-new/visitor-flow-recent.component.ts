@@ -101,8 +101,8 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
             .bg-grad {
                 background: linear-gradient(
                     105deg,
-                    var(--brand-400) 0%,
-                    var(--brand-500) 100%
+                    var(--brand-100) 0%,
+                    var(--brand-200) 100%
                 );
             }
         `,
