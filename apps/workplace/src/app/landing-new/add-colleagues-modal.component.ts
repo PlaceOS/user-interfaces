@@ -285,10 +285,6 @@ export class AddColleaguesModalComponent
         this._state.setOptions({ search: value });
     }
 
-    constructor() {
-        super();
-    }
-
     ngOnInit() {
         // Initialize with empty search
         this._state.setOptions({ search: '' });
@@ -321,10 +317,7 @@ export class AddColleaguesModalComponent
         this.loading.set(true);
         try {
             // Add all selected users as contacts
-            for (const user of this.selected_users()) {
-                await this._state.addContact(user);
-            }
-
+            await this._state.addContacts(this.selected_users());
             const count = this.selected_users().length;
             notifySuccess(
                 count === 1

@@ -248,6 +248,19 @@ export class LandingStateService extends AsyncHandler {
         this.updateContacts();
     }
 
+    public async addContacts(user_list: User[]) {
+        let users = [...this._contacts.getValue(), ...user_list];
+        users = unique(users, 'email');
+        await lastValueFrom(
+            updateMetadata(currentUser().id, {
+                name: 'contacts',
+                description: 'Contacts for the User',
+                details: users,
+            }),
+        );
+        this.updateContacts();
+    }
+
     public async removeContact(user: User) {
         let users = [...this._contacts.getValue()];
         users = users.filter((u) => u.email !== user.email);
