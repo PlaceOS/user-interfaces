@@ -29,7 +29,9 @@ const PLAYLIST_ITEM_COUNTS = signal<Record<string, PlaylistCount>>({});
 @Component({
     selector: `signage-item-playlists`,
     template: `
-        <div class="flex items-center justify-center space-x-2">
+        <div
+            class="flex items-center justify-center space-x-2 rounded-xl bg-base-100 p-2"
+        >
             <h3 class="text-xl font-medium">
                 {{ item()?.display_name || item()?.name }}
             </h3>
@@ -153,7 +155,9 @@ const PLAYLIST_ITEM_COUNTS = signal<Record<string, PlaylistCount>>({});
             <button btn matRipple (click)="add.emit()">
                 <div class="flex items-center space-x-2">
                     <icon class="text-2xl">playlist_add</icon>
-                    <div class="pr-2">{{ 'APP.CONCIERGE.SIGNAGE_PLAYLISTS_ADD' | translate }}</div>
+                    <div class="pr-2">
+                        {{ 'APP.CONCIERGE.SIGNAGE_PLAYLISTS_ADD' | translate }}
+                    </div>
                 </div>
             </button>
         } @else {
@@ -174,7 +178,12 @@ const PLAYLIST_ITEM_COUNTS = signal<Record<string, PlaylistCount>>({});
                 <button btn matRipple (click)="add.emit()" class="w-48">
                     <div class="flex items-center space-x-2">
                         <icon class="text-2xl">playlist_add</icon>
-                        <div class="pr-2">{{ 'APP.CONCIERGE.SIGNAGE_PLAYLISTS_ADD' | translate }}</div>
+                        <div class="pr-2">
+                            {{
+                                'APP.CONCIERGE.SIGNAGE_PLAYLISTS_ADD'
+                                    | translate
+                            }}
+                        </div>
                     </div>
                 </button>
             </div>

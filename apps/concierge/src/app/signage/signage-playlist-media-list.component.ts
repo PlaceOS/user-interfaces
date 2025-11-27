@@ -46,155 +46,171 @@ import { SignageStateService } from './signage-state.service';
 @Component({
     selector: 'signage-playlist-media-list',
     template: `
-        <div class="relative flex h-full w-full flex-col space-y-4 p-4">
+        <div class="relative flex h-full w-full flex-col">
             @let playlist = selected_playlist();
-            <h3 class="text-center text-xl font-medium">
-                Playlist - {{ playlist?.name }}
-            </h3>
-            @if (!approved()) {
+            <div class="space-y-2 p-2">
+                <h3
+                    class="flex items-center justify-center space-x-2 rounded-xl bg-base-100 p-2"
+                >
+                    <div class="text-xl font-medium">Playlist</div>
+                    <div
+                        class="rounded bg-base-200 px-2 py-1 font-mono text-xs"
+                    >
+                        {{ playlist?.name }}
+                    </div>
+                </h3>
+                @if (!approved()) {
+                    <button
+                        icon
+                        matRipple
+                        class="absolute left-2 top-2 !m-0"
+                        [disabled]="!is_admin"
+                        [matTooltip]="
+                            'APP.CONCIERGE.SIGNAGE_PLAYLISTS_NOT_APPROVED'
+                                | translate
+                        "
+                        (click)="approvePlaylist(playlist)"
+                    >
+                        <icon class="text-2xl text-warning">warning</icon>
+                    </button>
+                }
                 <button
                     icon
                     matRipple
-                    class="absolute left-2 top-2 !m-0"
-                    [disabled]="!is_admin"
-                    [matTooltip]="
-                        'APP.CONCIERGE.SIGNAGE_PLAYLISTS_NOT_APPROVED'
-                            | translate
-                    "
-                    (click)="approvePlaylist(playlist)"
+                    [matMenuTriggerFor]="menu"
+                    class="absolute right-2.5 top-2.5 !m-0"
                 >
-                    <icon class="text-2xl text-warning">warning</icon>
+                    <icon>more_vert</icon>
                 </button>
-            }
-            <button
-                icon
-                matRipple
-                [matMenuTriggerFor]="menu"
-                class="absolute right-2 top-2 !m-0"
-            >
-                <icon>more_vert</icon>
-            </button>
-            <mat-menu #menu="matMenu">
-                <button mat-menu-item (click)="editPlaylist()">
-                    <div class="flex items-center space-x-2">
-                        <icon class="text-2xl">edit</icon>
-                        <div class="pr-2">
-                            {{
-                                'APP.CONCIERGE.SIGNAGE_PLAYLISTS_EDIT'
-                                    | translate
-                            }}
+                <mat-menu #menu="matMenu">
+                    <button mat-menu-item (click)="editPlaylist()">
+                        <div class="flex items-center space-x-2">
+                            <icon class="text-2xl">edit</icon>
+                            <div class="pr-2">
+                                {{
+                                    'APP.CONCIERGE.SIGNAGE_PLAYLISTS_EDIT'
+                                        | translate
+                                }}
+                            </div>
                         </div>
-                    </div>
-                </button>
-                <button
-                    mat-menu-item
-                    [disabled]="approved() || !is_admin"
-                    (click)="approvePlaylist(playlist)"
-                >
-                    <div class="flex items-center space-x-2">
-                        <icon class="text-2xl">order_approve</icon>
-                        <div class="pr-2">
-                            {{
-                                'APP.CONCIERGE.SIGNAGE_PLAYLISTS_APPROVE'
-                                    | translate
-                            }}
+                    </button>
+                    <button
+                        mat-menu-item
+                        [disabled]="approved() || !is_admin"
+                        (click)="approvePlaylist(playlist)"
+                    >
+                        <div class="flex items-center space-x-2">
+                            <icon class="text-2xl">order_approve</icon>
+                            <div class="pr-2">
+                                {{
+                                    'APP.CONCIERGE.SIGNAGE_PLAYLISTS_APPROVE'
+                                        | translate
+                                }}
+                            </div>
                         </div>
-                    </div>
-                </button>
-                <button mat-menu-item (click)="copyID(playlist?.id)">
-                    <div class="flex items-center space-x-2">
-                        <icon class="text-2xl">content_copy</icon>
-                        <div class="pr-2">
-                            {{
-                                'APP.CONCIERGE.SIGNAGE_PLAYLISTS_COPY_ID'
-                                    | translate
-                            }}
+                    </button>
+                    <button mat-menu-item (click)="copyID(playlist?.id)">
+                        <div class="flex items-center space-x-2">
+                            <icon class="text-2xl">content_copy</icon>
+                            <div class="pr-2">
+                                {{
+                                    'APP.CONCIERGE.SIGNAGE_PLAYLISTS_COPY_ID'
+                                        | translate
+                                }}
+                            </div>
                         </div>
-                    </div>
-                </button>
-                <button mat-menu-item (click)="removePlaylist()">
-                    <div class="flex items-center space-x-2">
-                        <icon class="text-2xl text-error">delete</icon>
-                        <div class="pr-2">
-                            {{
-                                'APP.CONCIERGE.SIGNAGE_PLAYLISTS_REMOVE'
-                                    | translate
-                            }}
+                    </button>
+                    <button mat-menu-item (click)="removePlaylist()">
+                        <div class="flex items-center space-x-2">
+                            <icon class="text-2xl text-error">delete</icon>
+                            <div class="pr-2">
+                                {{
+                                    'APP.CONCIERGE.SIGNAGE_PLAYLISTS_REMOVE'
+                                        | translate
+                                }}
+                            </div>
                         </div>
-                    </div>
-                </button>
-            </mat-menu>
-            <div details class="flex flex-wrap items-center">
+                    </button>
+                </mat-menu>
                 <div
-                    class="m-1 ml-2 rounded px-2 py-1 text-xs"
-                    [class.bg-success]="selected_playlist()?.enabled"
-                    [class.text-success-content]="selected_playlist()?.enabled"
-                    [class.bg-error]="!selected_playlist()?.enabled"
-                    [class.text-error-content]="!selected_playlist()?.enabled"
+                    details
+                    class="flex flex-wrap items-center rounded-xl bg-base-100 p-1"
                 >
-                    {{
-                        (selected_playlist()?.enabled
-                            ? 'COMMON.ENABLED'
-                            : 'COMMON.DISABLED'
-                        ) | translate
-                    }}
-                </div>
-                @if (selected_playlist()?.random) {
                     <div
-                        class="m-1 ml-2 rounded bg-secondary px-2 py-1 text-xs text-secondary-content"
+                        class="m-1 ml-2 rounded px-2 py-1 text-xs"
+                        [class.bg-success]="selected_playlist()?.enabled"
+                        [class.text-success-content]="
+                            selected_playlist()?.enabled
+                        "
+                        [class.bg-error]="!selected_playlist()?.enabled"
+                        [class.text-error-content]="
+                            !selected_playlist()?.enabled
+                        "
                     >
-                        {{ 'APP.CONCIERGE.SIGNAGE_SHUFFLE' | translate }}
+                        {{
+                            (selected_playlist()?.enabled
+                                ? 'COMMON.ENABLED'
+                                : 'COMMON.DISABLED'
+                            ) | translate
+                        }}
                     </div>
-                }
-                <div
-                    class="m-1 rounded bg-base-200 px-2 py-2 text-xs"
-                    matTooltip="Default Transition Animation"
-                >
-                    {{ 'APP.CONCIERGE.SIGNAGE_ANIMATION' | translate }}
-                    <span
-                        class="ml-1 rounded bg-base-300 px-2 py-1 uppercase"
-                        >{{
-                            animation_name(
-                                selected_playlist()?.default_animation
-                            )
-                        }}</span
-                    >
-                </div>
-                <div
-                    class="m-1 rounded bg-base-200 px-2 py-2 text-xs"
-                    matTooltip="Default Playback Duration"
-                >
-                    {{ 'APP.CONCIERGE.SIGNAGE_DURATION' | translate }}
-                    <span
-                        class="ml-1 rounded bg-base-300 px-2 py-1 font-mono"
-                        >{{
-                            selected_playlist()?.default_duration / 1000
-                                | mediaDuration
-                        }}</span
-                    >
-                </div>
-                <div
-                    class="m-1 rounded bg-base-200 px-2 py-2 text-xs"
-                    matTooltip="Prefered Orientation"
-                >
-                    {{ 'APP.CONCIERGE.SIGNAGE_ORIENTATION' | translate }}
-                    <span
-                        class="ml-1 rounded bg-base-300 px-2 py-1 uppercase"
-                        >{{ selected_playlist()?.orientation }}</span
-                    >
-                </div>
-                @if (isScheduled(selected_playlist())) {
+                    @if (selected_playlist()?.random) {
+                        <div
+                            class="m-1 ml-2 rounded bg-secondary px-2 py-1 text-xs text-secondary-content"
+                        >
+                            {{ 'APP.CONCIERGE.SIGNAGE_SHUFFLE' | translate }}
+                        </div>
+                    }
                     <div
-                        class="m-1 rounded bg-base-200 px-2 py-2 text-xs uppercase"
+                        class="m-1 rounded bg-base-200 px-2 py-2 text-xs"
+                        matTooltip="Default Transition Animation"
                     >
-                        {{ 'COMMON.SCHEDULED' | translate }}
+                        {{ 'APP.CONCIERGE.SIGNAGE_ANIMATION' | translate }}
+                        <span
+                            class="ml-1 rounded bg-base-300 px-2 py-1 uppercase"
+                            >{{
+                                animation_name(
+                                    selected_playlist()?.default_animation
+                                )
+                            }}</span
+                        >
                     </div>
-                }
+                    <div
+                        class="m-1 rounded bg-base-200 px-2 py-2 text-xs"
+                        matTooltip="Default Playback Duration"
+                    >
+                        {{ 'APP.CONCIERGE.SIGNAGE_DURATION' | translate }}
+                        <span
+                            class="ml-1 rounded bg-base-300 px-2 py-1 font-mono"
+                            >{{
+                                selected_playlist()?.default_duration / 1000
+                                    | mediaDuration
+                            }}</span
+                        >
+                    </div>
+                    <div
+                        class="m-1 rounded bg-base-200 px-2 py-2 text-xs"
+                        matTooltip="Prefered Orientation"
+                    >
+                        {{ 'APP.CONCIERGE.SIGNAGE_ORIENTATION' | translate }}
+                        <span
+                            class="ml-1 rounded bg-base-300 px-2 py-1 uppercase"
+                            >{{ selected_playlist()?.orientation }}</span
+                        >
+                    </div>
+                    @if (isScheduled(selected_playlist())) {
+                        <div
+                            class="m-1 rounded bg-base-200 px-2 py-2 text-xs uppercase"
+                        >
+                            {{ 'COMMON.SCHEDULED' | translate }}
+                        </div>
+                    }
+                </div>
             </div>
             @if (media().length > 0) {
                 <div
                     cdkDropList
-                    class="flex h-1/2 flex-1 flex-col space-y-2 overflow-auto"
+                    class="flex h-1/2 flex-1 flex-col space-y-2 overflow-auto p-2"
                     id="playlist-list"
                     [cdkDropListData]="media()"
                     [cdkDropListConnectedTo]="playlist_ids"

@@ -61,7 +61,7 @@ import { SignageStateService } from './signage-state.service';
                     </div>
                 </div>
                 <mat-tab-nav-panel
-                    class="h-1/2 flex-1 overflow-auto px-8 py-4"
+                    class="h-1/2 flex-1 overflow-auto px-8 py-2"
                     #tabPanel
                 >
                     <router-outlet></router-outlet>
@@ -101,7 +101,7 @@ export class SignageComponent {
         { id: 'Zones', name: i18n('APP.CONCIERGE.SIGNAGE_ZONES') },
     ]);
     public readonly active_link = signal(this.links()[0]?.id);
-    public readonly hide_sidebar = settingSignal('hide_sidebar', false);
+    public readonly hide_sidebar = settingSignal('hide_sidebar', true);
 
     constructor() {
         // Update active link based on current URL
