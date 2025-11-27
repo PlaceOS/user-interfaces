@@ -1,12 +1,13 @@
-import { AsyncPipe } from '@angular/common';
 import {
     Component,
+    computed,
     inject,
     input,
     OnInit,
     output,
     signal,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import {
     AsyncHandler,
     BuildingLevel,
@@ -17,26 +18,24 @@ import {
 import { InteractiveMapComponent } from '@placeos/components';
 import { EventFormService } from '@placeos/events';
 import { DEFAULT_COLOURS } from '@placeos/explore';
-import { NewSpaceLocationPinComponent } from 'libs/events/src/lib/new-space-select-modal/new-space-location-pin.component';
-import { BehaviorSubject, combineLatest, debounceTime, map, tap } from 'rxjs';
 
 @Component({
     selector: 'meeting-flow-space-map',
     template: `
         <div class="absolute inset-0 w-full flex-1">
             <interactive-map
-                [src]="map_url"
+                [src]="map_url()"
                 [(zoom)]="zoom"
                 [(center)]="center"
-                [styles]="styles | async"
-                [features]="features | async"
-                [actions]="actions | async"
+                [styles]="styles()"
+                [features]="features()"
+                [actions]="actions()"
                 [options]="{ controls: true }"
             ></interactive-map>
         </div>
     `,
     styles: [``],
-    imports: [AsyncPipe, InteractiveMapComponent],
+    imports: [InteractiveMapComponent],
 })
 export class MeetingFlowSpaceMapComponent
     extends AsyncHandler
@@ -55,102 +54,50 @@ export class MeetingFlowSpaceMapComponent
     public readonly center = signal({ x: 0.5, y: 0.5 });
     public readonly coordinates = signal(undefined);
 
-    private _selectedSpace = (s) => () => {
-        this.space_selected.emit(s);
-        this._change.next(Date.now());
-    };
-    public level: BuildingLevel = null;
-    private _change = new BehaviorSubject(0);
-
-    public get map_url() {
-        return this.level?.map_id || '';
-    }
-
-    public readonly levels = combineLatest([
-        this._org.active_region,
-        this._org.active_building,
-    ]).pipe(
-        map(([region, bld]) => {
-            const level_list = this.use_region
-                ? this._org.levelsForRegion(region)
-                : this._org.levelsForBuilding(bld);
-            const viewable_levels = level_list.filter(
-                (lvl) => !lvl.tags.includes('parking'),
-            );
-            if (!this.level && viewable_levels.length) {
-                this.level = viewable_levels[0];
-            }
-            return viewable_levels.sort(
-                (a, b) =>
-                    a.parent_id.localeCompare(b.parent_id) ||
-                    (a.display_name || '').localeCompare(b.display_name || ''),
-            );
-        }),
-        tap((l) => console.log('Levels:', l)),
-    );
-
+    private _selectedSpace = (s) => () => this.space_selected.emit(s);
     public readonly setOptions = (o) => this._event_form.setOptions(o);
-
-    public readonly features = combineLatest([
+    public readonly level = signal<BuildingLevel>(null);
+    public readonly available_spaces = toSignal(
         this._event_form.available_spaces,
-        this._change,
-    ]).pipe(
-        debounceTime(300),
-        map(([l]) =>
-            l.map((space) => ({
-                location: space.map_id,
-                content: NewSpaceLocationPinComponent,
-                data: {
-                    ...space,
-                    active: this.active() === space.id,
-                    selected: this.selected_spaces().includes(space.id),
-                    onSelect: this._selectedSpace(space),
-                },
-            })),
-        ),
     );
 
-    public readonly actions = this._event_form.available_spaces.pipe(
-        map((l) =>
-            l.map((space) => ({
-                id: space.map_id,
-                action: ['touchend', 'mouseup'],
-                callback: this._selectedSpace(space),
-            })),
-        ),
+    public readonly map_url = computed(() => this.level()?.map_id || '');
+    public readonly space_list = toSignal(this._event_form.spaces$);
+    public readonly features = signal([]);
+    public readonly actions = computed(() =>
+        this.available_spaces().map((space) => ({
+            id: space.map_id,
+            action: ['touchend', 'mouseup'],
+            callback: this._selectedSpace(space),
+        })),
     );
 
-    public readonly styles = combineLatest([
-        this._event_form.spaces$,
-        this._event_form.available_spaces,
-    ]).pipe(
-        map(([spaces, free_spaces]) =>
-            spaces.reduce((styles, space) => {
-                const colours = this._settings.get('app.explore.colors') || {};
-                const status = free_spaces.find((_) => _.id === space.id)
-                    ? 'free'
-                    : 'busy';
-                styles[`#${space.map_id || space.id}`] = {
-                    fill:
-                        colours[`space-${status}`] ||
-                        colours[`${status}`] ||
-                        DEFAULT_COLOURS[`${status}`],
-                };
-                return styles;
-            }, {}),
-        ),
-    );
-
-    public get use_region() {
-        return !!this._settings.get('app.use_region');
-    }
+    public readonly styles = computed(() => {
+        const free_spaces = this.available_spaces();
+        const spaces = this.space_list();
+        return spaces.reduce((styles, space) => {
+            const colours = this._settings.get('app.explore.colors') || {};
+            const status = free_spaces.find((_) => _.id === space.id)
+                ? this.selected_spaces().includes(space.id)
+                    ? 'pending'
+                    : 'free'
+                : 'busy';
+            styles[`#${space.map_id || space.id}`] = {
+                fill:
+                    colours[`space-${status}`] ||
+                    colours[`${status}`] ||
+                    DEFAULT_COLOURS[`${status}`],
+            };
+            return styles;
+        }, {});
+    });
 
     public ngOnInit() {
         this.subscription(
             'levels_update',
             this._event_form.options$.subscribe(({ zones }) => {
                 const level = this._org.levelWithID(zones);
-                if (level) this.level = level;
+                if (level) this.level.set(level);
             }),
         );
     }
@@ -164,7 +111,7 @@ export class MeetingFlowSpaceMapComponent
                 .map((_) => parseFloat(_));
             this.coordinates.set({ latitude, longitude });
         }
-        this.level = level;
+        this.level.set(level);
     }
 
     public setZoom(new_zoom: number) {

@@ -121,41 +121,92 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                                 </mat-select>
                             </mat-form-field>
                         }
-                        <mat-form-field appearance="outline" class="w-full">
-                            <mat-select
-                                name="location"
-                                [ngModel]="(options | async)?.zones"
-                                (ngModelChange)="setOptions({ zones: $event })"
-                                [ngModelOptions]="{ standalone: true }"
-                                [placeholder]="'COMMON.LEVEL_ANY' | translate"
-                                [multiple]="true"
-                            >
-                                @for (lvl of levels | async; track lvl) {
-                                    <mat-option [value]="lvl.id">
-                                        <div class="flex flex-col-reverse">
-                                            @if (use_region()) {
-                                                <div class="text-xs opacity-30">
+                        @if (view() === 'map') {
+                            <mat-form-field appearance="outline" class="w-full">
+                                <mat-select
+                                    name="location-single"
+                                    [ngModel]="(options | async)?.zones?.[0]"
+                                    (ngModelChange)="
+                                        setOptions({ zones: [$event] })
+                                    "
+                                    [ngModelOptions]="{ standalone: true }"
+                                    [placeholder]="
+                                        'COMMON.LEVEL_ANY' | translate
+                                    "
+                                >
+                                    @for (lvl of levels | async; track lvl) {
+                                        <mat-option [value]="lvl.id">
+                                            <div class="flex flex-col-reverse">
+                                                @if (use_region()) {
+                                                    <div
+                                                        class="text-xs opacity-30"
+                                                    >
+                                                        {{
+                                                            (
+                                                                lvl?.parent_id
+                                                                | building
+                                                            )?.display_name
+                                                        }}
+                                                        <span class="opacity-0">
+                                                            -
+                                                        </span>
+                                                    </div>
+                                                }
+                                                <div>
                                                     {{
-                                                        (
-                                                            lvl?.parent_id
-                                                            | building
-                                                        )?.display_name
+                                                        lvl.display_name ||
+                                                            lvl.name
                                                     }}
-                                                    <span class="opacity-0">
-                                                        -
-                                                    </span>
                                                 </div>
-                                            }
-                                            <div>
-                                                {{
-                                                    lvl.display_name || lvl.name
-                                                }}
                                             </div>
-                                        </div>
-                                    </mat-option>
-                                }
-                            </mat-select>
-                        </mat-form-field>
+                                        </mat-option>
+                                    }
+                                </mat-select>
+                            </mat-form-field>
+                        } @else {
+                            <mat-form-field appearance="outline" class="w-full">
+                                <mat-select
+                                    name="location-multi"
+                                    [ngModel]="(options | async)?.zones"
+                                    (ngModelChange)="
+                                        setOptions({ zones: $event })
+                                    "
+                                    [ngModelOptions]="{ standalone: true }"
+                                    [placeholder]="
+                                        'COMMON.LEVEL_ANY' | translate
+                                    "
+                                    [multiple]="true"
+                                >
+                                    @for (lvl of levels | async; track lvl) {
+                                        <mat-option [value]="lvl.id">
+                                            <div class="flex flex-col-reverse">
+                                                @if (use_region()) {
+                                                    <div
+                                                        class="text-xs opacity-30"
+                                                    >
+                                                        {{
+                                                            (
+                                                                lvl?.parent_id
+                                                                | building
+                                                            )?.display_name
+                                                        }}
+                                                        <span class="opacity-0">
+                                                            -
+                                                        </span>
+                                                    </div>
+                                                }
+                                                <div>
+                                                    {{
+                                                        lvl.display_name ||
+                                                            lvl.name
+                                                    }}
+                                                </div>
+                                            </div>
+                                        </mat-option>
+                                    }
+                                </mat-select>
+                            </mat-form-field>
+                        }
                         <label for="date">{{ 'FORM.DATE' | translate }}</label>
                         <date-field formControlName="date" />
                         @if (allow_all_day()) {
@@ -315,7 +366,7 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                                 matRipple
                                 class="w-full space-x-2"
                                 [class.inverse]="view() !== 'map'"
-                                (click)="view.set('map')"
+                                (click)="setMapView()"
                             >
                                 <icon class="text-2xl">Map</icon>
                                 <div class="pr-2">
@@ -405,37 +456,82 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                             </mat-select>
                         </mat-form-field>
                     }
-                    <mat-form-field appearance="outline" class="w-full">
-                        <mat-select
-                            name="location"
-                            [ngModel]="(options | async)?.zones"
-                            (ngModelChange)="setOptions({ zones: $event })"
-                            [ngModelOptions]="{ standalone: true }"
-                            [placeholder]="'COMMON.LEVEL_ANY' | translate"
-                            [multiple]="true"
-                        >
-                            @for (lvl of levels | async; track lvl) {
-                                <mat-option [value]="lvl.id">
-                                    <div class="flex flex-col-reverse">
-                                        @if (use_region()) {
-                                            <div class="text-xs opacity-30">
+                    @if (view() === 'map') {
+                        <mat-form-field appearance="outline" class="w-full">
+                            <mat-select
+                                name="location-single-mobile"
+                                [ngModel]="(options | async)?.zones?.[0]"
+                                (ngModelChange)="
+                                    setOptions({ zones: [$event] })
+                                "
+                                [ngModelOptions]="{ standalone: true }"
+                                [placeholder]="'COMMON.LEVEL_ANY' | translate"
+                            >
+                                @for (lvl of levels | async; track lvl) {
+                                    <mat-option [value]="lvl.id">
+                                        <div class="flex flex-col-reverse">
+                                            @if (use_region()) {
+                                                <div class="text-xs opacity-30">
+                                                    {{
+                                                        (
+                                                            lvl?.parent_id
+                                                            | building
+                                                        )?.display_name
+                                                    }}
+                                                    <span class="opacity-0">
+                                                        -
+                                                    </span>
+                                                </div>
+                                            }
+                                            <div>
                                                 {{
-                                                    (lvl?.parent_id | building)
-                                                        ?.display_name
+                                                    lvl.display_name || lvl.name
                                                 }}
-                                                <span class="opacity-0">
-                                                    -
-                                                </span>
                                             </div>
-                                        }
-                                        <div>
-                                            {{ lvl.display_name || lvl.name }}
                                         </div>
-                                    </div>
-                                </mat-option>
-                            }
-                        </mat-select>
-                    </mat-form-field>
+                                    </mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
+                    } @else {
+                        <mat-form-field appearance="outline" class="w-full">
+                            <mat-select
+                                name="location-multi-mobile"
+                                [ngModel]="(options | async)?.zones"
+                                (ngModelChange)="
+                                    setOptions({ zones: $event })
+                                "
+                                [ngModelOptions]="{ standalone: true }"
+                                [placeholder]="'COMMON.LEVEL_ANY' | translate"
+                                [multiple]="true"
+                            >
+                                @for (lvl of levels | async; track lvl) {
+                                    <mat-option [value]="lvl.id">
+                                        <div class="flex flex-col-reverse">
+                                            @if (use_region()) {
+                                                <div class="text-xs opacity-30">
+                                                    {{
+                                                        (
+                                                            lvl?.parent_id
+                                                            | building
+                                                        )?.display_name
+                                                    }}
+                                                    <span class="opacity-0">
+                                                        -
+                                                    </span>
+                                                </div>
+                                            }
+                                            <div>
+                                                {{
+                                                    lvl.display_name || lvl.name
+                                                }}
+                                            </div>
+                                        </div>
+                                    </mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
+                    }
                     <label for="date">{{ 'FORM.DATE' | translate }}</label>
                     <date-field formControlName="date" />
                     @if (allow_all_day()) {
@@ -699,6 +795,37 @@ export class MeetingFlowSpaceSelectComponent {
 
     public removeAllFeatures() {
         this._event_form.setFilters({ features: [] });
+    }
+
+    public setMapView() {
+        this.view.set('map');
+        const level_list = this.use_region()
+            ? this._org.levelsForRegion(this._org.region)
+            : this._org.levelsForBuilding(this._org.building);
+        const viewable_levels = level_list.filter(
+            (lvl) => !lvl.tags.includes('parking'),
+        );
+        if (viewable_levels.length) {
+            const current_zones = this._event_form.options?.zones || [];
+            const current_zone_valid = current_zones.some((zone) =>
+                viewable_levels.some((lvl) => lvl.id === zone),
+            );
+            if (current_zone_valid) {
+                const valid_zone = current_zones.find((zone) =>
+                    viewable_levels.some((lvl) => lvl.id === zone),
+                );
+                this.setOptions({ zones: [valid_zone] });
+            } else {
+                const first_level = viewable_levels.sort(
+                    (a, b) =>
+                        a.parent_id.localeCompare(b.parent_id) ||
+                        (a.display_name || '').localeCompare(
+                            b.display_name || '',
+                        ),
+                )[0];
+                this.setOptions({ zones: [first_level.id] });
+            }
+        }
     }
 
     public toggleSpace(space: Space) {
