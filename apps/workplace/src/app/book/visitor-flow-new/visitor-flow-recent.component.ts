@@ -1,9 +1,9 @@
+import { SlicePipe } from '@angular/common';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { BookingFormService } from '@placeos/bookings';
 import { SettingsService, User } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
-import { SlicePipe } from '@angular/common';
 
 @Component({
     selector: 'visitor-flow-recent',
@@ -37,13 +37,16 @@ import { SlicePipe } from '@angular/common';
                     }
                 </p>
             </div>
-            @if (recent_visitors().length > 0) {
+            @if (recent_visitors().length > 0 && false) {
                 <div class="flex flex-wrap gap-2 pt-2">
-                    @for (visitor of recent_visitors()|slice:0:4; track visitor.email) {
+                    @for (
+                        visitor of recent_visitors() | slice: 0 : 4;
+                        track visitor.email
+                    ) {
                         <button
                             type="button"
                             [class]="
-                                'flex items-center space-x-2 rounded-lg border p-2 text-sm transition-all hover:bg-white/20 min-w-48 ' +
+                                'flex min-w-48 items-center space-x-2 rounded-lg border p-2 text-sm transition-all hover:bg-white/20 ' +
                                 (isVisitorSelected(visitor)
                                     ? 'border-white bg-white/30 shadow-lg'
                                     : 'border-white/20 bg-white/10')
@@ -61,7 +64,9 @@ import { SlicePipe } from '@angular/common';
                                     >
                                 }
                             }
-                            <div class="flex flex-col items-start leading-tight pr-2">
+                            <div
+                                class="flex flex-col items-start pr-2 leading-tight"
+                            >
                                 <div class="font-medium">
                                     {{ visitor.name }}
                                 </div>
@@ -76,10 +81,10 @@ import { SlicePipe } from '@angular/common';
                 </div>
             } @else {
                 <div
-                    class="flex flex-col items-center justify-center space-y-3 rounded-lg border border-white/20 bg-white/5 py-8"
+                    class="flex items-center justify-center space-x-3 rounded-lg border border-white/20 bg-white/5 py-2"
                 >
                     <icon class="text-4xl opacity-60">person_search</icon>
-                    <div class="text-center">
+                    <div class="">
                         <div class="text-sm font-medium">
                             No recent visitors
                         </div>
@@ -143,8 +148,14 @@ export class VisitorFlowRecentComponent implements OnInit {
                 const [email, name, company] = item.split('|');
                 list.push({
                     email,
-                    name: name && name !== 'null' && name !== 'undefined' ? name : '',
-                    company: company && company !== 'null' && company !== 'undefined' ? company : '',
+                    name:
+                        name && name !== 'null' && name !== 'undefined'
+                            ? name
+                            : '',
+                    company:
+                        company && company !== 'null' && company !== 'undefined'
+                            ? company
+                            : '',
                 } as any);
             }
             return list;
@@ -182,12 +193,22 @@ export class VisitorFlowRecentComponent implements OnInit {
         const enriched = { ...visitor };
 
         // Extract name from email if not provided, null, or empty
-        if ((!enriched.name || enriched.name === 'null' || enriched.name === 'undefined') && enriched.email) {
+        if (
+            (!enriched.name ||
+                enriched.name === 'null' ||
+                enriched.name === 'undefined') &&
+            enriched.email
+        ) {
             enriched.name = this.extractNameFromEmail(enriched.email);
         }
 
         // Extract company from email domain if not provided, null, or empty
-        if ((!enriched.company || enriched.company === 'null' || enriched.company === 'undefined') && enriched.email) {
+        if (
+            (!enriched.company ||
+                enriched.company === 'null' ||
+                enriched.company === 'undefined') &&
+            enriched.email
+        ) {
             enriched.company = this.extractCompanyFromEmail(enriched.email);
         }
 

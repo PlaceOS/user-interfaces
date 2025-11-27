@@ -38,7 +38,7 @@ import { AutoAssignedDeskModalComponent } from '../desk-flow/auto-assigned-desk-
                 <button
                     btn
                     matRipple
-                    class="w-full flex-1 space-x-2"
+                    class="white w-full flex-1 space-x-2"
                     (click)="autoAssignDesk()"
                 >
                     <icon class="text-2xl">bolt</icon>
