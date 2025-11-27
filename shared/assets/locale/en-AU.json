@@ -62,6 +62,7 @@
         "FEATURES": "Features",
         "BOOKABLE": "Bookable",
         "EMPTY": "N/A",
+        "LOADING": "Loading",
         "UNKNOWN": "Unknown",
         "NEXT": "Next",
         "PREVIOUS": "Previous",

@@ -17,6 +17,7 @@ import {
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
 import { currentUser, notifyInfo, SettingsService } from '@placeos/common';
@@ -207,7 +208,14 @@ import { SignageStateService } from './signage-state.service';
                     }
                 </div>
             </div>
-            @if (media().length > 0) {
+            @if (loading()) {
+                <div
+                    class="mx-auto flex flex-1 flex-col items-center justify-center space-y-2 p-8 opacity-30"
+                >
+                    <mat-spinner diameter="32" />
+                    <p>{{ 'COMMON.LOADING' | translate }}...</p>
+                </div>
+            } @else if (media().length > 0) {
                 <div
                     cdkDropList
                     class="flex h-1/2 flex-1 flex-col space-y-2 overflow-auto p-2"
@@ -351,6 +359,7 @@ import { SignageStateService } from './signage-state.service';
         DragDropModule,
         MatTooltipModule,
         MediaDurationPipe,
+        MatProgressSpinnerModule,
     ],
 })
 export class SignagePlaylistMediaListComponent implements OnChanges {
@@ -362,6 +371,7 @@ export class SignagePlaylistMediaListComponent implements OnChanges {
     public readonly playlist = input('');
     public readonly playlist_count = input(0);
     public readonly approved = signal(0);
+    public readonly loading = signal(false);
 
     public playlist_ids: string[] = [];
 
@@ -428,12 +438,16 @@ export class SignagePlaylistMediaListComponent implements OnChanges {
         toObservable(this._playlist_media_observable).pipe(
             filter((playlist) => !!playlist),
             debounceTime(300),
+            tap(() => this.loading.set(true)),
             switchMap((playlist) =>
                 listSignagePlaylistMedia(playlist.id).pipe(
                     catchError(() => of({ id: '', items: [], approved: 0 })),
                 ),
             ),
-            tap((_: any) => this.approved.set(_.approved)),
+            tap((_: any) => {
+                this.approved.set(_.approved);
+                this.loading.set(false);
+            }),
         ),
         { initialValue: { id: '', items: [], approved: 0 } },
     );

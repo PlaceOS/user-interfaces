@@ -101,7 +101,7 @@ export class SignageComponent {
         { id: 'Zones', name: i18n('APP.CONCIERGE.SIGNAGE_ZONES') },
     ]);
     public readonly active_link = signal(this.links()[0]?.id);
-    public readonly hide_sidebar = settingSignal('hide_sidebar', true);
+    public readonly hide_sidebar = settingSignal('hide_sidebar', false);
 
     constructor() {
         // Update active link based on current URL
