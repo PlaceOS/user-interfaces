@@ -165,6 +165,7 @@ export class SignageStateService extends AsyncHandler {
         switchMap(() =>
             queryZones({
                 limit: 250,
+                tags: 'signage',
             } as any).pipe(catchError(() => of({ data: [] }))),
         ),
         map((_) =>
