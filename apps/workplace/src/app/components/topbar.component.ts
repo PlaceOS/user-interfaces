@@ -2,17 +2,17 @@ import { Component, computed, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { RouterModule } from '@angular/router';
 import {
-    currentUser,
     OrganisationService,
     settingSignal,
     SettingsService,
+    userSignal,
 } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
     CustomTooltipComponent,
-    IconComponent,
     UserControlsComponent,
 } from '@placeos/components';
+import { UserAvatarComponent } from '../../../../../libs/components/src/lib/user-avatar.component';
 import { GlobalSearchComponent } from './global-search.component';
 import { TopMenuComponent } from './top-menu.component';
 
@@ -59,7 +59,8 @@ const EMPTY = [];
                     customTooltip
                     [content]="user_controls"
                 >
-                    <icon class="text-2xl">person</icon>
+                    <a-user-avatar [user]="user()" />
+                    <!-- <icon class="text-2xl">person</icon> -->
                 </button>
             </div>
         </div>
@@ -72,13 +73,14 @@ const EMPTY = [];
         `,
     ],
     imports: [
-        IconComponent,
+        // IconComponent,
         MatRippleModule,
         CustomTooltipComponent,
         GlobalSearchComponent,
         TopMenuComponent,
         AuthenticatedImageDirective,
         RouterModule,
+        UserAvatarComponent,
     ],
 })
 export class TopbarComponent {
@@ -87,6 +89,7 @@ export class TopbarComponent {
 
     public show_menu: boolean;
     public readonly user_controls = UserControlsComponent;
+    public readonly user = userSignal();
 
     public readonly logo = computed(() => {
         return this._settings.theme_signal() === 'dark'
@@ -106,10 +109,6 @@ export class TopbarComponent {
 
     public get new_features(): boolean {
         return !!this._settings.get('app.new_features');
-    }
-
-    public get user() {
-        return currentUser();
     }
 
     public get features(): string[] {
