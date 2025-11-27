@@ -123,8 +123,8 @@ export class ScheduleFiltersComponent {
     });
 
     public readonly feature_list = [
-        { type: 'event', feat: 'spaces', name: 'RESOURCE.ROOMS' },
         { type: 'desk', feat: 'desks', name: 'RESOURCE.DESKS' },
+        { type: 'event', feat: 'spaces', name: 'RESOURCE.MEETINGS' },
         { type: 'parking', feat: 'parking', name: 'RESOURCE.PARKING' },
         { type: 'visitor', feat: 'visitor-invite', name: 'RESOURCE.VISITORS' },
         { type: 'locker', feat: 'lockers', name: 'RESOURCE.LOCKERS' },

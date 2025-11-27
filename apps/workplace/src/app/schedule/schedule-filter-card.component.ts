@@ -101,13 +101,13 @@ export class ScheduleFilterCardComponent {
     public readonly bookings = model<(Booking | CalendarEvent)[]>([]);
 
     public readonly feature_list = [
+        { type: 'desk', feat: 'desks', icon: 'desk', name: 'RESOURCE.DESKS' },
         {
             type: 'event',
             feat: 'spaces',
             icon: 'meeting_room',
             name: 'RESOURCE.ROOMS',
         },
-        { type: 'desk', feat: 'desks', icon: 'desk', name: 'RESOURCE.DESKS' },
         {
             type: 'parking',
             feat: 'parking',

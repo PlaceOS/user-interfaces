@@ -7,8 +7,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import {
     AsyncHandler,
-    BOOKING_TYPE_COLORS,
     Booking,
+    BOOKING_TYPE_COLORS,
     CalendarEvent,
     OrganisationService,
     SettingsService,
@@ -20,7 +20,7 @@ import {
 } from '@placeos/components';
 import { DateCalendarComponent } from '@placeos/form-fields';
 import { isSameDay, startOfDay } from 'date-fns';
-import { debounceTime, filter, map } from 'rxjs/operators';
+import { debounceTime, filter } from 'rxjs/operators';
 import {
     ScheduleOptions,
     ScheduleStateService,
@@ -146,13 +146,13 @@ export class ScheduleSidebarComponent extends AsyncHandler implements OnInit {
     public readonly week_options = this._state.week_options;
 
     public readonly feature_list = [
+        { type: 'desk', feat: 'desks', icon: 'desk', name: 'RESOURCE.DESKS' },
         {
             type: 'event',
             feat: 'spaces',
             icon: 'meeting_room',
-            name: 'RESOURCE.ROOMS',
+            name: 'RESOURCE.MEETINGS',
         },
-        { type: 'desk', feat: 'desks', icon: 'desk', name: 'RESOURCE.DESKS' },
         {
             type: 'parking',
             feat: 'parking',

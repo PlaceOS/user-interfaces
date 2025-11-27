@@ -302,6 +302,8 @@
     "RESOURCE": {
         "ROOM": "Room",
         "ROOMS": "Rooms",
+        "MEETING": "Meeting",
+        "MEETINGS": "Meetings",
         "DESK": "Desk",
         "DESKS": "Desks",
         "PARKING": "Parking",
