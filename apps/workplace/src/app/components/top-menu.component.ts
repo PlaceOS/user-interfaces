@@ -217,16 +217,16 @@ export class TopMenuComponent
                 name: i18n('APP.WORKPLACE.MENU_HOME'),
             },
             {
-                id: 'spaces',
-                route: '/book/meeting',
-                icon: 'meeting_room',
-                name: i18n('APP.WORKPLACE.MENU_ROOMS'),
-            },
-            {
                 id: 'desks',
                 route: '/book/desk',
                 icon: 'desk',
                 name: i18n('APP.WORKPLACE.MENU_DESKS'),
+            },
+            {
+                id: 'spaces',
+                route: '/book/meeting',
+                icon: 'meeting_room',
+                name: i18n('APP.WORKPLACE.MENU_ROOMS'),
             },
             {
                 id: 'lockers',

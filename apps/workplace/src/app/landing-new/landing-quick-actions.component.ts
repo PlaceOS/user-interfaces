@@ -34,18 +34,6 @@ import { AutoAssignedDeskModalComponent } from '../book/desk-flow/auto-assigned-
                 </button>
             }
             <h4 class="font-medium">Reserve</h4>
-            @if (features().includes('spaces')) {
-                <a
-                    btn
-                    matRipple
-                    [routerLink]="['/book', 'meeting']"
-                    class="inverse w-full space-x-4 text-left"
-                >
-                    <icon class="text-xl">meeting_room</icon>
-                    <div class="flex-1">Book a room</div>
-                    <icon class="text-xl">chevron_right</icon>
-                </a>
-            }
             @if (features().includes('desks')) {
                 <a
                     btn
@@ -55,6 +43,18 @@ import { AutoAssignedDeskModalComponent } from '../book/desk-flow/auto-assigned-
                 >
                     <icon class="text-xl">desk</icon>
                     <div class="flex-1">Book a desk</div>
+                    <icon class="text-xl">chevron_right</icon>
+                </a>
+            }
+            @if (features().includes('spaces')) {
+                <a
+                    btn
+                    matRipple
+                    [routerLink]="['/book', 'meeting']"
+                    class="inverse w-full space-x-4 text-left"
+                >
+                    <icon class="text-xl">meeting_room</icon>
+                    <div class="flex-1">Book a room</div>
                     <icon class="text-xl">chevron_right</icon>
                 </a>
             }
