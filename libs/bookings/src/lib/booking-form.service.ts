@@ -366,6 +366,7 @@ export class BookingFormService extends AsyncHandler {
                 {
                     ...booking.extension_data,
                     ...booking,
+                    _in_progress: booking.state === 'started',
                 },
                 [null, undefined, ''],
             ),
@@ -447,6 +448,7 @@ export class BookingFormService extends AsyncHandler {
                 {
                     ...(booking || {}),
                     ...(booking?.extension_data || {}),
+                    _in_progress: booking?.state === 'started',
                 },
                 [null, undefined, ''],
             ),
@@ -490,6 +492,7 @@ export class BookingFormService extends AsyncHandler {
                 ...data,
                 ...(booking || {}),
                 ...(booking?.extension_data || {}),
+                _in_progress: booking?.state === 'started',
             },
             [null, undefined, ''],
         );
@@ -499,6 +502,17 @@ export class BookingFormService extends AsyncHandler {
                 sessionStorage.getItem('PLACEOS.booking_form_filters') || '{}',
             ),
         });
+    }
+
+    public setting(key: string) {
+        const type =
+            this.form.getRawValue().booking_type ||
+            this._options.getValue().type;
+        return (
+            this._settings.get(`app.${type}s.${key}`) ||
+            this._settings.get(`app.${type}.${key}`) ||
+            this._settings.get(`app.bookings.${key}`)
+        );
     }
 
     public clearOldState() {
@@ -675,8 +689,7 @@ export class BookingFormService extends AsyncHandler {
                         department:
                             value.user?.department || currentUser()?.department,
                     },
-                    approved:
-                        this._settings.get('app.bookings.no_approval') === true,
+                    approved: this.setting('no_approval') === true,
                     zones: unique([...zones, ...(value.zones || [])]).filter(
                         (_) => _,
                     ),

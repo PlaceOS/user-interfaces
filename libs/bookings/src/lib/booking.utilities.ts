@@ -112,13 +112,7 @@ export function generateBookingForm(booking: Booking = new Booking()) {
         update_master: new FormControl(false),
         self_registered: new FormControl(false),
         is_assgined: new FormControl(false),
-    });
-    form.valueChanges.subscribe(() => {
-        if (form.getRawValue().date < Date.now() && form.value.id) {
-            form.get('date')?.disable({ emitEvent: false });
-        } else {
-            form.get('date')?.enable({ emitEvent: false });
-        }
+        _in_progress: new FormControl(booking.state === 'started'),
     });
     form.controls.user.valueChanges.subscribe((user) => {
         if (!user) return;
@@ -192,7 +186,7 @@ export function generateBookingForm(booking: Booking = new Booking()) {
             },
             { emitEvent: false },
         );
-        if (date < Date.now() && !form.value.id) {
+        if (date < Date.now() && !form.value._in_progress) {
             form.patchValue(
                 {
                     date: roundToNearestMinutes(Date.now(), {
@@ -202,6 +196,13 @@ export function generateBookingForm(booking: Booking = new Booking()) {
                 },
                 { emitEvent: false },
             );
+        }
+    });
+    form.controls._in_progress.valueChanges.subscribe((in_progress) => {
+        if (in_progress) {
+            form.get('date')?.disable({ emitEvent: false });
+        } else {
+            form.get('date')?.enable({ emitEvent: false });
         }
     });
     if (booking.state === 'started') form.get('date').disable();
