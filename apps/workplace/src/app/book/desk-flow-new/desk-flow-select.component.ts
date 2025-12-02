@@ -534,7 +534,9 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
                                 class="w-1/3 flex-1"
                                 formControlName="duration"
                                 [time]="field('date')"
+                                [min]="min_duration()"
                                 [max]="max_duration()"
+                                [custom_options]="custom_duration_options()"
                                 [use_24hr]="use_24hr()"
                                 [timezone]="timezone"
                             />
@@ -656,6 +658,11 @@ export class DeskFlowSelectComponent extends AsyncHandler implements OnInit {
         () =>
             settingSignal('desks.max_duration')() ||
             settingSignal('bookings.max_duration', 8 * 60)(),
+    );
+    public readonly custom_duration_options = computed<number[]>(
+        () =>
+            settingSignal('desks.custom_duration_options')() ||
+            settingSignal('bookings.custom_duration_options', [] as number[])(),
     );
     public readonly feature_display = settingSignal<Record<string, string>>(
         'desks.feature_decriptions',

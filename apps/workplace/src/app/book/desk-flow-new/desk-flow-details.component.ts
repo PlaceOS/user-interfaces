@@ -170,6 +170,7 @@ type FormType = 'single' | 'group' | 'other';
                             name="duration"
                             [max]="max_duration()"
                             [min]="min_duration()"
+                            [custom_options]="custom_duration_options()"
                             [step]="duration_step()"
                             formControlName="duration"
                         />
@@ -301,6 +302,11 @@ export class DeskFlowDetailsComponent {
         () =>
             settingSignal('desks.max_duration')() ||
             settingSignal('bookings.max_duration', 8 * 60)(),
+    );
+    public readonly custom_duration_options = computed<number[]>(
+        () =>
+            settingSignal('desks.custom_duration_options')() ||
+            settingSignal('bookings.custom_duration_options', [] as number[])(),
     );
     public readonly can_book_lockers = settingSignal('desks.can_book_lockers');
     public readonly can_recurr = settingSignal('desks.allow_recurrence');
