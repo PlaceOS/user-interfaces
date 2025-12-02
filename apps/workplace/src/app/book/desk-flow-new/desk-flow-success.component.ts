@@ -2,8 +2,9 @@ import { CommonModule } from '@angular/common';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { RouterModule } from '@angular/router';
-import { BookingFormService } from '@placeos/bookings';
+import { BookingFormService, queryBookings } from '@placeos/bookings';
 import {
+    Booking,
     Building,
     BuildingLevel,
     firstTruthyValueFrom,
@@ -19,12 +20,15 @@ import {
     SafePipe,
     SanitizePipe,
     TranslatePipe,
+    UserAvatarComponent,
 } from '@placeos/components';
 import {
     generateCalendarFileLink,
     generateGoogleCalendarLink,
     generateMicrosoftCalendarLink,
 } from '@placeos/events';
+import { getUnixTime } from 'date-fns';
+import { lastValueFrom } from 'rxjs';
 
 @Component({
     selector: 'desk-flow-success',
@@ -100,6 +104,50 @@ import {
                     >
                         <icon class="text-xl">update</icon>
                         <div class="text-sm">{{ formatted_recurrence }}</div>
+                    </div>
+                }
+                @if (is_group && group_bookings().length > 0) {
+                    <div
+                        class="mt-4 w-full max-w-[32rem] rounded-lg border border-base-300 bg-base-100 p-4"
+                    >
+                        <h3
+                            class="mb-3 flex items-center space-x-2 font-medium"
+                        >
+                            <icon class="text-xl">group</icon>
+                            <span>{{
+                                'BOOKINGS.DESK_GROUP_BOOKINGS' | translate
+                            }}</span>
+                        </h3>
+                        <div class="flex flex-col space-y-2">
+                            @for (
+                                booking of group_bookings();
+                                track booking.id
+                            ) {
+                                <div
+                                    class="bg-base-200/50 flex items-center space-x-3 rounded border border-base-200 p-2"
+                                >
+                                    <a-user-avatar
+                                        [user]="{
+                                            name: booking.user_name,
+                                            email: booking.user_email,
+                                        }"
+                                    />
+                                    <div class="flex flex-1 flex-col">
+                                        <span class="font-medium">{{
+                                            booking.user_name ||
+                                                booking.user_email
+                                        }}</span>
+                                        <span class="text-sm opacity-60">{{
+                                            booking.asset_name ||
+                                                booking.asset_id
+                                        }}</span>
+                                    </div>
+                                    <icon class="text-success"
+                                        >check_circle</icon
+                                    >
+                                </div>
+                            }
+                        </div>
                     </div>
                 }
                 @if (last_event?.extension_data?.assets?.length) {
@@ -190,6 +238,7 @@ import {
         RouterModule,
         SanitizePipe,
         SafePipe,
+        UserAvatarComponent,
     ],
 })
 export class NewDeskFlowSuccessComponent implements OnInit {
@@ -204,16 +253,17 @@ export class NewDeskFlowSuccessComponent implements OnInit {
     public readonly outlook_link = signal('');
     public readonly google_link = signal('');
     public readonly ical_link = signal('');
+    public readonly group_bookings = signal<Booking[]>([]);
     public readonly location = computed(() => {
         return `${this.building().display_name || this.level().name}, ${this.level().display_name || this.level().name}`;
     });
 
     public get is_group() {
-        return this.group_size > 1;
+        return !!this.last_event?.extension_data?.group;
     }
 
     public get group_size() {
-        return (this.last_event?.attendees?.length || 0) + 1;
+        return this.group_bookings().length || 1;
     }
 
     public get last_event() {
@@ -250,10 +300,33 @@ export class NewDeskFlowSuccessComponent implements OnInit {
 
         this.level.set(this._level_pipe.transform(event.zones));
         this.building.set(this._building_pipe.transform(event.zones));
-        console.log('Level:', this.level().display_name || this.level().name);
-        console.log(
-            'Building:',
-            this.building().display_name || this.building().name,
-        );
+
+        // Load group bookings if this is a group booking
+        if (this.is_group) {
+            await this._loadGroupBookings();
+        }
+    }
+
+    private async _loadGroupBookings() {
+        const group_name = this.last_event?.extension_data?.group;
+        if (!group_name) return;
+
+        try {
+            const lvl = this._org.levelWithID(this.last_event.zones);
+            const bookings = await lastValueFrom(
+                queryBookings({
+                    period_start: getUnixTime(this.last_event.date),
+                    period_end: getUnixTime(this.last_event.date_end),
+                    type: 'desk',
+                    zones: lvl.id,
+                }),
+            );
+            const group_members = bookings.filter(
+                (b) => b.extension_data?.group === group_name,
+            );
+            this.group_bookings.set(group_members);
+        } catch (e) {
+            console.error('Failed to load group bookings', e);
+        }
     }
 }

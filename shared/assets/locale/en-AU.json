@@ -583,6 +583,7 @@
         "DESK_SUCCESS_GROUP": "Your group of {{ size }} desks at {{ location }} have been successfully booked for {{ date }} at {{ time }}",
         "DESK_SUCCESS_LONE_ALLDAY": "Your desk booking at {{ location }} has been successfully booked for {{ date }}",
         "DESK_SUCCESS_GROUP_ALLDAY": "Your group of {{ size }} desks at {{ location }} have been successfully booked for {{ date }}",
+        "DESK_GROUP_BOOKINGS": "Group Desk Assignments",
         "ASSETS_BOOKED": "Booking includes {{ count }} asset(s)",
         "SUCCESS_WAIT_APPROVED": "Please allow up to 5 minutes for your booking to be approved.",
         "LINK_HEADER": "Add event to your calendar",
