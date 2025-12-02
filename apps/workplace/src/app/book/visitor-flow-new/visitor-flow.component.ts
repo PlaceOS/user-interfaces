@@ -23,15 +23,13 @@ import { VisitorFlowSuccessComponent } from './visitor-flow-success.component';
     selector: 'visitor-flow-new',
     template: `
         @if (view() !== 'success') {
-            <div
-                class="relative z-0 h-full w-full overflow-auto bg-base-200"
-            >
+            <div class="relative z-0 h-full w-full overflow-auto bg-base-200">
                 <div
                     class="mx-auto flex min-h-full w-[64rem] max-w-full flex-col px-4 pt-4"
                 >
                     <visitor-flow-recent />
                     <div
-                        class="flex w-full flex-col overflow-hidden rounded-xl border border-base-300 bg-base-100 mb-4"
+                        class="mb-4 flex w-full flex-col overflow-hidden rounded-xl border border-base-300 bg-base-100"
                     >
                         <div
                             class="gradient relative flex items-center space-x-2 border-l-8 border-base-content px-4 py-3 text-xl font-medium"
@@ -47,7 +45,10 @@ import { VisitorFlowSuccessComponent } from './visitor-flow-success.component';
                         >
                             <icon>info</icon>
                             <div>
-                                {{ 'BOOKINGS.VISITOR_DETAILS_HEADER' | translate }}
+                                {{
+                                    'BOOKINGS.VISITOR_DETAILS_HEADER'
+                                        | translate
+                                }}
                             </div>
                         </div>
                         <visitor-flow-invites />
@@ -180,10 +181,9 @@ export class VisitorFlowNewComponent extends AsyncHandler implements OnInit {
 
         this.loading.set(true);
         try {
+            const asset_name = this.form_value()?.asset_name;
             await (is_multiple ? this._bookForMany() : this._bookForOne());
-            const name = is_multiple
-                ? i18n('BOOKINGS.VISITORS')
-                : this.form_value()?.asset_name;
+            const name = is_multiple ? i18n('BOOKINGS.VISITORS') : asset_name;
             notifySuccess(
                 i18n(
                     is_multiple
