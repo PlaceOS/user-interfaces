@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -19,22 +19,22 @@ import { DialpadComponent } from './dialpad.component';
                 <input
                     matInput
                     readonly
-                    [ngModel]="(system | async)?.phone"
+                    [ngModel]="system()?.phone"
                     [placeholder]="'APP.CONTROL.PHONE' | translate"
                 />
-                @if ((system | async)?.phone) {
+                @if (system()?.phone) {
                     <button icon matRipple matSuffix (click)="clear()">
                         <icon>close</icon>
                     </button>
                 }
             </mat-form-field>
             <dialpad [inline]="true" (pressed)="handleInput($event)"></dialpad>
-            @if (!((system | async)?.offhook || (system | async)?.ringing)) {
+            @if (!(system()?.offhook || system()?.ringing)) {
                 <button btn matRipple class="w-full" (click)="dialPhone()">
                     {{ 'APP.CONTROL.PHONE_DIAL' | translate }}
                 </button>
             }
-            @if ((system | async)?.offhook || (system | async)?.ringing) {
+            @if (system()?.offhook || system()?.ringing) {
                 <button btn matRipple class="inverse w-full" (click)="hangup()">
                     {{ 'APP.CONTROL.PHONE_HANGUP' | translate }}
                 </button>
@@ -43,7 +43,6 @@ import { DialpadComponent } from './dialpad.component';
     `,
     styles: [``],
     imports: [
-        CommonModule,
         MatFormFieldModule,
         MatInputModule,
         MatRippleModule,
@@ -56,8 +55,10 @@ import { DialpadComponent } from './dialpad.component';
 export class PhoneDiallingTooltipComponent {
     private _state = inject(ControlStateService);
 
-    public phone = '';
-    public system = this._state.system;
+    public readonly phone = signal('');
+    public readonly system = toSignal(this._state.system, {
+        initialValue: {} as any,
+    });
 
     public get sys_id() {
         return this._state.id;

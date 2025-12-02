@@ -1,9 +1,8 @@
-import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatSliderModule } from '@angular/material/slider';
-import { AsyncHandler, nextValueFrom } from '@placeos/common';
 import { BindingDirective, IconComponent, TranslatePipe } from '@placeos/components';
 import { map } from 'rxjs/operators';
 import { ControlStateService } from './control-state.service';
@@ -12,7 +11,7 @@ import { DurationPipe } from './ui/duration.pipe';
 @Component({
     selector: 'control-status-bar',
     template: `
-        @if (!!(capture_mod | async)) {
+        @if (capture_mod()) {
             <div
                 recording
                 class="flex items-center divide-x divide-base-200 text-xs text-white"
@@ -22,35 +21,35 @@ import { DurationPipe } from './ui/duration.pipe';
                         binding
                         [(model)]="rec_status"
                         [sys]="id"
-                        [mod]="(capture_mod | async)?.mod"
+                        [mod]="capture_mod()?.mod"
                         bind="status"
                     ></i>
                     <i
                         binding
                         [(model)]="rec_title"
                         [sys]="id"
-                        [mod]="(capture_mod | async)?.mod"
+                        [mod]="capture_mod()?.mod"
                         bind="title"
                     ></i>
                     <i
                         binding
                         [(model)]="rec_remaining"
                         [sys]="id"
-                        [mod]="(capture_mod | async)?.mod"
+                        [mod]="capture_mod()?.mod"
                         bind="remaining"
                     ></i>
                     <i
                         binding
                         [(model)]="rec_current"
                         [sys]="id"
-                        [mod]="(capture_mod | async)?.mod"
+                        [mod]="capture_mod()?.mod"
                         bind="current"
                     ></i>
                     <i
                         binding
                         [(model)]="rec_next"
                         [sys]="id"
-                        [mod]="(capture_mod | async)?.mod"
+                        [mod]="capture_mod()?.mod"
                         bind="current"
                     ></i>
                 </div>
@@ -113,25 +112,19 @@ import { DurationPipe } from './ui/duration.pipe';
             </div>
         }
         <div class="flex-1"></div>
-        @if ((has_master_audio | async) !== false) {
+        @if (has_master_audio() !== false) {
             <div
                 class="flex w-[32rem] max-w-[50%] items-center space-x-2 px-4 py-2 text-base-content"
             >
                 <button icon matRipple (click)="toggleMute()">
-                    <icon>{{
-                        (system | async).mute
-                            ? 'volume_off'
-                            : (system | async).volume > 0
-                              ? 'volume_up'
-                              : 'volume_mute'
-                    }}</icon>
+                    <icon>{{ volume_icon() }}</icon>
                 </button>
                 <mat-slider class="flex-1">
                     <input
                         matSliderThumb
-                        [ngModel]="(system | async).volume || 0"
-                        (ngModelChange)="setVolume($event); mute = false"
-                        [disabled]="(system | async).mute"
+                        [ngModel]="system()?.volume || 0"
+                        (ngModelChange)="setVolume($event)"
+                        [disabled]="system()?.mute"
                 /></mat-slider>
             </div>
         }
@@ -147,7 +140,6 @@ import { DurationPipe } from './ui/duration.pipe';
         `,
     ],
     imports: [
-        CommonModule,
         BindingDirective,
         MatSliderModule,
         FormsModule,
@@ -157,25 +149,37 @@ import { DurationPipe } from './ui/duration.pipe';
         TranslatePipe,
     ],
 })
-export class ControlStatusBarComponent extends AsyncHandler {
+export class ControlStatusBarComponent {
     private _state = inject(ControlStateService);
 
     /** Details of the active system */
-    public readonly system = this._state.system;
-    public readonly has_master_audio = this._state.has_master_audio;
+    public readonly system = toSignal(this._state.system, {
+        initialValue: {} as any,
+    });
+    public readonly has_master_audio = toSignal(this._state.has_master_audio, {
+        initialValue: false,
+    });
 
-    public readonly capture_mod = this._state.capture_list.pipe(
-        map((_) => _[0]),
+    public readonly capture_mod = toSignal(
+        this._state.capture_list.pipe(map((_) => _[0])),
     );
 
-    public mute: boolean;
+    public readonly volume_icon = computed(() => {
+        const sys = this.system();
+        if (sys?.mute) return 'volume_off';
+        return sys?.volume > 0 ? 'volume_up' : 'volume_mute';
+    });
+
     public rec_status: string;
     public rec_title: string;
+    public rec_remaining: number;
+    public rec_current: number;
+    public rec_next: number;
 
-    public readonly setVolume = (v) => this._state.setVolume(v);
-    public readonly toggleMute = async () => {
-        const sys = await nextValueFrom(this.system);
-        this._state.setMute(!sys.mute);
+    public readonly setVolume = (v: number) => this._state.setVolume(v);
+    public readonly toggleMute = () => {
+        const sys = this.system();
+        this._state.setMute(!sys?.mute);
     };
 
     public get id() {

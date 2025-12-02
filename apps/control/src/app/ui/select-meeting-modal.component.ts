@@ -1,5 +1,6 @@
-import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { DatePipe } from '@angular/common';
+import { Component, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
@@ -35,10 +36,10 @@ import { ControlStateService } from '../control-state.service';
                     <label for="calendar">User calendar:</label>
                     <mat-form-field appearance="outline" class="w-full">
                         <mat-select
-                            [ngModel]="calendar | async"
+                            [ngModel]="calendar()"
                             (ngModelChange)="setCalendar($event)"
                         >
-                            @for (cal of calendars | async; track cal) {
+                            @for (cal of calendars(); track cal) {
                                 <mat-option [value]="cal">
                                     {{ cal.name || cal.summary }}
                                 </mat-option>
@@ -52,14 +53,13 @@ import { ControlStateService } from '../control-state.service';
                 <h3 class="my-4 w-full font-medium">
                     {{
                         'APP.CONTROL.MEETING_COUNT'
-                            | translate
-                                : { count: (events | async)?.length || '0' }
+                            | translate: { count: events()?.length || '0' }
                     }}
                 </h3>
-                @if (!loading) {
-                    @if ((events | async)?.length) {
+                @if (!loading()) {
+                    @if (events()?.length) {
                         <div class="space-y-2 overflow-auto">
-                            @for (event of events | async; track event) {
+                            @for (event of events(); track event) {
                                 <button
                                     btn
                                     matRipple
@@ -97,7 +97,6 @@ import { ControlStateService } from '../control-state.service';
     `,
     styles: [``],
     imports: [
-        CommonModule,
         TranslatePipe,
         MatProgressSpinnerModule,
         MatRippleModule,
@@ -105,6 +104,7 @@ import { ControlStateService } from '../control-state.service';
         MatSelectModule,
         FormsModule,
         IconComponent,
+        DatePipe,
     ],
 })
 export class SelectMeetingModalComponent {
@@ -113,14 +113,18 @@ export class SelectMeetingModalComponent {
     private _dialog_ref =
         inject<MatDialogRef<SelectMeetingModalComponent>>(MatDialogRef);
 
-    public readonly calendars = this._service.calendars;
-    public readonly events = this._service.events;
+    public readonly calendars = toSignal(this._service.calendars, {
+        initialValue: [],
+    });
+    public readonly events = toSignal(this._service.events, {
+        initialValue: [],
+    });
 
-    public loading = false;
+    public readonly loading = signal(false);
 
-    public readonly calendar = this._service.calendar;
+    public readonly calendar = toSignal(this._service.calendar);
 
-    public readonly setCalendar = (c) => this._service.setCalendar(c);
+    public readonly setCalendar = (c: any) => this._service.setCalendar(c);
 
     public readonly select = async (e: CalendarEvent) => {
         const details = await openConfirmModal(

@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
@@ -25,16 +25,16 @@ import { debounceTime, map } from 'rxjs/operators';
                 <img
                     auth
                     class="mx-auto my-2 w-48 sm:mb-8 sm:mt-6 sm:w-32"
-                    [source]="(logo | async)?.src || (logo | async)"
+                    [source]="logo()?.src || logo()"
                 />
                 <ul class="hidden list-none space-y-2 p-0 pl-4 sm:block">
                     @for (item of items; track item) {
                         <li
                             class="relative flex items-center rounded-l-3xl py-2 pl-4"
-                            [class.active]="item.id === active_item.id"
-                            (click)="active_item = item"
+                            [class.active]="item.id === active_item().id"
+                            (click)="active_item.set(item)"
                         >
-                            @if (item.id === active_item.id) {
+                            @if (item.id === active_item().id) {
                                 <div
                                     class="absolute right-0 top-1/2 h-[5.5rem] w-6 -translate-y-1/2 overflow-hidden bg-base-100"
                                 >
@@ -60,7 +60,10 @@ import { debounceTime, map } from 'rxjs/operators';
                         class="block h-12 w-full sm:hidden"
                         appearance="outline"
                     >
-                        <mat-select [(ngModel)]="active_item">
+                        <mat-select
+                            [ngModel]="active_item()"
+                            (ngModelChange)="active_item.set($event)"
+                        >
                             @for (item of items; track item) {
                                 <mat-option [value]="item">
                                     {{ item.title }}
@@ -73,7 +76,7 @@ import { debounceTime, map } from 'rxjs/operators';
             <div
                 content
                 class="h-1/2 w-full flex-1 overflow-auto bg-base-100 p-4 sm:h-full sm:w-1/2 sm:p-8"
-                [innerHTML]="content | safe"
+                [innerHTML]="content() | safe"
             ></div>
             <button
                 icon
@@ -95,7 +98,6 @@ import { debounceTime, map } from 'rxjs/operators';
         `,
     ],
     imports: [
-        CommonModule,
         MatDialogModule,
         SafePipe,
         MatFormFieldModule,
@@ -118,29 +120,31 @@ export class HelpModalComponent {
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
 
-    public active_item = { id: '', content: `` };
+    public readonly active_item = signal({ id: '', content: `` });
     public readonly items = this._data.items;
 
-    public readonly logo = this._org.active_building.pipe(
-        debounceTime(500),
-        map(
-            () =>
-                (this._settings.theme === 'dark'
-                    ? this._settings.get('app.logo_dark')
-                    : this._settings.get('app.logo_light')) || {},
+    public readonly logo = toSignal(
+        this._org.active_building.pipe(
+            debounceTime(500),
+            map(
+                () =>
+                    (this._settings.theme === 'dark'
+                        ? this._settings.get('app.logo_dark')
+                        : this._settings.get('app.logo_light')) || {},
+            ),
         ),
     );
 
-    public get content() {
-        return this.active_item?.content
-            ? marked(this.active_item.content)
-            : '';
-    }
+    public readonly content = computed(() => {
+        const item = this.active_item();
+        return item?.content ? marked(item.content) : '';
+    });
 
     constructor() {
-        this.active_item =
+        const initial =
             this.items?.find((_) => _.id === this._data.active_id) ||
-            this.items[0] ||
-            this.active_item;
+            this.items?.[0] ||
+            { id: '', content: '' };
+        this.active_item.set(initial);
     }
 }

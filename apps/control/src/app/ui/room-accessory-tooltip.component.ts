@@ -1,4 +1,5 @@
 import { Component, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import {
     CustomTooltipData,
     IconComponent,
@@ -6,7 +7,6 @@ import {
 } from '@placeos/components';
 import { getModule } from '@placeos/ts-client';
 
-import { CommonModule } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ControlStateService } from '../control-state.service';
@@ -22,8 +22,8 @@ import { ControlStateService } from '../control-state.service';
             >
                 {{ 'APP.CONTROL.ACCESSORIES' | translate }}
             </h3>
-            @if ((list | async)?.length) {
-                @for (item of list | async; track item) {
+            @if (list()?.length) {
+                @for (item of list(); track item) {
                     <div
                         class="flex w-full min-w-[20rem] items-center space-x-2 rounded border border-base-300 p-2"
                     >
@@ -53,7 +53,6 @@ import { ControlStateService } from '../control-state.service';
     `,
     styles: [``],
     imports: [
-        CommonModule,
         TranslatePipe,
         MatRippleModule,
         IconComponent,
@@ -64,7 +63,9 @@ export class RoomAccessoryTooltipComponent {
     private _state = inject(ControlStateService);
     private _tooltip = inject(CustomTooltipData);
 
-    public readonly list = this._state.room_accessories;
+    public readonly list = toSignal(this._state.room_accessories, {
+        initialValue: [] as any[],
+    });
     /** Close the tooltip */
     public readonly close = () => this._tooltip.close();
 

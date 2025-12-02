@@ -1,11 +1,12 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 
-import { AsyncHandler, VERSION } from '@placeos/common';
+import { VERSION } from '@placeos/common';
 import { ChangelogModalComponent, TranslatePipe } from '@placeos/components';
 
-import { CommonModule } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ControlStateService } from './control-state.service';
 import { ControlPageViewComponent } from './page-view.component';
@@ -15,8 +16,8 @@ import { TopbarHeaderComponent } from './topbar-header.component';
 @Component({
     selector: 'app-control-main-view',
     template: `
-        @if ((system | async).connected) {
-            @if ((system | async).active) {
+        @if (system()?.connected) {
+            @if (system()?.active) {
                 <div class="absolute inset-0 flex flex-col bg-base-200">
                     <topbar-header></topbar-header>
                     <div control-page-view></div>
@@ -32,7 +33,7 @@ import { TopbarHeaderComponent } from './topbar-header.component';
                     <h2 class="mb-4 text-4xl font-light">
                         {{ 'APP.CONTROL.TOUCH_TO_START' | translate }}
                     </h2>
-                    <p class="text-lg">{{ (system | async).name }}</p>
+                    <p class="text-lg">{{ system()?.name }}</p>
                     <div class="absolute bottom-0 left-0 p-2">
                         <div class="w-full text-xs opacity-60">
                             <ng-container
@@ -82,20 +83,23 @@ import { TopbarHeaderComponent } from './topbar-header.component';
         `,
     ],
     imports: [
-        CommonModule,
         TopbarHeaderComponent,
         ControlPageViewComponent,
         ControlStatusBarComponent,
         MatProgressSpinnerModule,
         TranslatePipe,
+        DatePipe,
     ],
 })
-export class ControlMainViewComponent extends AsyncHandler implements OnInit {
+export class ControlMainViewComponent implements OnInit {
     private _route = inject(ActivatedRoute);
     private _state = inject(ControlStateService);
     private _dialog = inject(MatDialog);
+    private _destroyRef = inject(DestroyRef);
 
-    public readonly system = this._state.system;
+    public readonly system = toSignal(this._state.system, {
+        initialValue: {} as any,
+    });
 
     public readonly powerOn = () => this._state.powerOn();
     public get id() {
@@ -116,21 +120,19 @@ export class ControlMainViewComponent extends AsyncHandler implements OnInit {
     }
 
     public ngOnInit(): void {
-        this.subscription(
-            'route.params',
-            this._route.paramMap.subscribe((params) =>
+        this._route.paramMap
+            .pipe(takeUntilDestroyed(this._destroyRef))
+            .subscribe((params) =>
                 params.has('system')
                     ? this._state.setID(params.get('system'))
                     : '',
-            ),
-        );
-        this.subscription(
-            'route.query',
-            this._route.queryParamMap.subscribe((params) =>
+            );
+        this._route.queryParamMap
+            .pipe(takeUntilDestroyed(this._destroyRef))
+            .subscribe((params) =>
                 params.get('join') === 'true'
                     ? this._state.selectMeeting()
                     : '',
-            ),
-        );
+            );
     }
 }
