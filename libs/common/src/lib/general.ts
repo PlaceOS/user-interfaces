@@ -157,7 +157,11 @@ export function csvToJson(csv: string, delimiter = ','): HashMap[] {
         );
     }
     const headers: string[] = arrData.splice(0, 1)[0];
-    const elements = arrData.map((row) => {
+    // Filter out blank rows
+    const filtered_data = arrData.filter(
+        (row) => row.length > 0 && row.some((cell) => cell && cell.trim() !== ''),
+    );
+    const elements = filtered_data.map((row) => {
         const element = {};
         for (let i = 0; i < row.length; i++) {
             const key = (headers[i] || '').split(' ').join('_').toLowerCase();
