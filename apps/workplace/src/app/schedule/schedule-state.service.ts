@@ -5,7 +5,6 @@ import { Router } from '@angular/router';
 import {
     BookingFormService,
     checkinBooking,
-    checkinBookingInstance,
     loadLockerBanks,
     loadLockers,
     Locker,
@@ -13,6 +12,8 @@ import {
     ParkingService,
     queryBookings,
     removeBooking,
+    updateBooking,
+    updateBookingInstance,
 } from '@placeos/bookings';
 import {
     AsyncHandler,
@@ -836,8 +837,22 @@ export class ScheduleStateService extends AsyncHandler {
     }
 
     public async end(item: Booking) {
-        const time = `${format(item.date, 'dd MMM yyyy h:mma')}`;
+        const now = Date.now();
         const resource_name = item.asset_name || item.asset_id;
+
+        // Fail if the current time is past the booking end
+        if (isAfter(now, item.date_end)) {
+            notifyError(i18n('APP.WORKPLACE.SCHEDULE_END_ALREADY_ENDED_ERROR'));
+            return;
+        }
+
+        // Delete booking if current time is before the start
+        if (isBefore(now, item.date)) {
+            return this.remove(item);
+        }
+
+        // Otherwise, update the end time to the current time
+        const time = `${format(item.date, 'dd MMM yyyy h:mma')}`;
         const resp = await openConfirmModal(
             {
                 title: i18n('APP.WORKPLACE.SCHEDULE_END_TITLE'),
@@ -854,8 +869,10 @@ export class ScheduleStateService extends AsyncHandler {
         resp.loading(i18n('APP.WORKPLACE.SCHEDULE_END_LOADING'));
         const promise = (
             item.instance
-                ? checkinBookingInstance(item.id, item.instance, false)
-                : checkinBooking(item.id, false)
+                ? updateBookingInstance(item.id, item.instance, {
+                      booking_end: getUnixTime(now),
+                  })
+                : updateBooking(item.id, { booking_end: getUnixTime(now) })
         )
             .toPromise()
             .catch((e) => {

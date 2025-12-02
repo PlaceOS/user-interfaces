@@ -977,6 +977,7 @@
             "SCHEDULE_END_LOADING": "Ending booking...",
             "SCHEDULE_END_SUCCESS": "Successfully ended booking.",
             "SCHEDULE_END_ERROR": "Failed to end booking. Error: {{ error }}",
+            "SCHEDULE_END_ALREADY_ENDED_ERROR": "Booking has already ended.",
             "SCHEDULE_FILTERS": "Filters",
             "SCHEDULE_FILTERS_DISPLAY_HEADER": "Category Filters",
             "SCHEDULE_FILTER_ROOMS": "Rooms and meeting invites",
