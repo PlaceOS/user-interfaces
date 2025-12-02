@@ -117,24 +117,27 @@ type FormType = 'single' | 'group' | 'other';
                         ></a-user-search-field>
                     </div>
                 }
-                <div>
-                    <label for="title"
-                        >{{ 'FORM.TITLE' | translate }}<span>*</span></label
-                    >
-                    <mat-form-field appearance="outline" class="w-full">
-                        <input
-                            matInput
-                            name="title"
-                            formControlName="title"
-                            [placeholder]="
-                                'BOOKINGS.DESK_TITLE_PLACEHOLDER' | translate
-                            "
-                        />
-                        <mat-error>{{
-                            'FORM.TITLE_REQUIRED' | translate
-                        }}</mat-error>
-                    </mat-form-field>
-                </div>
+                @if (!hide_title()) {
+                    <div>
+                        <label for="title"
+                            >{{ 'FORM.TITLE' | translate }}<span>*</span></label
+                        >
+                        <mat-form-field appearance="outline" class="w-full">
+                            <input
+                                matInput
+                                name="title"
+                                formControlName="title"
+                                [placeholder]="
+                                    'BOOKINGS.DESK_TITLE_PLACEHOLDER'
+                                        | translate
+                                "
+                            />
+                            <mat-error>{{
+                                'FORM.TITLE_REQUIRED' | translate
+                            }}</mat-error>
+                        </mat-form-field>
+                    </div>
+                }
                 <div
                     class="flex flex-col space-y-2 sm:hidden sm:flex-row sm:space-x-2 sm:space-y-0"
                 >
@@ -251,6 +254,7 @@ export class DeskFlowDetailsComponent {
     });
     public readonly options = this._booking_form.options;
 
+    public readonly hide_title = settingSignal('desks.hide_title', false);
     public readonly available_days = settingSignal(
         'desks.available_period',
         90,
