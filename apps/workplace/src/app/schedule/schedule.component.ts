@@ -127,6 +127,7 @@ export class ScheduleComponent extends AsyncHandler implements OnInit {
     }
 
     public ngOnInit() {
+        this.setOptions({ period: 'day' });
         this._state.triggerPoll();
         this.subscription('poll', this._state.startPolling());
         this.subscription(
