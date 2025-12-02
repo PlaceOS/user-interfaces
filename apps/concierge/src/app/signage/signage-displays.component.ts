@@ -32,9 +32,14 @@ import { ZoneSelectModalComponent } from './zone-select-modal.component';
 @Component({
     selector: 'signage-displays',
     template: `
-        <div class="relative flex h-full w-full space-x-4 overflow-visible">
-            <div sidebar class="flex h-full w-64 flex-col space-y-4 py-4">
-                <h3 class="text-center text-xl font-medium">
+        <div class="relative flex h-full w-full space-x-2 overflow-visible">
+            <div
+                sidebar
+                class="flex h-full w-64 flex-col space-y-2 overflow-auto rounded-xl border border-base-300 p-2"
+            >
+                <h3
+                    class="rounded-lg bg-base-200 p-2 text-center text-xl font-medium"
+                >
                     {{ 'APP.CONCIERGE.SIGNAGE_DISPLAYS' | translate }}
                 </h3>
                 <mat-form-field
@@ -53,7 +58,7 @@ import { ZoneSelectModalComponent } from './zone-select-modal.component';
                         @for (display of displays(); track display.id) {
                             <a
                                 matRipple
-                                class="z-10 flex min-h-12 w-full items-center truncate rounded-3xl px-6 hover:bg-base-200"
+                                class="relative z-10 flex h-12 min-h-12 w-full items-center truncate rounded-3xl border border-base-100 px-6 even:border-base-200 even:bg-base-200 hover:border-info"
                                 [class.!bg-secondary]="
                                     selected() === display.id
                                 "
@@ -75,12 +80,12 @@ import { ZoneSelectModalComponent } from './zone-select-modal.component';
                                     >
                                         <div class="w-6">
                                             <div
-                                                class="absolute left-6 top-1/2 h-16 w-4 -translate-y-full border-b-2 border-l-2 border-base-300"
+                                                class="absolute left-6 top-1/2 z-0 h-16 w-4 -translate-y-full border-b-2 border-l-2 border-base-300"
                                             ></div>
                                         </div>
                                         <a
                                             matRipple
-                                            class="flex min-h-12 w-1/2 flex-1 items-center truncate rounded-3xl px-6 hover:bg-base-200"
+                                            class="relative z-10 flex min-h-12 w-1/2 flex-1 items-center truncate rounded-3xl px-6 hover:bg-base-200"
                                             [class.!bg-secondary]="
                                                 selected_trigger() ===
                                                 trigger?.id
@@ -123,7 +128,7 @@ import { ZoneSelectModalComponent } from './zone-select-modal.component';
                 }
             </div>
             <div
-                class="relative flex h-full w-1/2 flex-1 flex-col space-y-4 overflow-auto rounded-lg border border-base-300 p-4 shadow"
+                class="relative flex h-full w-1/2 flex-1 flex-col space-y-2 overflow-auto rounded-lg border border-base-300 bg-base-200 p-2 shadow"
             >
                 @if (active_display()) {
                     @let display = active_display();
@@ -147,7 +152,7 @@ import { ZoneSelectModalComponent } from './zone-select-modal.component';
                     >
                         @if (!trigger) {
                             <div
-                                class="mt-4 flex flex-wrap items-center overflow-auto"
+                                class="mt-2 flex flex-wrap items-center overflow-auto rounded-xl bg-base-100 p-1"
                             >
                                 @for (zone of display?.zones; track zone) {
                                     <a

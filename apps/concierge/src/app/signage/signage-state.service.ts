@@ -165,6 +165,7 @@ export class SignageStateService extends AsyncHandler {
         switchMap(() =>
             queryZones({
                 limit: 250,
+                tags: 'signage',
             } as any).pipe(catchError(() => of({ data: [] }))),
         ),
         map((_) =>
@@ -423,7 +424,9 @@ export class SignageStateService extends AsyncHandler {
             720,
         ).catch(() => null);
         const media_id = await this._uploads.uploadFileWithPermissions(file);
-        SignedRequest.setToken(token());
+        const tkn = token();
+        if (!tkn) throw new Error('Token expired. Try again.');
+        SignedRequest.setToken(tkn);
         const media = await uploadDetails(media_id);
         let thumbnail = null;
         if (thumbnail_image) {

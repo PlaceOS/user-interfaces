@@ -1,4 +1,4 @@
-import { Component, OnDestroy, inject } from '@angular/core';
+import { Component, OnDestroy, inject, signal } from '@angular/core';
 import {
     FormControl,
     FormGroup,
@@ -38,7 +38,7 @@ import { lastValueFrom } from 'rxjs';
             "
             (confirm)="saveMedia()"
             [loading]="
-                loading
+                loading()
                     ? ('APP.CONCIERGE.SIGNAGE_MEDIA_SAVING' | translate)
                     : ''
             "
@@ -244,7 +244,7 @@ export class SignageMediaModalComponent implements OnDestroy {
     private _dialog_ref =
         inject<MatDialogRef<SignageMediaModalComponent>>(MatDialogRef);
 
-    public loading = false;
+    public readonly loading = signal(false);
     public readonly item = this._data.media;
     public readonly file = this._data.file;
     public readonly thumbnail =
@@ -315,7 +315,7 @@ export class SignageMediaModalComponent implements OnDestroy {
         this.form.markAllAsTouched();
         this.form.updateValueAndValidity();
         if (!this.form.valid) return;
-        this.loading = true;
+        this.loading.set(true);
         this._dialog_ref.disableClose = true;
         const form_value = this.form.getRawValue();
         const new_media = {
@@ -334,7 +334,7 @@ export class SignageMediaModalComponent implements OnDestroy {
         } else delete new_media.valid_until;
         const onError = (e) => {
             this._dialog_ref.disableClose = false;
-            this.loading = false;
+            this.loading.set(false);
             notifyError(
                 i18n('APP.CONCIERGE.SIGNAGE_MEDIA_SAVE_ERROR', { error: e }),
             );

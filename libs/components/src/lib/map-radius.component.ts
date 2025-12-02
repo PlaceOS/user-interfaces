@@ -1,7 +1,15 @@
-import { Component, ElementRef, OnInit, inject } from '@angular/core';
+import {
+    Component,
+    ElementRef,
+    afterNextRender,
+    computed,
+    inject,
+    signal,
+} from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { formatDistanceToNow } from 'date-fns';
 import { MAP_FEATURE_DATA } from 'libs/common/src/lib/types';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { TranslatePipe } from './translate.pipe';
 
 export interface MapRadiusData {
@@ -16,27 +24,27 @@ export interface MapRadiusData {
 @Component({
     selector: '[map-radius]',
     template: `
-        @if (show && radius) {
+        @if (show() && radius()) {
             <ng-container (window:resize)="updateRadius()">
                 <div
                     radius
                     class="center rounded-full border-4 border-dashed"
                     [style.border-color]="stroke"
                     [style.background-color]="fill + '40'"
-                    [style.width]="radius * zoom + 'px'"
-                    [style.height]="radius * zoom + 'px'"
+                    [style.width]="radius() * zoom() + 'px'"
+                    [style.height]="radius() * zoom() + 'px'"
                 ></div>
-                @if (message && show_message) {
+                @if (message && show_message()) {
                     <div
                         message
-                        [style.top]="'-' + (radius / 2) * zoom + 'px'"
+                        [style.top]="'-' + (radius() / 2) * zoom() + 'px'"
                         class="text-gray-700 whitespace-no-wrap absolute top-0 m-2 flex w-64 flex-col rounded bg-base-100 p-2 shadow"
                     >
                         {{ message }}
-                        @if (last_seen) {
+                        @if (last_seen()) {
                             <span class="text-xs">
                                 {{ 'COMMON.LAST_UPDATE' | translate }}:
-                                {{ last_seen_at }}
+                                {{ last_seen_at() }}
                             </span>
                         }
                     </div>
@@ -71,13 +79,17 @@ export interface MapRadiusData {
     ],
     imports: [TranslatePipe],
 })
-export class MapRadiusComponent implements OnInit {
+export class MapRadiusComponent {
     private _details = inject<MapRadiusData>(MAP_FEATURE_DATA);
     private _el = inject<ElementRef<HTMLElement>>(ElementRef);
 
-    public zoom = 1;
+    public zoom = toSignal(
+        this._details.zoom$?.pipe(map((v) => Math.max(0.5, v || 1))),
+        { initialValue: 1 },
+    );
+
     /** Size of the area marked by this component */
-    public radius = this._details.radius || 10;
+    public radius = signal(this._details.radius || 10);
     /** Message to display above the pin */
     public readonly message = this._details.message;
     /** Fill colour for the pin SVG */
@@ -85,36 +97,28 @@ export class MapRadiusComponent implements OnInit {
     /** Stroke colour for the pin SVG */
     public readonly stroke = this._details.stroke || '#e53935';
 
-    public readonly last_seen: number = this._details.last_seen || 0;
+    public last_seen = signal(this._details.last_seen || 0);
 
-    public get last_seen_at() {
-        return formatDistanceToNow(this.last_seen * 1000) + ' ago';
-    }
+    public last_seen_at = computed(() => {
+        return formatDistanceToNow(this.last_seen() * 1000) + ' ago';
+    });
 
-    public show: boolean;
-    public show_message: boolean;
+    public show = signal(false);
+    public show_message = signal(false);
 
     constructor() {
-        this._details.zoom$?.subscribe((v) =>
-            Math.max(0.5, (this.zoom = v || 1)),
-        );
-    }
-
-    public ngOnInit() {
-        setTimeout(() => (this.show = true), 300);
-        setTimeout(() => (this.show_message = true), 1000);
-    }
-
-    public ngAfterViewInit() {
-        this.updateRadius();
+        afterNextRender(() => {
+            this.updateRadius();
+            setTimeout(() => this.show.set(true), 300);
+            setTimeout(() => this.show_message.set(true), 1000);
+        });
     }
 
     public updateRadius() {
         const box = this._el.nativeElement.getBoundingClientRect();
         if (!box.width) return setTimeout(() => this.updateRadius(), 300);
-        this.radius = Math.max(
-            64,
-            (this._details.radius || 10) * (box.width || 10),
+        this.radius.set(
+            Math.max(64, (this._details.radius || 10) * (box.width || 10)),
         );
     }
 }

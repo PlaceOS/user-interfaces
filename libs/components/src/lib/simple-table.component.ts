@@ -9,10 +9,9 @@ import {
     output,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
-import { Observable } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { IconComponent } from './icon.component';
 import { TranslatePipe } from './translate.pipe';
 
@@ -319,14 +318,9 @@ export class SimpleTableComponent<T extends object = any> {
         null,
     );
 
-    // Convert Observable data input to signal if needed
-    private readonly _data_signal = computed(() => {
-        const data = this.data();
-        if (data instanceof Observable) {
-            return toSignal(data, { initialValue: [] as T[] })();
-        }
-        return data || [];
-    });
+    // Signal to hold the actual data (handles both array and Observable inputs)
+    private readonly _data_signal = signal<T[]>([]);
+    private _data_subscription: Subscription | null = null;
 
     // Computed data view with filtering and sorting
     public readonly data_view = computed(() => {
@@ -397,12 +391,35 @@ export class SimpleTableComponent<T extends object = any> {
     });
 
     constructor() {
+        // Handle data input changes (supports both array and Observable)
+        effect((onCleanup) => {
+            const data = this.data();
+
+            // Cleanup previous subscription if any
+            if (this._data_subscription) {
+                this._data_subscription.unsubscribe();
+                this._data_subscription = null;
+            }
+
+            if (data instanceof Observable) {
+                this._data_subscription = data.subscribe((value) => {
+                    this._data_signal.set(value || []);
+                });
+                onCleanup(() => {
+                    this._data_subscription?.unsubscribe();
+                    this._data_subscription = null;
+                });
+            } else {
+                this._data_signal.set(data || []);
+            }
+        }, { allowSignalWrites: true });
+
         // Update active columns when columns input changes
         effect(() => {
             this.active_columns.set(
                 this.columns().filter((_) => _.show !== false),
             );
-        });
+        }, { allowSignalWrites: true });
 
         // Reset page and update pagination info when data view changes
         effect(() => {
@@ -416,7 +433,7 @@ export class SimpleTableComponent<T extends object = any> {
                 this.total_count.set(data.length);
                 this.total_pages.set(Math.ceil(data.length / page_size_value));
             }
-        });
+        }, { allowSignalWrites: true });
     }
 
     public column(key: string) {
