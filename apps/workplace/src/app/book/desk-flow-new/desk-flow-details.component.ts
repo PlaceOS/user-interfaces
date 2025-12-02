@@ -1,5 +1,5 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -213,6 +213,14 @@ type FormType = 'single' | 'group' | 'other';
                             (ngModelChange)="setOptions({ members: $event })"
                             [ngModelOptions]="{ standalone: true }"
                         ></a-user-list-field>
+                        <p
+                            class="mt-1 flex items-center space-x-1 rounded bg-info p-1 text-sm text-info-content shadow"
+                        >
+                            <icon class="text-xl">info</icon>
+                            <span>{{
+                                'BOOKINGS.DESK_GROUP_MEMBERS_INFO' | translate
+                            }}</span>
+                        </p>
                     </div>
                 }
             </div>
@@ -253,6 +261,14 @@ export class DeskFlowDetailsComponent {
         initialValue: this.form.value,
     });
     public readonly options = this._booking_form.options;
+    private readonly _options_signal = toSignal(this._booking_form.options);
+
+    private _options_sync = effect(() => {
+        const options = this._options_signal();
+        if (options?.group && this.active_form() !== 'group') {
+            this.active_form.set('group');
+        }
+    });
 
     public readonly hide_title = settingSignal('desks.hide_title', false);
     public readonly available_days = settingSignal(
