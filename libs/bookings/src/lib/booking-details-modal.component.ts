@@ -366,14 +366,12 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                     </div>
                 </button>
             }
-            @if (!is_in_progress()) {
-                <button mat-menu-item (click)="remove(booking(), false)">
-                    <div class="flex items-center space-x-2 text-base">
-                        <icon class="text-error">delete</icon>
-                        <div>{{ 'BOOKINGS.ACTION_DELETE' | translate }}</div>
-                    </div>
-                </button>
-            }
+            <button mat-menu-item (click)="remove(booking(), false)">
+                <div class="flex items-center space-x-2 text-base">
+                    <icon class="text-error">delete</icon>
+                    <div>{{ 'BOOKINGS.ACTION_DELETE' | translate }}</div>
+                </div>
+            </button>
             @if (booking().instance && allow_series_delete()) {
                 <button mat-menu-item (click)="remove(booking(), true)">
                     <div class="flex items-center space-x-2 text-base">
