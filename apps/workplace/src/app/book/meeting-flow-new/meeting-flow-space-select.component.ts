@@ -239,6 +239,7 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                                     formControlName="duration"
                                     [time]="field('date')"
                                     [max]="max_duration()"
+                                    [min]="min_duration()"
                                     [use_24hr]="use_24hr()"
                                     [timezone]="timezone"
                                 />
@@ -498,9 +499,7 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                             <mat-select
                                 name="location-multi-mobile"
                                 [ngModel]="(options | async)?.zones"
-                                (ngModelChange)="
-                                    setOptions({ zones: $event })
-                                "
+                                (ngModelChange)="setOptions({ zones: $event })"
                                 [ngModelOptions]="{ standalone: true }"
                                 [placeholder]="'COMMON.LEVEL_ANY' | translate"
                                 [multiple]="true"
@@ -685,6 +684,7 @@ export class MeetingFlowSpaceSelectComponent {
 
     public readonly use_24hr = settingSignal('use_24_hour_time', false);
     public readonly use_region = settingSignal('use_region', false);
+    public readonly min_duration = settingSignal('events.min_duration', 30);
     public readonly max_duration = settingSignal('events.max_duration', 8 * 60);
     public readonly allow_all_day = settingSignal(
         'events.allow_all_day',

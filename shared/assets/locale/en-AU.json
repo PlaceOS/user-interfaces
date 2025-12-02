@@ -284,6 +284,7 @@
         "TIMETABLE_URL": "Timetable URL",
         "SUPPORT_URL": "Support URL",
         "URL_VALID": "URL is invalid",
+        "SELECTED_COUNT": "{{ count }} selected",
         "PEOPLE_COUNT": "{{ count }} people",
         "PEOPLE_COUNT_1": "{{ count }} person"
     },

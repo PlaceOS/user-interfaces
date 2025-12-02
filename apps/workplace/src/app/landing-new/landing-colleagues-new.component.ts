@@ -32,38 +32,25 @@ import { AddColleaguesModalComponent } from './add-colleagues-modal.component';
                 <h3 class="text-lg font-medium">
                     {{ 'APP.WORKPLACE.COLLEAGUES' | translate }}
                 </h3>
-                <div class="rounded bg-base-200 px-2 py-1 font-mono text-xs">
-                    {{
+                <div class="rounded px-2 py-1 text-xs opacity-60">
+                    @if (selected_users().length > 0) {
+                        <span>{{
+                            'COMMON.SELECTED_COUNT'
+                                | translate: { count: selected_users().length }
+                        }}</span>
+                        •
+                    }
+                    <span>{{
                         'APP.WORKPLACE.COLLEAGUES_COUNT'
                             | translate
                                 : {
                                       count: contact_list?.length,
                                   }
                                 : contact_list?.length
-                    }}
+                    }}</span>
                 </div>
             </div>
             @if (selected_users().length > 0) {
-                <div
-                    class="flex items-center justify-between rounded bg-base-200"
-                >
-                    <span class="px-2 text-sm">
-                        {{
-                            'APP.WORKPLACE.COLLEAGUES_SELECTED'
-                                | translate
-                                    : { count: selected_users().length }
-                                    : selected_users().length
-                        }}
-                    </span>
-                    <button
-                        btn
-                        matRipple
-                        class="inverse min-h-10 text-xs"
-                        (click)="clearSelection()"
-                    >
-                        {{ 'COMMON.CLEAR' | translate }}
-                    </button>
-                </div>
                 <div class="mt-2 flex space-x-2">
                     <button
                         btn

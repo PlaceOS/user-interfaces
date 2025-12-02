@@ -90,6 +90,8 @@ import {
                             }}</label>
                             <duration-field
                                 name="duration"
+                                [max]="max_duration()"
+                                [min]="min_duration()"
                                 [step]="duration_step()"
                                 formControlName="duration"
                                 [disabled]="form_value().all_day"
@@ -262,6 +264,8 @@ export class MeetingFlowDetailsComponent {
         'events.allow_all_day',
         false,
     );
+    public readonly min_duration = settingSignal('events.min_duration', 30);
+    public readonly max_duration = settingSignal('events.max_duration', 8 * 60);
     public readonly duration_step = settingSignal('events.duration_step', 15);
     public readonly has_title = computed(
         () => !!this.form_value()?.title?.trim(),

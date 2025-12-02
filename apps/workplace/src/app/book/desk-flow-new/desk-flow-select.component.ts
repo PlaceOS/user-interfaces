@@ -232,6 +232,7 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
                                     formControlName="duration"
                                     [time]="field('date')"
                                     [max]="max_duration()"
+                                    [min]="min_duration()"
                                     [step]="duration_step()"
                                     [use_24hr]="use_24hr()"
                                     [timezone]="timezone"
@@ -478,9 +479,7 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
                             <mat-select
                                 name="location-multi-mobile"
                                 [ngModel]="(options | async)?.zones"
-                                (ngModelChange)="
-                                    setOptions({ zones: $event })
-                                "
+                                (ngModelChange)="setOptions({ zones: $event })"
                                 [ngModelOptions]="{ standalone: true }"
                                 [placeholder]="'COMMON.LEVEL_ANY' | translate"
                                 [multiple]="true"
@@ -646,9 +645,17 @@ export class DeskFlowSelectComponent extends AsyncHandler implements OnInit {
             settingSignal('desks.duration_step')() ||
             settingSignal('bookings.duration_step', 15)(),
     );
-    public readonly max_duration = settingSignal(
-        'bookings.max_duration',
-        8 * 60,
+
+    public readonly min_duration = computed(
+        () =>
+            settingSignal('desks.min_duration')() ||
+            settingSignal('bookings.min_duration', 30)(),
+    );
+
+    public readonly max_duration = computed(
+        () =>
+            settingSignal('desks.max_duration')() ||
+            settingSignal('bookings.max_duration', 8 * 60)(),
     );
     public readonly feature_display = settingSignal<Record<string, string>>(
         'desks.feature_decriptions',

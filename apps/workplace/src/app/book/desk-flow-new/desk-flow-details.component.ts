@@ -168,6 +168,8 @@ type FormType = 'single' | 'group' | 'other';
                         }}</label>
                         <duration-field
                             name="duration"
+                            [max]="max_duration()"
+                            [min]="min_duration()"
                             [step]="duration_step()"
                             formControlName="duration"
                         />
@@ -287,6 +289,12 @@ export class DeskFlowDetailsComponent {
         () =>
             settingSignal('desks.duration_step')() ||
             settingSignal('bookings.duration_step', 15)(),
+    );
+
+    public readonly min_duration = computed(
+        () =>
+            settingSignal('desks.min_duration')() ||
+            settingSignal('bookings.min_duration', 30)(),
     );
 
     public readonly max_duration = computed(
