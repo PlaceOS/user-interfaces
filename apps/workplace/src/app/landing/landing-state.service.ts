@@ -137,7 +137,7 @@ export class LandingStateService extends AsyncHandler {
     );
     /**  */
     public readonly upcoming_events = toObservable(
-        this._schedule.filtered_bookings,
+        this._schedule.bookings,
     ).pipe(
         map((_) =>
             _.filter(
