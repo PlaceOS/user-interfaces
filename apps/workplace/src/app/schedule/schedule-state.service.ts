@@ -869,12 +869,14 @@ export class ScheduleStateService extends AsyncHandler {
 
         if (resp.reason !== 'done') return;
         resp.loading(i18n('APP.WORKPLACE.SCHEDULE_END_LOADING'));
+        const changes = {
+            booking_end: getUnixTime(now),
+            all_day: false,
+        };
         const promise = (
             item.instance
-                ? updateBookingInstance(item.id, item.instance, {
-                      booking_end: getUnixTime(now),
-                  })
-                : updateBooking(item.id, { booking_end: getUnixTime(now) })
+                ? updateBookingInstance(item.id, item.instance, changes)
+                : updateBooking(item.id, changes)
         )
             .toPromise()
             .catch((e) => {
