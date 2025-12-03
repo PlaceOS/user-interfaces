@@ -22,6 +22,7 @@ import {
     EventDetailsModalComponent,
     GroupEventDetailsModalComponent,
 } from '@placeos/events';
+import { UserPipe } from '@placeos/users';
 import { format, isSameDay, setHours, setMinutes, startOfDay } from 'date-fns';
 import { ScheduleStateService } from './schedule-state.service';
 
@@ -181,17 +182,41 @@ interface PositionedBooking {
                                             {{ location(item.booking) }}
                                         </div>
                                     }
-                                    @if (
-                                        item.height > 7 &&
-                                        (item.booking.user_name ||
-                                            item.booking.host)
-                                    ) {
+                                    @if (item.height > 7 && item.booking.host) {
                                         <div
                                             class="mt-1 truncate text-xs opacity-60"
                                         >
                                             {{
-                                                item.booking.user_name ||
+                                                (
                                                     item.booking.host
+                                                    | user
+                                                    | async
+                                                )?.name ||
+                                                    item.booking.organiser
+                                                        ?.name ||
+                                                    item.booking.host
+                                            }}
+                                        </div>
+                                    }
+                                    @if (
+                                        item.height > 7 &&
+                                        !item.booking.host &&
+                                        item.booking.user_email !==
+                                            item.booking.booked_by_email
+                                    ) {
+                                        <div
+                                            class="mt-1 truncate text-xs opacity-60"
+                                        >
+                                            Booked by
+                                            {{
+                                                item.booking.booked_by_name ||
+                                                    (
+                                                        item.booking
+                                                            .booked_by_email
+                                                        | user
+                                                        | async
+                                                    )?.name ||
+                                                    item.booking.booked_by_email
                                             }}
                                         </div>
                                     }
@@ -204,7 +229,7 @@ interface PositionedBooking {
         </div>
     `,
     styles: [``],
-    imports: [CommonModule, MatRippleModule, MatTooltipModule],
+    imports: [CommonModule, MatRippleModule, MatTooltipModule, UserPipe],
 })
 export class ScheduleDayViewComponent {
     private _dialog = inject(MatDialog);
