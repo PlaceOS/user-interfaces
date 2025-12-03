@@ -138,6 +138,7 @@ export class DeskFlowNewComponent extends AsyncHandler implements OnInit {
     public readonly is_edit_mode = computed(() => !!this.form_value()?.id);
 
     public ngOnInit() {
+        localStorage.removeItem('PLACEOS.last_group_booking_ids');
         this._booking_form.form.patchValue({ booking_type: 'desk' });
         this._booking_form.setOptions({ type: 'desk' });
         this.subscription(
