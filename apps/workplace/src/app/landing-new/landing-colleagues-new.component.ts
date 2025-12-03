@@ -80,14 +80,14 @@ import { AddColleaguesModalComponent } from './add-colleagues-modal.component';
                 <div class="mt-2 flex w-full flex-col space-y-2">
                     @for (user of contact_list; track user) {
                         <div
-                            class="flex items-center space-x-2 rounded border border-base-300 p-2"
-                            [class.bg-primary-50]="isSelected(user)"
-                            [class.border-primary]="isSelected(user)"
+                            class="relative flex items-center space-x-2 overflow-hidden rounded border border-base-300 p-2"
+                            [class.border-secondary]="isSelected(user)"
                         >
                             <mat-checkbox
                                 [checked]="isSelected(user)"
                                 (change)="toggleSelection(user)"
                                 (click)="$event.stopPropagation()"
+                                class="-mx-1"
                             ></mat-checkbox>
                             <a-user-avatar [user]="user" />
                             <div
@@ -137,6 +137,11 @@ import { AddColleaguesModalComponent } from './add-colleagues-modal.component';
                                     </div>
                                 </button>
                             </mat-menu>
+                            @if (isSelected(user)) {
+                                <div
+                                    class="absolute inset-0 !m-0 bg-secondary opacity-10"
+                                ></div>
+                            }
                         </div>
                     }
                 </div>
