@@ -426,8 +426,10 @@ export class ScheduleStateService extends AsyncHandler {
 
         const filtered_events = events.filter(
             (ev) =>
-                !desks.find((bkn) => `${ev.meeting_id}` === `${bkn.id}`) &&
-                ev.linked_bookings[0]?.booking_type !== 'group-event',
+                !desks.find(
+                    (bkn) =>
+                        ev.meeting_id && `${ev.meeting_id}` === `${bkn.id}`,
+                ) && ev.linked_bookings[0]?.booking_type !== 'group-event',
         );
         return [
             ...filtered_events,
@@ -884,7 +886,8 @@ export class ScheduleStateService extends AsyncHandler {
             });
         await promise;
         notifySuccess(i18n('APP.WORKPLACE.SCHEDULE_END_SUCCESS'));
-        this.removeItem(item);
+        // this.removeItem(item);
+        this._poll.set(Date.now());
         this._dialog.closeAll();
     }
 }
