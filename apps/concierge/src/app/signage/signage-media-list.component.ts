@@ -129,8 +129,9 @@ import { SignageStateService } from './signage-state.service';
                         >
                             <icon class="text-2xl text-base-100"> add </icon>
                         </div>
-                        <div
+                        <button
                             preview
+                            (click)="previewItem(media)"
                             class="relative h-36 w-full overflow-hidden rounded-lg bg-base-200"
                         >
                             @if (media.thumbnail_url) {
@@ -175,7 +176,7 @@ import { SignageStateService } from './signage-state.service';
                                     {{ media.play_time / 1000 | mediaDuration }}
                                 </div>
                             }
-                        </div>
+                        </button>
                         <div
                             class="relative top-1 flex w-full items-center justify-between"
                         >

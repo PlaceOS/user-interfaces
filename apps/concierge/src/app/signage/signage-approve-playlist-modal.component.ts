@@ -8,7 +8,11 @@ import {
 } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { i18n, nextValueFrom, notifySuccess } from '@placeos/common';
-import { IconComponent, TranslatePipe } from '@placeos/components';
+import {
+    AuthenticatedImageDirective,
+    IconComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import {
     approveSignagePlaylist,
     listSignagePlaylistMediaRevisions,
@@ -72,9 +76,22 @@ import { SignageStateService } from './signage-state.service';
                             </div>
                             @for (item of current_media; track item.id) {
                                 <div
-                                    class="truncate rounded border border-base-300 bg-base-100 p-2"
+                                    class="flex items-center space-x-2 rounded border border-base-300 bg-base-100 p-2"
                                 >
-                                    {{ item.name }}
+                                    <button
+                                        class="h-10 w-10 shrink-0 overflow-hidden rounded bg-base-200"
+                                        matRipple
+                                        (click)="previewItem(item)"
+                                    >
+                                        @if (item.thumbnail_url) {
+                                            <img
+                                                auth
+                                                [source]="item.thumbnail_url"
+                                                class="h-full w-full object-cover"
+                                            />
+                                        }
+                                    </button>
+                                    <span class="truncate">{{ item.name }}</span>
                                 </div>
                             }
                         </div>
@@ -109,9 +126,22 @@ import { SignageStateService } from './signage-state.service';
                             </div>
                             @for (item of previous_media; track item.id) {
                                 <div
-                                    class="truncate rounded border border-base-300 bg-base-100 p-2"
+                                    class="flex items-center space-x-2 rounded border border-base-300 bg-base-100 p-2"
                                 >
-                                    {{ item.name }}
+                                    <button
+                                        class="h-10 w-10 shrink-0 overflow-hidden rounded bg-base-200"
+                                        matRipple
+                                        (click)="previewItem(item)"
+                                    >
+                                        @if (item.thumbnail_url) {
+                                            <img
+                                                auth
+                                                [source]="item.thumbnail_url"
+                                                class="h-full w-full object-cover"
+                                            />
+                                        }
+                                    </button>
+                                    <span class="truncate">{{ item.name }}</span>
                                 </div>
                             }
                         </div>
@@ -152,6 +182,7 @@ import { SignageStateService } from './signage-state.service';
         MatRippleModule,
         MatDialogModule,
         MatProgressSpinnerModule,
+        AuthenticatedImageDirective,
     ],
 })
 export class SignageApprovePlaylistModalComponent implements OnInit {
@@ -212,5 +243,9 @@ export class SignageApprovePlaylistModalComponent implements OnInit {
         notifySuccess(i18n('APP.CONCIERGE.SIGNAGE_PLAYLISTS_APPROVED'));
         this._dialog_ref.close();
         this._service.changed();
+    }
+
+    public previewItem(item: any) {
+        this._service.previewMedia(item);
     }
 }
