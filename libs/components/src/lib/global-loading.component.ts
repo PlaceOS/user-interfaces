@@ -27,12 +27,16 @@ import { TranslatePipe } from './translate.pipe';
                 class="pointer-events-auto fixed inset-0 z-[9998] flex items-center justify-center bg-base-300"
             >
                 <div
-                    class="absolute bottom-2 left-1/2 flex w-[24rem] max-w-[calc(100vw-2rem)] -translate-x-1/2 flex-col items-center space-y-4 rounded border border-base-300 bg-base-100 p-4"
+                    class="absolute bottom-5 left-1/2 w-[24rem] max-w-[calc(100vw-2rem)] -translate-x-1/2 rounded-lg border border-base-300 bg-base-100 p-2 text-center text-xs shadow"
                 >
                     <p class="text-center font-mono">{{ message() }}</p>
+                </div>
+                <div
+                    class="absolute bottom-2 left-1/2 w-[24rem] -translate-x-1/2 overflow-hidden rounded-full border border-base-300 shadow"
+                >
                     <mat-progress-bar
                         mode="indeterminate"
-                        class="w-2/3 scale-150 rounded"
+                        class="scale-150 rounded"
                     ></mat-progress-bar>
                 </div>
             </div>
@@ -47,8 +51,8 @@ import { TranslatePipe } from './translate.pipe';
             [loader] {
                 background-image: linear-gradient(
                     to right,
-                    #6a11cb 0%,
-                    #2575fc 100%
+                    #0d47a1 0%,
+                    #2196f3 100%
                 );
             }
         `,
