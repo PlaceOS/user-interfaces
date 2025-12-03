@@ -23,6 +23,7 @@ import {
     EventDetailsModalComponent,
     GroupEventDetailsModalComponent,
 } from '@placeos/events';
+import { UserPipe } from '@placeos/users';
 import {
     addDays,
     format,
@@ -102,7 +103,9 @@ interface Weekday {
                                             : '') +
                                         '
 ' +
-                                        (bkn.user_name || bkn.host) +
+                                        (bkn.user_name ||
+                                            (bkn.host | user | async)?.name ||
+                                            bkn.host) +
                                         '
 ' +
                                         (bkn.date | date: 'shortTime') +
@@ -140,7 +143,13 @@ interface Weekday {
         </div>
     `,
     styles: [``],
-    imports: [CommonModule, IconComponent, MatRippleModule, MatTooltipModule],
+    imports: [
+        CommonModule,
+        IconComponent,
+        MatRippleModule,
+        MatTooltipModule,
+        UserPipe,
+    ],
 })
 export class ScheduleWeekViewComponent {
     private _dialog = inject(MatDialog);

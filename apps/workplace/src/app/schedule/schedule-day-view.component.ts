@@ -136,6 +136,8 @@ interface PositionedBooking {
                                         '
 ' +
                                         (item.booking.user_name ||
+                                            (item.booking.host | user | async)
+                                                ?.name ||
                                             item.booking.host) +
                                         '
 ' +
