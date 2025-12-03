@@ -56,22 +56,22 @@ import { AddColleaguesModalComponent } from './add-colleagues-modal.component';
                         btn
                         matRipple
                         class="flex-1 space-x-2 text-sm"
-                        (click)="bookMeetingWithSelected()"
+                        (click)="bookDeskWithSelected()"
                     >
-                        <icon class="text-lg">event</icon>
+                        <icon class="text-lg">desk</icon>
                         <span>{{
-                            'APP.WORKPLACE.COLLEAGUES_BOOK_ROOM' | translate
+                            'APP.WORKPLACE.COLLEAGUES_BOOK_DESK' | translate
                         }}</span>
                     </button>
                     <button
                         btn
                         matRipple
                         class="flex-1 space-x-2 text-sm"
-                        (click)="bookDeskWithSelected()"
+                        (click)="bookMeetingWithSelected()"
                     >
-                        <icon class="text-lg">desk</icon>
+                        <icon class="text-lg">event</icon>
                         <span>{{
-                            'APP.WORKPLACE.COLLEAGUES_BOOK_DESK' | translate
+                            'APP.WORKPLACE.COLLEAGUES_BOOK_ROOM' | translate
                         }}</span>
                     </button>
                 </div>
