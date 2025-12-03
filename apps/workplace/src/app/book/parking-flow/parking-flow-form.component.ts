@@ -185,7 +185,7 @@ export class ParkingFlowFormComponent extends AsyncHandler implements OnInit {
     public readonly viewConfirm = () => {
         const { asset_id, resources, date } = this.form.getRawValue();
         console.log('Form:', this.form.getRawValue().date);
-        if (resources?.length && !asset_id) {
+        if (resources?.length && asset_id !== resources[0].id) {
             this.form.patchValue({ asset_id: resources[0].id });
         }
         if (!date) {

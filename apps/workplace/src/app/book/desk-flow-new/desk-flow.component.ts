@@ -150,6 +150,10 @@ export class DeskFlowNewComponent extends AsyncHandler implements OnInit {
     }
 
     public async confirmBooking() {
+        const { asset_id, resources } = this._booking_form.form.getRawValue();
+        if (resources?.length && asset_id !== resources[0].id) {
+            this._booking_form.form.patchValue({ asset_id: resources[0].id });
+        }
         this._booking_form.form.markAllAsTouched();
         if (!this._booking_form.form.valid) {
             return notifyError(
