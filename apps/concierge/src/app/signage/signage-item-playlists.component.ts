@@ -1,5 +1,5 @@
 import { DragDropModule } from '@angular/cdk/drag-drop';
-import { CommonModule } from '@angular/common';
+import { CommonModule, SlicePipe } from '@angular/common';
 import {
     Component,
     OnChanges,
@@ -15,6 +15,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { RouterLink } from '@angular/router';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { SignagePlaylist } from '@placeos/ts-client';
 import { SignageStateService } from './signage-state.service';
@@ -25,6 +26,7 @@ interface PlaylistCount {
 }
 
 const PLAYLIST_ITEM_COUNTS = signal<Record<string, PlaylistCount>>({});
+const PLAYLIST_ITEM_THUMBNAILS = signal<Record<string, string[]>>({});
 
 @Component({
     selector: `signage-item-playlists`,
@@ -85,6 +87,28 @@ const PLAYLIST_ITEM_COUNTS = signal<Record<string, PlaylistCount>>({});
                         >
                             <icon>drag_handle</icon>
                         </button>
+                        <a
+                            preview
+                            matRipple
+                            [routerLink]="['/signage', 'media']"
+                            [queryParams]="{ playlist: item.id }"
+                            class="h-14 w-14 overflow-hidden rounded border border-base-200 bg-base-200"
+                        >
+                            @for (
+                                media of playlist_thumbnails()[item.id] || []
+                                    | slice: 0 : 2;
+                                track media;
+                                let i = $index
+                            ) {
+                                <img
+                                    auth
+                                    [source]="media"
+                                    class="absolute h-full w-full rounded object-cover shadow-lg"
+                                    [style.top]="0.5 + i * 1 + 'rem'"
+                                    [style.left]="0.5 + i * 1 + 'rem'"
+                                />
+                            }
+                        </a>
                         <div class="w-1/2 flex-1 text-base-content">
                             <div class="truncate">
                                 {{ item.name }}
@@ -98,12 +122,14 @@ const PLAYLIST_ITEM_COUNTS = signal<Record<string, PlaylistCount>>({});
                                                       playlist_count()[item.id]
                                                           ?.count || 0,
                                               }
+                                            : playlist_count()[item.id]
+                                                  ?.count || 0
                                 }}
                             </div>
                         </div>
                         @if (isScheduled(item)) {
                             <div
-                                class="rounded border border-info bg-base-100 bg-info-light p-1 text-lg"
+                                class="rounded border border-info bg-info-light p-1 text-lg"
                                 [matTooltip]="'COMMON.SCHEDULED' | translate"
                             >
                                 <icon>event</icon>
@@ -205,6 +231,8 @@ const PLAYLIST_ITEM_COUNTS = signal<Record<string, PlaylistCount>>({});
         MatMenuModule,
         DragDropModule,
         MatTooltipModule,
+        RouterLink,
+        SlicePipe,
     ],
 })
 export class SignageItemPlaylistsComponent implements OnChanges {
@@ -244,6 +272,10 @@ export class SignageItemPlaylistsComponent implements OnChanges {
                     };
                     return m;
                 });
+                this.playlist_thumbnails.update((m) => {
+                    m[item.id] = media;
+                    return m;
+                });
             });
         }
     });
@@ -265,6 +297,7 @@ export class SignageItemPlaylistsComponent implements OnChanges {
     }
 
     public readonly playlist_count = PLAYLIST_ITEM_COUNTS;
+    public readonly playlist_thumbnails = PLAYLIST_ITEM_THUMBNAILS;
 
     public playlistCount(id: string) {
         return PLAYLIST_ITEM_COUNTS()[id]?.count || 0;
