@@ -16,7 +16,7 @@ import { MeetingFlowSpaceSelectComponent } from './meeting-flow-space-select.com
         @if (flow_view() !== 'success') {
             <div class="h-full w-full overflow-auto bg-base-200">
                 <div
-                    class="mx-auto min-h-full w-[64rem] max-w-full space-y-4 px-4 pt-4"
+                    class="mx-auto min-h-full w-[80rem] max-w-full space-y-4 px-4 pt-4"
                 >
                     <div
                         class="w-full rounded-xl border border-base-300 bg-base-100 p-4"

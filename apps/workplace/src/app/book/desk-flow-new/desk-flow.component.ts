@@ -24,7 +24,7 @@ import { NewDeskFlowSuccessComponent } from './desk-flow-success.component';
                 class="relative z-0 flex h-full w-full flex-col overflow-auto bg-base-200"
             >
                 <div
-                    class="mx-auto min-h-full w-[64rem] max-w-full flex-1 space-y-4 px-4 pt-4"
+                    class="mx-auto min-h-full w-[80rem] max-w-full flex-1 space-y-4 px-4 pt-4"
                 >
                     @if (!is_edit_mode()) {
                         <desk-flow-auto-assign />

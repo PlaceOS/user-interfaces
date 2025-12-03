@@ -25,7 +25,7 @@ import { VisitorFlowSuccessComponent } from './visitor-flow-success.component';
         @if (view() !== 'success') {
             <div class="relative z-0 h-full w-full overflow-auto bg-base-200">
                 <div
-                    class="mx-auto flex min-h-full w-[64rem] max-w-full flex-col px-4 pt-4"
+                    class="mx-auto flex min-h-full w-[80rem] max-w-full flex-col px-4 pt-4"
                 >
                     <visitor-flow-recent />
                     <div
