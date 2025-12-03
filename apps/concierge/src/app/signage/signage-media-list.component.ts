@@ -131,6 +131,7 @@ import { SignageStateService } from './signage-state.service';
                         </div>
                         <button
                             preview
+                            matRipple
                             (click)="previewItem(media)"
                             class="relative h-36 w-full overflow-hidden rounded-lg bg-base-200"
                         >
@@ -140,6 +141,11 @@ import { SignageStateService } from './signage-state.service';
                                     [source]="media.thumbnail_url"
                                     class="h-full w-full rounded-lg object-contain"
                                 />
+                                <div
+                                    class="absolute inset-0 flex items-end justify-end p-1 opacity-0 transition-opacity duration-200 hover:opacity-100"
+                                >
+                                    <icon class="text-2xl">expand_content</icon>
+                                </div>
                             }
                             <div
                                 class="absolute left-1 top-1 rounded-lg px-2 py-1 font-mono text-xs capitalize"

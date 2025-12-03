@@ -89,9 +89,18 @@ import { SignageStateService } from './signage-state.service';
                                                 [source]="item.thumbnail_url"
                                                 class="h-full w-full object-cover"
                                             />
+                                            <div
+                                                class="absolute inset-0 flex items-end justify-end p-1 opacity-0 transition-opacity duration-200 hover:opacity-100"
+                                            >
+                                                <icon class="text-lg"
+                                                    >expand_content</icon
+                                                >
+                                            </div>
                                         }
                                     </button>
-                                    <span class="truncate">{{ item.name }}</span>
+                                    <span class="truncate">{{
+                                        item.name
+                                    }}</span>
                                 </div>
                             }
                         </div>
@@ -141,7 +150,9 @@ import { SignageStateService } from './signage-state.service';
                                             />
                                         }
                                     </button>
-                                    <span class="truncate">{{ item.name }}</span>
+                                    <span class="truncate">{{
+                                        item.name
+                                    }}</span>
                                 </div>
                             }
                         </div>

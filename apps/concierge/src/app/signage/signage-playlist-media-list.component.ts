@@ -263,7 +263,8 @@ import { SignageStateService } from './signage-state.service';
                             </button>
                             <button
                                 preview
-                                class="h-16 w-[4.5rem] overflow-hidden rounded-lg bg-base-200"
+                                matRipple
+                                class="relative h-16 w-[4.5rem] overflow-hidden rounded-lg bg-base-200"
                                 (click)="previewItem(item)"
                             >
                                 <img
@@ -271,6 +272,11 @@ import { SignageStateService } from './signage-state.service';
                                     [source]="item.thumbnail_url"
                                     class="h-full w-full object-contain"
                                 />
+                                <div
+                                    class="absolute inset-0 flex items-end justify-end p-1 opacity-0 transition-opacity duration-200 hover:opacity-100"
+                                >
+                                    <icon class="text-2xl">expand_content</icon>
+                                </div>
                             </button>
                             <div
                                 class="w-1/2 flex-1 truncate text-base-content"
