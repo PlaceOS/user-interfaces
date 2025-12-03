@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { RouterModule } from '@angular/router';
-import { BookingFormService, queryBookings } from '@placeos/bookings';
+import { BookingFormService, showBooking } from '@placeos/bookings';
 import {
     Booking,
     Building,
@@ -27,8 +27,8 @@ import {
     generateGoogleCalendarLink,
     generateMicrosoftCalendarLink,
 } from '@placeos/events';
-import { getUnixTime } from 'date-fns';
-import { lastValueFrom } from 'rxjs';
+import { UserPipe } from '@placeos/users';
+import { forkJoin, lastValueFrom } from 'rxjs';
 
 @Component({
     selector: 'desk-flow-success',
@@ -127,10 +127,14 @@ import { lastValueFrom } from 'rxjs';
                                     class="bg-base-200/50 flex items-center space-x-3 rounded border border-base-200 p-2"
                                 >
                                     <a-user-avatar
-                                        [user]="{
-                                            name: booking.user_name,
-                                            email: booking.user_email,
-                                        }"
+                                        [user]="
+                                            (booking.user_email
+                                                | user
+                                                | async) || {
+                                                name: booking.user_name,
+                                                email: booking.user_email,
+                                            }
+                                        "
                                     />
                                     <div class="flex flex-1 flex-col">
                                         <span class="font-medium">{{
@@ -142,7 +146,7 @@ import { lastValueFrom } from 'rxjs';
                                                 booking.asset_id
                                         }}</span>
                                     </div>
-                                    <icon class="text-success"
+                                    <icon class="text-2xl text-success"
                                         >check_circle</icon
                                     >
                                 </div>
@@ -238,6 +242,7 @@ import { lastValueFrom } from 'rxjs';
         RouterModule,
         SanitizePipe,
         SafePipe,
+        UserPipe,
         UserAvatarComponent,
     ],
 })
@@ -259,7 +264,11 @@ export class NewDeskFlowSuccessComponent implements OnInit {
     });
 
     public get is_group() {
-        return !!this.last_event?.extension_data?.group;
+        const stored_ids = localStorage.getItem(
+            'PLACEOS.last_group_booking_ids',
+        );
+        const booking_ids: string[] = stored_ids ? JSON.parse(stored_ids) : [];
+        return booking_ids.length > 1;
     }
 
     public get group_size() {
@@ -308,23 +317,17 @@ export class NewDeskFlowSuccessComponent implements OnInit {
     }
 
     private async _loadGroupBookings() {
-        const group_name = this.last_event?.extension_data?.group;
-        if (!group_name) return;
+        const stored_ids = localStorage.getItem(
+            'PLACEOS.last_group_booking_ids',
+        );
+        const booking_ids: string[] = stored_ids ? JSON.parse(stored_ids) : [];
+        if (booking_ids.length <= 1) return;
 
         try {
-            const lvl = this._org.levelWithID(this.last_event.zones);
             const bookings = await lastValueFrom(
-                queryBookings({
-                    period_start: getUnixTime(this.last_event.date),
-                    period_end: getUnixTime(this.last_event.date_end),
-                    type: 'desk',
-                    zones: lvl.id,
-                }),
+                forkJoin(booking_ids.map((id) => showBooking(id))),
             );
-            const group_members = bookings.filter(
-                (b) => b.extension_data?.group === group_name,
-            );
-            this.group_bookings.set(group_members);
+            this.group_bookings.set(bookings);
         } catch (e) {
             console.error('Failed to load group bookings', e);
         }

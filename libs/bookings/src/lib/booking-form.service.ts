@@ -781,6 +781,7 @@ export class BookingFormService extends AsyncHandler {
             'yyyy-MM-dd',
         )}]`;
         let user_booking: Booking = null;
+        let booking_id_list: string[] = [];
         let id = '';
         for (let i = 0; i < group_members.length; i++) {
             if (!available[i]) continue;
@@ -810,9 +811,14 @@ export class BookingFormService extends AsyncHandler {
                 ).filter((_) => _),
             });
             const bkn = await this.postForm(true);
+            booking_id_list.push(bkn.id);
             if (bkn.id && !id) id = bkn.id;
             if (bkn.user_email === currentUser().email) user_booking = bkn;
         }
+        localStorage.setItem(
+            'PLACEOS.last_group_booking_ids',
+            JSON.stringify(booking_id_list),
+        );
         if (unavailable.length) {
             notifyWarn(
                 i18n('BOOKINGS.GROUP_SOME_HAVE_BOOKINGS', {
