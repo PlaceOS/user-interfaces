@@ -1,7 +1,7 @@
 import { AsyncPipe } from '@angular/common';
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -111,7 +111,10 @@ type FormType = 'single' | 'group' | 'other';
             <div class="mt-4" [formGroup]="form">
                 @if (active_form() === 'other') {
                     <div class="mb-4 w-full">
-                        <label for="user">{{ 'FORM.HOST' | translate }}</label>
+                        <label for="user"
+                            >{{ 'FORM.BOOK_FOR' | translate
+                            }}<span required>*</span></label
+                        >
                         <a-user-search-field
                             formControlName="user"
                         ></a-user-search-field>
@@ -273,6 +276,17 @@ export class DeskFlowDetailsComponent {
         }
     });
 
+    private _user_validation_sync = effect(() => {
+        const form_type = this.active_form();
+        const user_control = this.form.get('user');
+        if (form_type === 'other') {
+            user_control?.setValidators([Validators.required]);
+        } else {
+            user_control?.clearValidators();
+        }
+        user_control?.updateValueAndValidity();
+    });
+
     public readonly hide_title = settingSignal('desks.hide_title', false);
     public readonly available_days = settingSignal(
         'desks.available_period',
@@ -336,7 +350,7 @@ export class DeskFlowDetailsComponent {
         } else if (form === 'group') {
             this.form.patchValue({ user: currentUser() });
         } else {
-            this.form.patchValue({ attendees: [] });
+            this.form.patchValue({ user: null, attendees: [] });
         }
     }
 

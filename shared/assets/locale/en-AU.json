@@ -374,6 +374,7 @@
         "TITLE": "Title",
         "TITLE_REQUIRED": "A valid title is required",
         "HOST": "Host",
+        "BOOK_FOR": "Book for",
         "TIME": "Time",
         "EXPIRES_AT": "Valid Until",
         "DURATION": "Duration",
