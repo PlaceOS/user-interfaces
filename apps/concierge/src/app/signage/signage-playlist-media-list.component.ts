@@ -60,21 +60,6 @@ import { SignageStateService } from './signage-state.service';
                         {{ playlist?.name }}
                     </div>
                 </h3>
-                @if (!approved()) {
-                    <button
-                        icon
-                        matRipple
-                        class="absolute left-2 top-2 !m-0"
-                        [disabled]="!is_admin"
-                        [matTooltip]="
-                            'APP.CONCIERGE.SIGNAGE_PLAYLISTS_NOT_APPROVED'
-                                | translate
-                        "
-                        (click)="approvePlaylist(playlist)"
-                    >
-                        <icon class="text-2xl text-warning">warning</icon>
-                    </button>
-                }
                 <button
                     icon
                     matRipple
@@ -207,6 +192,26 @@ import { SignageStateService } from './signage-state.service';
                         </div>
                     }
                 </div>
+                @if (!approved()) {
+                    <button
+                        matRipple
+                        class="flex w-full items-center space-x-2 rounded border-warning bg-warning p-1 text-xs text-warning-content shadow"
+                        [disabled]="!is_admin"
+                        [matTooltip]=""
+                        (click)="approvePlaylist(playlist)"
+                    >
+                        <icon class="ml-1 text-xl text-warning-content"
+                            >warning</icon
+                        >
+                        <div>
+                            {{
+                                'APP.CONCIERGE.SIGNAGE_PLAYLISTS_NOT_APPROVED'
+                                    | translate
+                            }}
+                        </div>
+                        <div class="underline">Click here to approve</div>
+                    </button>
+                }
             </div>
             @if (loading()) {
                 <div
@@ -256,16 +261,17 @@ import { SignageStateService } from './signage-state.service';
                             >
                                 <icon>drag_handle</icon>
                             </button>
-                            <div
+                            <button
                                 preview
                                 class="h-16 w-[4.5rem] overflow-hidden rounded-lg bg-base-200"
+                                (click)="previewItem(item)"
                             >
                                 <img
                                     auth
                                     [source]="item.thumbnail_url"
                                     class="h-full w-full object-contain"
                                 />
-                            </div>
+                            </button>
                             <div
                                 class="w-1/2 flex-1 truncate text-base-content"
                             >
