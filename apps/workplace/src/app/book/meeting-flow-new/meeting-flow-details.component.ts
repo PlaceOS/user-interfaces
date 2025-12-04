@@ -91,6 +91,7 @@ import {
                             }}</label>
                             <duration-field
                                 name="duration"
+                                [time]="form_value().date"
                                 [max]="max_duration()"
                                 [min]="min_duration()"
                                 [step]="duration_step()"

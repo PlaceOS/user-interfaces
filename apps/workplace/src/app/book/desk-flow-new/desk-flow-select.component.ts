@@ -537,6 +537,7 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
                                 [time]="field('date')"
                                 [min]="min_duration()"
                                 [max]="max_duration()"
+                                [step]="duration_step()"
                                 [custom_options]="custom_duration_options()"
                                 [use_24hr]="use_24hr()"
                                 [timezone]="timezone"
