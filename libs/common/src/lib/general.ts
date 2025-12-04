@@ -159,7 +159,8 @@ export function csvToJson(csv: string, delimiter = ','): HashMap[] {
     const headers: string[] = arrData.splice(0, 1)[0];
     // Filter out blank rows
     const filtered_data = arrData.filter(
-        (row) => row.length > 0 && row.some((cell) => cell && cell.trim() !== ''),
+        (row) =>
+            row.length > 0 && row.some((cell) => cell && cell.trim() !== ''),
     );
     const elements = filtered_data.map((row) => {
         const element = {};
@@ -594,10 +595,10 @@ export function firstTruthyValueFrom<T = any>(obs: Observable<T>): Promise<T> {
 
 export function mapLastValueFrom<T = any>(
     obs: Observable<T>,
-    map_fn: (value: any) => T,
+    map_fn?: (value: any) => T,
 ): Promise<T> {
     return obs
-        ? map
+        ? map_fn
             ? lastValueFrom(obs.pipe(map(map_fn)))
             : lastValueFrom(obs)
         : Promise.resolve(null);

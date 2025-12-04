@@ -40,17 +40,19 @@ import { forkJoin, lastValueFrom } from 'rxjs';
             <main
                 class="flex flex-1 flex-col items-center justify-center space-y-2 p-8"
             >
-                <h2 class="text-center text-2xl font-medium">
-                    {{
-                        'BOOKINGS.ITEM_BOOKED'
-                            | translate
-                                : {
-                                      name:
-                                          last_event.asset_name ||
-                                          last_event.asset_id,
-                                  }
-                    }}
-                </h2>
+                @if (!is_group) {
+                    <h2 class="text-center text-2xl font-medium">
+                        {{
+                            'BOOKINGS.ITEM_BOOKED'
+                                | translate
+                                    : {
+                                          name:
+                                              last_event.asset_name ||
+                                              last_event.asset_id,
+                                      }
+                        }}
+                    </h2>
+                }
                 <img src="assets/icons/success.svg" />
                 @if (last_event) {
                     <p class="max-w-[40rem] text-center">
