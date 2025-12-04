@@ -11,8 +11,8 @@ import { HostSelectFieldComponent } from '../lib/host-select-field.component';
 jest.mock('@placeos/users');
 jest.mock('@placeos/events');
 
-import * as user_mod from '@placeos/users';
 import * as cal_fns from '@placeos/events';
+import * as user_mod from '@placeos/users';
 
 describe('HostSelectFieldComponent', () => {
     let spectator: Spectator<HostSelectFieldComponent>;

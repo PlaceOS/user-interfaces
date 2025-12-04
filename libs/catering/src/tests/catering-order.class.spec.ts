@@ -1,5 +1,5 @@
-import { getUnixTime, startOfMinute } from 'date-fns';
 import { CateringItem, CateringOrder } from '@placeos/common';
+import { getUnixTime, startOfMinute } from 'date-fns';
 
 describe('CateringOrder', () => {
     let order: CateringOrder;

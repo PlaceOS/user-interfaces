@@ -141,10 +141,10 @@ export class HelpModalComponent {
     });
 
     constructor() {
-        const initial =
-            this.items?.find((_) => _.id === this._data.active_id) ||
-            this.items?.[0] ||
-            { id: '', content: '' };
+        const initial = this.items?.find(
+            (_) => _.id === this._data.active_id,
+        ) ||
+            this.items?.[0] || { id: '', content: '' };
         this.active_item.set(initial);
     }
 }

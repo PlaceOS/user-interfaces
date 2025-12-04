@@ -7,11 +7,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { MockComponent, MockProvider } from 'ng-mocks';
 import { mockComponent } from '@placeos/common/tests';
+import { MockComponent, MockProvider } from 'ng-mocks';
 
-import { CateringItemModalComponent } from '../lib/catering-item-modal.component';
 import { CateringItem } from '@placeos/common';
+import { CateringItemModalComponent } from '../lib/catering-item-modal.component';
 
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { IconComponent } from 'libs/components/src/lib/icon.component';

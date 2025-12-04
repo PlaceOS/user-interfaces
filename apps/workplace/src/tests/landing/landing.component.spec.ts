@@ -1,5 +1,9 @@
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { Building, OrganisationService, SettingsService } from '@placeos/common';
+import {
+    Building,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
 import { mockComponent } from '@placeos/common/tests';
 import { IconComponent } from '@placeos/components';
 import { MockProvider } from 'ng-mocks';

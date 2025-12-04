@@ -1,6 +1,10 @@
 import { MatDialog } from '@angular/material/dialog';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
-import { CalendarEvent, OrganisationService, SettingsService } from '@placeos/common';
+import {
+    CalendarEvent,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
 import { set } from 'date-fns';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { StatusPillComponent } from 'libs/components/src/lib/status-pill.component';

@@ -4,6 +4,7 @@ import { CustomTooltipData, TranslatePipe } from '@placeos/components';
 
 import { MatRippleModule } from '@angular/material/core';
 import { RouterModule } from '@angular/router';
+import { ControlStateService } from '../control-state.service';
 import { VideoCallDialViewComponent } from '../video-call/video-call-dial-view.component';
 import { VideoCallStateService } from '../video-call/video-call-state.service';
 
@@ -54,12 +55,17 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
     ],
 })
 export class VideoConferenceTooltipComponent {
+    private _state = inject(ControlStateService);
     private _vc_state = inject(VideoCallStateService);
     private _ref = inject(CustomTooltipData);
 
     public readonly dial_number = signal('');
     public readonly loading = signal(false);
     public readonly call = toSignal(this._vc_state.call);
+
+    public get id(): string {
+        return this._state.id;
+    }
 
     public addDigit(digit: string) {
         this.dial_number.update((v) => v + digit);

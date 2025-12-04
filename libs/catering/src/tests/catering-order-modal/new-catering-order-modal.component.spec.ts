@@ -1,6 +1,10 @@
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
-import { OrganisationService, SettingsService, CateringItem } from '@placeos/common';
+import {
+    CateringItem,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { CateringItemDetailsComponent } from '../../lib/catering-order-modal/catering-item-details.component';

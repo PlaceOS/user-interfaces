@@ -68,8 +68,9 @@ const COMPACT_SIGNAL = signal(false);
                                         value=""
                                         (click)="setRegion(null)"
                                         >{{
-                                        'COMMON.REGION_ALL' | translate
-                                    }}</mat-option>
+                                            'COMMON.REGION_ALL' | translate
+                                        }}</mat-option
+                                    >
                                     @for (region of r_list; track region.id) {
                                         <mat-option
                                             [value]="region.id"
@@ -93,8 +94,9 @@ const COMPACT_SIGNAL = signal(false);
                                         value=""
                                         (click)="setBuilding(null)"
                                         >{{
-                                        'COMMON.BUILDING_ALL' | translate
-                                    }}</mat-option>
+                                            'COMMON.BUILDING_ALL' | translate
+                                        }}</mat-option
+                                    >
                                     @for (bld of bld_list; track bld.id) {
                                         <mat-option
                                             [value]="bld.id"

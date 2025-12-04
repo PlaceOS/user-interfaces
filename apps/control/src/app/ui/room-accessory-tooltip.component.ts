@@ -52,12 +52,7 @@ import { ControlStateService } from '../control-state.service';
         </div>
     `,
     styles: [``],
-    imports: [
-        TranslatePipe,
-        MatRippleModule,
-        IconComponent,
-        MatTooltipModule,
-    ],
+    imports: [TranslatePipe, MatRippleModule, IconComponent, MatTooltipModule],
 })
 export class RoomAccessoryTooltipComponent {
     private _state = inject(ControlStateService);

@@ -211,7 +211,9 @@ export enum ZoomDirection {
                     "
                     [sys]="id"
                     [mod]="active_camera()?.mod"
-                    [bind]="active_camera()?.index ? 'camera_presets' : 'presets'"
+                    [bind]="
+                        active_camera()?.index ? 'camera_presets' : 'presets'
+                    "
                 ></i>
             </div>
         }

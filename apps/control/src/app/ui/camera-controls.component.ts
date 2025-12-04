@@ -1,7 +1,13 @@
-import { Component, computed, DestroyRef, effect, inject, OnInit, signal } from '@angular/core';
-import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import {
+    Component,
+    DestroyRef,
+    effect,
+    inject,
+    OnInit,
+    signal,
+} from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { getModule } from '@placeos/ts-client';
-import { combineLatest } from 'rxjs';
 
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';

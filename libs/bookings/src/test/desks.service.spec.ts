@@ -8,9 +8,8 @@ jest.mock('@placeos/common');
 jest.mock('../lib/bookings.fn');
 
 import * as common_mod from '@placeos/common';
-import { StaffUser, User } from '@placeos/common';
+import { Booking, StaffUser, User } from '@placeos/common';
 import { of } from 'rxjs';
-import { Booking } from '@placeos/common';
 import * as booking_fn from '../lib/bookings.fn';
 
 describe('DesksService', () => {
@@ -78,7 +77,9 @@ describe('DesksService', () => {
     it('should allow booking a desk', async () => {
         (common_mod as any).notifyError = jest.fn();
         expect(common_mod.notifyError).not.toHaveBeenCalled();
-        (booking_fn as any).queryBookings = jest.fn(() => of([new Booking({ user_email: 'test@example.com' })]));
+        (booking_fn as any).queryBookings = jest.fn(() =>
+            of([new Booking({ user_email: 'test@example.com' })]),
+        );
         await spectator.service.bookDesk({
             desks: [new Desk()],
             host: new StaffUser({ email: 'test@example.com' }),

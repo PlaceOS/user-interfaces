@@ -1,9 +1,13 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatSliderModule } from '@angular/material/slider';
-import { BindingDirective, IconComponent, TranslatePipe } from '@placeos/components';
+import {
+    BindingDirective,
+    IconComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { map } from 'rxjs/operators';
 import { ControlStateService } from './control-state.service';
 import { DurationPipe } from './ui/duration.pipe';

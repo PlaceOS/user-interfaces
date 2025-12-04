@@ -10,7 +10,10 @@ describe('MeetingFlowSuccessComponent', () => {
         component: MeetingFlowSuccessComponent,
         providers: [
             { provide: SettingsService, useValue: { get: jest.fn(() => []) } },
-            { provide: EventFormService, useValue: { last_success: signal(null) } },
+            {
+                provide: EventFormService,
+                useValue: { last_success: signal(null) },
+            },
         ],
         declarations: [],
     });

@@ -1,6 +1,10 @@
 import { MatMenuModule } from '@angular/material/menu';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
-import { Building, OrganisationService, SettingsService } from '@placeos/common';
+import {
+    Building,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
 import { mockComponent, mockDirective } from '@placeos/common/tests';
 import { MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';

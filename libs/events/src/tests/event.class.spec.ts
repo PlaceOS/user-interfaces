@@ -174,7 +174,7 @@ describe('CalendarEvent', () => {
         });
         const guests = event.guests;
         expect(guests.length).toBeGreaterThan(0);
-        const visitor_guest = guests.find(g => g.email === 'jim@visitor.com');
+        const visitor_guest = guests.find((g) => g.email === 'jim@visitor.com');
         expect(visitor_guest).toBeTruthy();
         expect(visitor_guest?.name).toBe('Jim');
         expect(visitor_guest?.visit_expected).toBe(true);

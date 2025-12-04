@@ -20,7 +20,6 @@ import { VisitorKioskSettingsFormModalComponent } from '../ui/app-settings/visit
 import { WorkplaceSettingsFormModalComponent } from '../ui/app-settings/workplace-settings-form-modal.component';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
 import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
-import { PlaceZone } from '@placeos/ts-client';
 
 @Component({
     selector: '[app-zone-manager]',
@@ -49,13 +48,15 @@ import { PlaceZone } from '@placeos/ts-client';
                         <button btn matRipple (click)="addItem()" class="w-48">
                             <div class="flex items-center space-x-2">
                                 <icon>shadow_add</icon>
-                                <div class="pr-2">{{ addButtonText() | translate }}</div>
+                                <div class="pr-2">
+                                    {{ addButtonText() | translate }}
+                                </div>
                             </div>
                         </button>
                     </div>
                 </header>
                 <mat-tab-group
-                    class="mb-4 bg-base-200 rounded-md mx-8 overflow-hidden"
+                    class="mx-8 mb-4 overflow-hidden rounded-md bg-base-200"
                     [(selectedIndex)]="selected_tab"
                     (selectedIndexChange)="onTabChange($event)"
                 >
@@ -107,10 +108,7 @@ import { PlaceZone } from '@placeos/ts-client';
                             </div>
                         </div>
                     </button>
-                    <button
-                        mat-menu-item
-                        (click)="editBookingPanelSettings()"
-                    >
+                    <button mat-menu-item (click)="editBookingPanelSettings()">
                         <div class="flex items-center space-x-2">
                             <icon class="text-xl">event_busy</icon>
                             <div>
@@ -121,10 +119,7 @@ import { PlaceZone } from '@placeos/ts-client';
                             </div>
                         </div>
                     </button>
-                    <button
-                        mat-menu-item
-                        (click)="editVisitorKioskSettings()"
-                    >
+                    <button mat-menu-item (click)="editVisitorKioskSettings()">
                         <div class="flex items-center space-x-2">
                             <icon class="text-xl">qr_code</icon>
                             <div>

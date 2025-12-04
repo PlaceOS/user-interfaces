@@ -392,48 +392,59 @@ export class SimpleTableComponent<T extends object = any> {
 
     constructor() {
         // Handle data input changes (supports both array and Observable)
-        effect((onCleanup) => {
-            const data = this.data();
+        effect(
+            (onCleanup) => {
+                const data = this.data();
 
-            // Cleanup previous subscription if any
-            if (this._data_subscription) {
-                this._data_subscription.unsubscribe();
-                this._data_subscription = null;
-            }
-
-            if (data instanceof Observable) {
-                this._data_subscription = data.subscribe((value) => {
-                    this._data_signal.set(value || []);
-                });
-                onCleanup(() => {
-                    this._data_subscription?.unsubscribe();
+                // Cleanup previous subscription if any
+                if (this._data_subscription) {
+                    this._data_subscription.unsubscribe();
                     this._data_subscription = null;
-                });
-            } else {
-                this._data_signal.set(data || []);
-            }
-        }, { allowSignalWrites: true });
+                }
+
+                if (data instanceof Observable) {
+                    this._data_subscription = data.subscribe((value) => {
+                        this._data_signal.set(value || []);
+                    });
+                    onCleanup(() => {
+                        this._data_subscription?.unsubscribe();
+                        this._data_subscription = null;
+                    });
+                } else {
+                    this._data_signal.set(data || []);
+                }
+            },
+            { allowSignalWrites: true },
+        );
 
         // Update active columns when columns input changes
-        effect(() => {
-            this.active_columns.set(
-                this.columns().filter((_) => _.show !== false),
-            );
-        }, { allowSignalWrites: true });
+        effect(
+            () => {
+                this.active_columns.set(
+                    this.columns().filter((_) => _.show !== false),
+                );
+            },
+            { allowSignalWrites: true },
+        );
 
         // Reset page and update pagination info when data view changes
-        effect(() => {
-            const data = this.data_view();
-            const page_size_value = this.page_size();
+        effect(
+            () => {
+                const data = this.data_view();
+                const page_size_value = this.page_size();
 
-            this.selected.set([]);
-            this.page.set(0);
+                this.selected.set([]);
+                this.page.set(0);
 
-            if (page_size_value) {
-                this.total_count.set(data.length);
-                this.total_pages.set(Math.ceil(data.length / page_size_value));
-            }
-        }, { allowSignalWrites: true });
+                if (page_size_value) {
+                    this.total_count.set(data.length);
+                    this.total_pages.set(
+                        Math.ceil(data.length / page_size_value),
+                    );
+                }
+            },
+            { allowSignalWrites: true },
+        );
     }
 
     public column(key: string) {

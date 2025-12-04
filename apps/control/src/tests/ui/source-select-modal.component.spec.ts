@@ -1,7 +1,7 @@
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { IconComponent } from '@placeos/components';
 import { mockComponent } from '@placeos/common/tests';
+import { IconComponent } from '@placeos/components';
 
 import { SourceSelectModalComponent } from '../../app/ui/source-select-modal.component';
 import { SourceSelectComponent } from '../../app/ui/source-select.component';

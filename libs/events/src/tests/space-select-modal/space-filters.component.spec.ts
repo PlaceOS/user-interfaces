@@ -20,8 +20,8 @@ import {
     DurationFieldComponent,
     TimeFieldComponent,
 } from '@placeos/form-fields';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { mockComponent } from 'libs/common/src/tests/test-helpers';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { MockModule, MockProvider } from 'ng-mocks';
 import { BehaviorSubject, of } from 'rxjs';
 import { SpaceFiltersComponent } from '../../lib/space-select-modal/space-filters.component';

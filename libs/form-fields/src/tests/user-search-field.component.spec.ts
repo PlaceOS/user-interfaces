@@ -12,8 +12,6 @@ import { User } from '@placeos/common';
 import { generateMockUser } from '@placeos/users';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 
-import * as users_fn from '@placeos/users';
-
 jest.mock('@placeos/users', () => {
     return {
         __esModule: true, //    <----- this __esModule: true is important
@@ -70,10 +68,26 @@ describe('UserSearchFieldComponent', () => {
 
     it('should allow limiting the selection of users', fakeAsync(() => {
         const user_list = [
-            new User({ id: '1', name: 'Test User 1', email: 'test1@example.com' }),
-            new User({ id: '2', name: 'Test User 2', email: 'test2@example.com' }),
-            new User({ id: '3', name: 'Test User 3', email: 'test3@example.com' }),
-            new User({ id: '4', name: 'Test User 4', email: 'test4@example.com' }),
+            new User({
+                id: '1',
+                name: 'Test User 1',
+                email: 'test1@example.com',
+            }),
+            new User({
+                id: '2',
+                name: 'Test User 2',
+                email: 'test2@example.com',
+            }),
+            new User({
+                id: '3',
+                name: 'Test User 3',
+                email: 'test3@example.com',
+            }),
+            new User({
+                id: '4',
+                name: 'Test User 4',
+                email: 'test4@example.com',
+            }),
         ];
 
         const spec = createComponent({ props: { options: user_list } });

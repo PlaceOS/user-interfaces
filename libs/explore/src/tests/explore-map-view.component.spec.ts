@@ -29,8 +29,8 @@ jest.mock('libs/users/src/lib/staff.fn');
 jest.mock('libs/common/src/lib/notifications');
 
 import * as ts_client from '@placeos/ts-client';
-import * as user_mod from 'libs/users/src/lib/staff.fn';
 import * as common_mod from 'libs/common/src/lib/notifications';
+import * as user_mod from 'libs/users/src/lib/staff.fn';
 
 describe('ExploreMapViewComponent', () => {
     let spectator: SpectatorRouting<ExploreMapViewComponent>;
@@ -87,7 +87,9 @@ describe('ExploreMapViewComponent', () => {
 
     afterEach(() => {
         if (spectator) {
-            (spectator.inject(ExploreStateService).setFeatures as any).mockReset();
+            (
+                spectator.inject(ExploreStateService).setFeatures as any
+            ).mockReset();
         }
     });
 

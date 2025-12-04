@@ -1,18 +1,13 @@
-import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
-import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { Component, computed, DestroyRef, inject, OnInit } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatMenuModule } from '@angular/material/menu';
-import {
-    i18n,
-    OrganisationService,
-    SettingsService,
-} from '@placeos/common';
+import { i18n, OrganisationService, SettingsService } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
     CustomTooltipComponent,
     IconComponent,
 } from '@placeos/components';
 import { isTrusted } from '@placeos/ts-client';
-import { combineLatest } from 'rxjs';
 import { debounceTime, map } from 'rxjs/operators';
 import { ControlStateService } from './control-state.service';
 import { CameraTooltipComponent } from './ui/camera-tooltip.component';
@@ -163,9 +158,12 @@ export class TopbarHeaderComponent implements OnInit {
     private readonly _lights_list = toSignal(this._state.lights, {
         initialValue: [],
     });
-    private readonly _room_accessories = toSignal(this._state.room_accessories, {
-        initialValue: [] as any[],
-    });
+    private readonly _room_accessories = toSignal(
+        this._state.room_accessories,
+        {
+            initialValue: [] as any[],
+        },
+    );
     private readonly _has_vc = toSignal(this._call.connected);
     private readonly _call_state = toSignal(this._call.call);
     private readonly _microphones = toSignal(this._state.microphones, {
@@ -180,9 +178,12 @@ export class TopbarHeaderComponent implements OnInit {
     private readonly _help_items = toSignal(this._state.help_items, {
         initialValue: [] as any[],
     });
-    private readonly _hide_join_button = toSignal(this._state.hide_join_button, {
-        initialValue: false,
-    });
+    private readonly _hide_join_button = toSignal(
+        this._state.hide_join_button,
+        {
+            initialValue: false,
+        },
+    );
     private readonly _lighting_levels = toSignal(this._state.lighting_levels);
 
     public readonly cmp = {
@@ -317,8 +318,7 @@ export class TopbarHeaderComponent implements OnInit {
         actions[TOOLTIP.MICS].show =
             mics?.length > 0 || microphones?.length > 0;
         actions[TOOLTIP.JOIN].show =
-            !hide_join_button &&
-            Object.keys(join_modes || {}).length > 1;
+            !hide_join_button && Object.keys(join_modes || {}).length > 1;
         actions[TOOLTIP.JOIN].enabled = (joined as any)?.room_ids?.length > 1;
         actions[TOOLTIP.CAMERA].show = cams?.length > 0 && !speaker_track;
         actions[TOOLTIP.HELP].show = help_items?.length > 0;
