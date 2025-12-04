@@ -322,8 +322,11 @@ export class DeskFlowDetailsComponent {
             settingSignal('desks.custom_duration_options')() ||
             settingSignal('bookings.custom_duration_options', [] as number[])(),
     );
-    public readonly can_book_lockers = settingSignal('desks.can_book_lockers');
-    public readonly can_recurr = settingSignal('desks.allow_recurrence');
+    public readonly can_book_lockers = settingSignal(
+        'desks.can_book_lockers',
+        false,
+    );
+    public readonly can_recurr = settingSignal('desks.allow_recurrence', false);
     public readonly allow_time_changes = computed(
         () => settingSignal('desks.allow_time_changes')() !== false,
     );
