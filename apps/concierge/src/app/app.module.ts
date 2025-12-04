@@ -32,11 +32,12 @@ import localeFr from '@angular/common/locales/fr';
 import localeIt from '@angular/common/locales/it';
 import localeJa from '@angular/common/locales/ja';
 import localeZh from '@angular/common/locales/zh';
-import { LocaleService } from '@placeos/common';
+import { LocaleService, UPLOAD_PERMISSIONS_MODAL } from '@placeos/common';
 import {
     GlobalBannerComponent,
     GlobalLoadingComponent,
 } from '@placeos/components';
+import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-permissions-modal.component';
 import { AppComponent } from './app.component';
 
 @NgModule({
@@ -76,6 +77,10 @@ import { AppComponent } from './app.component';
             provide: LOCALE_ID,
             deps: [LocaleService],
             useFactory: (localeService: LocaleService) => localeService.locale,
+        },
+        {
+            provide: UPLOAD_PERMISSIONS_MODAL,
+            useValue: UploadPermissionsModalComponent,
         },
         provideHttpClient(withInterceptorsFromDi()),
     ],

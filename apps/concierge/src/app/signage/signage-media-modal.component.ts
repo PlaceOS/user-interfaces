@@ -1,4 +1,4 @@
-import { Component, OnDestroy, inject, signal } from '@angular/core';
+import { Component, inject, OnDestroy, signal } from '@angular/core';
 import {
     FormControl,
     FormGroup,
@@ -10,7 +10,12 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSliderModule } from '@angular/material/slider';
-import { i18n, notifyError, notifySuccess } from '@placeos/common';
+import {
+    i18n,
+    notifyError,
+    notifySuccess,
+    UPLOAD_PERMISSIONS_MODAL,
+} from '@placeos/common';
 import {
     AuthenticatedImageDirective,
     FullscreenModalShellComponent,
@@ -24,6 +29,7 @@ import {
     updateSignageMedia,
 } from '@placeos/ts-client';
 import { addYears, endOfDay, getUnixTime, startOfDay } from 'date-fns';
+import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-permissions-modal.component';
 import { lastValueFrom } from 'rxjs';
 
 @Component({
@@ -219,6 +225,12 @@ import { lastValueFrom } from 'rxjs';
         </fullscreen-modal-shell>
     `,
     styles: [``],
+    providers: [
+        {
+            provide: UPLOAD_PERMISSIONS_MODAL,
+            useValue: UploadPermissionsModalComponent,
+        },
+    ],
     imports: [
         FullscreenModalShellComponent,
         ReactiveFormsModule,

@@ -90,7 +90,7 @@ export class UploadsService extends AsyncHandler {
         this._upload_list.next(in_progress_list);
     }
 
-    public uploadFileWithPermissions(file: File, default_public = true) {
+    public uploadFileWithPermissions(file: File, default_public = false) {
         if (!this._permissions_modal) {
             log(
                 'UPLOAD',
