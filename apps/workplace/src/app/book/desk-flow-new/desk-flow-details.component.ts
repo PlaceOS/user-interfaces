@@ -171,10 +171,13 @@ type FormType = 'single' | 'group' | 'other';
                         }}</label>
                         <duration-field
                             name="duration"
+                            [time]="form_value().date"
                             [max]="max_duration()"
                             [min]="min_duration()"
                             [custom_options]="custom_duration_options()"
                             [step]="duration_step()"
+                            [use_24hr]="use_24hr()"
+                            [timezone]="timezone"
                             formControlName="duration"
                         />
                     </div>

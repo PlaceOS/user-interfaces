@@ -10,6 +10,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import {
     i18n,
     notifyError,
+    OrganisationService,
     settingSignal,
     SettingsService,
 } from '@placeos/common';
@@ -94,6 +95,8 @@ import {
                                 [min]="min_duration()"
                                 [step]="duration_step()"
                                 [custom_options]="custom_duration_options()"
+                                [use_24hr]="use_24hr()"
+                                [timezone]="timezone"
                                 formControlName="duration"
                                 [disabled]="form_value().all_day"
                             />
@@ -255,6 +258,7 @@ export class MeetingFlowDetailsComponent {
     private _router = inject(Router);
     private _event_form = inject(EventFormService);
     private _settings = inject(SettingsService);
+    private _org = inject(OrganisationService);
 
     public readonly form = signal(this._event_form.form);
     public readonly options = this._event_form.filters$;
@@ -268,10 +272,17 @@ export class MeetingFlowDetailsComponent {
     public readonly min_duration = settingSignal('events.min_duration', 30);
     public readonly max_duration = settingSignal('events.max_duration', 8 * 60);
     public readonly duration_step = settingSignal('events.duration_step', 15);
+    public readonly use_24hr = settingSignal('use_24_hour_time', false);
     public readonly custom_duration_options = settingSignal<number[]>(
         'events.custom_duration_options',
         [],
     );
+
+    public get timezone() {
+        return this._settings.get('app.events.use_building_timezone')
+            ? this._org.building.timezone
+            : '';
+    }
     public readonly has_title = computed(
         () => !!this.form_value()?.title?.trim(),
     );

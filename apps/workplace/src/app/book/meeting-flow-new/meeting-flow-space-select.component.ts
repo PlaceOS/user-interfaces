@@ -240,6 +240,8 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                                     [time]="field('date')"
                                     [max]="max_duration()"
                                     [min]="min_duration()"
+                                    [step]="duration_step()"
+                                    [custom_options]="custom_duration_options()"
                                     [use_24hr]="use_24hr()"
                                     [timezone]="timezone"
                                 />
@@ -558,8 +560,9 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                                 class="w-1/3 flex-1"
                                 formControlName="duration"
                                 [time]="field('date')"
-                                [min]="min_duration()"
                                 [max]="max_duration()"
+                                [min]="min_duration()"
+                                [step]="duration_step()"
                                 [custom_options]="custom_duration_options()"
                                 [use_24hr]="use_24hr()"
                                 [timezone]="timezone"
@@ -688,6 +691,7 @@ export class MeetingFlowSpaceSelectComponent {
     public readonly use_region = settingSignal('use_region', false);
     public readonly min_duration = settingSignal('events.min_duration', 30);
     public readonly max_duration = settingSignal('events.max_duration', 8 * 60);
+    public readonly duration_step = settingSignal('events.duration_step', 15);
     public readonly custom_duration_options = settingSignal<number[]>(
         'events.custom_duration_options',
         [],
