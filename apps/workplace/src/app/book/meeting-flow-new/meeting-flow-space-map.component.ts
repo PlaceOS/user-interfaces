@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import {
     Component,
     computed,
@@ -15,7 +16,13 @@ import {
     SettingsService,
     Space,
 } from '@placeos/common';
-import { InteractiveMapComponent } from '@placeos/components';
+import {
+    AuthenticatedImageDirective,
+    IconComponent,
+    InteractiveMapComponent,
+    LevelPipe,
+    TranslatePipe,
+} from '@placeos/components';
 import { EventFormService } from '@placeos/events';
 import { DEFAULT_COLOURS } from '@placeos/explore';
 
@@ -33,9 +40,65 @@ import { DEFAULT_COLOURS } from '@placeos/explore';
                 [options]="{ controls: true }"
             ></interactive-map>
         </div>
+        @if (selected_space()) {
+            <div
+                class="absolute bottom-4 left-4 right-16 z-10 flex items-center rounded-lg border border-success bg-base-100 p-2 shadow-lg"
+            >
+                <div
+                    class="relative mr-2 flex h-12 w-12 min-w-[3rem] items-center justify-center overflow-hidden rounded-lg bg-base-200"
+                >
+                    <icon
+                        class="absolute left-0 top-0 rounded-full bg-base-200 text-success"
+                        >task_alt</icon
+                    >
+                    @if (selected_space().images?.length) {
+                        <img
+                            auth
+                            class="h-full object-cover"
+                            [source]="selected_space().images[0]"
+                        />
+                    } @else {
+                        <img
+                            class="m-auto max-h-8 max-w-8"
+                            src="assets/icons/room-placeholder.svg"
+                        />
+                    }
+                </div>
+                <div class="min-w-0 flex-1">
+                    <div class="truncate font-medium">
+                        {{
+                            selected_space().display_name ||
+                                selected_space().name ||
+                                selected_space().id
+                        }}
+                    </div>
+                    <div class="flex items-center text-sm opacity-60">
+                        <icon class="-ml-1 text-lg">place</icon>
+                        <p class="truncate">
+                            @let lvl = selected_space().zones | level;
+                            {{
+                                selected_space().location ||
+                                    lvl?.display_name ||
+                                    lvl?.name
+                            }}
+                        </p>
+                    </div>
+                </div>
+                <div class="ml-2 text-xs font-medium text-success">
+                    {{ 'COMMON.SELECTED' | translate }}
+                </div>
+            </div>
+        }
     `,
     styles: [``],
-    imports: [InteractiveMapComponent],
+    imports: [
+        CommonModule,
+        InteractiveMapComponent,
+        IconComponent,
+        TranslatePipe,
+        LevelPipe,
+        AuthenticatedImageDirective,
+    ],
 })
 export class MeetingFlowSpaceMapComponent
     extends AsyncHandler
@@ -64,6 +127,16 @@ export class MeetingFlowSpaceMapComponent
     public readonly map_url = computed(() => this.level()?.map_id || '');
     public readonly space_list = toSignal(this._event_form.spaces$);
     public readonly features = signal([]);
+
+    public readonly selected_space = computed(() => {
+        const selected_ids = this.selected_spaces();
+        if (!selected_ids?.length) return null;
+        const available = this.available_spaces();
+        return (
+            available.find((space) => selected_ids.includes(space.id)) || null
+        );
+    });
+
     public readonly actions = computed(() =>
         this.available_spaces().map((space) => ({
             id: space.map_id,

@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import {
     Component,
     computed,
@@ -16,7 +17,11 @@ import {
     SettingsService,
     Space,
 } from '@placeos/common';
-import { InteractiveMapComponent } from '@placeos/components';
+import {
+    IconComponent,
+    InteractiveMapComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { DEFAULT_COLOURS } from '@placeos/explore';
 
 @Component({
@@ -33,9 +38,62 @@ import { DEFAULT_COLOURS } from '@placeos/explore';
                 [options]="{ controls: true }"
             ></interactive-map>
         </div>
+        @if (selected_desk()) {
+            <div
+                class="absolute bottom-4 left-4 right-16 z-10 flex items-center rounded-lg border border-success bg-base-100 p-2 shadow-lg"
+            >
+                <div
+                    class="relative mr-2 flex h-12 w-12 min-w-[3rem] items-center justify-center overflow-hidden rounded-lg bg-base-200"
+                >
+                    <icon
+                        class="absolute left-0 top-0 rounded-full bg-base-200 text-success"
+                        >task_alt</icon
+                    >
+                    @if (selected_desk().images?.length) {
+                        <img
+                            auth
+                            class="h-full object-cover"
+                            [source]="selected_desk().images[0]"
+                        />
+                    } @else {
+                        <img
+                            class="m-auto max-h-8 max-w-8"
+                            src="assets/icons/desk-placeholder.svg"
+                        />
+                    }
+                </div>
+                <div class="min-w-0 flex-1">
+                    <div class="truncate font-medium">
+                        {{
+                            selected_desk().display_name ||
+                                selected_desk().name ||
+                                selected_desk().id
+                        }}
+                    </div>
+                    <div class="flex items-center text-sm opacity-60">
+                        <icon class="-ml-1 text-lg">place</icon>
+                        <p class="truncate">
+                            {{
+                                selected_desk().location ||
+                                    selected_desk().zone?.display_name ||
+                                    selected_desk().zone?.name
+                            }}
+                        </p>
+                    </div>
+                </div>
+                <div class="ml-2 text-xs font-medium text-success">
+                    {{ 'COMMON.SELECTED' | translate }}
+                </div>
+            </div>
+        }
     `,
     styles: [``],
-    imports: [InteractiveMapComponent],
+    imports: [
+        CommonModule,
+        InteractiveMapComponent,
+        IconComponent,
+        TranslatePipe,
+    ],
 })
 export class DeskFlowSelectMapComponent extends AsyncHandler implements OnInit {
     private _booking_form = inject(BookingFormService);
@@ -87,6 +145,13 @@ export class DeskFlowSelectMapComponent extends AsyncHandler implements OnInit {
     public readonly map_url = computed(() => this.level()?.map_id || '');
     public readonly resource_list = toSignal(this._booking_form.resources);
     public readonly features = signal([]);
+
+    public readonly selected_desk = computed(() => {
+        const selected_ids = this.selected_items();
+        if (!selected_ids?.length) return null;
+        const available = this.current_available();
+        return available.find((desk) => selected_ids.includes(desk.id)) || null;
+    });
     public readonly actions = computed(() =>
         this.current_available().map((space) => ({
             id: space.map_id,
