@@ -228,23 +228,29 @@ export class Booking {
                 }),
             );
         this.booking_end =
-            Math.floor(data.date / 1000) + data.duration * 60 ||
             data.booking_end ||
+            Math.floor(data.date / 1000) + data.duration * 60 ||
             getUnixTime(
                 addMinutes(this.booking_start * 1000, data.duration || 60),
             );
         this.booking_type = data.booking_type || ' ';
         this.type = data.type || data.booking_type || 'booking';
         this.date = data.date || this.booking_start * 1000 || Date.now();
-        this.duration =
-            data.duration ||
-            Math.abs(
-                differenceInMinutes(
-                    this.booking_start * 1000,
-                    this.booking_end * 1000,
-                ),
-            ) ||
-            60;
+        this.duration = data.booking_end
+            ? Math.abs(
+                  differenceInMinutes(
+                      this.booking_start * 1000,
+                      this.booking_end * 1000,
+                  ),
+              ) || 60
+            : data.duration ||
+              Math.abs(
+                  differenceInMinutes(
+                      this.booking_start * 1000,
+                      this.booking_end * 1000,
+                  ),
+              ) ||
+              60;
         this.date_end =
             this.booking_end * 1000 || this.date + this.duration * 60 * 1000;
         this.timezone =
