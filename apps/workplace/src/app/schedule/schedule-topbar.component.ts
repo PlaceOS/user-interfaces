@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, model } from '@angular/core';
+import { Component, computed, model } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { IconComponent, TranslatePipe } from '@placeos/components';
-import { addDays, subDays } from 'date-fns';
+import { addDays, isSameDay, subDays } from 'date-fns';
 
 @Component({
     selector: `schedule-topbar`,
@@ -19,23 +19,32 @@ import { addDays, subDays } from 'date-fns';
                 >
                     {{ 'COMMON.TODAY' | translate }}
                 </button>
-                <button
-                    btn
-                    matRipple
-                    class="inverse min-h-11 min-w-11 p-0"
-                    (click)="previousDate()"
-                >
-                    <icon class="text-2xl">keyboard_arrow_left</icon>
-                </button>
-                <button
-                    btn
-                    matRipple
-                    class="inverse min-h-11 min-w-11 p-0"
-                    (click)="nextDate()"
-                >
-                    <icon class="text-2xl">keyboard_arrow_right</icon>
-                </button>
-                <div>{{ date() | date: 'EEE, dd MMM' }}</div>
+                @if (view() !== 'list') {
+                    <button
+                        btn
+                        matRipple
+                        class="inverse min-h-11 min-w-11 p-0"
+                        (click)="previousDate()"
+                    >
+                        <icon class="text-2xl">keyboard_arrow_left</icon>
+                    </button>
+                    <button
+                        btn
+                        matRipple
+                        class="inverse min-h-11 min-w-11 p-0"
+                        (click)="nextDate()"
+                    >
+                        <icon class="text-2xl">keyboard_arrow_right</icon>
+                    </button>
+                }
+                @if (has_date_range()) {
+                    <div>
+                        {{ date() | date: 'dd MMM' }} -
+                        {{ end_date() | date: 'dd MMM yyyy' }}
+                    </div>
+                } @else {
+                    <div>{{ date() | date: 'EEE, dd MMM' }}</div>
+                }
                 <div
                     class="rounded-lg border border-base-300 px-2 py-1 text-xs"
                 >
@@ -88,8 +97,20 @@ import { addDays, subDays } from 'date-fns';
 export class ScheduleTopbarComponent {
     public readonly view = model<'day' | 'week' | 'list'>('list');
     public readonly date = model(Date.now());
+    public readonly end_date = model<number | null>(null);
 
-    public readonly resetDate = () => this.date.set(Date.now());
+    public readonly has_date_range = computed(() => {
+        const end = this.end_date();
+        const start = this.date();
+        return (
+            this.view() === 'list' && end !== null && !isSameDay(start, end)
+        );
+    });
+
+    public readonly resetDate = () => {
+        this.date.set(Date.now());
+        this.end_date.set(null);
+    };
     public readonly previousDate = () =>
         this.date.set(
             subDays(this.date(), this.view() === 'week' ? 7 : 1).valueOf(),

@@ -30,6 +30,8 @@ import { ScheduleWeekViewComponent } from './schedule-week-view.component';
             [(view)]="view"
             [date]="date()"
             (dateChange)="setDate($event)"
+            [end_date]="end_date()"
+            (end_dateChange)="setEndDate($event)"
         />
         <div
             class="relative flex h-1/2 flex-1 flex-col bg-base-200 sm:flex-row"
@@ -37,6 +39,7 @@ import { ScheduleWeekViewComponent } from './schedule-week-view.component';
             <schedule-sidebar
                 class="relative z-50 hidden bg-base-100 sm:block"
                 [bookings]="b_list()"
+                [view]="view()"
             ></schedule-sidebar>
             <div class="flex h-full flex-1 flex-col overflow-auto">
                 <schedule-filters
@@ -61,6 +64,7 @@ import { ScheduleWeekViewComponent } from './schedule-week-view.component';
                     <div class="p-4">
                         <schedule-list-view
                             [date]="date()"
+                            [end_date]="end_date()"
                             [bookings]="bookings()"
                             [loading]="loading()"
                             class="space-y-3"
@@ -116,7 +120,9 @@ export class ScheduleComponent extends AsyncHandler implements OnInit {
 
     public readonly view = signal<'day' | 'week' | 'list'>('day');
     public readonly date = this._state.date;
+    public readonly end_date = this._state.end_date;
     public readonly setDate = (d) => this._state.setDate(d);
+    public readonly setEndDate = (d) => this._state.setEndDate(d);
 
     public get period() {
         return this._state.getOptions().period;
@@ -137,7 +143,11 @@ export class ScheduleComponent extends AsyncHandler implements OnInit {
                     this.view.set(params.get('view') as any);
                     if (this.view() === 'week') {
                         this.setOptions({ period: 'week' });
-                    } else this.setOptions({ period: 'day' });
+                    } else if (this.view() === 'list') {
+                        this.setOptions({ period: 'range' });
+                    } else {
+                        this.setOptions({ period: 'day' });
+                    }
                 }
             }),
         );

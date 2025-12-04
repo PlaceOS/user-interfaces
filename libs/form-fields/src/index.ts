@@ -2,6 +2,7 @@ export * from './lib/action-field.component';
 export * from './lib/counter.component';
 export * from './lib/date-calendar.component';
 export * from './lib/date-field.component';
+export * from './lib/date-range-calendar.component';
 export * from './lib/date-range-field.component';
 export * from './lib/duration-field.component';
 export * from './lib/host-select-field.component';

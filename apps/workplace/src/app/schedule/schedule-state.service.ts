@@ -72,7 +72,7 @@ import {
 } from 'rxjs/operators';
 
 export interface ScheduleOptions {
-    period: 'day' | 'week' | 'month';
+    period: 'day' | 'week' | 'month' | 'range';
 }
 
 @Injectable({
@@ -103,6 +103,7 @@ export class ScheduleStateService extends AsyncHandler {
         ],
     });
     private _date = signal(Date.now());
+    private _end_date = signal<number | null>(null);
 
     private _deleted: string[] = [];
 
@@ -164,8 +165,10 @@ export class ScheduleStateService extends AsyncHandler {
     public readonly options = this._options.asReadonly();
     /** Currently selected date */
     public readonly filters = this._filters.asReadonly();
-    /** Currently selected date */
+    /** Currently selected date (start date for range) */
     public readonly date = this._date.asReadonly();
+    /** End date for range selection (list view only) */
+    public readonly end_date = this._end_date.asReadonly();
     /** Whether events and bookings are loading */
     public readonly loading = this._loading.asReadonly();
 
@@ -216,6 +219,7 @@ export class ScheduleStateService extends AsyncHandler {
 
     private readonly _update$ = combineLatest([
         toObservable(this._date),
+        toObservable(this._end_date),
         toObservable(this._poll),
     ]).pipe(
         debounceTime(500),
@@ -224,7 +228,7 @@ export class ScheduleStateService extends AsyncHandler {
 
     private readonly ws_events = toSignal(
         combineLatest([this._space_bookings, this._update$]).pipe(
-            map(([_, [date]]) => {
+            map(([_, [date, _end_date]]) => {
                 const user = currentUser();
                 return _.filter(
                     (_) =>
@@ -246,22 +250,26 @@ export class ScheduleStateService extends AsyncHandler {
     /** List of calendar events for the selected date */
     private readonly api_events = toSignal(
         combineLatest([this._update$, toObservable(this._options)]).pipe(
-            switchMap(([[date], options]) => {
+            switchMap(([[date, end_date], options]) => {
                 const period = options.period;
                 const query = {
                     period_start: getUnixTime(
-                        period === 'day'
+                        period === 'range'
                             ? startOfDay(date)
-                            : startOfWeek(date, {
-                                  weekStartsOn: this.offset_weekday as any,
-                              }),
+                            : period === 'day'
+                              ? startOfDay(date)
+                              : startOfWeek(date, {
+                                    weekStartsOn: this.offset_weekday as any,
+                                }),
                     ),
                     period_end: getUnixTime(
-                        period === 'day'
-                            ? endOfDay(date)
-                            : endOfWeek(date, {
-                                  weekStartsOn: this.offset_weekday as any,
-                              }),
+                        period === 'range'
+                            ? endOfDay(end_date || date)
+                            : period === 'day'
+                              ? endOfDay(date)
+                              : endOfWeek(date, {
+                                    weekStartsOn: this.offset_weekday as any,
+                                }),
                     ),
                 };
                 return this._settings.get('app.events.use_bookings')
@@ -296,8 +304,8 @@ export class ScheduleStateService extends AsyncHandler {
     /** List of desk bookings for the selected date */
     public readonly visitors = toSignal(
         combineLatest([this._update$, toObservable(this.options)]).pipe(
-            switchMap(([[date], options]) =>
-                this._bookingQuery('visitor', options.period, date),
+            switchMap(([[date, end_date], options]) =>
+                this._bookingQuery('visitor', options.period, date, end_date),
             ),
             map((_) => _.filter((_) => !_.parent_id && !_.linked_event)),
             tap(() =>
@@ -310,8 +318,8 @@ export class ScheduleStateService extends AsyncHandler {
     /** List of desk bookings for the selected date */
     public readonly desks = toSignal(
         combineLatest([this._update$, toObservable(this.options)]).pipe(
-            switchMap(([[date], options]) =>
-                this._bookingQuery('desk', options.period, date),
+            switchMap(([[date, end_date], options]) =>
+                this._bookingQuery('desk', options.period, date, end_date),
             ),
             tap(() =>
                 this.timeout('end_loading', () => this._loading.set(false)),
@@ -323,8 +331,8 @@ export class ScheduleStateService extends AsyncHandler {
     /** List of parking bookings for the selected date */
     public readonly parking = toSignal(
         combineLatest([this._update$, toObservable(this.options)]).pipe(
-            switchMap(([[date], options]) =>
-                this._bookingQuery('parking', options.period, date),
+            switchMap(([[date, end_date], options]) =>
+                this._bookingQuery('parking', options.period, date, end_date),
             ),
             tap(() =>
                 this.timeout('end_loading', () => this._loading.set(false)),
@@ -339,8 +347,8 @@ export class ScheduleStateService extends AsyncHandler {
     );
     public readonly locker_bookings = toSignal(
         combineLatest([this._update$, toObservable(this.options)]).pipe(
-            switchMap(([[date], options]) =>
-                this._bookingQuery('locker', options.period, date),
+            switchMap(([[date, end_date], options]) =>
+                this._bookingQuery('locker', options.period, date, end_date),
             ),
             tap(() =>
                 this.timeout('end_loading', () => this._loading.set(false)),
@@ -618,6 +626,15 @@ export class ScheduleStateService extends AsyncHandler {
         this._date.set(date);
     }
 
+    public setEndDate(date: number | null) {
+        this._end_date.set(date);
+    }
+
+    public setDateRange(start: number, end: number | null) {
+        this._date.set(start);
+        this._end_date.set(end);
+    }
+
     public removeItem(item) {
         this.setAsDeleted(
             item.instance ? `${item.id}|${item.instance}` : item.id,
@@ -664,23 +681,28 @@ export class ScheduleStateService extends AsyncHandler {
 
     private _bookingQuery(
         type: BookingType,
-        period: 'day' | 'week' | 'month',
+        period: 'day' | 'week' | 'month' | 'range',
         date: number,
+        end_date?: number | null,
     ) {
         return queryBookings({
             period_start: getUnixTime(
-                period === 'day'
+                period === 'range'
                     ? startOfDay(date)
-                    : startOfWeek(date, {
-                          weekStartsOn: this.offset_weekday,
-                      }),
+                    : period === 'day'
+                      ? startOfDay(date)
+                      : startOfWeek(date, {
+                            weekStartsOn: this.offset_weekday,
+                        }),
             ),
             period_end: getUnixTime(
-                period === 'day'
-                    ? endOfDay(date)
-                    : endOfWeek(date, {
-                          weekStartsOn: this.offset_weekday,
-                      }),
+                period === 'range'
+                    ? endOfDay(end_date || date)
+                    : period === 'day'
+                      ? endOfDay(date)
+                      : endOfWeek(date, {
+                            weekStartsOn: this.offset_weekday,
+                        }),
             ),
             type,
             include_checked_out: true,

@@ -4,7 +4,15 @@ import { BookingCardComponent } from '@placeos/bookings';
 import { CalendarEvent } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
 import { EventCardComponent } from '@placeos/events';
-import { format, isSameDay, parse } from 'date-fns';
+import {
+    endOfDay,
+    format,
+    isAfter,
+    isBefore,
+    isSameDay,
+    parse,
+    startOfDay,
+} from 'date-fns';
 import { ScheduleStateService } from './schedule-state.service';
 
 @Component({
@@ -42,7 +50,12 @@ import { ScheduleStateService } from './schedule-state.service';
                 <img src="assets/img/no-events.svg" class="mr-4" />
                 <p class="opacity-30">
                     {{ 'APP.WORKPLACE.SCHEDULE_EMPTY' | translate }}
-                    {{ date() | date: 'EEEE, dd LLL yyyy' }}
+                    @if (end_date() && !isSameDayCheck(date(), end_date())) {
+                        {{ date() | date: 'dd LLL yyyy' }} -
+                        {{ end_date() | date: 'dd LLL yyyy' }}
+                    } @else {
+                        {{ date() | date: 'EEEE, dd LLL yyyy' }}
+                    }
                 </p>
             </div>
         }
@@ -58,9 +71,11 @@ import { ScheduleStateService } from './schedule-state.service';
 export class ScheduleListViewComponent {
     private _state = inject(ScheduleStateService);
     public readonly date = input(Date.now());
+    public readonly end_date = input<number | null>(null);
     public readonly bookings = input<any[]>([]);
     public readonly loading = input<any[]>([]);
     public readonly isEvent = (i) => i instanceof CalendarEvent;
+    public readonly isSameDayCheck = (a: number, b: number) => isSameDay(a, b);
 
     public readonly edit_fn = (i) => this._state.edit(i);
     public readonly edit_booking_fn = (i) => this._state.editBooking(i);
@@ -70,7 +85,25 @@ export class ScheduleListViewComponent {
     public readonly booking_dates = computed(() => {
         if (this.loading()) return [];
         const sorted = (this.bookings() || []).sort((a, b) => a.date - b.date);
-        const filtered = sorted.filter((b) => isSameDay(b.date, this.date()));
+        const start = this.date();
+        const end = this.end_date();
+
+        // Filter bookings by date range
+        const filtered = sorted.filter((b) => {
+            if (end && !isSameDay(start, end)) {
+                // Date range mode: check if booking falls within range
+                const booking_date = b.date;
+                return (
+                    (isAfter(booking_date, startOfDay(start)) ||
+                        isSameDay(booking_date, start)) &&
+                    (isBefore(booking_date, endOfDay(end)) ||
+                        isSameDay(booking_date, end))
+                );
+            }
+            // Single date mode
+            return isSameDay(b.date, start);
+        });
+
         const dates = new Set<string>();
         for (const booking of filtered) {
             const date = format(booking.date, 'yyyy-MM-dd');
@@ -82,7 +115,7 @@ export class ScheduleListViewComponent {
             list.push({
                 id: date,
                 date: day.valueOf(),
-                bookings: sorted.filter((booking) =>
+                bookings: filtered.filter((booking) =>
                     isSameDay(booking.date, day),
                 ),
                 is_today: isSameDay(day, Date.now()),

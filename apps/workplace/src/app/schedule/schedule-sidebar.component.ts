@@ -5,6 +5,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     AsyncHandler,
     Booking,
@@ -18,8 +19,11 @@ import {
     SettingsToggleComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { DateCalendarComponent } from '@placeos/form-fields';
-import { isSameDay, startOfDay } from 'date-fns';
+import {
+    DateCalendarComponent,
+    DateRangeCalendarComponent,
+} from '@placeos/form-fields';
+import { endOfDay, isSameDay, startOfDay } from 'date-fns';
 import { debounceTime, filter } from 'rxjs/operators';
 import {
     ScheduleOptions,
@@ -72,6 +76,17 @@ import {
                     </mat-form-field>
                 </div>
             }
+            @if (period === 'list') {
+                <date-range-calendar
+                    class="border-b border-base-200 p-2"
+                    [from]="null"
+                    [start]="date()"
+                    [end]="end_date()"
+                    [offset_weekday]="offset_weekday"
+                    (startChange)="setStartDate($event)"
+                    (endChange)="setEndDate($event)"
+                ></date-range-calendar>
+            }
             <h3 class="mx-4 mt-4 pb-2 font-medium uppercase">
                 {{ 'APP.WORKPLACE.SCHEDULE_FILTERS' | translate }}
             </h3>
@@ -119,6 +134,7 @@ import {
     imports: [
         CommonModule,
         MatCheckboxModule,
+        MatTooltipModule,
         TranslatePipe,
         IconComponent,
         MatRippleModule,
@@ -126,6 +142,7 @@ import {
         MatFormFieldModule,
         MatSelectModule,
         DateCalendarComponent,
+        DateRangeCalendarComponent,
         SettingsToggleComponent,
     ],
 })
@@ -136,9 +153,14 @@ export class ScheduleSidebarComponent extends AsyncHandler implements OnInit {
 
     public readonly filters = this._state.filters;
     public readonly date = computed(() => startOfDay(this._state.date()));
+    public readonly end_date = computed(() => {
+        const end = this._state.end_date();
+        return end ? endOfDay(end) : null;
+    });
     public readonly toggleType = (t) => this._state.toggleType(t);
     public readonly setDate = (d) => this._state.setDate(d);
     public readonly bookings = input<(Booking | CalendarEvent)[]>([]);
+    public readonly view = input<'day' | 'week' | 'list'>('day');
 
     public readonly colors = BOOKING_TYPE_COLORS;
 
@@ -197,7 +219,19 @@ export class ScheduleSidebarComponent extends AsyncHandler implements OnInit {
     });
 
     public get period() {
+        const current_view = this.view();
+        if (current_view === 'list') return 'list';
         return this._state.getOptions()?.period;
+    }
+
+    public setStartDate(date: number) {
+        this._state.setDate(date);
+        // Clear end date when start date changes
+        this._state.setEndDate(null);
+    }
+
+    public setEndDate(date: number) {
+        this._state.setEndDate(date);
     }
 
     public get is_today() {
