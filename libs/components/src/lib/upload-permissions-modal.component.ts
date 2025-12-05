@@ -11,7 +11,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { UploadPermissions } from '@placeos/common';
 import { IconComponent } from './icon.component';
-import { SettingsToggleComponent } from './settings-toggle.component';
 
 @Component({
     selector: 'upload-permissions-modal',
@@ -77,7 +76,6 @@ import { SettingsToggleComponent } from './settings-toggle.component';
         MatFormFieldModule,
         FormsModule,
         MatSelectModule,
-        SettingsToggleComponent,
         IconComponent,
         MatInputModule,
         MatRippleModule,
