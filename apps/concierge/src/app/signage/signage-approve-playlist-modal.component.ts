@@ -68,10 +68,11 @@ import { SignageStateService } from './signage-state.service';
                                     'COMMON.ITEM_COUNT'
                                         | translate
                                             : {
-                                                  count: current_version?.items
-                                                      .length,
+                                                  count:
+                                                      current_version?.items
+                                                          .length || 0,
                                               }
-                                            : current_version?.items.length
+                                            : current_version?.items.length || 0
                                 }}
                             </div>
                             @for (item of current_media; track item.id) {
@@ -102,6 +103,15 @@ import { SignageStateService } from './signage-state.service';
                                         item.name
                                     }}</span>
                                 </div>
+                            } @empty {
+                                <div
+                                    class="flex flex-col items-center justify-center p-8 opacity-30"
+                                >
+                                    <icon class="text-4xl">hide_image</icon>
+                                    <p class="text-sm">
+                                        {{ 'COMMON.NO_ITEMS' | translate }}
+                                    </p>
+                                </div>
                             }
                         </div>
                     </div>
@@ -127,10 +137,12 @@ import { SignageStateService } from './signage-state.service';
                                     'COMMON.ITEM_COUNT'
                                         | translate
                                             : {
-                                                  count: previous_version?.items
-                                                      .length,
+                                                  count:
+                                                      previous_version?.items
+                                                          .length || 0,
                                               }
-                                            : previous_version?.items.length
+                                            : previous_version?.items.length ||
+                                                  0
                                 }}
                             </div>
                             @for (item of previous_media; track item.id) {
@@ -153,6 +165,15 @@ import { SignageStateService } from './signage-state.service';
                                     <span class="truncate">{{
                                         item.name
                                     }}</span>
+                                </div>
+                            } @empty {
+                                <div
+                                    class="flex flex-col items-center justify-center p-8 opacity-30"
+                                >
+                                    <icon class="text-4xl">hide_image</icon>
+                                    <p class="text-sm">
+                                        {{ 'COMMON.NO_ITEMS' | translate }}
+                                    </p>
                                 </div>
                             }
                         </div>
