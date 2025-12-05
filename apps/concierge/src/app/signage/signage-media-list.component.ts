@@ -124,7 +124,7 @@ import { SignageStateService } from './signage-state.service';
                             ></div>
                         }
                         <div
-                            class="flex min-h-10 min-w-10 items-center justify-center rounded-2xl border-4 border-dashed border-base-400 bg-base-300"
+                            class="flex min-h-10 min-w-10 items-center justify-center rounded-2xl border-4 border-dashed border-base-400 bg-base-300 opacity-30"
                             *cdkDragPlaceholder
                         >
                             <icon class="text-2xl text-base-100"> add </icon>
@@ -324,6 +324,10 @@ import { SignageStateService } from './signage-state.service';
                 display: flex;
                 flex-direction: column;
                 height: 100%;
+            }
+
+            ::ng-deep .cdk-drag-preview {
+                opacity: 0.6;
             }
         `,
     ],
