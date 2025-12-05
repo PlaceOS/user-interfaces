@@ -2,21 +2,31 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
 import {
     Component,
-    OnChanges,
-    SimpleChanges,
     computed,
     effect,
     inject,
     input,
+    OnChanges,
     output,
     signal,
+    SimpleChanges,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { IconComponent, TranslatePipe } from '@placeos/components';
-import { SignagePlaylist } from '@placeos/ts-client';
+import { RouterLink } from '@angular/router';
+import {
+    AuthenticatedImageDirective,
+    IconComponent,
+    TranslatePipe,
+} from '@placeos/components';
+import {
+    showSignageMedia,
+    SignageMedia,
+    SignagePlaylist,
+} from '@placeos/ts-client';
+import { lastValueFrom } from 'rxjs';
 import { SignageStateService } from './signage-state.service';
 
 interface PlaylistCount {
@@ -25,6 +35,7 @@ interface PlaylistCount {
 }
 
 const PLAYLIST_ITEM_COUNTS = signal<Record<string, PlaylistCount>>({});
+const PLAYLIST_ITEM_MEDIA = signal<Record<string, SignageMedia[]>>({});
 
 @Component({
     selector: `signage-item-playlists`,
@@ -85,6 +96,28 @@ const PLAYLIST_ITEM_COUNTS = signal<Record<string, PlaylistCount>>({});
                         >
                             <icon>drag_handle</icon>
                         </button>
+                        <a
+                            preview
+                            matRipple
+                            [routerLink]="['/signage', 'media']"
+                            [queryParams]="{ playlist: item.id }"
+                            class="h-14 w-14 overflow-hidden rounded border border-base-200 bg-base-200"
+                        >
+                            @for (
+                                media of playlist_thumbnail_media()[item.id] ||
+                                    [];
+                                track media;
+                                let i = $index
+                            ) {
+                                <img
+                                    auth
+                                    [source]="media"
+                                    class="absolute h-full w-full rounded object-cover shadow-lg"
+                                    [style.top]="0.5 + i * 1 + 'rem'"
+                                    [style.left]="0.5 + i * 1 + 'rem'"
+                                />
+                            }
+                        </a>
                         <div class="w-1/2 flex-1 text-base-content">
                             <div class="truncate">
                                 {{ item.name }}
@@ -98,12 +131,14 @@ const PLAYLIST_ITEM_COUNTS = signal<Record<string, PlaylistCount>>({});
                                                       playlist_count()[item.id]
                                                           ?.count || 0,
                                               }
+                                            : playlist_count()[item.id]
+                                                  ?.count || 0
                                 }}
                             </div>
                         </div>
                         @if (isScheduled(item)) {
                             <div
-                                class="rounded border border-info bg-base-100 bg-info-light p-1 text-lg"
+                                class="rounded border border-info bg-info-light p-1 text-lg"
                                 [matTooltip]="'COMMON.SCHEDULED' | translate"
                             >
                                 <icon>event</icon>
@@ -205,6 +240,8 @@ const PLAYLIST_ITEM_COUNTS = signal<Record<string, PlaylistCount>>({});
         MatMenuModule,
         DragDropModule,
         MatTooltipModule,
+        RouterLink,
+        AuthenticatedImageDirective,
     ],
 })
 export class SignageItemPlaylistsComponent implements OnChanges {
@@ -236,14 +273,36 @@ export class SignageItemPlaylistsComponent implements OnChanges {
             ) {
                 continue;
             }
-            this._state.getPlaylistMedia(item.id).then((media) => {
-                this.playlist_count.update((m) => {
-                    m[item.id] = {
+            this._state.getPlaylistMedia(item.id).then(async (media) => {
+                this.playlist_count.update((m) => ({
+                    ...m,
+                    [item.id]: {
                         count: media.length,
                         last_updated: Date.now(),
-                    };
-                    return m;
-                });
+                    },
+                }));
+                const thumbnails = this.playlist_media()[item.id] || [];
+                const media_requests = [];
+                for (const id of media) {
+                    if (!thumbnails.find((_) => _.id === id)) {
+                        media_requests.push(
+                            lastValueFrom(showSignageMedia(id)).catch(
+                                () => null,
+                            ),
+                        );
+                    }
+                }
+                if (media_requests.length) {
+                    const media_items = await Promise.all(media_requests);
+                    for (const item of media_items) {
+                        if (!item) continue;
+                        thumbnails.push(item);
+                    }
+                }
+                this.playlist_media.update((m) => ({
+                    ...m,
+                    [item.id]: thumbnails,
+                }));
             });
         }
     });
@@ -265,6 +324,22 @@ export class SignageItemPlaylistsComponent implements OnChanges {
     }
 
     public readonly playlist_count = PLAYLIST_ITEM_COUNTS;
+    public readonly playlist_media = PLAYLIST_ITEM_MEDIA;
+
+    public readonly playlist_thumbnail_media = computed(() => {
+        const thumbnails = this.playlist_media();
+        const result: Record<string, string[]> = {};
+        for (const [playlist_id, media_items] of Object.entries(thumbnails)) {
+            result[playlist_id] = media_items
+                .slice(0, 2)
+                .map(
+                    (item) =>
+                        `/api/engine/v2/uploads/${encodeURIComponent(item.thumbnail_id)}/url`,
+                )
+                .filter((m) => m);
+        }
+        return result;
+    });
 
     public playlistCount(id: string) {
         return PLAYLIST_ITEM_COUNTS()[id]?.count || 0;

@@ -9,8 +9,8 @@ import {
 
 jest.mock('@placeos/ts-client');
 
-import * as ts_client from '@placeos/ts-client';
 import { Calendar } from '@placeos/common';
+import * as ts_client from '@placeos/ts-client';
 
 describe('Calendar API Methods', () => {
     describe('queryCalendars', () => {

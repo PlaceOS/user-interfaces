@@ -1,10 +1,10 @@
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { mockComponent } from '@placeos/common/tests';
 
-import { PanelStateService } from '../../app/panel-state.service';
 import { PanelViewDetailsComponent } from '../../app/new-panel/panel-view-details.component';
 import { PanelViewStatusComponent } from '../../app/new-panel/panel-view-status.component';
 import { PanelViewComponent } from '../../app/new-panel/panel-view.component';
+import { PanelStateService } from '../../app/panel-state.service';
 
 describe('PanelViewComponent', () => {
     let spectator: SpectatorRouting<PanelViewComponent>;

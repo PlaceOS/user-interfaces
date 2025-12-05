@@ -20,10 +20,13 @@ describe('UserAvatarComponent', () => {
     });
 
     it("should show the user's image", () => {
-        spectator.setInput('user', new User({
-            name: 'John Smith',
-            photo: 'true.png',
-        }));
+        spectator.setInput(
+            'user',
+            new User({
+                name: 'John Smith',
+                photo: 'true.png',
+            }),
+        );
         spectator.detectChanges();
         expect('img').toExist();
         expect('[initials]').not.toExist();

@@ -64,9 +64,13 @@ const COMPACT_SIGNAL = signal(false);
                                 class="no-subscript white-faded w-full"
                             >
                                 <mat-select [(ngModel)]="region">
-                                    <mat-option value="">{{
-                                        'COMMON.REGION_ALL' | translate
-                                    }}</mat-option>
+                                    <mat-option
+                                        value=""
+                                        (click)="setRegion(null)"
+                                        >{{
+                                            'COMMON.REGION_ALL' | translate
+                                        }}</mat-option
+                                    >
                                     @for (region of r_list; track region.id) {
                                         <mat-option
                                             [value]="region.id"
@@ -86,9 +90,13 @@ const COMPACT_SIGNAL = signal(false);
                                 class="no-subscript white-faded w-full"
                             >
                                 <mat-select [(ngModel)]="building">
-                                    <mat-option value="">{{
-                                        'COMMON.BUILDING_ALL' | translate
-                                    }}</mat-option>
+                                    <mat-option
+                                        value=""
+                                        (click)="setBuilding(null)"
+                                        >{{
+                                            'COMMON.BUILDING_ALL' | translate
+                                        }}</mat-option
+                                    >
                                     @for (bld of bld_list; track bld.id) {
                                         <mat-option
                                             [value]="bld.id"

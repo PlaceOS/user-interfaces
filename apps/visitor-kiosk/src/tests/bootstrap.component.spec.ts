@@ -85,7 +85,9 @@ describe('BootstrapComponent', () => {
         spectator.component.active_building.set(new Building({ id: 'bld-1' }));
         spectator.component.bootstrapKiosk();
         expect(localStorage.setItem).not.toHaveBeenCalled();
-        spectator.component.active_level.set(new BuildingLevel({ id: 'lvl-1' }));
+        spectator.component.active_level.set(
+            new BuildingLevel({ id: 'lvl-1' }),
+        );
         spectator.component.bootstrapKiosk();
         expect(localStorage.setItem).toHaveBeenCalledWith(
             'KIOSK.building',

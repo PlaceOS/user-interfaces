@@ -11,7 +11,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { UploadPermissions } from '@placeos/common';
 import { IconComponent } from './icon.component';
-import { SettingsToggleComponent } from './settings-toggle.component';
 
 @Component({
     selector: 'upload-permissions-modal',
@@ -36,11 +35,6 @@ import { SettingsToggleComponent } from './settings-toggle.component';
                     />
                 </mat-form-field>
             </div>
-            <div>
-                <settings-toggle [(ngModel)]="is_public"
-                    >Public</settings-toggle
-                >
-            </div>
             @if (!is_public) {
                 <div class="flex flex-col space-y-2">
                     <label>Permissions</label>
@@ -53,6 +47,11 @@ import { SettingsToggleComponent } from './settings-toggle.component';
                     </mat-form-field>
                 </div>
             }
+            <!-- <div>
+                <settings-toggle [(ngModel)]="is_public"
+                    >Public</settings-toggle
+                >
+            </div> -->
         </main>
         <footer
             class="flex items-center justify-end space-x-2 border-t border-base-200 px-4 py-2"
@@ -77,7 +76,6 @@ import { SettingsToggleComponent } from './settings-toggle.component';
         MatFormFieldModule,
         FormsModule,
         MatSelectModule,
-        SettingsToggleComponent,
         IconComponent,
         MatInputModule,
         MatRippleModule,

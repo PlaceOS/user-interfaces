@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs/operators';
 import { ControlStateService } from '../control-state.service';
 import { DeviceOutputListItemComponent } from './output-list-item.component';
@@ -8,11 +8,11 @@ import { DeviceOutputListItemComponent } from './output-list-item.component';
     selector: 'device-output-list',
     template: `
         <div class="flex h-full w-full items-center overflow-x-auto">
-            @if ((outputs | async)?.length > 1 || (preview_outputs | async)) {
-                @for (output of outputs | async; track output.id) {
+            @if (outputs()?.length > 1 || preview_outputs()) {
+                @for (output of outputs(); track output.id) {
                     <device-output-list-item
                         [item]="output"
-                        [active]="(active_output | async) === output.id"
+                        [active]="active_output() === output.id"
                         class="max-w-1/2 w-64 sm:min-w-64"
                     ></device-output-list-item>
                 }
@@ -20,17 +20,15 @@ import { DeviceOutputListItemComponent } from './output-list-item.component';
         </div>
     `,
     styles: [``],
-    imports: [CommonModule, DeviceOutputListItemComponent],
+    imports: [DeviceOutputListItemComponent],
 })
 export class DeviceOutputListComponent {
     private _state = inject(ControlStateService);
 
-    public readonly outputs = this._state.output_list.pipe(map((_) => _ || []));
-    public readonly active_output = this._state.active_output;
-
-    public readonly preview_outputs = this._state.preview_outputs;
-
-    constructor() {
-        this.outputs.subscribe();
-    }
+    public readonly outputs = toSignal(
+        this._state.output_list.pipe(map((_) => _ || [])),
+        { initialValue: [] },
+    );
+    public readonly active_output = toSignal(this._state.active_output);
+    public readonly preview_outputs = toSignal(this._state.preview_outputs);
 }

@@ -1,6 +1,6 @@
 import { Router } from '@angular/router';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
-import { of, lastValueFrom } from 'rxjs';
+import { lastValueFrom, of } from 'rxjs';
 import { first } from 'rxjs/operators';
 
 // Mock modules before importing
@@ -9,7 +9,9 @@ jest.mock('@placeos/common', () => ({
     ...jest.requireActual('@placeos/common'),
     current_user: of(null),
     firstTruthyValueFrom: jest.fn((obs) =>
-        obs ? lastValueFrom(obs.pipe(first((_) => !!_))) : Promise.resolve(null)
+        obs
+            ? lastValueFrom(obs.pipe(first((_) => !!_)))
+            : Promise.resolve(null),
     ),
 }));
 
@@ -34,11 +36,11 @@ describe('AuthorisedUserGuard', () => {
             MockProvider(Router, { navigate: jest.fn() }),
             {
                 provide: PLACEOS_APP_ACCESS,
-                useValue: access_mock
+                useValue: access_mock,
             },
             {
                 provide: SettingsService,
-                useValue: { get: jest.fn(() => []) }
+                useValue: { get: jest.fn(() => []) },
             },
             MockProvider(OrganisationService, { initialised: of(true) }),
         ],

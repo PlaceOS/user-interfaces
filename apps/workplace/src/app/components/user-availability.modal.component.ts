@@ -1,8 +1,16 @@
-import { Component, OnInit, inject, output } from '@angular/core';
+import {
+    Component,
+    computed,
+    inject,
+    Injector,
+    OnInit,
+    output,
+    signal,
+} from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { endOfDay, getUnixTime, isBefore, set, startOfDay } from 'date-fns';
-import { BehaviorSubject } from 'rxjs';
-import { debounceTime, switchMap } from 'rxjs/operators';
+import { debounceTime, skip } from 'rxjs/operators';
 
 import { AsyncHandler, DialogEvent, StaffUser } from '@placeos/common';
 import {
@@ -38,23 +46,29 @@ import { VerticalTimelineComponent } from './vertical-timeline.component';
                 <div class="date">
                     <a-date-field
                         name="date"
-                        [ngModel]="date"
+                        [ngModel]="date()"
                         (ngModelChange)="changeDate($event)"
                     ></a-date-field>
                 </div>
-                @if (!loading) {
+                @if (!loading()) {
                     <div class="mobile-only">
                         <vertical-timeline
-                            [(date)]="date"
-                            [(duration)]="duration"
-                            [(groups)]="groups"
+                            [date]="date()"
+                            (dateChange)="date.set($event)"
+                            [duration]="duration()"
+                            (durationChange)="duration.set($event)"
+                            [groups]="groups()"
+                            (groupsChange)="groups.set($event)"
                         ></vertical-timeline>
                     </div>
                     <div class="not-mobile">
                         <event-timeline
-                            [(date)]="date"
-                            [(duration)]="duration"
-                            [(groups)]="groups"
+                            [date]="date()"
+                            (dateChange)="date.set($event)"
+                            [duration]="duration()"
+                            (durationChange)="duration.set($event)"
+                            [groups]="groups()"
+                            (groupsChange)="groups.set($event)"
                         ></event-timeline>
                     </div>
                 } @else {
@@ -71,7 +85,7 @@ import { VerticalTimelineComponent } from './vertical-timeline.component';
                 </button>
                 <button
                     mat-flat-button
-                    [disabled]="is_past"
+                    [disabled]="is_past()"
                     color="primary"
                     (click)="save()"
                 >
@@ -129,43 +143,44 @@ export class UserAvailabilityModalComponent
     implements OnInit
 {
     private _data = inject(MAT_DIALOG_DATA);
+    private _injector = inject(Injector);
 
     /** Emitter for user action on the modal */
     public readonly event = output<DialogEvent>();
     /** List of Users to check availability */
-    public users: StaffUser[];
+    public readonly users = signal<StaffUser[]>([]);
     /** Whether the users events are being loaded */
-    public loading: boolean;
+    public readonly loading = signal(false);
     /** Selected date in unix ms */
-    public date: number = new Date().valueOf();
+    public readonly date = signal(new Date().valueOf());
     /** Groups */
-    public groups: ITimelineEventGroup[];
+    public readonly groups = signal<ITimelineEventGroup[]>([]);
     /** Duration */
-    public duration: number;
-    /** Date subject */
-    public date$ = new BehaviorSubject(this.date);
+    public readonly duration = signal(0);
+    /** Whether date is in the past */
+    public readonly is_past = computed(() =>
+        isBefore(this.date(), Date.now()),
+    );
 
     public ngOnInit(): void {
-        this.users = this._data.users;
-        this.date = this._data.date;
-        this.duration = this._data.duration;
+        this.users.set(this._data.users);
+        this.date.set(this._data.date);
+        this.duration.set(this._data.duration);
         this.loadAvailability();
-        this.date$
-            .pipe(
-                debounceTime(500),
-                switchMap(() => this.loadAvailability()),
-            )
-            .subscribe((res) => (this.groups = res));
+
+        toObservable(this.date, { injector: this._injector })
+            .pipe(skip(1), debounceTime(500))
+            .subscribe(() => this.loadAvailability());
     }
 
     /** Load events for all attendees */
     public async loadAvailability() {
-        this.loading = true;
-        const period_start = getUnixTime(startOfDay(this.date));
-        const period_end = getUnixTime(endOfDay(this.date));
-        const result: any[] = await Promise.all(
-            this.users.map(async (user) => {
-                if (!user.email) return [];
+        this.loading.set(true);
+        const period_start = getUnixTime(startOfDay(this.date()));
+        const period_end = getUnixTime(endOfDay(this.date()));
+        const result: ITimelineEventGroup[] = await Promise.all(
+            this.users().map(async (user) => {
+                if (!user.email) return { name: user.name, events: [] };
                 return {
                     name: user.name,
                     events: await queryEvents({
@@ -180,36 +195,32 @@ export class UserAvailabilityModalComponent
                                 duration: i.duration,
                             })),
                         )
-                        .catch((err) => []),
+                        .catch(() => []),
                 };
             }),
         );
-        this.loading = false;
-        return result;
+        this.loading.set(false);
+        this.groups.set(result);
     }
 
     /** Change date keeping hours and minutes */
     public changeDate(new_date: number) {
-        const date = new Date(this.date);
-        this.date = set(new_date, {
-            hours: date.getHours(),
-            minutes: date.getMinutes(),
-        }).valueOf();
-        this.date$.next(this.date);
-    }
-
-    /** Whether date is in the past */
-    public get is_past(): boolean {
-        return isBefore(this.date, Date.now());
+        const current_date = new Date(this.date());
+        this.date.set(
+            set(new_date, {
+                hours: current_date.getHours(),
+                minutes: current_date.getMinutes(),
+            }).valueOf(),
+        );
     }
 
     public save() {
-        if (this.is_past) {
+        if (this.is_past()) {
             return;
         }
         this.event.emit({
             reason: 'done',
-            metadata: { date: this.date, duration: this.duration },
+            metadata: { date: this.date(), duration: this.duration() },
         });
     }
 }

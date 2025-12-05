@@ -1,5 +1,10 @@
 import { Component, inject, OnInit } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
 import { PlaceOS_Service, setMocks } from '@placeos/common';
+import {
+    GlobalBannerComponent,
+    GlobalLoadingComponent,
+} from '@placeos/components';
 import { mocksInit } from '@placeos/mocks';
 
 @Component({
@@ -10,7 +15,6 @@ import { mocksInit } from '@placeos/mocks';
             <router-outlet></router-outlet>
         </div>
         <global-loading />
-        <!-- <debug-console *ngIf="debug"></debug-console> -->
     `,
     styles: [
         `
@@ -22,7 +26,7 @@ import { mocksInit } from '@placeos/mocks';
             }
         `,
     ],
-    standalone: false,
+    imports: [RouterOutlet, GlobalBannerComponent, GlobalLoadingComponent],
 })
 export class AppComponent implements OnInit {
     private _placeos = inject(PlaceOS_Service);

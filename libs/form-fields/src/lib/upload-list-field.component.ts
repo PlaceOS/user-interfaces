@@ -3,12 +3,17 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { uploadFiles } from '@placeos/cloud-uploads';
-import { Attachment, randomInt } from '@placeos/common';
+import {
+    Attachment,
+    randomInt,
+    UPLOAD_PERMISSIONS_MODAL,
+} from '@placeos/common';
 import { takeWhile } from 'rxjs/operators';
 
 import * as blobUtil from 'blob-util';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-permissions-modal.component';
 
 @Component({
     selector: 'upload-list',
@@ -92,6 +97,10 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
             provide: NG_VALUE_ACCESSOR,
             useExisting: forwardRef(() => UploadListFieldComponent),
             multi: true,
+        },
+        {
+            provide: UPLOAD_PERMISSIONS_MODAL,
+            useValue: UploadPermissionsModalComponent,
         },
     ],
     imports: [MatProgressSpinnerModule, IconComponent, MatRippleModule],

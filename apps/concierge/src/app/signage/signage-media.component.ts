@@ -80,6 +80,9 @@ import { SignageStateService } from './signage-state.service';
                             <div class="flex-1">
                                 {{ playlist.name }}
                             </div>
+                            <!-- @if (!playlist.approved) {
+                                <icon>warning</icon>
+                            } -->
                         </a>
                     }
                 } @else {

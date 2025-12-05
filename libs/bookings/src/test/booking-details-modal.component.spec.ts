@@ -8,6 +8,7 @@ import {
 } from '@placeos/common';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 
+import { Booking } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { ImageCarouselComponent } from 'libs/components/src/lib/image-carousel.component';
 import { IndoorMapsComponent } from 'libs/components/src/lib/indoor-maps.component';
@@ -15,7 +16,6 @@ import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map
 import { StatusPillComponent } from 'libs/components/src/lib/status-pill.component';
 import { BehaviorSubject } from 'rxjs';
 import { BookingDetailsModalComponent } from '../lib/booking-details-modal.component';
-import { Booking } from '@placeos/common';
 
 describe('BookingDetailsModalComponent', () => {
     let spectator: Spectator<BookingDetailsModalComponent>;
@@ -52,9 +52,11 @@ describe('BookingDetailsModalComponent', () => {
 
     it('should show images', () => {
         expect('image-carousel').not.toExist();
-        (spectator.component as any).booking.set(new Booking({
-            extension_data: { images: [''] },
-        }));
+        (spectator.component as any).booking.set(
+            new Booking({
+                extension_data: { images: [''] },
+            }),
+        );
         spectator.detectChanges();
         expect('image-carousel').toExist();
     });

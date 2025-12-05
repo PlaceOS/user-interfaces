@@ -2,13 +2,13 @@ import { FormsModule } from '@angular/forms';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { OrganisationService } from '@placeos/common';
 import { mockComponent } from '@placeos/common/tests';
-import { BehaviorSubject, of } from 'rxjs';
 import {
     ExploreDesksService,
     ExploreStateService,
     ExploreZoomControlComponent,
 } from '@placeos/explore';
 import { UserSearchFieldComponent } from '@placeos/form-fields';
+import { BehaviorSubject, of } from 'rxjs';
 
 import { InteractiveMapComponent } from '@placeos/components';
 import { DeskMapViewComponent } from '../../app/desks/desk-map-view.component';

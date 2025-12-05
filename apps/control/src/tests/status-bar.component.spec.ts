@@ -1,19 +1,16 @@
 import { FormsModule } from '@angular/forms';
 import { MatSliderModule } from '@angular/material/slider';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import {
-    mockComponent,
-    mockDirective,
-} from '@placeos/common/tests';
-import {
-    MockModule,
-    MockPipe,
-    MockProvider,
-} from 'ng-mocks';
+import { mockComponent, mockDirective } from '@placeos/common/tests';
+import { MockModule, MockPipe, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 import { ControlStateService } from '../app/control-state.service';
 
-import { BindingDirective, IconComponent, TranslatePipe } from '@placeos/components';
+import {
+    BindingDirective,
+    IconComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { ControlStatusBarComponent } from '../app/status-bar.component';
 import { DurationPipe } from '../app/ui/duration.pipe';
 

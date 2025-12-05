@@ -1,6 +1,10 @@
 import { computed } from '@angular/core';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
-import { OrganisationService, SettingsService, Organisation } from '@placeos/common';
+import {
+    Organisation,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 import { BehaviorSubject, of } from 'rxjs';
 

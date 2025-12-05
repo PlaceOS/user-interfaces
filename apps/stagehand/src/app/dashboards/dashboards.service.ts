@@ -188,7 +188,7 @@ export class DashboardsService extends AsyncHandler {
         firstTruthyValueFrom(this._org.initialised).then(() => {
             this.timeout('org_init', () => {
                 this.region_id.set(this._org.region.id || '');
-                this.building_id.set(this._org.building.id || '');
+                this.building_id.set(this._org.building?.id || '');
             });
         });
     }
@@ -348,7 +348,9 @@ export class DashboardsService extends AsyncHandler {
                     item,
                     this.building_id()
                         ? { building: this.building_id() }
-                        : { region: this.region_id() },
+                        : this.region_id()
+                          ? { region: this.region_id() }
+                          : {},
                 );
                 if (!topic) continue;
                 log('ALERTS', 'Listening to topic:', topic);

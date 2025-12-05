@@ -64,8 +64,8 @@ describe('CheckinStateService', () => {
         (users_mod.listGuestMeetings as any).mockImplementation(() =>
             of([{ date: Date.now() }]),
         );
-        (users_mod.generateGuestForm as any).mockImplementation(() =>
-            new FormGroup({}),
+        (users_mod.generateGuestForm as any).mockImplementation(
+            () => new FormGroup({}),
         );
         await spectator.service.loadGuestAndEvent('a@b.com');
         expect(users_mod.showGuest).toBeCalledWith('a@b.com');

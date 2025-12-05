@@ -8,7 +8,11 @@ import {
 } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { i18n, nextValueFrom, notifySuccess } from '@placeos/common';
-import { IconComponent, TranslatePipe } from '@placeos/components';
+import {
+    AuthenticatedImageDirective,
+    IconComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import {
     approveSignagePlaylist,
     listSignagePlaylistMediaRevisions,
@@ -64,17 +68,49 @@ import { SignageStateService } from './signage-state.service';
                                     'COMMON.ITEM_COUNT'
                                         | translate
                                             : {
-                                                  count: current_version?.items
-                                                      .length,
+                                                  count:
+                                                      current_version?.items
+                                                          .length || 0,
                                               }
-                                            : current_version?.items.length
+                                            : current_version?.items.length || 0
                                 }}
                             </div>
                             @for (item of current_media; track item.id) {
                                 <div
-                                    class="truncate rounded border border-base-300 bg-base-100 p-2"
+                                    class="flex items-center space-x-2 rounded border border-base-300 bg-base-100 p-2"
                                 >
-                                    {{ item.name }}
+                                    <button
+                                        class="h-10 w-10 shrink-0 overflow-hidden rounded bg-base-200"
+                                        matRipple
+                                        (click)="previewItem(item)"
+                                    >
+                                        @if (item.thumbnail_url) {
+                                            <img
+                                                auth
+                                                [source]="item.thumbnail_url"
+                                                class="h-full w-full object-cover"
+                                            />
+                                            <div
+                                                class="absolute inset-0 flex items-end justify-end p-1 opacity-0 transition-opacity duration-200 hover:opacity-100"
+                                            >
+                                                <icon class="text-lg"
+                                                    >expand_content</icon
+                                                >
+                                            </div>
+                                        }
+                                    </button>
+                                    <span class="truncate">{{
+                                        item.name
+                                    }}</span>
+                                </div>
+                            } @empty {
+                                <div
+                                    class="flex flex-col items-center justify-center p-8 opacity-30"
+                                >
+                                    <icon class="text-4xl">hide_image</icon>
+                                    <p class="text-sm">
+                                        {{ 'COMMON.NO_ITEMS' | translate }}
+                                    </p>
                                 </div>
                             }
                         </div>
@@ -101,17 +137,43 @@ import { SignageStateService } from './signage-state.service';
                                     'COMMON.ITEM_COUNT'
                                         | translate
                                             : {
-                                                  count: previous_version?.items
-                                                      .length,
+                                                  count:
+                                                      previous_version?.items
+                                                          .length || 0,
                                               }
-                                            : previous_version?.items.length
+                                            : previous_version?.items.length ||
+                                                  0
                                 }}
                             </div>
                             @for (item of previous_media; track item.id) {
                                 <div
-                                    class="truncate rounded border border-base-300 bg-base-100 p-2"
+                                    class="flex items-center space-x-2 rounded border border-base-300 bg-base-100 p-2"
                                 >
-                                    {{ item.name }}
+                                    <button
+                                        class="h-10 w-10 shrink-0 overflow-hidden rounded bg-base-200"
+                                        matRipple
+                                        (click)="previewItem(item)"
+                                    >
+                                        @if (item.thumbnail_url) {
+                                            <img
+                                                auth
+                                                [source]="item.thumbnail_url"
+                                                class="h-full w-full object-cover"
+                                            />
+                                        }
+                                    </button>
+                                    <span class="truncate">{{
+                                        item.name
+                                    }}</span>
+                                </div>
+                            } @empty {
+                                <div
+                                    class="flex flex-col items-center justify-center p-8 opacity-30"
+                                >
+                                    <icon class="text-4xl">hide_image</icon>
+                                    <p class="text-sm">
+                                        {{ 'COMMON.NO_ITEMS' | translate }}
+                                    </p>
                                 </div>
                             }
                         </div>
@@ -152,6 +214,7 @@ import { SignageStateService } from './signage-state.service';
         MatRippleModule,
         MatDialogModule,
         MatProgressSpinnerModule,
+        AuthenticatedImageDirective,
     ],
 })
 export class SignageApprovePlaylistModalComponent implements OnInit {
@@ -212,5 +275,9 @@ export class SignageApprovePlaylistModalComponent implements OnInit {
         notifySuccess(i18n('APP.CONCIERGE.SIGNAGE_PLAYLISTS_APPROVED'));
         this._dialog_ref.close();
         this._service.changed();
+    }
+
+    public previewItem(item: any) {
+        this._service.previewMedia(item);
     }
 }

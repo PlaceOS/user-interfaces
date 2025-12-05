@@ -1,4 +1,5 @@
 import { Component, inject, input, output } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -84,6 +85,7 @@ import { VideoCallStateService } from './video-call-state.service';
     `,
     styles: [``],
     imports: [
+        FormsModule,
         MatFormFieldModule,
         MatInputModule,
         MatProgressSpinnerModule,

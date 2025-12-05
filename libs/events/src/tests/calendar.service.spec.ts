@@ -4,7 +4,12 @@ import { MockProvider } from 'ng-mocks';
 import { BehaviorSubject, of } from 'rxjs';
 import { first } from 'rxjs/operators';
 
-import { Calendar, OrganisationService, SettingsService, Space } from '@placeos/common';
+import {
+    Calendar,
+    OrganisationService,
+    SettingsService,
+    Space,
+} from '@placeos/common';
 import { CalendarService } from '../lib/calendar.service';
 
 jest.mock('../lib/calendar.fn.ts');

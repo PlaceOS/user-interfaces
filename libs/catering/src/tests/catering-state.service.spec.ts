@@ -4,7 +4,12 @@ import { MockProvider } from 'ng-mocks';
 import { BehaviorSubject, of } from 'rxjs';
 import { delay } from 'rxjs/operators';
 
-import { OrganisationService, Building, CateringItem, CateringOrder } from '@placeos/common';
+import {
+    Building,
+    CateringItem,
+    CateringOrder,
+    OrganisationService,
+} from '@placeos/common';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 
 import { CateringStateService } from '../lib/catering-state.service';

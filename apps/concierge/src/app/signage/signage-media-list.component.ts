@@ -124,13 +124,15 @@ import { SignageStateService } from './signage-state.service';
                             ></div>
                         }
                         <div
-                            class="flex min-h-10 min-w-10 items-center justify-center rounded-2xl border-4 border-dashed border-base-400 bg-base-300"
+                            class="flex min-h-10 min-w-10 items-center justify-center rounded-2xl border-4 border-dashed border-base-400 bg-base-300 opacity-30"
                             *cdkDragPlaceholder
                         >
                             <icon class="text-2xl text-base-100"> add </icon>
                         </div>
-                        <div
+                        <button
                             preview
+                            matRipple
+                            (click)="previewItem(media)"
                             class="relative h-36 w-full overflow-hidden rounded-lg bg-base-200"
                         >
                             @if (media.thumbnail_url) {
@@ -139,6 +141,11 @@ import { SignageStateService } from './signage-state.service';
                                     [source]="media.thumbnail_url"
                                     class="h-full w-full rounded-lg object-contain"
                                 />
+                                <div
+                                    class="absolute inset-0 flex items-end justify-end p-1 opacity-0 transition-opacity duration-200 hover:opacity-100"
+                                >
+                                    <icon class="text-2xl">expand_content</icon>
+                                </div>
                             }
                             <div
                                 class="absolute left-1 top-1 rounded-lg px-2 py-1 font-mono text-xs capitalize"
@@ -175,7 +182,7 @@ import { SignageStateService } from './signage-state.service';
                                     {{ media.play_time / 1000 | mediaDuration }}
                                 </div>
                             }
-                        </div>
+                        </button>
                         <div
                             class="relative top-1 flex w-full items-center justify-between"
                         >
@@ -317,6 +324,10 @@ import { SignageStateService } from './signage-state.service';
                 display: flex;
                 flex-direction: column;
                 height: 100%;
+            }
+
+            ::ng-deep .cdk-drag-preview {
+                opacity: 0.6;
             }
         `,
     ],

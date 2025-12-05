@@ -54,10 +54,12 @@ describe('DeskListFieldComponent', () => {
         (spectator.inject(MatDialog).open as any).mockImplementation(
             (_, config) => {
                 const itemsSignal = config?.data?.items;
-                const items = typeof itemsSignal === 'function' ? itemsSignal() : (itemsSignal || []);
+                const items =
+                    typeof itemsSignal === 'function'
+                        ? itemsSignal()
+                        : itemsSignal || [];
                 return {
-                    afterClosed: () =>
-                        of([...items, { id: `${count++}` }]),
+                    afterClosed: () => of([...items, { id: `${count++}` }]),
                 } as any;
             },
         );

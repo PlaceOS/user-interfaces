@@ -14,12 +14,12 @@ export interface AvailabilityBlock {
     selector: 'user-availability-list',
     template: `
         <div
-            class="relative inset-y-0 h-32 w-[120rem] border-b border-base-200"
+            class="relative inset-y-0 h-32 w-[120rem] border-b border-base-300"
         >
             @for (event of availability(); track event) {
                 <div
                     event
-                    class="border-red-700 absolute inset-y-0 overflow-hidden rounded border bg-error p-2 text-white"
+                    class="absolute inset-y-0 overflow-hidden rounded border border-error bg-error p-2 text-white"
                     [style.left]="event.start + '%'"
                     [style.width]="event.size + '%'"
                 >

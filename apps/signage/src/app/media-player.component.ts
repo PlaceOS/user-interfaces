@@ -163,7 +163,7 @@ export class MediaPlayerComponent
 
     public readonly duration = signal(0);
     public readonly progress = signal(0);
-    public readonly show_playlist = signal(false);
+    public readonly show_playlist = signal(true);
     public readonly hold_over_item = signal(true);
     public readonly in_animation = signal(false);
 

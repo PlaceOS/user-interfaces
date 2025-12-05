@@ -424,9 +424,9 @@ export class MeetingBookingFormComponent extends AsyncHandler {
         ref.afterClosed().subscribe((d) => {
             if (!d) return;
             this.form.patchValue({
-                date: ref.componentInstance.date,
-                attendees: ref.componentInstance.users.getValue(),
-                duration: ref.componentInstance.duration,
+                date: ref.componentInstance.date(),
+                attendees: ref.componentInstance.users(),
+                duration: ref.componentInstance.duration(),
             });
         });
     }
