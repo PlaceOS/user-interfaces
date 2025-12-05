@@ -231,7 +231,6 @@ export class AutoAssignedDeskModalComponent
     public center = signal({ x: 0.5, y: 0.5 });
 
     public async ngOnInit() {
-        localStorage.removeItem('PLACEOS.last_group_booking_ids');
         await this.initializeAndAutoAssign();
     }
 

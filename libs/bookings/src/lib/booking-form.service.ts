@@ -585,6 +585,7 @@ export class BookingFormService extends AsyncHandler {
                 this.form.getRawValue().booking_type ||
                 this._options.getValue().type,
         });
+        localStorage.removeItem('PLACEOS.last_group_booking_ids');
         const value = this.form.getRawValue();
         const booking = this._booking.getValue() || new Booking();
         if (!ignore_check) {

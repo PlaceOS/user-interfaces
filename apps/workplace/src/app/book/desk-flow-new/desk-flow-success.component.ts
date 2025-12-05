@@ -313,9 +313,9 @@ export class NewDeskFlowSuccessComponent implements OnInit {
         this.building.set(this._building_pipe.transform(event.zones));
 
         // Load group bookings if this is a group booking
-        if (this.is_group) {
-            await this._loadGroupBookings();
-        }
+        setTimeout(async () => {
+            if (this.is_group) await this._loadGroupBookings();
+        }, 100);
     }
 
     private async _loadGroupBookings() {
