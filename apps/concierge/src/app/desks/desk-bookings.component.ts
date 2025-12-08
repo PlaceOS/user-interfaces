@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
@@ -19,8 +19,8 @@ import { DesksStateService } from './desks-state.service';
         <div class="h-full w-full overflow-auto pb-16">
             <simple-table
                 class="block min-w-[92rem] text-sm"
-                [data]="bookings"
-                [filter]="(filters | async)?.search"
+                [data]="bookings()"
+                [filter]="filters().search"
                 [filter_on]="[
                     'user_name',
                     'asset_name',
@@ -86,7 +86,7 @@ import { DesksStateService } from './desks-state.service';
                     },
                 ]"
                 [empty_message]="
-                    ((filters | async)?.search
+                    (filters().search
                         ? 'APP.CONCIERGE.DESKS_BOOKINGS_SEARCH_EMPTY'
                         : 'APP.CONCIERGE.DESKS_BOOKINGS_EMPTY'
                     ) | translate
@@ -289,7 +289,7 @@ import { DesksStateService } from './desks-state.service';
                 </div>
             </ng-template>
         </div>
-        @if (!loading && (has_more_pages | async)) {
+        @if (!loading() && has_more_pages()) {
             <button
                 btn
                 matRipple
@@ -326,7 +326,7 @@ export class DeskBookingsComponent {
     private _state = inject(DesksStateService);
     private _settings = inject(SettingsService);
 
-    public loading: string;
+    public loading = signal<string>('');
     public readonly filters = this._state.filters;
     public readonly has_more_pages = this._state.has_more_pages;
     public readonly bookings = this._state.bookings;
@@ -363,8 +363,8 @@ export class DeskBookingsComponent {
     }
 
     private async runMethod(name: string, fn: () => Promise<void>) {
-        this.loading = name;
+        this.loading.set(name);
         await fn().catch(() => null);
-        this.loading = '';
+        this.loading.set('');
     }
 }

@@ -1,6 +1,6 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, inject } from '@angular/core';
+import { Component, ElementRef, inject, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -12,7 +12,6 @@ import {
     generateQRCode,
     i18n,
     loadTextFileFromInputEvent,
-    nextValueFrom,
     notifyError,
     notifySuccess,
     OrganisationService,
@@ -43,8 +42,8 @@ const QR_CODES = {};
         >
             <simple-table
                 class="block w-full min-w-[72rem] text-sm"
-                [filter]="(filters | async)?.search"
-                [data]="desks"
+                [filter]="filters().search"
+                [data]="desks()"
                 [columns]="[
                     {
                         key: 'id',
@@ -86,7 +85,7 @@ const QR_CODES = {};
                 ]"
                 [sortable]="true"
                 [empty_message]="
-                    ((filters | async)?.search
+                    (filters().search
                         ? 'APP.CONCIERGE.DESKS_MANAGE_SEARCH_EMPTY'
                         : 'APP.CONCIERGE.DESKS_MANAGE_EMPTY'
                     ) | translate
@@ -213,15 +212,15 @@ const QR_CODES = {};
                     </ng-template>
                 </div>
             </ng-template>
-            @if (loading) {
+            @if (loading()) {
                 <div
                     class="absolute inset-0 flex flex-col items-center justify-center space-y-2 bg-base-100 bg-opacity-60"
                 >
                     <mat-spinner diameter="32"></mat-spinner>
-                    <p>{{ loading }}</p>
+                    <p>{{ loading() }}</p>
                 </div>
             }
-            @if (dragging) {
+            @if (dragging()) {
                 <div
                     class="absolute inset-0 flex items-center justify-center bg-neutral"
                 >
@@ -265,8 +264,8 @@ export class DesksManageComponent extends AsyncHandler {
     private _element = inject(ElementRef);
     private _clipboard = inject(Clipboard);
 
-    public loading: string;
-    public dragging = false;
+    public loading = signal<string>('');
+    public dragging = signal(false);
     public readonly filters = this._state.filters;
     public readonly desks = this._state.desks;
 
@@ -290,11 +289,11 @@ export class DesksManageComponent extends AsyncHandler {
         );
         if (resp.reason !== 'done') return;
         resp.close();
-        const desks = await nextValueFrom(this.desks);
+        const desks = this.desks();
         const updated_desks = desks.filter((_) => _.id !== desk.id);
-        const filters = await nextValueFrom(this.filters);
+        const filters = this.filters();
         const level = this._org.levelWithID(filters.zones);
-        this.loading = i18n('APP.CONCIERGE.DESKS_REMOVE_LOADING');
+        this.loading.set(i18n('APP.CONCIERGE.DESKS_REMOVE_LOADING'));
         await updateMetadata(level.id, {
             name: 'desks',
             description: 'desks',
@@ -302,7 +301,7 @@ export class DesksManageComponent extends AsyncHandler {
         })
             .toPromise()
             .catch((e) => {
-                this.loading = '';
+                this.loading.set('');
                 notifyError(
                     i18n('APP.CONCIERGE.DESKS_REMOVE_ERROR', {
                         error: e.message || e,
@@ -312,7 +311,7 @@ export class DesksManageComponent extends AsyncHandler {
             });
         notifySuccess(i18n('APP.CONCIERGE.DESKS_REMOVE_SUCCESS'));
         this._state.setFilters({});
-        this.loading = '';
+        this.loading.set('');
     }
 
     public get kiosk_url() {
@@ -334,8 +333,8 @@ export class DesksManageComponent extends AsyncHandler {
     }
 
     public async loadCSVData(event: InputEvent) {
-        this.loading = i18n('APP.CONCIERGE.DESKS_UPLOADING');
-        this.dragging = false;
+        this.loading.set(i18n('APP.CONCIERGE.DESKS_UPLOADING'));
+        this.dragging.set(false);
         const data = await loadTextFileFromInputEvent(event).catch(([m, e]) => {
             notifyError(m);
             throw e;
@@ -354,10 +353,10 @@ export class DesksManageComponent extends AsyncHandler {
         } catch (e) {
             console.error(e);
         }
-        this.loading = '';
+        this.loading.set('');
     }
 
     public handleDrag(type: 'enter' | 'leave' | 'end', event: DragEvent) {
-        this.dragging = type === 'enter';
+        this.dragging.set(type === 'enter');
     }
 }

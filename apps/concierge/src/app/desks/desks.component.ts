@@ -1,4 +1,5 @@
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import {
     ActivatedRoute,
@@ -15,12 +16,12 @@ import {
     downloadFile,
     jsonToCsv,
     loadTextFileFromInputEvent,
-    nextValueFrom,
     notifyError,
     randomInt,
 } from '@placeos/common';
 
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -57,7 +58,7 @@ import { DesksStateService } from './desks-state.service';
                     <div class="w-px flex-1"></div>
                     <searchbar
                         class="mr-2"
-                        [model]="(filters | async)?.search"
+                        [model]="filters().search"
                         (modelChange)="setFilters({ search: $event })"
                     ></searchbar>
                     @if (path !== 'manage') {
@@ -94,12 +95,12 @@ import { DesksStateService } from './desks-state.service';
                             class="no-subscript w-60"
                         >
                             <mat-select
-                                [ngModel]="(filters | async)?.zones"
+                                [ngModel]="filters().zones"
                                 (ngModelChange)="updateZones($event)"
                                 [placeholder]="'COMMON.LEVEL_ALL' | translate"
                                 multiple
                             >
-                                @for (level of levels | async; track level) {
+                                @for (level of levels(); track level) {
                                     <mat-option [value]="level.id">
                                         <div class="flex flex-col-reverse">
                                             @if (use_region) {
@@ -134,14 +135,14 @@ import { DesksStateService } from './desks-state.service';
                         >
                             <mat-select
                                 [ngModel]="
-                                    (filters | async)?.zones?.length
-                                        ? (filters | async)?.zones[0]
+                                    filters().zones?.length
+                                        ? filters().zones[0]
                                         : ''
                                 "
                                 (ngModelChange)="updateZones([$event])"
                                 [placeholder]="'COMMON.LEVEL_ALL' | translate"
                             >
-                                @for (level of levels | async; track level) {
+                                @for (level of levels(); track level) {
                                     <mat-option [value]="level.id">
                                         <div class="flex flex-col-reverse">
                                             @if (use_region) {
@@ -181,7 +182,7 @@ import { DesksStateService } from './desks-state.service';
                             [matTooltip]="'COMMON.REFRESH' | translate"
                             class="ml-2 rounded border border-base-200"
                             (click)="refresh()"
-                            [disabled]="loading | async"
+                            [disabled]="loading()"
                         >
                             <icon>refresh</icon>
                         </button>
@@ -194,7 +195,7 @@ import { DesksStateService } from './desks-state.service';
                             "
                             class="ml-2 rounded border border-base-200"
                             (click)="rejectAll()"
-                            [disabled]="loading | async"
+                            [disabled]="loading()"
                         >
                             <icon>event_busy</icon>
                         </button>
@@ -257,7 +258,7 @@ import { DesksStateService } from './desks-state.service';
                 <div class="relative h-1/2 w-full flex-1 overflow-auto px-8">
                     <router-outlet></router-outlet>
                 </div>
-                @if ((loading | async) && path === 'events') {
+                @if (loading() && path === 'events') {
                     <mat-progress-bar
                         class="w-full"
                         mode="indeterminate"
@@ -282,6 +283,7 @@ import { DesksStateService } from './desks-state.service';
         RouterModule,
         MatRippleModule,
         CommonModule,
+        FormsModule,
         IconComponent,
         MatRippleModule,
         MatTooltipModule,
@@ -305,18 +307,21 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
     public readonly loading = this._state.loading;
     public path: string;
     public manage = false;
-    /** List of levels for the active building */
+    /** Signal for filters */
     public readonly filters = this._state.filters;
-    /** List of levels for the active building */
-    public readonly levels = combineLatest([
-        this._org.active_building,
-        this._org.active_region,
-    ]).pipe(
-        map(([bld, region]) =>
-            this._settings.get('app.use_region')
-                ? this._org.levelsForRegion(region)
-                : this._org.levelsForBuilding(bld),
+    /** Signal for levels for the active building */
+    public readonly levels = toSignal(
+        combineLatest([
+            this._org.active_building,
+            this._org.active_region,
+        ]).pipe(
+            map(([bld, region]) =>
+                this._settings.get('app.use_region')
+                    ? this._org.levelsForRegion(region)
+                    : this._org.levelsForBuilding(bld),
+            ),
         ),
+        { initialValue: [] },
     );
     public readonly setDate = (date) => this._state.setFilters({ date });
     public readonly setFilters = (o) => this._state.setFilters(o);
@@ -330,6 +335,7 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
             queryParams: { zone_ids: zones.join(',') },
             queryParamsHandling: 'merge',
         });
+        this._state.setFilters({ zones });
     };
 
     public get use_region() {
@@ -430,7 +436,7 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
                 'zone-changes',
                 this._org.active_levels.subscribe(async (lvls) => {
                     if (!lvls.length) return;
-                    const { zones } = await nextValueFrom(this._state.filters);
+                    const { zones } = this._state.filters();
                     const levels_in_zones =
                         zones?.length &&
                         zones.some((z) => lvls.find((lvl) => lvl.id === z));
