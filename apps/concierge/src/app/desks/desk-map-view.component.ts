@@ -1,4 +1,5 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, effect, inject, OnInit } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import {
     ExploreDesksService,
     ExploreStateService,
@@ -17,12 +18,12 @@ import { DesksStateService } from './desks-state.service';
     template: `
         <div map class="relative h-full w-full">
             <interactive-map
-                [src]="url | async"
-                [zoom]="(positions | async).zoom"
-                [center]="(positions | async).center"
-                [styles]="styles | async"
-                [features]="features | async"
-                [actions]="actions | async"
+                [src]="url()"
+                [zoom]="positions()?.zoom"
+                [center]="positions()?.center"
+                [styles]="styles()"
+                [features]="features()"
+                [actions]="actions()"
             ></interactive-map>
             <explore-zoom-controls
                 class="absolute bottom-2 right-2"
@@ -74,32 +75,31 @@ export class DeskMapViewComponent extends AsyncHandler implements OnInit {
     private _desks_state = inject(ExploreDesksService);
     private _org = inject(OrganisationService);
 
-    /** Observable for the active map */
-    public readonly url = this._state.map_url;
-    /** Observable for the active map */
-    public readonly styles = this._state.map_styles;
-    /** Observable for the active map */
-    public readonly positions = this._state.map_positions;
-    /** Observable for the active map */
-    public readonly actions = this._state.map_actions;
-    /** Observable for the active map */
-    public readonly features = this._state.map_features;
+    /** Signal for the active map */
+    public readonly url = toSignal(this._state.map_url, { initialValue: '' });
+    /** Signal for the active map */
+    public readonly styles = toSignal(this._state.map_styles);
+    /** Signal for the active map */
+    public readonly positions = toSignal(this._state.map_positions);
+    /** Signal for the active map */
+    public readonly actions = toSignal(this._state.map_actions);
+    /** Signal for the active map */
+    public readonly features = toSignal(this._state.map_features);
 
     public readonly setHost = (u) => this._desks_state.setOptions({ host: u });
 
+    private _filtersEffect = effect(() => {
+        const opts = this._desk.filters();
+        const level = this._org.levelWithID(opts.zones);
+        if (level) this._state.setLevel(level.id);
+        this._desks_state.setOptions({
+            date: opts.date || Date.now(),
+            all_day: true,
+            zones: opts.zones,
+        });
+    });
+
     public ngOnInit(): void {
         this._desks_state.setOptions({ use_api: true });
-        this.subscription(
-            'date',
-            this._desk.filters.subscribe((opts) => {
-                const level = this._org.levelWithID(opts.zones);
-                if (level) this._state.setLevel(level.id);
-                this._desks_state.setOptions({
-                    date: opts.date || Date.now(),
-                    all_day: true,
-                    zones: opts.zones,
-                });
-            }),
-        );
     }
 }

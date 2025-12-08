@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { SettingsService } from '@placeos/common';
 import { DesksStateService } from './desks-state.service';
 
@@ -7,7 +7,6 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatDialogModule } from '@angular/material/dialog';
 import { generateQRCode } from '@placeos/common';
 import { IconComponent, SafePipe, TranslatePipe } from '@placeos/components';
-import { map } from 'rxjs/operators';
 
 @Component({
     selector: 'desk-qr-code-modal',
@@ -26,7 +25,7 @@ import { map } from 'rxjs/operators';
             <div
                 class="flex h-[calc(100vh-5rem)] flex-wrap overflow-auto print:h-auto"
             >
-                @for (desk of desks | async; track desk) {
+                @for (desk of desks(); track desk) {
                     <a
                         [href]="desk.qr_link | safe: 'url'"
                         target="_blank"
@@ -64,13 +63,11 @@ export class DeskQrCodeModalComponent {
 
     public readonly print = () => window.print();
 
-    public readonly desks = this._state.desks.pipe(
-        map((list) =>
-            list.map((_) => {
-                this.loadQrCode(_);
-                return _;
-            }),
-        ),
+    public readonly desks = computed(() =>
+        this._state.desks().map((_) => {
+            this.loadQrCode(_);
+            return _;
+        }),
     );
 
     public get kiosk_url() {

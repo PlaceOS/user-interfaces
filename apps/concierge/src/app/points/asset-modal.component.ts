@@ -1,5 +1,6 @@
 import { AsyncPipe } from '@angular/common';
 import { Component, EventEmitter, Output, inject } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import {
     FormControl,
     FormGroup,
@@ -305,7 +306,7 @@ export class PointsAssetModalComponent extends AsyncHandler {
     public readonly asset_options = combineLatest([
         this.form.valueChanges,
         this._spaces.list,
-        this._desks.desks,
+        toObservable(this._desks.desks),
     ]).pipe(
         map(([{ type, name }, spaces, desks]) => {
             this.loading = true;

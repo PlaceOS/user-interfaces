@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, OnInit, Output } from '@angular/core';
+import { Component, inject, OnInit, output, signal } from '@angular/core';
 import {
     FormControl,
     FormGroup,
@@ -55,13 +55,13 @@ const CHARS = '0123456789ABCDEF';
                         ) | translate
                     }}
                 </h2>
-                @if (!loading) {
+                @if (!loading()) {
                     <button icon matRipple mat-dialog-close>
                         <icon>close</icon>
                     </button>
                 }
             </header>
-            @if (!loading) {
+            @if (!loading()) {
                 <main
                     class="flex max-h-[65vh] flex-col overflow-auto p-4"
                     [formGroup]="form"
@@ -258,8 +258,8 @@ export class DeskModalComponent implements OnInit {
     private _org = inject(OrganisationService);
     private _dialog = inject(MatDialog);
 
-    @Output() public readonly event = new EventEmitter<DialogEvent>();
-    public loading: boolean;
+    public readonly event = output<DialogEvent>();
+    public loading = signal(false);
 
     public get id(): string {
         return this._data?.desk?.id || '';
@@ -311,7 +311,7 @@ export class DeskModalComponent implements OnInit {
         this.form.markAllAsTouched();
         this.form.updateValueAndValidity();
         if (!this.form.valid) return;
-        this.loading = true;
+        this.loading.set(true);
         const value = { ...this.form.getRawValue() };
         if (value.assigned_user) {
             value.assigned_to = value.assigned_user?.email || value.assigned_to;
