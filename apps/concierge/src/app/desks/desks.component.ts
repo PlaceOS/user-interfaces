@@ -19,6 +19,7 @@ import {
     notifyError,
     randomInt,
 } from '@placeos/common';
+import { DeskView } from './desks-state.service';
 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -343,14 +344,13 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
     }
 
     public ngOnInit() {
-        this._state.refresh();
         this.subscription(
             'router.events',
             this._router.events.subscribe((e) => {
                 if (e instanceof NavigationEnd) {
                     const url_parts = this._router.url?.split('/') || [''];
-                    this.path = url_parts[parts.length - 1].split('?')[0];
-                    this._checkManage();
+                    this.path = url_parts[url_parts.length - 1].split('?')[0];
+                    this._updateView();
                 }
             }),
         );
@@ -371,7 +371,7 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
         );
         const parts = this._router.url?.split('/') || [''];
         this.path = parts[parts.length - 1].split('?')[0];
-        this._checkManage();
+        this._updateView();
     }
 
     public ngOnDestroy() {
@@ -429,8 +429,17 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
         }
     }
 
-    private _checkManage() {
-        this.manage = this.path.includes('manage');
+    private _getViewFromPath(): DeskView {
+        if (this.path.includes('manage')) return 'manage';
+        if (this.path.includes('map')) return 'map';
+        return 'events';
+    }
+
+    private _updateView() {
+        const view = this._getViewFromPath();
+        this.manage = view === 'manage';
+        this._state.setFilters({ view });
+
         if (this.manage) {
             this.subscription(
                 'zone-changes',
@@ -443,6 +452,8 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
                     if (!levels_in_zones) this.updateZones([lvls[0].id]);
                 }),
             );
-        } else this.unsub('zone-changes');
+        } else {
+            this.unsub('zone-changes');
+        }
     }
 }

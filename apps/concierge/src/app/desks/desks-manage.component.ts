@@ -1,6 +1,6 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, inject, signal } from '@angular/core';
+import { Component, computed, ElementRef, inject, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -212,12 +212,14 @@ const QR_CODES = {};
                     </ng-template>
                 </div>
             </ng-template>
-            @if (loading()) {
+            @if (loading() || stateLoading()) {
                 <div
                     class="absolute inset-0 flex flex-col items-center justify-center space-y-2 bg-base-100 bg-opacity-60"
                 >
                     <mat-spinner diameter="32"></mat-spinner>
-                    <p>{{ loading() }}</p>
+                    @if (loading()) {
+                        <p>{{ loading() }}</p>
+                    }
                 </div>
             }
             @if (dragging()) {
@@ -267,7 +269,10 @@ export class DesksManageComponent extends AsyncHandler {
     public loading = signal<string>('');
     public dragging = signal(false);
     public readonly filters = this._state.filters;
-    public readonly desks = this._state.desks;
+    public readonly stateLoading = this._state.loading;
+    public readonly desks = computed(() =>
+        this.stateLoading() ? [] : this._state.desks(),
+    );
 
     public readonly editDesk = (desk?: Desk) => this._state.editDesk(desk);
 

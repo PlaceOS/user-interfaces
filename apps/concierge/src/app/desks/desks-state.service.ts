@@ -63,11 +63,14 @@ function addQRCodeToBooking(booking: Booking): Booking {
     });
 }
 
+export type DeskView = 'manage' | 'events' | 'map';
+
 export interface DeskFilters {
     date?: number;
     zones?: string[];
     show_map?: boolean;
     search?: string;
+    view?: DeskView;
 }
 
 @Injectable({
@@ -92,6 +95,11 @@ export class DesksStateService extends AsyncHandler {
     ]).pipe(
         debounceTime(500),
         switchMap(([filters]) => {
+            // Only load desk metadata when on manage view
+            if (filters.view !== 'manage') {
+                return of([]);
+            }
+            this._loading.set(true);
             const zones = filters.zones || [];
             return zones && !zones.includes('All')
                 ? showMetadata(zones[0], 'desks').pipe(
@@ -112,6 +120,7 @@ export class DesksStateService extends AsyncHandler {
         map((list) => {
             if (!(list instanceof Array)) list = [];
             list.sort((a, b) => a.name?.localeCompare(b.name));
+            this._loading.set(false);
             return list.map((i) => new Desk({ ...i, qr_code: '' }));
         }),
         shareReplay(1),
@@ -127,7 +136,8 @@ export class DesksStateService extends AsyncHandler {
     ]).pipe(
         debounceTime(500),
         tap(([filters, loaded]) => {
-            if (!loaded) return;
+            // Only load bookings when on events view
+            if (!loaded || filters.view !== 'events') return;
             const date = filters.date || Date.now();
             const active_zones = (filters.zones || []).filter(
                 (_) => !this._all_zones_keys.includes(_),
