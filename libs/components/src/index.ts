@@ -42,6 +42,7 @@ export * from './lib/media-duration.pipe';
 export * from './lib/safe.pipe';
 export * from './lib/sanitise.pipe';
 export * from './lib/zone.pipe';
+export * from './lib/duration.pipe';
 
 export * from './lib/authorised-admin.guard';
 export * from './lib/authorised-user.guard';

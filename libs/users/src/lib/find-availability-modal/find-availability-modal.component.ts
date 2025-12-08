@@ -18,7 +18,16 @@ import {
     MatDialogModule,
     MatDialogRef,
 } from '@angular/material/dialog';
+import { queryBookings } from '@placeos/bookings';
 import { AsyncHandler, User } from '@placeos/common';
+import {
+    DurationPipe,
+    IconComponent,
+    TranslatePipe,
+    UserAvatarComponent,
+} from '@placeos/components';
+import { queryUserFreeBusy } from '@placeos/events';
+import { DateFieldComponent, UserSearchFieldComponent } from '@placeos/form-fields';
 import {
     addMinutes,
     differenceInMinutes,
@@ -29,14 +38,7 @@ import {
     setHours,
     startOfDay,
 } from 'date-fns';
-import { DurationPipe } from 'libs/components/src/lib/duration.pipe';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { UserAvatarComponent } from 'libs/components/src/lib/user-avatar.component';
-import { queryUserFreeBusy } from 'libs/events/src/lib/calendar.fn';
-import { DateFieldComponent } from 'libs/form-fields/src/lib/date-field.component';
-import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-field.component';
-import { of } from 'rxjs';
+import { forkJoin, of } from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -316,18 +318,43 @@ export class FindAvailabilityModalComponent
     }).pipe(
         debounceTime(300),
         switchMap((users) => {
-            return queryUserFreeBusy({
-                calendars: [
-                    this.host.email,
-                    ...users.map((_) => _.email.toLowerCase()),
-                ].join(','),
-                period_start: getUnixTime(startOfDay(this.date())),
-                period_end: getUnixTime(endOfDay(this.date())),
-            }).pipe(catchError(() => of([])));
+            const all_emails = [
+                this.host.email,
+                ...users.map((_) => _.email.toLowerCase()),
+            ];
+            const period_start = getUnixTime(startOfDay(this.date()));
+            const period_end = getUnixTime(endOfDay(this.date()));
+
+            // Query calendar free/busy and desk bookings per user
+            const desk_queries = all_emails.reduce(
+                (acc, email) => {
+                    acc[email] = queryBookings({
+                        type: 'desk',
+                        email,
+                        period_start,
+                        period_end,
+                    }).pipe(catchError(() => of([])));
+                    return acc;
+                },
+                {} as Record<string, ReturnType<typeof queryBookings>>,
+            );
+
+            return forkJoin({
+                calendar: queryUserFreeBusy({
+                    calendars: all_emails.join(','),
+                    period_start,
+                    period_end,
+                }).pipe(catchError(() => of([]))),
+                desks: forkJoin(desk_queries).pipe(
+                    catchError(() => of({} as Record<string, any[]>)),
+                ),
+            });
         }),
-        map((availability_list) => {
+        map(({ calendar, desks }) => {
             const availability_map: Record<string, AvailabilityBlock[]> = {};
-            for (const item of availability_list) {
+
+            // Process calendar availability
+            for (const item of calendar) {
                 availability_map[item.id.toLowerCase()] = item.availability
                     .filter((_) => _.status === 'busy')
                     .map((block) => {
@@ -347,6 +374,29 @@ export class FindAvailabilityModalComponent
                         };
                     });
             }
+
+            // Process desk bookings per user and merge into availability
+            for (const [email, bookings] of Object.entries(desks)) {
+                const email_lower = email.toLowerCase();
+                for (const booking of bookings) {
+                    const date = new Date(booking.date);
+                    const duration = booking.duration;
+                    const block: AvailabilityBlock = {
+                        date: date.valueOf(),
+                        duration,
+                        start:
+                            ((date.getHours() + date.getMinutes() / 60) / 24) *
+                            100,
+                        size: (duration / 60 / 24) * 100,
+                    };
+
+                    if (!availability_map[email_lower]) {
+                        availability_map[email_lower] = [];
+                    }
+                    availability_map[email_lower].push(block);
+                }
+            }
+
             return availability_map;
         }),
         defaultIfEmpty({}),

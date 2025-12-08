@@ -4,6 +4,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
+import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -23,6 +24,7 @@ import {
     UserListFieldComponent,
     UserSearchFieldComponent,
 } from '@placeos/form-fields';
+import { FindAvailabilityModalComponent } from '@placeos/users';
 import { addDays, endOfDay } from 'date-fns';
 
 type FormType = 'single' | 'group' | 'other';
@@ -221,7 +223,21 @@ type FormType = 'single' | 'group' | 'other';
                             [ngModel]="(options | async)?.members || []"
                             (ngModelChange)="setOptions({ members: $event })"
                             [ngModelOptions]="{ standalone: true }"
-                        ></a-user-list-field>
+                            [time]="form_value().date"
+                        >
+                            <button
+                                btn
+                                matRipple
+                                type="button"
+                                class="inverse min-w-1/4 flex-1 sm:flex-none"
+                                (click)="findAvailableTime()"
+                            >
+                                <div class="hidden sm:flex">
+                                    {{ 'Find Available time' }}
+                                </div>
+                                <div class="flex sm:hidden">Availability</div>
+                            </button>
+                        </a-user-list-field>
                         <p
                             class="mt-1 flex items-center space-x-1 rounded bg-info p-1 text-sm text-info-content shadow"
                         >
@@ -259,6 +275,7 @@ export class DeskFlowDetailsComponent {
     private _booking_form = inject(BookingFormService);
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
+    private _dialog = inject(MatDialog);
 
     public readonly active_form = signal<FormType>('single');
     public readonly form_type_config = signal({
@@ -366,5 +383,26 @@ export class DeskFlowDetailsComponent {
 
     public onRecurrenceChange(recurrence: any) {
         this.form.patchValue(recurrence);
+    }
+
+    public findAvailableTime() {
+        const { date, duration } = this.form.getRawValue();
+        const members = this._options_signal()?.members ?? [];
+        const ref = this._dialog.open(FindAvailabilityModalComponent, {
+            data: {
+                users: members,
+                host: currentUser(),
+                date,
+                duration,
+            },
+        });
+        ref.afterClosed().subscribe((result) => {
+            if (!result) return;
+            this.form.patchValue({
+                date: ref.componentInstance.date(),
+                duration: ref.componentInstance.duration(),
+            });
+            this.setOptions({ members: ref.componentInstance.users() });
+        });
     }
 }

@@ -235,6 +235,7 @@ const DENIED_FILE_TYPES = [
                             </span>
                         </div>
                     </button>
+                    <ng-content />
                 </div>
             }
         </div>

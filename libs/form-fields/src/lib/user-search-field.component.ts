@@ -22,7 +22,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AsyncHandler, SettingsService, User } from '@placeos/common';
 import { authority, queryUsers } from '@placeos/ts-client';
-import { searchGuests, searchStaff } from '@placeos/users';
+import { searchGuests } from 'libs/users/src/lib/guests.fn';
+import { searchStaff } from 'libs/users/src/lib/staff.fn';
 import { BehaviorSubject, forkJoin, Observable, of } from 'rxjs';
 import {
     catchError,

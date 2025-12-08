@@ -39,6 +39,7 @@ import {
     RichTextInputComponent,
     UserListFieldComponent,
 } from '@placeos/form-fields';
+import { FindAvailabilityModalComponent } from '@placeos/users';
 import { BehaviorSubject, combineLatest, map, tap } from 'rxjs';
 
 @Component({
@@ -200,7 +201,19 @@ import { BehaviorSubject, combineLatest, map, tap } from 'rxjs';
                     formControlName="attendees"
                     [time]="event.date"
                     [guests]="allow_externals()"
-                />
+                >
+                    <button
+                        btn
+                        matRipple
+                        class="inverse min-w-1/4 flex-1 sm:flex-none"
+                        (click)="findAvailableTime()"
+                    >
+                        <div class="hidden sm:flex">
+                            {{ 'Find Available time' }}
+                        </div>
+                        <div class="fle sm:hidden">Availability</div>
+                    </button>
+                </a-user-list-field>
                 @if (has_catering | async) {
                     <h3 class="mb-2 mt-4 flex items-center space-x-2 text-xl">
                         {{ 'CALENDAR_EVENT.CATERING' | translate }}
@@ -530,5 +543,26 @@ export class MeetingFlowOptionsComponent {
         } finally {
             this.loading.set(false);
         }
+    }
+
+    public findAvailableTime() {
+        const { attendees, organiser, date, duration } =
+            this.form().getRawValue();
+        const ref = this._dialog.open(FindAvailabilityModalComponent, {
+            data: {
+                users: attendees ?? [],
+                host: organiser || currentUser(),
+                date,
+                duration,
+            },
+        });
+        ref.afterClosed().subscribe((d) => {
+            if (!d) return;
+            this.form().patchValue({
+                date: ref.componentInstance.date(),
+                attendees: ref.componentInstance.users(),
+                duration: ref.componentInstance.duration(),
+            });
+        });
     }
 }
