@@ -6,6 +6,8 @@ import {
     ElementRef,
     inject,
     input,
+    OnInit,
+    signal,
     viewChild,
 } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
@@ -13,6 +15,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { BookingDetailsModalComponent } from '@placeos/bookings';
 import {
+    AsyncHandler,
     Booking,
     BOOKING_TYPE_COLORS,
     CalendarEvent,
@@ -233,7 +236,7 @@ interface PositionedBooking {
     styles: [``],
     imports: [CommonModule, MatRippleModule, MatTooltipModule, UserPipe],
 })
-export class ScheduleDayViewComponent {
+export class ScheduleDayViewComponent extends AsyncHandler implements OnInit {
     private _dialog = inject(MatDialog);
     private _state = inject(ScheduleStateService);
     private _org = inject(OrganisationService);
@@ -242,6 +245,7 @@ export class ScheduleDayViewComponent {
     public readonly bookings = input<(Booking | CalendarEvent)[]>([]);
     public readonly loading = input(false);
     public readonly colors = BOOKING_TYPE_COLORS;
+    private _changed = signal(0);
 
     private readonly scrollContainer =
         viewChild<ElementRef<HTMLDivElement>>('scrollContainer');
@@ -249,6 +253,7 @@ export class ScheduleDayViewComponent {
         viewChild<ElementRef<HTMLDivElement>>('currentTimeMarker');
 
     constructor() {
+        super();
         // Auto-scroll to current time when viewing today
         effect(() => {
             const position = this.currentTimePosition();
@@ -265,6 +270,10 @@ export class ScheduleDayViewComponent {
                 }, 100);
             }
         });
+    }
+
+    public ngOnInit() {
+        this.interval('time', () => this._changed.set(Date.now()), 10 * 1000);
     }
 
     // Configuration
@@ -294,6 +303,7 @@ export class ScheduleDayViewComponent {
 
     public readonly currentTimePosition = computed(() => {
         if (!this.isToday()) return null;
+        this._changed();
 
         const now = Date.now();
         const dayStart = setHours(
