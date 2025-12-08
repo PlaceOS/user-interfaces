@@ -86,6 +86,9 @@ import {
                     (startChange)="setStartDate($event)"
                     (endChange)="setEndDate($event)"
                 ></date-range-calendar>
+                <div class="m-2 w-[calc(100%-1rem)] rounded bg-info p-1 text-xs text-info-content text-center">
+                    Pick a date range selecting the start then end date.
+                </div>
             }
             <h3 class="mx-4 mt-4 pb-2 font-medium uppercase">
                 {{ 'APP.WORKPLACE.SCHEDULE_FILTERS' | translate }}
