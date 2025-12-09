@@ -232,7 +232,7 @@ export class EventsStateService extends AsyncHandler {
             for (const space of spaces_with_driver) {
                 const driver_events$ = new Observable<CalendarEvent[]>(
                     (subscriber) => {
-                        const mod = getModule(space.id, 'Booking');
+                        const mod = getModule(space.id, 'Bookings');
                         const binding = mod.variable('bookings');
                         const unsub = binding.bindThenSubscribe((value) => {
                             const events = (value || []).map(
