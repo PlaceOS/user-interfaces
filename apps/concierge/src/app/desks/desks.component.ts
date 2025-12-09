@@ -9,15 +9,15 @@ import {
 } from '@angular/router';
 import {
     AsyncHandler,
-    Desk,
-    OrganisationService,
-    SettingsService,
     csvToJson,
+    Desk,
     downloadFile,
     jsonToCsv,
     loadTextFileFromInputEvent,
     notifyError,
+    OrganisationService,
     randomInt,
+    SettingsService,
 } from '@placeos/common';
 import { DeskView } from './desks-state.service';
 
