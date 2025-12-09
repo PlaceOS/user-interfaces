@@ -11,6 +11,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { notifySuccess, OrganisationService } from '@placeos/common';
 import {
     IconComponent,
+    LevelPipe,
     openConfirmModal,
     SimpleTableComponent,
     TranslatePipe,
@@ -138,6 +139,13 @@ export { EmergencyContact } from './emergency-contacts.service';
                                 sortable: false,
                             },
                             {
+                                key: 'zone',
+                                name:
+                                    'RESOURCE.LEVEL' | translate,
+                                content: zone_template,
+                                sortable: false,
+                            },
+                            {
                                 key: 'actions',
                                 name: ' ',
                                 content: actions_template,
@@ -230,6 +238,7 @@ export { EmergencyContact } from './emergency-contacts.service';
         ApplicationSidebarComponent,
         FormsModule,
         TranslatePipe,
+        LevelPipe
     ],
 })
 export class EmergencyContactsComponent implements OnInit {

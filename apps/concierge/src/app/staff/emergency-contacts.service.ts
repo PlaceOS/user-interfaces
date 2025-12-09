@@ -83,7 +83,7 @@ export class EmergencyContactsService {
         filter(([bld]) => !!bld),
         switchMap(([bld, category]) => {
             if (!category) return of(null as AssetGroup | null);
-            return queryAssetGroups({ zone_id: bld.id }).pipe(
+            return queryAssetGroups({ zone_id: bld.id, q: category.name }).pipe(
                 catchError(() => of([] as AssetGroup[])),
                 map(
                     (groups) =>
@@ -209,7 +209,7 @@ export class EmergencyContactsService {
         if (!bld || !category) return null;
 
         const groups = await firstValueFrom(
-            queryAssetGroups({ zone_id: bld.id }).pipe(
+            queryAssetGroups({ zone_id: bld.id, q: category.name }).pipe(
                 catchError(() => of([] as AssetGroup[])),
             ),
         );
@@ -488,37 +488,41 @@ export class EmergencyContactsService {
     /** Convert Asset to EmergencyContact */
     private assetToContact(asset: Asset): EmergencyContact {
         const other_data = asset.other_data as Record<string, any>;
+        const level = this._org.levelWithID(asset.zones);
         return {
             id: asset.id,
             name: asset.identifier || '',
             email: other_data?.email || '',
             phone: other_data?.phone || '',
             roles: other_data?.roles || [],
-            zone: other_data?.zone || '',
+            zone: level?.id || '',
         };
     }
 
     /** Convert EmergencyContact to Asset */
     private contactToAsset(
         contact: EmergencyContact,
-        category_id: string,
+        asset_type_id: string,
     ): Partial<Asset> {
+        const level = contact.zone
+            ? this._org.levelWithID([contact.zone])
+            : null;
         return {
-            asset_type_id: category_id,
+            id: contact.id?.startsWith('contact-') ? undefined : contact.id,
+            asset_type_id,
             identifier: contact.name,
             other_data: {
                 email: contact.email,
                 phone: contact.phone,
                 roles: contact.roles,
-                zone: contact.zone,
             } as Record<string, any>,
-            zone_id: contact.zone || this._org.building.id,
+            zone_id: this._org.building.id,
             zones: unique(
                 [
                     this._org.organisation.id,
-                    this._org.region.id,
+                    this._org.region?.id,
                     this._org.building.id,
-                    contact.zone,
+                    level?.id,
                 ].filter((_) => _),
             ),
         };

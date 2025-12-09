@@ -101,7 +101,7 @@ export interface SearchResult {
     zone?: string;
 }
 
-const TYPES = ['space', 'contact', 'feature', 'user'];
+const TYPES = ['space', 'feature', 'contact', 'user'];
 
 function typeIndex(item: SearchResult): number {
     return TYPES.indexOf(item.is_role ? 'contact' : item.type);
@@ -129,9 +129,12 @@ export class ExploreSearchService {
         this._emergency_contacts.asObservable();
 
     /** Emergency contacts from Assets API (primary) */
-    private _asset_based_contacts = this._org.active_building.pipe(
-        filter((bld) => !!bld),
-        switchMap((bld) =>
+    private _asset_based_contacts = combineLatest([
+        this._org.active_building,
+        this._filter.pipe(debounceTime(400)),
+    ]).pipe(
+        filter(([bld]) => !!bld),
+        switchMap(([bld, search]) =>
             // First get the category
             queryAssetCategoriesLocal({ zone_id: bld.id }).pipe(
                 catchError(() => of([] as AssetCategory[])),
@@ -144,7 +147,7 @@ export class ExploreSearchService {
                 // Then get the asset type for that category
                 switchMap((category) => {
                     if (!category) return of(null as AssetGroup | null);
-                    return queryAssetTypesLocal({ zone_id: bld.id }).pipe(
+                    return queryAssetTypesLocal({ zone_id: bld.id, q: `"${category.name}"` }).pipe(
                         catchError(() => of([] as AssetGroup[])),
                         map(
                             (groups) =>
@@ -161,19 +164,31 @@ export class ExploreSearchService {
                 switchMap((assetType) => {
                     if (!assetType)
                         return of([] as EmergencyContactFromAsset[]);
-                    return queryAssetsLocal({ zone_id: bld.id }).pipe(
+                    const query: Record<string, unknown> = {
+                        zone_id: bld.id,
+                        type_id: assetType.id,
+                        limit: 200,
+                    };
+                    // if (search?.length > 2) {
+                    //     query.q = search;
+                    // }
+                    return queryAssetsLocal(query).pipe(
                         catchError(() => of([] as Asset[])),
                         map((assets) =>
                             assets
                                 .filter((a) => a.asset_type_id === assetType.id)
-                                .map((a) => ({
-                                    id: a.id,
-                                    name: a.identifier || '',
-                                    email: a.other_data?.email || '',
-                                    phone: a.other_data?.phone || '',
-                                    roles: a.other_data?.roles || [],
-                                    zone: a.other_data?.zone || '',
-                                })),
+                                .map((a) => {
+                                    const zone = this._org.levelWithID(a.zones) || this._org.buildings.find(_ => a.zones.includes(_.id))
+                                    return ({
+                                        id: a.id,
+                                        name: a.identifier || '',
+                                        email: a.other_data?.email || '',
+                                        phone: a.other_data?.phone || '',
+                                        roles: a.other_data?.roles || [],
+                                        zone: zone.id,
+                                        zone_name: zone?.display_name || zone?.name
+                                    })
+                                }),
                         ),
                     );
                 }),
@@ -447,6 +462,7 @@ export class ExploreSearchService {
                                             name: u.name,
                                             email: u.email,
                                             description: u.email,
+                                            zone_name: u.zone_name
                                         }) as any,
                                 ),
                             ),
@@ -466,6 +482,7 @@ export class ExploreSearchService {
                                 name: s.name,
                                 description: '',
                                 zone: (s as any).zone?.id,
+                                level_name: (s as any).zone?.display_name || (s as any).zone?.name
                             })),
                     );
                 }
@@ -502,7 +519,8 @@ export class ExploreSearchService {
                         _.name.toLowerCase().includes(search) ||
                         _.description.toLowerCase().includes(search) ||
                         (_.email || '').toLowerCase().includes(search) ||
-                        _.type.toLowerCase().includes(search),
+                        _.type.toLowerCase().includes(search) ||
+                        _.zone_name?.toLowerCase().includes(search)
                 );
                 results.sort(
                     (a, b) =>
