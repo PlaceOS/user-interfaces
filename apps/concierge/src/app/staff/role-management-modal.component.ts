@@ -1,18 +1,16 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, viewChild } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { nextValueFrom, OrganisationService } from '@placeos/common';
 import {
     CustomTooltipComponent,
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { showMetadata, updateMetadata } from '@placeos/ts-client';
-import { BehaviorSubject, combineLatest } from 'rxjs';
-import { filter, map, shareReplay, switchMap } from 'rxjs/operators';
+import { EmergencyContactsService } from './emergency-contacts.service';
 
 @Component({
     selector: 'role-management-modal',
@@ -91,6 +89,7 @@ import { filter, map, shareReplay, switchMap } from 'rxjs/operators';
     styles: [``],
     imports: [
         CommonModule,
+        FormsModule,
         MatDialogModule,
         MatRippleModule,
         MatFormFieldModule,
@@ -101,76 +100,41 @@ import { filter, map, shareReplay, switchMap } from 'rxjs/operators';
     ],
 })
 export class RoleManagementModalComponent {
-    private _org = inject(OrganisationService);
     private _dialog_ref =
         inject<MatDialogRef<RoleManagementModalComponent>>(MatDialogRef);
-
-    private _changes = new BehaviorSubject(0);
+    private _contacts_service = inject(EmergencyContactsService);
 
     public active: string;
     public role_name: string;
     public loading = false;
-    public readonly data = combineLatest([
-        this._org.active_building,
-        this._changes,
-    ]).pipe(
-        filter(([bld]) => !!bld),
-        switchMap(([bld]) => showMetadata(bld.id, 'emergency_contacts')),
-        map(({ details }) => {
-            const value = (details as any) || { roles: [], contacts: [] };
-            if (!value.roles) value.roles = [];
-            if (!value.contacts) value.contacts = [];
-            return value;
-        }),
-        shareReplay(1),
-    );
-    public readonly roles = this.data.pipe(map((_) => _.roles));
+    public readonly roles = this._contacts_service.roles$;
 
     private readonly _tooltip = viewChild(CustomTooltipComponent);
 
-    public async removeRole(role: string) {
+    public async removeRole(role: string): Promise<void> {
         if (!role) return;
         this.loading = true;
         this._dialog_ref.disableClose = true;
-        const data: any = await nextValueFrom(this.data);
-        await updateMetadata(this._org.building.id, {
-            name: 'emergency_contacts',
-            description: 'Emergency Contacts',
-            details: {
-                roles: [...data.roles.filter((_) => _ !== role)]
-                    .filter((_) => !!_)
-                    .sort((a, b) => a.localeCompare(b)),
-                contacts: data.contacts.map((_) => ({
-                    ..._,
-                    roles: _.roles.filter((r) => r !== role),
-                })),
-            },
-        }).toPromise();
-        this._changes.next(0);
+        await this._contacts_service.removeRole(role);
         this.loading = false;
         this._dialog_ref.disableClose = false;
     }
 
-    public async updateRoles() {
+    public async updateRoles(): Promise<void> {
         if (!this.role_name) return;
         this.loading = true;
         this._tooltip().close();
         this._dialog_ref.disableClose = true;
-        const data: any = await nextValueFrom(this.data);
-        await updateMetadata(this._org.building.id, {
-            name: 'emergency_contacts',
-            description: 'Emergency Contacts',
-            details: {
-                roles: [
-                    ...data.roles.filter((_) => _ !== this.active),
-                    this.role_name,
-                ]
-                    .filter((_) => !!_)
-                    .sort((a, b) => a.localeCompare(b)),
-                contacts: data.contacts,
-            },
-        }).toPromise();
-        this._changes.next(0);
+        if (this.active) {
+            // Renaming an existing role
+            await this._contacts_service.renameRole(
+                this.active,
+                this.role_name,
+            );
+        } else {
+            // Adding a new role
+            await this._contacts_service.addRole(this.role_name);
+        }
         this.role_name = '';
         this.active = '';
         this.loading = false;

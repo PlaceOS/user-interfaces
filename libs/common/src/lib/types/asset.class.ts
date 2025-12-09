@@ -1,22 +1,24 @@
 // Re-export ts-client types
 export {
+    PlaceAsset,
     PlaceAssetCategory,
     PlaceAssetPurchaseOrder,
     PlaceAssetType,
-    PlaceAsset,
 } from '@placeos/ts-client';
 
 // Type aliases for backwards compatibility
-export { PlaceAssetCategory as AssetCategory } from '@placeos/ts-client';
-export { PlaceAssetPurchaseOrder as AssetPurchaseOrder } from '@placeos/ts-client';
-export { PlaceAsset as Asset } from '@placeos/ts-client';
+export {
+    PlaceAsset as Asset,
+    PlaceAssetCategory as AssetCategory,
+    PlaceAssetPurchaseOrder as AssetPurchaseOrder,
+} from '@placeos/ts-client';
 
 // Extended AssetGroup type with additional UI properties
 import {
-    PlaceAssetType,
-    PlaceAssetCategory,
     PlaceAsset,
+    PlaceAssetCategory,
     PlaceAssetPurchaseOrder,
+    PlaceAssetType,
 } from '@placeos/ts-client';
 
 export interface AssetGroup extends PlaceAssetType {

@@ -16,24 +16,17 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
-import {
-    i18n,
-    nextValueFrom,
-    notifyError,
-    notifySuccess,
-    OrganisationService,
-    randomString,
-} from '@placeos/common';
+import { OrganisationService } from '@placeos/common';
 import {
     CustomTooltipComponent,
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
 import { UserSearchFieldComponent } from '@placeos/form-fields';
-import { showMetadata, updateMetadata } from '@placeos/ts-client';
-import { BehaviorSubject, combineLatest } from 'rxjs';
-import { filter, map, shareReplay, switchMap } from 'rxjs/operators';
-import { EmergencyContact } from './emergency-contacts.component';
+import {
+    EmergencyContact,
+    EmergencyContactsService,
+} from './emergency-contacts.service';
 
 @Component({
     selector: 'emergency-contact-modal',
@@ -106,7 +99,29 @@ import { EmergencyContact } from './emergency-contacts.component';
                         </div>
                     </div>
                     <div class="flex flex-col">
-                        <label for="email">{{
+                        <label for="zone">{{
+                            'RESOURCE.LEVEL' | translate
+                        }}</label>
+                        <mat-form-field appearance="outline">
+                            <mat-select
+                                formControlName="zone"
+                                [placeholder]="
+                                    'COMMON.LEVEL_SELECT' | translate
+                                "
+                            >
+                                <mat-option value="">{{
+                                    'COMMON.LEVEL_ANY' | translate
+                                }}</mat-option>
+                                @for (level of levels | async; track level.id) {
+                                    <mat-option [value]="level.id">
+                                        {{ level.display_name || level.name }}
+                                    </mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+                    <div class="flex flex-col">
+                        <label for="roles">{{
                             'APP.CONCIERGE.CONTACTS_ROLES' | translate
                         }}</label>
                         <div class="flex items-center space-x-4">
@@ -122,10 +137,7 @@ import { EmergencyContact } from './emergency-contacts.component';
                                             | translate
                                     "
                                 >
-                                    @for (
-                                        role of (data | async)?.roles || [];
-                                        track $index
-                                    ) {
+                                    @for (role of roles | async; track $index) {
                                         @if (role) {
                                             <mat-option [value]="role">
                                                 {{ role }}
@@ -166,7 +178,7 @@ import { EmergencyContact } from './emergency-contacts.component';
             <footer
                 class="flex items-center justify-end border-t border-base-200 px-4 py-2"
             >
-                <button btn matRipple class="w-32" (click)="save()">
+                <button btn matRipple class="w-48" (click)="save()">
                     {{ 'COMMON.SAVE' | translate }}
                 </button>
             </footer>
@@ -210,23 +222,16 @@ export class EmergencyContactModalComponent {
     private _dialog_ref =
         inject<MatDialogRef<EmergencyContactModalComponent>>(MatDialogRef);
     private _org = inject(OrganisationService);
-
-    private _changes = new BehaviorSubject(0);
+    private _contacts_service = inject(EmergencyContactsService);
 
     public loading = signal(false);
     public role_name: string;
     public readonly contact?: EmergencyContact = this._data;
-    public readonly data = combineLatest([
-        this._org.active_building,
-        this._changes,
-    ]).pipe(
-        filter(([bld]) => !!bld),
-        switchMap(([bld]) => showMetadata(bld.id, 'emergency_contacts')),
-        map(({ details }) => (details as any) || { roles: [], contacts: [] }),
-        shareReplay(1),
-    );
+    public readonly roles = this._contacts_service.roles$;
     public readonly form = new FormGroup({
-        id: new FormControl(this._data?.id || `contact-${randomString(8)}`),
+        id: new FormControl(
+            this._data?.id || this._contacts_service.generateContactId(),
+        ),
         name: new FormControl(this._data?.name || ''),
         email: new FormControl(this._data?.email || ''),
         phone: new FormControl(this._data?.phone || ''),
@@ -238,23 +243,12 @@ export class EmergencyContactModalComponent {
 
     private readonly _tooltip = viewChild(CustomTooltipComponent);
 
-    public async addRole() {
+    public async addRole(): Promise<void> {
         if (!this.role_name) return;
         this._tooltip().close();
         this.loading.set(true);
         this._dialog_ref.disableClose = true;
-        const data: any = await nextValueFrom(this.data);
-        await updateMetadata(this._org.building.id, {
-            name: 'emergency_contacts',
-            description: 'Emergency Contacts',
-            details: {
-                roles: [...(data.roles || []), this.role_name].filter(
-                    (_) => !!_,
-                ),
-                contacts: data.contacts,
-            },
-        }).toPromise();
-        this._changes.next(0);
+        await this._contacts_service.addRole(this.role_name);
         this.form.patchValue({
             roles: [...(this.form.value.roles || []), this.role_name],
         });
@@ -263,7 +257,7 @@ export class EmergencyContactModalComponent {
         this._dialog_ref.disableClose = false;
     }
 
-    public setUser(user: any) {
+    public setUser(user: any): void {
         this.form.patchValue({
             name: user?.name,
             email: user?.email,
@@ -271,32 +265,22 @@ export class EmergencyContactModalComponent {
         });
     }
 
-    public async save() {
+    public async save(): Promise<void> {
         this.loading.set(true);
         this._dialog_ref.disableClose = true;
-        const data: any = await nextValueFrom(this.data);
-        const contacts = data?.contacts || [];
-        const new_contacts = [
-            ...contacts.filter((_) => _.id !== this.contact?.id),
-            this.form.value,
-        ].sort((a, b) => a.name.localeCompare(b.name));
-        await updateMetadata(this._org.building.id, {
-            name: 'emergency_contacts',
-            description: 'Emergency Contacts',
-            details: { roles: data.roles || [], contacts: new_contacts },
-        })
-            .toPromise()
-            .catch((e) => {
-                this._dialog_ref.disableClose = false;
-                this.loading.set(false);
-                notifyError(
-                    i18n('APP.CONCIERGE.CONTACTS_SAVE_ERROR', { error: e }),
-                );
-                throw e;
-            });
+        const contact: EmergencyContact = {
+            id: this.form.value.id,
+            name: this.form.value.name,
+            email: this.form.value.email,
+            phone: this.form.value.phone,
+            zone: this.form.value.zone,
+            roles: this.form.value.roles || [],
+        };
+        const success = await this._contacts_service.saveContact(contact);
         this._dialog_ref.disableClose = false;
-        notifySuccess(i18n('APP.CONCIERGE.CONTACTS_SAVE_SUCCESS'));
         this.loading.set(false);
-        this._dialog_ref.close();
+        if (success) {
+            this._dialog_ref.close();
+        }
     }
 }

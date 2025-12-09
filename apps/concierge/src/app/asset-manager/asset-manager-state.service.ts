@@ -269,7 +269,9 @@ export class AssetManagerStateService extends AsyncHandler {
                     ? item.category_id
                     : '',
             }));
-            const categories = unique(mapped_products.map((i) => i.category_id));
+            const categories = unique(
+                mapped_products.map((i) => i.category_id),
+            );
             for (const group of categories) {
                 map[group] = mapped_products.filter(
                     (i) => i.category_id === group,

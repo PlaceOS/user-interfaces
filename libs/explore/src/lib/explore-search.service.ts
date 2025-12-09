@@ -1,7 +1,15 @@
 import { Injectable, inject } from '@angular/core';
 import {
+    Asset,
+    AssetCategory,
+    AssetGroup,
+    Desk,
     MapsPeopleService,
+    OrganisationService,
     SettingsService,
+    Space,
+    StaffUser,
+    User,
     flatten,
     nextValueFrom,
 } from '@placeos/common';
@@ -9,6 +17,7 @@ import {
     PlaceMetadata,
     PlaceZoneMetadata,
     authority,
+    get,
     listChildMetadata,
     querySystems,
     queryUsers,
@@ -26,15 +35,45 @@ import {
     tap,
 } from 'rxjs/operators';
 
-import {
-    Desk,
-    OrganisationService,
-    Space,
-    StaffUser,
-    User,
-} from '@placeos/common';
-import { searchStaff } from 'libs/users/src/lib/staff.fn';
+import { toQueryString } from '@placeos/common';
+import { searchStaff } from '@placeos/users';
 import { ExploreStateService } from './explore-state.service';
+
+const EMERGENCY_CONTACTS_CATEGORY_NAME = '_EMERGENCY_CONTACTS_';
+const BASE_ENDPOINT = '/api/engine/v2';
+
+interface EmergencyContactFromAsset {
+    id: string;
+    email: string;
+    name: string;
+    phone: string;
+    roles: string[];
+    zone: string;
+}
+
+/** Query asset categories directly to avoid circular dependency */
+function queryAssetCategoriesLocal(query: Record<string, unknown> = {}) {
+    const q = toQueryString(query);
+    return get(`${BASE_ENDPOINT}/asset_categories${q ? '?' + q : ''}`).pipe(
+        map((_) => _ as AssetCategory[]),
+    );
+}
+
+/** Query asset types/groups directly to avoid circular dependency */
+function queryAssetTypesLocal(query: Record<string, unknown> = {}) {
+    const q = toQueryString(query);
+    return get(`${BASE_ENDPOINT}/asset_types${q ? '?' + q : ''}`).pipe(
+        map((_) => _ as AssetGroup[]),
+    );
+}
+
+/** Query assets directly to avoid circular dependency */
+function queryAssetsLocal(query: Record<string, unknown> = {}) {
+    const q = toQueryString(query);
+    return get(`${BASE_ENDPOINT}/assets${q ? '?' + q : ''}`).pipe(
+        map((_) => _ as Asset[]),
+    );
+}
 
 export interface PointOfInterest {
     id: string;
@@ -89,10 +128,90 @@ export class ExploreSearchService {
     public readonly emergency_contacts =
         this._emergency_contacts.asObservable();
 
-    private _role_assigned_contacts = this._org.active_building.pipe(
+    /** Emergency contacts from Assets API (primary) */
+    private _asset_based_contacts = this._org.active_building.pipe(
         filter((bld) => !!bld),
-        switchMap((bld) => showMetadata(bld.id, 'emergency_contacts')),
-        map(({ details }) => (details as any)?.contacts || []),
+        switchMap((bld) =>
+            // First get the category
+            queryAssetCategoriesLocal({ zone_id: bld.id }).pipe(
+                catchError(() => of([] as AssetCategory[])),
+                map(
+                    (categories) =>
+                        categories.find(
+                            (c) => c.name === EMERGENCY_CONTACTS_CATEGORY_NAME,
+                        ) || null,
+                ),
+                // Then get the asset type for that category
+                switchMap((category) => {
+                    if (!category) return of(null as AssetGroup | null);
+                    return queryAssetTypesLocal({ zone_id: bld.id }).pipe(
+                        catchError(() => of([] as AssetGroup[])),
+                        map(
+                            (groups) =>
+                                groups.find(
+                                    (g) =>
+                                        g.name ===
+                                            EMERGENCY_CONTACTS_CATEGORY_NAME &&
+                                        g.category_id === category.id,
+                                ) || null,
+                        ),
+                    );
+                }),
+                // Finally get the assets for that type
+                switchMap((assetType) => {
+                    if (!assetType)
+                        return of([] as EmergencyContactFromAsset[]);
+                    return queryAssetsLocal({ zone_id: bld.id }).pipe(
+                        catchError(() => of([] as Asset[])),
+                        map((assets) =>
+                            assets
+                                .filter((a) => a.asset_type_id === assetType.id)
+                                .map((a) => ({
+                                    id: a.id,
+                                    name: a.identifier || '',
+                                    email: a.other_data?.email || '',
+                                    phone: a.other_data?.phone || '',
+                                    roles: a.other_data?.roles || [],
+                                    zone: a.other_data?.zone || '',
+                                })),
+                        ),
+                    );
+                }),
+            ),
+        ),
+        shareReplay(1),
+    );
+
+    /** Legacy metadata contacts (fallback for non-migrated data) */
+    private _legacy_metadata_contacts = this._org.active_building.pipe(
+        filter((bld) => !!bld),
+        switchMap((bld) =>
+            showMetadata(bld.id, 'emergency_contacts').pipe(
+                catchError(() =>
+                    of({ details: { contacts: [], migrated: false } }),
+                ),
+            ),
+        ),
+        map(({ details }) => {
+            const data = details as any;
+            // If migrated flag is set, return empty (use asset-based contacts)
+            if (data?.migrated) return [];
+            return data?.contacts || [];
+        }),
+        shareReplay(1),
+    );
+
+    /** Combined contacts from both sources (Assets API preferred) */
+    private _role_assigned_contacts = combineLatest([
+        this._asset_based_contacts,
+        this._legacy_metadata_contacts,
+    ]).pipe(
+        map(([asset_contacts, legacy_contacts]) => {
+            // If we have asset-based contacts, use those exclusively
+            if (asset_contacts.length > 0) return asset_contacts;
+            // Fallback to legacy metadata contacts
+            return legacy_contacts;
+        }),
         shareReplay(1),
     );
 

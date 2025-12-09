@@ -9,30 +9,29 @@ import {
     PlaceAsset,
     PlaceAssetCategory,
     PlaceAssetPurchaseOrder,
-    PlaceAssetType,
-    queryAssets as tsQueryAssets,
-    showAsset as tsShowAsset,
     addAsset as tsAddAsset,
-    updateAsset as tsUpdateAsset,
-    removeAsset as tsRemoveAsset,
-    addAssets as tsAddAssets,
-    updateAssets as tsUpdateAssets,
-    removeAssets as tsRemoveAssets,
-    queryAssetTypes as tsQueryAssetTypes,
-    showAssetType as tsShowAssetType,
-    addAssetType as tsAddAssetType,
-    updateAssetType as tsUpdateAssetType,
-    removeAssetType as tsRemoveAssetType,
-    queryAssetCategories as tsQueryAssetCategories,
-    showAssetCategory as tsShowAssetCategory,
     addAssetCategory as tsAddAssetCategory,
-    updateAssetCategory as tsUpdateAssetCategory,
-    removeAssetCategory as tsRemoveAssetCategory,
-    queryAssetPurchaseOrders as tsQueryAssetPurchaseOrders,
-    showAssetPurchaseOrder as tsShowAssetPurchaseOrder,
     addAssetPurchaseOrder as tsAddAssetPurchaseOrder,
-    updateAssetPurchaseOrder as tsUpdateAssetPurchaseOrder,
+    addAssets as tsAddAssets,
+    addAssetType as tsAddAssetType,
+    queryAssetCategories as tsQueryAssetCategories,
+    queryAssetPurchaseOrders as tsQueryAssetPurchaseOrders,
+    queryAssets as tsQueryAssets,
+    queryAssetTypes as tsQueryAssetTypes,
+    removeAsset as tsRemoveAsset,
+    removeAssetCategory as tsRemoveAssetCategory,
     removeAssetPurchaseOrder as tsRemoveAssetPurchaseOrder,
+    removeAssets as tsRemoveAssets,
+    removeAssetType as tsRemoveAssetType,
+    showAsset as tsShowAsset,
+    showAssetCategory as tsShowAssetCategory,
+    showAssetPurchaseOrder as tsShowAssetPurchaseOrder,
+    showAssetType as tsShowAssetType,
+    updateAsset as tsUpdateAsset,
+    updateAssetCategory as tsUpdateAssetCategory,
+    updateAssetPurchaseOrder as tsUpdateAssetPurchaseOrder,
+    updateAssets as tsUpdateAssets,
+    updateAssetType as tsUpdateAssetType,
 } from '@placeos/ts-client';
 import { addMinutes, endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import {
@@ -258,10 +257,9 @@ export function showGroupFull(id: string, query: any = {}) {
                 (asset) => asset.asset_type_id === product.id,
             );
             for (const asset of product.assets) {
-                (asset as any).purchase_order_number =
-                    purchase_orders.find(
-                        (_) => _.id === asset.purchase_order_id,
-                    )?.purchase_order_number;
+                (asset as any).purchase_order_number = purchase_orders.find(
+                    (_) => _.id === asset.purchase_order_id,
+                )?.purchase_order_number;
             }
             product.purchase_orders = purchase_orders.filter((order) =>
                 product.assets.find(

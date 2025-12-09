@@ -227,27 +227,27 @@ export class ScheduleStateService extends AsyncHandler {
         }),
     );
 
-        public readonly driver_events = combineLatest([
-            this._user_bookings,
-            this._update,
-        ]).pipe(
-            map(([_, [date]]) => {
-                const user = currentUser();
-                return _.filter(
-                    (_) =>
-                        isSameDay(_.date, date) &&
-                        (_.host.toLowerCase() === user.email.toLowerCase() ||
-                            _.attendees.find(
-                                (a) =>
-                                    a.email.toLowerCase() ===
-                                    user.email.toLowerCase(),
-                            )) &&
-                        !_.linked_bookings?.find(
-                            (b) => b.booking_type === 'group-event',
-                        ),
-                );
-            }),
-        );
+    public readonly driver_events = combineLatest([
+        this._user_bookings,
+        this._update,
+    ]).pipe(
+        map(([_, [date]]) => {
+            const user = currentUser();
+            return _.filter(
+                (_) =>
+                    isSameDay(_.date, date) &&
+                    (_.host.toLowerCase() === user.email.toLowerCase() ||
+                        _.attendees.find(
+                            (a) =>
+                                a.email.toLowerCase() ===
+                                user.email.toLowerCase(),
+                        )) &&
+                    !_.linked_bookings?.find(
+                        (b) => b.booking_type === 'group-event',
+                    ),
+            );
+        }),
+    );
 
     public readonly ws_events = combineLatest([
         this._space_bookings,

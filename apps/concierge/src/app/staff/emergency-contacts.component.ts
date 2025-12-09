@@ -1,6 +1,6 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
@@ -8,38 +8,25 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import {
-    nextValueFrom,
-    notifySuccess,
-    OrganisationService,
-} from '@placeos/common';
+import { notifySuccess, OrganisationService } from '@placeos/common';
 import {
     IconComponent,
     openConfirmModal,
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { showMetadata, updateMetadata } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest } from 'rxjs';
-import { filter, map, shareReplay, switchMap } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
 import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
 import { EmergencyContactModalComponent } from './emergency-contact-modal.component';
+import {
+    EmergencyContact,
+    EmergencyContactsService,
+} from './emergency-contacts.service';
 import { RoleManagementModalComponent } from './role-management-modal.component';
 
-export interface EmergencyContact {
-    id: string;
-    email: string;
-    name: string;
-    phone: string;
-    roles: string[];
-    zone: string;
-}
-
-export interface EmergencyContactData {
-    contacts: EmergencyContact[];
-    roles: string[];
-}
+export { EmergencyContact } from './emergency-contacts.service';
 
 @Component({
     selector: '[app-emergency-contacts]',
@@ -245,26 +232,17 @@ export interface EmergencyContactData {
         TranslatePipe,
     ],
 })
-export class EmergencyContactsComponent {
+export class EmergencyContactsComponent implements OnInit {
     private _org = inject(OrganisationService);
     private _dialog = inject(MatDialog);
     private _clipboard = inject(Clipboard);
-
-    private _change = new BehaviorSubject<number>(0);
+    private _contacts_service = inject(EmergencyContactsService);
 
     public search = '';
     public readonly role_filter = new BehaviorSubject<string>('');
-    public readonly data = combineLatest([
-        this._org.active_building,
-        this._change,
-    ]).pipe(
-        filter(([bld]) => !!bld),
-        switchMap(([bld]) => showMetadata(bld.id, 'emergency_contacts')),
-        map(({ details }) => (details as any) || { roles: [], contacts: [] }),
-        shareReplay(1),
-    );
-    public readonly roles = this.data.pipe(map((_) => _?.roles || []));
-    public readonly contacts = this.data.pipe(map((_) => _?.contacts || []));
+    public readonly data$ = this._contacts_service.data$;
+    public readonly roles = this._contacts_service.roles$;
+    public readonly contacts = this._contacts_service.contacts$;
     public readonly filtered_contacts = combineLatest([
         this.contacts,
         this.role_filter,
@@ -274,24 +252,51 @@ export class EmergencyContactsComponent {
         ),
     );
 
+    public ngOnInit(): void {
+        // Check if migration from metadata is needed
+        this.checkMigration();
+    }
+
+    private async checkMigration(): Promise<void> {
+        const needs_migration = await this._contacts_service.needsMigration();
+        if (needs_migration) {
+            const result = await openConfirmModal(
+                {
+                    title: 'Migrate Emergency Contacts',
+                    content:
+                        'Emergency contacts data from the old system was found. Would you like to migrate it to the new system?',
+                    icon: { content: 'sync' },
+                },
+                this._dialog,
+            );
+            if (result.reason === 'done') {
+                result.loading('Migrating contacts...');
+                await this._contacts_service.migrateFromMetadata();
+                result.close();
+            } else {
+                result.close();
+            }
+        }
+    }
+
     public readonly copyToClipboard = (id: string) => {
         const success = this._clipboard.copy(id);
         if (success) notifySuccess("User's email copied to clipboard.");
     };
 
-    public manageRoles() {
+    public manageRoles(): void {
         const ref = this._dialog.open(RoleManagementModalComponent, {});
-        ref.afterClosed().subscribe(() => this._change.next(Date.now()));
+        ref.afterClosed().subscribe(() => this._contacts_service.refresh());
     }
 
-    public editContact(contact?: EmergencyContact) {
+    public editContact(contact?: EmergencyContact): void {
         const ref = this._dialog.open(EmergencyContactModalComponent, {
             data: contact,
         });
-        ref.afterClosed().subscribe(() => this._change.next(Date.now()));
+        ref.afterClosed().subscribe(() => this._contacts_service.refresh());
     }
 
-    public async removeContact(contact: EmergencyContact) {
+    public async removeContact(contact: EmergencyContact): Promise<void> {
         const result = await openConfirmModal(
             {
                 title: 'Remove Emergency Contact',
@@ -302,17 +307,7 @@ export class EmergencyContactsComponent {
         );
         if (result.reason !== 'done') return;
         result.loading('Removing contact...');
-        const data: any = await nextValueFrom(this.data);
-        const new_contacts = (data?.contacts || []).filter(
-            (_) => _.id !== contact.id,
-        );
-        await updateMetadata(this._org.building.id, {
-            name: 'emergency_contacts',
-            description: 'Emergency Contacts',
-            details: { roles: data.roles, contacts: new_contacts },
-        }).toPromise();
+        await this._contacts_service.deleteContact(contact.id);
         result.close();
-        this._change.next(Date.now());
-        notifySuccess('Successfully removed emergency contact.');
     }
 }
