@@ -198,7 +198,7 @@ export class AssetBulkFormComponent extends AsyncHandler implements OnInit {
                         this._router.navigate([this.base_route]);
                     }
                     this.product = product;
-                    this.form.patchValue({ type_id: product.id });
+                    this.form.patchValue({ asset_type_id: product.id });
                     this.loading = '';
                 }
             }),
@@ -237,7 +237,7 @@ export class AssetBulkFormComponent extends AsyncHandler implements OnInit {
                 throw e;
             });
         this._state.setExtraAssets(
-            list.map((d) => ({ ...d, type_id: this.product.id })),
+            list.map((d) => ({ ...d, asset_type_id: this.product.id })),
         );
         this.form.reset();
         this._state.postChange();

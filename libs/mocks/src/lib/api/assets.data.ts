@@ -1,4 +1,4 @@
-import { Asset, predictableRandomInt } from '@placeos/common';
+import { predictableRandomInt } from '@placeos/common';
 import { getUnixTime, subDays, subMonths } from 'date-fns';
 
 export const MOCK_CATEGORIES = [
@@ -406,7 +406,7 @@ const generateMaintenanceSchedule = (assetId: string) => {
     };
 };
 
-export const MOCK_ASSETS: Partial<Asset>[] = Array(150)
+export const MOCK_ASSETS = Array(150)
     .fill(null)
     .map((_, i) => {
         const product = MOCK_PRODUCTS[i % MOCK_PRODUCTS.length];
@@ -419,7 +419,7 @@ export const MOCK_ASSETS: Partial<Asset>[] = Array(150)
         return {
             id: assetId,
             name: `${product.name} - ${assetId}`,
-            type_id: product.id,
+            asset_type_id: product.id,
             description:
                 product.description ||
                 `${product.brand} ${product.name} for office use`,
@@ -495,7 +495,7 @@ export const MOCK_PURCHASE_ORDERS = Array(30)
 
         return {
             id: `PO-${i + 1}`,
-            order_number: `PO-${new Date().getFullYear()}-${String(i + 1).padStart(4, '0')}`,
+            purchase_order_number: `PO-${new Date().getFullYear()}-${String(i + 1).padStart(4, '0')}`,
             invoice_number: `INV-${String(predictableRandomInt(99999) + 10000)}`,
             vendor: [
                 'Office Supplies Co',

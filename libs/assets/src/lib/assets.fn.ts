@@ -1,14 +1,39 @@
 import {
-    Asset,
-    AssetCategory,
     AssetGroup,
-    AssetPurchaseOrder,
     AssetRequest,
     Booking,
     flatten,
     unique,
 } from '@placeos/common';
-import { cleanObject, del, get, post, put } from '@placeos/ts-client';
+import {
+    PlaceAsset,
+    PlaceAssetCategory,
+    PlaceAssetPurchaseOrder,
+    PlaceAssetType,
+    queryAssets as tsQueryAssets,
+    showAsset as tsShowAsset,
+    addAsset as tsAddAsset,
+    updateAsset as tsUpdateAsset,
+    removeAsset as tsRemoveAsset,
+    addAssets as tsAddAssets,
+    updateAssets as tsUpdateAssets,
+    removeAssets as tsRemoveAssets,
+    queryAssetTypes as tsQueryAssetTypes,
+    showAssetType as tsShowAssetType,
+    addAssetType as tsAddAssetType,
+    updateAssetType as tsUpdateAssetType,
+    removeAssetType as tsRemoveAssetType,
+    queryAssetCategories as tsQueryAssetCategories,
+    showAssetCategory as tsShowAssetCategory,
+    addAssetCategory as tsAddAssetCategory,
+    updateAssetCategory as tsUpdateAssetCategory,
+    removeAssetCategory as tsRemoveAssetCategory,
+    queryAssetPurchaseOrders as tsQueryAssetPurchaseOrders,
+    showAssetPurchaseOrder as tsShowAssetPurchaseOrder,
+    addAssetPurchaseOrder as tsAddAssetPurchaseOrder,
+    updateAssetPurchaseOrder as tsUpdateAssetPurchaseOrder,
+    removeAssetPurchaseOrder as tsRemoveAssetPurchaseOrder,
+} from '@placeos/ts-client';
 import { addMinutes, endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import {
     BookingsQueryParams,
@@ -16,54 +41,42 @@ import {
     queryBookings,
     removeBooking,
 } from 'libs/bookings/src/lib/bookings.fn';
-import { toQueryString } from 'libs/common/src/lib/api';
 import { combineLatest, forkJoin, of } from 'rxjs';
 import { map, switchMap, tap } from 'rxjs/operators';
-
-const BASE_ENDPOINT = '/api/engine/v2';
 
 ////////////////////////////////
 ////    Asset Categories    ////
 ////////////////////////////////
 
 export function queryAssetCategories(query: any = {}) {
-    const q = toQueryString(query);
-    return get(`${BASE_ENDPOINT}/asset_categories${q ? '?' + q : ''}`).pipe(
-        map((_) => _ as AssetCategory[]),
+    return tsQueryAssetCategories(query).pipe(
+        map((res) => res.data as PlaceAssetCategory[]),
     );
 }
 
-export function addAssetCategory(category: AssetCategory) {
-    return post(
-        `${BASE_ENDPOINT}/asset_categories`,
-        cleanObject(category, [undefined, null, '']),
-    ).pipe(map((_) => _ as AssetCategory));
+export function addAssetCategory(category: Partial<PlaceAssetCategory>) {
+    return tsAddAssetCategory(category);
 }
 
 export function updateAssetCategory(
     id: string,
-    category: Partial<AssetCategory>,
+    category: Partial<PlaceAssetCategory>,
 ) {
-    return put(
-        `${BASE_ENDPOINT}/asset_categories/${id}`,
-        cleanObject(category, [undefined, null, '']),
-    ).pipe(map((_) => _ as AssetCategory));
+    return tsUpdateAssetCategory(id, category);
 }
 
-export function saveAssetCategory(category: AssetCategory) {
+export function saveAssetCategory(category: Partial<PlaceAssetCategory>) {
     return category.id
         ? updateAssetCategory(category.id, category)
         : addAssetCategory(category);
 }
 
 export function showAssetCategory(id: string) {
-    return get(`${BASE_ENDPOINT}/asset_categories/${id}`).pipe(
-        map((_) => _ as AssetCategory),
-    );
+    return tsShowAssetCategory(id);
 }
 
 export function deleteAssetCategory(id: string) {
-    return del(`${BASE_ENDPOINT}/asset_categories/${id}`);
+    return tsRemoveAssetCategory(id);
 }
 
 //////////////////////////////
@@ -71,33 +84,36 @@ export function deleteAssetCategory(id: string) {
 //////////////////////////////
 
 export function queryAssetGroups(query: any = {}) {
-    const q = toQueryString(query);
-    return get(`${BASE_ENDPOINT}/asset_types${q ? '?' + q : ''}`).pipe(
-        map((_) => _ as AssetGroup[]),
+    return tsQueryAssetTypes(query).pipe(
+        map((res) => res.data as AssetGroup[]),
     );
 }
 
 const groups_cache = new Map<string, AssetGroup[]>();
 
 export function queryAssetGroupsExtended(query: any = {}) {
-    const q = toQueryString(query);
     if (groups_cache.has(query.zones)) {
         return of(groups_cache.get(query.zones));
     }
-    return get(`${BASE_ENDPOINT}/asset_types${q ? '?' + q : ''}`).pipe(
-        map((_) => _ as AssetGroup[]),
+    return tsQueryAssetTypes(query).pipe(
+        map((res) => res.data as AssetGroup[]),
         switchMap((list) =>
-            forkJoin(
-                list.map((group) =>
-                    queryAssets({
-                        limit: 200,
-                        ...query,
-                        type_id: group.id,
-                    }).pipe(
-                        map((assets) => ({ ...group, assets }) as AssetGroup),
-                    ),
-                ),
-            ),
+            list.length
+                ? forkJoin(
+                      list.map((group) =>
+                          queryAssets({
+                              limit: 200,
+                              ...query,
+                              type_id: group.id,
+                          }).pipe(
+                              map(
+                                  (assets) =>
+                                      ({ ...group, assets }) as AssetGroup,
+                              ),
+                          ),
+                      ),
+                  )
+                : of([]),
         ),
         tap((_) => {
             groups_cache.set(query.zones, _);
@@ -107,34 +123,26 @@ export function queryAssetGroupsExtended(query: any = {}) {
     );
 }
 
-export function addAssetGroup(product: AssetGroup) {
-    return post(
-        `${BASE_ENDPOINT}/asset_types`,
-        cleanObject(product, [undefined, null, '']),
-    ).pipe(map((_) => _ as AssetGroup));
+export function addAssetGroup(product: Partial<AssetGroup>) {
+    return tsAddAssetType(product).pipe(map((_) => _ as AssetGroup));
 }
 
 export function updateAssetGroup(id: string, product: Partial<AssetGroup>) {
-    return put(
-        `${BASE_ENDPOINT}/asset_types/${id}`,
-        cleanObject(product, [undefined, null, '']),
-    ).pipe(map((_) => _ as AssetGroup));
+    return tsUpdateAssetType(id, product).pipe(map((_) => _ as AssetGroup));
 }
 
-export function saveAssetGroup(product: AssetGroup) {
+export function saveAssetGroup(product: Partial<AssetGroup>) {
     return product.id
         ? updateAssetGroup(product.id, product)
         : addAssetGroup(product);
 }
 
 export function showAssetGroup(id: string) {
-    return get(`${BASE_ENDPOINT}/asset_types/${id}`).pipe(
-        map((_) => _ as AssetGroup),
-    );
+    return tsShowAssetType(id).pipe(map((_) => _ as AssetGroup));
 }
 
 export function deleteAssetGroup(id: string) {
-    return del(`${BASE_ENDPOINT}/asset_types/${id}`);
+    return tsRemoveAssetType(id);
 }
 
 ////////////////////////////////
@@ -142,64 +150,42 @@ export function deleteAssetGroup(id: string) {
 ////////////////////////////////
 
 export function queryAssets(query: any = {}) {
-    const q = toQueryString(query);
-    return get(`${BASE_ENDPOINT}/assets${q ? '?' + q : ''}`).pipe(
-        map((_) => _ as Asset[]),
-    );
+    return tsQueryAssets(query).pipe(map((res) => res.data as PlaceAsset[]));
 }
 
-export function addAsset(asset: Asset) {
-    return post(
-        `${BASE_ENDPOINT}/assets`,
-        cleanObject(asset, [undefined, null, '']),
-    ).pipe(map((_) => _ as Asset));
+export function addAsset(asset: Partial<PlaceAsset>) {
+    return tsAddAsset(asset);
 }
 
-export function updateAsset(id: string, asset: Partial<Asset>) {
-    return put(
-        `${BASE_ENDPOINT}/assets/${id}`,
-        cleanObject(asset, [undefined, null, '']),
-    ).pipe(map((_) => _ as Asset));
+export function updateAsset(id: string, asset: Partial<PlaceAsset>) {
+    return tsUpdateAsset(id, asset);
 }
 
-export function saveAsset(asset: Asset) {
-    return asset.id
-        ? updateAsset(asset.id, {
-              ...asset,
-              asset_type_id: asset.type_id,
-          } as any)
-        : addAsset({ ...asset, asset_type_id: asset.type_id } as any);
+export function saveAsset(asset: Partial<PlaceAsset>) {
+    return asset.id ? updateAsset(asset.id, asset) : addAsset(asset);
 }
 
 export function showAsset(id: string) {
-    return get(`${BASE_ENDPOINT}/assets/${id}`).pipe(map((_) => _ as Asset));
+    return tsShowAsset(id);
 }
 
 export function deleteAsset(id: string) {
-    return del(`${BASE_ENDPOINT}/assets/${id}`);
+    return tsRemoveAsset(id);
 }
 
 ////////////////////////////////
 ////      Assets (Bulk)     ////
 ////////////////////////////////
 
-export function addAssetsInBulk(assets: Asset[]) {
-    assets.map((_: any) => (_.asset_type_id = _.type_id));
-    return post(
-        `${BASE_ENDPOINT}/assets/bulk`,
-        assets.map((_) => cleanObject(_, [undefined, null, ''])),
-    ).pipe(map((_) => _ as Asset[]));
+export function addAssetsInBulk(assets: Partial<PlaceAsset>[]) {
+    return tsAddAssets(assets);
 }
 
-export function updateAssetsInBulk(assets: Partial<Asset>[]) {
-    assets.map((_: any) => (_.asset_type_id = _.type_id));
-    return put(
-        `${BASE_ENDPOINT}/assets/bulk`,
-        assets.map((_) => cleanObject(_, [undefined, null, ''])),
-    ).pipe(map((_) => _ as Asset[]));
+export function updateAssetsInBulk(assets: Partial<PlaceAsset>[]) {
+    return tsUpdateAssets(assets);
 }
 
-export function saveAssetsInBulk(assets: Asset[]) {
+export function saveAssetsInBulk(assets: Partial<PlaceAsset>[]) {
     if (!assets?.length) return of([]);
     return assets.every((item) => item?.id)
         ? updateAssetsInBulk(assets)
@@ -207,7 +193,7 @@ export function saveAssetsInBulk(assets: Asset[]) {
 }
 
 export function deleteAssetsInBulk(id_list: string[]) {
-    return del(`${BASE_ENDPOINT}/assets/bulk`, { body: { id_list } });
+    return tsRemoveAssets(id_list);
 }
 
 /////////////////////////////////
@@ -215,49 +201,36 @@ export function deleteAssetsInBulk(id_list: string[]) {
 /////////////////////////////////
 
 export function queryAssetPurchaseOrders(query: any = {}) {
-    const q = toQueryString(query);
-    return get(
-        `${BASE_ENDPOINT}/asset_purchase_orders${q ? '?' + q : ''}`,
-    ).pipe(map((_) => _ as AssetPurchaseOrder[]));
+    return tsQueryAssetPurchaseOrders(query).pipe(
+        map((res) => res.data as PlaceAssetPurchaseOrder[]),
+    );
 }
 
-export function addAssetPurchaseOrder(order: AssetPurchaseOrder) {
-    return post(
-        `${BASE_ENDPOINT}/asset_purchase_orders`,
-        cleanObject(order, [undefined, null, '']),
-    ).pipe(map((_) => _ as AssetPurchaseOrder));
+export function addAssetPurchaseOrder(order: Partial<PlaceAssetPurchaseOrder>) {
+    return tsAddAssetPurchaseOrder(order);
 }
 
 export function updateAssetPurchaseOrder(
     id: string,
-    order: Partial<AssetPurchaseOrder>,
+    order: Partial<PlaceAssetPurchaseOrder>,
 ) {
-    return put(
-        `${BASE_ENDPOINT}/asset_purchase_orders/${id}`,
-        cleanObject(order, [undefined, null, '']),
-    ).pipe(map((_) => _ as AssetPurchaseOrder));
+    return tsUpdateAssetPurchaseOrder(id, order);
 }
 
-export function saveAssetPurchaseOrder(order: AssetPurchaseOrder) {
+export function saveAssetPurchaseOrder(
+    order: Partial<PlaceAssetPurchaseOrder>,
+) {
     return order.id
-        ? updateAssetPurchaseOrder(order.id, {
-              ...order,
-              purchase_order_number: order.order_number,
-          } as any)
-        : addAssetPurchaseOrder({
-              ...order,
-              purchase_order_number: order.order_number,
-          } as any);
+        ? updateAssetPurchaseOrder(order.id, order)
+        : addAssetPurchaseOrder(order);
 }
 
 export function showAssetPurchaseOrder(id: string) {
-    return get(`${BASE_ENDPOINT}/asset_purchase_orders/${id}`).pipe(
-        map((_) => _ as AssetPurchaseOrder),
-    );
+    return tsShowAssetPurchaseOrder(id);
 }
 
 export function deleteAssetPurchaseOrder(id: string) {
-    return del(`${BASE_ENDPOINT}/asset_purchase_orders/${id}`);
+    return tsRemoveAssetPurchaseOrder(id);
 }
 
 //////////////////////////////////////
@@ -282,14 +255,13 @@ export function showGroupFull(id: string, query: any = {}) {
                 (category) => category.id === product.category_id,
             );
             product.assets = assets.filter(
-                (asset) =>
-                    asset.type_id === product.id ||
-                    (asset as any).asset_type_id === product.id,
+                (asset) => asset.asset_type_id === product.id,
             );
             for (const asset of product.assets) {
-                (asset as any).order_number = (purchase_orders as any).find(
-                    (_) => _.id === asset.purchase_order_id,
-                )?.purchase_order_number;
+                (asset as any).purchase_order_number =
+                    purchase_orders.find(
+                        (_) => _.id === asset.purchase_order_id,
+                    )?.purchase_order_number;
             }
             product.purchase_orders = purchase_orders.filter((order) =>
                 product.assets.find(

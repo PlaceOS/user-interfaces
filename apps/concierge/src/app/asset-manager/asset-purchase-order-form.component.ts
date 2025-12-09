@@ -62,7 +62,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                 'APP.CONCIERGE.ASSETS_PURCHASE_NUMBER'
                                     | translate
                             "
-                            formControlName="order_number"
+                            formControlName="purchase_order_number"
                         />
                         <mat-error>{{
                             'APP.CONCIERGE.ASSETS_PURCHASE_NUMBER_REQUIRED'
@@ -258,7 +258,6 @@ export class AssetPurchaseOrderFormComponent
                     }
                     this.form.patchValue({
                         ...asset,
-                        order_number: asset.purchase_order_number,
                         purchase_date: asset.purchase_date * 1000,
                         expected_service_end_date:
                             asset.expected_service_end_date * 1000,
