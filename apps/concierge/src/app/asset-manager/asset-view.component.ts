@@ -529,7 +529,7 @@ export class AssetViewComponent extends AsyncHandler implements OnInit {
             return unique(
                 [
                     ...item.assets,
-                    ...assets.filter((_) => _.type_id === item.id),
+                    ...assets.filter((_) => _.asset_type_id === item.id),
                 ],
                 'id',
             );

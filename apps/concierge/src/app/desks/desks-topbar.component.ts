@@ -13,14 +13,14 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { showBooking } from '@placeos/bookings';
 import {
     AsyncHandler,
-    Desk,
-    OrganisationService,
     csvToJson,
+    Desk,
     downloadFile,
     jsonToCsv,
     loadTextFileFromInputEvent,
     notifyError,
     notifyInfo,
+    OrganisationService,
     randomInt,
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
@@ -39,9 +39,7 @@ import { DesksStateService } from './desks-state.service';
             <mat-form-field appearance="outline">
                 <mat-select
                     [ngModel]="
-                        filters().zones?.length
-                            ? filters().zones[0]
-                            : 'All'
+                        filters().zones?.length ? filters().zones[0] : 'All'
                     "
                     (ngModelChange)="updateZones([$event])"
                     [placeholder]="'COMMON.LEVEL_ALL' | translate"
@@ -159,7 +157,9 @@ export class DesksTopbarComponent extends AsyncHandler implements OnInit {
     private _dialog = inject(MatDialog);
 
     /** List of levels for the active building */
-    public readonly levels = toSignal(this._org.active_levels, { initialValue: [] });
+    public readonly levels = toSignal(this._org.active_levels, {
+        initialValue: [],
+    });
     /** List of levels for the active building */
     public readonly filters = this._desks.filters;
 

@@ -212,7 +212,7 @@ export class AssetFormComponent extends AsyncHandler implements OnInit {
                         this._router.navigate([this.base_route]);
                     }
                     this.product = product;
-                    this.form.patchValue({ type_id: product.id });
+                    this.form.patchValue({ asset_type_id: product.id });
                     this.loading = '';
                 }
             }),
@@ -241,7 +241,7 @@ export class AssetFormComponent extends AsyncHandler implements OnInit {
         this.form.reset();
         this._state.postChange();
         this._state.setExtraAssets(
-            [item].map((d) => ({ ...d, type_id: this.product.id })),
+            [item].map((d) => ({ ...d, asset_type_id: this.product.id })),
         );
         notifySuccess('Asset saved successfully.');
         this._router.navigate([this.base_route, 'view', this.product?.id]);

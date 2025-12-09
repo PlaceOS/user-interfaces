@@ -158,9 +158,7 @@ export class UserAvailabilityModalComponent
     /** Duration */
     public readonly duration = signal(0);
     /** Whether date is in the past */
-    public readonly is_past = computed(() =>
-        isBefore(this.date(), Date.now()),
-    );
+    public readonly is_past = computed(() => isBefore(this.date(), Date.now()));
 
     public ngOnInit(): void {
         this.users.set(this._data.users);

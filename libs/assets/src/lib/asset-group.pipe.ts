@@ -6,7 +6,7 @@ import { showAssetGroup } from './assets.fn';
 
 const ASSET_GROUP_LIST: AssetGroup[] = [];
 
-const EMPTY_ASSET_GROUP = new AssetGroup();
+const EMPTY_ASSET_GROUP: AssetGroup = {} as AssetGroup;
 
 export function updateAssetGroupList(assetgroup_list: AssetGroup[]) {
     for (const assetgroup of assetgroup_list) {

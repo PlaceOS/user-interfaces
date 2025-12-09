@@ -1,5 +1,9 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
-import { outputToObservable, toObservable, toSignal } from '@angular/core/rxjs-interop';
+import {
+    outputToObservable,
+    toObservable,
+    toSignal,
+} from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import {
     approveBooking,
@@ -125,7 +129,9 @@ export class DesksStateService extends AsyncHandler {
         }),
         shareReplay(1),
     );
-    public readonly desks = toSignal(this._desks$, { initialValue: [] as Desk[] });
+    public readonly desks = toSignal(this._desks$, {
+        initialValue: [] as Desk[],
+    });
 
     private _next_page = new Subject<() => QueryResponse<Booking>>();
     private _call_next_page = new Subject<string>();
@@ -217,7 +223,9 @@ export class DesksStateService extends AsyncHandler {
         initialValue: { list: [], total: 0, has_next: false },
     });
 
-    public readonly has_more_pages = computed(() => this.paged_bookings().has_next);
+    public readonly has_more_pages = computed(
+        () => this.paged_bookings().has_next,
+    );
     public readonly bookings = computed(() => this.paged_bookings().list);
 
     public nextPage() {
@@ -237,10 +245,7 @@ export class DesksStateService extends AsyncHandler {
                     .levelsForBuilding(this._org.building)
                     .map((lvl) => lvl.id),
             ];
-        } else if (
-            filters.zones &&
-            this._filters()?.zones?.includes('All')
-        ) {
+        } else if (filters.zones && this._filters()?.zones?.includes('All')) {
             filters.zones = [];
         }
         this._filters.set({ ...this._filters(), ...filters });

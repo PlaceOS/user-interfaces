@@ -80,7 +80,6 @@ export class SpacePipe implements PipeTransform {
             await lastValueFrom(
                 querySystemsWithEmails({
                     in: space_id,
-                    zone_id: this.org?.organisation.id,
                 }),
             )
         ).data;
