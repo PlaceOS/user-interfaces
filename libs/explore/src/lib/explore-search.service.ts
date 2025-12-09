@@ -3,6 +3,8 @@ import {
     Asset,
     AssetCategory,
     AssetGroup,
+    Booking,
+    CalendarEvent,
     Desk,
     MapsPeopleService,
     OrganisationService,
@@ -23,7 +25,14 @@ import {
     queryUsers,
     showMetadata,
 } from '@placeos/ts-client';
-import { BehaviorSubject, Observable, combineLatest, of, timer } from 'rxjs';
+import {
+    BehaviorSubject,
+    Observable,
+    ReplaySubject,
+    combineLatest,
+    of,
+    timer,
+} from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -117,6 +126,11 @@ export class ExploreSearchService {
     private _settings = inject(SettingsService);
     private _maps_people = inject(MapsPeopleService);
     private _state = inject(ExploreStateService);
+
+    /** In-progress bookings/events for sorting priority */
+    private _in_progress_bookings = new ReplaySubject<
+        (Booking | CalendarEvent)[]
+    >(1);
 
     /** Current search results for staff users */
     private _emergency_contacts = new BehaviorSubject<User[]>([]);
@@ -408,6 +422,8 @@ export class ExploreSearchService {
         this._map_features,
         this._maps_people_search,
         this._points_of_interest,
+        this._state.level,
+        this._in_progress_bookings,
     ]).pipe(
         map(
             ([
@@ -420,6 +436,8 @@ export class ExploreSearchService {
                 features,
                 mapspeople_items,
                 points_of_interest,
+                current_level,
+                in_progress_bookings,
             ]) => {
                 const search = filter.toLowerCase();
 
@@ -434,6 +452,7 @@ export class ExploreSearchService {
                             email: s.email,
                             name: s.display_name || s.name,
                             description: `Capacity: ${s.capacity} `,
+                            zone: s.level?.id || '',
                         })),
                     );
                 }
@@ -462,7 +481,8 @@ export class ExploreSearchService {
                                             name: u.name,
                                             email: u.email,
                                             description: u.email,
-                                            zone_name: u.zone_name
+                                            zone: (u as any).zone,
+                                            zone_name: (u as any).zone_name,
                                         }) as any,
                                 ),
                             ),
@@ -482,7 +502,9 @@ export class ExploreSearchService {
                                 name: s.name,
                                 description: '',
                                 zone: (s as any).zone?.id,
-                                level_name: (s as any).zone?.display_name || (s as any).zone?.name
+                                level_name:
+                                    (s as any).zone?.display_name ||
+                                    (s as any).zone?.name,
                             })),
                     );
                 }
@@ -520,19 +542,75 @@ export class ExploreSearchService {
                         _.description.toLowerCase().includes(search) ||
                         (_.email || '').toLowerCase().includes(search) ||
                         _.type.toLowerCase().includes(search) ||
-                        _.zone_name?.toLowerCase().includes(search)
+                        _.zone_name?.toLowerCase().includes(search),
                 );
-                results.sort(
-                    (a, b) =>
+
+                // Get zones from in-progress bookings for proximity sorting
+                const in_progress_zones = this._getInProgressZones(
+                    in_progress_bookings,
+                );
+
+                results.sort((a, b) => {
+                    // 1. If viewing a map, prioritize items on current level zone
+                    if (current_level?.id) {
+                        const a_on_level = a.zone === current_level.id;
+                        const b_on_level = b.zone === current_level.id;
+                        if (a_on_level && !b_on_level) return -1;
+                        if (!a_on_level && b_on_level) return 1;
+                    }
+
+                    // 2. If user has in-progress bookings, prioritize items closest to those
+                    if (in_progress_zones.length > 0) {
+                        const a_near_booking = in_progress_zones.includes(
+                            a.zone,
+                        );
+                        const b_near_booking = in_progress_zones.includes(
+                            b.zone,
+                        );
+                        if (a_near_booking && !b_near_booking) return -1;
+                        if (!a_near_booking && b_near_booking) return 1;
+                    }
+
+                    // 3. Default: sort by type then name
+                    return (
                         typeIndex(a) - typeIndex(b) ||
-                        a.name.localeCompare(b.name),
-                );
+                        a.name.localeCompare(b.name)
+                    );
+                });
                 return results;
             },
         ),
         tap(() => this._loading.next(false)),
         shareReplay(1),
     );
+
+    /** Extract zones from in-progress bookings */
+    private _getInProgressZones(
+        bookings: (Booking | CalendarEvent)[],
+    ): string[] {
+        if (!bookings?.length) return [];
+        const zones: string[] = [];
+        for (const booking of bookings) {
+            if (booking instanceof CalendarEvent) {
+                // For events, get zones from the system/resources
+                if (booking.system?.zones?.length) {
+                    zones.push(...(booking.system.zones as string[]));
+                }
+                booking.resources?.forEach((r) => {
+                    if (r.zones?.length) {
+                        zones.push(...(r.zones as string[]));
+                    }
+                });
+            } else if (booking instanceof Booking) {
+                // For bookings, use the zones array directly
+                if (booking.zones?.length) {
+                    zones.push(...booking.zones);
+                }
+            }
+        }
+        // Filter to only level zones (not building/org zones)
+        return zones.filter((z) => this._org.levelWithID([z]));
+    }
     /** Obverable for whether results are being loaded */
     public readonly loading = this._loading.asObservable();
     /** Function used to query for users */
@@ -550,6 +628,8 @@ export class ExploreSearchService {
     }
 
     constructor() {
+        // Initialize with empty array so combineLatest can emit
+        this._in_progress_bookings.next([]);
         this.search_results.subscribe();
         this.init();
     }
@@ -577,5 +657,13 @@ export class ExploreSearchService {
 
     public setFilter(str: string) {
         this._filter.next(str);
+    }
+
+    /**
+     * Set in-progress bookings for proximity-based sorting
+     * @param bookings List of bookings/events that are currently in progress
+     */
+    public setInProgressBookings(bookings: (Booking | CalendarEvent)[]) {
+        this._in_progress_bookings.next(bookings || []);
     }
 }

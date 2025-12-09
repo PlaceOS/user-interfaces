@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import {
     Component,
     ElementRef,
+    OnInit,
     inject,
     signal,
     viewChild,
@@ -9,10 +10,11 @@ import {
 import { FormsModule } from '@angular/forms';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterModule } from '@angular/router';
-import { AsyncHandler } from '@placeos/common';
+import { AsyncHandler, Booking, CalendarEvent } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 
 import { ExploreSearchService } from '@placeos/explore';
+import { ScheduleStateService } from '../schedule/schedule-state.service';
 
 @Component({
     selector: 'global-search',
@@ -143,8 +145,9 @@ import { ExploreSearchService } from '@placeos/explore';
         MatProgressSpinnerModule,
     ],
 })
-export class GlobalSearchComponent extends AsyncHandler {
+export class GlobalSearchComponent extends AsyncHandler implements OnInit {
     private _service = inject(ExploreSearchService);
+    private _schedule = inject(ScheduleStateService);
 
     public readonly results = this._service.search_results;
     public readonly loading = this._service.loading;
@@ -159,6 +162,22 @@ export class GlobalSearchComponent extends AsyncHandler {
 
     public readonly _input_el =
         viewChild<ElementRef<HTMLInputElement>>('input');
+
+    public ngOnInit() {
+        // Subscribe to bookings and filter for in-progress ones
+        this.subscription(
+            'in_progress_bookings',
+            this._schedule.bookings.subscribe(
+                (bookings: (Booking | CalendarEvent)[]) => {
+                    const in_progress = bookings.filter((b) => {
+                        const state = b.state;
+                        return state === 'in_progress' || state === 'started';
+                    });
+                    this._service.setInProgressBookings(in_progress);
+                },
+            ),
+        );
+    }
 
     public showInput() {
         this.show.set(true);
