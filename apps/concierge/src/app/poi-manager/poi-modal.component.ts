@@ -396,7 +396,6 @@ export class POIModalComponent extends AsyncHandler implements OnInit {
         const old_metadata = await showMetadata(
             this._org.organisation.id,
             'points-of-interest',
-            {},
         ).toPromise();
         const metadata = old_metadata.details || {};
         if (!metadata[data.level_id]) metadata[data.level_id] = [];
