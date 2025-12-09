@@ -80,7 +80,7 @@ export class ScheduleStateService extends AsyncHandler {
     private _parking = inject(ParkingService);
 
     private _poll = new BehaviorSubject(0);
-    private _poll_type = new BehaviorSubject<'api' | 'ws'>('api');
+    private _poll_type = new BehaviorSubject<'api' | 'ws' | 'driver'>('api');
     private _loading = new BehaviorSubject(false);
     private _options = new BehaviorSubject<ScheduleOptions>({ period: 'day' });
     private _filters = new BehaviorSubject({
@@ -151,6 +151,25 @@ export class ScheduleStateService extends AsyncHandler {
             shareReplay(1),
         );
 
+    private _user_bookings: Observable<CalendarEvent[]> = combineLatest([
+        this._org.active_building,
+        this._poll,
+    ]).pipe(
+        filter((_) => !!_),
+        debounceTime(300),
+        switchMap(() => {
+            this._loading.next(true);
+            const mod = this._org.module(
+                'location_services',
+                'LocationServices',
+            );
+            if (!mod?.system) return of([]);
+            return mod.execute('my_bookings');
+        }),
+        map((_) => _.map((_) => new CalendarEvent(_))),
+        shareReplay(1),
+    );
+
     public readonly options = this._options.asObservable();
     /** Currently selected date */
     public readonly filters = this._filters.asObservable();
@@ -207,6 +226,28 @@ export class ScheduleStateService extends AsyncHandler {
             return options;
         }),
     );
+
+        public readonly driver_events = combineLatest([
+            this._user_bookings,
+            this._update,
+        ]).pipe(
+            map(([_, [date]]) => {
+                const user = currentUser();
+                return _.filter(
+                    (_) =>
+                        isSameDay(_.date, date) &&
+                        (_.host.toLowerCase() === user.email.toLowerCase() ||
+                            _.attendees.find(
+                                (a) =>
+                                    a.email.toLowerCase() ===
+                                    user.email.toLowerCase(),
+                            )) &&
+                        !_.linked_bookings?.find(
+                            (b) => b.booking_type === 'group-event',
+                        ),
+                );
+            }),
+        );
 
     public readonly ws_events = combineLatest([
         this._space_bookings,
@@ -266,7 +307,11 @@ export class ScheduleStateService extends AsyncHandler {
         this._options,
     ]).pipe(
         switchMap(([t, { period }]) =>
-            t === 'api' || period !== 'week' ? this.api_events : this.ws_events,
+            t === 'driver'
+                ? this.driver_events
+                : t === 'api' || period !== 'week'
+                  ? this.api_events
+                  : this.ws_events,
         ),
         tap(() => this.timeout('end_loading', () => this._loading.next(false))),
         shareReplay(1),
@@ -564,9 +609,11 @@ export class ScheduleStateService extends AsyncHandler {
             'poll_type',
             this._org.active_building.subscribe(() =>
                 this._poll_type.next(
-                    this._settings.get('app.schedule.use_websocket')
-                        ? 'ws'
-                        : 'api',
+                    this._settings.get('app.schedule.use_driver')
+                        ? 'driver'
+                        : this._settings.get('app.schedule.use_websocket')
+                          ? 'ws'
+                          : 'api',
                 ),
             ),
         );
