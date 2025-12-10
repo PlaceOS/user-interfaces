@@ -352,13 +352,16 @@ function contains(str: string, substr: string) {
                                                 : 'error'
                                         }}</icon
                                     >
-                                    <div>{{ issue.subject }}</div>
-                                </div>
-                                @if (data.length > 1) {
-                                    <div class="text-xs opacity-30">
-                                        +{{ data.length - 1 }} more issues
+                                    <div class="flex flex-col">
+                                        <div>{{ issue.subject }}</div>
+                                        @if (data.length > 1) {
+                                            <div class="text-xs opacity-30">
+                                                +{{ data.length - 1 }} more
+                                                issues
+                                            </div>
+                                        }
                                     </div>
-                                }
+                                </div>
                             } @else {
                                 <div class="p-4 opacity-30">No issues</div>
                             }
@@ -476,7 +479,7 @@ export class RemoteSupportComponent extends AsyncHandler implements OnInit {
             // Use 'all' to represent all regions selected, actual region id otherwise
             region: region || 'all',
             // Use 'all' to represent all buildings when region is selected
-            building: region ? (building || 'all') : undefined,
+            building: region ? building || 'all' : undefined,
         };
 
         this._router.navigate([], {
@@ -613,13 +616,12 @@ export class RemoteSupportComponent extends AsyncHandler implements OnInit {
             // Explicitly set to all regions via dashboard service
             this._dashboard.setRegionFromParams('', '');
         } else if (region_param) {
-            const region = this._org.regions.find(
-                (r) => r.id === region_param,
-            );
+            const region = this._org.regions.find((r) => r.id === region_param);
             if (region) {
                 this._org.region = region;
                 // Handle building param - 'all' means all buildings, otherwise specific building id
-                const building_id = building_param === 'all' ? '' : (building_param || '');
+                const building_id =
+                    building_param === 'all' ? '' : building_param || '';
                 // Set via dashboard service to prevent constructor overwrite
                 this._dashboard.setRegionFromParams(region.id, building_id);
 
