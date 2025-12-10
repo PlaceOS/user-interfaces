@@ -155,7 +155,7 @@ export class ScheduleStateService extends AsyncHandler {
         this._org.active_building,
         this._poll,
     ]).pipe(
-        filter((_) => !!_),
+        filter(([bld]) => !!bld),
         debounceTime(300),
         switchMap(() => {
             this._loading.next(true);
@@ -166,7 +166,7 @@ export class ScheduleStateService extends AsyncHandler {
             if (!mod?.system) return of([]);
             return mod.execute('my_bookings');
         }),
-        map((_) => _.map((_) => new CalendarEvent(_))),
+        map((_) => (_ || []).map((_) => new CalendarEvent(_))),
         shareReplay(1),
     );
 
