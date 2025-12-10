@@ -2141,7 +2141,8 @@
             "ALERT_TYPE_STATUS": "Status",
             "ALERT_TYPE_CUSTOM": "Custom",
             "ALERT_CONDITIONS": "Conditions",
-            "ALERT_SYSTEM_SEARCH": "Search for system..."
+            "ALERT_SYSTEM_SEARCH": "Search for system...",
+            "ALERT_MATCH_ANY": "Match any condition"
         }
     },
     "TRIGGERS": {

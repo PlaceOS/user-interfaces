@@ -95,11 +95,22 @@ export type AlertType = 'threshold' | 'status' | 'custom';
                                 placeholder="Description of the alert"
                             ></textarea>
                         </mat-form-field>
-                        <settings-toggle
-                            class="mb-4"
-                            formControlName="enabled"
-                            >{{ 'COMMON.ENABLED' | translate }}</settings-toggle
-                        >
+                        <div class="mb-4 flex flex-col gap-2 sm:flex-row">
+                            <settings-toggle
+                                class="flex-1"
+                                formControlName="enabled"
+                                >{{
+                                    'COMMON.ENABLED' | translate
+                                }}</settings-toggle
+                            >
+                            <settings-toggle
+                                class="flex-1"
+                                formControlName="any_match"
+                                >{{
+                                    'APP.STAGEHAND.ALERT_MATCH_ANY' | translate
+                                }}</settings-toggle
+                            >
+                        </div>
                         <div class="flex space-x-4">
                             <div class="flex flex-1 flex-col">
                                 <label for="severity">{{
@@ -339,6 +350,7 @@ export class DashboardAlertManageComponent
             comparisons: [],
             time_dependents: [],
         }),
+        any_match: new FormControl(false),
         severity: new FormControl<AlertSeverity>('medium'),
         alert_type: new FormControl<AlertType>('threshold'),
         debounce_period: new FormControl(0),

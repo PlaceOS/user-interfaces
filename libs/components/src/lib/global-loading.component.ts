@@ -32,7 +32,7 @@ import { TranslatePipe } from './translate.pipe';
                     <p class="text-center font-mono">{{ message() }}</p>
                 </div>
                 <div
-                    class="absolute bottom-2 left-1/2 w-[24rem] -translate-x-1/2 overflow-hidden rounded-full border border-base-300 shadow"
+                    class="absolute bottom-2 left-1/2 w-[24rem] max-w-[calc(100vw-2rem)] -translate-x-1/2 overflow-hidden rounded-full border border-base-300 shadow"
                 >
                     <mat-progress-bar
                         mode="indeterminate"
