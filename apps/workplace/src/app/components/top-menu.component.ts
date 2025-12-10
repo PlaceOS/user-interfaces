@@ -296,7 +296,7 @@ export class TopMenuComponent
     }
 
     public checkMenu() {
-        const menu_width = this.menu().nativeElement?.offsetWidth || 0;
+        const menu_width = this.menu()?.nativeElement?.offsetWidth || 0;
         const container_width =
             this._element.nativeElement.parentElement.offsetWidth;
         this.checking.set(false);

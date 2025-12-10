@@ -7,6 +7,7 @@ import {
     signal,
     viewChild,
 } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterModule } from '@angular/router';
@@ -163,19 +164,20 @@ export class GlobalSearchComponent extends AsyncHandler implements OnInit {
     public readonly _input_el =
         viewChild<ElementRef<HTMLInputElement>>('input');
 
+    // Convert signal to observable in injection context (field initializer)
+    private readonly _bookings$ = toObservable(this._schedule.bookings);
+
     public ngOnInit() {
         // Subscribe to bookings and filter for in-progress ones
         this.subscription(
             'in_progress_bookings',
-            this._schedule.bookings.subscribe(
-                (bookings: (Booking | CalendarEvent)[]) => {
-                    const in_progress = bookings.filter((b) => {
-                        const state = b.state;
-                        return state === 'in_progress' || state === 'started';
-                    });
-                    this._service.setInProgressBookings(in_progress);
-                },
-            ),
+            this._bookings$.subscribe((bookings: (Booking | CalendarEvent)[]) => {
+                const in_progress = bookings.filter((b) => {
+                    const state = b.state;
+                    return state === 'in_progress' || state === 'started';
+                });
+                this._service.setInProgressBookings(in_progress);
+            }),
         );
     }
 
