@@ -110,7 +110,7 @@ interface PositionedBooking {
                         }
 
                         <!-- Bookings -->
-                        <div class="relative" [style.height.px]="gridHeight()">
+                        <div class="relative h-full">
                             @for (
                                 item of positionedBookings();
                                 track item.booking.id
