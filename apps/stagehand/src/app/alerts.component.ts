@@ -418,7 +418,7 @@ export class AlertsComponent extends AsyncHandler implements OnInit {
     private _router = inject(Router);
     private _dashboards = inject(DashboardsService);
     private _org = inject(OrganisationService);
-    private _initialized = false;
+    private _initialized = signal(false);
 
     public readonly search = signal('');
     public readonly severity_types = {
@@ -445,9 +445,10 @@ export class AlertsComponent extends AsyncHandler implements OnInit {
         const status = this.status();
         const region = this._dashboards.region_id();
         const building = this._dashboards.building_id();
+        const initialized = this._initialized();
 
         // Skip until after we've loaded from query params
-        if (!this._initialized) {
+        if (!initialized) {
             return;
         }
 
@@ -456,9 +457,10 @@ export class AlertsComponent extends AsyncHandler implements OnInit {
             severity: severity || undefined,
             device_type: device_type || undefined,
             status: status || undefined,
-            region: region || undefined,
-            // Only include building if region is selected
-            building: region && building ? building : undefined,
+            // Use 'all' to represent all regions selected, actual region id otherwise
+            region: region || 'all',
+            // Use 'all' to represent all buildings when region is selected
+            building: region ? (building || 'all') : undefined,
         };
 
         this._router.navigate([], {
@@ -522,17 +524,27 @@ export class AlertsComponent extends AsyncHandler implements OnInit {
         if (query_params['status']) {
             this.status.set(query_params['status']);
         }
-        if (query_params['region']) {
+        // Handle region query param - 'all' means all regions, otherwise specific region id
+        const region_param = query_params['region'];
+        const building_param = query_params['building'];
+        if (region_param === 'all') {
+            // Explicitly set to all regions via dashboards service
+            this._dashboards.setRegionFromParams('', '');
+        } else if (region_param) {
             const region = this._org.regions.find(
-                (r) => r.id === query_params['region'],
+                (r) => r.id === region_param,
             );
             if (region) {
                 this._org.region = region;
+                // Handle building param - 'all' means all buildings, otherwise specific building id
+                const building_id = building_param === 'all' ? '' : (building_param || '');
+                // Set via dashboards service to prevent constructor overwrite
+                this._dashboards.setRegionFromParams(region.id, building_id);
 
-                // Only apply building if region is set
-                if (query_params['building']) {
+                // Only apply building to org if specific building is set (not 'all')
+                if (building_param && building_param !== 'all') {
                     const building = this._org.buildings.find(
-                        (b) => b.id === query_params['building'],
+                        (b) => b.id === building_param,
                     );
                     if (building) {
                         this._org.building = building;
@@ -540,9 +552,11 @@ export class AlertsComponent extends AsyncHandler implements OnInit {
                 }
             }
         }
+        // Note: If no region param exists, we don't call setRegionFromParams
+        // so the constructor can set defaults from org service
 
         // Enable effect after loading from query params
-        this._initialized = true;
+        this._initialized.set(true);
 
         this._dashboards.loadDashboards();
         this.timeout('apply_dash', () => this._applyDashboard(''));

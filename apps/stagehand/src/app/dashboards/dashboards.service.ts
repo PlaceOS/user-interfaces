@@ -170,6 +170,7 @@ export class DashboardsService extends AsyncHandler {
     private _connected = false;
     private _alerts = signal([]);
     private _initialising = signal(false);
+    private _region_set_from_params = false;
 
     public readonly loading = signal<string[]>([]);
     public readonly region_id = signal<string>('');
@@ -185,12 +186,48 @@ export class DashboardsService extends AsyncHandler {
 
     constructor() {
         super();
+        // Check for region/building in URL query params immediately
+        this._initFromQueryParams();
+
         firstTruthyValueFrom(this._org.initialised).then(() => {
             this.timeout('org_init', () => {
-                this.region_id.set(this._org.region.id || '');
-                this.building_id.set(this._org.building?.id || '');
+                // Don't overwrite if region was explicitly set from query params
+                if (!this._region_set_from_params) {
+                    this.region_id.set(this._org.region?.id || '');
+                    this.building_id.set(this._org.building?.id || '');
+                }
             });
         });
+    }
+
+    /** Initialize region/building from URL query params */
+    private _initFromQueryParams() {
+        // Parse query params from hash (for hash routing) or search
+        const hash = location.hash;
+        const queryIndex = hash.indexOf('?');
+        const queryString = queryIndex >= 0 ? hash.substring(queryIndex + 1) : '';
+        const params = new URLSearchParams(queryString);
+
+        const region_param = params.get('region');
+        const building_param = params.get('building');
+
+        if (region_param) {
+            this._region_set_from_params = true;
+            // 'all' means empty string (all regions/buildings)
+            this.region_id.set(region_param === 'all' ? '' : region_param);
+            if (building_param) {
+                this.building_id.set(building_param === 'all' ? '' : building_param);
+            }
+        }
+    }
+
+    /** Set region from query params, preventing constructor from overwriting */
+    public setRegionFromParams(region_id: string, building_id?: string) {
+        this._region_set_from_params = true;
+        this.region_id.set(region_id);
+        if (building_id !== undefined) {
+            this.building_id.set(building_id);
+        }
     }
 
     public async setAlert(id: string) {
