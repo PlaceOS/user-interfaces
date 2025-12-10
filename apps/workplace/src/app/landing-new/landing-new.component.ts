@@ -9,6 +9,7 @@ import { TopbarComponent } from '../components/topbar.component';
 import { LandingStateService } from '../landing/landing-state.service';
 import { LandingAvailableNowComponent } from './landing-available-now.component';
 import { LandingColleaguesNewComponent } from './landing-colleagues-new.component';
+import { LandingDeskWeekComponent } from './landing-desk-week.component';
 import { LandingFavouritesNewComponent } from './landing-favourites-new.component';
 import { LandingQuickActionsComponent } from './landing-quick-actions.component';
 import { LandingUpcomingBookingComponent } from './landing-upcoming-booking.component';
@@ -29,6 +30,7 @@ import { LandingUpcomingBookingComponent } from './landing-upcoming-booking.comp
 
                     <landing-available-now class="md:col-span-2" />
                     <landing-quick-actions class="md:col-span-1" />
+                    <landing-desk-week class="md:col-span-3" />
                     <landing-favourites-new class="md:col-span-2" />
                     <landing-colleagues-new class="md:col-span-1" />
                     <div class="min-h-2 w-full md:col-span-3"></div>
@@ -63,6 +65,7 @@ import { LandingUpcomingBookingComponent } from './landing-upcoming-booking.comp
         // LandingVirtualConciergeComponent,
         LandingAvailableNowComponent,
         LandingQuickActionsComponent,
+        LandingDeskWeekComponent,
         LandingFavouritesNewComponent,
         LandingColleaguesNewComponent,
     ],
