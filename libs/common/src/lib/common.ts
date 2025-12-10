@@ -1,6 +1,7 @@
 export { AsyncHandler as AsyncHandler } from './async-handler.class';
 export { HotkeysService } from './hotkeys.service';
 export { MapsPeopleService } from './mapspeople.service';
+export { PushNotificationService } from './push-notification.service';
 export { SettingsService } from './settings.service';
 export { VERSION } from './version';
 export { VorlonService } from './vorlon.service';

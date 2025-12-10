@@ -24,9 +24,10 @@ import {
 } from '@placeos/ts-client';
 import { lastValueFrom } from 'rxjs';
 
-import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
+import { openConfirmModal } from '@placeos/components';
 import mqtt from 'mqtt';
 import { Alert } from '../alerts.service';
+import { AlertNotificationService } from '../push-notification.service';
 
 export interface StateTopic {
     region_id?: string;
@@ -165,12 +166,15 @@ function findCompareMatches(alerts: BrokerAlert[], item: TriggerComparison) {
 export class DashboardsService extends AsyncHandler {
     private _org = inject(OrganisationService);
     private _dialog = inject(MatDialog);
+    private _push = inject(AlertNotificationService);
 
     private _mqtt_broker: mqtt.MqttClient;
     private _connected = false;
     private _alerts = signal([]);
     private _initialising = signal(false);
     private _region_set_from_params = false;
+    /** Track alert IDs that have already been notified to prevent duplicates */
+    private _notified_alert_ids = new Set<string>();
 
     public readonly loading = signal<string[]>([]);
     public readonly region_id = signal<string>('');
@@ -464,9 +468,44 @@ export class DashboardsService extends AsyncHandler {
                     }
                     alert_out = unique(alert_out, 'id');
                 }
+                // Send push notifications for new alerts
+                this._sendPushNotifications(alert_out);
                 this.dashboard_alerts.set(alert_out);
             },
             10,
         );
+    }
+
+    /** Send push notifications for new alerts that haven't been notified yet */
+    private _sendPushNotifications(alerts: Alert[]): void {
+        log('ALERTS', `_sendPushNotifications called with ${alerts.length} alerts`);
+        for (const alert of alerts) {
+            // Skip if already notified
+            if (this._notified_alert_ids.has(alert.id)) {
+                log('ALERTS', `Skipping already notified alert: ${alert.id}`);
+                continue;
+            }
+
+            log('ALERTS', `Sending notification for new alert: ${alert.id}, severity: ${alert.severity}`);
+            // Mark as notified before sending to prevent duplicates
+            this._notified_alert_ids.add(alert.id);
+
+            // Send push notification
+            this._push.notifyAlert({
+                subject: alert.subject,
+                body: alert.body,
+                severity: alert.severity,
+                location: alert.location,
+                device: alert.device,
+            });
+        }
+
+        // Clean up old notified IDs that are no longer in the current alert list
+        const current_ids = new Set(alerts.map((a) => a.id));
+        for (const id of this._notified_alert_ids) {
+            if (!current_ids.has(id)) {
+                this._notified_alert_ids.delete(id);
+            }
+        }
     }
 }
