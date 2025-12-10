@@ -298,8 +298,8 @@ import { ItemListFieldComponent } from './item-list-field.component';
                     <label for="is-after">
                         {{
                             (form.value.rules.hidden
-                                ? 'BOOKINGS.BETWEEN_DATES_ALLOW'
-                                : 'BOOKINGS.BETWEEN_DATES_DENY'
+                                ? 'BOOKINGS.BETWEEN_DATES_DENY'
+                                : 'BOOKINGS.BETWEEN_DATES_ALLOW'
                             ) | translate
                         }}
                     </label>
@@ -337,8 +337,8 @@ import { ItemListFieldComponent } from './item-list-field.component';
                     <label for="is_between">
                         {{
                             (form.value.rules.hidden
-                                ? 'BOOKINGS.BETWEEN_HOURS_ALLOW'
-                                : 'BOOKINGS.BETWEEN_HOURS_DENY'
+                                ? 'BOOKINGS.BETWEEN_HOURS_DENY'
+                                : 'BOOKINGS.BETWEEN_HOURS_ALLOW'
                             ) | translate
                         }}
                     </label>
@@ -402,8 +402,8 @@ import { ItemListFieldComponent } from './item-list-field.component';
                     <label for="resource_ids">
                         {{
                             (form.value.rules.hidden
-                                ? 'BOOKINGS.RESOURCES_ALLOW'
-                                : 'BOOKINGS.RESOURCES_DENY'
+                                ? 'BOOKINGS.RESOURCES_DENY'
+                                : 'BOOKINGS.RESOURCES_ALLOW'
                             ) | translate
                         }}
                     </label>
