@@ -442,9 +442,10 @@ export class DashboardsService extends AsyncHandler {
                         match_groups.push(group);
                     }
                     for (const group of match_groups) {
-                        if (
-                            group.length >= alert.conditions.comparisons.length
-                        ) {
+                        const required_matches = alert.any_match
+                            ? 1
+                            : alert.conditions.comparisons.length;
+                        if (group.length >= required_matches) {
                             const { time, topic_str } = group[0];
                             const topic = stringToTopic(topic_str);
                             const device = `${topic.module_name}_${topic.module_index}`;
