@@ -433,10 +433,8 @@ export class SignageStateService extends AsyncHandler {
             const name_parts = file.name.split('.');
             name_parts.pop(); // Drop the extension
             const name = `thumb+${name_parts.join('.')}.jpg`;
-
             const thumb_id = await this._uploads.uploadFile(
                 dataURLtoFile(thumbnail_image, name),
-                true,
             );
             thumbnail = await uploadDetails(thumb_id);
         }
