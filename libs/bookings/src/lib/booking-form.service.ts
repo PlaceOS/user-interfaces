@@ -62,7 +62,14 @@ import {
     loadLockerBanks,
     loadLockers,
 } from './booking.utilities';
-import { bookedResourceList, queryBookings, saveBooking } from './bookings.fn';
+import {
+    bookedResourceList,
+    BookingClash,
+    findBookingClashes,
+    queryBookings,
+    saveBooking,
+} from './bookings.fn';
+import { openRecurringClashModal } from './recurring-clash-modal.component';
 import { DeskQuestionsModalComponent } from './desk-questions-modal.component';
 
 import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
@@ -558,6 +565,14 @@ export class BookingFormService extends AsyncHandler {
                 value.duration,
                 host,
             );
+            await this._checkRecurringClashes(
+                {
+                    ...booking,
+                    ...value,
+                    user_email: host,
+                },
+                this._options.getValue().type,
+            );
         }
         if (this._payments.enabled) {
             const receipt = await this._payments.makePayment({
@@ -892,6 +907,76 @@ export class BookingFormService extends AsyncHandler {
                 assets.length,
             );
         }
+        return true;
+    }
+
+    /**
+     * Check for clashing bookings in a recurring booking series
+     * @param booking The booking to check for clashes
+     * @param type The booking type
+     * @returns true if no clashes or user confirmed to continue
+     * @throws Error if first instance clashes or clashes not allowed
+     */
+    private async _checkRecurringClashes(
+        booking: Partial<Booking>,
+        type: BookingType,
+    ): Promise<boolean> {
+        // Only check for recurring bookings
+        if (!booking.recurrence_type || booking.recurrence_type === 'none') {
+            return true;
+        }
+
+        const temp_booking = new Booking({
+            ...booking,
+            booking_type: type,
+        });
+
+        const clashes = (await lastValueFrom(
+            findBookingClashes(temp_booking, { include_clash_time: true }),
+        )) as BookingClash[];
+
+        if (!clashes?.length) {
+            return true;
+        }
+
+        // Sort clashes by booking_start to identify first instance
+        const sorted_clashes = [...clashes].sort(
+            (a, b) => a.booking_start - b.booking_start,
+        );
+
+        // Check if first instance clashes (compare with booking start time)
+        const booking_start_unix = Math.floor(booking.date / 1000);
+        const first_clash = sorted_clashes[0];
+        const is_first_instance_clash =
+            first_clash.booking_start === booking_start_unix;
+
+        if (is_first_instance_clash) {
+            throw i18n('BOOKINGS.FIRST_INSTANCE_CLASH');
+        }
+
+        // Check setting for allow_recurring_instance_clashes
+        const allow_clashes =
+            this._settings.get(`app.${type}s.allow_recurring_instance_clashes`) ??
+            this._settings.get(`app.${type}.allow_recurring_instance_clashes`) ??
+            this._settings.get('app.bookings.allow_recurring_instance_clashes') ??
+            true;
+
+        if (!allow_clashes) {
+            throw i18n('BOOKINGS.RECURRING_CLASHES_NOT_ALLOWED', {
+                count: clashes.length,
+            });
+        }
+
+        // Show modal to confirm with user
+        const result = await openRecurringClashModal(
+            { clashes: sorted_clashes },
+            this._dialog,
+        );
+
+        if (result?.reason !== 'done') {
+            throw 'User cancelled';
+        }
+
         return true;
     }
 

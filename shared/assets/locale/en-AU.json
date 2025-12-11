@@ -629,7 +629,13 @@
         "ASSETS_DELIVER_TIME": "Deliver After",
         "ASSETS_AVAILABLE": "{{ count }} available",
         "RULES_HIDDEN_1": "You are not allowed to book the selected {{ type }} for the selected time or duration",
-        "RULES_HIDDEN_N": "You are not allowed to book some of the selected {{ type }}s for the selected time or duration"
+        "RULES_HIDDEN_N": "You are not allowed to book some of the selected {{ type }}s for the selected time or duration",
+        "FIRST_INSTANCE_CLASH": "The first booking in the series clashes with an existing booking",
+        "RECURRING_CLASHES_NOT_ALLOWED": "Recurring bookings with {{ count }} clashing instance(s) are not allowed",
+        "RECURRING_CLASHES_TITLE": "Booking Clashes Detected",
+        "RECURRING_CLASHES_MSG": "Some instances in this recurring booking series clash with existing bookings.",
+        "RECURRING_CLASHES_CONFIRM": "These instances will be skipped. Do you want to continue with the booking?",
+        "CONTINUE_BOOKING": "Continue Booking"
     },
     "CALENDAR_EVENT": {
         "CATERING": "Catering",
