@@ -119,20 +119,6 @@ import { DesksStateService } from './desks-state.service';
                     <icon>lock_open</icon>
                 </button>
             }
-            @if (manage() && needs_migration()) {
-                <button
-                    btn
-                    matRipple
-                    class="ml-2 border-warning bg-warning text-warning-content"
-                    (click)="migrateDesks()"
-                    [matTooltip]="
-                        'APP.CONCIERGE.DESKS_MIGRATE_TOOLTIP' | translate
-                    "
-                >
-                    <icon class="text-2xl">sync</icon>
-                    <div class="mx-2">{{ 'COMMON.MIGRATE' | translate }}</div>
-                </button>
-            }
             <div class="w-2 flex-1"></div>
             <searchbar
                 class="mr-2"
@@ -176,8 +162,6 @@ export class DesksTopbarComponent extends AsyncHandler implements OnInit {
     });
     /** List of levels for the active building */
     public readonly filters = this._desks.filters;
-    /** Whether migration is needed for the current zone */
-    public readonly needs_migration = this._desks.needs_migration;
 
     public manage = signal(false);
     public is_map = signal(false);
@@ -300,10 +284,6 @@ export class DesksTopbarComponent extends AsyncHandler implements OnInit {
         delete desk.images;
         const data = jsonToCsv([desk]);
         downloadFile('desk-template.csv', data);
-    }
-
-    public migrateDesks() {
-        this._desks.migrateDesks();
     }
 
     /**

@@ -12,11 +12,9 @@ import {
     queryPagedBookings,
     rejectBooking,
     removeBooking,
-    ResourceAssetsService,
     saveBooking,
 } from '@placeos/bookings';
 import {
-    Asset,
     AsyncHandler,
     Booking,
     Desk,
@@ -35,6 +33,7 @@ import {
 import {
     listChildMetadata,
     QueryResponse,
+    showMetadata,
     updateMetadata,
 } from '@placeos/ts-client';
 import { addHours, endOfDay, getUnixTime, set, startOfDay } from 'date-fns';
@@ -53,55 +52,6 @@ import {
 
 import { openConfirmModal } from '@placeos/components';
 import { DeskModalComponent } from './desk-modal.component';
-
-/** Desk to Asset mapping */
-const DESK_ASSET_MAPPING = {
-    assetToResource: (asset: Asset, zone_id?: string): Desk => {
-        const other_data = asset.other_data as Record<string, any>;
-        const desk = new Desk({
-            id: asset.id,
-            map_id: other_data?.map_id || asset.id,
-            name: asset.identifier || '',
-            bookable: asset.bookable ?? false,
-            assigned_to: asset.assigned_to || '',
-            groups: other_data?.groups || [],
-            features: asset.features || [],
-            images: other_data?.images || [],
-            security: other_data?.security || '',
-        });
-        (desk as any).zone_id = zone_id || asset.zone_id;
-        (desk as any).notes = asset.notes || '';
-        (desk as any).client_id = other_data?.client_id || '';
-        return desk;
-    },
-    resourceToAsset: (
-        desk: Desk,
-        asset_type_id: string,
-        zone_id: string,
-        zones: string[],
-    ): Partial<Asset> => ({
-        id: desk.id?.startsWith('temp-') ? undefined : desk.id,
-        asset_type_id,
-        identifier: desk.name,
-        bookable: desk.bookable,
-        assigned_to: desk.assigned_to || '',
-        features: desk.features || [],
-        notes: (desk as any).notes || '',
-        zone_id,
-        zones,
-        other_data: {
-            client_id: desk.id,
-            map_id: desk.map_id || desk.id,
-            groups: desk.groups || [],
-            images: desk.images || [],
-            security: desk.security || '',
-        } as Record<string, any>,
-    }),
-};
-
-/** Legacy metadata to Desk mapping */
-const legacyDeskMapFn = (item: any, zone_id: string): Desk =>
-    new Desk({ ...item, zone_id });
 
 function addQRCodeToBooking(booking: Booking): Booking {
     return new Booking({
@@ -134,19 +84,14 @@ export class DesksStateService extends AsyncHandler {
     private _org = inject(OrganisationService);
     private _dialog = inject(MatDialog);
     private _settings = inject(SettingsService);
-    private _resourceAssets = inject(ResourceAssetsService);
 
     private _filters = signal<DeskFilters>({});
     private _desk_bookings: Booking[] = [];
     private _loading = signal<boolean>(false);
     private _change = signal(0);
-    private _using_assets_api = signal<boolean | null>(null);
-    private _needs_migration = signal<boolean>(false);
 
     public readonly loading = this._loading.asReadonly();
     public readonly filters = this._filters.asReadonly();
-    public readonly using_assets_api = this._using_assets_api.asReadonly();
-    public readonly needs_migration = this._needs_migration.asReadonly();
 
     private readonly _desks$ = combineLatest([
         toObservable(this._filters),
@@ -160,44 +105,21 @@ export class DesksStateService extends AsyncHandler {
             }
             this._loading.set(true);
             const zones = filters.zones || [];
-            const zone_id = zones && !zones.includes('All') ? zones[0] : null;
-
-            // Try Assets API first
-            if (zone_id) {
-                return this._resourceAssets
-                    .loadWithFallback$(
-                        'desks',
-                        'desks',
-                        zone_id,
-                        DESK_ASSET_MAPPING,
-                        legacyDeskMapFn,
-                    )
-                    .pipe(
-                        tap((list) => {
-                            // Check if using assets API
-                            this._checkMigrationStatus(zone_id);
-                        }),
-                        catchError((_) => of([])),
-                    );
-            }
-
-            // Load from all levels via child metadata (legacy behavior)
-            // Check migration status for the first level
-            const building_id = this._org.building?.id;
-            const levels = this._org.levelsForBuilding(this._org.building);
-            if (levels?.length) {
-                this._checkMigrationStatus(levels[0].id);
-            }
-            return listChildMetadata(building_id, {
-                name: 'desks',
-            }).pipe(
-                map((m) =>
-                    m
-                        .map((i) => i.metadata?.desks?.details || [])
-                        .reduce((c: any[], i: any[]) => [...c, ...i], []),
-                ),
-                catchError((_) => of([])),
-            );
+            return zones && !zones.includes('All')
+                ? showMetadata(zones[0], 'desks').pipe(
+                      map((m) => (m.details instanceof Array ? m.details : [])),
+                      catchError((_) => of([])),
+                  )
+                : listChildMetadata(this._org.building?.id, {
+                      name: 'desks',
+                  }).pipe(
+                      map((m) =>
+                          m
+                              .map((i) => i.metadata?.desks?.details || [])
+                              .reduce((c: any[], i: any[]) => [...c, ...i], []),
+                      ),
+                      catchError((_) => of([])),
+                  );
         }),
         map((list) => {
             if (!(list instanceof Array)) list = [];
@@ -336,36 +258,17 @@ export class DesksStateService extends AsyncHandler {
 
     public async addDesks(list: Desk[]) {
         const zone = this._filters().zones[0];
-        const using_assets = await this._resourceAssets.isUsingAssetsAPI(
-            'desks',
-            zone,
-        );
-
-        if (using_assets) {
-            // Save via Assets API
-            for (const desk of list) {
-                await this._resourceAssets.saveResource(
-                    'desks',
-                    desk,
-                    zone,
-                    DESK_ASSET_MAPPING,
-                    desk.id,
-                );
-            }
-        } else {
-            // Save via metadata (legacy)
-            const desk_list = [...this.desks()];
-            for (const desk of list) {
-                const idx = desk_list.findIndex((_) => _.id === desk.id);
-                if (idx >= 0) desk_list[idx] = desk;
-                else desk_list.push(desk);
-            }
-            await updateMetadata(zone, {
-                name: 'desks',
-                details: desk_list,
-                description: 'List of available desks',
-            }).toPromise();
+        const desk_list = [...this.desks()];
+        for (const desk of list) {
+            const idx = desk_list.findIndex((_) => _.id === desk.id);
+            if (idx >= 0) desk_list[idx] = desk;
+            else desk_list.push(desk);
         }
+        await updateMetadata(zone, {
+            name: 'desks',
+            details: desk_list,
+            description: 'List of available desks',
+        }).toPromise();
         this._change.set(Date.now());
     }
 
@@ -387,51 +290,26 @@ export class DesksStateService extends AsyncHandler {
                 state.metadata.id ||
                 `desk-${zone.slice(-3)}.${randomInt(999_999)}`,
         };
-
+        const desk_list = [...this.desks()];
+        const idx = desk_list.findIndex((_) => _.id === desk.id);
+        if (idx >= 0) desk_list[idx] = new_desk;
+        else desk_list.push(new_desk);
         if (!new_desk.bookable) {
             new_desk.assigned_to = '';
             delete new_desk.assigned_name;
             delete new_desk.assigned_user;
         }
-
-        const using_assets = await this._resourceAssets.isUsingAssetsAPI(
-            'desks',
-            zone,
-        );
-
-        try {
-            if (using_assets) {
-                // Save via Assets API
-                const saved = await this._resourceAssets.saveResource(
-                    'desks',
-                    new Desk(new_desk),
-                    zone,
-                    DESK_ASSET_MAPPING,
-                    desk.id,
-                );
-                if (saved) {
-                    new_desk.id = saved.id;
-                }
-            } else {
-                // Save via metadata (legacy)
-                const desk_list = [...this.desks()];
-                const idx = desk_list.findIndex((_) => _.id === desk.id);
-                if (idx >= 0) desk_list[idx] = new_desk;
-                else desk_list.push(new_desk);
-                await lastValueFrom(
-                    updateMetadata(zone, {
-                        name: 'desks',
-                        details: desk_list,
-                        description: 'List of available desks',
-                    }),
-                );
-            }
-        } catch (e) {
+        await lastValueFrom(
+            updateMetadata(zone, {
+                name: 'desks',
+                details: desk_list,
+                description: 'List of available desks',
+            }),
+        ).catch((e) => {
             notifyError(i18n('APP.CONCIERGE.DESKS_SAVE_ERROR', { error: e }));
             ref.componentInstance.loading.set(false);
             throw e;
-        }
-
+        });
         let recreate = false;
         if (
             desk.assigned_to &&
@@ -629,134 +507,5 @@ export class DesksStateService extends AsyncHandler {
         await Promise.all(
             filtered.map((_) => lastValueFrom(removeBooking(_.id))),
         );
-    }
-
-    /**
-     * Check migration status for the current zone
-     */
-    private async _checkMigrationStatus(zone_id: string): Promise<void> {
-        const [using_assets, needs_migration] = await Promise.all([
-            this._resourceAssets.isUsingAssetsAPI('desks', zone_id),
-            this._resourceAssets.needsMigration('desks', zone_id),
-        ]);
-        this._using_assets_api.set(using_assets);
-        this._needs_migration.set(needs_migration);
-    }
-
-    /**
-     * Migrate desks from metadata to Assets API
-     */
-    public async migrateDesks(): Promise<boolean> {
-        const zone = this._filters().zones[0];
-        if (!zone || zone === 'All') {
-            notifyError('Please select a specific level to migrate.');
-            return false;
-        }
-
-        const resp = await openConfirmModal(
-            {
-                title:
-                    i18n('APP.CONCIERGE.DESKS_MIGRATE_TITLE') ||
-                    'Migrate Desks',
-                content:
-                    i18n('APP.CONCIERGE.DESKS_MIGRATE_MSG') ||
-                    `This will migrate all desks for this level to the Assets API. This action cannot be undone. Continue?`,
-                icon: {
-                    type: 'icon',
-                    class: 'material-symbols-rounded',
-                    content: 'sync',
-                },
-            },
-            this._dialog,
-        );
-
-        if (resp.reason !== 'done') return false;
-
-        resp.loading(
-            i18n('APP.CONCIERGE.DESKS_MIGRATE_LOADING') || 'Migrating desks...',
-        );
-
-        try {
-            const result = await this._resourceAssets.migrateFromMetadata(
-                'desks',
-                'desks',
-                zone,
-                DESK_ASSET_MAPPING,
-                legacyDeskMapFn,
-            );
-            resp.close();
-            this._change.set(Date.now());
-            return result;
-        } catch (e) {
-            notifyError(
-                i18n('APP.CONCIERGE.DESKS_MIGRATE_ERROR', { error: e }) ||
-                    `Migration failed: ${e}`,
-            );
-            resp.close();
-            return false;
-        }
-    }
-
-    /**
-     * Delete a desk from the data source
-     */
-    public async deleteDesk(desk: Desk): Promise<boolean> {
-        const zone = this._filters().zones[0];
-        const resp = await openConfirmModal(
-            {
-                title:
-                    i18n('APP.CONCIERGE.DESKS_DELETE_TITLE') || 'Delete Desk',
-                content:
-                    i18n('APP.CONCIERGE.DESKS_DELETE_MSG', {
-                        name: desk.name,
-                    }) ||
-                    `Are you sure you want to delete desk "${desk.name}"?`,
-                icon: {
-                    type: 'icon',
-                    class: 'material-symbols-rounded',
-                    content: 'delete',
-                },
-            },
-            this._dialog,
-        );
-
-        if (resp.reason !== 'done') return false;
-
-        resp.loading(
-            i18n('APP.CONCIERGE.DESKS_DELETE_LOADING') || 'Deleting desk...',
-        );
-
-        const using_assets = await this._resourceAssets.isUsingAssetsAPI(
-            'desks',
-            zone,
-        );
-
-        try {
-            if (using_assets) {
-                await this._resourceAssets.deleteResource(desk.id);
-            } else {
-                const desk_list = this.desks().filter((_) => _.id !== desk.id);
-                await lastValueFrom(
-                    updateMetadata(zone, {
-                        name: 'desks',
-                        details: desk_list,
-                        description: 'List of available desks',
-                    }),
-                );
-            }
-            notifySuccess(
-                i18n('APP.CONCIERGE.DESKS_DELETE_SUCCESS') || 'Desk deleted',
-            );
-            this._change.set(Date.now());
-            resp.close();
-            return true;
-        } catch (e) {
-            notifyError(
-                i18n('APP.CONCIERGE.DESKS_DELETE_ERROR', { error: e }) ||
-                    `Delete failed: ${e}`,
-            );
-            resp.close();
-            return false;
-        }
     }
 }

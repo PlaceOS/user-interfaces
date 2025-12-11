@@ -460,7 +460,7 @@ export class AlertsComponent extends AsyncHandler implements OnInit {
             // Use 'all' to represent all regions selected, actual region id otherwise
             region: region || 'all',
             // Use 'all' to represent all buildings when region is selected
-            building: region ? building || 'all' : undefined,
+            building: region ? (building || 'all') : undefined,
         };
 
         this._router.navigate([], {
@@ -531,12 +531,13 @@ export class AlertsComponent extends AsyncHandler implements OnInit {
             // Explicitly set to all regions via dashboards service
             this._dashboards.setRegionFromParams('', '');
         } else if (region_param) {
-            const region = this._org.regions.find((r) => r.id === region_param);
+            const region = this._org.regions.find(
+                (r) => r.id === region_param,
+            );
             if (region) {
                 this._org.region = region;
                 // Handle building param - 'all' means all buildings, otherwise specific building id
-                const building_id =
-                    building_param === 'all' ? '' : building_param || '';
+                const building_id = building_param === 'all' ? '' : (building_param || '');
                 // Set via dashboards service to prevent constructor overwrite
                 this._dashboards.setRegionFromParams(region.id, building_id);
 

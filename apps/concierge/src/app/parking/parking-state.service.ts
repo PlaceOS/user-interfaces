@@ -1,4 +1,4 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
     approveBooking,
@@ -9,11 +9,9 @@ import {
     rejectBooking,
     rejectBookingInstance,
     removeBooking,
-    ResourceAssetsService,
     saveBooking,
 } from '@placeos/bookings';
 import {
-    Asset,
     AsyncHandler,
     Booking,
     i18n,
@@ -28,12 +26,11 @@ import {
     User,
 } from '@placeos/common';
 import { openConfirmModal } from '@placeos/components';
-import { updateMetadata } from '@placeos/ts-client';
+import { showMetadata, updateMetadata } from '@placeos/ts-client';
 import { UserPipe } from '@placeos/users';
 import { addHours, endOfDay, getUnixTime, set, startOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import {
-    catchError,
     debounceTime,
     filter,
     first,
@@ -45,90 +42,6 @@ import {
 import { ParkingBookingModalComponent } from './parking-booking-modal.component';
 import { ParkingSpaceModalComponent } from './parking-space-modal.component';
 import { ParkingUserModalComponent } from './parking-user-modal.component';
-
-/** ParkingSpace to Asset mapping */
-const PARKING_SPACE_ASSET_MAPPING = {
-    assetToResource: (asset: Asset, zone_id?: string): ParkingSpace => {
-        const other_data = asset.other_data as Record<string, any>;
-        return {
-            id: asset.id,
-            map_id: other_data?.map_id || asset.id,
-            name: asset.identifier || '',
-            notes: other_data?.notes || asset.notes || '',
-            assigned_to: asset.assigned_to || '',
-            zone_id: zone_id || asset.zone_id,
-        };
-    },
-    resourceToAsset: (
-        space: ParkingSpace,
-        asset_type_id: string,
-        zone_id: string,
-        zones: string[],
-    ): Partial<Asset> => ({
-        id: space.id?.startsWith('temp-') ? undefined : space.id,
-        asset_type_id,
-        identifier: space.name,
-        assigned_to: space.assigned_to || '',
-        notes: space.notes || '',
-        zone_id,
-        zones,
-        other_data: {
-            map_id: space.map_id || space.id,
-            notes: space.notes || '',
-        } as Record<string, any>,
-    }),
-};
-
-/** ParkingUser to Asset mapping */
-const PARKING_USER_ASSET_MAPPING = {
-    assetToResource: (asset: Asset, zone_id?: string): ParkingUser => {
-        const other_data = asset.other_data as Record<string, any>;
-        return {
-            id: asset.id,
-            name: asset.identifier || '',
-            email: other_data?.email || '',
-            car_model: other_data?.car_model || '',
-            car_colour: other_data?.car_colour || '',
-            plate_number: other_data?.plate_number || '',
-            phone: other_data?.phone || '',
-            notes: other_data?.notes || asset.notes || '',
-            deny: other_data?.deny ?? false,
-        };
-    },
-    resourceToAsset: (
-        user: ParkingUser,
-        asset_type_id: string,
-        zone_id: string,
-        zones: string[],
-    ): Partial<Asset> => ({
-        id: user.id?.startsWith('temp-') ? undefined : user.id,
-        asset_type_id,
-        identifier: user.name,
-        notes: user.notes || '',
-        zone_id,
-        zones,
-        other_data: {
-            email: user.email || '',
-            car_model: user.car_model || '',
-            car_colour: user.car_colour || '',
-            plate_number: user.plate_number || '',
-            phone: user.phone || '',
-            notes: user.notes || '',
-            deny: user.deny ?? false,
-        } as Record<string, any>,
-    }),
-};
-
-/** Legacy metadata to ParkingSpace mapping */
-const legacySpaceMapFn = (item: any, zone_id: string): ParkingSpace => ({
-    ...item,
-    zone_id,
-});
-
-/** Legacy metadata to ParkingUser mapping */
-const legacyUserMapFn = (item: any, zone_id: string): ParkingUser => ({
-    ...item,
-});
 
 export interface ParkingOptions {
     date: number;
@@ -166,7 +79,6 @@ export class ParkingStateService extends AsyncHandler {
     private _org = inject(OrganisationService);
     private _dialog = inject(MatDialog);
     private _settings = inject(SettingsService);
-    private _resourceAssets = inject(ResourceAssetsService);
 
     private _poll = new BehaviorSubject<number>(0);
     private _change = new BehaviorSubject(0);
@@ -176,13 +88,6 @@ export class ParkingStateService extends AsyncHandler {
         zones: [],
     });
     private _loading = new BehaviorSubject<string[]>([]);
-    private _spaces_need_migration = signal<boolean>(false);
-    private _users_need_migration = signal<boolean>(false);
-
-    public readonly spaces_need_migration =
-        this._spaces_need_migration.asReadonly();
-    public readonly users_need_migration =
-        this._users_need_migration.asReadonly();
     /** List of available parking levels for the current building */
     public levels = combineLatest([
         this._org.active_region,
@@ -217,23 +122,25 @@ export class ParkingStateService extends AsyncHandler {
         this._change,
     ]).pipe(
         switchMap(([levels, options]) => {
-            const zone_id = options.zones[0] || levels[0]?.id;
-            if (!zone_id) {
+            if (!(options.zones[0] || levels[0]?.id)) {
                 return of([] as ParkingSpace[]);
             }
             this._loading.next([...this._loading.getValue(), 'spaces']);
-            // Check migration status
-            this._checkSpacesMigrationStatus(zone_id);
-            // Try Assets API first, fallback to metadata
-            return this._resourceAssets
-                .loadWithFallback$(
-                    'parking-spaces',
-                    'parking-spaces',
-                    zone_id,
-                    PARKING_SPACE_ASSET_MAPPING,
-                    legacySpaceMapFn,
-                )
-                .pipe(catchError(() => of([] as ParkingSpace[])));
+            return showMetadata(
+                options.zones[0] || levels[0]?.id,
+                'parking-spaces',
+            ).pipe(
+                map(
+                    ({ details }) =>
+                        (details instanceof Array ? details : []).map(
+                            (space) =>
+                                ({
+                                    ...space,
+                                    zone_id: options.zones[0] || levels[0]?.id,
+                                }) as ParkingSpace,
+                        ) as ParkingSpace[],
+                ),
+            );
         }),
         tap(() =>
             this._loading.next(
@@ -242,7 +149,7 @@ export class ParkingStateService extends AsyncHandler {
         ),
         shareReplay(1),
     );
-    /** List of parking users for the current building */
+    /** List of parking spaces for the current building/level */
     public users = combineLatest([
         this._org.active_building,
         this._change,
@@ -250,19 +157,14 @@ export class ParkingStateService extends AsyncHandler {
         filter(([bld]) => !!bld?.id),
         switchMap(([bld]) => {
             this._loading.next([...this._loading.getValue(), 'users']);
-            // Check migration status
-            this._checkUsersMigrationStatus(bld.id);
-            // Try Assets API first, fallback to metadata
-            return this._resourceAssets
-                .loadWithFallback$(
-                    'parking-users',
-                    'parking-users',
-                    bld.id,
-                    PARKING_USER_ASSET_MAPPING,
-                    legacyUserMapFn,
-                )
-                .pipe(catchError(() => of([] as ParkingUser[])));
+            return showMetadata(bld.id, 'parking-users');
         }),
+        map(
+            (metadata) =>
+                (metadata.details instanceof Array
+                    ? metadata.details
+                    : []) as ParkingUser[],
+        ),
         tap(() =>
             this._loading.next(
                 this._loading.getValue().filter((_) => _ !== 'users'),
@@ -350,12 +252,13 @@ export class ParkingStateService extends AsyncHandler {
             this._options.getValue().zones[0] ||
             space.zone_id ||
             this._org.levelsForBuilding()[0]?.id;
-        const new_space: ParkingSpace = {
+        const new_space = {
             ...state.metadata,
-            zone_id: zone,
+            zone,
             id: state.metadata.id || `parking-${zone}.${randomInt(999_999)}`,
         };
         const spaces = await nextValueFrom(this.spaces);
+        const idx = spaces.findIndex((_) => _.id === space.id);
         let recreate = false;
         if (
             space.assigned_to &&
@@ -397,7 +300,9 @@ export class ParkingStateService extends AsyncHandler {
                         this._org.organisation.id,
                         this._org.region?.id,
                         this._org.building?.id,
-                        new_space.zone_id,
+                        new_space.zone_id ||
+                            new_space.zone?.id ||
+                            new_space.zone,
                     ]),
                     extension_data: {
                         asset_name: new_space.name,
@@ -407,42 +312,14 @@ export class ParkingStateService extends AsyncHandler {
                 }),
             ).toPromise();
         }
-
-        const using_assets = await this._resourceAssets.isUsingAssetsAPI(
-            'parking-spaces',
-            zone,
-        );
-
-        try {
-            if (using_assets) {
-                const saved = await this._resourceAssets.saveResource(
-                    'parking-spaces',
-                    new_space,
-                    zone,
-                    PARKING_SPACE_ASSET_MAPPING,
-                    space.id,
-                );
-                if (saved) {
-                    new_space.id = saved.id;
-                }
-            } else {
-                const idx = spaces.findIndex((_) => _.id === space.id);
-                if (idx >= 0) spaces[idx] = new_space;
-                else spaces.push(new_space);
-                await updateMetadata(zone, {
-                    name: 'parking-spaces',
-                    details: spaces,
-                    description: 'List of available parking spaces',
-                }).toPromise();
-            }
-        } catch (e) {
-            notifyError(
-                i18n('APP.CONCIERGE.PARKING_SPACE_SAVE_ERROR', { error: e }) ||
-                    `Failed to save parking space: ${e}`,
-            );
-            throw e;
-        }
-
+        if (idx >= 0) spaces[idx] = new_space;
+        else spaces.push(new_space);
+        const new_space_list = spaces;
+        await updateMetadata(zone, {
+            name: 'parking-spaces',
+            details: new_space_list,
+            description: 'List of available parking spaces',
+        }).toPromise();
         this._change.next(Date.now());
         ref.close();
     }
@@ -459,37 +336,18 @@ export class ParkingStateService extends AsyncHandler {
         );
         if (state?.reason !== 'done') return;
         state.loading('Removing parking space...');
-        const zone = this._options.getValue().zones[0] || space.zone_id;
+        const zone = this._options.getValue().zones[0];
+        const spaces = await nextValueFrom(this.spaces);
         this._clearAssignedBooking(space);
-
-        const using_assets = await this._resourceAssets.isUsingAssetsAPI(
-            'parking-spaces',
-            zone,
-        );
-
-        try {
-            if (using_assets) {
-                await this._resourceAssets.deleteResource(space.id);
-            } else {
-                const spaces = await nextValueFrom(this.spaces);
-                await updateMetadata(zone, {
-                    name: 'parking-spaces',
-                    details: spaces.filter((_) => _.id !== space.id),
-                    description: 'List of available parking spaces',
-                }).toPromise();
-            }
-            this._change.next(Date.now());
-        } catch (e) {
-            notifyError(
-                i18n('APP.CONCIERGE.PARKING_SPACE_DELETE_ERROR', {
-                    error: e,
-                }) || `Failed to delete parking space: ${e}`,
-            );
-        }
+        await updateMetadata(zone, {
+            name: 'parking-spaces',
+            details: spaces.filter((_) => _.id !== space.id),
+            description: 'List of available parking spaces',
+        }).toPromise();
         state.close();
     }
 
-    /** Add or update a user in the available list */
+    /** Add or update a space in the available list */
     public async editUser(user?: ParkingUser) {
         const ref = this._dialog.open(ParkingUserModalComponent, {
             data: user,
@@ -502,55 +360,25 @@ export class ParkingStateService extends AsyncHandler {
         ]);
         if (state?.reason !== 'done') return;
         const zone = this._org.building.id;
-        const new_user: ParkingUser = {
+        const new_user = {
             ...state.metadata,
             id: state.metadata.id || `P:USR-${randomInt(999_999)}`,
         };
-        if ('user' in new_user) delete (new_user as any).user;
-
-        const using_assets = await this._resourceAssets.isUsingAssetsAPI(
-            'parking-users',
-            zone,
-        );
-
-        try {
-            if (using_assets) {
-                const saved = await this._resourceAssets.saveResource(
-                    'parking-users',
-                    new_user,
-                    zone,
-                    PARKING_USER_ASSET_MAPPING,
-                    user?.id,
-                );
-                if (saved) {
-                    new_user.id = saved.id;
-                }
-            } else {
-                const users = await nextValueFrom(this.users);
-                const idx = users.findIndex(
-                    (_) => _.id === (user?.id || new_user.id),
-                );
-                if (idx >= 0) users[idx] = new_user;
-                else users.push(new_user);
-                await updateMetadata(zone, {
-                    name: 'parking-users',
-                    details: users,
-                    description: 'List of available parking users',
-                }).toPromise();
-            }
-        } catch (e) {
-            notifyError(
-                i18n('APP.CONCIERGE.PARKING_USER_SAVE_ERROR', { error: e }) ||
-                    `Failed to save parking user: ${e}`,
-            );
-            throw e;
-        }
-
+        if ('user' in new_user) delete new_user.user;
+        const users = await nextValueFrom(this.users);
+        const idx = users.findIndex((_) => _.id === new_user.id);
+        if (idx >= 0) users[idx] = new_user;
+        else users.push(new_user);
+        await updateMetadata(zone, {
+            name: 'parking-users',
+            details: users,
+            description: 'List of available parking users',
+        }).toPromise();
         this._change.next(Date.now());
         ref.close();
     }
 
-    /** Remove the given user from the available list */
+    /** Remove the given space from the available list */
     public async removeUser(user: ParkingUser) {
         const state = await openConfirmModal(
             {
@@ -565,33 +393,24 @@ export class ParkingStateService extends AsyncHandler {
         if (state?.reason !== 'done') return;
         state.loading(i18n('APP.CONCIERGE.PARKING_USER_REMOVE_LOADING'));
         const zone = this._org.building.id;
-
-        const using_assets = await this._resourceAssets.isUsingAssetsAPI(
-            'parking-users',
-            zone,
-        );
-
-        try {
-            if (using_assets) {
-                await this._resourceAssets.deleteResource(user.id);
-            } else {
-                const users = await nextValueFrom(this.users);
-                await updateMetadata(zone, {
-                    name: 'parking-users',
-                    details: users.filter((_) => _.id !== user.id),
-                    description: 'List of available parking users',
-                }).toPromise();
-            }
-            notifySuccess(i18n('APP.CONCIERGE.PARKING_USER_REMOVE_SUCCESS'));
-            this._change.next(Date.now());
-        } catch (e) {
-            notifyError(
-                i18n('APP.CONCIERGE.PARKING_USER_REMOVE_ERROR', {
-                    error: e,
-                }),
-            );
-        }
+        const users = await nextValueFrom(this.users);
+        await updateMetadata(zone, {
+            name: 'parking-users',
+            details: users.filter((_) => _.id !== user.id),
+            description: 'List of available parking users',
+        })
+            .toPromise()
+            .catch((e) => {
+                notifyError(
+                    i18n('APP.CONCIERGE.PARKING_USER_REMOVE_ERROR', {
+                        error: e,
+                    }),
+                );
+                throw e;
+            });
         state.close();
+        notifySuccess(i18n('APP.CONCIERGE.PARKING_USER_REMOVE_SUCCESS'));
+        this._change.next(Date.now());
     }
 
     public editReservation(
@@ -716,133 +535,5 @@ export class ParkingStateService extends AsyncHandler {
         }).toPromise();
         const filtered = booking_list.filter((_) => _.asset_id === space.id);
         await Promise.all(filtered.map((_) => removeBooking(_.id).toPromise()));
-    }
-
-    /** Check migration status for parking spaces */
-    private async _checkSpacesMigrationStatus(zone_id: string): Promise<void> {
-        const needs_migration = await this._resourceAssets.needsMigration(
-            'parking-spaces',
-            zone_id,
-        );
-        this._spaces_need_migration.set(needs_migration);
-    }
-
-    /** Check migration status for parking users */
-    private async _checkUsersMigrationStatus(zone_id: string): Promise<void> {
-        const needs_migration = await this._resourceAssets.needsMigration(
-            'parking-users',
-            zone_id,
-        );
-        this._users_need_migration.set(needs_migration);
-    }
-
-    /** Migrate parking spaces from metadata to Assets API */
-    public async migrateSpaces(): Promise<boolean> {
-        const zone =
-            this._options.getValue().zones[0] ||
-            (await nextValueFrom(this.levels))[0]?.id;
-        if (!zone) {
-            notifyError('Please select a parking level to migrate.');
-            return false;
-        }
-
-        const resp = await openConfirmModal(
-            {
-                title:
-                    i18n('APP.CONCIERGE.PARKING_SPACES_MIGRATE_TITLE') ||
-                    'Migrate Parking Spaces',
-                content:
-                    i18n('APP.CONCIERGE.PARKING_SPACES_MIGRATE_MSG') ||
-                    `This will migrate all parking spaces for this level to the Assets API. Continue?`,
-                icon: {
-                    type: 'icon',
-                    class: 'material-symbols-rounded',
-                    content: 'sync',
-                },
-            },
-            this._dialog,
-        );
-
-        if (resp.reason !== 'done') return false;
-
-        resp.loading(
-            i18n('APP.CONCIERGE.PARKING_SPACES_MIGRATE_LOADING') ||
-                'Migrating parking spaces...',
-        );
-
-        try {
-            const result = await this._resourceAssets.migrateFromMetadata(
-                'parking-spaces',
-                'parking-spaces',
-                zone,
-                PARKING_SPACE_ASSET_MAPPING,
-                legacySpaceMapFn,
-            );
-            resp.close();
-            this._change.next(Date.now());
-            return result;
-        } catch (e) {
-            notifyError(
-                i18n('APP.CONCIERGE.PARKING_SPACES_MIGRATE_ERROR', {
-                    error: e,
-                }) || `Migration failed: ${e}`,
-            );
-            resp.close();
-            return false;
-        }
-    }
-
-    /** Migrate parking users from metadata to Assets API */
-    public async migrateUsers(): Promise<boolean> {
-        const zone = this._org.building?.id;
-        if (!zone) {
-            notifyError('Please select a building to migrate parking users.');
-            return false;
-        }
-
-        const resp = await openConfirmModal(
-            {
-                title:
-                    i18n('APP.CONCIERGE.PARKING_USERS_MIGRATE_TITLE') ||
-                    'Migrate Parking Users',
-                content:
-                    i18n('APP.CONCIERGE.PARKING_USERS_MIGRATE_MSG') ||
-                    `This will migrate all parking users for this building to the Assets API. Continue?`,
-                icon: {
-                    type: 'icon',
-                    class: 'material-symbols-rounded',
-                    content: 'sync',
-                },
-            },
-            this._dialog,
-        );
-
-        if (resp.reason !== 'done') return false;
-
-        resp.loading(
-            i18n('APP.CONCIERGE.PARKING_USERS_MIGRATE_LOADING') ||
-                'Migrating parking users...',
-        );
-
-        try {
-            const result = await this._resourceAssets.migrateFromMetadata(
-                'parking-users',
-                'parking-users',
-                zone,
-                PARKING_USER_ASSET_MAPPING,
-                legacyUserMapFn,
-            );
-            resp.close();
-            this._change.next(Date.now());
-            return result;
-        } catch (e) {
-            notifyError(
-                i18n('APP.CONCIERGE.PARKING_USERS_MIGRATE_ERROR', {
-                    error: e,
-                }) || `Migration failed: ${e}`,
-            );
-            resp.close();
-            return false;
-        }
     }
 }

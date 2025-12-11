@@ -1,7 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 import {
-    PushNotificationService as BasePushNotificationService,
     log,
+    PushNotificationService as BasePushNotificationService,
     settingSignal,
 } from '@placeos/common';
 
@@ -35,9 +35,7 @@ const DEFAULT_CONFIG: AlertNotificationConfig = {
 })
 export class AlertNotificationService extends BasePushNotificationService {
     /** User's notification preferences per severity */
-    public readonly config = signal<AlertNotificationConfig>(
-        this._loadConfig(),
-    );
+    public readonly config = signal<AlertNotificationConfig>(this._loadConfig());
 
     /** Default config from settings (can be overridden by zone metadata) */
     private _default_config = settingSignal<Partial<AlertNotificationConfig>>(

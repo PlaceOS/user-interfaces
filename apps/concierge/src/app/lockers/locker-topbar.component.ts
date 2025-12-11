@@ -133,21 +133,6 @@ import { LockerStateService } from './locker-state.service';
                     <icon>lock_open</icon>
                 </button>
             }
-            @if (
-                path() === 'manage' &&
-                (banks_need_migration() || lockers_need_migration())
-            ) {
-                <button
-                    btn
-                    matRipple
-                    class="mx-2 border-warning bg-warning text-warning-content"
-                    (click)="migrateAll()"
-                    [matTooltip]="'Migrate legacy locker data to new system'"
-                >
-                    <icon class="text-2xl">sync</icon>
-                    <div class="mx-2">{{ 'COMMON.MIGRATE' | translate }}</div>
-                </button>
-            }
             @if (path() === 'events' || path() === 'map') {
                 <date-options (dateChange)="setDate($event)"></date-options>
             }
@@ -194,9 +179,6 @@ export class LockersTopbarComponent extends AsyncHandler implements OnInit {
     public readonly levels = this._state.levels;
     /** Options set for week view */
     public readonly options = this._state.filters;
-    /** Migration status signals */
-    public readonly banks_need_migration = this._state.banks_need_migration;
-    public readonly lockers_need_migration = this._state.lockers_need_migration;
     /** Set filtered date */
     public readonly setDate = (d) => this._state.setFilters({ date: d });
     /** Set filter string */
@@ -204,14 +186,6 @@ export class LockersTopbarComponent extends AsyncHandler implements OnInit {
     public readonly newLockerBank = () => this._state.editLockerBank();
     public readonly releaseAllLockers = () =>
         this._state.releaseAllLockers(true);
-    public async migrateAll() {
-        if (this.banks_need_migration()) {
-            await this._state.migrateLockerBanks();
-        }
-        if (this.lockers_need_migration()) {
-            await this._state.migrateLockers();
-        }
-    }
     /** List of levels for the active building */
     public readonly updateZones = (z) => {
         if (!this._router.url.includes('lockers')) return;

@@ -94,10 +94,10 @@ const QR_CODES = {};
             <ng-template #name_template let-row="row">
                 <button
                     class="flex flex-col px-4 py-2 text-left leading-tight"
-                    (click)="copyToClipboard(row.client_id || row.map_id || row.id)"
+                    (click)="copyToClipboard(row.map_id || row.id)"
                 >
-                    <div>{{ row.client_id || row.id || row.map_id }}</div>
-                    @if (row.map_id && row.map_id !== (row.client_id || row.id)) {
+                    <div>{{ row.id || row.map_id }}</div>
+                    @if (row.id && row.map_id !== row.id) {
                         <div class="font-mono text-[0.625rem] opacity-30">
                             {{ row.map_id }}
                         </div>
