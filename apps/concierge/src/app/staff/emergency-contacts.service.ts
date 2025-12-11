@@ -1,4 +1,4 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import {
     deleteAsset,
     queryAssetCategories,
@@ -54,6 +54,13 @@ export class EmergencyContactsService {
 
     private _change = new BehaviorSubject<number>(Date.now());
 
+    /** Migration status signals */
+    private _using_assets_api = signal(false);
+    private _needs_migration = signal(false);
+
+    public readonly using_assets_api = this._using_assets_api.asReadonly();
+    public readonly needs_migration = this._needs_migration.asReadonly();
+
     /** Observable for the emergency contacts category */
     public readonly category$ = combineLatest([
         this._org.active_building,
@@ -98,49 +105,8 @@ export class EmergencyContactsService {
         shareReplay(1),
     );
 
-    /** Observable for emergency contacts from Assets API */
-    public readonly contacts$ = combineLatest([
-        this._org.active_building,
-        this.assetType$,
-        this._change,
-    ]).pipe(
-        filter(([bld]) => !!bld),
-        switchMap(([bld, assetType]) => {
-            if (!assetType) return of([] as EmergencyContact[]);
-            return queryAssets({ zone_id: bld.id, type_id: assetType.id, limit: 200 }).pipe(
-                catchError(() => of([] as Asset[])),
-                map((assets) =>
-                    assets
-                        .filter((a) => a.asset_type_id === assetType.id)
-                        .map((a) => this.assetToContact(a)),
-                ),
-            );
-        }),
-        shareReplay(1),
-    );
-
-    /** Observable for roles (stored in category description as JSON) */
-    public readonly roles$ = this.category$.pipe(
-        map((category) => {
-            if (!category?.description) return [];
-            try {
-                const data = JSON.parse(category.description);
-                return (data.roles as string[]) || [];
-            } catch {
-                return [];
-            }
-        }),
-        shareReplay(1),
-    );
-
-    /** Combined data observable matching the old metadata format */
-    public readonly data$ = combineLatest([this.contacts$, this.roles$]).pipe(
-        map(([contacts, roles]) => ({ contacts, roles })),
-        shareReplay(1),
-    );
-
-    /** Legacy metadata fallback - used for migration */
-    private readonly legacyMetadata$ = this._org.active_building.pipe(
+    /** Legacy metadata fallback - used for migration and dual-source loading */
+    public readonly legacyMetadata$ = this._org.active_building.pipe(
         filter((bld) => !!bld),
         switchMap((bld) =>
             showMetadata(bld.id, 'emergency_contacts').pipe(
@@ -157,9 +123,98 @@ export class EmergencyContactsService {
         shareReplay(1),
     );
 
+    /** Observable for emergency contacts from Assets API */
+    private readonly _assets_contacts$ = combineLatest([
+        this._org.active_building,
+        this.assetType$,
+        this._change,
+    ]).pipe(
+        filter(([bld]) => !!bld),
+        switchMap(([bld, assetType]) => {
+            if (!assetType) return of([] as EmergencyContact[]);
+            return queryAssets({
+                zone_id: bld.id,
+                type_id: assetType.id,
+                limit: 200,
+            }).pipe(
+                catchError(() => of([] as Asset[])),
+                map((assets) =>
+                    assets
+                        .filter((a) => a.asset_type_id === assetType.id)
+                        .map((a) => this.assetToContact(a)),
+                ),
+            );
+        }),
+        shareReplay(1),
+    );
+
+    /** Combined contacts with dual-source loading (Assets API first, metadata fallback) */
+    public readonly contacts$ = combineLatest([
+        this._assets_contacts$,
+        this.legacyMetadata$,
+    ]).pipe(
+        map(([assets_contacts, legacy_data]) => {
+            // If we have asset-based contacts, use those exclusively
+            if (assets_contacts.length > 0) {
+                this._using_assets_api.set(true);
+                // Check if legacy data exists for migration button
+                const has_legacy =
+                    legacy_data?.contacts?.length > 0 &&
+                    !(legacy_data as any).migrated;
+                this._needs_migration.set(has_legacy);
+                return assets_contacts;
+            }
+            // Fallback to legacy metadata contacts
+            this._using_assets_api.set(false);
+            const legacy_contacts = legacy_data?.contacts || [];
+            // If metadata has contacts but not migrated, show migration button
+            this._needs_migration.set(
+                legacy_contacts.length > 0 && !(legacy_data as any).migrated,
+            );
+            return legacy_contacts;
+        }),
+        shareReplay(1),
+    );
+
+    /** Observable for roles from Assets API (stored in category description as JSON) */
+    private readonly _assets_roles$ = this.category$.pipe(
+        map((category) => {
+            if (!category?.description) return [];
+            try {
+                const data = JSON.parse(category.description);
+                return (data.roles as string[]) || [];
+            } catch {
+                return [];
+            }
+        }),
+        shareReplay(1),
+    );
+
+    /** Combined roles with dual-source loading (Assets API first, metadata fallback) */
+    public readonly roles$ = combineLatest([
+        this._assets_roles$,
+        this.legacyMetadata$,
+    ]).pipe(
+        map(([assets_roles, legacy_data]) => {
+            // If we have asset-based roles, use those
+            if (assets_roles.length > 0) {
+                return assets_roles;
+            }
+            // Fallback to legacy metadata roles
+            return legacy_data?.roles || [];
+        }),
+        shareReplay(1),
+    );
+
+    /** Combined data observable matching the old metadata format */
+    public readonly data$ = combineLatest([this.contacts$, this.roles$]).pipe(
+        map(([contacts, roles]) => ({ contacts, roles })),
+        shareReplay(1),
+    );
+
     constructor() {
-        // Initialize category and asset type on first load if needed
-        this.ensureCategoryAndTypeExist();
+        // Subscribe to contacts$ to initialize migration status
+        this.contacts$.subscribe();
     }
 
     /** Ensure the hidden category exists, create if not */
@@ -295,12 +350,16 @@ export class EmergencyContactsService {
                 await firstValueFrom(saveAsset(asset));
             }
 
-            // Clear old metadata after successful migration
+            // Mark metadata as migrated (non-destructive - keep original data)
             await updateMetadata(bld.id, {
                 name: 'emergency_contacts',
                 description: 'Emergency Contacts (migrated to Assets)',
-                details: { contacts: [], roles: [], migrated: true },
+                details: { ...legacy_data, migrated: true },
             }).toPromise();
+
+            // Update migration status
+            this._using_assets_api.set(true);
+            this._needs_migration.set(false);
 
             this._change.next(Date.now());
             notifySuccess(

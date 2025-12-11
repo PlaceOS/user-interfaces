@@ -74,7 +74,7 @@ import { BookingAsset } from '../booking-form.service';
             >
                 <section actions class="z-0 border-b pb-2">
                     <h2 class="mb-2 mt-4 text-xl font-medium">
-                        {{ desk().display_name || desk().name || desk().id }}
+                        {{ desk().display_name || desk().name || desk().client_id || desk().id }}
                     </h2>
                 </section>
                 <section details class="space-y-2 border-b pb-2">
@@ -89,7 +89,7 @@ import { BookingAsset } from '../booking-form.service';
                         <icon>desk</icon>
                         <p>
                             {{
-                                desk().display_name || desk().name || desk().id
+                                desk().display_name || desk().name || desk().client_id || desk().id
                             }}
                         </p>
                     </div>

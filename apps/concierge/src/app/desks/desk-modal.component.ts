@@ -75,7 +75,7 @@ const CHARS = '0123456789ABCDEF';
                             <input
                                 matInput
                                 name="id"
-                                formControlName="id"
+                                [formControlName]="form.value.client_id ? 'client_id' : 'id'"
                                 placeholder="desk-10.123"
                             />
                             <mat-error>{{
@@ -271,6 +271,7 @@ export class DeskModalComponent implements OnInit {
 
     public readonly form = new FormGroup({
         id: new FormControl(``),
+        client_id: new FormControl(''),
         name: new FormControl('', [Validators.required]),
         map_id: new FormControl('', [Validators.required]),
         groups: new FormControl<string[]>([]),

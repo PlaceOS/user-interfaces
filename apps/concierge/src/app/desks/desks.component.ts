@@ -88,6 +88,20 @@ import { DesksStateService } from './desks-state.service';
                             <icon class="text-2xl">add</icon>
                         </button>
                     }
+                    @if (manage && needs_migration()) {
+                        <button
+                            btn
+                            matRipple
+                            class="ml-2 border-warning bg-warning text-warning-content"
+                            (click)="migrateDesks()"
+                            [matTooltip]="'Migrate legacy desks to new system'"
+                        >
+                            <icon class="text-2xl">sync</icon>
+                            <div class="mx-2">
+                                {{ 'COMMON.MIGRATE' | translate }}
+                            </div>
+                        </button>
+                    }
                 </div>
                 <div class="mb-4 flex w-full items-center space-x-2 px-8">
                     @if (!manage) {
@@ -310,6 +324,8 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
     public manage = false;
     /** Signal for filters */
     public readonly filters = this._state.filters;
+    /** Signal for migration status */
+    public readonly needs_migration = this._state.needs_migration;
     /** Signal for levels for the active building */
     public readonly levels = toSignal(
         combineLatest([
@@ -329,6 +345,7 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
     public readonly refresh = () => this._state.refresh();
     public readonly rejectAll = () => this._state.rejectAllDesks();
     public readonly editDesk = () => this._state.editDesk();
+    public readonly migrateDesks = () => this._state.migrateDesks();
     /** Update active zones for desks */
     public readonly updateZones = (zones: string[]) => {
         this._router.navigate([], {

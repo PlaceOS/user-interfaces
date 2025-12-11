@@ -2,6 +2,7 @@ import { inject, Injectable, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Event, NavigationEnd, Router } from '@angular/router';
 import {
+    Asset,
     AsyncHandler,
     Booking,
     BookingRuleset,
@@ -69,13 +70,65 @@ import {
     queryBookings,
     saveBooking,
 } from './bookings.fn';
-import { openRecurringClashModal } from './recurring-clash-modal.component';
 import { DeskQuestionsModalComponent } from './desk-questions-modal.component';
+import { openRecurringClashModal } from './recurring-clash-modal.component';
+import { ResourceAssetsService, ResourceType } from './resource-assets.service';
 
 import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
 import { validateAssetRequestsForResource } from 'libs/assets/src/lib/assets.fn';
 import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
 import { PaymentsService } from 'libs/payments/src/lib/payments.service';
+
+/** Desk to Asset mapping for booking form */
+const DESK_ASSET_MAPPING = {
+    assetToResource: (asset: Asset, zone_id?: string): BookingAsset => {
+        const other_data = asset.other_data as Record<string, any>;
+        return {
+            id: asset.id,
+            map_id: other_data?.map_id || asset.id,
+            name: asset.identifier || '',
+            bookable: asset.bookable ?? false,
+            assigned_to: asset.assigned_to || '',
+            groups: other_data?.groups || [],
+            features: asset.features || [],
+        };
+    },
+    resourceToAsset: () => ({}) as Partial<Asset>,
+};
+
+/** Parking space to Asset mapping for booking form */
+const PARKING_SPACE_ASSET_MAPPING = {
+    assetToResource: (asset: Asset, zone_id?: string): BookingAsset => {
+        const other_data = asset.other_data as Record<string, any>;
+        return {
+            id: asset.id,
+            map_id: other_data?.map_id || asset.id,
+            name: asset.identifier || '',
+            bookable: true,
+            assigned_to: asset.assigned_to || '',
+            features: [],
+        };
+    },
+    resourceToAsset: () => ({}) as Partial<Asset>,
+};
+
+/** Map metadata type to resource type */
+const METADATA_TO_RESOURCE_TYPE: Record<string, ResourceType> = {
+    desks: 'desks',
+    'parking-spaces': 'parking-spaces',
+};
+
+/** Map metadata type to asset mapping */
+const METADATA_TO_ASSET_MAPPING: Record<string, any> = {
+    desks: DESK_ASSET_MAPPING,
+    'parking-spaces': PARKING_SPACE_ASSET_MAPPING,
+};
+
+/** Legacy metadata mapping */
+const legacyResourceMapFn = (item: any, zone_id: string): BookingAsset => ({
+    ...item,
+    id: item.id || item.map_id,
+});
 
 export type BookingFlowView = 'form' | 'map' | 'confirm' | 'success';
 
@@ -125,6 +178,7 @@ export class BookingFormService extends AsyncHandler {
     private _dialog = inject(MatDialog);
     private _payments = inject(PaymentsService);
     private _assets = inject(AssetStateService);
+    private _resourceAssets = inject(ResourceAssetsService);
     private _options = new BehaviorSubject<BookingFlowOptions>({
         type: 'desk',
     });
@@ -956,9 +1010,15 @@ export class BookingFormService extends AsyncHandler {
 
         // Check setting for allow_recurring_instance_clashes
         const allow_clashes =
-            this._settings.get(`app.${type}s.allow_recurring_instance_clashes`) ??
-            this._settings.get(`app.${type}.allow_recurring_instance_clashes`) ??
-            this._settings.get('app.bookings.allow_recurring_instance_clashes') ??
+            this._settings.get(
+                `app.${type}s.allow_recurring_instance_clashes`,
+            ) ??
+            this._settings.get(
+                `app.${type}.allow_recurring_instance_clashes`,
+            ) ??
+            this._settings.get(
+                'app.bookings.allow_recurring_instance_clashes',
+            ) ??
             true;
 
         if (!allow_clashes) {
@@ -980,8 +1040,97 @@ export class BookingFormService extends AsyncHandler {
         return true;
     }
 
-    public loadResourceList(type: string) {
+    public loadResourceList(type: string): Observable<BookingAsset[]> {
         const use_region = this._settings.get('app.use_region');
+        const resource_type = METADATA_TO_RESOURCE_TYPE[type];
+        const asset_mapping = METADATA_TO_ASSET_MAPPING[type];
+
+        // If we have asset mapping, try dual-source loading
+        if (resource_type && asset_mapping) {
+            return this._loadResourceListWithFallback(type, use_region);
+        }
+
+        // Fallback to legacy metadata loading for unsupported types
+        return this._loadResourceListLegacy(type, use_region);
+    }
+
+    private _loadResourceListWithFallback(
+        type: string,
+        use_region: boolean,
+    ): Observable<BookingAsset[]> {
+        const resource_type = METADATA_TO_RESOURCE_TYPE[type];
+        const asset_mapping = METADATA_TO_ASSET_MAPPING[type];
+
+        if (use_region) {
+            const region_id = this._org.building.parent_id;
+            const buildings = this._org.buildings.filter(
+                (_) => _.parent_id === region_id,
+            );
+            // Load from all buildings in region
+            return forkJoin(
+                buildings.map((bld) =>
+                    this._loadBuildingResources(
+                        bld.id,
+                        type,
+                        resource_type,
+                        asset_mapping,
+                    ),
+                ),
+            ).pipe(
+                map((results) => flatten(results)),
+                catchError(() =>
+                    this._loadResourceListLegacy(type, use_region),
+                ),
+            );
+        }
+
+        // Load from current building
+        return this._loadBuildingResources(
+            this._org.building.id,
+            type,
+            resource_type,
+            asset_mapping,
+        ).pipe(
+            catchError(() => this._loadResourceListLegacy(type, use_region)),
+        );
+    }
+
+    private _loadBuildingResources(
+        building_id: string,
+        metadata_type: string,
+        resource_type: ResourceType,
+        asset_mapping: any,
+    ): Observable<BookingAsset[]> {
+        const levels = this._org.levelsForBuilding({ id: building_id } as any);
+        if (!levels.length) return of([]);
+
+        return forkJoin(
+            levels.map((lvl) =>
+                this._resourceAssets
+                    .loadWithFallback$(
+                        resource_type,
+                        metadata_type,
+                        lvl.id,
+                        asset_mapping,
+                        legacyResourceMapFn,
+                    )
+                    .pipe(
+                        map((resources) =>
+                            resources.map((r) => ({
+                                ...r,
+                                zone: lvl,
+                            })),
+                        ),
+                        catchError(() => of([] as BookingAsset[])),
+                    ),
+            ),
+        ).pipe(map((results) => flatten(results)));
+    }
+
+    private _loadResourceListLegacy(
+        type: string,
+        use_region: boolean,
+    ): Observable<BookingAsset[]> {
         const map_metadata = (_) =>
             (_?.metadata[type]?.details instanceof Array
                 ? _.metadata[type].details
@@ -991,25 +1140,28 @@ export class BookingFormService extends AsyncHandler {
                 id: d.id || d.map_id,
                 zone: _.zone,
             }));
-        const id = use_region
-            ? this._org.building.parent_id
-            : this._org.building.id;
+
         if (use_region) {
-            const id = this._org.building.parent_id;
+            const region_id = this._org.building.parent_id;
             const buildings = this._org.buildings.filter(
-                (_) => _.parent_id === id,
+                (_) => _.parent_id === region_id,
             );
             return forkJoin(
                 buildings.map((_) =>
                     listChildMetadata(_.id, { name: type }).pipe(
                         map((data) => flatten(data.map(map_metadata))),
+                        catchError(() => of([])),
                     ),
                 ),
             ).pipe(map((_) => flatten(_)));
         }
-        return listChildMetadata(id, {
+
+        return listChildMetadata(this._org.building.id, {
             name: type,
-        }).pipe(map((data) => flatten(data.map(map_metadata))));
+        }).pipe(
+            map((data) => flatten(data.map(map_metadata))),
+            catchError(() => of([])),
+        );
     }
 
     private async _getNearbyResources(
