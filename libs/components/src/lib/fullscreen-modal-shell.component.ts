@@ -10,13 +10,16 @@ import { TranslatePipe } from './translate.pipe';
     selector: 'fullscreen-modal-shell,[fs-modal-shell]',
     template: `
         <div
-            class="fixed inset-0 flex flex-col items-center overflow-auto bg-base-200"
+            class="fixed inset-0 flex flex-col items-center overflow-auto bg-base-200 px-2"
         >
             <div
-                class="fixed top-0 mx-auto h-screen w-[40rem] max-w-full border-x border-base-300 bg-base-100"
+                class="fixed top-0 mx-auto h-screen max-w-full border-x border-base-300 bg-base-100"
+                [class.w-[40rem]]="!full_width()"
+                [class.w-full]="full_width()"
             ></div>
             <header
-                class="sticky top-0 z-10 mx-auto my-2 flex h-14 w-full max-w-[39rem] items-center justify-between rounded border-none bg-base-200 px-4 py-2"
+                class="sticky top-0 z-10 mx-auto my-2 flex h-14 w-full items-center justify-between rounded border-none bg-base-200 px-4 py-2"
+                [class.max-w-[39rem]]="!full_width()"
             >
                 <h2 class="text-xl font-medium capitalize">
                     {{ heading() }}
@@ -36,7 +39,8 @@ import { TranslatePipe } from './translate.pipe';
                 }
             </header>
             <main
-                class="z-0 mx-auto h-1/2 w-full max-w-[39rem] flex-1 space-y-8 p-2"
+                class="z-0 mx-auto h-1/2 w-full flex-1 space-y-8 p-2"
+                [class.max-w-[39rem]]="!full_width()"
             >
                 @if (!loading()) {
                     <ng-content></ng-content>
@@ -52,7 +56,8 @@ import { TranslatePipe } from './translate.pipe';
             </main>
             @if (!loading() && !hide_confirm()) {
                 <footer
-                    class="fixed bottom-0 left-1/2 z-10 mx-auto my-2 flex w-full max-w-[39rem] -translate-x-1/2 items-center justify-end rounded border-none bg-base-200 px-4 py-2"
+                    class="fixed bottom-0 left-1/2 z-10 mx-auto my-2 flex w-full -translate-x-1/2 items-center justify-end rounded border-none bg-base-200 px-4 py-2"
+                    [class.max-w-[39rem]]="!full_width()"
                 >
                     <button
                         btn
@@ -88,6 +93,7 @@ export class FullscreenModalShellComponent {
     public readonly confirm_text = input('');
     public readonly close = input<string[]>([]);
     public readonly hide_confirm = input(false);
+    public readonly full_width = input(false);
     public readonly confirm = output();
     public readonly closed = output();
 }
