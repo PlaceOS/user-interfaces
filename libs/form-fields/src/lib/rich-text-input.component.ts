@@ -19,18 +19,19 @@ import { font, fontSize, formatBlock, link, list } from 'suneditor/src/plugins';
 @Component({
     selector: 'rich-text-input',
     template: `
-        <div #container class="absolute inset-0">
-            <div #editor class="h-full"></div>
+        <div #container class="w-full">
+            <div #editor></div>
         </div>
     `,
     styles: [
         `
             :host {
                 display: block;
-                position: relative;
-                min-height: 8rem;
-                margin-bottom: 4rem;
-                z-index: 10;
+                width: 100%;
+            }
+
+            :host ::ng-deep .sun-editor {
+                border-radius: 0.25rem;
             }
         `,
     ],
@@ -146,16 +147,11 @@ export class RichTextInputComponent
             },
             action: () => this._embedAttachment(),
         };
-        const box =
-            this._container_el()?.nativeElement.getBoundingClientRect() || {
-                top: 0,
-                left: 0,
-                width: 0,
-                height: 0,
-            };
         this._editor = SunEditor.create(_editor_el, {
             placeholder: this.placeholder(),
-            height: `${box.height}`,
+            height: 'auto',
+            minHeight: '8rem',
+            width: '100%',
             plugins: [
                 font,
                 fontSize,

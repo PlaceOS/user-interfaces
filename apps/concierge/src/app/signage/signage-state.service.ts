@@ -433,10 +433,8 @@ export class SignageStateService extends AsyncHandler {
             const name_parts = file.name.split('.');
             name_parts.pop(); // Drop the extension
             const name = `thumb+${name_parts.join('.')}.jpg`;
-
             const thumb_id = await this._uploads.uploadFile(
                 dataURLtoFile(thumbnail_image, name),
-                true,
             );
             thumbnail = await uploadDetails(thumb_id);
         }
@@ -456,7 +454,7 @@ export class SignageStateService extends AsyncHandler {
         }
         const result = await lastValueFrom(addSignageMedia(data));
         this._active_upload.next(null);
-        this._change.next(Date.now());
+        this.timeout('changed', () => this._change.next(Date.now()), 500);
         return result;
     }
 

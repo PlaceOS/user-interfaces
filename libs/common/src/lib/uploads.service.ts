@@ -122,7 +122,7 @@ export class UploadsService extends AsyncHandler {
 
     public uploadFile(
         file: File,
-        pub = true,
+        pub = false,
         permissions: UploadPermissions = 'none',
     ) {
         return new Promise<string>((resolve) => {
@@ -151,7 +151,7 @@ export class UploadsService extends AsyncHandler {
 
     public uploadFileWithProgress(
         file: File,
-        pub = true,
+        pub = false,
         permissions: UploadPermissions = 'none',
     ): Observable<UploadDetails> {
         return this._uploadFile(file, pub, permissions);
@@ -173,7 +173,7 @@ export class UploadsService extends AsyncHandler {
      */
     private _uploadFile(
         file: File,
-        pub = true,
+        pub = false,
         permissions: UploadPermissions = 'none',
     ): Observable<UploadDetails> {
         return new Observable((observer) => {

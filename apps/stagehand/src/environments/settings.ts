@@ -23,6 +23,13 @@ const app = {
         search_enabled: true,
     },
     show_qr_for_booking: true,
+    /** Default push notification settings per severity level */
+    push_notification_defaults: {
+        critical: true,
+        high: false,
+        medium: false,
+        low: false,
+    },
 };
 
 /**

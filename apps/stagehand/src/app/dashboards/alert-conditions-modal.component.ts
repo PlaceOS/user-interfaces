@@ -1,4 +1,11 @@
-import { Component, EventEmitter, Output, inject } from '@angular/core';
+import {
+    Component,
+    EventEmitter,
+    OnInit,
+    Output,
+    inject,
+    signal,
+} from '@angular/core';
 import {
     AbstractControl,
     FormControl,
@@ -120,7 +127,7 @@ export function generateTriggerConditionForm(
                 (is_new ? 'TRIGGERS.CONDITION_NEW' : 'TRIGGERS.CONDITION_EDIT')
                     | translate
             "
-            [loading]="loading"
+            [loading]="loading()"
             (confirm)="save()"
         >
             @if (form) {
@@ -176,7 +183,10 @@ export function generateTriggerConditionForm(
         TranslatePipe,
     ],
 })
-export class AlertConditionModalComponent extends AsyncHandler {
+export class AlertConditionModalComponent
+    extends AsyncHandler
+    implements OnInit
+{
     private _dialog =
         inject<MatDialogRef<AlertConditionModalComponent>>(MatDialogRef);
     private _data = inject<AlertConditionData>(MAT_DIALOG_DATA);
@@ -184,7 +194,7 @@ export class AlertConditionModalComponent extends AsyncHandler {
     /** Emitter for events on the modal */
     @Output() public event = new EventEmitter<DialogEvent>();
     /** Whether actions are loading */
-    public loading: boolean;
+    public readonly loading = signal(false);
     /** Form fields for trigger condition */
     public readonly form = generateTriggerConditionForm(this._data.condition);
     /** Store for updated conditions */
@@ -216,10 +226,11 @@ export class AlertConditionModalComponent extends AsyncHandler {
     }
 
     public async save() {
+        if (this.loading()) return;
         console.log('Save Conditions');
         this.form.markAllAsTouched();
         if (!this.form.valid) return;
-        this.loading = true;
+        this.loading.set(true);
         this.form.controls.condition_type.value === 'compare'
             ? this.updateComparisons()
             : this.updateTimeDependents();
