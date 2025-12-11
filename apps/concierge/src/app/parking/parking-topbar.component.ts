@@ -168,6 +168,21 @@ import { ParkingStateService } from './parking-state.service';
                     <icon>lock_open</icon>
                 </button>
             }
+            @if (
+                (view() === 'spaces' || view() === 'users') &&
+                (spaces_need_migration() || users_need_migration())
+            ) {
+                <button
+                    btn
+                    matRipple
+                    class="mx-2 border-warning bg-warning text-warning-content"
+                    (click)="migrateAll()"
+                    [matTooltip]="'Migrate legacy parking data to new system'"
+                >
+                    <icon class="text-2xl">sync</icon>
+                    <div class="mx-2">{{ 'COMMON.MIGRATE' | translate }}</div>
+                </button>
+            }
             @if (section() === 'events') {
                 <div
                     class="mr-2 flex items-center space-x-2 rounded-md border border-base-300 py-1 pl-3 pr-1 text-sm"
@@ -245,6 +260,9 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
     public readonly options = this._state.options;
     public readonly spaces = this._state.spaces;
     public readonly bookings = this._state.bookings;
+    /** Migration status signals */
+    public readonly spaces_need_migration = this._state.spaces_need_migration;
+    public readonly users_need_migration = this._state.users_need_migration;
     /** Set filtered date */
     public readonly setDate = (d) => this._state.setOptions({ date: d });
     /** Set filter string */
@@ -327,6 +345,15 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
 
     public newParkingUser() {
         this._state.editUser();
+    }
+
+    public async migrateAll() {
+        if (this.spaces_need_migration()) {
+            await this._state.migrateSpaces();
+        }
+        if (this.users_need_migration()) {
+            await this._state.migrateUsers();
+        }
     }
 
     public async newReservation() {

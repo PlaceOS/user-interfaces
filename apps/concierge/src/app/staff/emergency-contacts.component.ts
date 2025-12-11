@@ -1,6 +1,6 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
@@ -42,6 +42,22 @@ export { EmergencyContact } from './emergency-contacts.service';
                             {{ 'APP.CONCIERGE.CONTACTS_HEADER' | translate }}
                         </h2>
                         <div class="flex items-center space-x-2">
+                            @if (needs_migration()) {
+                                <button
+                                    btn
+                                    matRipple
+                                    class="space-x-2 border-warning bg-warning text-warning-content"
+                                    (click)="migrateContacts()"
+                                    [matTooltip]="
+                                        'Migrate legacy data to new system'
+                                    "
+                                >
+                                    <icon class="text-2xl">sync</icon>
+                                    <div class="mx-2">
+                                        {{ 'COMMON.MIGRATE' | translate }}
+                                    </div>
+                                </button>
+                            }
                             <mat-form-field
                                 class="no-subscript"
                                 appearance="outline"
@@ -140,8 +156,7 @@ export { EmergencyContact } from './emergency-contacts.service';
                             },
                             {
                                 key: 'zone',
-                                name:
-                                    'RESOURCE.LEVEL' | translate,
+                                name: 'RESOURCE.LEVEL' | translate,
                                 content: zone_template,
                                 sortable: false,
                             },
@@ -238,10 +253,10 @@ export { EmergencyContact } from './emergency-contacts.service';
         ApplicationSidebarComponent,
         FormsModule,
         TranslatePipe,
-        LevelPipe
+        LevelPipe,
     ],
 })
-export class EmergencyContactsComponent implements OnInit {
+export class EmergencyContactsComponent {
     private _org = inject(OrganisationService);
     private _dialog = inject(MatDialog);
     private _clipboard = inject(Clipboard);
@@ -252,6 +267,7 @@ export class EmergencyContactsComponent implements OnInit {
     public readonly data$ = this._contacts_service.data$;
     public readonly roles = this._contacts_service.roles$;
     public readonly contacts = this._contacts_service.contacts$;
+    public readonly needs_migration = this._contacts_service.needs_migration;
     public readonly filtered_contacts = combineLatest([
         this.contacts,
         this.role_filter,
@@ -261,30 +277,22 @@ export class EmergencyContactsComponent implements OnInit {
         ),
     );
 
-    public ngOnInit(): void {
-        // Check if migration from metadata is needed
-        this.checkMigration();
-    }
-
-    private async checkMigration(): Promise<void> {
-        const needs_migration = await this._contacts_service.needsMigration();
-        if (needs_migration) {
-            const result = await openConfirmModal(
-                {
-                    title: 'Migrate Emergency Contacts',
-                    content:
-                        'Emergency contacts data from the old system was found. Would you like to migrate it to the new system?',
-                    icon: { content: 'sync' },
-                },
-                this._dialog,
-            );
-            if (result.reason === 'done') {
-                result.loading('Migrating contacts...');
-                await this._contacts_service.migrateFromMetadata();
-                result.close();
-            } else {
-                result.close();
-            }
+    public async migrateContacts(): Promise<void> {
+        const result = await openConfirmModal(
+            {
+                title: 'Migrate Emergency Contacts',
+                content:
+                    'This will migrate emergency contacts data from the legacy metadata system to the new Assets API. The original data will be preserved.',
+                icon: { content: 'sync' },
+            },
+            this._dialog,
+        );
+        if (result.reason === 'done') {
+            result.loading('Migrating contacts...');
+            await this._contacts_service.migrateFromMetadata();
+            result.close();
+        } else {
+            result.close();
         }
     }
 

@@ -1,5 +1,7 @@
+import { inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import {
+    Asset,
     Booking,
     CalendarEvent,
     current_user,
@@ -29,6 +31,101 @@ import {
     switchMap,
 } from 'rxjs/operators';
 import { Locker, LockerBank } from './locker.class';
+import { ResourceAssetsService } from './resource-assets.service';
+
+/** LockerBank to Asset mapping */
+export const LOCKER_BANK_ASSET_MAPPING = {
+    assetToResource: (asset: Asset, zone_id?: string): LockerBank => {
+        const other_data = asset.other_data as Record<string, any>;
+        const bank: LockerBank = {
+            id: asset.id,
+            map_id: other_data?.map_id || asset.id,
+            level_id: other_data?.level_id || '',
+            name: asset.identifier || '',
+            height: other_data?.height || 0,
+            zones: asset.zones || [],
+            tags: other_data?.tags || [],
+        };
+        // Store client_id for matching lockers that reference old bank IDs
+        (bank as any).client_id = other_data?.client_id || '';
+        return bank;
+    },
+    resourceToAsset: (
+        bank: LockerBank,
+        asset_type_id: string,
+        zone_id: string,
+        zones: string[],
+    ): Partial<Asset> => ({
+        id: bank.id?.startsWith('temp-') ? undefined : bank.id,
+        asset_type_id,
+        identifier: bank.name,
+        zone_id,
+        zones: bank.zones?.length ? bank.zones : zones,
+        other_data: {
+            client_id: bank.id, // Save original ID for locker matching
+            map_id: bank.map_id || bank.id,
+            level_id: bank.level_id || '',
+            height: bank.height || 0,
+            tags: bank.tags || [],
+        } as Record<string, any>,
+    }),
+};
+
+/** Locker to Asset mapping */
+export const LOCKER_ASSET_MAPPING = {
+    assetToResource: (asset: Asset, zone_id?: string): Locker => {
+        const other_data = asset.other_data as Record<string, any>;
+        return {
+            id: asset.id,
+            bank_id: other_data?.bank_id || '',
+            map_id: other_data?.map_id || asset.id,
+            name: asset.identifier || '',
+            assigned_to: asset.assigned_to || '',
+            available: other_data?.available ?? true,
+            accessible: asset.accessible ?? false,
+            bookable: asset.bookable ?? false,
+            position: other_data?.position || [0, 0],
+            size: other_data?.size || [1, 1],
+            features: asset.features || [],
+        };
+    },
+    resourceToAsset: (
+        locker: Locker,
+        asset_type_id: string,
+        zone_id: string,
+        zones: string[],
+    ): Partial<Asset> => ({
+        id: locker.id?.startsWith('temp-') ? undefined : locker.id,
+        asset_type_id,
+        identifier: locker.name,
+        assigned_to: locker.assigned_to || '',
+        bookable: locker.bookable ?? false,
+        accessible: locker.accessible ?? false,
+        features: locker.features || [],
+        zone_id,
+        zones,
+        other_data: {
+            bank_id: locker.bank_id || '',
+            map_id: locker.map_id || locker.id,
+            position: locker.position || [0, 0],
+            size: locker.size || [1, 1],
+            available: locker.available ?? true,
+        } as Record<string, any>,
+    }),
+};
+
+/** Legacy metadata to LockerBank mapping */
+export const legacyLockerBankMapFn = (
+    item: any,
+    zone_id: string,
+): LockerBank => ({
+    ...item,
+});
+
+/** Legacy metadata to Locker mapping */
+export const legacyLockerMapFn = (item: any, zone_id: string): Locker => ({
+    ...item,
+});
 
 function setBookingAsset(form: FormGroup, resource: any) {
     if (!resource) return form.patchValue({ asset_id: undefined });
@@ -262,26 +359,61 @@ export function loadLockerBanks(
     org: OrganisationService,
     obs: Observable<any>,
     useRegion: () => boolean,
+    resourceAssets?: ResourceAssetsService,
 ): Observable<LockerBank[]> {
     return obs.pipe(
         filter(([bld]) => !!bld),
-        switchMap(([bld]) =>
-            useRegion()
-                ? forkJoin(
-                      org.buildingsForRegion().map((building) =>
-                          showMetadata(building.id, 'locker_banks').pipe(
-                              catchError(() => of(new PlaceMetadata())),
-                              map((_) =>
-                                  _.details instanceof Array ? _.details : [],
-                              ),
-                          ),
-                      ),
-                  ).pipe(map((_: LockerBank[][]) => flatten(_)))
-                : showMetadata(bld.id, 'locker_banks').pipe(
-                      catchError(() => of(new PlaceMetadata())),
-                      map((_) => (_.details instanceof Array ? _.details : [])),
-                  ),
-        ),
+        switchMap(([bld]) => {
+            if (useRegion()) {
+                const buildings = org.buildingsForRegion();
+                if (resourceAssets) {
+                    return resourceAssets.loadResourcesFromZones$(
+                        'locker_banks',
+                        buildings.map((b) => b.id),
+                        LOCKER_BANK_ASSET_MAPPING,
+                    ).pipe(
+                        switchMap((assets) => {
+                            if (assets.length > 0) return of(assets);
+                            // Fallback to legacy metadata
+                            return forkJoin(
+                                buildings.map((building) =>
+                                    showMetadata(building.id, 'locker_banks').pipe(
+                                        catchError(() => of(new PlaceMetadata())),
+                                        map((_) =>
+                                            _.details instanceof Array ? _.details : [],
+                                        ),
+                                    ),
+                                ),
+                            ).pipe(map((_: LockerBank[][]) => flatten(_)));
+                        }),
+                    );
+                }
+                return forkJoin(
+                    buildings.map((building) =>
+                        showMetadata(building.id, 'locker_banks').pipe(
+                            catchError(() => of(new PlaceMetadata())),
+                            map((_) =>
+                                _.details instanceof Array ? _.details : [],
+                            ),
+                        ),
+                    ),
+                ).pipe(map((_: LockerBank[][]) => flatten(_)));
+            } else {
+                if (resourceAssets) {
+                    return resourceAssets.loadWithFallback$(
+                        'locker_banks',
+                        'locker_banks',
+                        bld.id,
+                        LOCKER_BANK_ASSET_MAPPING,
+                        legacyLockerBankMapFn,
+                    );
+                }
+                return showMetadata(bld.id, 'locker_banks').pipe(
+                    catchError(() => of(new PlaceMetadata())),
+                    map((_) => (_.details instanceof Array ? _.details : [])),
+                );
+            }
+        }),
         shareReplay(1),
     );
 }
@@ -291,47 +423,94 @@ export function loadLockers(
     obs: Observable<any>,
     banks$: Observable<LockerBank[]>,
     useRegion: () => boolean,
+    resourceAssets?: ResourceAssetsService,
 ): Observable<Locker[]> {
     return obs.pipe(
         filter(([bld]) => !!bld),
-        switchMap(([bld]) =>
-            combineLatest([
-                useRegion()
-                    ? forkJoin(
-                          org.buildingsForRegion().map((building) =>
-                              showMetadata(building.id, 'lockers').pipe(
-                                  catchError(() => of(new PlaceMetadata())),
-                                  map((_) =>
-                                      _.details instanceof Array
-                                          ? _.details
-                                          : [],
-                                  ),
-                              ),
-                          ),
-                      ).pipe(map((_: Locker[][]) => flatten(_)))
-                    : showMetadata(bld.id, 'lockers').pipe(
-                          catchError(() => of(new PlaceMetadata())),
-                          map((_) =>
-                              _.details instanceof Array ? _.details : [],
-                          ),
-                      ),
-                banks$,
-            ]),
-        ),
+        switchMap(([bld]) => {
+            let lockers$: Observable<Locker[]>;
+            if (useRegion()) {
+                const buildings = org.buildingsForRegion();
+                if (resourceAssets) {
+                    lockers$ = resourceAssets.loadResourcesFromZones$(
+                        'lockers',
+                        buildings.map((b) => b.id),
+                        LOCKER_ASSET_MAPPING,
+                    ).pipe(
+                        switchMap((assets) => {
+                            if (assets.length > 0) return of(assets);
+                            // Fallback to legacy metadata
+                            return forkJoin(
+                                buildings.map((building) =>
+                                    showMetadata(building.id, 'lockers').pipe(
+                                        catchError(() => of(new PlaceMetadata())),
+                                        map((_) =>
+                                            _.details instanceof Array
+                                                ? _.details
+                                                : [],
+                                        ),
+                                    ),
+                                ),
+                            ).pipe(map((_: Locker[][]) => flatten(_)));
+                        }),
+                    );
+                } else {
+                    lockers$ = forkJoin(
+                        buildings.map((building) =>
+                            showMetadata(building.id, 'lockers').pipe(
+                                catchError(() => of(new PlaceMetadata())),
+                                map((_) =>
+                                    _.details instanceof Array
+                                        ? _.details
+                                        : [],
+                                ),
+                            ),
+                        ),
+                    ).pipe(map((_: Locker[][]) => flatten(_)));
+                }
+            } else {
+                if (resourceAssets) {
+                    lockers$ = resourceAssets.loadWithFallback$(
+                        'lockers',
+                        'lockers',
+                        bld.id,
+                        LOCKER_ASSET_MAPPING,
+                        legacyLockerMapFn,
+                    );
+                } else {
+                    lockers$ = showMetadata(bld.id, 'lockers').pipe(
+                        catchError(() => of(new PlaceMetadata())),
+                        map((_) =>
+                            _.details instanceof Array ? _.details : [],
+                        ),
+                    );
+                }
+            }
+            return combineLatest([lockers$, banks$]);
+        }),
         map(([lockers, banks]: any) => {
             const locker_list = lockers;
+            // Helper to find bank by id or client_id (for migrated data)
+            const findBank = (bank_id: string) =>
+                banks.find(
+                    (b: any) => b.id === bank_id || b.client_id === bank_id,
+                );
             for (const bank of banks) {
                 bank.lockers = lockers
-                    .filter((_) => _.bank_id === bank.id)
-                    .map((_) => ({ ..._ }));
+                    .filter(
+                        (_: any) =>
+                            _.bank_id === bank.id ||
+                            _.bank_id === (bank as any).client_id,
+                    )
+                    .map((_: any) => ({ ..._ }));
             }
             for (const locker of locker_list) {
-                const bank = banks.find((b) => b.id === locker.bank_id);
+                const bank = findBank(locker.bank_id);
                 locker.bank = bank;
                 locker.tags = bank?.tags || [];
                 locker.zone = org.levelWithID(bank?.zones || []);
             }
-            return lockers.filter((_) => _.bank);
+            return lockers.filter((_: any) => _.bank);
         }),
         shareReplay(1),
     );

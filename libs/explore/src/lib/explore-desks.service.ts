@@ -26,6 +26,7 @@ import {
 } from 'rxjs/operators';
 
 import {
+    Asset,
     AsyncHandler,
     BookingRuleset,
     currentUser,
@@ -41,6 +42,7 @@ import {
     StaffUser,
 } from '@placeos/common';
 import { BookingFormService } from 'libs/bookings/src/lib/booking-form.service';
+import { ResourceAssetsService } from 'libs/bookings/src/lib/resource-assets.service';
 
 import { queryBookings } from 'libs/bookings/src/lib/bookings.fn';
 import { SetDatetimeModalComponent } from 'libs/explore/src/lib/set-datetime-modal.component';
@@ -48,6 +50,53 @@ import { ExploreDeskInfoComponent } from './explore-desk-info.component';
 import { ExploreDeviceInfoComponent } from './explore-device-info.component';
 import { DEFAULT_COLOURS } from './explore-spaces.service';
 import { ExploreStateService } from './explore-state.service';
+
+/** Desk to Asset mapping for explore */
+const DESK_ASSET_MAPPING = {
+    assetToResource: (asset: Asset, zone_id?: string): Desk => {
+        const other_data = asset.other_data as Record<string, any>;
+        const desk = new Desk({
+            id: asset.id,
+            map_id: other_data?.map_id || asset.id,
+            name: asset.identifier || '',
+            bookable: asset.bookable ?? false,
+            assigned_to: asset.assigned_to || '',
+            groups: other_data?.groups || [],
+            features: asset.features || [],
+            images: other_data?.images || [],
+            security: other_data?.security || '',
+        });
+        (desk as any).zone_id = zone_id || asset.zone_id;
+        (desk as any).notes = asset.notes || '';
+        return desk;
+    },
+    resourceToAsset: (
+        desk: Desk,
+        asset_type_id: string,
+        zone_id: string,
+        zones: string[],
+    ): Partial<Asset> => ({
+        id: desk.id?.startsWith('temp-') ? undefined : desk.id,
+        asset_type_id,
+        identifier: desk.name,
+        bookable: desk.bookable,
+        assigned_to: desk.assigned_to || '',
+        features: desk.features || [],
+        notes: (desk as any).notes || '',
+        zone_id,
+        zones,
+        other_data: {
+            map_id: desk.map_id || desk.id,
+            groups: desk.groups || [],
+            images: desk.images || [],
+            security: desk.security || '',
+        } as Record<string, any>,
+    }),
+};
+
+/** Legacy metadata to Desk mapping */
+const legacyDeskMapFn = (item: any, zone_id: string): Desk =>
+    new Desk({ ...item, zone_id });
 
 export interface DeskOptions {
     enable_booking?: boolean;
@@ -71,6 +120,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
     private _settings = inject(SettingsService);
     private _bookings = inject(BookingFormService);
     private _dialog = inject(MatDialog);
+    private _resourceAssets = inject(ResourceAssetsService);
 
     private _in_use = new BehaviorSubject<string[]>([]);
     private _options = new BehaviorSubject<DeskOptions>({});
@@ -97,15 +147,22 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
     public readonly desk_list = this._state.level.pipe(
         debounceTime(50),
         switchMap((lvl) =>
-            showMetadata(lvl.id, 'desks').pipe(
-                catchError(() => of({ details: [] })),
-                map((i) =>
-                    (i?.details instanceof Array ? i.details : []).map(
-                        (j: Record<string, any>) =>
-                            new Desk({ ...j, zone: lvl as any }),
+            this._resourceAssets
+                .loadWithFallback$(
+                    'desks',
+                    'desks',
+                    lvl.id,
+                    DESK_ASSET_MAPPING,
+                    (item, zone_id) => new Desk({ ...item, zone_id }),
+                )
+                .pipe(
+                    map((desks) =>
+                        desks.map(
+                            (desk) => new Desk({ ...desk, zone: lvl as any }),
+                        ),
                     ),
+                    catchError(() => of([])),
                 ),
-            ),
         ),
         catchError((e) => []),
         shareReplay(1),

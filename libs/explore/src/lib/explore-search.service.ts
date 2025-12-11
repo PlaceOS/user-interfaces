@@ -1,4 +1,5 @@
 import { Injectable, inject } from '@angular/core';
+import { ResourceAssetsService } from '@placeos/bookings';
 import {
     Asset,
     AssetCategory,
@@ -16,7 +17,6 @@ import {
     nextValueFrom,
 } from '@placeos/common';
 import {
-    PlaceMetadata,
     PlaceZoneMetadata,
     authority,
     get,
@@ -30,6 +30,7 @@ import {
     Observable,
     ReplaySubject,
     combineLatest,
+    forkJoin,
     of,
     timer,
 } from 'rxjs';
@@ -126,6 +127,7 @@ export class ExploreSearchService {
     private _settings = inject(SettingsService);
     private _maps_people = inject(MapsPeopleService);
     private _state = inject(ExploreStateService);
+    private _resourceAssets = inject(ResourceAssetsService);
 
     /** In-progress bookings/events for sorting priority */
     private _in_progress_bookings = new ReplaySubject<
@@ -161,7 +163,10 @@ export class ExploreSearchService {
                 // Then get the asset type for that category
                 switchMap((category) => {
                     if (!category) return of(null as AssetGroup | null);
-                    return queryAssetTypesLocal({ zone_id: bld.id, q: `"${category.name}"` }).pipe(
+                    return queryAssetTypesLocal({
+                        zone_id: bld.id,
+                        q: `"${category.name}"`,
+                    }).pipe(
                         catchError(() => of([] as AssetGroup[])),
                         map(
                             (groups) =>
@@ -192,16 +197,21 @@ export class ExploreSearchService {
                             assets
                                 .filter((a) => a.asset_type_id === assetType.id)
                                 .map((a) => {
-                                    const zone = this._org.levelWithID(a.zones) || this._org.buildings.find(_ => a.zones.includes(_.id))
-                                    return ({
+                                    const zone =
+                                        this._org.levelWithID(a.zones) ||
+                                        this._org.buildings.find((_) =>
+                                            a.zones.includes(_.id),
+                                        );
+                                    return {
                                         id: a.id,
                                         name: a.identifier || '',
                                         email: a.other_data?.email || '',
                                         phone: a.other_data?.phone || '',
                                         roles: a.other_data?.roles || [],
                                         zone: zone.id,
-                                        zone_name: zone?.display_name || zone?.name
-                                    })
+                                        zone_name:
+                                            zone?.display_name || zone?.name,
+                                    };
                                 }),
                         ),
                     );
@@ -282,28 +292,63 @@ export class ExploreSearchService {
         catchError(() => []),
     );
 
+    /** Desk asset mapping for dual-source loading */
+    private _deskAssetMapping = {
+        assetToResource: (asset: Asset, zone_id?: string): Desk => {
+            const other_data = asset.other_data as Record<string, any>;
+            const desk = new Desk({
+                id: asset.id,
+                map_id: other_data?.map_id || asset.id,
+                name: asset.identifier || '',
+                bookable: asset.bookable ?? true,
+                groups: other_data?.groups || [],
+                features: asset.features || [],
+                images: other_data?.images || [],
+                assigned_to: asset.assigned_to || '',
+            });
+            (desk as any).notes = asset.notes || '';
+            (desk as any).zone_id = zone_id || asset.zone_id;
+            return desk;
+        },
+        resourceToAsset: () => ({}) as Partial<Asset>, // Not needed for search
+    };
+
     private _desk_search: Observable<Desk[]> = combineLatest([
         this._org.active_building,
     ]).pipe(
         debounceTime(400),
         tap(() => this._loading.next(true)),
-        switchMap(([bld]) =>
-            bld
-                ? listChildMetadata(bld.id, { name: 'desks' }).pipe(
-                      catchError(() => of([] as PlaceMetadata[])),
-                      map((i) =>
-                          flatten(
-                              i.map((j) =>
-                                  (j.metadata.desks?.details || []).map(
-                                      (k) => new Desk({ ...k, zone: j.zone }),
-                                  ),
-                              ),
-                          ),
-                      ),
-                  )
-                : of([]),
-        ),
-        catchError(() => []),
+        switchMap(([bld]) => {
+            if (!bld) return of([]);
+            const levels = this._org.levelsForBuilding(bld);
+            if (!levels?.length) return of([]);
+
+            // Load desks from all levels using dual-source loading
+            return forkJoin(
+                levels.map((lvl) =>
+                    this._resourceAssets
+                        .loadWithFallback$(
+                            'desks',
+                            'desks',
+                            lvl.id,
+                            this._deskAssetMapping,
+                            (item: any, zone_id: string) =>
+                                new Desk({ ...item, zone_id }),
+                        )
+                        .pipe(
+                            map((desks) =>
+                                desks.map((d) => {
+                                    const desk = d as Desk;
+                                    (desk as any).zone = lvl;
+                                    return desk;
+                                }),
+                            ),
+                            catchError(() => of([] as Desk[])),
+                        ),
+                ),
+            ).pipe(map((lists) => flatten<Desk>(lists)));
+        }),
+        catchError(() => of([])),
     );
 
     private _maps_people_search: Observable<SearchResult[]> = combineLatest([
@@ -546,9 +591,8 @@ export class ExploreSearchService {
                 );
 
                 // Get zones from in-progress bookings for proximity sorting
-                const in_progress_zones = this._getInProgressZones(
-                    in_progress_bookings,
-                );
+                const in_progress_zones =
+                    this._getInProgressZones(in_progress_bookings);
 
                 results.sort((a, b) => {
                     // 1. If viewing a map, prioritize items on current level zone

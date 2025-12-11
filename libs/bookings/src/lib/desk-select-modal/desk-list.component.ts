@@ -70,7 +70,7 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
                                 </div>
                                 <div class="flex-1 space-y-2 pt-2 text-left">
                                     <span class="font-medium">
-                                        {{ desk.name || desk.id || 'Desk' }}
+                                        {{ desk.name || desk.client_id || desk.id || 'Desk' }}
                                     </span>
                                     <div
                                         class="flex items-center space-x-2 text-sm"

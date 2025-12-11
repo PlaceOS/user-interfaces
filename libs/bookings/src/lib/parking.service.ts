@@ -1,12 +1,12 @@
 import { Injectable, inject } from '@angular/core';
 import {
+    Asset,
     AsyncHandler,
     OrganisationService,
     SettingsService,
     currentUser,
     flatten,
 } from '@placeos/common';
-import { showMetadata } from '@placeos/ts-client';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest, forkJoin, of } from 'rxjs';
 import {
@@ -18,6 +18,7 @@ import {
     tap,
 } from 'rxjs/operators';
 import { queryBookings } from './bookings.fn';
+import { ResourceAssetsService } from './resource-assets.service';
 
 export interface ParkingSpace {
     id: string;
@@ -39,12 +40,95 @@ export interface ParkingUser {
     deny: boolean;
 }
 
+/** ParkingSpace to Asset mapping */
+const PARKING_SPACE_ASSET_MAPPING = {
+    assetToResource: (asset: Asset, zone_id?: string): ParkingSpace => {
+        const other_data = asset.other_data as Record<string, any>;
+        return {
+            id: asset.id,
+            map_id: other_data?.map_id || asset.id,
+            name: asset.identifier || '',
+            notes: other_data?.notes || asset.notes || '',
+            assigned_to: asset.assigned_to || '',
+        };
+    },
+    resourceToAsset: (
+        space: ParkingSpace,
+        asset_type_id: string,
+        zone_id: string,
+        zones: string[],
+    ): Partial<Asset> => ({
+        id: space.id?.startsWith('temp-') ? undefined : space.id,
+        asset_type_id,
+        identifier: space.name,
+        assigned_to: space.assigned_to || '',
+        notes: space.notes || '',
+        zone_id,
+        zones,
+        other_data: {
+            map_id: space.map_id || space.id,
+            notes: space.notes || '',
+        } as Record<string, any>,
+    }),
+};
+
+/** ParkingUser to Asset mapping */
+const PARKING_USER_ASSET_MAPPING = {
+    assetToResource: (asset: Asset, zone_id?: string): ParkingUser => {
+        const other_data = asset.other_data as Record<string, any>;
+        return {
+            id: asset.id,
+            name: asset.identifier || '',
+            email: other_data?.email || '',
+            car_model: other_data?.car_model || '',
+            car_colour: other_data?.car_colour || '',
+            plate_number: other_data?.plate_number || '',
+            phone: other_data?.phone || '',
+            notes: other_data?.notes || asset.notes || '',
+            deny: other_data?.deny ?? false,
+        };
+    },
+    resourceToAsset: (
+        user: ParkingUser,
+        asset_type_id: string,
+        zone_id: string,
+        zones: string[],
+    ): Partial<Asset> => ({
+        id: user.id?.startsWith('temp-') ? undefined : user.id,
+        asset_type_id,
+        identifier: user.name,
+        notes: user.notes || '',
+        zone_id,
+        zones,
+        other_data: {
+            email: user.email || '',
+            car_model: user.car_model || '',
+            car_colour: user.car_colour || '',
+            plate_number: user.plate_number || '',
+            phone: user.phone || '',
+            notes: user.notes || '',
+            deny: user.deny ?? false,
+        } as Record<string, any>,
+    }),
+};
+
+/** Legacy metadata to ParkingSpace mapping */
+const legacySpaceMapFn = (item: any, zone_id: string): ParkingSpace => ({
+    ...item,
+});
+
+/** Legacy metadata to ParkingUser mapping */
+const legacyUserMapFn = (item: any, zone_id: string): ParkingUser => ({
+    ...item,
+});
+
 @Injectable({
     providedIn: 'root',
 })
 export class ParkingService extends AsyncHandler {
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
+    private _resourceAssets = inject(ResourceAssetsService);
 
     private _loading = new BehaviorSubject<string[]>([]);
 
@@ -82,18 +166,23 @@ export class ParkingService extends AsyncHandler {
             this._loading.next([...this._loading.getValue(), 'spaces']);
             return forkJoin(
                 levels.map((lvl) =>
-                    showMetadata(lvl.id, 'parking-spaces').pipe(
-                        map(
-                            (d) =>
-                                (d.details instanceof Array
-                                    ? d.details
-                                    : []
-                                ).map((s) => ({
+                    this._resourceAssets
+                        .loadWithFallback$(
+                            'parking-spaces',
+                            'parking-spaces',
+                            lvl.id,
+                            PARKING_SPACE_ASSET_MAPPING,
+                            legacySpaceMapFn,
+                        )
+                        .pipe(
+                            map((spaces) =>
+                                spaces.map((s) => ({
                                     ...s,
                                     zone_id: lvl.id,
-                                })) as ParkingSpace[],
+                                })),
+                            ),
+                            catchError(() => of([] as ParkingSpace[])),
                         ),
-                    ),
                 ),
             );
         }),
@@ -106,19 +195,21 @@ export class ParkingService extends AsyncHandler {
         shareReplay(1),
     );
 
-    /** List of parking spaces for the current building/level */
+    /** List of parking users for the current building */
     public users = combineLatest([this._org.active_building]).pipe(
         filter(([bld]) => !!bld?.id),
         switchMap(([bld]) => {
             this._loading.next([...this._loading.getValue(), 'users']);
-            return showMetadata(bld.id, 'parking-users');
+            return this._resourceAssets
+                .loadWithFallback$(
+                    'parking-users',
+                    'parking-users',
+                    bld.id,
+                    PARKING_USER_ASSET_MAPPING,
+                    legacyUserMapFn,
+                )
+                .pipe(catchError(() => of([] as ParkingUser[])));
         }),
-        map(
-            (metadata) =>
-                (metadata.details instanceof Array
-                    ? metadata.details
-                    : []) as ParkingUser[],
-        ),
         tap(() =>
             this._loading.next(
                 this._loading.getValue().filter((_) => _ !== 'users'),
