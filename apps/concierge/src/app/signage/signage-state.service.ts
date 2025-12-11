@@ -454,7 +454,7 @@ export class SignageStateService extends AsyncHandler {
         }
         const result = await lastValueFrom(addSignageMedia(data));
         this._active_upload.next(null);
-        this._change.next(Date.now());
+        this.timeout('changed', () => this._change.next(Date.now()), 500);
         return result;
     }
 
