@@ -1,7 +1,7 @@
 {
   "version": 3,
-  "sources": ["angular:styles/component:css;099e564584534786c7186020472e49a963d411f3c0436eddcea746537614bad6;/home/runner/work/user-interfaces/user-interfaces/apps/assistant-panel/src/app/panel-view.component.ts"],
+  "sources": ["panel-view.component.ts"],
   "sourcesContent": ["\n            [splash] {\n                animation: crossfade 10s linear;\n                animation-iteration-count: infinite;\n            }\n        "],
-  "mappings": ";AACY,CAAC;AACG,aAAW,UAAU,IAAI;AACzB,6BAA2B;AAC/B;",
+  "mappings": ";AACY,CAAA;AACI,aAAA,UAAA,IAAA;AACA,6BAAA;AACJ;",
   "names": []
 }
