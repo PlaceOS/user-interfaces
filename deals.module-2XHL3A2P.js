@@ -1,7 +1,7 @@
 import {
   FooterMenuComponent,
   TopbarComponent
-} from "./chunk-ISUINKPX.js";
+} from "./chunk-L4PPFGNC.js";
 import {
   AsyncPipe,
   AuthenticatedImageDirective,
@@ -11,7 +11,6 @@ import {
   DatePipe,
   IconComponent,
   Injectable,
-  Iu,
   MAT_DIALOG_DATA,
   MatDialog,
   MatDialogClose,
@@ -29,6 +28,7 @@ import {
   RouterModule,
   SettingsService,
   TranslatePipe,
+  Xu,
   catchError,
   combineLatest,
   filter,
@@ -75,7 +75,7 @@ import {
   ɵɵtext,
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1
-} from "./chunk-2A5OUH7P.js";
+} from "./chunk-WSBVRI5L.js";
 
 // apps/workplace/src/app/deals/deal-details-modal.component.ts
 function DealDetailsModalComponent_Conditional_2_Template(rf, ctx) {
@@ -112,7 +112,7 @@ var _DealDetailsModalComponent = class _DealDetailsModalComponent {
 _DealDetailsModalComponent.\u0275fac = function DealDetailsModalComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _DealDetailsModalComponent)();
 };
-_DealDetailsModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DealDetailsModalComponent, selectors: [["deal-details-modal"]], outputs: { remove: "remove" }, decls: 27, vars: 15, consts: [[1, "relative", "w-[32rem]", "max-w-[calc(100vw-2rem)]", "bg-base-100"], [1, "relative", "h-48", "w-[32rem]", "max-w-full", "overflow-hidden", "rounded-b-lg", "bg-base-300"], ["auth", "", "alt", "Deal Image", 1, "h-full", "w-full", "object-cover", 3, "source"], [1, "absolute", "bottom-2", "left-2", "max-w-full", "truncate", "rounded", "bg-info", "px-2", "py-1", "text-xs", "text-info-content", "shadow"], [1, "flex", "space-x-2", "p-2"], [1, "w-auto", "px-2", "text-xl", "font-medium"], [1, "flex-1"], [1, "max-h-[60vh]", "space-y-2", "overflow-auto", "p-4"], [1, "font-medium"], [1, "pb-4", "text-sm"], ["icon", "", "matRipple", "", "mat-dialog-close", "", 1, "absolute", "right-2", "top-2", "bg-base-100"]], template: function DealDetailsModalComponent_Template(rf, ctx) {
+_DealDetailsModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DealDetailsModalComponent, selectors: [["deal-details-modal"]], outputs: { remove: "remove" }, decls: 27, vars: 15, consts: [[1, "relative", "w-lg", "max-w-[calc(100vw-2rem)]", "bg-base-100"], [1, "relative", "h-48", "w-lg", "max-w-full", "overflow-hidden", "rounded-b-lg", "bg-base-300"], ["auth", "", "alt", "Deal Image", 1, "h-full", "w-full", "object-cover", 3, "source"], [1, "absolute", "bottom-2", "left-2", "max-w-full", "truncate", "rounded-sm", "bg-info", "px-2", "py-1", "text-xs", "text-info-content", "shadow-sm"], [1, "flex", "space-x-2", "p-2"], [1, "w-auto", "px-2", "text-xl", "font-medium"], [1, "flex-1"], [1, "max-h-[60vh]", "space-y-2", "overflow-auto", "p-4"], [1, "font-medium"], [1, "pb-4", "text-sm"], ["icon", "", "matRipple", "", "mat-dialog-close", "", 1, "absolute", "right-2", "top-2", "bg-base-100"]], template: function DealDetailsModalComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "div", 1);
     \u0275\u0275conditionalCreate(2, DealDetailsModalComponent_Conditional_2_Template, 1, 1, "img", 2);
@@ -183,9 +183,9 @@ var DealDetailsModalComponent = _DealDetailsModalComponent;
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(DealDetailsModalComponent, [{
     type: Component,
     args: [{ selector: "deal-details-modal", template: `
-        <div class="relative w-[32rem] max-w-[calc(100vw-2rem)] bg-base-100">
+        <div class="relative w-lg max-w-[calc(100vw-2rem)] bg-base-100">
             <div
-                class="relative h-48 w-[32rem] max-w-full overflow-hidden rounded-b-lg bg-base-300"
+                class="relative h-48 w-lg max-w-full overflow-hidden rounded-b-lg bg-base-300"
             >
                 @if (deal.image) {
                     <img
@@ -197,7 +197,7 @@ var DealDetailsModalComponent = _DealDetailsModalComponent;
                 }
                 @if (deal.details) {
                     <div
-                        class="absolute bottom-2 left-2 max-w-full truncate rounded bg-info px-2 py-1 text-xs text-info-content shadow"
+                        class="absolute bottom-2 left-2 max-w-full truncate rounded-sm bg-info px-2 py-1 text-xs text-info-content shadow-sm"
                     >
                         {{ deal.details }}
                     </div>
@@ -262,7 +262,7 @@ var _DealsService = class _DealsService {
       this._org.active_building
     ]).pipe(filter(([b]) => !!b?.id), switchMap(([bld]) => {
       this.loading.set(true);
-      return Iu(bld.id, "deals-n-offers").pipe(catchError(() => of({ details: [] })));
+      return Xu(bld.id, "deals-n-offers").pipe(catchError(() => of({ details: [] })));
     }), map(({ details }) => details instanceof Array ? details : []), tap(() => this.loading.set(false)), startWith([]), shareReplay(1));
   }
   viewDeal(deal) {
@@ -422,7 +422,7 @@ var _DealsComponent = class _DealsComponent {
 _DealsComponent.\u0275fac = function DealsComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _DealsComponent)();
 };
-_DealsComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DealsComponent, selectors: [["deals-n-offers"]], decls: 40, vars: 30, consts: [["sortMenu", "matMenu"], [1, "absolute", "inset-0", "flex", "flex-col", "overflow-auto"], [1, "min-h-1/2", "flex", "h-1/2", "flex-1", "flex-col", "overflow-auto", "bg-base-200", "px-4"], [1, "sticky", "top-0", "z-20", "mx-auto", "mb-2", "w-[40rem]", "max-w-full", "bg-base-200", "px-2", "pt-2"], [1, "-mx-2", "flex", "flex-wrap", "py-2"], ["matRipple", "", 1, "m-1", "rounded-full", "border", "border-base-300", "px-4", "py-1", 3, "click"], ["matRipple", "", 1, "m-1", "rounded-full", "border", "border-base-300", "px-4", "py-1", 3, "bg-base-100"], [1, "flex", "items-center", "justify-between", "text-base"], ["matRipple", "", 1, "flex", "items-center", "rounded", "p-2", 3, "matMenuTriggerFor"], [1, "ml-2", "text-xl"], ["mat-menu-item", "", 3, "click"], [1, "mx-auto", "mb-4", "grid", "w-[40rem]", "max-w-full", "grid-cols-1", "gap-4", "px-2", "sm:grid-cols-2", "lg:grid-cols-3"], [1, "col-span-6", "flex", "w-full", "flex-col", "items-center", "justify-center", "rounded-lg", "bg-base-200", "p-16"], [1, "flex", "w-full", "flex-col", "items-center", "overflow-hidden", "rounded-lg", "border", "border-base-300", "bg-base-100", "shadow", 3, "click"], [1, "relative", "h-48", "w-full", "max-w-full", "overflow-hidden", "rounded-b-lg", "bg-base-300"], ["auth", "", "alt", "Deal Image", 1, "h-full", "w-full", "object-cover", 3, "source"], [1, "absolute", "bottom-2", "left-2", "max-w-full", "truncate", "rounded", "bg-info", "px-2", "py-1", "text-xs", "text-info-content", "shadow"], [1, "w-full", "px-4", "py-2", "text-left"], [1, "truncate", "font-bold"], [1, "text-sm", "opacity-50"], ["src", "assets/icons/no-deals.svg", "alt", "No Deals or Offers Available", 1, "mb-8", "w-48"], [1, "flex", "flex-col", "items-center", "space-y-4", "text-center"], [1, "text-lg", "font-bold"], ["btn", "", "matRipple", ""]], template: function DealsComponent_Template(rf, ctx) {
+_DealsComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DealsComponent, selectors: [["deals-n-offers"]], decls: 40, vars: 30, consts: [["sortMenu", "matMenu"], [1, "absolute", "inset-0", "flex", "flex-col", "overflow-auto"], [1, "min-h-1/2", "flex", "h-1/2", "flex-1", "flex-col", "overflow-auto", "bg-base-200", "px-4"], [1, "sticky", "top-0", "z-20", "mx-auto", "mb-2", "w-160", "max-w-full", "bg-base-200", "px-2", "pt-2"], [1, "-mx-2", "flex", "flex-wrap", "py-2"], ["matRipple", "", 1, "m-1", "rounded-full", "border", "border-base-300", "px-4", "py-1", 3, "click"], ["matRipple", "", 1, "m-1", "rounded-full", "border", "border-base-300", "px-4", "py-1", 3, "bg-base-100"], [1, "flex", "items-center", "justify-between", "text-base"], ["matRipple", "", 1, "flex", "items-center", "rounded-sm", "p-2", 3, "matMenuTriggerFor"], [1, "ml-2", "text-xl"], ["mat-menu-item", "", 3, "click"], [1, "mx-auto", "mb-4", "grid", "w-160", "max-w-full", "grid-cols-1", "gap-4", "px-2", "sm:grid-cols-2", "lg:grid-cols-3"], [1, "col-span-6", "flex", "w-full", "flex-col", "items-center", "justify-center", "rounded-lg", "bg-base-200", "p-16"], [1, "flex", "w-full", "flex-col", "items-center", "overflow-hidden", "rounded-lg", "border", "border-base-300", "bg-base-100", "shadow-sm", 3, "click"], [1, "relative", "h-48", "w-full", "max-w-full", "overflow-hidden", "rounded-b-lg", "bg-base-300"], ["auth", "", "alt", "Deal Image", 1, "h-full", "w-full", "object-cover", 3, "source"], [1, "absolute", "bottom-2", "left-2", "max-w-full", "truncate", "rounded-sm", "bg-info", "px-2", "py-1", "text-xs", "text-info-content", "shadow-sm"], [1, "w-full", "px-4", "py-2", "text-left"], [1, "truncate", "font-bold"], [1, "text-sm", "opacity-50"], ["src", "assets/icons/no-deals.svg", "alt", "No Deals or Offers Available", 1, "mb-8", "w-48"], [1, "flex", "flex-col", "items-center", "space-y-4", "text-center"], [1, "text-lg", "font-bold"], ["btn", "", "matRipple", ""]], template: function DealsComponent_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "div", 1);
@@ -541,7 +541,7 @@ var DealsComponent = _DealsComponent;
             >
                 @let deal_list = filtered_deals$ | async;
                 <div
-                    class="sticky top-0 z-20 mx-auto mb-2 w-[40rem] max-w-full bg-base-200 px-2 pt-2"
+                    class="sticky top-0 z-20 mx-auto mb-2 w-160 max-w-full bg-base-200 px-2 pt-2"
                 >
                     <div class="-mx-2 flex flex-wrap py-2">
                         @let type_list = types | async;
@@ -575,7 +575,7 @@ var DealsComponent = _DealsComponent;
                         </div>
                         <button
                             matRipple
-                            class="flex items-center rounded p-2"
+                            class="flex items-center rounded-sm p-2"
                             [matMenuTriggerFor]="sortMenu"
                         >
                             <div>
@@ -615,12 +615,12 @@ var DealsComponent = _DealsComponent;
                     </div>
                 </div>
                 <div
-                    class="mx-auto mb-4 grid w-[40rem] max-w-full grid-cols-1 gap-4 px-2 sm:grid-cols-2 lg:grid-cols-3"
+                    class="mx-auto mb-4 grid w-160 max-w-full grid-cols-1 gap-4 px-2 sm:grid-cols-2 lg:grid-cols-3"
                 >
                     @for (deal of deal_list; track deal.id) {
                         <div>
                             <button
-                                class="flex w-full flex-col items-center overflow-hidden rounded-lg border border-base-300 bg-base-100 shadow"
+                                class="flex w-full flex-col items-center overflow-hidden rounded-lg border border-base-300 bg-base-100 shadow-sm"
                                 (click)="view(deal)"
                             >
                                 <div
@@ -636,7 +636,7 @@ var DealsComponent = _DealsComponent;
                                     }
                                     @if (deal.details) {
                                         <div
-                                            class="absolute bottom-2 left-2 max-w-full truncate rounded bg-info px-2 py-1 text-xs text-info-content shadow"
+                                            class="absolute bottom-2 left-2 max-w-full truncate rounded-sm bg-info px-2 py-1 text-xs text-info-content shadow-sm"
                                         >
                                             {{ deal.details }}
                                         </div>
@@ -737,4 +737,4 @@ var DealsModule = _DealsModule;
 export {
   DealsModule
 };
-//# sourceMappingURL=deals.module-K5ZQP7PY.js.map
+//# sourceMappingURL=deals.module-2XHL3A2P.js.map

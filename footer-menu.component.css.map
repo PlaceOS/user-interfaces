@@ -1,7 +1,7 @@
 {
   "version": 3,
-  "sources": ["angular:styles/component:css;284ac002de2eeaa1175fa738ed3719d1108673a10454a9459c4dd2267eb55510;/home/runner/work/user-interfaces/user-interfaces/apps/workplace/src/app/components/footer-menu.component.ts"],
+  "sources": ["footer-menu.component.ts"],
   "sourcesContent": ["\n            a.active icon {\n                color: var(--secondary) !important;\n            }\n\n            a.active {\n                font-weight: 500;\n            }\n\n            a:not(.active) [filled],\n            a.active [outline] {\n                display: none;\n            }\n        "],
-  "mappings": ";AACY,CAAC,CAAC,OAAO;AACL,SAAO,IAAI;AACf;AAEA,CAAC,CAJC;AAKE,eAAa;AACjB;AAEA,CAAC,KAAK,CARJ,QAQa,CAAC;AAChB,CAAC,CATC,OASO,CAAC;AACN,WAAS;AACb;",
+  "mappings": ";AACY,CAAA,CAAA,OAAA;AACI,SAAA,IAAA;AACJ;AAEA,CAAA,CAJA;AAKI,eAAA;AACJ;AAEA,CAAA,KAAA,CARA,QAQA,CAAA;EARA;AAUI,WAAA;AACJ;",
   "names": []
 }

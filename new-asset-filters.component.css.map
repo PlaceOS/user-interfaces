@@ -1,7 +1,7 @@
 {
   "version": 3,
-  "sources": ["angular:styles/component:css;36d64ad43f766c5d882a6ff09652b79772b85201d683018b64b0e6a2bff9f10c;/home/runner/work/user-interfaces/user-interfaces/libs/assets/src/lib/new-asset-select-modal/new-asset-filters.component.ts"],
+  "sources": ["new-asset-filters.component.ts"],
   "sourcesContent": ["\n            :host {\n                display: flex;\n                flex-direction: column;\n                min-width: 16rem;\n            }\n        "],
-  "mappings": ";AACY;AACI,WAAS;AACT,kBAAgB;AAChB,aAAW;AACf;",
+  "mappings": ";AACY;AACI,WAAA;AACA,kBAAA;AACA,aAAA;AACJ;",
   "names": []
 }

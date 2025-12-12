@@ -1,7 +1,7 @@
 {
   "version": 3,
-  "sources": ["angular:styles/component:css;72efec7db9e4775fcedb0dcf62af53bcc009951792b869c9087285830ca9607e;/home/runner/work/user-interfaces/user-interfaces/apps/workplace/src/app/control/space-list.component.ts"],
+  "sources": ["space-list.component.ts"],
   "sourcesContent": ["\n            :host {\n                display: flex;\n                flex-direction: column;\n                height: 100%;\n                width: 100%;\n            }\n\n            mat-form-field {\n                width: 48rem;\n                max-width: calc(100% - 2rem);\n            }\n        "],
-  "mappings": ";AACY;AACI,WAAS;AACT,kBAAgB;AAChB,UAAQ;AACR,SAAO;AACX;AAEA;AACI,SAAO;AACP,aAAW,KAAK,KAAK,EAAE;AAC3B;",
+  "mappings": ";AACY;AACI,WAAA;AACA,kBAAA;AACA,UAAA;AACA,SAAA;AACJ;AAEA;AACI,SAAA;AACA,aAAA,KAAA,KAAA,EAAA;AACJ;",
   "names": []
 }

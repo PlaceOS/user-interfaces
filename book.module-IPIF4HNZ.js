@@ -1,41 +1,30 @@
 import {
   subMinutes
-} from "./chunk-KCRTORCS.js";
-import {
-  DeskListFieldComponent,
-  InviteVisitorFormComponent,
-  LockerListFieldComponent,
-  ParkingSpaceListFieldComponent
-} from "./chunk-MAQ63EFG.js";
+} from "./chunk-VFKOWGTZ.js";
 import {
   HostSelectFieldComponent,
   RecurrenceFieldComponent,
   SpaceListFieldComponent
-} from "./chunk-G54IFS6H.js";
-import {
-  UserListFieldComponent
-} from "./chunk-5RS5W7HA.js";
-import "./chunk-EQ357IYW.js";
-import {
-  MatBottomSheet,
-  MatBottomSheetModule,
-  MatBottomSheetRef
-} from "./chunk-OEAJ52HN.js";
+} from "./chunk-OUL5KCBM.js";
 import {
   BookingFormService,
   CounterComponent,
+  DeskListFieldComponent,
   FindAvailabilityModalComponent,
   FooterMenuComponent,
+  InviteVisitorFormComponent,
+  LockerListFieldComponent,
   MatAutocomplete,
   MatAutocompleteModule,
   MatAutocompleteTrigger,
   ParkingService,
+  ParkingSpaceListFieldComponent,
   TopbarComponent,
+  UserListFieldComponent,
   UserSearchFieldComponent
-} from "./chunk-ISUINKPX.js";
+} from "./chunk-L4PPFGNC.js";
 import {
   ANIMATION_SHOW_CONTRACT_EXPAND,
-  Ac,
   ActivatedRoute,
   AssetRequest,
   AssetStateService,
@@ -92,10 +81,13 @@ import {
   InjectionToken,
   Injector,
   Input,
-  Iu,
+  Kc,
   LevelPipe,
   MAT_DIALOG_DATA,
   MAT_RIPPLE_GLOBAL_OPTIONS,
+  MatBottomSheet,
+  MatBottomSheetModule,
+  MatBottomSheetRef,
   MatCheckbox,
   MatCheckboxModule,
   MatChip,
@@ -144,7 +136,6 @@ import {
   OrganisationService,
   Output,
   Platform,
-  Pu,
   QueryList,
   ReactiveFormsModule,
   Renderer2,
@@ -174,6 +165,7 @@ import {
   ViewContainerRef,
   ViewEncapsulation,
   ViewportRuler,
+  Xu,
   _CdkPrivateStyleLoader,
   _IdGenerator,
   _StructuralStylesLoader,
@@ -195,6 +187,7 @@ import {
   debounceTime,
   differenceInMinutes,
   downloadFile,
+  ec,
   endOfDay,
   filter,
   findNearbyFeature,
@@ -330,7 +323,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-2A5OUH7P.js";
+} from "./chunk-WSBVRI5L.js";
 
 // apps/workplace/src/app/book/book.component.ts
 function BookComponent_Conditional_0_Template(rf, ctx) {
@@ -461,7 +454,7 @@ _CodeFlowErrorComponent.\u0275fac = /* @__PURE__ */ (() => {
     return (\u0275CodeFlowErrorComponent_BaseFactory || (\u0275CodeFlowErrorComponent_BaseFactory = \u0275\u0275getInheritedFactory(_CodeFlowErrorComponent)))(__ngFactoryType__ || _CodeFlowErrorComponent);
   };
 })();
-_CodeFlowErrorComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CodeFlowErrorComponent, selectors: [["code-flow-success"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 17, vars: 14, consts: [[1, "absolute", "inset-0", "z-50", "flex", "flex-col", "bg-base-100"], [1, "flex", "flex-1", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], [1, "text-2xl", "font-medium"], [1, "py-4"], ["src", "assets/icons/not-found.svg", 1, "h-64"], [1, "max-w-[32rem]", "text-center"], [1, "mt-4", "flex", "w-full", "items-center", "justify-center", "space-x-2", "border-t", "border-base-200", "p-2"], ["btn", "", "matRipple", "", 1, "w-full", "max-w-[32rem]", 3, "routerLink", "queryParams"], ["btn", "", "matRipple", "", 1, "inverse", "w-full", "max-w-[32rem]", 3, "routerLink"]], template: function CodeFlowErrorComponent_Template(rf, ctx) {
+_CodeFlowErrorComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CodeFlowErrorComponent, selectors: [["code-flow-success"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 17, vars: 14, consts: [[1, "absolute", "inset-0", "z-50", "flex", "flex-col", "bg-base-100"], [1, "flex", "flex-1", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], [1, "text-2xl", "font-medium"], [1, "py-4"], ["src", "assets/icons/not-found.svg", 1, "h-64"], [1, "max-w-lg", "text-center"], [1, "mt-4", "flex", "w-full", "items-center", "justify-center", "space-x-2", "border-t", "border-base-200", "p-2"], ["btn", "", "matRipple", "", 1, "w-full", "max-w-lg", 3, "routerLink", "queryParams"], ["btn", "", "matRipple", "", 1, "inverse", "w-full", "max-w-lg", 3, "routerLink"]], template: function CodeFlowErrorComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "main", 1)(2, "h2", 2);
     \u0275\u0275text(3);
@@ -515,7 +508,7 @@ var CodeFlowErrorComponent = _CodeFlowErrorComponent;
                 <div class="py-4">
                     <img src="assets/icons/not-found.svg" class="h-64" />
                 </div>
-                <p class="max-w-[32rem] text-center">
+                <p class="max-w-lg text-center">
                     @switch (type()) {
                         @case ('not_started') {
                             Booking has not started yet. Please try again once
@@ -538,7 +531,7 @@ var CodeFlowErrorComponent = _CodeFlowErrorComponent;
                     <a
                         btn
                         matRipple
-                        class="w-full max-w-[32rem]"
+                        class="w-full max-w-lg"
                         [routerLink]="['/book', 'code']"
                         [queryParams]="{ asset_id: asset_id }"
                     >
@@ -549,7 +542,7 @@ var CodeFlowErrorComponent = _CodeFlowErrorComponent;
                     <a
                         btn
                         matRipple
-                        class="w-full max-w-[32rem]"
+                        class="w-full max-w-lg"
                         [routerLink]="['/book', 'desk']"
                         [queryParams]="{ asset_id: asset_id }"
                     >
@@ -559,7 +552,7 @@ var CodeFlowErrorComponent = _CodeFlowErrorComponent;
                 <a
                     btn
                     matRipple
-                    class="inverse w-full max-w-[32rem]"
+                    class="inverse w-full max-w-lg"
                     [routerLink]="['/']"
                 >
                     {{ 'COMMON.CONTINUE' | translate }}
@@ -580,7 +573,7 @@ var _CodeFlowSuccessComponent = class _CodeFlowSuccessComponent {
 _CodeFlowSuccessComponent.\u0275fac = function CodeFlowSuccessComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _CodeFlowSuccessComponent)();
 };
-_CodeFlowSuccessComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CodeFlowSuccessComponent, selectors: [["code-flow-success"]], decls: 13, vars: 11, consts: [[1, "absolute", "inset-0", "z-50", "flex", "flex-col", "bg-base-100"], [1, "flex", "flex-1", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], [1, "text-2xl", "font-medium"], ["src", "assets/icons/success.svg"], [1, "max-w-[32rem]", "text-center"], [1, "mt-4", "flex", "w-full", "items-center", "justify-center", "border-t", "border-base-200", "p-2"], ["btn", "", "matRipple", "", 1, "w-full", "max-w-[32rem]", 3, "routerLink"]], template: function CodeFlowSuccessComponent_Template(rf, ctx) {
+_CodeFlowSuccessComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CodeFlowSuccessComponent, selectors: [["code-flow-success"]], decls: 13, vars: 11, consts: [[1, "absolute", "inset-0", "z-50", "flex", "flex-col", "bg-base-100"], [1, "flex", "flex-1", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], [1, "text-2xl", "font-medium"], ["src", "assets/icons/success.svg"], [1, "max-w-lg", "text-center"], [1, "mt-4", "flex", "w-full", "items-center", "justify-center", "border-t", "border-base-200", "p-2"], ["btn", "", "matRipple", "", 1, "w-full", "max-w-lg", 3, "routerLink"]], template: function CodeFlowSuccessComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "main", 1)(2, "h2", 2);
     \u0275\u0275text(3);
@@ -620,7 +613,7 @@ var CodeFlowSuccessComponent = _CodeFlowSuccessComponent;
                     {{ 'APP.WORKPLACE.RESOURCE_CHECKED_IN' | translate }}
                 </h2>
                 <img src="assets/icons/success.svg" />
-                <p class="max-w-[32rem] text-center">
+                <p class="max-w-lg text-center">
                     {{
                         'APP.WORKPLACE.RESOURCE_CHECKED_IN_MESSAGE' | translate
                     }}
@@ -632,7 +625,7 @@ var CodeFlowSuccessComponent = _CodeFlowSuccessComponent;
                 <a
                     btn
                     matRipple
-                    class="w-full max-w-[32rem]"
+                    class="w-full max-w-lg"
                     [routerLink]="['/']"
                 >
                     {{ 'COMMON.CONTINUE' | translate }}
@@ -845,7 +838,7 @@ var _BookCodeFlowComponent = class _BookCodeFlowComponent extends AsyncHandler {
       this._router.navigate(["/book", "code", "success"]);
       this.loading.set(false);
     } else {
-      const space = await lastValueFrom(Ac(space_id));
+      const space = await lastValueFrom(Kc(space_id));
       if (space) {
         this._event_form.newForm(new CalendarEvent({ system: space }));
       }
@@ -881,7 +874,7 @@ _BookCodeFlowComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
   if (rf & 2) {
     \u0275\u0275queryAdvance();
   }
-}, outputs: { menu: "menu" }, features: [\u0275\u0275InheritDefinitionFeature], decls: 2, vars: 1, consts: [["video", ""], [1, "relative", "flex", "flex-1", "items-center", "justify-center", "overflow-hidden", "bg-neutral"], [1, "absolute", "inset-0", "flex", "flex-col", "items-center", "justify-center", "space-y-2"], ["id", "video", 1, "min-h-full", "min-w-full", "object-cover"], [1, "absolute", "inset-0", "flex", "flex-col", "items-center", "justify-center", "text-center", "text-white"], [1, "relative", "z-10", "flex", "flex-col", "items-center", "justify-end"], [1, "flex", "items-center", "justify-center"], ["box", "", 1, "m-8", "flex", "h-64", "w-64", "items-center", "justify-center", "space-x-2", "rounded-2xl", "p-8", "transition-all"], [1, "uppercase"], ["matInput", "", "name", "booking-id", "placeholder", "e.g. 12102910", 1, "w-full", "border-none", "bg-none", "text-left", "text-3xl", 3, "ngModelChange", "ngModel"], [1, "m-4", "flex", "items-center", "space-x-2", "rounded", "bg-base-100", "bg-opacity-50", "p-2"], ["matRipple", "", 3, "click"], [1, "mb-1", "text-3xl", "uppercase", "subpixel-antialiased"], [1, "mb-4"], [3, "diameter"]], template: function BookCodeFlowComponent_Template(rf, ctx) {
+}, outputs: { menu: "menu" }, features: [\u0275\u0275InheritDefinitionFeature], decls: 2, vars: 1, consts: [["video", ""], [1, "relative", "flex", "flex-1", "items-center", "justify-center", "overflow-hidden", "bg-neutral"], [1, "absolute", "inset-0", "flex", "flex-col", "items-center", "justify-center", "space-y-2"], ["id", "video", 1, "min-h-full", "min-w-full", "object-cover"], [1, "absolute", "inset-0", "flex", "flex-col", "items-center", "justify-center", "text-center", "text-white"], [1, "relative", "z-10", "flex", "flex-col", "items-center", "justify-end"], [1, "flex", "items-center", "justify-center"], ["box", "", 1, "m-8", "flex", "h-64", "w-64", "items-center", "justify-center", "space-x-2", "rounded-2xl", "p-8", "transition-all"], [1, "uppercase"], ["matInput", "", "name", "booking-id", "placeholder", "e.g. 12102910", 1, "w-full", "border-none", "bg-none", "text-left", "text-3xl", 3, "ngModelChange", "ngModel"], [1, "m-4", "flex", "items-center", "space-x-2", "rounded-sm", "bg-base-100", "bg-opacity-50", "p-2"], ["matRipple", "", 3, "click"], [1, "mb-1", "text-3xl", "uppercase", "subpixel-antialiased"], [1, "mb-4"], [3, "diameter"]], template: function BookCodeFlowComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275conditionalCreate(0, BookCodeFlowComponent_Conditional_0_Template, 16, 9, "div", 1)(1, BookCodeFlowComponent_Conditional_1_Template, 4, 1, "div", 2);
   }
@@ -953,7 +946,7 @@ var BookCodeFlowComponent = _BookCodeFlowComponent;
                         </div>
                     </div>
                     <div
-                        class="m-4 flex items-center space-x-2 rounded bg-base-100 bg-opacity-50 p-2"
+                        class="m-4 flex items-center space-x-2 rounded-sm bg-base-100 bg-opacity-50 p-2"
                     >
                         <button
                             matRipple
@@ -1314,7 +1307,7 @@ _NewDeskFlowConfirmComponent.\u0275fac = /* @__PURE__ */ (() => {
     return (\u0275NewDeskFlowConfirmComponent_BaseFactory || (\u0275NewDeskFlowConfirmComponent_BaseFactory = \u0275\u0275getInheritedFactory(_NewDeskFlowConfirmComponent)))(__ngFactoryType__ || _NewDeskFlowConfirmComponent);
   };
 })();
-_NewDeskFlowConfirmComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewDeskFlowConfirmComponent, selectors: [["desk-flow-confirm"]], inputs: { show_close: [1, "show_close"] }, outputs: { show_close: "show_closeChange" }, features: [\u0275\u0275InheritDefinitionFeature], decls: 35, vars: 23, consts: [[1, "sticky", "top-2", "z-10", "mx-auto", "mb-4", "flex", "h-14", "w-full", "max-w-[calc(100%-1rem)]", "items-center", "justify-between", "rounded", "border-none", "bg-base-200", "p-2"], [1, "m-0", "flex-1", "px-2", "text-xl", "font-medium", "capitalize"], [1, ""], ["diameter", "32"], ["icon", "", "name", "close-desk-confirm", "matRipple", ""], ["period", "", 1, "flex", "space-x-1", "px-2", "py-4", "text-base"], [1, "text-2xl", "text-success"], ["details", "", 1, "space-y-2"], [1, "text-xl"], [1, "flex", "items-center", "space-x-2"], ["date", ""], ["time", ""], [1, "text-xs", "opacity-30"], ["desk", "", 1, "flex", "space-x-1", "border-t", "border-neutral", "px-2", "py-4", "text-base"], ["assets", "", 1, "flex", "max-h-[50vh]", "space-x-1", "overflow-auto", "border-t", "px-2", "py-4"], ["locker", "", 1, "flex", "space-x-1", "border-t", "px-2", "py-4"], [1, "mt-4", "w-full", "border-t", "border-base-200", "p-2"], ["name", "confirm-desk", "btn", "", "matRipple", "", 1, "w-full"], ["icon", "", "name", "close-desk-confirm", "matRipple", "", 3, "click"], [1, "text-2xl"], ["features", "", 1, "flex", "items-center", "space-x-2"], [1, "text-success"], ["details", "", 1, "w-1/2", "flex-1", "pr-2", "leading-6"], ["request", "", 1, "overflow-hidden", "rounded-xl", "border", "bg-base-100", 3, "border-error", "border-base-300"], ["request", "", 1, "overflow-hidden", "rounded-xl", "border", "bg-base-100"], [1, "flex", "items-center", "space-x-2", "p-3"], [1, "flex", "flex-1", "items-center", "space-x-2"], [1, "text-sm"], [1, "flex", "h-6", "w-6", "items-center", "justify-center", "rounded-full", "bg-error", "text-error-content", 3, "matTooltip"], [1, "flex-1"], [1, "rounded", "bg-success", "px-2", "py-1", "text-xs", "text-success-content"], [1, "flex", "flex-col", "divide-y", "divide-base-100", "bg-base-200"], [1, "flex", "items-center", "space-x-2", "px-3", "py-1", "hover:opacity-90"], [1, "flex", "flex-1", "items-center"], ["details", "", 1, "leading-6"], [1, "flex", "space-x-2"], ["name", "confirm-desk", "btn", "", "matRipple", "", 1, "w-full", 3, "click"]], template: function NewDeskFlowConfirmComponent_Template(rf, ctx) {
+_NewDeskFlowConfirmComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewDeskFlowConfirmComponent, selectors: [["desk-flow-confirm"]], inputs: { show_close: [1, "show_close"] }, outputs: { show_close: "show_closeChange" }, features: [\u0275\u0275InheritDefinitionFeature], decls: 35, vars: 23, consts: [[1, "sticky", "top-2", "z-10", "mx-auto", "mb-4", "flex", "h-14", "w-full", "max-w-[calc(100%-1rem)]", "items-center", "justify-between", "rounded-sm", "border-none", "bg-base-200", "p-2"], [1, "m-0", "flex-1", "px-2", "text-xl", "font-medium", "capitalize"], [1, ""], ["diameter", "32"], ["icon", "", "name", "close-desk-confirm", "matRipple", ""], ["period", "", 1, "flex", "space-x-1", "px-2", "py-4", "text-base"], [1, "text-2xl", "text-success"], ["details", "", 1, "space-y-2"], [1, "text-xl"], [1, "flex", "items-center", "space-x-2"], ["date", ""], ["time", ""], [1, "text-xs", "opacity-30"], ["desk", "", 1, "flex", "space-x-1", "border-t", "border-neutral", "px-2", "py-4", "text-base"], ["assets", "", 1, "flex", "max-h-[50vh]", "space-x-1", "overflow-auto", "border-t", "px-2", "py-4"], ["locker", "", 1, "flex", "space-x-1", "border-t", "px-2", "py-4"], [1, "mt-4", "w-full", "border-t", "border-base-200", "p-2"], ["name", "confirm-desk", "btn", "", "matRipple", "", 1, "w-full"], ["icon", "", "name", "close-desk-confirm", "matRipple", "", 3, "click"], [1, "text-2xl"], ["features", "", 1, "flex", "items-center", "space-x-2"], [1, "text-success"], ["details", "", 1, "w-1/2", "flex-1", "pr-2", "leading-6"], ["request", "", 1, "overflow-hidden", "rounded-xl", "border", "bg-base-100", 3, "border-error", "border-base-300"], ["request", "", 1, "overflow-hidden", "rounded-xl", "border", "bg-base-100"], [1, "flex", "items-center", "space-x-2", "p-3"], [1, "flex", "flex-1", "items-center", "space-x-2"], [1, "text-sm"], [1, "flex", "h-6", "w-6", "items-center", "justify-center", "rounded-full", "bg-error", "text-error-content", 3, "matTooltip"], [1, "flex-1"], [1, "rounded-sm", "bg-success", "px-2", "py-1", "text-xs", "text-success-content"], [1, "flex", "flex-col", "divide-y", "divide-base-100", "bg-base-200"], [1, "flex", "items-center", "space-x-2", "px-3", "py-1", "hover:opacity-90"], [1, "flex", "flex-1", "items-center"], ["details", "", 1, "leading-6"], [1, "flex", "space-x-2"], ["name", "confirm-desk", "btn", "", "matRipple", "", 1, "w-full", 3, "click"]], template: function NewDeskFlowConfirmComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "header", 0)(1, "h2", 1);
     \u0275\u0275text(2);
@@ -1399,7 +1392,7 @@ var NewDeskFlowConfirmComponent = _NewDeskFlowConfirmComponent;
     type: Component,
     args: [{ selector: "desk-flow-confirm", template: `
         <header
-            class="sticky top-2 z-10 mx-auto mb-4 flex h-14 w-full max-w-[calc(100%-1rem)] items-center justify-between rounded border-none bg-base-200 p-2"
+            class="sticky top-2 z-10 mx-auto mb-4 flex h-14 w-full max-w-[calc(100%-1rem)] items-center justify-between rounded-sm border-none bg-base-200 p-2"
         >
             <h2 class="m-0 flex-1 px-2 text-xl font-medium capitalize">
                 {{ 'APP.WORKPLACE.DESK_CONFIRM_TITLE' | translate }}
@@ -1529,7 +1522,7 @@ var NewDeskFlowConfirmComponent = _NewDeskFlowConfirmComponent;
                                     }
                                     <div class="flex-1"></div>
                                     <div
-                                        class="rounded bg-success px-2 py-1 text-xs text-success-content"
+                                        class="rounded-sm bg-success px-2 py-1 text-xs text-success-content"
                                     >
                                         {{
                                             'COMMON.ITEM_COUNT'
@@ -1554,7 +1547,7 @@ var NewDeskFlowConfirmComponent = _NewDeskFlowConfirmComponent;
                                             }}</span>
                                         </div>
                                         <div
-                                            class="rounded bg-success px-2 py-1 text-xs text-success-content"
+                                            class="rounded-sm bg-success px-2 py-1 text-xs text-success-content"
                                         >
                                             x{{ item.quantity }}
                                         </div>
@@ -1728,7 +1721,7 @@ var _NewAssetDetailsComponent = class _NewAssetDetailsComponent {
 _NewAssetDetailsComponent.\u0275fac = function NewAssetDetailsComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _NewAssetDetailsComponent)();
 };
-_NewAssetDetailsComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewAssetDetailsComponent, selectors: [["new-asset-details"]], inputs: { item: [1, "item"], active: [1, "active"], fav: [1, "fav"] }, outputs: { toggleFav: "toggleFav", activeChange: "activeChange", countChange: "countChange", close: "close" }, features: [\u0275\u0275NgOnChangesFeature], decls: 2, vars: 1, consts: [["empty", "", 1, "flex", "h-full", "w-full", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], ["image", "", 1, "relative", "h-64", "w-full", "bg-base-200", "sm:h-40"], [1, "absolute", "inset-0", 3, "images"], ["icon", "", "matRipple", "", "close", "", 1, "absolute", "left-2", "top-2", "bg-base-100", "lg:hidden", 3, "click"], ["icon", "", "matRipple", "", "fav", "", 1, "absolute", "right-2", "top-2", "bg-base-100", 3, "click"], [3, "className"], [1, "h-1/2", "flex-1", "space-y-4", "p-2"], [1, "my-2", "px-2", "text-xl", "font-medium"], ["actions", "", 1, "z-0", "flex", "items-center", "justify-between"], [1, "px-2"], [3, "ngModelChange", "ngModel", "min", "max"], ["details", "", 1, "relative", "space-y-2", "rounded", "border", "border-base-400", "px-3", "pb-2", "pt-2"], [1, "absolute", "left-2", "top-0", "-translate-y-1/2", "bg-base-100", "px-2", "text-lg", "font-medium"], [1, "flex", "items-center", "space-x-2", "px-2", "pb-1"], [1, "w-full", "text-center", "opacity-30"], [1, "text-center", "opacity-30"]], template: function NewAssetDetailsComponent_Template(rf, ctx) {
+_NewAssetDetailsComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewAssetDetailsComponent, selectors: [["new-asset-details"]], inputs: { item: [1, "item"], active: [1, "active"], fav: [1, "fav"] }, outputs: { toggleFav: "toggleFav", activeChange: "activeChange", countChange: "countChange", close: "close" }, features: [\u0275\u0275NgOnChangesFeature], decls: 2, vars: 1, consts: [["empty", "", 1, "flex", "h-full", "w-full", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], ["image", "", 1, "relative", "h-64", "w-full", "bg-base-200", "sm:h-40"], [1, "absolute", "inset-0", 3, "images"], ["icon", "", "matRipple", "", "close", "", 1, "absolute", "left-2", "top-2", "bg-base-100", "lg:hidden", 3, "click"], ["icon", "", "matRipple", "", "fav", "", 1, "absolute", "right-2", "top-2", "bg-base-100", 3, "click"], [3, "className"], [1, "h-1/2", "flex-1", "space-y-4", "p-2"], [1, "my-2", "px-2", "text-xl", "font-medium"], ["actions", "", 1, "z-0", "flex", "items-center", "justify-between"], [1, "px-2"], [3, "ngModelChange", "ngModel", "min", "max"], ["details", "", 1, "relative", "space-y-2", "rounded-sm", "border", "border-base-400", "px-3", "pb-2", "pt-2"], [1, "absolute", "left-2", "top-0", "-translate-y-1/2", "bg-base-100", "px-2", "text-lg", "font-medium"], [1, "flex", "items-center", "space-x-2", "px-2", "pb-1"], [1, "w-full", "text-center", "opacity-30"], [1, "text-center", "opacity-30"]], template: function NewAssetDetailsComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275conditionalCreate(0, NewAssetDetailsComponent_Conditional_0_Template, 22, 11)(1, NewAssetDetailsComponent_Conditional_1_Template, 4, 3, "div", 0);
   }
@@ -1810,7 +1803,7 @@ var NewAssetDetailsComponent = _NewAssetDetailsComponent;
                 </section>
                 <section
                     details
-                    class="relative space-y-2 rounded border border-base-400 px-3 pb-2 pt-2"
+                    class="relative space-y-2 rounded-sm border border-base-400 px-3 pb-2 pt-2"
                 >
                     <h2
                         class="absolute left-2 top-0 -translate-y-1/2 bg-base-100 px-2 text-lg font-medium"
@@ -2407,7 +2400,7 @@ var _NewAssetListComponent = class _NewAssetListComponent {
 _NewAssetListComponent.\u0275fac = function NewAssetListComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _NewAssetListComponent)();
 };
-_NewAssetListComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewAssetListComponent, selectors: [["new-asset-list"]], inputs: { selected: [1, "selected"], favorites: [1, "favorites"], selected_items: [1, "selected_items"], requested: [1, "requested"] }, outputs: { toggleFav: "toggleFav", onSelect: "onSelect" }, features: [\u0275\u0275NgOnChangesFeature], decls: 11, vars: 17, consts: [[1, "px-2", "font-bold"], ["count", "", 1, "mb-4", "px-2", "text-sm", "opacity-60"], ["loading", "", 1, "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-16"], [1, "list-style-none", "space-y-2"], ["empty", "", 1, "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-16"], ["asset", "", "matRipple", "", 1, "relative", "w-full", "rounded-lg", "border", "border-base-200", "bg-base-100", "p-2", "shadow"], ["select", "", 1, "flex", "h-full", "w-full", "items-center", "pr-10", 3, "click"], [1, "relative", "mr-4", "flex", "h-16", "w-16", "items-center", "justify-center", "overflow-hidden", "rounded-xl", "border", "border-base-200", "bg-base-200"], [1, "absolute", "left-1", "top-1", "flex", "h-6", "w-6", "items-center", "justify-center", "rounded-full", "border", "border-base-300", "bg-base-200"], ["auth", "", 1, "h-full", "object-cover", 3, "source"], ["src", "assets/icons/asset-placeholder.svg", 1, "m-auto"], [1, "flex-1", "space-y-2", "text-left"], [1, "flex", "items-center", "justify-between", "font-medium"], [1, "text-xs", "opacity-60"], [1, "flex", "items-center", "space-x-2", "text-sm"], ["icon", "", "matRipple", "", "fav", "", 1, "absolute", "right-1", "top-1", 3, "click"], [3, "className"], [1, "text-xs"], [1, "text-center", "opacity-30"], [3, "diameter"], [1, "opacity-30"]], template: function NewAssetListComponent_Template(rf, ctx) {
+_NewAssetListComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewAssetListComponent, selectors: [["new-asset-list"]], inputs: { selected: [1, "selected"], favorites: [1, "favorites"], selected_items: [1, "selected_items"], requested: [1, "requested"] }, outputs: { toggleFav: "toggleFav", onSelect: "onSelect" }, features: [\u0275\u0275NgOnChangesFeature], decls: 11, vars: 17, consts: [[1, "px-2", "font-bold"], ["count", "", 1, "mb-4", "px-2", "text-sm", "opacity-60"], ["loading", "", 1, "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-16"], [1, "list-style-none", "space-y-2"], ["empty", "", 1, "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-16"], ["asset", "", "matRipple", "", 1, "relative", "w-full", "rounded-lg", "border", "border-base-200", "bg-base-100", "p-2", "shadow-sm"], ["select", "", 1, "flex", "h-full", "w-full", "items-center", "pr-10", 3, "click"], [1, "relative", "mr-4", "flex", "h-16", "w-16", "items-center", "justify-center", "overflow-hidden", "rounded-xl", "border", "border-base-200", "bg-base-200"], [1, "absolute", "left-1", "top-1", "flex", "h-6", "w-6", "items-center", "justify-center", "rounded-full", "border", "border-base-300", "bg-base-200"], ["auth", "", 1, "h-full", "object-cover", 3, "source"], ["src", "assets/icons/asset-placeholder.svg", 1, "m-auto"], [1, "flex-1", "space-y-2", "text-left"], [1, "flex", "items-center", "justify-between", "font-medium"], [1, "text-xs", "opacity-60"], [1, "flex", "items-center", "space-x-2", "text-sm"], ["icon", "", "matRipple", "", "fav", "", 1, "absolute", "right-1", "top-1", 3, "click"], [3, "className"], [1, "text-xs"], [1, "text-center", "opacity-30"], [3, "diameter"], [1, "opacity-30"]], template: function NewAssetListComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "h3", 0);
     \u0275\u0275text(1);
@@ -2464,7 +2457,7 @@ var NewAssetListComponent = _NewAssetListComponent;
                         <li
                             asset
                             matRipple
-                            class="relative w-full rounded-lg border border-base-200 bg-base-100 p-2 shadow"
+                            class="relative w-full rounded-lg border border-base-200 bg-base-100 p-2 shadow-sm"
                         >
                             <button
                                 select
@@ -2661,7 +2654,7 @@ var _NewAssetSelectModalComponent = class _NewAssetSelectModalComponent {
 _NewAssetSelectModalComponent.\u0275fac = function NewAssetSelectModalComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _NewAssetSelectModalComponent)();
 };
-_NewAssetSelectModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewAssetSelectModalComponent, selectors: [["new-asset-select-modal"]], decls: 32, vars: 38, consts: [[1, "flex", "h-screen", "w-screen", "flex-col", "space-y-2", "overflow-hidden", "bg-base-100", "p-2", "sm:h-auto", "sm:w-auto"], [1, "flex", "h-14", "w-full", "items-center", "space-x-2", "rounded", "border-none", "bg-base-200", "p-2"], [1, "flex-1", "px-2", "text-xl", "font-medium", "capitalize"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "relative", "flex", "h-1/2", "flex-1", "sm:h-[65vh]", "sm:flex-none", "sm:space-x-2"], [1, "h-full", "w-full", "overflow-y-auto", "overflow-x-hidden", "rounded", "border", "border-base-300", "shadow", "sm:block", "sm:w-[20rem]"], [1, "h-full", "w-full", "overflow-auto", "rounded", "border", "border-base-300", "bg-base-200", "p-2", "sm:w-[20rem]", "lg:block"], [3, "toggleFav", "onSelect", "selected", "favorites", "selected_items", "requested"], [1, "h-full", "w-full", "overflow-auto", "rounded", "border", "border-base-300", "shadow", "sm:w-[20rem]", "lg:block"], [3, "activeChange", "toggleFav", "close", "item", "active", "fav"], ["icon", "", "matRipple", "", 1, "absolute", "right-2", "top-3", "z-20", "border", "border-base-200", "bg-base-100", "sm:hidden"], [1, "flex", "w-full", "items-center", "justify-between", "space-x-2", "rounded", "border-none", "bg-base-200", "p-2"], ["btn", "", "matRipple", "", "name", "asset-return", 1, "inverse", "bg-base-100", "text-secondary", 3, "mat-dialog-close"], [1, "flex", "items-center", "space-x-2"], [1, "text-xl"], [1, "pr-2"], ["btn", "", "matRipple", "", "name", "toggle-asset", 3, "click", "disabled"], [1, "flex", "items-center"], [1, "mr-1"], ["icon", "", "matRipple", "", 1, "absolute", "right-2", "top-3", "z-20", "border", "border-base-200", "bg-base-100", "sm:hidden", 3, "click"]], template: function NewAssetSelectModalComponent_Template(rf, ctx) {
+_NewAssetSelectModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewAssetSelectModalComponent, selectors: [["new-asset-select-modal"]], decls: 32, vars: 38, consts: [[1, "flex", "h-screen", "w-screen", "flex-col", "space-y-2", "overflow-hidden", "bg-base-100", "p-2", "sm:h-auto", "sm:w-auto"], [1, "flex", "h-14", "w-full", "items-center", "space-x-2", "rounded-sm", "border-none", "bg-base-200", "p-2"], [1, "flex-1", "px-2", "text-xl", "font-medium", "capitalize"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "relative", "flex", "h-1/2", "flex-1", "sm:h-[65vh]", "sm:flex-none", "sm:space-x-2"], [1, "h-full", "w-full", "overflow-y-auto", "overflow-x-hidden", "rounded-sm", "border", "border-base-300", "shadow-sm", "sm:block", "sm:w-[20rem]"], [1, "h-full", "w-full", "overflow-auto", "rounded-sm", "border", "border-base-300", "bg-base-200", "p-2", "sm:w-[20rem]", "lg:block"], [3, "toggleFav", "onSelect", "selected", "favorites", "selected_items", "requested"], [1, "h-full", "w-full", "overflow-auto", "rounded-sm", "border", "border-base-300", "shadow-sm", "sm:w-[20rem]", "lg:block"], [3, "activeChange", "toggleFav", "close", "item", "active", "fav"], ["icon", "", "matRipple", "", 1, "absolute", "right-2", "top-3", "z-20", "border", "border-base-200", "bg-base-100", "sm:hidden"], [1, "flex", "w-full", "items-center", "justify-between", "space-x-2", "rounded-sm", "border-none", "bg-base-200", "p-2"], ["btn", "", "matRipple", "", "name", "asset-return", 1, "inverse", "bg-base-100", "text-secondary", 3, "mat-dialog-close"], [1, "flex", "items-center", "space-x-2"], [1, "text-xl"], [1, "pr-2"], ["btn", "", "matRipple", "", "name", "toggle-asset", 3, "click", "disabled"], [1, "flex", "items-center"], [1, "mr-1"], ["icon", "", "matRipple", "", 1, "absolute", "right-2", "top-3", "z-20", "border", "border-base-200", "bg-base-100", "sm:hidden", 3, "click"]], template: function NewAssetSelectModalComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "header", 1)(2, "h2", 2);
     \u0275\u0275text(3);
@@ -2763,7 +2756,7 @@ var NewAssetSelectModalComponent = _NewAssetSelectModalComponent;
             [style.height]="is_safari ? 'calc(100vh - 80px)' : ''"
         >
             <header
-                class="flex h-14 w-full items-center space-x-2 rounded border-none bg-base-200 p-2"
+                class="flex h-14 w-full items-center space-x-2 rounded-sm border-none bg-base-200 p-2"
             >
                 <h2 class="flex-1 px-2 text-xl font-medium capitalize">
                     {{ 'BOOKINGS.ASSETS_ADD_HEADER' | translate }}
@@ -2776,13 +2769,13 @@ var NewAssetSelectModalComponent = _NewAssetSelectModalComponent;
                 class="relative flex h-1/2 flex-1 sm:h-[65vh] sm:flex-none sm:space-x-2"
             >
                 <div
-                    class="h-full w-full overflow-y-auto overflow-x-hidden rounded border border-base-300 shadow sm:block sm:w-[20rem]"
+                    class="h-full w-full overflow-y-auto overflow-x-hidden rounded-sm border border-base-300 shadow-sm sm:block sm:w-[20rem]"
                     [class.hidden]="!show_filters"
                 >
                     <new-asset-filters></new-asset-filters>
                 </div>
                 <div
-                    class="h-full w-full overflow-auto rounded border border-base-300 bg-base-200 p-2 sm:w-[20rem] lg:block"
+                    class="h-full w-full overflow-auto rounded-sm border border-base-300 bg-base-200 p-2 sm:w-[20rem] lg:block"
                     [class.hidden]="show_filters || displayed"
                     [class.sm:hidden]="displayed"
                     [class.md:block]="!displayed"
@@ -2798,7 +2791,7 @@ var NewAssetSelectModalComponent = _NewAssetSelectModalComponent;
                     ></new-asset-list>
                 </div>
                 <div
-                    class="h-full w-full overflow-auto rounded border border-base-300 shadow sm:w-[20rem] lg:block"
+                    class="h-full w-full overflow-auto rounded-sm border border-base-300 shadow-sm sm:w-[20rem] lg:block"
                     [class.hidden]="show_filters || !displayed"
                     [class.sm:hidden]="!displayed"
                     [class.md:block]="displayed"
@@ -2828,7 +2821,7 @@ var NewAssetSelectModalComponent = _NewAssetSelectModalComponent;
                 }
             </main>
             <footer
-                class="flex w-full items-center justify-between space-x-2 rounded border-none bg-base-200 p-2"
+                class="flex w-full items-center justify-between space-x-2 rounded-sm border-none bg-base-200 p-2"
             >
                 <button
                     btn
@@ -3188,7 +3181,7 @@ _AssetListFieldComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent
     useExisting: forwardRef(() => _AssetListFieldComponent),
     multi: true
   }
-]), \u0275\u0275NgOnChangesFeature], decls: 10, vars: 4, consts: [["list", "", 1, "space-y-2"], ["request", "", 1, "overflow-hidden", "rounded-xl", "border", "bg-base-100", "shadow", 3, "border-error", "border-base-300"], ["btn", "", "matRipple", "", "add-space", "", 1, "inverse", "mt-2", "w-full", 3, "click", "disabled"], [1, "flex", "items-center", "justify-center", "space-x-2"], ["request", "", 1, "overflow-hidden", "rounded-xl", "border", "bg-base-100", "shadow"], [1, "flex", "items-center", "space-x-2", "p-4"], [1, "flex-1"], [1, "flex", "items-center", "space-x-4"], [1, "flex", "h-6", "w-6", "items-center", "justify-center", "rounded-full", "bg-error", "text-error-content", 3, "matTooltip"], ["icon", "", "matRipple", "", 3, "click", "matTooltip"], ["icon", "", "matRipple", "", 1, "text-error", 3, "click", "matTooltip"], [1, "flex", "flex-col", "divide-y", "divide-base-100", "bg-base-200"], [1, "flex", "items-center", "space-x-2", "px-4", "py-1", "hover:opacity-90"], [1, "flex", "flex-1", "items-center"], [1, "rounded", "bg-success", "px-2", "py-1", "text-xs", "text-success-content"], ["icon", "", "matRipple", "", "name", "toggle-catering-item-favourite", 3, "click", "matTooltip"], [3, "className"]], template: function AssetListFieldComponent_Template(rf, ctx) {
+]), \u0275\u0275NgOnChangesFeature], decls: 10, vars: 4, consts: [["list", "", 1, "space-y-2"], ["request", "", 1, "overflow-hidden", "rounded-xl", "border", "bg-base-100", "shadow-sm", 3, "border-error", "border-base-300"], ["btn", "", "matRipple", "", "add-space", "", 1, "inverse", "mt-2", "w-full", 3, "click", "disabled"], [1, "flex", "items-center", "justify-center", "space-x-2"], ["request", "", 1, "overflow-hidden", "rounded-xl", "border", "bg-base-100", "shadow-sm"], [1, "flex", "items-center", "space-x-2", "p-4"], [1, "flex-1"], [1, "flex", "items-center", "space-x-4"], [1, "flex", "h-6", "w-6", "items-center", "justify-center", "rounded-full", "bg-error", "text-error-content", 3, "matTooltip"], ["icon", "", "matRipple", "", 3, "click", "matTooltip"], ["icon", "", "matRipple", "", 1, "text-error", 3, "click", "matTooltip"], [1, "flex", "flex-col", "divide-y", "divide-base-100", "bg-base-200"], [1, "flex", "items-center", "space-x-2", "px-4", "py-1", "hover:opacity-90"], [1, "flex", "flex-1", "items-center"], [1, "rounded-sm", "bg-success", "px-2", "py-1", "text-xs", "text-success-content"], ["icon", "", "matRipple", "", "name", "toggle-catering-item-favourite", 3, "click", "matTooltip"], [3, "className"]], template: function AssetListFieldComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0);
     \u0275\u0275repeaterCreate(1, AssetListFieldComponent_For_2_Template, 29, 32, "div", 1, \u0275\u0275repeaterTrackByIdentity);
@@ -3233,7 +3226,7 @@ var AssetListFieldComponent = _AssetListFieldComponent;
             @for (request of asset_requests; track request) {
                 <div
                     request
-                    class="overflow-hidden rounded-xl border bg-base-100 shadow"
+                    class="overflow-hidden rounded-xl border bg-base-100 shadow-sm"
                     [class.border-error]="end_time < request.deliver_at"
                     [class.border-base-300]="end_time >= request.deliver_at"
                 >
@@ -3328,7 +3321,7 @@ var AssetListFieldComponent = _AssetListFieldComponent;
                                     {{ item.name || 'Item' }}
                                 </div>
                                 <div
-                                    class="rounded bg-success px-2 py-1 text-xs text-success-content"
+                                    class="rounded-sm bg-success px-2 py-1 text-xs text-success-content"
                                 >
                                     x{{ item.quantity }}
                                 </div>
@@ -3750,7 +3743,7 @@ function NewDeskFormDetailsComponent_Conditional_0_Template(rf, ctx) {
     \u0275\u0275advance();
     \u0275\u0275conditional(ctx_r1.allow_groups ? 1 : -1);
     \u0275\u0275advance();
-    \u0275\u0275classProp("!border-none", ctx_r1.allow_groups);
+    \u0275\u0275classProp("border-none!", ctx_r1.allow_groups);
     \u0275\u0275advance(5);
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(8, 20, "BOOKINGS.DETAILS"), " ");
     \u0275\u0275advance(2);
@@ -3865,7 +3858,7 @@ _NewDeskFormDetailsComponent.\u0275fac = /* @__PURE__ */ (() => {
     return (\u0275NewDeskFormDetailsComponent_BaseFactory || (\u0275NewDeskFormDetailsComponent_BaseFactory = \u0275\u0275getInheritedFactory(_NewDeskFormDetailsComponent)))(__ngFactoryType__ || _NewDeskFormDetailsComponent);
   };
 })();
-_NewDeskFormDetailsComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewDeskFormDetailsComponent, selectors: [["desk-form-details"]], inputs: { form: [1, "form"] }, outputs: { find: "find" }, features: [\u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature], decls: 1, vars: 1, consts: [[1, "space-y-2", "divide-y", "divide-base-200", 3, "formGroup"], [1, "flex", "items-center"], [1, "p-2"], [1, "mb-4", "flex", "items-center", "space-x-2"], [1, "flex", "h-6", "w-6", "items-center", "justify-center", "rounded-full", "bg-base-200"], [1, "text-xl"], [1, "w-full"], [1, "flex", "flex-wrap", "items-center", "sm:space-x-2"], [1, "min-w-[256px]", "flex-1"], ["for", "title"], ["appearance", "outline", 1, "w-full"], ["matInput", "", "name", "title", "formControlName", "title", 3, "placeholder"], [1, "relative", "min-w-[256px]", "flex-1"], ["for", "date"], ["name", "date", "formControlName", "date", 3, "to", "timezone"], ["formControlName", "all_day", 1, "absolute", "-top-2", "right-0"], [1, "flex", "items-center", "space-x-2"], [1, "flex", "flex-col"], ["matRipple", "", 1, "relative", "flex", "h-16", "flex-1", "items-center", "justify-center", "space-x-2", 3, "click"], [1, "text-2xl"], [1, ""], [1, "absolute", "inset-x-0", "bottom-0", "!m-0", "h-1"], ["formControlName", "user", 1, "mb-4"], [1, "w-1/3", "flex-1"], ["for", "start-time"], ["name", "start-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "use_24hr", "timezone"], ["for", "end-time"], ["name", "end-time", "formControlName", "duration", 3, "time", "max", "min", "step", "use_24hr", "timezone"], ["for", "recurrence"], ["name", "recurrence", 3, "ngModelChange", "date", "ngModel", "ngModelOptions", "available_days"], ["formControlName", "update_master"], [3, "ngModelChange", "ngModel", "ngModelOptions"], [1, "w-px", "flex-1"], [1, "overflow-hidden"], [1, "mt-4", 3, "ngModelChange", "ngModel", "ngModelOptions"], ["formControlName", "resources"], [1, "rounded", "bg-warning", "px-2", "py-1", "text-center", "text-xs", "shadow"], ["formControlName", "assets", 3, "options"]], template: function NewDeskFormDetailsComponent_Template(rf, ctx) {
+_NewDeskFormDetailsComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewDeskFormDetailsComponent, selectors: [["desk-form-details"]], inputs: { form: [1, "form"] }, outputs: { find: "find" }, features: [\u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature], decls: 1, vars: 1, consts: [[1, "space-y-2", "divide-y", "divide-base-200", 3, "formGroup"], [1, "flex", "items-center"], [1, "p-2"], [1, "mb-4", "flex", "items-center", "space-x-2"], [1, "flex", "h-6", "w-6", "items-center", "justify-center", "rounded-full", "bg-base-200"], [1, "text-xl"], [1, "w-full"], [1, "flex", "flex-wrap", "items-center", "sm:space-x-2"], [1, "min-w-[256px]", "flex-1"], ["for", "title"], ["appearance", "outline", 1, "w-full"], ["matInput", "", "name", "title", "formControlName", "title", 3, "placeholder"], [1, "relative", "min-w-[256px]", "flex-1"], ["for", "date"], ["name", "date", "formControlName", "date", 3, "to", "timezone"], ["formControlName", "all_day", 1, "absolute", "-top-2", "right-0"], [1, "flex", "items-center", "space-x-2"], [1, "flex", "flex-col"], ["matRipple", "", 1, "relative", "flex", "h-16", "flex-1", "items-center", "justify-center", "space-x-2", 3, "click"], [1, "text-2xl"], [1, ""], [1, "absolute", "inset-x-0", "bottom-0", "m-0!", "h-1"], ["formControlName", "user", 1, "mb-4"], [1, "w-1/3", "flex-1"], ["for", "start-time"], ["name", "start-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "use_24hr", "timezone"], ["for", "end-time"], ["name", "end-time", "formControlName", "duration", 3, "time", "max", "min", "step", "use_24hr", "timezone"], ["for", "recurrence"], ["name", "recurrence", 3, "ngModelChange", "date", "ngModel", "ngModelOptions", "available_days"], ["formControlName", "update_master"], [3, "ngModelChange", "ngModel", "ngModelOptions"], [1, "w-px", "flex-1"], [1, "overflow-hidden"], [1, "mt-4", 3, "ngModelChange", "ngModel", "ngModelOptions"], ["formControlName", "resources"], [1, "rounded-sm", "bg-warning", "px-2", "py-1", "text-center", "text-xs", "shadow-sm"], ["formControlName", "assets", 3, "options"]], template: function NewDeskFormDetailsComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275conditionalCreate(0, NewDeskFormDetailsComponent_Conditional_0_Template, 42, 38, "div", 0);
   }
@@ -3906,7 +3899,7 @@ var NewDeskFormDetailsComponent = _NewDeskFormDetailsComponent;
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(NewDeskFormDetailsComponent, [{
     type: Component,
     args: [{ selector: "desk-form-details", template: `
-        <!-- <div class="m-2 bg-warning p-2 text-center rounded shadow text-sm">
+        <!-- <div class="m-2 bg-warning p-2 text-center rounded-sm shadow-sm text-sm">
         The selected desk hasn't been booked. Please book the desk to be
         able to check-in.
         </div> -->
@@ -3928,7 +3921,7 @@ var NewDeskFormDetailsComponent = _NewDeskFormDetailsComponent;
                                 {{ 'BOOKINGS.DESK_LONE' | translate }}
                             </div>
                             <div
-                                class="absolute inset-x-0 bottom-0 !m-0 h-1"
+                                class="absolute inset-x-0 bottom-0 m-0! h-1"
                                 [class.bg-base-200]="(options | async)?.group"
                                 [class.bg-secondary]="!(options | async)?.group"
                             ></div>
@@ -3944,14 +3937,14 @@ var NewDeskFormDetailsComponent = _NewDeskFormDetailsComponent;
                                 {{ 'BOOKINGS.DESK_GROUP' | translate }}
                             </div>
                             <div
-                                class="absolute inset-x-0 bottom-0 !m-0 h-1"
+                                class="absolute inset-x-0 bottom-0 m-0! h-1"
                                 [class.bg-base-200]="!(options | async)?.group"
                                 [class.bg-secondary]="(options | async)?.group"
                             ></div>
                         </button>
                     </section>
                 }
-                <section class="p-2" [class.!border-none]="allow_groups">
+                <section class="p-2" [class.border-none!]="allow_groups">
                     <h3 class="mb-4 flex items-center space-x-2">
                         <div
                             class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
@@ -4141,7 +4134,7 @@ var NewDeskFormDetailsComponent = _NewDeskFormDetailsComponent;
                         ></desk-list-field>
                         @if ((options | async)?.group) {
                             <p
-                                class="rounded bg-warning px-2 py-1 text-center text-xs shadow"
+                                class="rounded-sm bg-warning px-2 py-1 text-center text-xs shadow-sm"
                             >
                                 {{ 'BOOKINGS.DESK_GROUP_INFO' | translate }}
                             </p>
@@ -4254,7 +4247,7 @@ var _NewDeskFlowFormComponent = class _NewDeskFlowFormComponent {
 _NewDeskFlowFormComponent.\u0275fac = function NewDeskFlowFormComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _NewDeskFlowFormComponent)();
 };
-_NewDeskFlowFormComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewDeskFlowFormComponent, selectors: [["desk-flow-form"]], decls: 11, vars: 7, consts: [[1, "h-full", "w-full", "overflow-auto", "bg-base-200"], [1, "mx-auto", "w-[48rem]", "max-w-full", "border", "border-base-200", "bg-base-100", "sm:my-4"], [1, "w-full", "border-b", "border-base-200", "p-4", "text-2xl", "font-medium", "sm:px-16", "sm:py-4"], [1, "block", "p-0", "sm:px-16", "sm:py-4", 3, "form"], [1, "w-full", "border-b", "border-base-200", "sm:mb-2"], [1, "flex", "flex-col", "items-center", "p-2", "sm:mb-2", "sm:flex-row", "sm:space-x-2", "sm:px-16"], ["btn", "", "name", "open-desk-confirm", "matRipple", "", "confirm", "", 1, "w-full", "sm:w-auto", 3, "click"]], template: function NewDeskFlowFormComponent_Template(rf, ctx) {
+_NewDeskFlowFormComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewDeskFlowFormComponent, selectors: [["desk-flow-form"]], decls: 11, vars: 7, consts: [[1, "h-full", "w-full", "overflow-auto", "bg-base-200"], [1, "mx-auto", "w-3xl", "max-w-full", "border", "border-base-200", "bg-base-100", "sm:my-4"], [1, "w-full", "border-b", "border-base-200", "p-4", "text-2xl", "font-medium", "sm:px-16", "sm:py-4"], [1, "block", "p-0", "sm:px-16", "sm:py-4", 3, "form"], [1, "w-full", "border-b", "border-base-200", "sm:mb-2"], [1, "flex", "flex-col", "items-center", "p-2", "sm:mb-2", "sm:flex-row", "sm:space-x-2", "sm:px-16"], ["btn", "", "name", "open-desk-confirm", "matRipple", "", "confirm", "", 1, "w-full", "sm:w-auto", 3, "click"]], template: function NewDeskFlowFormComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "div", 1)(2, "h2", 2);
     \u0275\u0275text(3);
@@ -4285,7 +4278,7 @@ var NewDeskFlowFormComponent = _NewDeskFlowFormComponent;
     args: [{ selector: "desk-flow-form", template: `
         <div class="h-full w-full overflow-auto bg-base-200">
             <div
-                class="mx-auto w-[48rem] max-w-full border border-base-200 bg-base-100 sm:my-4"
+                class="mx-auto w-3xl max-w-full border border-base-200 bg-base-100 sm:my-4"
             >
                 <h2
                     class="w-full border-b border-base-200 p-4 text-2xl font-medium sm:px-16 sm:py-4"
@@ -4521,7 +4514,7 @@ var _NewDeskFlowSuccessComponent = class _NewDeskFlowSuccessComponent {
 _NewDeskFlowSuccessComponent.\u0275fac = function NewDeskFlowSuccessComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _NewDeskFlowSuccessComponent)();
 };
-_NewDeskFlowSuccessComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewDeskFlowSuccessComponent, selectors: [["desk-flow-success"]], features: [\u0275\u0275ProvidersFeature([LevelPipe, BuildingPipe])], decls: 14, vars: 15, consts: [[1, "absolute", "inset-0", "z-50", "flex", "flex-col", "overflow-auto", "bg-base-100"], [1, "flex", "flex-1", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], [1, "text-center", "text-2xl", "font-medium"], ["src", "assets/icons/success.svg"], [1, "max-w-[40rem]", "text-center"], ["assets", ""], [1, "relative", "flex", "flex-col", "items-center", "space-y-4", "p-4"], [1, "sticky", "bottom-0", "mt-4", "flex", "w-full", "items-center", "justify-center", "border-t", "border-base-200", "bg-base-100", "p-2"], ["btn", "", "name", "desk-confirm-continue", "matRipple", "", 1, "mx-auto", "w-full", "max-w-[32rem]", 3, "routerLink"], ["btn", "", "matRipple", "", "name", "desk-outlook-link", "target", "_blank", "rel", "noopener noreferer", 1, "inverse", "flex", "w-64", "items-center", "space-x-2", "rounded", "p-2", "pr-4", 3, "href"], ["src", "assets/icons/outlook.svg", 1, "w-6"], ["btn", "", "matRipple", "", "name", "desk-google-link", "target", "_blank", "rel", "noopener noreferer", 1, "inverse", "flex", "w-64", "items-center", "space-x-2", "rounded", "p-2", "pr-4", 3, "href"], ["src", "assets/icons/gcal.svg", 1, "w-6"], ["btn", "", "matRipple", "", "name", "desk-ical-link", "target", "_blank", "rel", "noopener noreferer", 1, "inverse", "flex", "w-64", "items-center", "space-x-2", "rounded", "p-2", "pr-4", 3, "href"], [1, "text-xl"]], template: function NewDeskFlowSuccessComponent_Template(rf, ctx) {
+_NewDeskFlowSuccessComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewDeskFlowSuccessComponent, selectors: [["desk-flow-success"]], features: [\u0275\u0275ProvidersFeature([LevelPipe, BuildingPipe])], decls: 14, vars: 15, consts: [[1, "absolute", "inset-0", "z-50", "flex", "flex-col", "overflow-auto", "bg-base-100"], [1, "flex", "flex-1", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], [1, "text-center", "text-2xl", "font-medium"], ["src", "assets/icons/success.svg"], [1, "max-w-160", "text-center"], ["assets", ""], [1, "relative", "flex", "flex-col", "items-center", "space-y-4", "p-4"], [1, "sticky", "bottom-0", "mt-4", "flex", "w-full", "items-center", "justify-center", "border-t", "border-base-200", "bg-base-100", "p-2"], ["btn", "", "name", "desk-confirm-continue", "matRipple", "", 1, "mx-auto", "w-full", "max-w-lg", 3, "routerLink"], ["btn", "", "matRipple", "", "name", "desk-outlook-link", "target", "_blank", "rel", "noopener noreferer", 1, "inverse", "flex", "w-64", "items-center", "space-x-2", "rounded-sm", "p-2", "pr-4", 3, "href"], ["src", "assets/icons/outlook.svg", 1, "w-6"], ["btn", "", "matRipple", "", "name", "desk-google-link", "target", "_blank", "rel", "noopener noreferer", 1, "inverse", "flex", "w-64", "items-center", "space-x-2", "rounded-sm", "p-2", "pr-4", 3, "href"], ["src", "assets/icons/gcal.svg", 1, "w-6"], ["btn", "", "matRipple", "", "name", "desk-ical-link", "target", "_blank", "rel", "noopener noreferer", 1, "inverse", "flex", "w-64", "items-center", "space-x-2", "rounded-sm", "p-2", "pr-4", 3, "href"], [1, "text-xl"]], template: function NewDeskFlowSuccessComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "main", 1)(2, "h2", 2);
     \u0275\u0275text(3);
@@ -4590,7 +4583,7 @@ var NewDeskFlowSuccessComponent = _NewDeskFlowSuccessComponent;
                 </h2>
                 <img src="assets/icons/success.svg" />
                 @if (last_event) {
-                    <p class="max-w-[40rem] text-center">
+                    <p class="max-w-160 text-center">
                         @let details =
                             {
                                 date:
@@ -4657,7 +4650,7 @@ var NewDeskFlowSuccessComponent = _NewDeskFlowSuccessComponent;
                             btn
                             matRipple
                             name="desk-outlook-link"
-                            class="inverse flex w-64 items-center space-x-2 rounded p-2 pr-4"
+                            class="inverse flex w-64 items-center space-x-2 rounded-sm p-2 pr-4"
                             [href]="outlook_link() | sanitize: 'url'"
                             target="_blank"
                             rel="noopener noreferer"
@@ -4671,7 +4664,7 @@ var NewDeskFlowSuccessComponent = _NewDeskFlowSuccessComponent;
                             btn
                             matRipple
                             name="desk-google-link"
-                            class="inverse flex w-64 items-center space-x-2 rounded p-2 pr-4"
+                            class="inverse flex w-64 items-center space-x-2 rounded-sm p-2 pr-4"
                             [href]="google_link() | sanitize: 'url'"
                             target="_blank"
                             rel="noopener noreferer"
@@ -4685,7 +4678,7 @@ var NewDeskFlowSuccessComponent = _NewDeskFlowSuccessComponent;
                             btn
                             matRipple
                             name="desk-ical-link"
-                            class="inverse flex w-64 items-center space-x-2 rounded p-2 pr-4"
+                            class="inverse flex w-64 items-center space-x-2 rounded-sm p-2 pr-4"
                             [href]="ical_link() | safe: 'url'"
                             target="_blank"
                             rel="noopener noreferer"
@@ -4703,7 +4696,7 @@ var NewDeskFlowSuccessComponent = _NewDeskFlowSuccessComponent;
                     btn
                     name="desk-confirm-continue"
                     matRipple
-                    class="mx-auto w-full max-w-[32rem]"
+                    class="mx-auto w-full max-w-lg"
                     [routerLink]="['/']"
                 >
                     {{ 'APP.WORKPLACE.BOOKING_FINISHED' | translate }}
@@ -4963,7 +4956,7 @@ _BookLockerFlowConfirmComponent.\u0275fac = /* @__PURE__ */ (() => {
     return (\u0275BookLockerFlowConfirmComponent_BaseFactory || (\u0275BookLockerFlowConfirmComponent_BaseFactory = \u0275\u0275getInheritedFactory(_BookLockerFlowConfirmComponent)))(__ngFactoryType__ || _BookLockerFlowConfirmComponent);
   };
 })();
-_BookLockerFlowConfirmComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _BookLockerFlowConfirmComponent, selectors: [["locker-flow-confirm"]], inputs: { show_close: [1, "show_close"] }, outputs: { show_close: "show_closeChange" }, features: [\u0275\u0275InheritDefinitionFeature], decls: 32, vars: 25, consts: [[1, "sticky", "top-2", "z-10", "mx-auto", "mb-4", "flex", "h-14", "w-full", "max-w-[calc(100%-1rem)]", "items-center", "justify-between", "rounded", "border-none", "bg-base-200", "p-2"], [1, "m-0", "flex-1", "px-2", "text-xl", "font-medium", "capitalize"], [1, ""], ["diameter", "32"], ["icon", "", "name", "close-locker-confirm", "matRipple", ""], ["period", "", 1, "flex", "space-x-1", "px-2", "py-4"], [1, "text-2xl", "text-success"], ["details", "", 1, "space-y-2", "text-base"], [1, "text-xl"], [1, "flex", "items-center", "space-x-2"], ["date", ""], ["time", ""], ["resource", "", 1, "flex", "space-x-1", "border-t", "px-2", "py-4", "text-base"], [1, "mt-4", "w-full", "border-t", "border-base-200", "p-2"], ["name", "confirm-locker", "btn", "", "matRipple", "", 1, "w-full"], ["icon", "", "name", "close-locker-confirm", "matRipple", "", 3, "click"], [1, "text-2xl"], ["features", "", 1, "flex", "items-center", "space-x-2"], ["name", "confirm-locker", "btn", "", "matRipple", "", 1, "w-full", 3, "click"]], template: function BookLockerFlowConfirmComponent_Template(rf, ctx) {
+_BookLockerFlowConfirmComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _BookLockerFlowConfirmComponent, selectors: [["locker-flow-confirm"]], inputs: { show_close: [1, "show_close"] }, outputs: { show_close: "show_closeChange" }, features: [\u0275\u0275InheritDefinitionFeature], decls: 32, vars: 25, consts: [[1, "sticky", "top-2", "z-10", "mx-auto", "mb-4", "flex", "h-14", "w-full", "max-w-[calc(100%-1rem)]", "items-center", "justify-between", "rounded-sm", "border-none", "bg-base-200", "p-2"], [1, "m-0", "flex-1", "px-2", "text-xl", "font-medium", "capitalize"], [1, ""], ["diameter", "32"], ["icon", "", "name", "close-locker-confirm", "matRipple", ""], ["period", "", 1, "flex", "space-x-1", "px-2", "py-4"], [1, "text-2xl", "text-success"], ["details", "", 1, "space-y-2", "text-base"], [1, "text-xl"], [1, "flex", "items-center", "space-x-2"], ["date", ""], ["time", ""], ["resource", "", 1, "flex", "space-x-1", "border-t", "px-2", "py-4", "text-base"], [1, "mt-4", "w-full", "border-t", "border-base-200", "p-2"], ["name", "confirm-locker", "btn", "", "matRipple", "", 1, "w-full"], ["icon", "", "name", "close-locker-confirm", "matRipple", "", 3, "click"], [1, "text-2xl"], ["features", "", 1, "flex", "items-center", "space-x-2"], ["name", "confirm-locker", "btn", "", "matRipple", "", 1, "w-full", 3, "click"]], template: function BookLockerFlowConfirmComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "header", 0)(1, "h2", 1);
     \u0275\u0275text(2);
@@ -5037,7 +5030,7 @@ var BookLockerFlowConfirmComponent = _BookLockerFlowConfirmComponent;
     type: Component,
     args: [{ selector: "locker-flow-confirm", template: `
         <header
-            class="sticky top-2 z-10 mx-auto mb-4 flex h-14 w-full max-w-[calc(100%-1rem)] items-center justify-between rounded border-none bg-base-200 p-2"
+            class="sticky top-2 z-10 mx-auto mb-4 flex h-14 w-full max-w-[calc(100%-1rem)] items-center justify-between rounded-sm border-none bg-base-200 p-2"
         >
             <h2 class="m-0 flex-1 px-2 text-xl font-medium capitalize">
                 {{ 'APP.WORKPLACE.LOCKER_CONFIRM_TITLE' | translate }}
@@ -5278,7 +5271,7 @@ function LockerFormDetailsComponent_Conditional_0_Template(rf, ctx) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275property("formGroup", ctx_r1.form());
     \u0275\u0275advance();
-    \u0275\u0275classProp("!border-none", ctx_r1.allow_groups);
+    \u0275\u0275classProp("border-none!", ctx_r1.allow_groups);
     \u0275\u0275advance(5);
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(7, 13, "BOOKINGS.DETAILS"), " ");
     \u0275\u0275advance(5);
@@ -5448,7 +5441,7 @@ var LockerFormDetailsComponent = _LockerFormDetailsComponent;
                 class="space-y-2 divide-y divide-base-200 p-0 sm:px-16 sm:py-4"
                 [formGroup]="form()"
             >
-                <section class="p-2" [class.!border-none]="allow_groups">
+                <section class="p-2" [class.border-none!]="allow_groups">
                     <h3 class="mb-4 flex items-center space-x-2">
                         <div
                             class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
@@ -5632,7 +5625,7 @@ var _BookLockerFlowFormComponent = class _BookLockerFlowFormComponent {
 _BookLockerFlowFormComponent.\u0275fac = function BookLockerFlowFormComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _BookLockerFlowFormComponent)();
 };
-_BookLockerFlowFormComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _BookLockerFlowFormComponent, selectors: [["locker-flow-form"]], decls: 11, vars: 7, consts: [[1, "h-full", "w-full", "overflow-auto", "bg-base-200"], [1, "mx-auto", "w-[48rem]", "max-w-full", "border", "border-base-200", "bg-base-100", "sm:my-4"], [1, "w-full", "border-b", "border-base-200", "p-4", "text-2xl", "font-medium", "sm:px-16", "sm:py-4"], [3, "form"], [1, "w-full", "border-b", "border-base-200", "sm:mb-2"], [1, "flex", "flex-col", "items-center", "p-2", "sm:mb-2", "sm:flex-row", "sm:space-x-2", "sm:px-16"], ["btn", "", "name", "open-locker-confirm", "matRipple", "", "confirm", "", 1, "w-full", "sm:w-auto", 3, "click"]], template: function BookLockerFlowFormComponent_Template(rf, ctx) {
+_BookLockerFlowFormComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _BookLockerFlowFormComponent, selectors: [["locker-flow-form"]], decls: 11, vars: 7, consts: [[1, "h-full", "w-full", "overflow-auto", "bg-base-200"], [1, "mx-auto", "w-3xl", "max-w-full", "border", "border-base-200", "bg-base-100", "sm:my-4"], [1, "w-full", "border-b", "border-base-200", "p-4", "text-2xl", "font-medium", "sm:px-16", "sm:py-4"], [3, "form"], [1, "w-full", "border-b", "border-base-200", "sm:mb-2"], [1, "flex", "flex-col", "items-center", "p-2", "sm:mb-2", "sm:flex-row", "sm:space-x-2", "sm:px-16"], ["btn", "", "name", "open-locker-confirm", "matRipple", "", "confirm", "", 1, "w-full", "sm:w-auto", 3, "click"]], template: function BookLockerFlowFormComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "div", 1)(2, "h2", 2);
     \u0275\u0275text(3);
@@ -5663,7 +5656,7 @@ var BookLockerFlowFormComponent = _BookLockerFlowFormComponent;
     args: [{ selector: "locker-flow-form", template: `
         <div class="h-full w-full overflow-auto bg-base-200">
             <div
-                class="mx-auto w-[48rem] max-w-full border border-base-200 bg-base-100 sm:my-4"
+                class="mx-auto w-3xl max-w-full border border-base-200 bg-base-100 sm:my-4"
             >
                 <h2
                     class="w-full border-b border-base-200 p-4 text-2xl font-medium sm:px-16 sm:py-4"
@@ -5778,7 +5771,7 @@ var _BookLockerFlowSuccessComponent = class _BookLockerFlowSuccessComponent {
 _BookLockerFlowSuccessComponent.\u0275fac = function BookLockerFlowSuccessComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _BookLockerFlowSuccessComponent)();
 };
-_BookLockerFlowSuccessComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _BookLockerFlowSuccessComponent, selectors: [["locker-flow-success"]], decls: 17, vars: 30, consts: [[1, "absolute", "inset-0", "z-50", "flex", "flex-col", "overflow-auto", "bg-base-100"], [1, "flex", "flex-1", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], [1, "text-center", "text-2xl", "font-medium"], ["src", "assets/icons/locker-success.svg"], [1, "text-center"], [1, "relative", "flex", "flex-col", "items-center", "space-y-4", "p-4"], [1, "sticky", "bottom-0", "mt-4", "flex", "w-full", "items-center", "justify-center", "border-t", "border-base-200", "bg-base-100", "p-2"], ["btn", "", "name", "locker-confirm-continue", "matRipple", "", 1, "mx-auto", "w-full", "max-w-[32rem]", 3, "routerLink"], ["btn", "", "matRipple", "", "name", "locker-outlook-link", "target", "_blank", "rel", "noopener noreferer", 1, "inverse", "flex", "w-64", "items-center", "space-x-2", "rounded", "p-2", "pr-4", 3, "href"], ["src", "assets/icons/outlook.svg", 1, "w-6"], ["btn", "", "matRipple", "", "name", "locker-google-link", "target", "_blank", "rel", "noopener noreferer", 1, "inverse", "flex", "w-64", "items-center", "space-x-2", "rounded", "p-2", "pr-4", 3, "href"], ["src", "assets/icons/gcal.svg", 1, "w-6"], ["btn", "", "matRipple", "", "name", "locker-ical-link", "target", "_blank", "rel", "noopener noreferer", 1, "inverse", "flex", "w-64", "items-center", "space-x-2", "rounded", "p-2", "pr-4", 3, "href"], [1, "text-xl"]], template: function BookLockerFlowSuccessComponent_Template(rf, ctx) {
+_BookLockerFlowSuccessComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _BookLockerFlowSuccessComponent, selectors: [["locker-flow-success"]], decls: 17, vars: 30, consts: [[1, "absolute", "inset-0", "z-50", "flex", "flex-col", "overflow-auto", "bg-base-100"], [1, "flex", "flex-1", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], [1, "text-center", "text-2xl", "font-medium"], ["src", "assets/icons/locker-success.svg"], [1, "text-center"], [1, "relative", "flex", "flex-col", "items-center", "space-y-4", "p-4"], [1, "sticky", "bottom-0", "mt-4", "flex", "w-full", "items-center", "justify-center", "border-t", "border-base-200", "bg-base-100", "p-2"], ["btn", "", "name", "locker-confirm-continue", "matRipple", "", 1, "mx-auto", "w-full", "max-w-lg", 3, "routerLink"], ["btn", "", "matRipple", "", "name", "locker-outlook-link", "target", "_blank", "rel", "noopener noreferer", 1, "inverse", "flex", "w-64", "items-center", "space-x-2", "rounded-sm", "p-2", "pr-4", 3, "href"], ["src", "assets/icons/outlook.svg", 1, "w-6"], ["btn", "", "matRipple", "", "name", "locker-google-link", "target", "_blank", "rel", "noopener noreferer", 1, "inverse", "flex", "w-64", "items-center", "space-x-2", "rounded-sm", "p-2", "pr-4", 3, "href"], ["src", "assets/icons/gcal.svg", 1, "w-6"], ["btn", "", "matRipple", "", "name", "locker-ical-link", "target", "_blank", "rel", "noopener noreferer", 1, "inverse", "flex", "w-64", "items-center", "space-x-2", "rounded-sm", "p-2", "pr-4", 3, "href"], [1, "text-xl"]], template: function BookLockerFlowSuccessComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "main", 1)(2, "h2", 2);
     \u0275\u0275text(3);
@@ -5873,7 +5866,7 @@ var BookLockerFlowSuccessComponent = _BookLockerFlowSuccessComponent;
                             btn
                             matRipple
                             name="locker-outlook-link"
-                            class="inverse flex w-64 items-center space-x-2 rounded p-2 pr-4"
+                            class="inverse flex w-64 items-center space-x-2 rounded-sm p-2 pr-4"
                             [href]="outlook_link | sanitize: 'url'"
                             target="_blank"
                             rel="noopener noreferer"
@@ -5887,7 +5880,7 @@ var BookLockerFlowSuccessComponent = _BookLockerFlowSuccessComponent;
                             btn
                             matRipple
                             name="locker-google-link"
-                            class="inverse flex w-64 items-center space-x-2 rounded p-2 pr-4"
+                            class="inverse flex w-64 items-center space-x-2 rounded-sm p-2 pr-4"
                             [href]="google_link | sanitize: 'url'"
                             target="_blank"
                             rel="noopener noreferer"
@@ -5901,7 +5894,7 @@ var BookLockerFlowSuccessComponent = _BookLockerFlowSuccessComponent;
                             btn
                             matRipple
                             name="locker-ical-link"
-                            class="inverse flex w-64 items-center space-x-2 rounded p-2 pr-4"
+                            class="inverse flex w-64 items-center space-x-2 rounded-sm p-2 pr-4"
                             [href]="ical_link | safe: 'url'"
                             target="_blank"
                             rel="noopener noreferer"
@@ -5919,7 +5912,7 @@ var BookLockerFlowSuccessComponent = _BookLockerFlowSuccessComponent;
                     btn
                     name="locker-confirm-continue"
                     matRipple
-                    class="mx-auto w-full max-w-[32rem]"
+                    class="mx-auto w-full max-w-lg"
                     [routerLink]="['/']"
                 >
                     {{ 'APP.WORKPLACE.BOOKING_FINISHED' | translate }}
@@ -6341,7 +6334,7 @@ _MeetingFlowConfirmComponent.\u0275fac = /* @__PURE__ */ (() => {
     return (\u0275MeetingFlowConfirmComponent_BaseFactory || (\u0275MeetingFlowConfirmComponent_BaseFactory = \u0275\u0275getInheritedFactory(_MeetingFlowConfirmComponent)))(__ngFactoryType__ || _MeetingFlowConfirmComponent);
   };
 })();
-_MeetingFlowConfirmComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _MeetingFlowConfirmComponent, selectors: [["meeting-flow-confirm"]], inputs: { show_close: [1, "show_close"] }, outputs: { show_close: "show_closeChange" }, features: [\u0275\u0275ProvidersFeature([SpacePipe]), \u0275\u0275InheritDefinitionFeature], decls: 36, vars: 26, consts: [["chipList", ""], [1, "sticky", "top-2", "z-10", "mx-auto", "mb-4", "flex", "h-14", "w-full", "max-w-[calc(100%-1rem)]", "items-center", "justify-between", "rounded", "border-none", "bg-base-200", "px-4", "py-2"], [1, "m-0", "flex-1", "text-xl", "font-medium", "capitalize"], ["diameter", "32"], ["icon", "", "matRipple", ""], ["period", "", 1, "flex", "space-x-1", "px-2"], [1, "mt-1", "text-success"], ["details", "", 1, "leading-6"], [1, "flex", "items-center", "space-x-2"], [1, "text-2xl"], ["date", ""], [1, "flex", "flex-col", "leading-tight"], ["time", ""], [1, "text-xs", "opacity-30"], ["attendees", "", 1, "mt-2", "flex", "space-x-1", "px-2"], ["spaces", "", 1, "mt-2", "flex", "space-x-1", "px-2"], [1, "px-2", "pt-4"], [1, "mt-4", "w-full", "border-t", "border-base-200", "p-2"], ["btn", "", "name", "confirm-meeting", "matRipple", "", 1, "w-full", 3, "click", "disabled"], ["icon", "", "matRipple", "", 3, "click"], ["attendee-list", ""], ["aria-label", "User selection"], [1, "flex", "items-center"], [1, "mr-2"], [1, "max-w-[50vw]", "truncate"], [1, "rounded", "!border-none", "bg-warning", "px-2", "py-1", "text-center", "text-sm", "text-warning-content"]], template: function MeetingFlowConfirmComponent_Template(rf, ctx) {
+_MeetingFlowConfirmComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _MeetingFlowConfirmComponent, selectors: [["meeting-flow-confirm"]], inputs: { show_close: [1, "show_close"] }, outputs: { show_close: "show_closeChange" }, features: [\u0275\u0275ProvidersFeature([SpacePipe]), \u0275\u0275InheritDefinitionFeature], decls: 36, vars: 26, consts: [["chipList", ""], [1, "sticky", "top-2", "z-10", "mx-auto", "mb-4", "flex", "h-14", "w-full", "max-w-[calc(100%-1rem)]", "items-center", "justify-between", "rounded-sm", "border-none", "bg-base-200", "px-4", "py-2"], [1, "m-0", "flex-1", "text-xl", "font-medium", "capitalize"], ["diameter", "32"], ["icon", "", "matRipple", ""], ["period", "", 1, "flex", "space-x-1", "px-2"], [1, "mt-1", "text-success"], ["details", "", 1, "leading-6"], [1, "flex", "items-center", "space-x-2"], [1, "text-2xl"], ["date", ""], [1, "flex", "flex-col", "leading-tight"], ["time", ""], [1, "text-xs", "opacity-30"], ["attendees", "", 1, "mt-2", "flex", "space-x-1", "px-2"], ["spaces", "", 1, "mt-2", "flex", "space-x-1", "px-2"], [1, "px-2", "pt-4"], [1, "mt-4", "w-full", "border-t", "border-base-200", "p-2"], ["btn", "", "name", "confirm-meeting", "matRipple", "", 1, "w-full", 3, "click", "disabled"], ["icon", "", "matRipple", "", 3, "click"], ["attendee-list", ""], ["aria-label", "User selection"], [1, "flex", "items-center"], [1, "mr-2"], [1, "max-w-[50vw]", "truncate"], [1, "rounded-sm", "border-none!", "bg-warning", "px-2", "py-1", "text-center", "text-sm", "text-warning-content"]], template: function MeetingFlowConfirmComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "header", 1)(1, "h2", 2);
     \u0275\u0275text(2);
@@ -6434,7 +6427,7 @@ var MeetingFlowConfirmComponent = _MeetingFlowConfirmComponent;
     type: Component,
     args: [{ selector: "meeting-flow-confirm", template: `
         <header
-            class="sticky top-2 z-10 mx-auto mb-4 flex h-14 w-full max-w-[calc(100%-1rem)] items-center justify-between rounded border-none bg-base-200 px-4 py-2"
+            class="sticky top-2 z-10 mx-auto mb-4 flex h-14 w-full max-w-[calc(100%-1rem)] items-center justify-between rounded-sm border-none bg-base-200 px-4 py-2"
         >
             <h2 class="m-0 flex-1 text-xl font-medium capitalize">
                 {{ 'APP.WORKPLACE.MEETING_CONFIRM' | translate }}
@@ -6528,7 +6521,7 @@ var MeetingFlowConfirmComponent = _MeetingFlowConfirmComponent;
         @if (requires_approval) {
             <section class="px-2 pt-4">
                 <div
-                    class="rounded !border-none bg-warning px-2 py-1 text-center text-sm text-warning-content"
+                    class="rounded-sm border-none! bg-warning px-2 py-1 text-center text-sm text-warning-content"
                 >
                     {{ 'CALENDAR_EVENT.APPROVAL_REQUIRED_MSG' | translate }}
                 </div>
@@ -6577,7 +6570,7 @@ function getCateringRulesForZone(zone_id, fresh = false) {
   if (!zone_id)
     return of([]);
   if (!RULE_REQUESTS[zone_id] || fresh)
-    RULE_REQUESTS[zone_id] = Iu(zone_id, "catering_config").pipe(map((_) => _.details instanceof Array ? _.details : []), catchError((e) => of([])));
+    RULE_REQUESTS[zone_id] = Xu(zone_id, "catering_config").pipe(map((_) => _.details instanceof Array ? _.details : []), catchError((e) => of([])));
   return RULE_REQUESTS[zone_id];
 }
 function cateringItemAvailable(item, rules, event) {
@@ -6638,7 +6631,7 @@ var _CateringOrderStateService = class _CateringOrderStateService {
     this._loading = new BehaviorSubject("");
     this.loading = this._loading.asObservable();
     this.filters = this._filters.asObservable();
-    this.settings = this._org.active_building.pipe(filter((_) => !!_), switchMap((_) => Iu(_.id, "catering-settings").pipe(catchError((_2) => of({})))), map((_) => _.details), tap((_) => this._settings.post("require_catering_notes", !!_?.require_notes)), shareReplay(1));
+    this.settings = this._org.active_building.pipe(filter((_) => !!_), switchMap((_) => Xu(_.id, "catering-settings").pipe(catchError((_2) => of({})))), map((_) => _.details), tap((_) => this._settings.post("require_catering_notes", !!_?.require_notes)), shareReplay(1));
     this.charge_codes = this.settings.pipe(map((_) => _.charge_codes || []));
     this.availability = this.settings.pipe(map((_) => _.disabled_rooms || []));
     this.available_menu = combineLatest([
@@ -6646,7 +6639,7 @@ var _CateringOrderStateService = class _CateringOrderStateService {
       this._org.active_building
     ]).pipe(filter(([_, bld]) => !!bld), switchMap(([{ zone }, bld]) => {
       this._loading.next("[MENU]");
-      return Iu(zone || bld.id, "catering").pipe(map((d) => (d.details instanceof Array ? d.details : []).map((_) => new CateringItem(_))), catchError((_) => []));
+      return Xu(zone || bld.id, "catering").pipe(map((d) => (d.details instanceof Array ? d.details : []).map((_) => new CateringItem(_))), catchError((_) => []));
     }), tap((items) => {
       this._loading.next(this._loading.getValue().replace("[MENU]", ""));
       if (this._settings.get("app.catering_provider")) {
@@ -7022,7 +7015,7 @@ var _NewCateringItemDetailsComponent = class _NewCateringItemDetailsComponent {
 _NewCateringItemDetailsComponent.\u0275fac = function NewCateringItemDetailsComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _NewCateringItemDetailsComponent)();
 };
-_NewCateringItemDetailsComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewCateringItemDetailsComponent, selectors: [["new-catering-item-details"]], inputs: { item: [1, "item"], active: [1, "active"], fav: [1, "fav"], code: [1, "code"] }, outputs: { toggleFav: "toggleFav", activeChange: "activeChange", close: "close" }, features: [\u0275\u0275NgOnChangesFeature], decls: 2, vars: 1, consts: [["empty", "", 1, "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-16"], ["image", "", 1, "relative", "h-64", "w-full", "bg-base-200", "sm:h-40"], [1, "absolute", "inset-0", 3, "images"], ["icon", "", "matRipple", "", "name", "close-catering-item-details", 1, "absolute", "left-2", "top-2", "bg-base-100", "lg:hidden", 3, "click"], ["icon", "", "matRipple", "", "name", "toggle-catering-item-favourite-details", 1, "absolute", "right-2", "top-2", "bg-base-100", 3, "click"], [3, "className"], [1, "flex-1", "space-y-4", "p-2"], ["actions", "", 1, "z-0", "flex", "items-center", "justify-between"], [1, "mb-2", "mt-4", "text-xl", "font-medium"], [3, "ngModelChange", "ngModel", "min", "max"], [1, "flex", "flex-wrap", "items-center"], [1, "m-1", "rounded-2xl", "bg-base-200", "px-2", "py-1", "text-sm", "capitalize"], ["details", "", 1, "space-y-2"], [1, "flex", "flex-col", "space-y-4"], [1, "relative", "space-y-2", "rounded", "border", "border-base-400", "px-3", "pb-2", "pt-4"], [1, "text-md", "absolute", "left-2", "top-0", "-translate-y-1/2", "bg-base-100", "px-2", "font-medium"], [1, "flex", "flex-col"], ["aria-label", "Select an option", 1, "flex", "flex-col", 3, "ngModel", "disabled"], ["aria-label", "Select an option", 1, "flex", "flex-col", 3, "ngModelChange", "ngModel", "disabled"], ["value", "", 1, "m-0"], [1, "p-2", "font-medium", "opacity-60"], [1, "m-0", 3, "value"], [1, "flex", "max-w-[calc(100vw-4rem)]", "items-center", "justify-center", "sm:max-w-[15rem]"], [1, "w-1/2", "flex-1", "whitespace-normal", "p-2", "font-medium", "capitalize"], [1, "text-xs", "opacity-60"], [3, "ngModel", "disabled"], [3, "ngModelChange", "ngModel", "disabled"], [1, "flex", "items-center", "justify-center"], [1, "w-1/2", "flex-1", "p-2", "font-medium"], [1, "text-center", "opacity-30"]], template: function NewCateringItemDetailsComponent_Template(rf, ctx) {
+_NewCateringItemDetailsComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewCateringItemDetailsComponent, selectors: [["new-catering-item-details"]], inputs: { item: [1, "item"], active: [1, "active"], fav: [1, "fav"], code: [1, "code"] }, outputs: { toggleFav: "toggleFav", activeChange: "activeChange", close: "close" }, features: [\u0275\u0275NgOnChangesFeature], decls: 2, vars: 1, consts: [["empty", "", 1, "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-16"], ["image", "", 1, "relative", "h-64", "w-full", "bg-base-200", "sm:h-40"], [1, "absolute", "inset-0", 3, "images"], ["icon", "", "matRipple", "", "name", "close-catering-item-details", 1, "absolute", "left-2", "top-2", "bg-base-100", "lg:hidden", 3, "click"], ["icon", "", "matRipple", "", "name", "toggle-catering-item-favourite-details", 1, "absolute", "right-2", "top-2", "bg-base-100", 3, "click"], [3, "className"], [1, "flex-1", "space-y-4", "p-2"], ["actions", "", 1, "z-0", "flex", "items-center", "justify-between"], [1, "mb-2", "mt-4", "text-xl", "font-medium"], [3, "ngModelChange", "ngModel", "min", "max"], [1, "flex", "flex-wrap", "items-center"], [1, "m-1", "rounded-2xl", "bg-base-200", "px-2", "py-1", "text-sm", "capitalize"], ["details", "", 1, "space-y-2"], [1, "flex", "flex-col", "space-y-4"], [1, "relative", "space-y-2", "rounded-sm", "border", "border-base-400", "px-3", "pb-2", "pt-4"], [1, "text-md", "absolute", "left-2", "top-0", "-translate-y-1/2", "bg-base-100", "px-2", "font-medium"], [1, "flex", "flex-col"], ["aria-label", "Select an option", 1, "flex", "flex-col", 3, "ngModel", "disabled"], ["aria-label", "Select an option", 1, "flex", "flex-col", 3, "ngModelChange", "ngModel", "disabled"], ["value", "", 1, "m-0"], [1, "p-2", "font-medium", "opacity-60"], [1, "m-0", 3, "value"], [1, "flex", "max-w-[calc(100vw-4rem)]", "items-center", "justify-center", "sm:max-w-60"], [1, "w-1/2", "flex-1", "whitespace-normal", "p-2", "font-medium", "capitalize"], [1, "text-xs", "opacity-60"], [3, "ngModel", "disabled"], [3, "ngModelChange", "ngModel", "disabled"], [1, "flex", "items-center", "justify-center"], [1, "w-1/2", "flex-1", "p-2", "font-medium"], [1, "text-center", "opacity-30"]], template: function NewCateringItemDetailsComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275conditionalCreate(0, NewCateringItemDetailsComponent_Conditional_0_Template, 22, 9)(1, NewCateringItemDetailsComponent_Conditional_1_Template, 4, 3, "div", 0);
   }
@@ -7120,7 +7113,7 @@ var NewCateringItemDetailsComponent = _NewCateringItemDetailsComponent;
                         @for (group of groups; track group) {
                             <div
                                 [attr.group]="group.name"
-                                class="relative space-y-2 rounded border border-base-400 px-3 pb-2 pt-4"
+                                class="relative space-y-2 rounded-sm border border-base-400 px-3 pb-2 pt-4"
                             >
                                 <h3
                                     class="text-md absolute left-2 top-0 -translate-y-1/2 bg-base-100 px-2 font-medium"
@@ -7162,7 +7155,7 @@ var NewCateringItemDetailsComponent = _NewCateringItemDetailsComponent;
                                                     [value]="opt.id"
                                                 >
                                                     <div
-                                                        class="flex max-w-[calc(100vw-4rem)] items-center justify-center sm:max-w-[15rem]"
+                                                        class="flex max-w-[calc(100vw-4rem)] items-center justify-center sm:max-w-60"
                                                     >
                                                         <div
                                                             class="w-1/2 flex-1 whitespace-normal p-2 font-medium capitalize"
@@ -7867,7 +7860,7 @@ var _NewCateringItemListItemComponent = class _NewCateringItemListItemComponent 
 _NewCateringItemListItemComponent.\u0275fac = function NewCateringItemListItemComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _NewCateringItemListItemComponent)();
 };
-_NewCateringItemListItemComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewCateringItemListItemComponent, selectors: [["new-catering-item-list-item"]], inputs: { item: [1, "item"], active: [1, "active"], selected: [1, "selected"], favourite: [1, "favourite"], code: [1, "code"] }, outputs: { toggleFav: "toggleFav", select: "select" }, decls: 23, vars: 16, consts: [["item", "", "matRipple", "", 1, "relative", "w-full", "rounded-lg", "border", "border-base-200", "bg-base-100", "p-2", "shadow"], ["name", "select-catering-item", 1, "z-0", "flex", "h-full", "w-full", "items-center", 3, "click"], [1, "relative", "mr-4", "flex", "h-16", "w-16", "items-center", "justify-center", "overflow-hidden", "rounded-xl", "border", "border-base-200", "bg-neutral"], [1, "absolute", "left-1", "top-1", "flex", "h-6", "w-6", "items-center", "justify-center", "rounded-full", "border", "border-white", "bg-neutral", "text-xs", "text-white"], ["auth", "", 1, "min-h-full", "min-w-full", "object-cover", 3, "source"], ["src", "assets/icons/catering-placeholder.svg", 1, "m-auto"], [1, "flex-1", "space-y-2", "text-left"], [1, "flex", "flex-col", "pr-10", "font-medium"], [1, "text-xs", "opacity-60"], [1, "flex", "items-center", "space-x-1", "text-sm"], [1, "w-px", "flex-1", "rounded", "bg-base-100"], [1, "rounded-2xl", "border", "border-base-200", "px-2", "py-1", "text-xs", "shadow"], [1, "flex", "h-5", "w-7", "items-center", "justify-center", "rounded-xl", "bg-success", "text-xs", "shadow"], [1, "flex", "h-5", "w-7", "items-center", "justify-center", "rounded-xl", "bg-info", "text-xs", "shadow"], [1, "flex", "h-5", "w-7", "items-center", "justify-center", "rounded-xl", "bg-warning", "text-xs", "shadow"], [1, "bg-orange-600", "flex", "h-5", "w-7", "items-center", "justify-center", "rounded-xl", "text-xs", "shadow"], ["icon", "", "matRipple", "", "name", "toggle-catering-item-favourite", 1, "absolute", "right-1", "top-1", 3, "click"], [3, "className"]], template: function NewCateringItemListItemComponent_Template(rf, ctx) {
+_NewCateringItemListItemComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewCateringItemListItemComponent, selectors: [["new-catering-item-list-item"]], inputs: { item: [1, "item"], active: [1, "active"], selected: [1, "selected"], favourite: [1, "favourite"], code: [1, "code"] }, outputs: { toggleFav: "toggleFav", select: "select" }, decls: 23, vars: 16, consts: [["item", "", "matRipple", "", 1, "relative", "w-full", "rounded-lg", "border", "border-base-200", "bg-base-100", "p-2", "shadow-sm"], ["name", "select-catering-item", 1, "z-0", "flex", "h-full", "w-full", "items-center", 3, "click"], [1, "relative", "mr-4", "flex", "h-16", "w-16", "items-center", "justify-center", "overflow-hidden", "rounded-xl", "border", "border-base-200", "bg-neutral"], [1, "absolute", "left-1", "top-1", "flex", "h-6", "w-6", "items-center", "justify-center", "rounded-full", "border", "border-white", "bg-neutral", "text-xs", "text-white"], ["auth", "", 1, "min-h-full", "min-w-full", "object-cover", 3, "source"], ["src", "assets/icons/catering-placeholder.svg", 1, "m-auto"], [1, "flex-1", "space-y-2", "text-left"], [1, "flex", "flex-col", "pr-10", "font-medium"], [1, "text-xs", "opacity-60"], [1, "flex", "items-center", "space-x-1", "text-sm"], [1, "w-px", "flex-1", "rounded-sm", "bg-base-100"], [1, "rounded-2xl", "border", "border-base-200", "px-2", "py-1", "text-xs", "shadow-sm"], [1, "flex", "h-5", "w-7", "items-center", "justify-center", "rounded-xl", "bg-success", "text-xs", "shadow-sm"], [1, "flex", "h-5", "w-7", "items-center", "justify-center", "rounded-xl", "bg-info", "text-xs", "shadow-sm"], [1, "flex", "h-5", "w-7", "items-center", "justify-center", "rounded-xl", "bg-warning", "text-xs", "shadow-sm"], [1, "bg-orange-600", "flex", "h-5", "w-7", "items-center", "justify-center", "rounded-xl", "text-xs", "shadow-sm"], ["icon", "", "matRipple", "", "name", "toggle-catering-item-favourite", 1, "absolute", "right-1", "top-1", 3, "click"], [3, "className"]], template: function NewCateringItemListItemComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "li", 0)(1, "button", 1);
     \u0275\u0275listener("click", function NewCateringItemListItemComponent_Template_button_click_1_listener() {
@@ -7908,7 +7901,7 @@ _NewCateringItemListItemComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275define
     let tmp_9_0;
     let tmp_10_0;
     let tmp_11_0;
-    \u0275\u0275classProp("!border-base-200", ctx.active());
+    \u0275\u0275classProp("border-base-200!", ctx.active());
     \u0275\u0275advance(3);
     \u0275\u0275conditional(ctx.item().quantity && ctx.selected() ? 3 : -1);
     \u0275\u0275advance();
@@ -7951,9 +7944,9 @@ var NewCateringItemListItemComponent = _NewCateringItemListItemComponent;
     args: [{ selector: "new-catering-item-list-item", template: `
         <li
             item
-            [class.!border-base-200]="active()"
+            [class.border-base-200!]="active()"
             matRipple
-            class="relative w-full rounded-lg border border-base-200 bg-base-100 p-2 shadow"
+            class="relative w-full rounded-lg border border-base-200 bg-base-100 p-2 shadow-sm"
         >
             <button
                 name="select-catering-item"
@@ -7992,48 +7985,48 @@ var NewCateringItemListItemComponent = _NewCateringItemListItemComponent;
                     </div>
                     <div class="flex items-center space-x-1 text-sm">
                         @if (item().unit_price) {
-                            <p class="w-px flex-1 rounded bg-base-100">
+                            <p class="w-px flex-1 rounded-sm bg-base-100">
                                 {{ item().unit_price / 100 | currency: code() }}
                             </p>
                         }
                         @if (item().option_list?.length) {
                             <div
-                                class="rounded-2xl border border-base-200 px-2 py-1 text-xs shadow"
+                                class="rounded-2xl border border-base-200 px-2 py-1 text-xs shadow-sm"
                             >
                                 {{ options }}
                             </div>
                         }
                         @if (item().tags?.includes('Gluten Free')) {
                             <div
-                                class="flex h-5 w-7 items-center justify-center rounded-xl bg-success text-xs shadow"
+                                class="flex h-5 w-7 items-center justify-center rounded-xl bg-success text-xs shadow-sm"
                             >
                                 GF
                             </div>
                         }
                         @if (item().tags?.includes('Vegan')) {
                             <div
-                                class="flex h-5 w-7 items-center justify-center rounded-xl bg-info text-xs shadow"
+                                class="flex h-5 w-7 items-center justify-center rounded-xl bg-info text-xs shadow-sm"
                             >
                                 VG
                             </div>
                         }
                         @if (item().tags?.includes('Vegetarian')) {
                             <div
-                                class="flex h-5 w-7 items-center justify-center rounded-xl bg-info text-xs shadow"
+                                class="flex h-5 w-7 items-center justify-center rounded-xl bg-info text-xs shadow-sm"
                             >
                                 V
                             </div>
                         }
                         @if (item().tags?.includes('Contains Dairy')) {
                             <div
-                                class="flex h-5 w-7 items-center justify-center rounded-xl bg-warning text-xs shadow"
+                                class="flex h-5 w-7 items-center justify-center rounded-xl bg-warning text-xs shadow-sm"
                             >
                                 D
                             </div>
                         }
                         @if (item().tags?.includes('Contains Nuts')) {
                             <div
-                                class="bg-orange-600 flex h-5 w-7 items-center justify-center rounded-xl text-xs shadow"
+                                class="bg-orange-600 flex h-5 w-7 items-center justify-center rounded-xl text-xs shadow-sm"
                             >
                                 N
                             </div>
@@ -8434,7 +8427,7 @@ var _NewCateringSelectModalComponent = class _NewCateringSelectModalComponent {
 _NewCateringSelectModalComponent.\u0275fac = function NewCateringSelectModalComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _NewCateringSelectModalComponent)();
 };
-_NewCateringSelectModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewCateringSelectModalComponent, selectors: [["new-catering-select-modal"]], decls: 31, vars: 37, consts: [[1, "flex", "h-screen", "w-screen", "flex-col", "space-y-2", "overflow-hidden", "bg-base-100", "p-2", "sm:h-auto", "sm:w-auto"], [1, "flex", "h-14", "w-full", "items-center", "space-x-2", "rounded", "border-none", "bg-base-200", "p-2"], [1, "flex-1", "px-2", "text-xl", "font-medium", "capitalize"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "relative", "flex", "h-1/2", "flex-1", "sm:h-[65vh]", "sm:flex-none", "sm:space-x-2"], [1, "h-full", "w-full", "overflow-y-auto", "overflow-x-hidden", "rounded", "border", "border-base-300", "shadow", "sm:block", "sm:w-[20rem]"], [1, "h-full", "w-full", "overflow-auto", "rounded", "border", "border-base-300", "bg-base-200", "sm:w-[20rem]", "lg:block"], [3, "toggleFav", "onSelect", "active", "selected", "selected_items", "favorites"], [1, "h-full", "w-full", "overflow-auto", "rounded", "border", "border-base-300", "shadow", "sm:w-[20rem]", "lg:block"], [3, "activeChange", "toggleFav", "close", "item", "active", "code", "fav"], ["icon", "", "matRipple", "", 1, "absolute", "right-2", "top-3", "z-20", "border", "border-base-200", "bg-base-100", "sm:hidden"], [1, "flex", "w-full", "items-center", "justify-between", "space-x-2", "rounded", "border-none", "bg-base-200", "p-2"], ["btn", "", "matRipple", "", "name", "catering-return", 1, "inverse", "bg-base-100", "text-secondary", 3, "mat-dialog-close"], [1, "flex", "items-center", "space-x-2"], [1, "text-xl"], [1, "pr-2"], ["btn", "", "matRipple", "", "name", "toggle-catering", 3, "click", "disabled"], [1, "flex", "items-center"], [1, "mr-1"], ["icon", "", "matRipple", "", 1, "absolute", "right-2", "top-3", "z-20", "border", "border-base-200", "bg-base-100", "sm:hidden", 3, "click"]], template: function NewCateringSelectModalComponent_Template(rf, ctx) {
+_NewCateringSelectModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewCateringSelectModalComponent, selectors: [["new-catering-select-modal"]], decls: 31, vars: 37, consts: [[1, "flex", "h-screen", "w-screen", "flex-col", "space-y-2", "overflow-hidden", "bg-base-100", "p-2", "sm:h-auto", "sm:w-auto"], [1, "flex", "h-14", "w-full", "items-center", "space-x-2", "rounded-sm", "border-none", "bg-base-200", "p-2"], [1, "flex-1", "px-2", "text-xl", "font-medium", "capitalize"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "relative", "flex", "h-1/2", "flex-1", "sm:h-[65vh]", "sm:flex-none", "sm:space-x-2"], [1, "h-full", "w-full", "overflow-y-auto", "overflow-x-hidden", "rounded-sm", "border", "border-base-300", "shadow-sm", "sm:block", "sm:w-[20rem]"], [1, "h-full", "w-full", "overflow-auto", "rounded-sm", "border", "border-base-300", "bg-base-200", "sm:w-[20rem]", "lg:block"], [3, "toggleFav", "onSelect", "active", "selected", "selected_items", "favorites"], [1, "h-full", "w-full", "overflow-auto", "rounded-sm", "border", "border-base-300", "shadow-sm", "sm:w-[20rem]", "lg:block"], [3, "activeChange", "toggleFav", "close", "item", "active", "code", "fav"], ["icon", "", "matRipple", "", 1, "absolute", "right-2", "top-3", "z-20", "border", "border-base-200", "bg-base-100", "sm:hidden"], [1, "flex", "w-full", "items-center", "justify-between", "space-x-2", "rounded-sm", "border-none", "bg-base-200", "p-2"], ["btn", "", "matRipple", "", "name", "catering-return", 1, "inverse", "bg-base-100", "text-secondary", 3, "mat-dialog-close"], [1, "flex", "items-center", "space-x-2"], [1, "text-xl"], [1, "pr-2"], ["btn", "", "matRipple", "", "name", "toggle-catering", 3, "click", "disabled"], [1, "flex", "items-center"], [1, "mr-1"], ["icon", "", "matRipple", "", 1, "absolute", "right-2", "top-3", "z-20", "border", "border-base-200", "bg-base-100", "sm:hidden", 3, "click"]], template: function NewCateringSelectModalComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "header", 1)(2, "h2", 2);
     \u0275\u0275text(3);
@@ -8531,7 +8524,7 @@ var NewCateringSelectModalComponent = _NewCateringSelectModalComponent;
             class="flex h-screen w-screen flex-col space-y-2 overflow-hidden bg-base-100 p-2 sm:h-auto sm:w-auto"
         >
             <header
-                class="flex h-14 w-full items-center space-x-2 rounded border-none bg-base-200 p-2"
+                class="flex h-14 w-full items-center space-x-2 rounded-sm border-none bg-base-200 p-2"
             >
                 <h2 class="flex-1 px-2 text-xl font-medium capitalize">
                     {{ 'CATERING.ORDER' | translate }}
@@ -8544,13 +8537,13 @@ var NewCateringSelectModalComponent = _NewCateringSelectModalComponent;
                 class="relative flex h-1/2 flex-1 sm:h-[65vh] sm:flex-none sm:space-x-2"
             >
                 <div
-                    class="h-full w-full overflow-y-auto overflow-x-hidden rounded border border-base-300 shadow sm:block sm:w-[20rem]"
+                    class="h-full w-full overflow-y-auto overflow-x-hidden rounded-sm border border-base-300 shadow-sm sm:block sm:w-[20rem]"
                     [class.hidden]="!show_filters"
                 >
                     <new-catering-item-filters></new-catering-item-filters>
                 </div>
                 <div
-                    class="h-full w-full overflow-auto rounded border border-base-300 bg-base-200 sm:w-[20rem] lg:block"
+                    class="h-full w-full overflow-auto rounded-sm border border-base-300 bg-base-200 sm:w-[20rem] lg:block"
                     [class.hidden]="show_filters || displayed"
                     [class.sm:hidden]="displayed"
                     [class.md:block]="!displayed"
@@ -8565,7 +8558,7 @@ var NewCateringSelectModalComponent = _NewCateringSelectModalComponent;
                     ></new-catering-item-list>
                 </div>
                 <div
-                    class="h-full w-full overflow-auto rounded border border-base-300 shadow sm:w-[20rem] lg:block"
+                    class="h-full w-full overflow-auto rounded-sm border border-base-300 shadow-sm sm:w-[20rem] lg:block"
                     [class.hidden]="show_filters || !displayed"
                     [class.sm:hidden]="!displayed"
                     [class.md:block]="displayed"
@@ -8599,7 +8592,7 @@ var NewCateringSelectModalComponent = _NewCateringSelectModalComponent;
                 }
             </main>
             <footer
-                class="flex w-full items-center justify-between space-x-2 rounded border-none bg-base-200 p-2"
+                class="flex w-full items-center justify-between space-x-2 rounded-sm border-none bg-base-200 p-2"
             >
                 <button
                     btn
@@ -9003,7 +8996,7 @@ _CateringListFieldComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineCompon
     useExisting: forwardRef(() => _CateringListFieldComponent),
     multi: true
   }
-]), \u0275\u0275NgOnChangesFeature], decls: 10, vars: 4, consts: [["list", "", 1, "space-y-2"], ["order", "", 1, "overflow-hidden", "rounded-xl", "border", "bg-base-100", "shadow", 3, "border-error", "border-base-300"], ["btn", "", "matRipple", "", "name", "add-catering-item", 1, "inverse", "mt-2", "w-full", 3, "click", "disabled"], [1, "flex", "items-center", "justify-center", "space-x-2"], ["order", "", 1, "overflow-hidden", "rounded-xl", "border", "bg-base-100", "shadow"], [1, "flex", "items-center", "space-x-2", "p-4"], [1, "flex-1"], [1, "flex", "items-center", "space-x-4"], [1, "flex", "h-6", "w-6", "items-center", "justify-center", "rounded-full", "bg-error", "text-error-content", 3, "matTooltip"], [1, "text-xs", "opacity-60"], ["icon", "", "matRipple", "", 3, "matTooltip"], ["icon", "", "matRipple", "", "matTooltip", "Remove Order", 1, "text-error"], ["icon", "", "matRipple", "", 3, "click", "matTooltip"], [1, "flex", "flex-col", "divide-y", "divide-base-100", "bg-base-200"], [1, "flex", "items-center", "space-x-2", "px-4", "py-1", "hover:opacity-90"], ["icon", "", "matRipple", "", "matTooltip", "Remove Order", 1, "text-error", 3, "click"], [1, "flex", "flex-1", "items-center"], [1, "ml-4", "text-xs", "font-normal", "opacity-60", 3, "matTooltip"], [1, "rounded", "bg-success", "px-2", "py-1", "text-xs", "text-success-content"], [1, "rounded", "bg-info", "px-2", "py-1", "text-xs", "text-info-content"], ["icon", "", "matRipple", "", "matTooltip", "Remove Order Item", 1, "text-error"], ["icon", "", "matRipple", "", "name", "toggle-catering-item-favourite", 3, "click", "matTooltip"], [3, "className"], ["icon", "", "matRipple", "", "matTooltip", "Remove Order Item", 1, "text-error", 3, "click"]], template: function CateringListFieldComponent_Template(rf, ctx) {
+]), \u0275\u0275NgOnChangesFeature], decls: 10, vars: 4, consts: [["list", "", 1, "space-y-2"], ["order", "", 1, "overflow-hidden", "rounded-xl", "border", "bg-base-100", "shadow-sm", 3, "border-error", "border-base-300"], ["btn", "", "matRipple", "", "name", "add-catering-item", 1, "inverse", "mt-2", "w-full", 3, "click", "disabled"], [1, "flex", "items-center", "justify-center", "space-x-2"], ["order", "", 1, "overflow-hidden", "rounded-xl", "border", "bg-base-100", "shadow-sm"], [1, "flex", "items-center", "space-x-2", "p-4"], [1, "flex-1"], [1, "flex", "items-center", "space-x-4"], [1, "flex", "h-6", "w-6", "items-center", "justify-center", "rounded-full", "bg-error", "text-error-content", 3, "matTooltip"], [1, "text-xs", "opacity-60"], ["icon", "", "matRipple", "", 3, "matTooltip"], ["icon", "", "matRipple", "", "matTooltip", "Remove Order", 1, "text-error"], ["icon", "", "matRipple", "", 3, "click", "matTooltip"], [1, "flex", "flex-col", "divide-y", "divide-base-100", "bg-base-200"], [1, "flex", "items-center", "space-x-2", "px-4", "py-1", "hover:opacity-90"], ["icon", "", "matRipple", "", "matTooltip", "Remove Order", 1, "text-error", 3, "click"], [1, "flex", "flex-1", "items-center"], [1, "ml-4", "text-xs", "font-normal", "opacity-60", 3, "matTooltip"], [1, "rounded-sm", "bg-success", "px-2", "py-1", "text-xs", "text-success-content"], [1, "rounded-sm", "bg-info", "px-2", "py-1", "text-xs", "text-info-content"], ["icon", "", "matRipple", "", "matTooltip", "Remove Order Item", 1, "text-error"], ["icon", "", "matRipple", "", "name", "toggle-catering-item-favourite", 3, "click", "matTooltip"], [3, "className"], ["icon", "", "matRipple", "", "matTooltip", "Remove Order Item", 1, "text-error", 3, "click"]], template: function CateringListFieldComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0);
     \u0275\u0275repeaterCreate(1, CateringListFieldComponent_For_2_Template, 24, 36, "div", 1, _forTrack02);
@@ -9049,7 +9042,7 @@ var CateringListFieldComponent = _CateringListFieldComponent;
             @for (order of orders; track order.id) {
                 <div
                     order
-                    class="overflow-hidden rounded-xl border bg-base-100 shadow"
+                    class="overflow-hidden rounded-xl border bg-base-100 shadow-sm"
                     [class.border-error]="end_time < order.deliver_at"
                     [class.border-base-300]="end_time >= order.deliver_at"
                 >
@@ -9181,12 +9174,12 @@ var CateringListFieldComponent = _CateringListFieldComponent;
                                     }
                                 </div>
                                 <div
-                                    class="rounded bg-success px-2 py-1 text-xs text-success-content"
+                                    class="rounded-sm bg-success px-2 py-1 text-xs text-success-content"
                                 >
                                     x{{ item.quantity }}
                                 </div>
                                 <div
-                                    class="rounded bg-info px-2 py-1 text-xs text-info-content"
+                                    class="rounded-sm bg-info px-2 py-1 text-xs text-info-content"
                                 >
                                     {{
                                         item.unit_price_with_options / 100
@@ -9544,7 +9537,7 @@ option-1,option,1 Sugar,20,Sugars,,,item-1,false`;
 _CateringImportMenuModalComponent.\u0275fac = function CateringImportMenuModalComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _CateringImportMenuModalComponent)();
 };
-_CateringImportMenuModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CateringImportMenuModalComponent, selectors: [["catering-import-menu-modal"]], outputs: { event: "event" }, decls: 7, vars: 5, consts: [[1, "sticky", "top-0", "z-10", "m-2", "w-[calc(100%-1rem)]", "rounded", "border-none", "bg-base-200", "p-2"], [1, "px-2", "text-xl", "font-medium"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "flex", "h-[24rem]", "w-[24rem]", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], [1, "relative", "mx-2", "flex", "h-[24rem]", "w-[24rem]", "cursor-pointer", "flex-col", "items-center", "justify-center", "space-y-4", "rounded-xl", "border-4", "border-dashed", "border-base-300", "p-4", "hover:bg-base-200"], [1, "text-8xl", "opacity-30"], [1, "px-4", "text-center", "opacity-30"], ["type", "file", 1, "absolute", "inset-0", "opacity-0", 3, "change"], [1, "flex", "items-center", "justify-center", "p-2"], ["btn", "", "matRipple", "", 1, "w-full", 3, "click"], ["diameter", "32"]], template: function CateringImportMenuModalComponent_Template(rf, ctx) {
+_CateringImportMenuModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CateringImportMenuModalComponent, selectors: [["catering-import-menu-modal"]], outputs: { event: "event" }, decls: 7, vars: 5, consts: [[1, "sticky", "top-0", "z-10", "m-2", "w-[calc(100%-1rem)]", "rounded-sm", "border-none", "bg-base-200", "p-2"], [1, "px-2", "text-xl", "font-medium"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "flex", "h-96", "w-[24rem]", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], [1, "relative", "mx-2", "flex", "h-96", "w-[24rem]", "cursor-pointer", "flex-col", "items-center", "justify-center", "space-y-4", "rounded-xl", "border-4", "border-dashed", "border-base-300", "p-4", "hover:bg-base-200"], [1, "text-8xl", "opacity-30"], [1, "px-4", "text-center", "opacity-30"], ["type", "file", 1, "absolute", "inset-0", "opacity-0", 3, "change"], [1, "flex", "items-center", "justify-center", "p-2"], ["btn", "", "matRipple", "", 1, "w-full", 3, "click"], ["diameter", "32"]], template: function CateringImportMenuModalComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "header", 0)(1, "h2", 1);
     \u0275\u0275text(2);
@@ -9578,7 +9571,7 @@ var CateringImportMenuModalComponent = _CateringImportMenuModalComponent;
     type: Component,
     args: [{ selector: "catering-import-menu-modal", template: `
         <header
-            class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded border-none bg-base-200 p-2"
+            class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none bg-base-200 p-2"
         >
             <h2 class="px-2 text-xl font-medium">
                 {{ 'CATERING.MENU_IMPORT' | translate }}
@@ -9592,7 +9585,7 @@ var CateringImportMenuModalComponent = _CateringImportMenuModalComponent;
         @if (!loading) {
             <main>
                 <div
-                    class="relative mx-2 flex h-[24rem] w-[24rem] cursor-pointer flex-col items-center justify-center space-y-4 rounded-xl border-4 border-dashed border-base-300 p-4 hover:bg-base-200"
+                    class="relative mx-2 flex h-96 w-[24rem] cursor-pointer flex-col items-center justify-center space-y-4 rounded-xl border-4 border-dashed border-base-300 p-4 hover:bg-base-200"
                 >
                     <icon class="text-8xl opacity-30">cloud_upload</icon>
                     <p class="px-4 text-center opacity-30">
@@ -9617,7 +9610,7 @@ var CateringImportMenuModalComponent = _CateringImportMenuModalComponent;
             </main>
         } @else {
             <main
-                class="flex h-[24rem] w-[24rem] flex-col items-center justify-center space-y-2 p-8"
+                class="flex h-96 w-[24rem] flex-col items-center justify-center space-y-2 p-8"
             >
                 <mat-spinner diameter="32"></mat-spinner>
                 <p>{{ loading }}</p>
@@ -10123,7 +10116,7 @@ var _CateringItemModalComponent = class _CateringItemModalComponent {
 _CateringItemModalComponent.\u0275fac = function CateringItemModalComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _CateringItemModalComponent)();
 };
-_CateringItemModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CateringItemModalComponent, selectors: [["catering-item-modal"]], outputs: { event: "event" }, decls: 16, vars: 6, consts: [["auto", "matAutocomplete"], ["caterer_auto", "matAutocomplete"], ["chipList", ""], [1, "sticky", "top-0", "z-10", "m-2", "w-[calc(100%-1rem)]", "rounded", "border-none", "bg-base-200", "p-2"], [1, "px-2", "text-xl", "font-medium"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "max-h-[65vh]", "max-w-xl", "overflow-auto", "px-4", 3, "formGroup"], [1, "flex", "w-64", "flex-col", "items-center", "space-y-2", "p-8"], [1, "flex", "items-center", "justify-end", "border-t", "border-solid", "border-base-200", "px-4", "py-2"], [3, "value"], [1, "flex", "w-full", "items-center", "space-x-2"], [1, "flex", "flex-1", "flex-col"], [1, "flex", "space-x-4"], [1, "flex", "flex-1", "items-center", "py-4"], ["formControlName", "accept_points", 1, "w-full", 3, "name"], [1, "mb-4", "space-y-2"], [1, "w-24", "min-w-0", "flex-1"], [1, "max-w-[calc(50%-0.5rem)]"], ["formControlName", "discount_cap", 3, "min", "max", "step", "render_fn"], [1, "flex", "flex-col"], ["list", "", 1, "-mx-2", "flex", "flex-wrap", "items-center", "pb-2"], [1, "min-w-[40%]", "flex-1", "p-2", 3, "ngModelChange", "name", "ngModel", "ngModelOptions"], [1, "w-1/2", "min-w-[40%]", "p-2", 3, "ngModelChange", "name", "ngModel", "ngModelOptions"], ["for", "title"], ["appearance", "outline"], ["matInput", "", "name", "name", "formControlName", "name", 3, "placeholder"], ["for", "category"], ["matInput", "", "name", "category", "formControlName", "category", 3, "placeholder", "matAutocomplete"], ["for", "caterer"], ["matInput", "", "name", "caterer", "formControlName", "caterer", 3, "placeholder", "matAutocomplete"], ["formControlName", "unit_price", 3, "min", "max", "step", "render_fn"], ["for", "description"], ["matInput", "", "name", "description", "formControlName", "description", 3, "placeholder"], ["for", "tags"], ["aria-label", "Item Tags"], ["name", "tags", "placeholder", "Item tags e.g. Gluten Free, Vegan etc.", 3, "matChipInputTokenEnd", "matChipInputFor", "matChipInputSeparatorKeyCodes", "matChipInputAddOnBlur"], [3, "removed"], ["matChipRemove", ""], ["for", "images"], ["name", "images", "formControlName", "images"], ["diameter", "32"], ["btn", "", "matRipple", "", 1, "w-32", 3, "click", "disabled"]], template: function CateringItemModalComponent_Template(rf, ctx) {
+_CateringItemModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CateringItemModalComponent, selectors: [["catering-item-modal"]], outputs: { event: "event" }, decls: 16, vars: 6, consts: [["auto", "matAutocomplete"], ["caterer_auto", "matAutocomplete"], ["chipList", ""], [1, "sticky", "top-0", "z-10", "m-2", "w-[calc(100%-1rem)]", "rounded-sm", "border-none", "bg-base-200", "p-2"], [1, "px-2", "text-xl", "font-medium"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "max-h-[65vh]", "max-w-xl", "overflow-auto", "px-4", 3, "formGroup"], [1, "flex", "w-64", "flex-col", "items-center", "space-y-2", "p-8"], [1, "flex", "items-center", "justify-end", "border-t", "border-solid", "border-base-200", "px-4", "py-2"], [3, "value"], [1, "flex", "w-full", "items-center", "space-x-2"], [1, "flex", "flex-1", "flex-col"], [1, "flex", "space-x-4"], [1, "flex", "flex-1", "items-center", "py-4"], ["formControlName", "accept_points", 1, "w-full", 3, "name"], [1, "mb-4", "space-y-2"], [1, "w-24", "min-w-0", "flex-1"], [1, "max-w-[calc(50%-0.5rem)]"], ["formControlName", "discount_cap", 3, "min", "max", "step", "render_fn"], [1, "flex", "flex-col"], ["list", "", 1, "-mx-2", "flex", "flex-wrap", "items-center", "pb-2"], [1, "min-w-[40%]", "flex-1", "p-2", 3, "ngModelChange", "name", "ngModel", "ngModelOptions"], [1, "w-1/2", "min-w-[40%]", "p-2", 3, "ngModelChange", "name", "ngModel", "ngModelOptions"], ["for", "title"], ["appearance", "outline"], ["matInput", "", "name", "name", "formControlName", "name", 3, "placeholder"], ["for", "category"], ["matInput", "", "name", "category", "formControlName", "category", 3, "placeholder", "matAutocomplete"], ["for", "caterer"], ["matInput", "", "name", "caterer", "formControlName", "caterer", 3, "placeholder", "matAutocomplete"], ["formControlName", "unit_price", 3, "min", "max", "step", "render_fn"], ["for", "description"], ["matInput", "", "name", "description", "formControlName", "description", 3, "placeholder"], ["for", "tags"], ["aria-label", "Item Tags"], ["name", "tags", "placeholder", "Item tags e.g. Gluten Free, Vegan etc.", 3, "matChipInputTokenEnd", "matChipInputFor", "matChipInputSeparatorKeyCodes", "matChipInputAddOnBlur"], [3, "removed"], ["matChipRemove", ""], ["for", "images"], ["name", "images", "formControlName", "images"], ["diameter", "32"], ["btn", "", "matRipple", "", 1, "w-32", 3, "click", "disabled"]], template: function CateringItemModalComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "header", 3)(1, "h2", 4);
     \u0275\u0275text(2);
@@ -10196,7 +10189,7 @@ var CateringItemModalComponent = _CateringItemModalComponent;
     type: Component,
     args: [{ selector: "catering-item-modal", template: `
         <header
-            class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded border-none bg-base-200 p-2"
+            class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none bg-base-200 p-2"
         >
             <h2 class="px-2 text-xl font-medium">
                 {{
@@ -10733,7 +10726,7 @@ var _CateringItemOptionModalComponent = class _CateringItemOptionModalComponent 
 _CateringItemOptionModalComponent.\u0275fac = function CateringItemOptionModalComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _CateringItemOptionModalComponent)();
 };
-_CateringItemOptionModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CateringItemOptionModalComponent, selectors: [["catering-option-modal"]], outputs: { event: "event" }, decls: 12, vars: 6, consts: [["auto", "matAutocomplete"], [1, "sticky", "top-0", "z-10", "m-2", "w-[calc(100%-1rem)]", "rounded", "border-none", "bg-base-200", "p-2"], [1, "px-2", "text-xl", "font-medium"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "max-h-[65vh]", "w-[28rem]", "overflow-auto", "px-4", 3, "formGroup"], ["loading", "", 1, "flex", "w-64", "flex-col", "items-center", "space-y-2", "p-8"], [1, "flex", "items-center", "justify-end", "border-t", "border-solid", "border-base-200", "px-4", "py-2"], [3, "value"], [1, "flex", "flex-col"], [1, "mb-4", "flex", "flex-col"], ["for", "title"], ["appearance", "outline"], ["matInput", "", "name", "name", "formControlName", "name", 3, "placeholder"], ["for", "group"], ["matInput", "", "name", "group", "formControlName", "group", 3, "placeholder", "matAutocomplete"], ["formControlName", "multiple", 3, "name"], ["matInput", "", "name", "unit-price", "type", "number", "formControlName", "unit_price", 3, "placeholder"], ["diameter", "32"], ["btn", "", "matRipple", "", 1, "w-32", 3, "click", "disabled"]], template: function CateringItemOptionModalComponent_Template(rf, ctx) {
+_CateringItemOptionModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CateringItemOptionModalComponent, selectors: [["catering-option-modal"]], outputs: { event: "event" }, decls: 12, vars: 6, consts: [["auto", "matAutocomplete"], [1, "sticky", "top-0", "z-10", "m-2", "w-[calc(100%-1rem)]", "rounded-sm", "border-none", "bg-base-200", "p-2"], [1, "px-2", "text-xl", "font-medium"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "max-h-[65vh]", "w-md", "overflow-auto", "px-4", 3, "formGroup"], ["loading", "", 1, "flex", "w-64", "flex-col", "items-center", "space-y-2", "p-8"], [1, "flex", "items-center", "justify-end", "border-t", "border-solid", "border-base-200", "px-4", "py-2"], [3, "value"], [1, "flex", "flex-col"], [1, "mb-4", "flex", "flex-col"], ["for", "title"], ["appearance", "outline"], ["matInput", "", "name", "name", "formControlName", "name", 3, "placeholder"], ["for", "group"], ["matInput", "", "name", "group", "formControlName", "group", 3, "placeholder", "matAutocomplete"], ["formControlName", "multiple", 3, "name"], ["matInput", "", "name", "unit-price", "type", "number", "formControlName", "unit_price", 3, "placeholder"], ["diameter", "32"], ["btn", "", "matRipple", "", 1, "w-32", 3, "click", "disabled"]], template: function CateringItemOptionModalComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "header", 1)(1, "h2", 2);
     \u0275\u0275text(2);
@@ -10793,7 +10786,7 @@ var CateringItemOptionModalComponent = _CateringItemOptionModalComponent;
     type: Component,
     args: [{ selector: "catering-option-modal", template: `
         <header
-            class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded border-none bg-base-200 p-2"
+            class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none bg-base-200 p-2"
         >
             <h2 class="px-2 text-xl font-medium">
                 {{
@@ -10811,7 +10804,7 @@ var CateringItemOptionModalComponent = _CateringItemOptionModalComponent;
         </header>
         @if (form && !loading) {
             <form
-                class="max-h-[65vh] w-[28rem] overflow-auto px-4"
+                class="max-h-[65vh] w-md overflow-auto px-4"
                 [formGroup]="form"
             >
                 @if (form.controls.name) {
@@ -14153,7 +14146,7 @@ var _CateringOrderModalComponent = class _CateringOrderModalComponent extends As
 _CateringOrderModalComponent.\u0275fac = function CateringOrderModalComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _CateringOrderModalComponent)();
 };
-_CateringOrderModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CateringOrderModalComponent, selectors: [["app-catering-order-modal"]], outputs: { event: "event" }, features: [\u0275\u0275InheritDefinitionFeature], decls: 3, vars: 2, consts: [[1, "main", "min-w-[20rem]"], [1, "flex", "w-64", "flex-col", "items-center", "space-y-2", "p-8"], [1, "flex", "items-center", "justify-center", "space-x-2", "border-t", "border-base-200", "p-2"], [3, "label"], [1, "list"], ["item", "", 1, "flex", "items-center", "border-b", "border-base-200", "p-2"], [1, "w-1/2", "flex-1"], [1, "text-xs", "no-underline"], [1, "mx-2", "rounded", "bg-primary", "px-4", "py-2", "text-xs", "font-medium", "text-white"], ["ngDefaultControl", "", 3, "ngModel"], [1, "flex", "items-center"], ["ngDefaultControl", "", 3, "ngModelChange", "ngModel"], [3, "matTooltip"], ["icon", "", "matRipple", "", 3, "disabled"], [1, "count", "flex", "h-12", "w-12", "items-center", "justify-center"], ["icon", "", "matRipple", "", 3, "click"], [1, "h-[3.25rem]"], [1, "text-xs", "underline", 3, "matTooltip"], [3, "ngModelChange", "ngModel"], ["diameter", "32"], ["btn", "", "matRipple", "", "mat-dialog-close", "", 1, "inverse"], ["confirm", "", "btn", "", "matRipple", "", 3, "click", "disabled"], ["matRipple", "", 1, "inverse", 3, "click"], ["save", "", "btn", "", "matRipple", "", 3, "click"]], template: function CateringOrderModalComponent_Template(rf, ctx) {
+_CateringOrderModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CateringOrderModalComponent, selectors: [["app-catering-order-modal"]], outputs: { event: "event" }, features: [\u0275\u0275InheritDefinitionFeature], decls: 3, vars: 2, consts: [[1, "main", "min-w-[20rem]"], [1, "flex", "w-64", "flex-col", "items-center", "space-y-2", "p-8"], [1, "flex", "items-center", "justify-center", "space-x-2", "border-t", "border-base-200", "p-2"], [3, "label"], [1, "list"], ["item", "", 1, "flex", "items-center", "border-b", "border-base-200", "p-2"], [1, "w-1/2", "flex-1"], [1, "text-xs", "no-underline"], [1, "mx-2", "rounded-sm", "bg-primary", "px-4", "py-2", "text-xs", "font-medium", "text-white"], ["ngDefaultControl", "", 3, "ngModel"], [1, "flex", "items-center"], ["ngDefaultControl", "", 3, "ngModelChange", "ngModel"], [3, "matTooltip"], ["icon", "", "matRipple", "", 3, "disabled"], [1, "count", "flex", "h-12", "w-12", "items-center", "justify-center"], ["icon", "", "matRipple", "", 3, "click"], [1, "h-13"], [1, "text-xs", "underline", 3, "matTooltip"], [3, "ngModelChange", "ngModel"], ["diameter", "32"], ["btn", "", "matRipple", "", "mat-dialog-close", "", 1, "inverse"], ["confirm", "", "btn", "", "matRipple", "", 3, "click", "disabled"], ["matRipple", "", 1, "inverse", 3, "click"], ["save", "", "btn", "", "matRipple", "", 3, "click"]], template: function CateringOrderModalComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275conditionalCreate(0, CateringOrderModalComponent_Conditional_0_Template, 3, 1, "div", 0)(1, CateringOrderModalComponent_Conditional_1_Template, 4, 1, "div", 1);
     \u0275\u0275conditionalCreate(2, CateringOrderModalComponent_Conditional_2_Template, 3, 1, "footer", 2);
@@ -14220,7 +14213,7 @@ var CateringOrderModalComponent = _CateringOrderModalComponent;
                                                     }
                                                 </div>
                                                 <div
-                                                    class="mx-2 rounded bg-primary px-4 py-2 text-xs font-medium text-white"
+                                                    class="mx-2 rounded-sm bg-primary px-4 py-2 text-xs font-medium text-white"
                                                 >
                                                     {{
                                                         item.unit_price / 100
@@ -14288,7 +14281,7 @@ var CateringOrderModalComponent = _CateringOrderModalComponent;
                         }
                     </mat-tab-group>
                 } @else {
-                    <header class="h-[3.25rem]">
+                    <header class="h-13">
                         <h3>
                             {{ 'CATERING.ORDERS_CONFIRM' | translate }}
                         </h3>
@@ -14321,7 +14314,7 @@ var CateringOrderModalComponent = _CateringOrderModalComponent;
                                     }
                                 </div>
                                 <div
-                                    class="mx-2 rounded bg-primary px-4 py-2 text-xs font-medium text-white"
+                                    class="mx-2 rounded-sm bg-primary px-4 py-2 text-xs font-medium text-white"
                                 >
                                     {{ item.total_cost / 100 | currency: code }}
                                 </div>
@@ -14727,7 +14720,7 @@ var _CateringStateService = class _CateringStateService extends AsyncHandler {
     this.settings = combineLatest([
       this._org.active_building,
       this._change
-    ]).pipe(filter(([_]) => !!_), switchMap(([_]) => Iu(_.id, "catering-settings").pipe(catchError((_2) => of({})))), map((_) => _.details || {}), tap((_) => this._settings.post("require_catering_notes", !!_?.require_notes)), shareReplay(1));
+    ]).pipe(filter(([_]) => !!_), switchMap(([_]) => Xu(_.id, "catering-settings").pipe(catchError((_2) => of({})))), map((_) => _.details || {}), tap((_) => this._settings.post("require_catering_notes", !!_?.require_notes)), shareReplay(1));
     this.charge_codes = this.settings.pipe(map((_) => _.charge_codes || []));
     this.availability = this.settings.pipe(map((_) => _.disabled_rooms || []));
     this.caterers = combineLatest([
@@ -14956,7 +14949,7 @@ var _CateringStateService = class _CateringStateService extends AsyncHandler {
     ref.close();
   }
   updateMenu(zone_id, menu) {
-    return lastValueFrom(Pu(zone_id, {
+    return lastValueFrom(ec(zone_id, {
       id: zone_id,
       name: "catering",
       details: menu,
@@ -14965,7 +14958,7 @@ var _CateringStateService = class _CateringStateService extends AsyncHandler {
   }
   async saveSettings(settings) {
     const old_settings = await nextValueFrom(this.settings);
-    const result = await lastValueFrom(Pu(this._org.building.id, {
+    const result = await lastValueFrom(ec(this._org.building.id, {
       id: this._org.building.id,
       name: "catering-settings",
       details: __spreadValues(__spreadValues({}, old_settings), settings),
@@ -14975,15 +14968,15 @@ var _CateringStateService = class _CateringStateService extends AsyncHandler {
     return result;
   }
   async getCateringForZone(zone_id) {
-    const menu = (await Iu(zone_id, "catering").toPromise()).details;
+    const menu = (await Xu(zone_id, "catering").toPromise()).details;
     return menu instanceof Array ? menu : [];
   }
   async getCateringConfig(zone_id = this._org.building.id) {
-    const rules = (await Iu(zone_id, "catering_config").toPromise()).details;
+    const rules = (await Xu(zone_id, "catering_config").toPromise()).details;
     return rules instanceof Array ? rules : [];
   }
   updateConfig(zone_id, config) {
-    return Pu(zone_id, {
+    return ec(zone_id, {
       id: zone_id,
       name: "catering_config",
       details: config,
@@ -15251,7 +15244,7 @@ var _CateringMenuComponent = class _CateringMenuComponent {
 _CateringMenuComponent.\u0275fac = function CateringMenuComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _CateringMenuComponent)();
 };
-_CateringMenuComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CateringMenuComponent, selectors: [["catering-menu"]], decls: 14, vars: 38, consts: [["active_template", ""], ["price_template", ""], ["actions_template", ""], ["child_template", ""], ["menu", "matMenu"], [1, "block", "w-full", "min-w-[32rem]", "text-sm", 3, "data", "columns", "filter", "show_children", "child_template", "sortable", "empty_message"], ["matTooltipPosition", "right", 1, "mx-auto", 3, "ngModelChange", "matTooltip", "ngModel"], [1, "mx-auto", "flex", "items-center", "rounded", "bg-secondary", "px-2", "py-1", "font-mono", "text-xs", "text-secondary-content"], [1, "mx-auto", "flex", "items-center", "space-x-2", "p-2"], ["icon", "", "matRipple", "", 3, "disabled", "matMenuTriggerFor"], ["mat-menu-item", "", 1, "flex", "items-center", 3, "click"], [1, "flex", "items-center", "space-x-2", "pr-2"], [1, "text-error"], ["icon", "", "matRipple", "", 3, "click", "disabled", "matTooltip"], [1, "relative", "flex", "items-center", "space-x-2", "border-b", "border-solid", "border-base-200", "p-2"], [1, "absolute", "inset-y-0", "left-0", "w-2", "bg-black", "opacity-10"], [1, "flex-1", "pl-4", "pr-2"], [1, "text"], [1, "text-xs", "opacity-60"], ["icon", "", "matRipple", "", 3, "matTooltip"], ["icon", "", "matRipple", "", 1, "!mr-1", 3, "matTooltip"], ["icon", "", "matRipple", "", 3, "click", "matTooltip"], ["icon", "", "matRipple", "", 1, "!mr-1", 3, "click", "matTooltip"]], template: function CateringMenuComponent_Template(rf, ctx) {
+_CateringMenuComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CateringMenuComponent, selectors: [["catering-menu"]], decls: 14, vars: 38, consts: [["active_template", ""], ["price_template", ""], ["actions_template", ""], ["child_template", ""], ["menu", "matMenu"], [1, "block", "w-full", "min-w-lg", "text-sm", 3, "data", "columns", "filter", "show_children", "child_template", "sortable", "empty_message"], ["matTooltipPosition", "right", 1, "mx-auto", 3, "ngModelChange", "matTooltip", "ngModel"], [1, "mx-auto", "flex", "items-center", "rounded-sm", "bg-secondary", "px-2", "py-1", "font-mono", "text-xs", "text-secondary-content"], [1, "mx-auto", "flex", "items-center", "space-x-2", "p-2"], ["icon", "", "matRipple", "", 3, "disabled", "matMenuTriggerFor"], ["mat-menu-item", "", 1, "flex", "items-center", 3, "click"], [1, "flex", "items-center", "space-x-2", "pr-2"], [1, "text-error"], ["icon", "", "matRipple", "", 3, "click", "disabled", "matTooltip"], [1, "relative", "flex", "items-center", "space-x-2", "border-b", "border-solid", "border-base-200", "p-2"], [1, "absolute", "inset-y-0", "left-0", "w-2", "bg-black", "opacity-10"], [1, "flex-1", "pl-4", "pr-2"], [1, "text"], [1, "text-xs", "opacity-60"], ["icon", "", "matRipple", "", 3, "matTooltip"], ["icon", "", "matRipple", "", 1, "mr-1!", 3, "matTooltip"], ["icon", "", "matRipple", "", 3, "click", "matTooltip"], ["icon", "", "matRipple", "", 1, "mr-1!", 3, "click", "matTooltip"]], template: function CateringMenuComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "simple-table", 5);
     \u0275\u0275pipe(1, "translate");
@@ -15295,7 +15288,7 @@ var CateringMenuComponent = _CateringMenuComponent;
     type: Component,
     args: [{ selector: "catering-menu", template: `
         <simple-table
-            class="block w-full min-w-[32rem] text-sm"
+            class="block w-full min-w-lg text-sm"
             [data]="menu"
             [columns]="[
                 {
@@ -15343,7 +15336,7 @@ var CateringMenuComponent = _CateringMenuComponent;
         </ng-template>
         <ng-template #price_template let-data="data">
             <div
-                class="mx-auto flex items-center rounded bg-secondary px-2 py-1 font-mono text-xs text-secondary-content"
+                class="mx-auto flex items-center rounded-sm bg-secondary px-2 py-1 font-mono text-xs text-secondary-content"
             >
                 {{ data / 100 | currency: (symbol | async) }}
             </div>
@@ -15447,7 +15440,7 @@ var CateringMenuComponent = _CateringMenuComponent;
                         <button
                             icon
                             matRipple
-                            class="!mr-1"
+                            class="mr-1!"
                             [matTooltip]="
                                 'CATERING.ITEM_OPTION_REMOVE' | translate
                             "
@@ -15566,7 +15559,7 @@ var _CateringOrderItemComponent = class _CateringOrderItemComponent {
 _CateringOrderItemComponent.\u0275fac = function CateringOrderItemComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _CateringOrderItemComponent)();
 };
-_CateringOrderItemComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CateringOrderItemComponent, selectors: [["", "catering-order-item", ""]], inputs: { order_id: [1, "order_id"], item: [1, "item"] }, attrs: _c019, decls: 1, vars: 1, consts: [[1, "relative", "h-14", "w-16", "text-right"], ["arm", "", 1, "absolute", "left-1/2", "top-1/2", "h-16", "w-4", "-translate-x-px", "-translate-y-full", "border-b-2", "border-l-2", "border-base-200"], [1, "mr-4", "w-12"], ["action", "", "icon", "", "matRipple", "", 1, "text-dark-fade", "border-2", "border-dashed", "border-base-200", "p-2", "text-xl", 3, "click"], [1, "flex", "flex-1", "items-center", "space-x-4", "border-b", "border-solid", "border-base-200", "py-4"], [1, ""], [1, "flex", "h-10", "w-10", "items-center", "justify-center", "rounded-full", "bg-base-300", "p-1", "font-mono", "text-sm"], [1, "flex-1"], [1, "mr-2", "flex", "space-x-2", "px-4"], [1, "rounded-2xl", "bg-warning", "px-2", "py-1", "text-xs", "text-warning-content", "shadow"]], template: function CateringOrderItemComponent_Template(rf, ctx) {
+_CateringOrderItemComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CateringOrderItemComponent, selectors: [["", "catering-order-item", ""]], inputs: { order_id: [1, "order_id"], item: [1, "item"] }, attrs: _c019, decls: 1, vars: 1, consts: [[1, "relative", "h-14", "w-16", "text-right"], ["arm", "", 1, "absolute", "left-1/2", "top-1/2", "h-16", "w-4", "-translate-x-px", "-translate-y-full", "border-b-2", "border-l-2", "border-base-200"], [1, "mr-4", "w-12"], ["action", "", "icon", "", "matRipple", "", 1, "text-dark-fade", "border-2", "border-dashed", "border-base-200", "p-2", "text-xl", 3, "click"], [1, "flex", "flex-1", "items-center", "space-x-4", "border-b", "border-solid", "border-base-200", "py-4"], [1, ""], [1, "flex", "h-10", "w-10", "items-center", "justify-center", "rounded-full", "bg-base-300", "p-1", "font-mono", "text-sm"], [1, "flex-1"], [1, "mr-2", "flex", "space-x-2", "px-4"], [1, "rounded-2xl", "bg-warning", "px-2", "py-1", "text-xs", "text-warning-content", "shadow-sm"]], template: function CateringOrderItemComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275conditionalCreate(0, CateringOrderItemComponent_Conditional_0_Template, 15, 9);
   }
@@ -15615,7 +15608,7 @@ var CateringOrderItemComponent = _CateringOrderItemComponent;
                     @for (opt of item().option_list; track opt) {
                         @if (opt) {
                             <div
-                                class="rounded-2xl bg-warning px-2 py-1 text-xs text-warning-content shadow"
+                                class="rounded-2xl bg-warning px-2 py-1 text-xs text-warning-content shadow-sm"
                             >
                                 {{ opt.name }}
                             </div>
@@ -15955,7 +15948,7 @@ var _CateringOrderListComponent = class _CateringOrderListComponent extends Asyn
 _CateringOrderListComponent.\u0275fac = function CateringOrderListComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _CateringOrderListComponent)();
 };
-_CateringOrderListComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CateringOrderListComponent, selectors: [["catering-order-list"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 27, vars: 61, consts: [["state_template", ""], ["time_template", ""], ["location_template", ""], ["host_template", ""], ["status_template", ""], ["actions_template", ""], ["child_template", ""], ["menu", "matMenu"], ["notes_template", ""], [1, "flex", "h-full", "w-full", "flex-col", "overflow-auto"], ["mode", "indeterminate", 1, "sticky", "left-0", "top-0", "w-full"], [1, "block", "w-full", "min-w-[72rem]", "text-sm", 3, "data", "columns", "sortable", "show_children", "child_template", "empty_message"], [1, "p-2"], [1, "flex", "items-center", "justify-center", "rounded-full", "bg-base-200", "p-2", "text-2xl"], [1, "p-4"], [1, "text-xs", "opacity-30"], [1, "px-4", "py-2"], [1, "opacity-30"], ["status", "", "matRipple", "", 1, "flex", "h-10", "w-36", "items-center", "rounded-3xl", "border-none", "px-4", "text-base", "text-white", 3, "matMenuTriggerFor"], [1, "mx-2", "flex", "text-center", "capitalize"], [1, "pl-2"], ["mat-menu-item", "", 1, "flex", "items-center"], ["mat-menu-item", "", 1, "flex", "items-center", 3, "click"], [1, "flex", "items-center", "space-x-2"], [1, "mr-2", "h-4", "w-4", "rounded-full"], [1, "mr-2", "w-20"], [1, "mx-auto", "flex", "items-center", "space-x-2", "p-2"], ["icon", "", "matRipple", "", "customTooltip", "", "xPosition", "end", "yPosition", "top", 3, "hover", "content", "disabled"], ["icon", "", "matRipple", "", 3, "click"], [1, "min-w-[8rem]", "max-w-[32rem]", "rounded-lg", "border", "border-base-200", "bg-base-100", "p-2", "text-base-content", "shadow"], [1, "mb-2"], [1, "rounded", "bg-base-200", "px-4", "py-2", "text-sm"], [1, "relative", "z-0", "m-0", "w-full", "list-none", "p-0"], ["catering-order-item", "", 1, "flex", "items-center", 3, "order_id", "item"]], template: function CateringOrderListComponent_Template(rf, ctx) {
+_CateringOrderListComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CateringOrderListComponent, selectors: [["catering-order-list"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 27, vars: 61, consts: [["state_template", ""], ["time_template", ""], ["location_template", ""], ["host_template", ""], ["status_template", ""], ["actions_template", ""], ["child_template", ""], ["menu", "matMenu"], ["notes_template", ""], [1, "flex", "h-full", "w-full", "flex-col", "overflow-auto"], ["mode", "indeterminate", 1, "sticky", "left-0", "top-0", "w-full"], [1, "block", "w-full", "min-w-6xl", "text-sm", 3, "data", "columns", "sortable", "show_children", "child_template", "empty_message"], [1, "p-2"], [1, "flex", "items-center", "justify-center", "rounded-full", "bg-base-200", "p-2", "text-2xl"], [1, "p-4"], [1, "text-xs", "opacity-30"], [1, "px-4", "py-2"], [1, "opacity-30"], ["status", "", "matRipple", "", 1, "flex", "h-10", "w-36", "items-center", "rounded-3xl", "border-none", "px-4", "text-base", "text-white", 3, "matMenuTriggerFor"], [1, "mx-2", "flex", "text-center", "capitalize"], [1, "pl-2"], ["mat-menu-item", "", 1, "flex", "items-center"], ["mat-menu-item", "", 1, "flex", "items-center", 3, "click"], [1, "flex", "items-center", "space-x-2"], [1, "mr-2", "h-4", "w-4", "rounded-full"], [1, "mr-2", "w-20"], [1, "mx-auto", "flex", "items-center", "space-x-2", "p-2"], ["icon", "", "matRipple", "", "customTooltip", "", "xPosition", "end", "yPosition", "top", 3, "hover", "content", "disabled"], ["icon", "", "matRipple", "", 3, "click"], [1, "min-w-32", "max-w-lg", "rounded-lg", "border", "border-base-200", "bg-base-100", "p-2", "text-base-content", "shadow-sm"], [1, "mb-2"], [1, "rounded-sm", "bg-base-200", "px-4", "py-2", "text-sm"], [1, "relative", "z-0", "m-0", "w-full", "list-none", "p-0"], ["catering-order-item", "", 1, "flex", "items-center", 3, "order_id", "item"]], template: function CateringOrderListComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 9);
     \u0275\u0275element(1, "mat-progress-bar", 10);
@@ -16017,7 +16010,7 @@ var CateringOrderListComponent = _CateringOrderListComponent;
                 mode="indeterminate"
             ></mat-progress-bar>
             <simple-table
-                class="block w-full min-w-[72rem] text-sm"
+                class="block w-full min-w-6xl text-sm"
                 [data]="order_list"
                 [columns]="[
                     {
@@ -16184,12 +16177,12 @@ var CateringOrderListComponent = _CateringOrderListComponent;
                     </button>
                     <ng-template #notes_template>
                         <div
-                            class="min-w-[8rem] max-w-[32rem] rounded-lg border border-base-200 bg-base-100 p-2 text-base-content shadow"
+                            class="min-w-32 max-w-lg rounded-lg border border-base-200 bg-base-100 p-2 text-base-content shadow-sm"
                         >
                             <div class="mb-2">
                                 {{ 'FORM.NOTES' | translate }}
                             </div>
-                            <p class="rounded bg-base-200 px-4 py-2 text-sm">
+                            <p class="rounded-sm bg-base-200 px-4 py-2 text-sm">
                                 {{ row.notes }}
                             </p>
                         </div>
@@ -16449,7 +16442,7 @@ code-2,Another Code`;
 _ChargeCodeListModalComponent.\u0275fac = function ChargeCodeListModalComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _ChargeCodeListModalComponent)();
 };
-_ChargeCodeListModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ChargeCodeListModalComponent, selectors: [["charge-code-list-modal"]], decls: 8, vars: 6, consts: [[1, "sticky", "top-0", "z-10", "m-2", "w-[calc(100%-1rem)]", "rounded", "border-none", "bg-base-200", "p-2"], [1, "px-2", "text-xl", "font-medium"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "flex", "max-h-[65vh]", "min-h-[20rem]", "flex-col", "overflow-auto"], [1, "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-20"], [1, "flex", "items-center", "space-x-2", "border-t", "border-base-200", "p-2"], [1, "flex", "h-full", "min-h-[20rem]", "w-full", "flex-col", "items-center", "justify-center", "space-y-2"], [1, "flex", "w-full", "items-center", "space-x-2", "px-2", "py-1", "hover:bg-base-200"], ["appearance", "outline", 1, "no-subscript", "flex-1"], ["matInput", "", 3, "ngModelChange", "ngModel", "placeholder"], ["icon", "", "matRipple", "", 1, "h-12", "w-12", "rounded", "border", "border-error", "text-error", 3, "click", "matTooltip"], [1, "text-2xl"], [1, "opacity-30"], ["diameter", "32"], ["btn", "", "matRipple", "", 1, "inverse", "relative", "w-48"], ["type", "file", 1, "absolute", "inset-0", "opacity-0", 3, "change"], ["icon", "", "matRipple", "", 1, "h-12", "w-12", "rounded", "border", "border-secondary", "text-secondary", 3, "click", "matTooltip"], ["btn", "", "matRipple", "", 1, "w-48", 3, "click"]], template: function ChargeCodeListModalComponent_Template(rf, ctx) {
+_ChargeCodeListModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ChargeCodeListModalComponent, selectors: [["charge-code-list-modal"]], decls: 8, vars: 6, consts: [[1, "sticky", "top-0", "z-10", "m-2", "w-[calc(100%-1rem)]", "rounded-sm", "border-none", "bg-base-200", "p-2"], [1, "px-2", "text-xl", "font-medium"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "flex", "max-h-[65vh]", "min-h-80", "flex-col", "overflow-auto"], [1, "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-20"], [1, "flex", "items-center", "space-x-2", "border-t", "border-base-200", "p-2"], [1, "flex", "h-full", "min-h-80", "w-full", "flex-col", "items-center", "justify-center", "space-y-2"], [1, "flex", "w-full", "items-center", "space-x-2", "px-2", "py-1", "hover:bg-base-200"], ["appearance", "outline", 1, "no-subscript", "flex-1"], ["matInput", "", 3, "ngModelChange", "ngModel", "placeholder"], ["icon", "", "matRipple", "", 1, "h-12", "w-12", "rounded-sm", "border", "border-error", "text-error", 3, "click", "matTooltip"], [1, "text-2xl"], [1, "opacity-30"], ["diameter", "32"], ["btn", "", "matRipple", "", 1, "inverse", "relative", "w-48"], ["type", "file", 1, "absolute", "inset-0", "opacity-0", 3, "change"], ["icon", "", "matRipple", "", 1, "h-12", "w-12", "rounded-sm", "border", "border-secondary", "text-secondary", 3, "click", "matTooltip"], ["btn", "", "matRipple", "", 1, "w-48", 3, "click"]], template: function ChargeCodeListModalComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "header", 0)(1, "h2", 1);
     \u0275\u0275text(2);
@@ -16494,7 +16487,7 @@ var ChargeCodeListModalComponent = _ChargeCodeListModalComponent;
     type: Component,
     args: [{ selector: "charge-code-list-modal", template: `
         <header
-            class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded border-none bg-base-200 p-2"
+            class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none bg-base-200 p-2"
         >
             <h2 class="px-2 text-xl font-medium">
                 {{ 'CATERING.CHARGE_CODES_EDIT' | translate }}
@@ -16507,7 +16500,7 @@ var ChargeCodeListModalComponent = _ChargeCodeListModalComponent;
         </header>
         @if (!loading()) {
             <main
-                class="flex max-h-[65vh] min-h-[20rem] flex-col overflow-auto"
+                class="flex max-h-[65vh] min-h-80 flex-col overflow-auto"
             >
                 @if (charge_codes().length) {
                     @for (code of charge_codes(); track i; let i = $index) {
@@ -16529,7 +16522,7 @@ var ChargeCodeListModalComponent = _ChargeCodeListModalComponent;
                             <button
                                 icon
                                 matRipple
-                                class="h-12 w-12 rounded border border-error text-error"
+                                class="h-12 w-12 rounded-sm border border-error text-error"
                                 [matTooltip]="
                                     'CATERING.CHARGE_CODES_REMOVE' | translate
                                 "
@@ -16541,7 +16534,7 @@ var ChargeCodeListModalComponent = _ChargeCodeListModalComponent;
                     }
                 } @else {
                     <main
-                        class="flex h-full min-h-[20rem] w-full flex-col items-center justify-center space-y-2"
+                        class="flex h-full min-h-80 w-full flex-col items-center justify-center space-y-2"
                     >
                         <p class="opacity-30">
                             {{ 'CATERING.CHARGE_CODE_EMPTY' | translate }}
@@ -16574,7 +16567,7 @@ var ChargeCodeListModalComponent = _ChargeCodeListModalComponent;
                     matRipple
                     (click)="downloadTemplate()"
                     [matTooltip]="'CATERING.CHARGE_CODE_DOWNLOAD' | translate"
-                    class="h-12 w-12 rounded border border-secondary text-secondary"
+                    class="h-12 w-12 rounded-sm border border-secondary text-secondary"
                 >
                     <icon>download</icon>
                 </button>
@@ -17153,7 +17146,7 @@ _MeetingFlowConfirmModalComponent.\u0275fac = /* @__PURE__ */ (() => {
     return (\u0275MeetingFlowConfirmModalComponent_BaseFactory || (\u0275MeetingFlowConfirmModalComponent_BaseFactory = \u0275\u0275getInheritedFactory(_MeetingFlowConfirmModalComponent)))(__ngFactoryType__ || _MeetingFlowConfirmModalComponent);
   };
 })();
-_MeetingFlowConfirmModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _MeetingFlowConfirmModalComponent, selectors: [["meeting-flow-confirm-modal"]], inputs: { show_close: [1, "show_close"] }, outputs: { show_close: "show_closeChange" }, features: [\u0275\u0275ProvidersFeature([SpacePipe]), \u0275\u0275InheritDefinitionFeature], decls: 38, vars: 25, consts: [["chipList", ""], [1, "sticky", "top-0", "z-10", "m-2", "flex", "h-14", "w-[40rem]", "max-w-full", "items-center", "justify-between", "rounded", "border-none", "bg-base-200", "px-4", "py-2"], [1, "text-xl", "font-medium", "capitalize"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], ["diameter", "32", 1, "absolute", "right-2", "top-1/2", "-translate-y-1/2"], [1, "max-w-screen", "grid", "max-h-[65vh]", "w-full", "flex-1", "grid-cols-2", "gap-4", "overflow-auto", "px-4", "pb-4", "pt-2"], [1, "mb-2", "flex", "items-center", "space-x-4"], [1, "flex", "items-center", "justify-center", "rounded-full", "border", "border-success", "text-success"], [1, "text-2xl"], [1, "text-xl"], [1, "space-y-1", "pl-10"], [1, "flex", "items-center", "space-x-2"], ["date", ""], [1, "flex", "flex-col", "leading-tight"], ["time", ""], [1, "text-xs", "opacity-30"], [1, "col-span-2"], [1, "relative", "space-y-2", "py-4", "pl-16", "pr-4"], [1, "col-span-2", "mt-2", "rounded", "!border-none", "bg-warning", "px-2", "py-1", "text-center", "text-sm", "text-warning-content"], [1, "flex", "items-center", "justify-end", "border-t", "border-base-200", "p-2"], ["attendee-list", "", 1, "pl-10"], ["aria-label", "User selection"], [1, "flex", "items-center"], [1, "mr-2"], [1, "w-full"], [1, "col-span-2", "mt-4", "w-full"], [1, "flex", "w-full", "flex-col", "space-y-2", "pl-12"], ["order", "", 1, "overflow-hidden", "rounded-xl", "border", "bg-base-100", 3, "border-error", "border-base-300"], ["order", "", 1, "overflow-hidden", "rounded-xl", "border", "bg-base-100"], [1, "flex", "items-center", "space-x-2", "p-3"], [1, "flex", "flex-1", "items-center", "space-x-2"], [1, "text-sm"], [1, "flex", "h-6", "w-6", "items-center", "justify-center", "rounded-full", "bg-error", "text-error-content", 3, "matTooltip"], [1, "flex-1"], [1, "rounded", "bg-success", "px-2", "py-1", "text-xs", "text-success-content"], [1, "rounded", "bg-info", "px-2", "py-1", "text-xs", "text-info-content"], [1, "flex", "flex-col", "divide-y", "divide-base-100", "bg-base-200"], [1, "flex", "items-center", "space-x-2", "px-3", "py-1", "hover:opacity-90"], [1, "flex", "flex-1", "items-center"], [1, "ml-4", "text-xs", "font-normal", "opacity-60", 3, "matTooltip"], ["request", "", 1, "w-full", "overflow-hidden", "rounded-xl", "border", "bg-base-100", 3, "border-error", "border-base-300"], ["request", "", 1, "w-full", "overflow-hidden", "rounded-xl", "border", "bg-base-100"], [1, "absolute", "left-4", "top-4", "flex", "items-center", "justify-center", "rounded-full", "border", "border-success", "text-2xl", "text-success"], [1, "!mt-0", "text-xl"], [3, "innerHTML"], ["btn", "", "name", "confirm-meeting", "matRipple", "", 1, "w-32", 3, "click"]], template: function MeetingFlowConfirmModalComponent_Template(rf, ctx) {
+_MeetingFlowConfirmModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _MeetingFlowConfirmModalComponent, selectors: [["meeting-flow-confirm-modal"]], inputs: { show_close: [1, "show_close"] }, outputs: { show_close: "show_closeChange" }, features: [\u0275\u0275ProvidersFeature([SpacePipe]), \u0275\u0275InheritDefinitionFeature], decls: 38, vars: 25, consts: [["chipList", ""], [1, "sticky", "top-0", "z-10", "m-2", "flex", "h-14", "w-160", "max-w-full", "items-center", "justify-between", "rounded-sm", "border-none", "bg-base-200", "px-4", "py-2"], [1, "text-xl", "font-medium", "capitalize"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], ["diameter", "32", 1, "absolute", "right-2", "top-1/2", "-translate-y-1/2"], [1, "max-w-screen", "grid", "max-h-[65vh]", "w-full", "flex-1", "grid-cols-2", "gap-4", "overflow-auto", "px-4", "pb-4", "pt-2"], [1, "mb-2", "flex", "items-center", "space-x-4"], [1, "flex", "items-center", "justify-center", "rounded-full", "border", "border-success", "text-success"], [1, "text-2xl"], [1, "text-xl"], [1, "space-y-1", "pl-10"], [1, "flex", "items-center", "space-x-2"], ["date", ""], [1, "flex", "flex-col", "leading-tight"], ["time", ""], [1, "text-xs", "opacity-30"], [1, "col-span-2"], [1, "relative", "space-y-2", "py-4", "pl-16", "pr-4"], [1, "col-span-2", "mt-2", "rounded-sm", "border-none!", "bg-warning", "px-2", "py-1", "text-center", "text-sm", "text-warning-content"], [1, "flex", "items-center", "justify-end", "border-t", "border-base-200", "p-2"], ["attendee-list", "", 1, "pl-10"], ["aria-label", "User selection"], [1, "flex", "items-center"], [1, "mr-2"], [1, "w-full"], [1, "col-span-2", "mt-4", "w-full"], [1, "flex", "w-full", "flex-col", "space-y-2", "pl-12"], ["order", "", 1, "overflow-hidden", "rounded-xl", "border", "bg-base-100", 3, "border-error", "border-base-300"], ["order", "", 1, "overflow-hidden", "rounded-xl", "border", "bg-base-100"], [1, "flex", "items-center", "space-x-2", "p-3"], [1, "flex", "flex-1", "items-center", "space-x-2"], [1, "text-sm"], [1, "flex", "h-6", "w-6", "items-center", "justify-center", "rounded-full", "bg-error", "text-error-content", 3, "matTooltip"], [1, "flex-1"], [1, "rounded-sm", "bg-success", "px-2", "py-1", "text-xs", "text-success-content"], [1, "rounded-sm", "bg-info", "px-2", "py-1", "text-xs", "text-info-content"], [1, "flex", "flex-col", "divide-y", "divide-base-100", "bg-base-200"], [1, "flex", "items-center", "space-x-2", "px-3", "py-1", "hover:opacity-90"], [1, "flex", "flex-1", "items-center"], [1, "ml-4", "text-xs", "font-normal", "opacity-60", 3, "matTooltip"], ["request", "", 1, "w-full", "overflow-hidden", "rounded-xl", "border", "bg-base-100", 3, "border-error", "border-base-300"], ["request", "", 1, "w-full", "overflow-hidden", "rounded-xl", "border", "bg-base-100"], [1, "absolute", "left-4", "top-4", "flex", "items-center", "justify-center", "rounded-full", "border", "border-success", "text-2xl", "text-success"], [1, "mt-0!", "text-xl"], [3, "innerHTML"], ["btn", "", "name", "confirm-meeting", "matRipple", "", 1, "w-32", 3, "click"]], template: function MeetingFlowConfirmModalComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "header", 1)(1, "h2", 2);
     \u0275\u0275text(2);
@@ -17248,7 +17241,7 @@ var MeetingFlowConfirmModalComponent = _MeetingFlowConfirmModalComponent;
     type: Component,
     args: [{ selector: "meeting-flow-confirm-modal", template: `
         <header
-            class="sticky top-0 z-10 m-2 flex h-14 w-[40rem] max-w-full items-center justify-between rounded border-none bg-base-200 px-4 py-2"
+            class="sticky top-0 z-10 m-2 flex h-14 w-160 max-w-full items-center justify-between rounded-sm border-none bg-base-200 px-4 py-2"
         >
             <h2 class="text-xl font-medium capitalize">
                 {{ 'APP.WORKPLACE.MEETING_CONFIRM' | translate }}
@@ -17429,7 +17422,7 @@ var MeetingFlowConfirmModalComponent = _MeetingFlowConfirmModalComponent;
                                                 }
                                                 <div class="flex-1"></div>
                                                 <div
-                                                    class="rounded bg-success px-2 py-1 text-xs text-success-content"
+                                                    class="rounded-sm bg-success px-2 py-1 text-xs text-success-content"
                                                 >
                                                     {{
                                                         'COMMON.ITEM_COUNT'
@@ -17440,7 +17433,7 @@ var MeetingFlowConfirmModalComponent = _MeetingFlowConfirmModalComponent;
                                                     }}
                                                 </div>
                                                 <div
-                                                    class="rounded bg-info px-2 py-1 text-xs text-info-content"
+                                                    class="rounded-sm bg-info px-2 py-1 text-xs text-info-content"
                                                 >
                                                     Total:
                                                     {{
@@ -17494,12 +17487,12 @@ var MeetingFlowConfirmModalComponent = _MeetingFlowConfirmModalComponent;
                                                         }
                                                     </div>
                                                     <div
-                                                        class="rounded bg-success px-2 py-1 text-xs text-success-content"
+                                                        class="rounded-sm bg-success px-2 py-1 text-xs text-success-content"
                                                     >
                                                         x{{ item.quantity }}
                                                     </div>
                                                     <div
-                                                        class="rounded bg-info px-2 py-1 text-xs text-info-content"
+                                                        class="rounded-sm bg-info px-2 py-1 text-xs text-info-content"
                                                     >
                                                         {{
                                                             item.unit_price_with_options /
@@ -17510,7 +17503,7 @@ var MeetingFlowConfirmModalComponent = _MeetingFlowConfirmModalComponent;
                                                         ea
                                                     </div>
                                                     <div
-                                                        class="rounded bg-info px-2 py-1 text-xs text-info-content"
+                                                        class="rounded-sm bg-info px-2 py-1 text-xs text-info-content"
                                                     >
                                                         {{
                                                             item.total_cost /
@@ -17588,7 +17581,7 @@ var MeetingFlowConfirmModalComponent = _MeetingFlowConfirmModalComponent;
                                                 }
                                                 <div class="flex-1"></div>
                                                 <div
-                                                    class="rounded bg-success px-2 py-1 text-xs text-success-content"
+                                                    class="rounded-sm bg-success px-2 py-1 text-xs text-success-content"
                                                 >
                                                     {{
                                                         'COMMON.ITEM_COUNT'
@@ -17618,7 +17611,7 @@ var MeetingFlowConfirmModalComponent = _MeetingFlowConfirmModalComponent;
                                                         }}</span>
                                                     </div>
                                                     <div
-                                                        class="rounded bg-success px-2 py-1 text-xs text-success-content"
+                                                        class="rounded-sm bg-success px-2 py-1 text-xs text-success-content"
                                                     >
                                                         x{{ item.quantity }}
                                                     </div>
@@ -17639,7 +17632,7 @@ var MeetingFlowConfirmModalComponent = _MeetingFlowConfirmModalComponent;
                     >
                         <icon>done</icon>
                     </div>
-                    <h3 class="!mt-0 text-xl">
+                    <h3 class="mt-0! text-xl">
                         {{ 'CALENDAR_EVENT.NOTES_HEADER' | translate }}
                     </h3>
                     <div [innerHTML]="event.body | sanitize"></div>
@@ -17647,7 +17640,7 @@ var MeetingFlowConfirmModalComponent = _MeetingFlowConfirmModalComponent;
             }
             @if (requires_approval) {
                 <div
-                    class="col-span-2 mt-2 rounded !border-none bg-warning px-2 py-1 text-center text-sm text-warning-content"
+                    class="col-span-2 mt-2 rounded-sm border-none! bg-warning px-2 py-1 text-center text-sm text-warning-content"
                 >
                     {{ 'CALENDAR_EVENT.APPROVAL_REQUIRED_MSG' | translate }}
                 </div>
@@ -18939,9 +18932,9 @@ var _MeetingFlowFormComponent = class _MeetingFlowFormComponent extends AsyncHan
       if (!d)
         return;
       this.form.patchValue({
-        date: ref.componentInstance.date,
-        attendees: ref.componentInstance.users.getValue(),
-        duration: ref.componentInstance.duration
+        date: ref.componentInstance.date(),
+        attendees: ref.componentInstance.users(),
+        duration: ref.componentInstance.duration()
       });
     });
   }
@@ -18960,7 +18953,7 @@ _MeetingFlowFormComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponen
   if (rf & 2) {
     \u0275\u0275queryAdvance(2);
   }
-}, features: [\u0275\u0275InheritDefinitionFeature], decls: 6, vars: 4, consts: [["input", ""], [1, "h-full", "w-full", "overflow-auto", "bg-base-200"], [1, "mx-auto", "w-[48rem]", "max-w-full", "border", "border-base-300", "bg-base-100", "sm:my-4"], [1, "w-full", "border-b", "border-base-300", "p-4", "text-2xl", "font-medium", "sm:px-16", "sm:py-4"], [1, "space-y-2", "divide-y", "divide-base-200", "p-0", "sm:px-16", "sm:py-4", 3, "formGroup"], [1, "p-2"], [1, "flex", "items-center", "space-x-2"], [1, "flex", "h-6", "w-6", "items-center", "justify-center", "rounded-full", "bg-base-200"], [1, "text-xl"], [1, "w-px", "flex-1"], ["icon", "", "name", "toggle-details-meeting", "matRipple", "", 3, "click"], [1, "overflow-hidden"], [1, "mt-4", 3, "form"], ["icon", "", "name", "toggle-spaces-meeting", "matRipple", "", 3, "click"], [1, "flex", "flex-col", "items-center", "overflow-hidden"], [1, "mx-auto", "my-2", "inline-flex", "rounded", "bg-warning", "p-2", "text-xs", "text-warning-content", "shadow"], ["formControlName", "resources", 1, "w-full", 3, "multiday"], [1, "flex", "flex-col", "items-center", "p-2", "sm:flex-row", "sm:space-x-2"], ["btn", "", "name", "open-meeting-confirm", "matRipple", "", "confirm", "", 1, "mb-2", "w-full", "sm:mb-0", "sm:w-auto", 3, "click"], ["btn", "", "name", "clear-form-meeting", "matRipple", "", "clear-form", "", 1, "inverse", "w-full", "sm:w-auto", 3, "click"], ["matRipple", "", "name", "find-attendee-availability", 1, "bg-none", "text-xs", "text-info", "underline", 3, "click"], ["icon", "", "name", "toggle-attendees-meeting", "matRipple", "", 3, "click"], ["formControlName", "attendees", 1, "mt-4", 3, "time", "guests"], ["icon", "", "name", "toggle-catering-meeting", "matRipple", "", 3, "click"], ["formControlName", "catering", 3, "options"], ["appearance", "outline", 1, "mt-2", "w-full"], ["appearance", "outline", 1, "w-full", 3, "mt-2"], ["appearance", "outline", 1, "mt-2", "w-full", 3, "openedChange"], ["formControlName", "catering_charge_code", 3, "placeholder"], [1, "sticky", "top-0", "z-50", "w-full", "rounded-none", "border-x-0", "border-b", "border-t-0", "border-base-200", "bg-base-100", "px-4", "py-3", "text-base", "focus:border-b", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [1, "hidden"], [3, "value"], ["appearance", "outline", 1, "w-full"], ["matInput", "", "formControlName", "catering_notes", 3, "placeholder"], ["icon", "", "name", "toggle-assets-meeting", "matRipple", "", 3, "click"], ["formControlName", "assets", 3, "options", "rejected_ids"], [1, "mb-4", "flex", "items-center", "space-x-2"], [1, "flex", "w-full", "flex-col"], ["for", "notes"], ["name", "notes", "formControlName", "body", 3, "placeholder"]], template: function MeetingFlowFormComponent_Template(rf, ctx) {
+}, features: [\u0275\u0275InheritDefinitionFeature], decls: 6, vars: 4, consts: [["input", ""], [1, "h-full", "w-full", "overflow-auto", "bg-base-200"], [1, "mx-auto", "w-3xl", "max-w-full", "border", "border-base-300", "bg-base-100", "sm:my-4"], [1, "w-full", "border-b", "border-base-300", "p-4", "text-2xl", "font-medium", "sm:px-16", "sm:py-4"], [1, "space-y-2", "divide-y", "divide-base-200", "p-0", "sm:px-16", "sm:py-4", 3, "formGroup"], [1, "p-2"], [1, "flex", "items-center", "space-x-2"], [1, "flex", "h-6", "w-6", "items-center", "justify-center", "rounded-full", "bg-base-200"], [1, "text-xl"], [1, "w-px", "flex-1"], ["icon", "", "name", "toggle-details-meeting", "matRipple", "", 3, "click"], [1, "overflow-hidden"], [1, "mt-4", 3, "form"], ["icon", "", "name", "toggle-spaces-meeting", "matRipple", "", 3, "click"], [1, "flex", "flex-col", "items-center", "overflow-hidden"], [1, "mx-auto", "my-2", "inline-flex", "rounded-sm", "bg-warning", "p-2", "text-xs", "text-warning-content", "shadow-sm"], ["formControlName", "resources", 1, "w-full", 3, "multiday"], [1, "flex", "flex-col", "items-center", "p-2", "sm:flex-row", "sm:space-x-2"], ["btn", "", "name", "open-meeting-confirm", "matRipple", "", "confirm", "", 1, "mb-2", "w-full", "sm:mb-0", "sm:w-auto", 3, "click"], ["btn", "", "name", "clear-form-meeting", "matRipple", "", "clear-form", "", 1, "inverse", "w-full", "sm:w-auto", 3, "click"], ["matRipple", "", "name", "find-attendee-availability", 1, "bg-none", "text-xs", "text-info", "underline", 3, "click"], ["icon", "", "name", "toggle-attendees-meeting", "matRipple", "", 3, "click"], ["formControlName", "attendees", 1, "mt-4", 3, "time", "guests"], ["icon", "", "name", "toggle-catering-meeting", "matRipple", "", 3, "click"], ["formControlName", "catering", 3, "options"], ["appearance", "outline", 1, "mt-2", "w-full"], ["appearance", "outline", 1, "w-full", 3, "mt-2"], ["appearance", "outline", 1, "mt-2", "w-full", 3, "openedChange"], ["formControlName", "catering_charge_code", 3, "placeholder"], [1, "sticky", "top-0", "z-50", "w-full", "rounded-none", "border-x-0", "border-b", "border-t-0", "border-base-200", "bg-base-100", "px-4", "py-3", "text-base", "focus:border-b", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [1, "hidden"], [3, "value"], ["appearance", "outline", 1, "w-full"], ["matInput", "", "formControlName", "catering_notes", 3, "placeholder"], ["icon", "", "name", "toggle-assets-meeting", "matRipple", "", 3, "click"], ["formControlName", "assets", 3, "options", "rejected_ids"], [1, "mb-4", "flex", "items-center", "space-x-2"], [1, "flex", "w-full", "flex-col"], ["for", "notes"], ["name", "notes", "formControlName", "body", 3, "placeholder"]], template: function MeetingFlowFormComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 1)(1, "div", 2)(2, "h2", 3);
     \u0275\u0275text(3);
@@ -19010,7 +19003,7 @@ var MeetingFlowFormComponent = _MeetingFlowFormComponent;
     args: [{ selector: "meeting-flow-form", template: `
         <div class="h-full w-full overflow-auto bg-base-200">
             <div
-                class="mx-auto w-[48rem] max-w-full border border-base-300 bg-base-100 sm:my-4"
+                class="mx-auto w-3xl max-w-full border border-base-300 bg-base-100 sm:my-4"
             >
                 <h2
                     class="w-full border-b border-base-300 p-4 text-2xl font-medium sm:px-16 sm:py-4"
@@ -19155,7 +19148,7 @@ var MeetingFlowFormComponent = _MeetingFlowFormComponent;
                                         form.value.attendees?.length
                                 ) {
                                     <div
-                                        class="mx-auto my-2 inline-flex rounded bg-warning p-2 text-xs text-warning-content shadow"
+                                        class="mx-auto my-2 inline-flex rounded-sm bg-warning p-2 text-xs text-warning-content shadow-sm"
                                     >
                                         {{
                                             'CALENDAR_EVENT.CAPACITY_WARNING'
@@ -19622,7 +19615,7 @@ var _MeetingFlowSuccessComponent = class _MeetingFlowSuccessComponent {
 _MeetingFlowSuccessComponent.\u0275fac = function MeetingFlowSuccessComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _MeetingFlowSuccessComponent)();
 };
-_MeetingFlowSuccessComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _MeetingFlowSuccessComponent, selectors: [["meeting-flow-success"]], decls: 5, vars: 16, consts: [[1, "absolute", "inset-0", "z-50", "flex", "flex-col", "overflow-auto", "bg-base-100"], [1, "flex", "flex-1", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], [1, "text-2xl", "font-medium"], ["src", "assets/icons/success.svg"], [1, "max-w-[32rem]", "text-center"], [1, "h-4"], ["btn", "", "matRipple", "", 1, "w-48"], [1, "sticky", "bottom-0", "mt-4", "flex", "w-full", "items-center", "justify-center", "border-t", "border-base-200", "bg-base-100", "p-2"], ["btn", "", "name", "meeting-created-continue", "matRipple", "", 1, "w-full", "max-w-[32rem]", 3, "routerLink"], ["btn", "", "matRipple", "", 1, "w-48", 3, "click"]], template: function MeetingFlowSuccessComponent_Template(rf, ctx) {
+_MeetingFlowSuccessComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _MeetingFlowSuccessComponent, selectors: [["meeting-flow-success"]], decls: 5, vars: 16, consts: [[1, "absolute", "inset-0", "z-50", "flex", "flex-col", "overflow-auto", "bg-base-100"], [1, "flex", "flex-1", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], [1, "text-2xl", "font-medium"], ["src", "assets/icons/success.svg"], [1, "max-w-lg", "text-center"], [1, "h-4"], ["btn", "", "matRipple", "", 1, "w-48"], [1, "sticky", "bottom-0", "mt-4", "flex", "w-full", "items-center", "justify-center", "border-t", "border-base-200", "bg-base-100", "p-2"], ["btn", "", "name", "meeting-created-continue", "matRipple", "", 1, "w-full", "max-w-lg", 3, "routerLink"], ["btn", "", "matRipple", "", 1, "w-48", 3, "click"]], template: function MeetingFlowSuccessComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275declareLet(0);
     \u0275\u0275pipe(1, "date");
@@ -19667,7 +19660,7 @@ var MeetingFlowSuccessComponent = _MeetingFlowSuccessComponent;
                         }}
                     </h2>
                     <img src="assets/icons/success.svg" />
-                    <p class="max-w-[32rem] text-center">
+                    <p class="max-w-lg text-center">
                         @if (last_event()?.all_day) {
                             {{
                                 (space
@@ -19712,7 +19705,7 @@ var MeetingFlowSuccessComponent = _MeetingFlowSuccessComponent;
                         btn
                         name="meeting-created-continue"
                         matRipple
-                        class="w-full max-w-[32rem]"
+                        class="w-full max-w-lg"
                         [routerLink]="['/']"
                     >
                         {{ 'APP.WORKPLACE.MEETING_FINISHED' | translate }}
@@ -19951,7 +19944,7 @@ _NewParkingFlowConfirmComponent.\u0275fac = /* @__PURE__ */ (() => {
     return (\u0275NewParkingFlowConfirmComponent_BaseFactory || (\u0275NewParkingFlowConfirmComponent_BaseFactory = \u0275\u0275getInheritedFactory(_NewParkingFlowConfirmComponent)))(__ngFactoryType__ || _NewParkingFlowConfirmComponent);
   };
 })();
-_NewParkingFlowConfirmComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewParkingFlowConfirmComponent, selectors: [["parking-flow-confirm"]], inputs: { show_close: [1, "show_close"] }, outputs: { show_close: "show_closeChange" }, features: [\u0275\u0275InheritDefinitionFeature], decls: 32, vars: 25, consts: [[1, "sticky", "top-2", "z-10", "mx-auto", "mb-4", "flex", "h-14", "w-full", "max-w-[calc(100%-1rem)]", "items-center", "justify-between", "rounded", "border-none", "bg-base-200", "px-4", "py-2"], [1, "m-0", "flex-1", "text-xl", "font-medium", "capitalize"], [1, ""], ["diameter", "32"], ["icon", "", "name", "close-locker-confirm", "matRipple", ""], ["period", "", 1, "flex", "space-x-1", "px-2", "py-4", "text-base"], [1, "text-2xl", "text-success"], ["details", "", 1, "space-y-2", "text-base"], [1, "text-xl"], [1, "flex", "items-center", "space-x-2"], ["date", ""], ["time", ""], ["resource", "", 1, "flex", "space-x-1", "border-t", "px-2", "py-4", "text-base"], [1, "mt-4", "w-full", "border-t", "border-base-200", "p-2"], ["confirm", "", "btn", "", "matRipple", "", 1, "w-full"], ["icon", "", "name", "close-locker-confirm", "matRipple", "", 3, "click"], [1, "text-2xl"], ["features", "", 1, "flex", "items-center", "space-x-2"], ["confirm", "", "btn", "", "matRipple", "", 1, "w-full", 3, "click"]], template: function NewParkingFlowConfirmComponent_Template(rf, ctx) {
+_NewParkingFlowConfirmComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewParkingFlowConfirmComponent, selectors: [["parking-flow-confirm"]], inputs: { show_close: [1, "show_close"] }, outputs: { show_close: "show_closeChange" }, features: [\u0275\u0275InheritDefinitionFeature], decls: 32, vars: 25, consts: [[1, "sticky", "top-2", "z-10", "mx-auto", "mb-4", "flex", "h-14", "w-full", "max-w-[calc(100%-1rem)]", "items-center", "justify-between", "rounded-sm", "border-none", "bg-base-200", "px-4", "py-2"], [1, "m-0", "flex-1", "text-xl", "font-medium", "capitalize"], [1, ""], ["diameter", "32"], ["icon", "", "name", "close-locker-confirm", "matRipple", ""], ["period", "", 1, "flex", "space-x-1", "px-2", "py-4", "text-base"], [1, "text-2xl", "text-success"], ["details", "", 1, "space-y-2", "text-base"], [1, "text-xl"], [1, "flex", "items-center", "space-x-2"], ["date", ""], ["time", ""], ["resource", "", 1, "flex", "space-x-1", "border-t", "px-2", "py-4", "text-base"], [1, "mt-4", "w-full", "border-t", "border-base-200", "p-2"], ["confirm", "", "btn", "", "matRipple", "", 1, "w-full"], ["icon", "", "name", "close-locker-confirm", "matRipple", "", 3, "click"], [1, "text-2xl"], ["features", "", 1, "flex", "items-center", "space-x-2"], ["confirm", "", "btn", "", "matRipple", "", 1, "w-full", 3, "click"]], template: function NewParkingFlowConfirmComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "header", 0)(1, "h2", 1);
     \u0275\u0275text(2);
@@ -20025,7 +20018,7 @@ var NewParkingFlowConfirmComponent = _NewParkingFlowConfirmComponent;
     type: Component,
     args: [{ selector: "parking-flow-confirm", template: `
         <header
-            class="sticky top-2 z-10 mx-auto mb-4 flex h-14 w-full max-w-[calc(100%-1rem)] items-center justify-between rounded border-none bg-base-200 px-4 py-2"
+            class="sticky top-2 z-10 mx-auto mb-4 flex h-14 w-full max-w-[calc(100%-1rem)] items-center justify-between rounded-sm border-none bg-base-200 px-4 py-2"
         >
             <h2 class="m-0 flex-1 text-xl font-medium capitalize">
                 {{ 'APP.WORKPLACE.PARKING_CONFIRM_TITLE' | translate }}
@@ -20585,7 +20578,7 @@ _ParkingFlowFormComponent.\u0275fac = /* @__PURE__ */ (() => {
     return (\u0275ParkingFlowFormComponent_BaseFactory || (\u0275ParkingFlowFormComponent_BaseFactory = \u0275\u0275getInheritedFactory(_ParkingFlowFormComponent)))(__ngFactoryType__ || _ParkingFlowFormComponent);
   };
 })();
-_ParkingFlowFormComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ParkingFlowFormComponent, selectors: [["parking-flow-form"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 39, vars: 21, consts: [[1, "h-full", "w-full", "overflow-auto", "bg-base-200"], [1, "mx-auto", "w-[48rem]", "max-w-full", "border", "border-base-200", "bg-base-100", "sm:my-4"], [1, "w-full", "border-b", "border-base-200", "p-4", "text-2xl", "font-medium", "sm:px-16", "sm:py-4"], [1, "space-y-2", "divide-y", "divide-base-200", "p-0", "sm:px-16", "sm:py-4", 3, "formGroup"], [1, "p-2"], [1, "flex", "items-center", "space-x-2"], [1, "flex", "h-6", "w-6", "items-center", "justify-center", "rounded-full", "bg-base-200"], [1, "text-xl"], [1, "w-px", "flex-1"], ["icon", "", "matRipple", "", 3, "click"], [1, "overflow-hidden"], [1, "mt-4", 3, "form"], ["formControlName", "resources"], [1, "flex", "flex-col", "items-center", "p-2", "sm:flex-row", "sm:space-x-2"], ["btn", "", "matRipple", "", "confirm", "", 1, "mb-2", "w-full", "sm:mb-0", "sm:w-auto", 3, "click"], ["btn", "", "matRipple", "", "clear-form", "", 1, "inverse", "w-full", "sm:w-auto", 3, "click"]], template: function ParkingFlowFormComponent_Template(rf, ctx) {
+_ParkingFlowFormComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ParkingFlowFormComponent, selectors: [["parking-flow-form"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 39, vars: 21, consts: [[1, "h-full", "w-full", "overflow-auto", "bg-base-200"], [1, "mx-auto", "w-3xl", "max-w-full", "border", "border-base-200", "bg-base-100", "sm:my-4"], [1, "w-full", "border-b", "border-base-200", "p-4", "text-2xl", "font-medium", "sm:px-16", "sm:py-4"], [1, "space-y-2", "divide-y", "divide-base-200", "p-0", "sm:px-16", "sm:py-4", 3, "formGroup"], [1, "p-2"], [1, "flex", "items-center", "space-x-2"], [1, "flex", "h-6", "w-6", "items-center", "justify-center", "rounded-full", "bg-base-200"], [1, "text-xl"], [1, "w-px", "flex-1"], ["icon", "", "matRipple", "", 3, "click"], [1, "overflow-hidden"], [1, "mt-4", 3, "form"], ["formControlName", "resources"], [1, "flex", "flex-col", "items-center", "p-2", "sm:flex-row", "sm:space-x-2"], ["btn", "", "matRipple", "", "confirm", "", 1, "mb-2", "w-full", "sm:mb-0", "sm:w-auto", 3, "click"], ["btn", "", "matRipple", "", "clear-form", "", 1, "inverse", "w-full", "sm:w-auto", 3, "click"]], template: function ParkingFlowFormComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "div", 1)(2, "h2", 2);
     \u0275\u0275text(3);
@@ -20688,7 +20681,7 @@ var ParkingFlowFormComponent = _ParkingFlowFormComponent;
     args: [{ selector: "parking-flow-form", template: `
         <div class="h-full w-full overflow-auto bg-base-200">
             <div
-                class="mx-auto w-[48rem] max-w-full border border-base-200 bg-base-100 sm:my-4"
+                class="mx-auto w-3xl max-w-full border border-base-200 bg-base-100 sm:my-4"
             >
                 <h2
                     class="w-full border-b border-base-200 p-4 text-2xl font-medium sm:px-16 sm:py-4"
@@ -20896,7 +20889,7 @@ var _ParkingFlowSuccessComponent = class _ParkingFlowSuccessComponent {
 _ParkingFlowSuccessComponent.\u0275fac = function ParkingFlowSuccessComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _ParkingFlowSuccessComponent)();
 };
-_ParkingFlowSuccessComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ParkingFlowSuccessComponent, selectors: [["parking-flow-success"]], decls: 17, vars: 27, consts: [[1, "absolute", "inset-0", "z-50", "flex", "flex-col", "overflow-auto", "bg-base-100"], [1, "flex", "flex-1", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], [1, "pb-4", "text-2xl", "font-medium"], [1, "max-w-[32rem]", "text-center"], ["src", "assets/icons/parking-success.svg", 1, "h-[20rem]"], [1, "relative", "flex", "flex-col", "items-center", "space-y-4", "p-4"], [1, "sticky", "bottom-0", "mt-4", "flex", "w-full", "items-center", "justify-center", "border-t", "border-base-200", "bg-base-100", "p-2"], ["btn", "", "matRipple", "", 1, "w-full", "max-w-[32rem]", 3, "routerLink"], ["btn", "", "matRipple", "", "name", "desk-outlook-link", "target", "_blank", "rel", "noopener noreferer", 1, "inverse", "flex", "w-64", "items-center", "space-x-2", "rounded", "p-2", "pr-4", 3, "href"], ["src", "assets/icons/outlook.svg", 1, "w-6"], ["btn", "", "matRipple", "", "name", "desk-google-link", "target", "_blank", "rel", "noopener noreferer", 1, "inverse", "flex", "w-64", "items-center", "space-x-2", "rounded", "p-2", "pr-4", 3, "href"], ["src", "assets/icons/gcal.svg", 1, "w-6"], ["btn", "", "matRipple", "", "name", "desk-ical-link", "target", "_blank", "rel", "noopener noreferer", 1, "inverse", "flex", "w-64", "items-center", "space-x-2", "rounded", "p-2", "pr-4", 3, "href"], [1, "text-xl"]], template: function ParkingFlowSuccessComponent_Template(rf, ctx) {
+_ParkingFlowSuccessComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ParkingFlowSuccessComponent, selectors: [["parking-flow-success"]], decls: 17, vars: 27, consts: [[1, "absolute", "inset-0", "z-50", "flex", "flex-col", "overflow-auto", "bg-base-100"], [1, "flex", "flex-1", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], [1, "pb-4", "text-2xl", "font-medium"], [1, "max-w-lg", "text-center"], ["src", "assets/icons/parking-success.svg", 1, "h-80"], [1, "relative", "flex", "flex-col", "items-center", "space-y-4", "p-4"], [1, "sticky", "bottom-0", "mt-4", "flex", "w-full", "items-center", "justify-center", "border-t", "border-base-200", "bg-base-100", "p-2"], ["btn", "", "matRipple", "", 1, "w-full", "max-w-lg", 3, "routerLink"], ["btn", "", "matRipple", "", "name", "desk-outlook-link", "target", "_blank", "rel", "noopener noreferer", 1, "inverse", "flex", "w-64", "items-center", "space-x-2", "rounded-sm", "p-2", "pr-4", 3, "href"], ["src", "assets/icons/outlook.svg", 1, "w-6"], ["btn", "", "matRipple", "", "name", "desk-google-link", "target", "_blank", "rel", "noopener noreferer", 1, "inverse", "flex", "w-64", "items-center", "space-x-2", "rounded-sm", "p-2", "pr-4", 3, "href"], ["src", "assets/icons/gcal.svg", 1, "w-6"], ["btn", "", "matRipple", "", "name", "desk-ical-link", "target", "_blank", "rel", "noopener noreferer", 1, "inverse", "flex", "w-64", "items-center", "space-x-2", "rounded-sm", "p-2", "pr-4", 3, "href"], [1, "text-xl"]], template: function ParkingFlowSuccessComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "main", 1)(2, "h2", 2);
     \u0275\u0275text(3);
@@ -20955,7 +20948,7 @@ var ParkingFlowSuccessComponent = _ParkingFlowSuccessComponent;
                 <h2 class="pb-4 text-2xl font-medium">
                     {{ 'APP.WORKPLACE.PARKING_SUCCESS_HEADER' | translate }}
                 </h2>
-                <p class="max-w-[32rem] text-center">
+                <p class="max-w-lg text-center">
                     {{
                         'APP.WORKPLACE.PARKING_SUCCESS_MSG'
                             | translate
@@ -20974,7 +20967,7 @@ var ParkingFlowSuccessComponent = _ParkingFlowSuccessComponent;
                                   }
                     }}
                 </p>
-                <img class="h-[20rem]" src="assets/icons/parking-success.svg" />
+                <img class="h-80" src="assets/icons/parking-success.svg" />
                 @if (show_links) {
                     <div
                         class="relative flex flex-col items-center space-y-4 p-4"
@@ -20983,7 +20976,7 @@ var ParkingFlowSuccessComponent = _ParkingFlowSuccessComponent;
                             btn
                             matRipple
                             name="desk-outlook-link"
-                            class="inverse flex w-64 items-center space-x-2 rounded p-2 pr-4"
+                            class="inverse flex w-64 items-center space-x-2 rounded-sm p-2 pr-4"
                             [href]="outlook_link | sanitize: 'url'"
                             target="_blank"
                             rel="noopener noreferer"
@@ -20997,7 +20990,7 @@ var ParkingFlowSuccessComponent = _ParkingFlowSuccessComponent;
                             btn
                             matRipple
                             name="desk-google-link"
-                            class="inverse flex w-64 items-center space-x-2 rounded p-2 pr-4"
+                            class="inverse flex w-64 items-center space-x-2 rounded-sm p-2 pr-4"
                             [href]="google_link | sanitize: 'url'"
                             target="_blank"
                             rel="noopener noreferer"
@@ -21011,7 +21004,7 @@ var ParkingFlowSuccessComponent = _ParkingFlowSuccessComponent;
                             btn
                             matRipple
                             name="desk-ical-link"
-                            class="inverse flex w-64 items-center space-x-2 rounded p-2 pr-4"
+                            class="inverse flex w-64 items-center space-x-2 rounded-sm p-2 pr-4"
                             [href]="ical_link | safe: 'url'"
                             target="_blank"
                             rel="noopener noreferer"
@@ -21028,7 +21021,7 @@ var ParkingFlowSuccessComponent = _ParkingFlowSuccessComponent;
                 <a
                     btn
                     matRipple
-                    class="w-full max-w-[32rem]"
+                    class="w-full max-w-lg"
                     [routerLink]="['/']"
                 >
                     {{ 'APP.WORKPLACE.BOOKING_FINISHED' | translate }}
@@ -21264,7 +21257,7 @@ var _VisitorFlowComponent = class _VisitorFlowComponent {
 _VisitorFlowComponent.\u0275fac = function VisitorFlowComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _VisitorFlowComponent)();
 };
-_VisitorFlowComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _VisitorFlowComponent, selectors: [["placeos-book-space-flow"]], decls: 3, vars: 0, consts: [[1, "h-full", "w-full", "overflow-auto", "bg-base-200"], [1, "mx-auto", "h-full", "w-full", "max-w-[48rem]", "overflow-hidden", "border", "border-base-200", "bg-base-100", "shadow", "sm:my-4", "sm:h-auto"], [3, "done"]], template: function VisitorFlowComponent_Template(rf, ctx) {
+_VisitorFlowComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _VisitorFlowComponent, selectors: [["placeos-book-space-flow"]], decls: 3, vars: 0, consts: [[1, "h-full", "w-full", "overflow-auto", "bg-base-200"], [1, "mx-auto", "h-full", "w-full", "max-w-3xl", "overflow-hidden", "border", "border-base-200", "bg-base-100", "shadow-sm", "sm:my-4", "sm:h-auto"], [3, "done"]], template: function VisitorFlowComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "div", 1)(2, "invite-visitor-form", 2);
     \u0275\u0275listener("done", function VisitorFlowComponent_Template_invite_visitor_form_done_2_listener() {
@@ -21280,7 +21273,7 @@ var VisitorFlowComponent = _VisitorFlowComponent;
     args: [{ selector: "placeos-book-space-flow", template: `
         <div class="h-full w-full overflow-auto bg-base-200">
             <div
-                class="mx-auto h-full w-full max-w-[48rem] overflow-hidden border border-base-200 bg-base-100 shadow sm:my-4 sm:h-auto"
+                class="mx-auto h-full w-full max-w-3xl overflow-hidden border border-base-200 bg-base-100 shadow-sm sm:my-4 sm:h-auto"
             >
                 <invite-visitor-form (done)="onDone()"></invite-visitor-form>
             </div>
@@ -21348,4 +21341,4 @@ var BookModule = _BookModule;
 export {
   BookModule
 };
-//# sourceMappingURL=book.module-PE3JX25P.js.map
+//# sourceMappingURL=book.module-IPIF4HNZ.js.map

@@ -1,7 +1,7 @@
 {
   "version": 3,
-  "sources": ["angular:styles/component:css;b7324cf5d2bd111c6716f17409d2973f4d73ed32e9a74c743442372902ffea8c;/home/runner/work/user-interfaces/user-interfaces/apps/workplace/src/app/landing/landing-availability.component.ts"],
-  "sourcesContent": ["\n            * {\n                flex-shrink: 0;\n            }\n        "],
-  "mappings": ";AACY;AACI,eAAa;AACjB;",
+  "sources": ["landing-availability.component.ts"],
+  "sourcesContent": ["\n            * {\n                shrink: 0;\n            }\n        "],
+  "mappings": ";AACY;AACI,UAAA;AACJ;",
   "names": []
 }

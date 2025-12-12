@@ -1,7 +1,7 @@
 {
   "version": 3,
-  "sources": ["angular:styles/component:css;e72ff6499190df1a26a0774bf65fe07318d67ad23844c1c7de3f5b2dfdc807aa;/home/runner/work/user-interfaces/user-interfaces/libs/form-fields/src/lib/recurrence-field.component.ts"],
+  "sources": ["recurrence-field.component.ts"],
   "sourcesContent": ["\n            [value] {\n                min-width: 3em;\n            }\n        "],
-  "mappings": ";AACY,CAAC;AACG,aAAW;AACf;",
+  "mappings": ";AACY,CAAA;AACI,aAAA;AACJ;",
   "names": []
 }

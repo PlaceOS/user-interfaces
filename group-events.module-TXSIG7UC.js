@@ -1,15 +1,9 @@
-import "./chunk-G54IFS6H.js";
-import "./chunk-5RS5W7HA.js";
-import {
-  GroupEventCardComponent
-} from "./chunk-EQ357IYW.js";
-import "./chunk-OEAJ52HN.js";
+import "./chunk-OUL5KCBM.js";
 import {
   FooterMenuComponent,
   TopbarComponent
-} from "./chunk-ISUINKPX.js";
+} from "./chunk-L4PPFGNC.js";
 import {
-  $c,
   AsyncHandler,
   AsyncPipe,
   BehaviorSubject,
@@ -18,8 +12,10 @@ import {
   DateCalendarComponent,
   DatePipe,
   FormsModule,
+  GroupEventCardComponent,
   IconComponent,
   Injectable,
+  Jc,
   MatCheckbox,
   MatCheckboxModule,
   MatFormField,
@@ -97,7 +93,7 @@ import {
   ɵɵtwoWayBindingSet,
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty
-} from "./chunk-2A5OUH7P.js";
+} from "./chunk-WSBVRI5L.js";
 
 // node_modules/date-fns/differenceInDays.js
 function differenceInDays(laterDate, earlierDate, options) {
@@ -139,7 +135,7 @@ var _GroupEventsStateService = class _GroupEventsStateService {
     this._tag_list = new BehaviorSubject([]);
     this.filters = this._filters.asObservable();
     this.tags = this._tag_list.asObservable();
-    this.calendar_system = this._org.active_building.pipe(debounceTime(100), switchMap((bld) => !bld ? of(null) : $c({ in: this.calendar }).pipe(map((r) => r.data?.[0]), catchError(() => of(null)))), shareReplay(1));
+    this.calendar_system = this._org.active_building.pipe(debounceTime(100), switchMap((bld) => !bld ? of(null) : Jc({ in: this.calendar }).pipe(map((r) => r.data?.[0]), catchError(() => of(null)))), shareReplay(1));
     this.events = combineLatest([
       this._org.active_building,
       this.calendar_system,
@@ -231,7 +227,7 @@ var _GroupEventsFiltersListComponent = class _GroupEventsFiltersListComponent {
 _GroupEventsFiltersListComponent.\u0275fac = function GroupEventsFiltersListComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _GroupEventsFiltersListComponent)();
 };
-_GroupEventsFiltersListComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _GroupEventsFiltersListComponent, selectors: [["group-events-filters-list"]], decls: 18, vars: 24, consts: [[1, "mx-auto", "my-2", "w-[63rem]", "max-w-full", "rounded", "border", "border-base-300", "bg-base-100", "p-4"], [1, "mb-4", "flex", "items-center", "justify-between", "space-x-2"], [1, "flex", "flex-wrap"], [1, "m-1", "flex", "items-center", "rounded-3xl", "border", "border-base-400", "px-4", "py-3", "text-sm"], [1, "m-1", "flex", "items-center", "rounded-3xl", "border", "border-base-400", "pl-4", "pr-1"], [1, "mr-2", "flex-1", "text-sm"], ["icon", "", "matRipple", "", 3, "click"]], template: function GroupEventsFiltersListComponent_Template(rf, ctx) {
+_GroupEventsFiltersListComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _GroupEventsFiltersListComponent, selectors: [["group-events-filters-list"]], decls: 18, vars: 24, consts: [[1, "mx-auto", "my-2", "w-252", "max-w-full", "rounded-sm", "border", "border-base-300", "bg-base-100", "p-4"], [1, "mb-4", "flex", "items-center", "justify-between", "space-x-2"], [1, "flex", "flex-wrap"], [1, "m-1", "flex", "items-center", "rounded-3xl", "border", "border-base-400", "px-4", "py-3", "text-sm"], [1, "m-1", "flex", "items-center", "rounded-3xl", "border", "border-base-400", "pl-4", "pr-1"], [1, "mr-2", "flex-1", "text-sm"], ["icon", "", "matRipple", "", 3, "click"]], template: function GroupEventsFiltersListComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "div", 1)(2, "div");
     \u0275\u0275text(3);
@@ -268,7 +264,7 @@ var GroupEventsFiltersListComponent = _GroupEventsFiltersListComponent;
     type: Component,
     args: [{ selector: "group-events-filters-list", template: `
         <div
-            class="mx-auto my-2 w-[63rem] max-w-full rounded border border-base-300 bg-base-100 p-4"
+            class="mx-auto my-2 w-252 max-w-full rounded-sm border border-base-300 bg-base-100 p-4"
         >
             <div class="mb-4 flex items-center justify-between space-x-2">
                 <div>
@@ -455,7 +451,7 @@ _GroupEventsSidebarComponent.\u0275fac = /* @__PURE__ */ (() => {
     return (\u0275GroupEventsSidebarComponent_BaseFactory || (\u0275GroupEventsSidebarComponent_BaseFactory = \u0275\u0275getInheritedFactory(_GroupEventsSidebarComponent)))(__ngFactoryType__ || _GroupEventsSidebarComponent);
   };
 })();
-_GroupEventsSidebarComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _GroupEventsSidebarComponent, selectors: [["group-events-sidebar"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 26, vars: 24, consts: [[1, "flex", "flex-col", "bg-base-100", "sm:h-full", "sm:w-[18rem]"], [1, "flex", "items-center", "space-x-2", "p-2"], ["btn", "", "matRipple", "", 1, "flex-1", 3, "click"], [1, "flex", "flex-col", "items-center", "space-y-2", "px-2", "pb-2"], ["appearance", "outline", 1, "no-subscript", "w-full"], ["placeholder", "Select Period", 3, "ngModelChange", "ngModel"], [3, "value"], [1, "mx-auto", "hidden", "w-[calc(100%-1rem)]", "border-base-200", "sm:block"], [1, "hidden", "flex-1", "flex-col", "overflow-auto", "sm:flex"], [3, "ngModelChange", "ngModel"], [1, "mx-auto", "w-[calc(100%-1rem)]", "border-base-200"], [1, "flex", "flex-1", "flex-col", "overflow-auto"], [1, "p-4", "text-lg", "font-medium"], [1, "flex", "flex-col", "space-y-2", "px-4"], ["matRipple", "", 1, "flex", "w-full", "items-center", "rounded", "text-left"], ["matRipple", "", 1, "flex", "w-full", "items-center", "rounded", "text-left", 3, "click"], [3, "ngModel"]], template: function GroupEventsSidebarComponent_Template(rf, ctx) {
+_GroupEventsSidebarComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _GroupEventsSidebarComponent, selectors: [["group-events-sidebar"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 26, vars: 24, consts: [[1, "flex", "flex-col", "bg-base-100", "sm:h-full", "sm:w-[18rem]"], [1, "flex", "items-center", "space-x-2", "p-2"], ["btn", "", "matRipple", "", 1, "flex-1", 3, "click"], [1, "flex", "flex-col", "items-center", "space-y-2", "px-2", "pb-2"], ["appearance", "outline", 1, "no-subscript", "w-full"], ["placeholder", "Select Period", 3, "ngModelChange", "ngModel"], [3, "value"], [1, "mx-auto", "hidden", "w-[calc(100%-1rem)]", "border-base-200", "sm:block"], [1, "hidden", "flex-1", "flex-col", "overflow-auto", "sm:flex"], [3, "ngModelChange", "ngModel"], [1, "mx-auto", "w-[calc(100%-1rem)]", "border-base-200"], [1, "flex", "flex-1", "flex-col", "overflow-auto"], [1, "p-4", "text-lg", "font-medium"], [1, "flex", "flex-col", "space-y-2", "px-4"], ["matRipple", "", 1, "flex", "w-full", "items-center", "rounded-sm", "text-left"], ["matRipple", "", 1, "flex", "w-full", "items-center", "rounded-sm", "text-left", 3, "click"], [3, "ngModel"]], template: function GroupEventsSidebarComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "div", 1)(2, "button", 2);
     \u0275\u0275pipe(3, "async");
@@ -601,7 +597,7 @@ var GroupEventsSidebarComponent = _GroupEventsSidebarComponent;
                             @for (tag of tags | async; track tag) {
                                 <button
                                     matRipple
-                                    class="flex w-full items-center rounded text-left"
+                                    class="flex w-full items-center rounded-sm text-left"
                                     (click)="toggleTag(tag)"
                                 >
                                     <mat-checkbox
@@ -708,7 +704,7 @@ _GroupEventsComponent.\u0275fac = /* @__PURE__ */ (() => {
     return (\u0275GroupEventsComponent_BaseFactory || (\u0275GroupEventsComponent_BaseFactory = \u0275\u0275getInheritedFactory(_GroupEventsComponent)))(__ngFactoryType__ || _GroupEventsComponent);
   };
 })();
-_GroupEventsComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _GroupEventsComponent, selectors: [["", "group-events", ""]], features: [\u0275\u0275InheritDefinitionFeature], attrs: _c02, decls: 11, vars: 6, consts: [[1, "flex", "h-1/2", "flex-1", "flex-col", "bg-base-200", "sm:flex-row"], [1, "h-full", "w-full", "flex-1", "overflow-auto", "p-2", "sm:w-1/2", "sm:p-4"], [1, "mx-auto", "my-2", "w-[64rem]", "max-w-full", 3, "event", "featured"], [1, "mx-auto", "mt-2", "flex", "w-[64rem]", "max-w-full", "flex-wrap"], [1, "flex", "h-full", "w-full", "flex-col", "items-center", "justify-center", "space-y-2"], [1, "m-2", 3, "event"], ["src", "assets/icons/no-results.svg", 1, "w-32"], [1, "font-medium"], [1, "opacity-30"]], template: function GroupEventsComponent_Template(rf, ctx) {
+_GroupEventsComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _GroupEventsComponent, selectors: [["", "group-events", ""]], features: [\u0275\u0275InheritDefinitionFeature], attrs: _c02, decls: 11, vars: 6, consts: [[1, "flex", "h-1/2", "flex-1", "flex-col", "bg-base-200", "sm:flex-row"], [1, "h-full", "w-full", "flex-1", "overflow-auto", "p-2", "sm:w-1/2", "sm:p-4"], [1, "mx-auto", "my-2", "w-5xl", "max-w-full", 3, "event", "featured"], [1, "mx-auto", "mt-2", "flex", "w-5xl", "max-w-full", "flex-wrap"], [1, "flex", "h-full", "w-full", "flex-col", "items-center", "justify-center", "space-y-2"], [1, "m-2", 3, "event"], ["src", "assets/icons/no-results.svg", 1, "w-32"], [1, "font-medium"], [1, "opacity-30"]], template: function GroupEventsComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "topbar");
     \u0275\u0275elementStart(1, "main", 0);
@@ -754,12 +750,12 @@ var GroupEventsComponent = _GroupEventsComponent;
                     <group-event-card
                         [event]="featured | async"
                         [featured]="true"
-                        class="mx-auto my-2 w-[64rem] max-w-full"
+                        class="mx-auto my-2 w-5xl max-w-full"
                     ></group-event-card>
                 }
                 @if ((event_list | async)?.length) {
                     <div
-                        class="mx-auto mt-2 flex w-[64rem] max-w-full flex-wrap"
+                        class="mx-auto mt-2 flex w-5xl max-w-full flex-wrap"
                     >
                         @for (
                             event of events_without_featured | async;
@@ -824,4 +820,4 @@ var GroupEventsModule = _GroupEventsModule;
 export {
   GroupEventsModule
 };
-//# sourceMappingURL=group-events.module-XU3JKPDY.js.map
+//# sourceMappingURL=group-events.module-TXSIG7UC.js.map

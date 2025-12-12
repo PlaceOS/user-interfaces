@@ -1,7 +1,7 @@
 {
   "version": 3,
-  "sources": ["angular:styles/component:css;d8e0e1826953817bc38718c2e6f9d8a20c56c3d3f17bf3ea7d0dcbb90967a675;/home/runner/work/user-interfaces/user-interfaces/apps/workplace/src/app/book/parking-flow/parking-flow-confirm.component.ts"],
+  "sources": ["parking-flow-confirm.component.ts"],
   "sourcesContent": ["\n            section > icon {\n                font-size: 1.5rem;\n                margin-top: 0.3rem;\n            }\n\n            h3 {\n                font-size: 1.25rem;\n                font-weight: medium;\n                margin: 0.5rem 0;\n            }\n        "],
-  "mappings": ";AACY,QAAQ,EAAE;AACN,aAAW;AACX,cAAY;AAChB;AAEA;AACI,aAAW;AACX,eAAa;AACb,UAAQ,OAAO;AACnB;",
+  "mappings": ";AACY,QAAA,EAAA;AACI,aAAA;AACA,cAAA;AACJ;AAEA;AACI,aAAA;AACA,eAAA;AACA,UAAA,OAAA;AACJ;",
   "names": []
 }

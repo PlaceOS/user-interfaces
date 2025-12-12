@@ -1,7 +1,7 @@
 {
   "version": 3,
-  "sources": ["angular:styles/component:css;09806d4e56396268b721c1e6773559de8fe2445d8858101e567dcb2c1dd21cd7;/home/runner/work/user-interfaces/user-interfaces/libs/explore/src/lib/explore-map-control.component.ts"],
+  "sources": ["explore-map-control.component.ts"],
   "sourcesContent": ["\n            mat-form-field[has-bld='true'] {\n                max-width: calc(50vw - 2.5rem);\n            }\n\n            :host[full] mat-form-field {\n                max-width: calc(50% - 2.5rem);\n            }\n        "],
-  "mappings": ";AACY,cAAc,CAAC;AACX,aAAW,KAAK,KAAK,EAAE;AAC3B;AAEA,KAAK,CAAC,MAAM;AACR,aAAW,KAAK,IAAI,EAAE;AAC1B;",
+  "mappings": ";AACY,cAAA,CAAA;AACI,aAAA,KAAA,KAAA,EAAA;AACJ;AAEA,KAAA,CAAA,MAAA;AACI,aAAA,KAAA,IAAA,EAAA;AACJ;",
   "names": []
 }

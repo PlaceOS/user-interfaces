@@ -1,7 +1,7 @@
 {
   "version": 3,
-  "sources": ["angular:styles/component:css;ada4d8e106525fc2a6174594c2f22a46ab6eb32f3e34b0dc3ada2058cacb89f7;/home/runner/work/user-interfaces/user-interfaces/apps/workplace/src/app/landing/landing-colleagues.component.ts"],
+  "sources": ["landing-colleagues.component.ts"],
   "sourcesContent": ["\n            [user]:hover button {\n                opacity: 1;\n            }\n\n            :host {\n                height: 100%;\n                width: 100%;\n                display: flex;\n                flex-direction: column;\n            }\n        "],
-  "mappings": ";AACY,CAAC,KAAK,OAAO;AACT,WAAS;AACb;AAEA;AACI,UAAQ;AACR,SAAO;AACP,WAAS;AACT,kBAAgB;AACpB;",
+  "mappings": ";AACY,CAAA,KAAA,OAAA;AACI,WAAA;AACJ;AAEA;AACI,UAAA;AACA,SAAA;AACA,WAAA;AACA,kBAAA;AACJ;",
   "names": []
 }

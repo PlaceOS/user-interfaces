@@ -1,7 +1,7 @@
 {
   "version": 3,
-  "sources": ["angular:styles/component:css;272d43022913da8b6c60debddc182b5c3d8e2877b2c9bac0eacbbdf7c40c19c6;/home/runner/work/user-interfaces/user-interfaces/apps/workplace/src/app/explore/explore.component.ts"],
+  "sources": ["explore.component.ts"],
   "sourcesContent": ["\n            :host {\n                position: absolute;\n                top: 0;\n                left: 0;\n                right: 0;\n                bottom: 0;\n                overflow: hidden;\n                display: flex;\n                flex-direction: column;\n            }\n        "],
-  "mappings": ";AACY;AACI,YAAU;AACV,OAAK;AACL,QAAM;AACN,SAAO;AACP,UAAQ;AACR,YAAU;AACV,WAAS;AACT,kBAAgB;AACpB;",
+  "mappings": ";AACY;AACI,YAAA;AACA,OAAA;AACA,QAAA;AACA,SAAA;AACA,UAAA;AACA,YAAA;AACA,WAAA;AACA,kBAAA;AACJ;",
   "names": []
 }

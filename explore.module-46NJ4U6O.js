@@ -1,13 +1,9 @@
 import {
-  DesksService
-} from "./chunk-MAQ63EFG.js";
-import "./chunk-5RS5W7HA.js";
-import "./chunk-OEAJ52HN.js";
-import {
+  DesksService,
   ExploreMapViewComponent,
   FooterMenuComponent,
   TopbarComponent
-} from "./chunk-ISUINKPX.js";
+} from "./chunk-L4PPFGNC.js";
 import {
   Component,
   MAP_FEATURE_DATA,
@@ -25,7 +21,7 @@ import {
   ɵɵelement,
   ɵɵelementEnd,
   ɵɵelementStart
-} from "./chunk-2A5OUH7P.js";
+} from "./chunk-WSBVRI5L.js";
 
 // apps/workplace/src/app/explore/explore.component.ts
 function ExploreComponent_Conditional_0_Template(rf, ctx) {
@@ -118,4 +114,4 @@ var ExploreModule = _ExploreModule;
 export {
   ExploreModule
 };
-//# sourceMappingURL=explore.module-BBA2E2DA.js.map
+//# sourceMappingURL=explore.module-46NJ4U6O.js.map
