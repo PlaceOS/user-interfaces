@@ -1,7 +1,7 @@
 {
   "version": 3,
-  "sources": ["angular:styles/component:css;9b4c7890f9e1052baa2f612a2ff6b04cb9c291a69a147ec2a14e55f51ea46424;/home/runner/work/user-interfaces/user-interfaces/apps/booking-panel/src/app/event-panel.component.ts"],
+  "sources": ["event-panel.component.ts"],
   "sourcesContent": ["\n            [book-tag] {\n                writing-mode: vertical-rl;\n                text-orientation: upright;\n            }\n\n            [qr-code-out] {\n                transition: width 300ms;\n            }\n        "],
-  "mappings": ";AACY,CAAC;AACG,gBAAc;AACd,oBAAkB;AACtB;AAEA,CAAC;AACG,cAAY,MAAM;AACtB;",
+  "mappings": ";AACY,CAAA;AACI,gBAAA;AACA,oBAAA;AACJ;AAEA,CAAA;AACI,cAAA,MAAA;AACJ;",
   "names": []
 }

@@ -1,7 +1,7 @@
 {
   "version": 3,
-  "sources": ["angular:styles/component:css;d1500f659b91dd2b74c0cb226624db0e8f324134dbaaf267a69f046570069bff;/home/runner/work/user-interfaces/user-interfaces/libs/users/src/lib/new-user-modal.component.ts"],
+  "sources": ["new-user-modal.component.ts"],
   "sourcesContent": ["\n            main {\n                min-height: 20em !important;\n                width: 100%;\n            }\n\n            footer button {\n                min-width: 8em;\n            }\n        "],
-  "mappings": ";AACY;AACI,cAAY;AACZ,SAAO;AACX;AAEA,OAAO;AACH,aAAW;AACf;",
+  "mappings": ";AACY;AACI,cAAA;AACA,SAAA;AACJ;AAEA,OAAA;AACI,aAAA;AACJ;",
   "names": []
 }
