@@ -1,7 +1,7 @@
 {
   "version": 3,
-  "sources": ["angular:styles/component:css;a93c902b46815fa2000ca074f182727fd7e16c31d125e94ab636c16b7f1bb572;/home/runner/work/user-interfaces/user-interfaces/apps/workplace/src/app/book/meeting-flow/meeting-flow-confirm.component.ts"],
+  "sources": ["meeting-flow-confirm.component.ts"],
   "sourcesContent": ["\n            section > icon {\n                font-size: 1.5rem;\n            }\n\n            h2 {\n                font-size: 1.5rem;\n                font-weight: medium;\n                margin-bottom: 0.5rem;\n            }\n\n            h3 {\n                font-size: 1.25rem;\n                font-weight: medium;\n                margin: 0.5rem 0;\n            }\n        "],
-  "mappings": ";AACY,QAAQ,EAAE;AACN,aAAW;AACf;AAEA;AACI,aAAW;AACX,eAAa;AACb,iBAAe;AACnB;AAEA;AACI,aAAW;AACX,eAAa;AACb,UAAQ,OAAO;AACnB;",
+  "mappings": ";AACY,QAAA,EAAA;AACI,aAAA;AACJ;AAEA;AACI,aAAA;AACA,eAAA;AACA,iBAAA;AACJ;AAEA;AACI,aAAA;AACA,eAAA;AACA,UAAA,OAAA;AACJ;",
   "names": []
 }

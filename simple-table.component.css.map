@@ -1,7 +1,7 @@
 {
   "version": 3,
-  "sources": ["angular:styles/component:css;b2874b86e652c29d2d86fd3a0dd1f8304994817de1959af6f84eeb73f74021ed;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/simple-table.component.ts"],
+  "sources": ["simple-table.component.ts"],
   "sourcesContent": ["\n            :host,\n            :host > button {\n                min-width: 100%;\n            }\n\n            [header] icon {\n                opacity: 0;\n            }\n            [header]:hover icon {\n                opacity: 0.3;\n            }\n            [header]:hover.pointer-events-none icon {\n                opacity: 0;\n            }\n            [header].active icon {\n                opacity: 1;\n            }\n        "],
-  "mappings": ";AACY;AACA,MAAM,EAAE;AACJ,aAAW;AACf;AAEA,CAAC,QAAQ;AACL,WAAS;AACb;AACA,CAAC,OAAO,OAAO;AACX,WAAS;AACb;AACA,CAAC,OAAO,MAAM,CAAC,oBAAoB;AAC/B,WAAS;AACb;AACA,CAAC,OAAO,CAAC,OAAO;AACZ,WAAS;AACb;",
+  "mappings": ";AACY;;AAEI,aAAA;AACJ;AAEA,CAAA,QAAA;AACI,WAAA;AACJ;AACA,CAAA,OAAA,OAAA;AACI,WAAA;AACJ;AACA,CAAA,OAAA,MAAA,CAAA,oBAAA;AACI,WAAA;AACJ;AACA,CAAA,OAAA,CAAA,OAAA;AACI,WAAA;AACJ;",
   "names": []
 }

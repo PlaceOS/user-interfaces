@@ -1,7 +1,7 @@
 {
   "version": 3,
-  "sources": ["angular:styles/component:css;a7d82e05b78e6239a6d1eb5ffd7f7d94030e40951be34ee4cb917c1200893399;/home/runner/work/user-interfaces/user-interfaces/apps/outlook-addin/src/app/rooms/find-space.component.ts"],
+  "sources": ["find-space.component.ts"],
   "sourcesContent": ["\n            .mat-button-toggle-appearance-standard {\n                height: 2.25rem;\n            }\n            .mat-button-toggle-appearance-standard\n                .mat-button-toggle-label-content {\n                line-height: 2.25rem;\n                font-size: 0.875rem;\n            }\n            .mat-button-toggle-label-content {\n                font-size: 0.875rem;\n            }\n            .mat-button-toggle-checked {\n                border: 1px solid var(--secondary);\n                border-radius: 5px;\n                box-shadow: none;\n            }\n            .mat-focus-indicator {\n                border: none;\n            }\n        "],
-  "mappings": ";AACY,CAAC;AACG,UAAQ;AACZ;AACA,CAHC,sCAIG,CAAC;AACD,eAAa;AACb,aAAW;AACf;AACA,CAJK;AAKD,aAAW;AACf;AACA,CAAC;AACG,UAAQ,IAAI,MAAM,IAAI;AACtB,iBAAe;AACf,cAAY;AAChB;AACA,CAAC;AACG,UAAQ;AACZ;",
+  "mappings": ";AACY,CAAA;AACI,UAAA;AACJ;AACA,CAHA;AAKI,eAAA;AACA,aAAA;AACJ;AACA;AACI,aAAA;AACJ;AACA,CAAA;AACI,UAAA,IAAA,MAAA,IAAA;AACA,iBAAA;AACA,cAAA;AACJ;AACA,CAAA;AACI,UAAA;AACJ;",
   "names": []
 }
