@@ -19,7 +19,7 @@ import { EnrolmentStateService } from './enrolment-state.service';
     template: `
         <div class="absolute inset-0 flex flex-col bg-base-300">
             <div
-                class="z-20 h-16 w-full bg-secondary p-2 text-secondary-content shadow"
+                class="z-20 h-16 w-full bg-secondary p-2 text-secondary-content shadow-sm"
             >
                 @let logo_path = (logo | async)?.src || (logo | async);
                 <img
@@ -43,7 +43,7 @@ import { EnrolmentStateService } from './enrolment-state.service';
                         }
                         @case ('complete') {
                             <div
-                                class="m-4 rounded border border-base-200 bg-base-100 p-4 shadow"
+                                class="m-4 rounded-sm border border-base-200 bg-base-100 p-4 shadow-sm"
                             >
                                 <icon class="text-7xl text-success">done</icon>
                                 <p>

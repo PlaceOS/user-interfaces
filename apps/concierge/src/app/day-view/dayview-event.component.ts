@@ -18,7 +18,7 @@ const DAY_IN_MINUTES = 24 * 60;
         @if ((ui_options | async)?.show_overflow) {
             <div
                 [class]="
-                    'overflow-block absolute w-full overflow-hidden rounded ' +
+                    'overflow-block absolute w-full overflow-hidden rounded-sm ' +
                     type
                 "
                 [style.top]="overflow_top * 100 + '%'"
@@ -30,7 +30,7 @@ const DAY_IN_MINUTES = 24 * 60;
                 event
                 matRipple
                 [class]="
-                    'absolute z-10 overflow-hidden rounded border border-base-200 text-sm shadow-sm hover:z-30 ' +
+                    'absolute z-10 overflow-hidden rounded-sm border border-base-200 text-sm shadow-xs hover:z-30 ' +
                     type
                 "
                 [style.top]="top * 100 + '%'"
@@ -65,13 +65,13 @@ const DAY_IN_MINUTES = 24 * 60;
         @if (event() && (ui_options | async)?.show_cleaning) {
             <div
                 cleaning
-                class="absolute z-20 flex w-full overflow-hidden rounded bg-base-100 p-2 shadow hover:!h-48"
+                class="absolute z-20 flex w-full overflow-hidden rounded-sm bg-base-100 p-2 shadow-sm hover:h-48!"
                 [style.top]="top * 100 + '%'"
                 [style.height]="height * 100 + '%'"
             >
                 <div
                     [class]="
-                        'icon text-pending mr-2 flex h-12 w-12 items-center justify-center rounded text-3xl ' +
+                        'icon text-pending mr-2 flex h-12 w-12 items-center justify-center rounded-sm text-3xl ' +
                         event().ext('cleaning_status')
                     "
                 >

@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import {
     Component,
     ElementRef,
+    OnInit,
     inject,
     signal,
     viewChild,
@@ -9,10 +10,11 @@ import {
 import { FormsModule } from '@angular/forms';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterModule } from '@angular/router';
-import { AsyncHandler } from '@placeos/common';
+import { AsyncHandler, Booking, CalendarEvent } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 
 import { ExploreSearchService } from '@placeos/explore';
+import { ScheduleStateService } from '../schedule/schedule-state.service';
 
 @Component({
     selector: 'global-search',
@@ -29,9 +31,9 @@ import { ExploreSearchService } from '@placeos/explore';
             </button>
             <div
                 search
-                class="absolute right-2 top-1/2 z-50 flex h-12 max-w-[calc(100vw-4rem)] -translate-y-1/2 items-center space-x-2 rounded-[24px] border-2 border-neutral bg-base-100 px-2 shadow"
+                class="absolute right-2 top-1/2 z-50 flex h-12 max-w-[calc(100vw-4rem)] -translate-y-1/2 items-center space-x-2 rounded-[24px] border-2 border-neutral bg-base-100 px-2 shadow-sm"
                 [ngClass]="{
-                    'w-[32rem]': show(),
+                    'w-lg': show(),
                     'w-px': !show(),
                     'opacity-100': show(),
                     'opacity-0': !show(),
@@ -43,7 +45,7 @@ import { ExploreSearchService } from '@placeos/explore';
                 <input
                     #input
                     [placeholder]="'APP.WORKPLACE.GLOBAL_SEARCH' | translate"
-                    class="w-1/2 flex-1 py-2 outline-none"
+                    class="w-1/2 flex-1 py-2 outline-hidden"
                     [(ngModel)]="filter_str"
                     (ngModelChange)="setFilter($event)"
                     (blur)="hideInput()"
@@ -55,9 +57,9 @@ import { ExploreSearchService } from '@placeos/explore';
             @if (filter_str()) {
                 <div
                     search
-                    class="absolute bottom-0 right-2 flex max-h-[40vh] max-w-[calc(100vw-4rem)] translate-y-[calc(100%-1rem)] flex-col items-center overflow-auto rounded-b border border-base-200 bg-base-100 pt-4 shadow"
+                    class="absolute bottom-0 right-2 flex max-h-[40vh] max-w-[calc(100vw-4rem)] translate-y-[calc(100%-1rem)] flex-col items-center overflow-auto rounded-b border border-base-200 bg-base-100 pt-4 shadow-sm"
                     [ngClass]="{
-                        'w-[32rem]': show(),
+                        'w-lg': show(),
                         'w-px': !show(),
                         'opacity-100': show(),
                         'opacity-0': !show(),
@@ -114,7 +116,7 @@ import { ExploreSearchService } from '@placeos/explore';
                                     </div>
                                 </div>
                                 <div
-                                    class="rounded bg-secondary p-2 text-xs font-medium capitalize text-secondary-content text-white"
+                                    class="rounded-sm bg-secondary p-2 text-xs font-medium capitalize text-secondary-content text-white"
                                 >
                                     {{ option.type }}
                                 </div>
@@ -143,8 +145,9 @@ import { ExploreSearchService } from '@placeos/explore';
         MatProgressSpinnerModule,
     ],
 })
-export class GlobalSearchComponent extends AsyncHandler {
+export class GlobalSearchComponent extends AsyncHandler implements OnInit {
     private _service = inject(ExploreSearchService);
+    private _schedule = inject(ScheduleStateService);
 
     public readonly results = this._service.search_results;
     public readonly loading = this._service.loading;
@@ -159,6 +162,22 @@ export class GlobalSearchComponent extends AsyncHandler {
 
     public readonly _input_el =
         viewChild<ElementRef<HTMLInputElement>>('input');
+
+    public ngOnInit() {
+        // Subscribe to bookings and filter for in-progress ones
+        this.subscription(
+            'in_progress_bookings',
+            this._schedule.bookings.subscribe(
+                (bookings: (Booking | CalendarEvent)[]) => {
+                    const in_progress = bookings.filter((b) => {
+                        const state = b.state;
+                        return state === 'in_progress' || state === 'started';
+                    });
+                    this._service.setInProgressBookings(in_progress);
+                },
+            ),
+        );
+    }
 
     public showInput() {
         this.show.set(true);

@@ -1,16 +1,17 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
+import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
-import { OrganisationService } from '@placeos/common';
-import { TranslatePipe } from '@placeos/components';
-import { settingSignal } from 'libs/common/src/lib/settings.service';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { OrganisationService, settingSignal } from '@placeos/common';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { DashboardsService } from '../dashboards/dashboards.service';
+import { PushNotificationSettingsComponent } from '../push-notification-settings.component';
+import { AlertNotificationService } from '../push-notification.service';
 
 const COMPACT_SIGNAL = signal(false);
 
@@ -40,7 +41,7 @@ const COMPACT_SIGNAL = signal(false);
                 <button
                     icon
                     matRipple
-                    class="rounded"
+                    class="rounded-sm"
                     [class.w-14]="is_compact()"
                     (click)="toggleCompact()"
                     [matTooltip]="
@@ -64,9 +65,13 @@ const COMPACT_SIGNAL = signal(false);
                                 class="no-subscript white-faded w-full"
                             >
                                 <mat-select [(ngModel)]="region">
-                                    <mat-option value="">{{
-                                        'COMMON.REGION_ALL' | translate
-                                    }}</mat-option>
+                                    <mat-option
+                                        value=""
+                                        (click)="setRegion(null)"
+                                        >{{
+                                            'COMMON.REGION_ALL' | translate
+                                        }}</mat-option
+                                    >
                                     @for (region of r_list; track region.id) {
                                         <mat-option
                                             [value]="region.id"
@@ -86,9 +91,13 @@ const COMPACT_SIGNAL = signal(false);
                                 class="no-subscript white-faded w-full"
                             >
                                 <mat-select [(ngModel)]="building">
-                                    <mat-option value="">{{
-                                        'COMMON.BUILDING_ALL' | translate
-                                    }}</mat-option>
+                                    <mat-option
+                                        value=""
+                                        (click)="setBuilding(null)"
+                                        >{{
+                                            'COMMON.BUILDING_ALL' | translate
+                                        }}</mat-option
+                                    >
                                     @for (bld of bld_list; track bld.id) {
                                         <mat-option
                                             [value]="bld.id"
@@ -116,7 +125,7 @@ const COMPACT_SIGNAL = signal(false);
                     <div
                         class="absolute inset-0 bg-base-100 opacity-0 hover:opacity-10"
                     ></div>
-                    <icon class="!ml-0 text-3xl">notifications</icon>
+                    <icon class="ml-0! text-3xl">notifications</icon>
                     @if (!is_compact()) {
                         <span class="truncate">Alerts</span>
                     }
@@ -132,7 +141,7 @@ const COMPACT_SIGNAL = signal(false);
                     <div
                         class="absolute inset-0 bg-base-100 opacity-0 hover:opacity-10"
                     ></div>
-                    <icon class="!ml-0 text-3xl">wifi</icon>
+                    <icon class="ml-0! text-3xl">wifi</icon>
                     @if (!is_compact()) {
                         <span class="truncate">Remote Support</span>
                     }
@@ -149,7 +158,7 @@ const COMPACT_SIGNAL = signal(false);
                         <div
                             class="absolute inset-0 bg-base-100 opacity-0 hover:opacity-10"
                         ></div>
-                        <icon class="!ml-0 text-3xl">show_chart</icon>
+                        <icon class="ml-0! text-3xl">show_chart</icon>
                         @if (!is_compact()) {
                             <span class="truncate">Analytics</span>
                         }
@@ -166,7 +175,7 @@ const COMPACT_SIGNAL = signal(false);
                     <div
                         class="absolute inset-0 bg-base-100 opacity-0 hover:opacity-10"
                     ></div>
-                    <icon class="!ml-0 text-3xl">dashboard</icon>
+                    <icon class="ml-0! text-3xl">dashboard</icon>
                     @if (!is_compact()) {
                         <span class="truncate">Manage Dashboards</span>
                     }
@@ -183,7 +192,7 @@ const COMPACT_SIGNAL = signal(false);
                         <div
                             class="absolute inset-0 bg-base-100 opacity-0 hover:opacity-10"
                         ></div>
-                        <icon class="!ml-0 text-2xl">stream</icon>
+                        <icon class="ml-0! text-2xl">stream</icon>
                         @if (!is_compact) {
                             <span class="truncate">Recorder Streams</span>
                         }
@@ -195,6 +204,34 @@ const COMPACT_SIGNAL = signal(false);
                 [class.px-4]="!is_compact()"
                 [class.px-0]="is_compact()"
             >
+                <button
+                    matRipple
+                    class="relative flex w-full items-center justify-center space-x-2 rounded-sm p-2"
+                    [class.px-4]="!is_compact()"
+                    (click)="openNotificationSettings()"
+                    [matTooltip]="is_compact() ? 'Notification Settings' : ''"
+                    matTooltipPosition="right"
+                >
+                    <div
+                        class="absolute inset-0 bg-base-100 opacity-0 hover:opacity-10"
+                    ></div>
+                    <icon class="text-2xl">{{
+                        notifications_active()
+                            ? 'notifications_active'
+                            : 'notifications_off'
+                    }}</icon>
+                    @if (!is_compact()) {
+                        <span class="flex-1 truncate text-left text-sm"
+                            >Notifications</span
+                        >
+                    }
+                    @if (notifications_active() && !is_compact()) {
+                        <span
+                            class="ml-auto rounded-full bg-success px-2 py-0.5 text-xs text-success-content"
+                            >ON</span
+                        >
+                    }
+                </button>
                 <a
                     btn
                     matRipple
@@ -250,8 +287,16 @@ const COMPACT_SIGNAL = signal(false);
 export class SidebarComponent {
     private _dash = inject(DashboardsService);
     private _org = inject(OrganisationService);
+    private _dialog = inject(MatDialog);
 
+    public readonly push = inject(AlertNotificationService);
     public readonly is_compact = COMPACT_SIGNAL;
+    /** True if permission granted AND at least one severity is enabled */
+    public readonly notifications_active = computed(() => {
+        if (!this.push.enabled()) return false;
+        const config = this.push.config();
+        return config.critical || config.high || config.medium || config.low;
+    });
     public readonly backoffice_link = settingSignal(
         'backoffice_link',
         `${location.origin}/backoffice/`,
@@ -279,5 +324,9 @@ export class SidebarComponent {
 
     public toggleCompact() {
         this.is_compact.update((s) => !s);
+    }
+
+    public openNotificationSettings() {
+        this._dialog.open(PushNotificationSettingsComponent);
     }
 }

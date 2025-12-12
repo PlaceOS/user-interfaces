@@ -1,4 +1,4 @@
-import { Component, OnDestroy, inject } from '@angular/core';
+import { Component, inject, OnDestroy, signal } from '@angular/core';
 import {
     FormControl,
     FormGroup,
@@ -10,7 +10,12 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSliderModule } from '@angular/material/slider';
-import { i18n, notifyError, notifySuccess } from '@placeos/common';
+import {
+    i18n,
+    notifyError,
+    notifySuccess,
+    UPLOAD_PERMISSIONS_MODAL,
+} from '@placeos/common';
 import {
     AuthenticatedImageDirective,
     FullscreenModalShellComponent,
@@ -24,6 +29,7 @@ import {
     updateSignageMedia,
 } from '@placeos/ts-client';
 import { addYears, endOfDay, getUnixTime, startOfDay } from 'date-fns';
+import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-permissions-modal.component';
 import { lastValueFrom } from 'rxjs';
 
 @Component({
@@ -38,7 +44,7 @@ import { lastValueFrom } from 'rxjs';
             "
             (confirm)="saveMedia()"
             [loading]="
-                loading
+                loading()
                     ? ('APP.CONCIERGE.SIGNAGE_MEDIA_SAVING' | translate)
                     : ''
             "
@@ -52,7 +58,7 @@ import { lastValueFrom } from 'rxjs';
                     >
                         @if (media_type === 'webpage') {
                             <iframe
-                                class="h-[100vh] w-full object-contain object-center"
+                                class="h-screen w-full object-contain object-center"
                                 [src]="url | safe: 'resource'"
                             ></iframe>
                         } @else {
@@ -63,7 +69,7 @@ import { lastValueFrom } from 'rxjs';
                             />
                         }
                         <div
-                            class="absolute left-2 top-2 rounded bg-base-400 px-2 py-1 text-xs capitalize"
+                            class="absolute left-2 top-2 rounded-sm bg-base-400 px-2 py-1 text-xs capitalize"
                         >
                             {{ media_type }}
                         </div>
@@ -219,6 +225,12 @@ import { lastValueFrom } from 'rxjs';
         </fullscreen-modal-shell>
     `,
     styles: [``],
+    providers: [
+        {
+            provide: UPLOAD_PERMISSIONS_MODAL,
+            useValue: UploadPermissionsModalComponent,
+        },
+    ],
     imports: [
         FullscreenModalShellComponent,
         ReactiveFormsModule,
@@ -244,7 +256,7 @@ export class SignageMediaModalComponent implements OnDestroy {
     private _dialog_ref =
         inject<MatDialogRef<SignageMediaModalComponent>>(MatDialogRef);
 
-    public loading = false;
+    public readonly loading = signal(false);
     public readonly item = this._data.media;
     public readonly file = this._data.file;
     public readonly thumbnail =
@@ -315,7 +327,7 @@ export class SignageMediaModalComponent implements OnDestroy {
         this.form.markAllAsTouched();
         this.form.updateValueAndValidity();
         if (!this.form.valid) return;
-        this.loading = true;
+        this.loading.set(true);
         this._dialog_ref.disableClose = true;
         const form_value = this.form.getRawValue();
         const new_media = {
@@ -334,7 +346,7 @@ export class SignageMediaModalComponent implements OnDestroy {
         } else delete new_media.valid_until;
         const onError = (e) => {
             this._dialog_ref.disableClose = false;
-            this.loading = false;
+            this.loading.set(false);
             notifyError(
                 i18n('APP.CONCIERGE.SIGNAGE_MEDIA_SAVE_ERROR', { error: e }),
             );

@@ -1,8 +1,9 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 
-import { AsyncHandler, SettingsService, VERSION } from '@placeos/common';
+import { SettingsService, VERSION } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
     ChangelogModalComponent,
@@ -10,7 +11,7 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 
-import { CommonModule } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { OrganisationService } from '@placeos/common';
 import { debounceTime, map } from 'rxjs/operators';
@@ -23,8 +24,8 @@ import { TabOutletComponent } from './tab-outlet.component';
 @Component({
     selector: 'app-control-tabbed-view',
     template: `
-        @if ((system | async).connected) {
-            @if ((system | async).active) {
+        @if (system()?.connected) {
+            @if (system()?.active) {
                 <div
                     class="divide relative flex h-full w-full flex-col divide-base-200 bg-base-100"
                 >
@@ -42,7 +43,7 @@ import { TabOutletComponent } from './tab-outlet.component';
                     <h2 class="mb-4 text-4xl font-light">
                         {{ 'APP.CONTROL.TOUCH_TO_START' | translate }}
                     </h2>
-                    <p class="text-lg">{{ (system | async).name }}</p>
+                    <p class="text-lg">{{ system()?.name }}</p>
                     <div class="absolute bottom-0 left-0 p-2">
                         <div class="w-full text-xs opacity-60">
                             <ng-container>Version: </ng-container>
@@ -61,12 +62,12 @@ import { TabOutletComponent } from './tab-outlet.component';
                     <div class="absolute bottom-4 right-4">
                         <voice-assistant
                             [system_id]="id"
-                            [enabled]="(system | async)?.voice_control"
+                            [enabled]="system()?.voice_control"
                         ></voice-assistant>
                     </div>
                 </div>
             }
-            @if (!(join_status | async)[0] && (join_status | async)[1]) {
+            @if (!join_status()[0] && join_status()[1]) {
                 <div
                     lockout
                     class="absolute inset-0 flex flex-col items-center justify-center space-y-2 bg-base-100 p-16"
@@ -76,7 +77,7 @@ import { TabOutletComponent } from './tab-outlet.component';
                             auth
                             class="h-10"
                             alt="Logo"
-                            [source]="(logo | async)?.src || (logo | async)"
+                            [source]="logo()?.src || logo()"
                         />
                     </div>
                     <icon class="relative z-10 text-8xl text-base-content"
@@ -117,7 +118,6 @@ import { TabOutletComponent } from './tab-outlet.component';
         `,
     ],
     imports: [
-        CommonModule,
         TopbarHeaderComponent,
         TabOutletComponent,
         ControlStatusBarComponent,
@@ -126,17 +126,23 @@ import { TabOutletComponent } from './tab-outlet.component';
         IconComponent,
         AuthenticatedImageDirective,
         VoiceAssistantComponent,
+        DatePipe,
     ],
 })
-export class ControlTabbedViewComponent extends AsyncHandler implements OnInit {
+export class ControlTabbedViewComponent implements OnInit {
     private _route = inject(ActivatedRoute);
     private _state = inject(ControlStateService);
     private _dialog = inject(MatDialog);
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
+    private _destroyRef = inject(DestroyRef);
 
-    public readonly system = this._state.system;
-    public readonly join_status = this._state.join_status;
+    public readonly system = toSignal(this._state.system, {
+        initialValue: {} as any,
+    });
+    public readonly join_status = toSignal(this._state.join_status, {
+        initialValue: [false, false] as [boolean, boolean],
+    });
 
     public readonly powerOn = () => this._state.powerOn();
     public get id() {
@@ -156,34 +162,32 @@ export class ControlTabbedViewComponent extends AsyncHandler implements OnInit {
         this._dialog.open(ChangelogModalComponent, { data: { changelog } });
     }
 
-    public readonly logo = this._org.active_building.pipe(
-        debounceTime(500),
-        map(
-            () =>
-                (this._settings.theme === 'dark'
-                    ? this._settings.get('app.logo_dark')
-                    : this._settings.get('app.logo_light')) || {},
+    public readonly logo = toSignal(
+        this._org.active_building.pipe(
+            debounceTime(500),
+            map(
+                () =>
+                    (this._settings.theme === 'dark'
+                        ? this._settings.get('app.logo_dark')
+                        : this._settings.get('app.logo_light')) || {},
+            ),
         ),
     );
 
     public ngOnInit(): void {
-        this.subscription(
-            'route.params',
-            this._route.paramMap.subscribe((params) =>
+        this._route.paramMap
+            .pipe(takeUntilDestroyed(this._destroyRef))
+            .subscribe((params) =>
                 params.has('system')
                     ? this._state.setID(params.get('system'))
                     : '',
-            ),
-        );
-        this.subscription(
-            'route.query',
-            this._route.queryParamMap.subscribe((params) =>
+            );
+        this._route.queryParamMap
+            .pipe(takeUntilDestroyed(this._destroyRef))
+            .subscribe((params) =>
                 params.get('join') === 'true'
                     ? this._state.selectMeeting()
                     : '',
-            ),
-        );
-
-        this.interval('update', () => null, 1000);
+            );
     }
 }

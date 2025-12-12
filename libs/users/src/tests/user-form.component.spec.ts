@@ -4,8 +4,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 
-import { UserFormComponent } from '../lib/user-form.component';
 import { User } from '@placeos/common';
+import { UserFormComponent } from '../lib/user-form.component';
 import { generateUserForm } from '../lib/user.utilities';
 
 describe('', () => {

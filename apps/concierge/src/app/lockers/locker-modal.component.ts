@@ -44,9 +44,9 @@ function validateNoOverlap(box: Box, check_boxes: Box[]): boolean {
 @Component({
     selector: 'locker-modal',
     template: `
-        <div class="w-[32rem]">
+        <div class="w-lg">
             <header
-                class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded border-none bg-base-200 p-2"
+                class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none bg-base-200 p-2"
             >
                 <h2 class="px-2 text-xl font-medium">
                     {{
@@ -91,7 +91,7 @@ function validateNoOverlap(box: Box, check_boxes: Box[]): boolean {
                         <button
                             icon
                             matRipple
-                            class="h-12 w-12 min-w-12 rounded bg-secondary text-secondary-content"
+                            class="h-12 w-12 min-w-12 rounded-sm bg-secondary text-secondary-content"
                             [matTooltip]="
                                 'APP.CONCIERGE.USER_CLEAR' | translate
                             "

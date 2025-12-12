@@ -138,15 +138,15 @@ import { LockerStateService } from './locker-state.service';
                 <div class="px-2">
                     <button
                         matRipple
-                        class="h-10 w-[7.5rem] rounded-3xl border-none bg-warning text-warning-content"
-                        [class.!text-success-content]="
+                        class="h-10 w-30 rounded-3xl border-none bg-warning text-warning-content"
+                        [class.text-success-content!]="
                             row?.status === 'approved'
                         "
-                        [class.!bg-success]="row?.status === 'approved'"
-                        [class.!text-error-content]="row?.status === 'declined'"
-                        [class.!bg-error]="row?.status === 'declined'"
-                        [class.!text-neutral-content]="row?.status === 'ended'"
-                        [class.!bg-neutral]="row?.status === 'ended'"
+                        [class.bg-success!]="row?.status === 'approved'"
+                        [class.text-error-content!]="row?.status === 'declined'"
+                        [class.bg-error!]="row?.status === 'declined'"
+                        [class.text-neutral-content!]="row?.status === 'ended'"
+                        [class.bg-neutral!]="row?.status === 'ended'"
                         [class.opacity-30]="row?.status === 'ended'"
                         [matMenuTriggerFor]="menu"
                         [disabled]="row?.status === 'ended'"
@@ -197,10 +197,10 @@ import { LockerStateService } from './locker-state.service';
                         matRipple
                         class="h-10 w-24 rounded-3xl border-none bg-warning text-warning-content"
                         [matMenuTriggerFor]="checkinMenu"
-                        [class.!bg-neutral]="!data"
-                        [class.!text-neutral-content]="!data"
-                        [class.!bg-success]="data"
-                        [class.!text-success-content]="data"
+                        [class.bg-neutral!]="!data"
+                        [class.text-neutral-content!]="!data"
+                        [class.bg-success!]="data"
+                        [class.text-success-content!]="data"
                         [class.opacity-30]="row.status === 'ended'"
                         [disabled]="row.status === 'ended'"
                         [matTooltip]="

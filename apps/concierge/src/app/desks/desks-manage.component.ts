@@ -1,6 +1,6 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, inject } from '@angular/core';
+import { Component, computed, ElementRef, inject, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -12,7 +12,6 @@ import {
     generateQRCode,
     i18n,
     loadTextFileFromInputEvent,
-    nextValueFrom,
     notifyError,
     notifySuccess,
     OrganisationService,
@@ -42,9 +41,9 @@ const QR_CODES = {};
             (window:dragend)="handleDrag('end', $event)"
         >
             <simple-table
-                class="block w-full min-w-[72rem] text-sm"
-                [filter]="(filters | async)?.search"
-                [data]="desks"
+                class="block w-full min-w-6xl text-sm"
+                [filter]="filters().search"
+                [data]="desks()"
                 [columns]="[
                     {
                         key: 'id',
@@ -86,7 +85,7 @@ const QR_CODES = {};
                 ]"
                 [sortable]="true"
                 [empty_message]="
-                    ((filters | async)?.search
+                    (filters().search
                         ? 'APP.CONCIERGE.DESKS_MANAGE_SEARCH_EMPTY'
                         : 'APP.CONCIERGE.DESKS_MANAGE_EMPTY'
                     ) | translate
@@ -120,7 +119,7 @@ const QR_CODES = {};
                 <div
                     [class.bg-error]="!data"
                     [class.bg-success]="data"
-                    class="mx-auto flex h-8 w-8 items-center justify-center rounded text-2xl text-white"
+                    class="mx-auto flex h-8 w-8 items-center justify-center rounded-sm text-2xl text-white"
                 >
                     <icon>{{ data ? 'done' : 'close' }}</icon>
                 </div>
@@ -180,7 +179,7 @@ const QR_CODES = {};
                         <icon class="text-error">delete</icon>
                     </button>
                     <ng-template #qr_menu>
-                        <div class="rounded bg-base-100 py-2 shadow">
+                        <div class="rounded-sm bg-base-100 py-2 shadow-sm">
                             <div class="" printable [content]="print_content">
                                 <ng-template #print_content>
                                     <a
@@ -192,7 +191,7 @@ const QR_CODES = {};
                                         <img class="w-48" [src]="row.qr_code" />
                                     </a>
                                     <div
-                                        class="mx-4 mt-2 w-[calc(100%-2rem)] rounded bg-base-200 p-2 text-center font-mono text-sm"
+                                        class="mx-4 mt-2 w-[calc(100%-2rem)] rounded-sm bg-base-200 p-2 text-center font-mono text-sm"
                                     >
                                         {{ row.name || row.id }}
                                     </div>
@@ -213,21 +212,23 @@ const QR_CODES = {};
                     </ng-template>
                 </div>
             </ng-template>
-            @if (loading) {
+            @if (loading() || stateLoading()) {
                 <div
                     class="absolute inset-0 flex flex-col items-center justify-center space-y-2 bg-base-100 bg-opacity-60"
                 >
                     <mat-spinner diameter="32"></mat-spinner>
-                    <p>{{ loading }}</p>
+                    @if (loading()) {
+                        <p>{{ loading() }}</p>
+                    }
                 </div>
             }
-            @if (dragging) {
+            @if (dragging()) {
                 <div
                     class="absolute inset-0 flex items-center justify-center bg-neutral"
                 >
-                    <div class="rounded bg-base-100 p-4 shadow">
+                    <div class="rounded-sm bg-base-100 p-4 shadow-sm">
                         <div
-                            class="flex h-64 w-64 flex-col items-center justify-center rounded border-4 border-dashed border-base-200"
+                            class="flex h-64 w-64 flex-col items-center justify-center rounded-sm border-4 border-dashed border-base-200"
                         >
                             {{
                                 'APP.CONCIERGE.DESKS_DROP_TEMPLATE' | translate
@@ -265,10 +266,13 @@ export class DesksManageComponent extends AsyncHandler {
     private _element = inject(ElementRef);
     private _clipboard = inject(Clipboard);
 
-    public loading: string;
-    public dragging = false;
+    public loading = signal<string>('');
+    public dragging = signal(false);
     public readonly filters = this._state.filters;
-    public readonly desks = this._state.desks;
+    public readonly stateLoading = this._state.loading;
+    public readonly desks = computed(() =>
+        this.stateLoading() ? [] : this._state.desks(),
+    );
 
     public readonly editDesk = (desk?: Desk) => this._state.editDesk(desk);
 
@@ -290,11 +294,11 @@ export class DesksManageComponent extends AsyncHandler {
         );
         if (resp.reason !== 'done') return;
         resp.close();
-        const desks = await nextValueFrom(this.desks);
+        const desks = this.desks();
         const updated_desks = desks.filter((_) => _.id !== desk.id);
-        const filters = await nextValueFrom(this.filters);
+        const filters = this.filters();
         const level = this._org.levelWithID(filters.zones);
-        this.loading = i18n('APP.CONCIERGE.DESKS_REMOVE_LOADING');
+        this.loading.set(i18n('APP.CONCIERGE.DESKS_REMOVE_LOADING'));
         await updateMetadata(level.id, {
             name: 'desks',
             description: 'desks',
@@ -302,7 +306,7 @@ export class DesksManageComponent extends AsyncHandler {
         })
             .toPromise()
             .catch((e) => {
-                this.loading = '';
+                this.loading.set('');
                 notifyError(
                     i18n('APP.CONCIERGE.DESKS_REMOVE_ERROR', {
                         error: e.message || e,
@@ -312,7 +316,7 @@ export class DesksManageComponent extends AsyncHandler {
             });
         notifySuccess(i18n('APP.CONCIERGE.DESKS_REMOVE_SUCCESS'));
         this._state.setFilters({});
-        this.loading = '';
+        this.loading.set('');
     }
 
     public get kiosk_url() {
@@ -334,8 +338,8 @@ export class DesksManageComponent extends AsyncHandler {
     }
 
     public async loadCSVData(event: InputEvent) {
-        this.loading = i18n('APP.CONCIERGE.DESKS_UPLOADING');
-        this.dragging = false;
+        this.loading.set(i18n('APP.CONCIERGE.DESKS_UPLOADING'));
+        this.dragging.set(false);
         const data = await loadTextFileFromInputEvent(event).catch(([m, e]) => {
             notifyError(m);
             throw e;
@@ -354,10 +358,10 @@ export class DesksManageComponent extends AsyncHandler {
         } catch (e) {
             console.error(e);
         }
-        this.loading = '';
+        this.loading.set('');
     }
 
     public handleDrag(type: 'enter' | 'leave' | 'end', event: DragEvent) {
-        this.dragging = type === 'enter';
+        this.dragging.set(type === 'enter');
     }
 }

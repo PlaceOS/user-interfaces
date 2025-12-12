@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, OnInit, Output } from '@angular/core';
+import { Component, inject, OnInit, output, signal } from '@angular/core';
 import {
     FormControl,
     FormGroup,
@@ -43,9 +43,9 @@ const CHARS = '0123456789ABCDEF';
 @Component({
     selector: 'desk-modal',
     template: `
-        <div class="w-[32rem]">
+        <div class="w-lg">
             <header
-                class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded border-none bg-base-200 p-2"
+                class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none bg-base-200 p-2"
             >
                 <h2 class="px-2 text-xl font-medium">
                     {{
@@ -55,13 +55,13 @@ const CHARS = '0123456789ABCDEF';
                         ) | translate
                     }}
                 </h2>
-                @if (!loading) {
+                @if (!loading()) {
                     <button icon matRipple mat-dialog-close>
                         <icon>close</icon>
                     </button>
                 }
             </header>
-            @if (!loading) {
+            @if (!loading()) {
                 <main
                     class="flex max-h-[65vh] flex-col overflow-auto p-4"
                     [formGroup]="form"
@@ -129,7 +129,7 @@ const CHARS = '0123456789ABCDEF';
                                 <button
                                     icon
                                     matRipple
-                                    class="h-12 w-12 min-w-12 rounded border border-secondary text-secondary"
+                                    class="h-12 w-12 min-w-12 rounded-sm border border-secondary text-secondary"
                                     [matTooltip]="
                                         'APP.CONCIERGE.POI_MAP_SELECT'
                                             | translate
@@ -153,7 +153,7 @@ const CHARS = '0123456789ABCDEF';
                         <button
                             icon
                             matRipple
-                            class="h-12 w-12 min-w-12 rounded bg-secondary text-secondary-content"
+                            class="h-12 w-12 min-w-12 rounded-sm bg-secondary text-secondary-content"
                             [matTooltip]="
                                 'APP.CONCIERGE.USER_CLEAR' | translate
                             "
@@ -258,8 +258,8 @@ export class DeskModalComponent implements OnInit {
     private _org = inject(OrganisationService);
     private _dialog = inject(MatDialog);
 
-    @Output() public readonly event = new EventEmitter<DialogEvent>();
-    public loading: boolean;
+    public readonly event = output<DialogEvent>();
+    public loading = signal(false);
 
     public get id(): string {
         return this._data?.desk?.id || '';
@@ -311,7 +311,7 @@ export class DeskModalComponent implements OnInit {
         this.form.markAllAsTouched();
         this.form.updateValueAndValidity();
         if (!this.form.valid) return;
-        this.loading = true;
+        this.loading.set(true);
         const value = { ...this.form.getRawValue() };
         if (value.assigned_user) {
             value.assigned_to = value.assigned_user?.email || value.assigned_to;

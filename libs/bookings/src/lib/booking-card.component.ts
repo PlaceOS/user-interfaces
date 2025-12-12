@@ -54,7 +54,7 @@ import { ParkingService } from './parking.service';
                 (click)="viewDetails()"
             >
                 <div
-                    class="relative w-full rounded-xl border border-base-300 bg-base-100 py-4 shadow"
+                    class="relative w-full rounded-xl border border-base-300 bg-base-100 py-4 shadow-sm"
                 >
                     <h4 class="px-4 text-lg">{{ booking()?.title }}</h4>
                     <div class="mx-4 my-2 flex items-center space-x-2">

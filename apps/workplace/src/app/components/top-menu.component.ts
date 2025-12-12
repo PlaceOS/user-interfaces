@@ -27,7 +27,7 @@ import { IconComponent } from '@placeos/components';
                 #menuContainer
                 menu
                 [class.opacity-0]="mobile_menu() || checking()"
-                [class.!h-0]="mobile_menu()"
+                [class.h-0!]="mobile_menu()"
                 (window:resize)="checkMenu()"
                 class="flex h-full w-full min-w-full items-center justify-center overflow-hidden text-base-content"
             >
@@ -46,7 +46,7 @@ import { IconComponent } from '@placeos/components';
                             <icon
                                 outline
                                 className="material-symbols-outlined"
-                                class="!m-0 text-xl"
+                                class="m-0! text-xl"
                             >
                                 {{ route.icon }}
                             </icon>
@@ -84,7 +84,7 @@ import { IconComponent } from '@placeos/components';
                             <icon
                                 outline
                                 className="material-symbols-outlined"
-                                class="!m-0 text-xl"
+                                class="m-0! text-xl"
                             >
                                 {{ route.icon }}
                             </icon>
@@ -99,7 +99,7 @@ import { IconComponent } from '@placeos/components';
         `
             [menu] > * {
                 height: 3.5rem;
-                flex-shrink: 1;
+                shrink: 1;
             }
 
             [bar] {

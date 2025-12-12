@@ -25,7 +25,7 @@ import { map } from 'rxjs/operators';
     selector: 'desk-flow-confirm',
     template: `
         <header
-            class="sticky top-2 z-10 mx-auto mb-4 flex h-14 w-full max-w-[calc(100%-1rem)] items-center justify-between rounded border-none bg-base-200 p-2"
+            class="sticky top-2 z-10 mx-auto mb-4 flex h-14 w-full max-w-[calc(100%-1rem)] items-center justify-between rounded-sm border-none bg-base-200 p-2"
         >
             <h2 class="m-0 flex-1 px-2 text-xl font-medium capitalize">
                 {{ 'APP.WORKPLACE.DESK_CONFIRM_TITLE' | translate }}
@@ -155,7 +155,7 @@ import { map } from 'rxjs/operators';
                                     }
                                     <div class="flex-1"></div>
                                     <div
-                                        class="rounded bg-success px-2 py-1 text-xs text-success-content"
+                                        class="rounded-sm bg-success px-2 py-1 text-xs text-success-content"
                                     >
                                         {{
                                             'COMMON.ITEM_COUNT'
@@ -180,7 +180,7 @@ import { map } from 'rxjs/operators';
                                             }}</span>
                                         </div>
                                         <div
-                                            class="rounded bg-success px-2 py-1 text-xs text-success-content"
+                                            class="rounded-sm bg-success px-2 py-1 text-xs text-success-content"
                                         >
                                             x{{ item.quantity }}
                                         </div>

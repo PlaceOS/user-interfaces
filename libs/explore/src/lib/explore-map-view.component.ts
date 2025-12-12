@@ -59,7 +59,7 @@ const EMPTY = [];
         @if (!(use_mapsindoors$ | async)) {
             <div
                 controls
-                class="absolute left-2 top-2 max-w-[calc(100vw-1rem)] space-y-2 overflow-hidden rounded border border-base-200 bg-base-100 p-2"
+                class="absolute left-2 top-2 max-w-[calc(100vw-1rem)] space-y-2 overflow-hidden rounded-sm border border-base-200 bg-base-100 p-2"
             >
                 <explore-map-controls></explore-map-controls>
                 @if (!hide_zones) {
@@ -82,7 +82,7 @@ const EMPTY = [];
         @if (show_legend && legend.length) {
             <div
                 legend
-                class="absolute bottom-2 left-2 rounded border border-base-200 bg-base-100 p-2"
+                class="absolute bottom-2 left-2 rounded-sm border border-base-200 bg-base-100 p-2"
             >
                 <h3 class="mb-2 font-medium">
                     {{ 'EXPLORE.LEGEND' | translate }}
@@ -100,7 +100,7 @@ const EMPTY = [];
         }
         @if (locate) {
             <button
-                class="absolute right-2 top-2 h-12 min-w-32 rounded-lg border border-base-300 bg-base-100 px-4 shadow"
+                class="absolute right-2 top-2 h-12 min-w-32 rounded-lg border border-base-300 bg-base-100 px-4 shadow-sm"
                 matRipple
                 (click)="clearLocate()"
             >

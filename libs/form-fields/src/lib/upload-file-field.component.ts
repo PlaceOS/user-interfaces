@@ -1,18 +1,23 @@
 import { Component, forwardRef } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { Attachment, randomInt } from '@placeos/common';
+import {
+    Attachment,
+    randomInt,
+    UPLOAD_PERMISSIONS_MODAL,
+} from '@placeos/common';
 import { takeWhile } from 'rxjs/operators';
 
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { uploadFiles } from '@placeos/cloud-uploads';
 import * as blobUtil from 'blob-util';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-permissions-modal.component';
 
 @Component({
     selector: 'upload-file',
     template: `
         <div
-            class="relative w-full cursor-pointer rounded border border-base-200 bg-base-200 p-2 hover:bg-base-200"
+            class="relative w-full cursor-pointer rounded-sm border border-base-200 bg-base-200 p-2 hover:bg-base-200"
         >
             <input
                 type="file"
@@ -22,8 +27,8 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
             @if (item) {
                 <div
                     item
-                    class="relative z-50 flex w-full items-center rounded border border-base-200 bg-base-100 hover:bg-base-200"
-                    [class.!bg-error]="item.progress < 1"
+                    class="relative z-50 flex w-full items-center rounded-sm border border-base-200 bg-base-100 hover:bg-base-200"
+                    [class.bg-error!]="item.progress < 1"
                     [class.!bg-opacity-20]="item.progress < 1"
                 >
                     <div class="w-px flex-1 truncate px-2 font-mono text-sm">
@@ -73,6 +78,10 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
             provide: NG_VALUE_ACCESSOR,
             useExisting: forwardRef(() => UploadFileFieldComponent),
             multi: true,
+        },
+        {
+            provide: UPLOAD_PERMISSIONS_MODAL,
+            useValue: UploadPermissionsModalComponent,
         },
     ],
     imports: [MatProgressSpinnerModule, IconComponent],

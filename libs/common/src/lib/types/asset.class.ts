@@ -1,67 +1,32 @@
-export class AssetCategory {
-    id: string = '';
-    name: string = '';
-    description: string = '';
-    parent_category_id?: string = '';
-    created_at: number = Date.now();
-    updated_at: number = Date.now();
+// Re-export ts-client types
+export {
+    PlaceAsset,
+    PlaceAssetCategory,
+    PlaceAssetPurchaseOrder,
+    PlaceAssetType,
+} from '@placeos/ts-client';
 
-    constructor(data?: Partial<AssetCategory>) {
-        Object.assign(this, data);
-    }
-}
+// Type aliases for backwards compatibility
+export {
+    PlaceAsset as Asset,
+    PlaceAssetCategory as AssetCategory,
+    PlaceAssetPurchaseOrder as AssetPurchaseOrder,
+} from '@placeos/ts-client';
 
-export class AssetPurchaseOrder {
-    id: string;
-    order_number: string;
-    invoice_number: string;
-    purchase_date: number;
-    unit_price: number;
-    expected_service_start_date: number;
-    expected_service_end_date: number;
-    created_at: number;
-    updated_at: number;
+// Extended AssetGroup type with additional UI properties
+import {
+    PlaceAsset,
+    PlaceAssetCategory,
+    PlaceAssetPurchaseOrder,
+    PlaceAssetType,
+} from '@placeos/ts-client';
 
-    constructor(data?: Partial<AssetPurchaseOrder>) {
-        Object.assign(this, data);
-    }
-}
-
-export class AssetGroup {
-    id: string;
-    category_id: string;
-    brand: string;
-    name: string;
-    in_use: number;
-    description: string;
-    asset_count: number;
-    category?: AssetCategory;
-    assets?: Asset[];
-    images: string[] = [];
-    purchase_orders?: AssetPurchaseOrder[];
+export interface AssetGroup extends PlaceAssetType {
+    in_use?: number;
+    asset_count?: number;
+    category?: PlaceAssetCategory;
+    assets?: PlaceAsset[];
+    purchase_orders?: PlaceAssetPurchaseOrder[];
     quantity?: number;
-    zone_id: string;
-    created_at: number;
-    updated_at: number;
-
-    constructor(data?: Partial<AssetGroup>) {
-        Object.assign(this, data);
-    }
-}
-
-export class Asset {
-    id: string = '';
-    type_id: string = '';
-    description: string = '';
-    serial_number: string = '';
-    barcode: string = '';
-    identifier: string = '';
-    other_data: Record<string, any> = {};
-    purchase_order_id: string = '';
-    created_at: number = Date.now();
-    updated_at: number = Date.now();
-
-    constructor(data?: Partial<Asset>) {
-        Object.assign(this, data);
-    }
+    zone_id?: string;
 }

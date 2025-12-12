@@ -11,9 +11,9 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
     template: `
         <li
             item
-            [class.!border-base-200]="active()"
+            [class.border-base-200!]="active()"
             matRipple
-            class="relative w-full rounded-lg border border-base-200 bg-base-100 p-2 shadow"
+            class="relative w-full rounded-lg border border-base-200 bg-base-100 p-2 shadow-sm"
         >
             <button
                 name="select-catering-item"
@@ -52,48 +52,48 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
                     </div>
                     <div class="flex items-center space-x-1 text-sm">
                         @if (item().unit_price) {
-                            <p class="w-px flex-1 rounded bg-base-100">
+                            <p class="w-px flex-1 rounded-sm bg-base-100">
                                 {{ item().unit_price / 100 | currency: code() }}
                             </p>
                         }
                         @if (item().option_list?.length) {
                             <div
-                                class="rounded-2xl border border-base-200 px-2 py-1 text-xs shadow"
+                                class="rounded-2xl border border-base-200 px-2 py-1 text-xs shadow-sm"
                             >
                                 {{ options }}
                             </div>
                         }
                         @if (item().tags?.includes('Gluten Free')) {
                             <div
-                                class="flex h-5 w-7 items-center justify-center rounded-xl bg-success text-xs shadow"
+                                class="flex h-5 w-7 items-center justify-center rounded-xl bg-success text-xs shadow-sm"
                             >
                                 GF
                             </div>
                         }
                         @if (item().tags?.includes('Vegan')) {
                             <div
-                                class="flex h-5 w-7 items-center justify-center rounded-xl bg-info text-xs shadow"
+                                class="flex h-5 w-7 items-center justify-center rounded-xl bg-info text-xs shadow-sm"
                             >
                                 VG
                             </div>
                         }
                         @if (item().tags?.includes('Vegetarian')) {
                             <div
-                                class="flex h-5 w-7 items-center justify-center rounded-xl bg-info text-xs shadow"
+                                class="flex h-5 w-7 items-center justify-center rounded-xl bg-info text-xs shadow-sm"
                             >
                                 V
                             </div>
                         }
                         @if (item().tags?.includes('Contains Dairy')) {
                             <div
-                                class="flex h-5 w-7 items-center justify-center rounded-xl bg-warning text-xs shadow"
+                                class="flex h-5 w-7 items-center justify-center rounded-xl bg-warning text-xs shadow-sm"
                             >
                                 D
                             </div>
                         }
                         @if (item().tags?.includes('Contains Nuts')) {
                             <div
-                                class="bg-orange-600 flex h-5 w-7 items-center justify-center rounded-xl text-xs shadow"
+                                class="bg-orange-600 flex h-5 w-7 items-center justify-center rounded-xl text-xs shadow-sm"
                             >
                                 N
                             </div>

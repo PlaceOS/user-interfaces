@@ -19,7 +19,7 @@ import { showMetadata, updateMetadata } from '@placeos/ts-client';
                 <icon>close</icon>
             </button>
         </header>
-        <main class="h-[50vh] w-[36rem] space-y-2 overflow-auto p-2">
+        <main class="h-[50vh] w-xl space-y-2 overflow-auto p-2">
             <button
                 btn
                 matRipple
@@ -32,7 +32,7 @@ import { showMetadata, updateMetadata } from '@placeos/ts-client';
                 <div class="flex w-full items-center space-x-2">
                     <input
                         type="text"
-                        class="flex-1 rounded border border-base-200 px-4 py-3"
+                        class="flex-1 rounded-sm border border-base-200 px-4 py-3"
                         [placeholder]="
                             'APP.CONCIERGE.SUPPORT_TYPES_NAME' | translate
                         "
@@ -40,7 +40,7 @@ import { showMetadata, updateMetadata } from '@placeos/ts-client';
                     />
                     <input
                         type="email"
-                        class="flex-[2] rounded border border-base-200 px-4 py-3"
+                        class="flex-2 rounded-sm border border-base-200 px-4 py-3"
                         [placeholder]="
                             'APP.CONCIERGE.SUPPORT_TYPES_EMAIL' | translate
                         "
@@ -52,7 +52,7 @@ import { showMetadata, updateMetadata } from '@placeos/ts-client';
                         [matTooltip]="
                             'APP.CONCIERGE.SUPPORT_TYPES_REMOVE' | translate
                         "
-                        class="h-12 w-12 rounded border border-error text-error"
+                        class="h-12 w-12 rounded-sm border border-error text-error"
                         (click)="item_list.splice(i, 1)"
                     >
                         <icon class="text-2xl">delete</icon>

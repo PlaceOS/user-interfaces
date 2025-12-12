@@ -7,7 +7,7 @@ import { QuestionType } from './types';
     selector: 'new-survey-widget',
     template: `
         <div
-            class="h-full space-y-2 rounded border border-base-300 bg-base-100 p-4"
+            class="h-full space-y-2 rounded-sm border border-base-300 bg-base-100 p-4"
         >
             <h3 class="text-lg font-medium">
                 {{ response().question?.title }}
@@ -19,7 +19,7 @@ import { QuestionType } from './types';
                 @if (is_table()) {
                     <div class="space-y-2">
                         @for (answer of answer_list(); track answer.id) {
-                            <div class="rounded bg-base-200 p-2 text-sm">
+                            <div class="rounded-sm bg-base-200 p-2 text-sm">
                                 {{ answer.answer_json }}
                             </div>
                         }

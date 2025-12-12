@@ -1,7 +1,7 @@
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { CateringItem } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { MockComponent } from 'ng-mocks';
-import { CateringItem } from '@placeos/common';
 
 import { CateringOrderItemComponent } from '../lib/catering-order-item.component';
 

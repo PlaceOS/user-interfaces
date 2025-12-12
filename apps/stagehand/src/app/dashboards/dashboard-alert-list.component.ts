@@ -19,7 +19,7 @@ import { DashboardsService } from './dashboards.service';
                 [class.opacity-0]="loading.length <= 0"
             />
             <simple-table
-                class="block min-w-[48rem] bg-base-100"
+                class="block min-w-3xl bg-base-100"
                 [data]="alert_list()"
                 [filter]="search_term()"
                 [columns]="[
@@ -59,7 +59,7 @@ import { DashboardsService } from './dashboards.service';
             <ng-template #status_template let-enabled="data">
                 @if (enabled) {
                     <div
-                        class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-success text-2xl text-success-content"
+                        class="mx-auto flex h-8 w-8 items-center justify-center rounded-sm bg-success text-2xl text-success-content"
                     >
                         <icon>done</icon>
                     </div>
@@ -71,7 +71,7 @@ import { DashboardsService } from './dashboards.service';
             <ng-template #conditions_template let-list="data">
                 <div class="flex w-full space-x-2 p-2">
                     <div
-                        class="flex flex-1 space-x-1 rounded border border-base-200 p-2"
+                        class="flex flex-1 space-x-1 rounded-sm border border-base-200 p-2"
                         matTooltip="Comparision Conditions"
                     >
                         <div class="flex-1">
@@ -80,7 +80,7 @@ import { DashboardsService } from './dashboards.service';
                         <icon class="text-lg">compare_arrows</icon>
                     </div>
                     <div
-                        class="flex flex-1 space-x-1 rounded border border-base-200 p-2"
+                        class="flex flex-1 space-x-1 rounded-sm border border-base-200 p-2"
                         matTooltip="Time Dependant Conditions"
                     >
                         <div class="flex-1">
@@ -95,7 +95,7 @@ import { DashboardsService } from './dashboards.service';
                     <button
                         icon
                         matRipple
-                        class="rounded"
+                        class="rounded-sm"
                         [matMenuTriggerFor]="menu"
                     >
                         <icon>more_vert</icon>

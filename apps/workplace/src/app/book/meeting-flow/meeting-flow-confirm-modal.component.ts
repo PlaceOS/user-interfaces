@@ -38,7 +38,7 @@ import { SpacePipe } from '@placeos/events';
     selector: 'meeting-flow-confirm-modal',
     template: `
         <header
-            class="sticky top-0 z-10 m-2 flex h-14 w-[40rem] max-w-full items-center justify-between rounded border-none bg-base-200 px-4 py-2"
+            class="sticky top-0 z-10 m-2 flex h-14 w-160 max-w-full items-center justify-between rounded-sm border-none bg-base-200 px-4 py-2"
         >
             <h2 class="text-xl font-medium capitalize">
                 {{ 'APP.WORKPLACE.MEETING_CONFIRM' | translate }}
@@ -219,7 +219,7 @@ import { SpacePipe } from '@placeos/events';
                                                 }
                                                 <div class="flex-1"></div>
                                                 <div
-                                                    class="rounded bg-success px-2 py-1 text-xs text-success-content"
+                                                    class="rounded-sm bg-success px-2 py-1 text-xs text-success-content"
                                                 >
                                                     {{
                                                         'COMMON.ITEM_COUNT'
@@ -230,7 +230,7 @@ import { SpacePipe } from '@placeos/events';
                                                     }}
                                                 </div>
                                                 <div
-                                                    class="rounded bg-info px-2 py-1 text-xs text-info-content"
+                                                    class="rounded-sm bg-info px-2 py-1 text-xs text-info-content"
                                                 >
                                                     Total:
                                                     {{
@@ -284,12 +284,12 @@ import { SpacePipe } from '@placeos/events';
                                                         }
                                                     </div>
                                                     <div
-                                                        class="rounded bg-success px-2 py-1 text-xs text-success-content"
+                                                        class="rounded-sm bg-success px-2 py-1 text-xs text-success-content"
                                                     >
                                                         x{{ item.quantity }}
                                                     </div>
                                                     <div
-                                                        class="rounded bg-info px-2 py-1 text-xs text-info-content"
+                                                        class="rounded-sm bg-info px-2 py-1 text-xs text-info-content"
                                                     >
                                                         {{
                                                             item.unit_price_with_options /
@@ -300,7 +300,7 @@ import { SpacePipe } from '@placeos/events';
                                                         ea
                                                     </div>
                                                     <div
-                                                        class="rounded bg-info px-2 py-1 text-xs text-info-content"
+                                                        class="rounded-sm bg-info px-2 py-1 text-xs text-info-content"
                                                     >
                                                         {{
                                                             item.total_cost /
@@ -378,7 +378,7 @@ import { SpacePipe } from '@placeos/events';
                                                 }
                                                 <div class="flex-1"></div>
                                                 <div
-                                                    class="rounded bg-success px-2 py-1 text-xs text-success-content"
+                                                    class="rounded-sm bg-success px-2 py-1 text-xs text-success-content"
                                                 >
                                                     {{
                                                         'COMMON.ITEM_COUNT'
@@ -408,7 +408,7 @@ import { SpacePipe } from '@placeos/events';
                                                         }}</span>
                                                     </div>
                                                     <div
-                                                        class="rounded bg-success px-2 py-1 text-xs text-success-content"
+                                                        class="rounded-sm bg-success px-2 py-1 text-xs text-success-content"
                                                     >
                                                         x{{ item.quantity }}
                                                     </div>
@@ -429,7 +429,7 @@ import { SpacePipe } from '@placeos/events';
                     >
                         <icon>done</icon>
                     </div>
-                    <h3 class="!mt-0 text-xl">
+                    <h3 class="mt-0! text-xl">
                         {{ 'CALENDAR_EVENT.NOTES_HEADER' | translate }}
                     </h3>
                     <div [innerHTML]="event.body | sanitize"></div>
@@ -437,7 +437,7 @@ import { SpacePipe } from '@placeos/events';
             }
             @if (requires_approval) {
                 <div
-                    class="col-span-2 mt-2 rounded !border-none bg-warning px-2 py-1 text-center text-sm text-warning-content"
+                    class="col-span-2 mt-2 rounded-sm border-none! bg-warning px-2 py-1 text-center text-sm text-warning-content"
                 >
                     {{ 'CALENDAR_EVENT.APPROVAL_REQUIRED_MSG' | translate }}
                 </div>

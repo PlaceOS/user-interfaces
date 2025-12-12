@@ -1,8 +1,8 @@
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { BehaviorSubject } from 'rxjs';
 
-import { PanelStateService } from '../../app/panel-state.service';
 import { PanelViewStatusComponent } from '../../app/new-panel/panel-view-status.component';
+import { PanelStateService } from '../../app/panel-state.service';
 
 describe('PanelViewStatusComponent', () => {
     let spectator: Spectator<PanelViewStatusComponent>;

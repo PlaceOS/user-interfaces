@@ -33,11 +33,16 @@ import { SignageStateService } from './signage-state.service';
 @Component({
     selector: 'signage-media-list',
     template: `
-        <div class="relative p-4">
-            <h3 class="mb-4 text-center text-xl font-medium">
+        <div class="relative p-2">
+            <h3
+                class="mb-2 rounded-xl bg-base-100 p-2 text-center text-xl font-medium"
+            >
                 {{ 'APP.CONCIERGE.SIGNAGE_MEDIA' | translate }}
             </h3>
-            <mat-form-field appearance="outline" class="no-subscript w-full">
+            <mat-form-field
+                appearance="outline"
+                class="no-subscript white w-full"
+            >
                 <input
                     matInput
                     [placeholder]="'COMMON.SEARCH' | translate"
@@ -50,7 +55,7 @@ import { SignageStateService } from './signage-state.service';
                 matRipple
                 customTooltip
                 [content]="add_link_template"
-                class="absolute right-14 top-2 border border-base-300"
+                class="absolute right-14 top-3 h-9! max-h-9 w-9! min-w-0 max-w-9 border border-base-300"
                 [matTooltip]="'APP.CONCIERGE.SIGNAGE_MEDIA_LINK' | translate"
                 matTooltipPosition="left"
             >
@@ -58,7 +63,7 @@ import { SignageStateService } from './signage-state.service';
             </button>
             <ng-template #add_link_template>
                 <div
-                    class="my-2 flex w-[20rem] flex-col space-y-4 rounded-lg border border-base-300 bg-base-100 p-4 shadow"
+                    class="my-2 flex w-[20rem] flex-col space-y-4 rounded-lg border border-base-300 bg-base-100 p-4 shadow-sm"
                 >
                     <mat-form-field appearance="outline" class="no-subscript">
                         <input
@@ -81,7 +86,7 @@ import { SignageStateService } from './signage-state.service';
             <button
                 icon
                 matRipple
-                class="absolute right-2 top-2 border border-base-300"
+                class="absolute right-3 top-3 h-9! max-h-9 w-9! min-w-0 max-w-9 border border-base-300"
                 [matTooltip]="'APP.CONCIERGE.SIGNAGE_MEDIA_UPLOAD' | translate"
                 matTooltipPosition="left"
             >
@@ -119,13 +124,15 @@ import { SignageStateService } from './signage-state.service';
                             ></div>
                         }
                         <div
-                            class="flex min-h-10 min-w-10 items-center justify-center rounded-2xl border-4 border-dashed border-base-400 bg-base-300"
+                            class="flex min-h-10 min-w-10 items-center justify-center rounded-2xl border-4 border-dashed border-base-400 bg-base-300 opacity-30"
                             *cdkDragPlaceholder
                         >
                             <icon class="text-2xl text-base-100"> add </icon>
                         </div>
-                        <div
+                        <button
                             preview
+                            matRipple
+                            (click)="previewItem(media)"
                             class="relative h-36 w-full overflow-hidden rounded-lg bg-base-200"
                         >
                             @if (media.thumbnail_url) {
@@ -134,6 +141,11 @@ import { SignageStateService } from './signage-state.service';
                                     [source]="media.thumbnail_url"
                                     class="h-full w-full rounded-lg object-contain"
                                 />
+                                <div
+                                    class="absolute inset-0 flex items-end justify-end p-1 opacity-0 transition-opacity duration-200 hover:opacity-100"
+                                >
+                                    <icon class="text-2xl">expand_content</icon>
+                                </div>
                             }
                             <div
                                 class="absolute left-1 top-1 rounded-lg px-2 py-1 font-mono text-xs capitalize"
@@ -170,7 +182,7 @@ import { SignageStateService } from './signage-state.service';
                                     {{ media.play_time / 1000 | mediaDuration }}
                                 </div>
                             }
-                        </div>
+                        </button>
                         <div
                             class="relative top-1 flex w-full items-center justify-between"
                         >
@@ -312,6 +324,10 @@ import { SignageStateService } from './signage-state.service';
                 display: flex;
                 flex-direction: column;
                 height: 100%;
+            }
+
+            ::ng-deep .cdk-drag-preview {
+                opacity: 0.6;
             }
         `,
     ],

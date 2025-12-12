@@ -22,7 +22,7 @@ import {
     selector: 'app-zone-select-modal',
     template: `
         <header
-            class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded border-none bg-base-200 p-2"
+            class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none bg-base-200 p-2"
         >
             <h2 class="px-2 text-xl font-medium">
                 {{ 'APP.CONCIERGE.ZONE_SELECT_HEADER' | translate }}
@@ -32,7 +32,7 @@ import {
             </button>
         </header>
         <main
-            class="h-[65vh] min-w-[32rem] max-w-lg space-y-2 overflow-auto px-4 pb-4 pt-2 text-center"
+            class="h-[65vh] min-w-lg max-w-lg space-y-2 overflow-auto px-4 pb-4 pt-2 text-center"
         >
             <mat-form-field
                 appearance="outline"
@@ -49,7 +49,7 @@ import {
             @if (zone_list.length > 0) {
                 <button
                     matRipple
-                    class="z-0 flex h-16 w-full items-center justify-center space-x-2 rounded border border-base-300 p-2 text-left hover:bg-base-200"
+                    class="z-0 flex h-16 w-full items-center justify-center space-x-2 rounded-sm border border-base-300 p-2 text-left hover:bg-base-200"
                     *ngFor="let zone of zone_list"
                     [mat-dialog-close]="zone.id"
                 >

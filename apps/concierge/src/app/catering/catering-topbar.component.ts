@@ -107,7 +107,7 @@ import { SearchbarComponent } from '../ui/searchbar.component';
                     icon
                     matRipple
                     [matTooltip]="'CATERING.MENU_ADD' | translate"
-                    class="h-12 w-12 rounded bg-secondary text-secondary-content"
+                    class="h-12 w-12 rounded-sm bg-secondary text-secondary-content"
                     (click)="addItem()"
                 >
                     <icon class="text-2xl">add</icon>
@@ -118,7 +118,7 @@ import { SearchbarComponent } from '../ui/searchbar.component';
                     icon
                     matRipple
                     [matTooltip]="'CATERING.BOOKING_RULES' | translate"
-                    class="h-12 w-12 rounded bg-secondary text-secondary-content"
+                    class="h-12 w-12 rounded-sm bg-secondary text-secondary-content"
                     (click)="editConfig()"
                 >
                     <icon class="text-2xl">menu_book</icon>
@@ -129,7 +129,7 @@ import { SearchbarComponent } from '../ui/searchbar.component';
                     icon
                     matRipple
                     [matTooltip]="'CATERING.MENU_IMPORT' | translate"
-                    class="h-12 w-12 rounded bg-secondary text-secondary-content"
+                    class="h-12 w-12 rounded-sm bg-secondary text-secondary-content"
                     (click)="importMenu()"
                 >
                     <icon class="text-2xl">cloud_upload</icon>
@@ -140,7 +140,7 @@ import { SearchbarComponent } from '../ui/searchbar.component';
                     icon
                     matRipple
                     [matTooltip]="'CATERING.ROOM_AVAILABILITY' | translate"
-                    class="h-12 w-12 rounded bg-secondary text-secondary-content"
+                    class="h-12 w-12 rounded-sm bg-secondary text-secondary-content"
                     (click)="setRoomAvailability()"
                 >
                     <icon class="text-2xl">event_available</icon>
@@ -151,7 +151,7 @@ import { SearchbarComponent } from '../ui/searchbar.component';
                     icon
                     matRipple
                     [matTooltip]="'CATERING.CHARGE_CODES' | translate"
-                    class="h-12 w-12 rounded bg-secondary text-secondary-content"
+                    class="h-12 w-12 rounded-sm bg-secondary text-secondary-content"
                     (click)="setChargeCodes()"
                 >
                     <icon class="text-2xl">payments</icon>

@@ -19,7 +19,7 @@ import { CateringStateService } from './catering-state.service';
     selector: 'catering-menu',
     template: `
         <simple-table
-            class="block w-full min-w-[32rem] text-sm"
+            class="block w-full min-w-lg text-sm"
             [data]="menu"
             [columns]="[
                 {
@@ -67,7 +67,7 @@ import { CateringStateService } from './catering-state.service';
         </ng-template>
         <ng-template #price_template let-data="data">
             <div
-                class="mx-auto flex items-center rounded bg-secondary px-2 py-1 font-mono text-xs text-secondary-content"
+                class="mx-auto flex items-center rounded-sm bg-secondary px-2 py-1 font-mono text-xs text-secondary-content"
             >
                 {{ data / 100 | currency: (symbol | async) }}
             </div>
@@ -171,7 +171,7 @@ import { CateringStateService } from './catering-state.service';
                         <button
                             icon
                             matRipple
-                            class="!mr-1"
+                            class="mr-1!"
                             [matTooltip]="
                                 'CATERING.ITEM_OPTION_REMOVE' | translate
                             "

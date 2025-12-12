@@ -21,7 +21,7 @@ import { ParkingTopbarComponent } from './parking-topbar.component';
                     <div class="px-8 pb-2">
                         <nav
                             mat-tab-nav-bar
-                            class="overflow-hidden rounded bg-base-200"
+                            class="overflow-hidden rounded-sm bg-base-200"
                             [tabPanel]="tabPanel"
                         >
                             <a

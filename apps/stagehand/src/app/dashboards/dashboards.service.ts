@@ -24,9 +24,10 @@ import {
 } from '@placeos/ts-client';
 import { lastValueFrom } from 'rxjs';
 
-import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
+import { openConfirmModal } from '@placeos/components';
 import mqtt from 'mqtt';
 import { Alert } from '../alerts.service';
+import { AlertNotificationService } from '../push-notification.service';
 
 export interface StateTopic {
     region_id?: string;
@@ -165,11 +166,15 @@ function findCompareMatches(alerts: BrokerAlert[], item: TriggerComparison) {
 export class DashboardsService extends AsyncHandler {
     private _org = inject(OrganisationService);
     private _dialog = inject(MatDialog);
+    private _push = inject(AlertNotificationService);
 
     private _mqtt_broker: mqtt.MqttClient;
     private _connected = false;
     private _alerts = signal([]);
     private _initialising = signal(false);
+    private _region_set_from_params = false;
+    /** Track alert IDs that have already been notified to prevent duplicates */
+    private _notified_alert_ids = new Set<string>();
 
     public readonly loading = signal<string[]>([]);
     public readonly region_id = signal<string>('');
@@ -185,12 +190,48 @@ export class DashboardsService extends AsyncHandler {
 
     constructor() {
         super();
+        // Check for region/building in URL query params immediately
+        this._initFromQueryParams();
+
         firstTruthyValueFrom(this._org.initialised).then(() => {
             this.timeout('org_init', () => {
-                this.region_id.set(this._org.region.id || '');
-                this.building_id.set(this._org.building.id || '');
+                // Don't overwrite if region was explicitly set from query params
+                if (!this._region_set_from_params) {
+                    this.region_id.set(this._org.region?.id || '');
+                    this.building_id.set(this._org.building?.id || '');
+                }
             });
         });
+    }
+
+    /** Initialize region/building from URL query params */
+    private _initFromQueryParams() {
+        // Parse query params from hash (for hash routing) or search
+        const hash = location.hash;
+        const queryIndex = hash.indexOf('?');
+        const queryString = queryIndex >= 0 ? hash.substring(queryIndex + 1) : '';
+        const params = new URLSearchParams(queryString);
+
+        const region_param = params.get('region');
+        const building_param = params.get('building');
+
+        if (region_param) {
+            this._region_set_from_params = true;
+            // 'all' means empty string (all regions/buildings)
+            this.region_id.set(region_param === 'all' ? '' : region_param);
+            if (building_param) {
+                this.building_id.set(building_param === 'all' ? '' : building_param);
+            }
+        }
+    }
+
+    /** Set region from query params, preventing constructor from overwriting */
+    public setRegionFromParams(region_id: string, building_id?: string) {
+        this._region_set_from_params = true;
+        this.region_id.set(region_id);
+        if (building_id !== undefined) {
+            this.building_id.set(building_id);
+        }
     }
 
     public async setAlert(id: string) {
@@ -300,6 +341,7 @@ export class DashboardsService extends AsyncHandler {
                 {
                     username: jwt,
                     password: jwt,
+                    keepalive: 30,
                 },
             );
             this._mqtt_broker.on('connect', () => (this._connected = true));
@@ -347,7 +389,9 @@ export class DashboardsService extends AsyncHandler {
                     item,
                     this.building_id()
                         ? { building: this.building_id() }
-                        : { region: this.region_id() },
+                        : this.region_id()
+                          ? { region: this.region_id() }
+                          : {},
                 );
                 if (!topic) continue;
                 log('ALERTS', 'Listening to topic:', topic);
@@ -402,9 +446,10 @@ export class DashboardsService extends AsyncHandler {
                         match_groups.push(group);
                     }
                     for (const group of match_groups) {
-                        if (
-                            group.length >= alert.conditions.comparisons.length
-                        ) {
+                        const required_matches = alert.any_match
+                            ? 1
+                            : alert.conditions.comparisons.length;
+                        if (group.length >= required_matches) {
                             const { time, topic_str } = group[0];
                             const topic = stringToTopic(topic_str);
                             const device = `${topic.module_name}_${topic.module_index}`;
@@ -423,9 +468,44 @@ export class DashboardsService extends AsyncHandler {
                     }
                     alert_out = unique(alert_out, 'id');
                 }
+                // Send push notifications for new alerts
+                this._sendPushNotifications(alert_out);
                 this.dashboard_alerts.set(alert_out);
             },
             10,
         );
+    }
+
+    /** Send push notifications for new alerts that haven't been notified yet */
+    private _sendPushNotifications(alerts: Alert[]): void {
+        log('ALERTS', `_sendPushNotifications called with ${alerts.length} alerts`);
+        for (const alert of alerts) {
+            // Skip if already notified
+            if (this._notified_alert_ids.has(alert.id)) {
+                log('ALERTS', `Skipping already notified alert: ${alert.id}`);
+                continue;
+            }
+
+            log('ALERTS', `Sending notification for new alert: ${alert.id}, severity: ${alert.severity}`);
+            // Mark as notified before sending to prevent duplicates
+            this._notified_alert_ids.add(alert.id);
+
+            // Send push notification
+            this._push.notifyAlert({
+                subject: alert.subject,
+                body: alert.body,
+                severity: alert.severity,
+                location: alert.location,
+                device: alert.device,
+            });
+        }
+
+        // Clean up old notified IDs that are no longer in the current alert list
+        const current_ids = new Set(alerts.map((a) => a.id));
+        for (const id of this._notified_alert_ids) {
+            if (!current_ids.has(id)) {
+                this._notified_alert_ids.delete(id);
+            }
+        }
     }
 }

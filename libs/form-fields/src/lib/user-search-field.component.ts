@@ -122,7 +122,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                 <button
                     icon
                     matRipple
-                    class="h-12 w-12 rounded border border-secondary text-secondary"
+                    class="h-12 w-12 rounded-sm border border-secondary text-secondary"
                     (click)="clearUser()"
                 >
                     <icon>person_cancel</icon>

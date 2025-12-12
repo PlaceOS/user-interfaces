@@ -37,9 +37,9 @@ import { map } from 'rxjs/operators';
 @Component({
     selector: 'locker-bank-modal',
     template: `
-        <div class="w-[32rem]">
+        <div class="w-lg">
             <header
-                class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded border-none bg-base-200 p-2"
+                class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none bg-base-200 p-2"
             >
                 <h2 class="px-2 text-xl font-medium">
                     {{

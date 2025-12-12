@@ -24,7 +24,7 @@ import { ParkingUser } from './parking-state.service';
 @Component({
     selector: 'parking-user-modal',
     template: `
-        <div class="w-[28rem]">
+        <div class="w-md">
             <header class="flex w-full items-center justify-between px-2">
                 <h2 class="px-2">
                     {{
@@ -54,7 +54,7 @@ import { ParkingUser } from './parking-state.service';
                         <button
                             icon
                             matRipple
-                            class="h-12 w-12 min-w-12 rounded bg-secondary text-secondary-content"
+                            class="h-12 w-12 min-w-12 rounded-sm bg-secondary text-secondary-content"
                             matTooltip="Clear Selected User"
                             (click)="
                                 form.patchValue({

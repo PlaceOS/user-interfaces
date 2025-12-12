@@ -15,7 +15,7 @@ describe('MapRadiusComponent', () => {
                 provide: MAP_FEATURE_DATA,
                 useValue: {
                     message: 'Test',
-                    zoom: of(1),
+                    zoom$: of(1),
                 },
             },
         ],
@@ -28,29 +28,32 @@ describe('MapRadiusComponent', () => {
     });
 
     it('should show a radius circle', fakeAsync(() => {
-        spectator.component.ngOnInit();
+        spectator.component.show.set(false);
+        spectator.detectChanges();
         expect('[radius]').not.toExist();
-        spectator.tick(400);
+        spectator.component.show.set(true);
+        spectator.detectChanges();
         expect('[radius]').toExist();
-
-        spectator.tick(700);
     }));
 
     it('should show a message', fakeAsync(() => {
-        spectator.component.ngOnInit();
+        spectator.component.show.set(true);
+        spectator.component.show_message.set(false);
+        spectator.detectChanges();
         expect('[message]').not.toExist();
-        spectator.tick(1100);
+        spectator.component.show_message.set(true);
+        spectator.detectChanges();
         expect('[message]').toExist();
         expect('[message]').toContainText('Test');
     }));
 
     it('should show a last seen if set', fakeAsync(() => {
-        spectator.component.ngOnInit();
-        spectator.tick(1100);
-        (spectator.component as any).last_seen = getUnixTime(
-            subMinutes(new Date(), 60),
+        spectator.component.show.set(true);
+        spectator.component.show_message.set(true);
+        spectator.detectChanges();
+        spectator.component.last_seen.set(
+            getUnixTime(subMinutes(new Date(), 60)),
         );
-        expect('[message] span').not.toExist();
         spectator.detectChanges();
         expect('[message] span').toExist();
         expect('[message] span').toContainText('1 hour ago');

@@ -98,7 +98,7 @@ import { DealsService } from './deals.service';
                         @for (deal of deals | async; track deal.id) {
                             <div>
                                 <button
-                                    class="mx-auto flex flex-col items-center overflow-hidden rounded-lg border border-base-300 bg-base-100 shadow"
+                                    class="mx-auto flex flex-col items-center overflow-hidden rounded-lg border border-base-300 bg-base-100 shadow-sm"
                                     (click)="view(deal)"
                                 >
                                     <div
@@ -114,7 +114,7 @@ import { DealsService } from './deals.service';
                                         }
                                         @if (deal.details) {
                                             <div
-                                                class="absolute bottom-2 left-2 max-w-full truncate rounded bg-info px-2 py-1 text-xs text-info-content shadow"
+                                                class="absolute bottom-2 left-2 max-w-full truncate rounded-sm bg-info px-2 py-1 text-xs text-info-content shadow-sm"
                                             >
                                                 {{ deal.details }}
                                             </div>
@@ -179,7 +179,7 @@ import { DealsService } from './deals.service';
                         }
                     </div>
                 } @else {
-                    <div class="mb-4 min-w-[64rem]">
+                    <div class="mb-4 min-w-5xl">
                         <simple-table
                             [data]="filtered_deals | async"
                             class="text-sm"
@@ -226,12 +226,12 @@ import { DealsService } from './deals.service';
                             class="flex h-full w-full items-center justify-center p-2"
                         >
                             <div
-                                class="h-16 w-16 rounded bg-base-200 object-cover"
+                                class="h-16 w-16 rounded-sm bg-base-200 object-cover"
                             >
                                 @if (deal.image) {
                                     <img
                                         auth
-                                        class="h-16 w-16 rounded bg-base-200 object-cover"
+                                        class="h-16 w-16 rounded-sm bg-base-200 object-cover"
                                         [source]="deal.image"
                                         alt="{{ deal.name }}"
                                     />
@@ -263,7 +263,7 @@ import { DealsService } from './deals.service';
                             <button
                                 icon
                                 matRipple
-                                class="h-12 w-12 rounded"
+                                class="h-12 w-12 rounded-sm"
                                 [matMenuTriggerFor]="menu"
                             >
                                 <icon>more_vert</icon>

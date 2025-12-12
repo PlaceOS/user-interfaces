@@ -1,4 +1,5 @@
 import { Component, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import {
     CustomTooltipData,
     IconComponent,
@@ -6,7 +7,6 @@ import {
 } from '@placeos/components';
 import { getModule } from '@placeos/ts-client';
 
-import { CommonModule } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
 import { ControlStateService } from '../control-state.service';
 
@@ -14,21 +14,21 @@ import { ControlStateService } from '../control-state.service';
     selector: 'lighting-tooltip',
     template: `
         <div
-            class="my-2 flex flex-col items-center space-y-2 rounded bg-base-100 px-2 pb-4 pt-2 shadow"
+            class="my-2 flex flex-col items-center space-y-2 rounded-sm bg-base-100 px-2 pb-4 pt-2 shadow-sm"
         >
             <h3
-                class="w-full rounded bg-base-200 px-4 py-2 text-xl font-medium"
+                class="w-full rounded-sm bg-base-200 px-4 py-2 text-xl font-medium"
             >
                 {{ 'APP.CONTROL.ACTION_LIGHT_SCENES' | translate }}
             </h3>
-            @if ((scenes | async).length) {
-                @for (item of scenes | async; track item) {
+            @if (scenes()?.length) {
+                @for (item of scenes(); track item) {
                     <button
                         state
                         btn
                         matRipple
                         class="mx-2 w-64"
-                        [class.inverse]="(scene | async) !== item.id"
+                        [class.inverse]="scene() !== item.id"
                         (click)="setScene(item.name)"
                     >
                         <div class="flex flex-1 items-center space-x-4">
@@ -47,14 +47,16 @@ import { ControlStateService } from '../control-state.service';
         </div>
     `,
     styles: [``],
-    imports: [CommonModule, TranslatePipe, IconComponent, MatRippleModule],
+    imports: [TranslatePipe, IconComponent, MatRippleModule],
 })
 export class LightingSceneTooltipComponent {
     private _state = inject(ControlStateService);
     private _tooltip = inject(CustomTooltipData);
 
-    public readonly scene = this._state.lighting_scene;
-    public readonly scenes = this._state.lighting_scenes;
+    public readonly scene = toSignal(this._state.lighting_scene);
+    public readonly scenes = toSignal(this._state.lighting_scenes, {
+        initialValue: [] as any[],
+    });
     /** Close the tooltip */
     public readonly close = () => this._tooltip.close();
 

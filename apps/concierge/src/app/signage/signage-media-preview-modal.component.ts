@@ -55,7 +55,7 @@ import {
             </main>
         } @else {
             <main
-                class="flex h-[20rem] max-h-[65vh] w-[28rem] max-w-[80vw] flex-col items-center justify-center p-8"
+                class="flex h-80 max-h-[65vh] w-md max-w-[80vw] flex-col items-center justify-center p-8"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <p>{{ loading() }}</p>

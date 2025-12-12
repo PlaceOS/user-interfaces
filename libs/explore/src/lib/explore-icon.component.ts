@@ -7,7 +7,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
     selector: `explore-icon`,
     template: `
         <div
-            class="flex h-8 w-8 items-center justify-center rounded-full border border-base-200 shadow"
+            class="flex h-8 w-8 items-center justify-center rounded-full border border-base-200 shadow-sm"
             [style.background-color]="color"
             [style.color]="text_color"
         >

@@ -33,7 +33,7 @@ import { SidebarComponent } from './ui/sidebar.component';
 
             <div class="flex w-px flex-1 flex-col">
                 <header
-                    class="flex h-[4.5rem] w-full items-center justify-between space-x-2 border-base-400 bg-base-100 p-4"
+                    class="flex h-18 w-full items-center justify-between space-x-2 border-base-400 bg-base-100 p-4"
                 >
                     <h1 class="text-2xl font-bold">AV Systems Alerts</h1>
                     <div class="flex-1"></div>
@@ -78,59 +78,57 @@ import { SidebarComponent } from './ui/sidebar.component';
                         class="grid w-full flex-1 grid-cols-1 gap-4 p-4 sm:grid-cols-2 md:grid-cols-3"
                     >
                         <div
-                            class="rounded-lg border border-base-300 bg-base-100 p-4 shadow"
+                            class="flex items-center space-x-2 rounded-lg border border-base-300 bg-base-100 px-4 py-2 shadow-sm"
                         >
-                            <div class="flex items-center justify-between">
-                                <h3 class="text-xl font-medium">
-                                    Critical Issues
-                                </h3>
-                                <icon
-                                    class="text-3xl text-error"
-                                    className="material-symbols-outlined"
-                                    >warning</icon
-                                >
+                            <icon
+                                class="mb-5 text-3xl text-error"
+                                className="outlined"
+                                >warning</icon
+                            >
+                            <div class="flex-1">
+                                <h3 class="text-xl font-medium">Critical</h3>
+                                <div class="text-sm opacity-40">
+                                    Attention required
+                                </div>
                             </div>
-                            <div class="text-4xl font-bold">
+                            <div class="px-2 text-4xl font-bold">
                                 {{ critical_alerts() || '0' }}
                             </div>
-                            <div class="text-sm opacity-40">
-                                Immediate attention required
-                            </div>
                         </div>
                         <div
-                            class="rounded-lg border border-base-300 bg-base-100 p-4 shadow"
+                            class="flex items-center space-x-2 rounded-lg border border-base-300 bg-base-100 px-4 py-2 shadow-sm"
                         >
-                            <div class="flex items-center justify-between">
+                            <icon
+                                class="mb-5 text-3xl text-warning"
+                                className="outlined"
+                                >error</icon
+                            >
+                            <div class="flex-1">
                                 <h3 class="text-xl font-medium">Warnings</h3>
-                                <icon
-                                    class="text-3xl text-warning"
-                                    className="material-symbols-outlined"
-                                    >error</icon
-                                >
+                                <div class="text-sm opacity-40">
+                                    May require attention
+                                </div>
                             </div>
-                            <div class="text-4xl font-bold">
+                            <div class="px-2 text-4xl font-bold">
                                 {{ warning_alerts() || '0' }}
                             </div>
-                            <div class="text-sm opacity-40">
-                                Attention may be required
-                            </div>
                         </div>
                         <div
-                            class="rounded-lg border border-base-300 bg-base-100 p-4 shadow"
+                            class="flex items-center space-x-2 rounded-lg border border-base-300 bg-base-100 px-4 py-2 shadow-sm"
                         >
-                            <div class="flex items-center justify-between">
-                                <h3 class="text-xl font-medium">Open Alerts</h3>
-                                <icon
-                                    class="text-3xl text-info"
-                                    className="material-symbols-outlined"
-                                    >schedule</icon
-                                >
+                            <icon
+                                class="mb-5 text-3xl text-info"
+                                className="outlined"
+                                >schedule</icon
+                            >
+                            <div class="flex-1">
+                                <h3 class="text-xl font-medium">Open</h3>
+                                <div class="text-sm opacity-40">
+                                    Pending resolution
+                                </div>
                             </div>
-                            <div class="text-4xl font-bold">
+                            <div class="px-2 text-4xl font-bold">
                                 {{ open_alerts() || '0' }}
-                            </div>
-                            <div class="text-sm opacity-40">
-                                Pending resolution
                             </div>
                         </div>
                     </div>
@@ -232,7 +230,7 @@ import { SidebarComponent } from './ui/sidebar.component';
                     </div>
                     <div class="overflow-auto p-4">
                         <simple-table
-                            class="block w-full min-w-[56rem] overflow-hidden bg-base-100 text-sm"
+                            class="block w-full min-w-4xl overflow-hidden bg-base-100 text-sm"
                             [data]="filtered_alerts()"
                             [filter]="search()"
                             [columns]="[
@@ -348,18 +346,18 @@ import { SidebarComponent } from './ui/sidebar.component';
                         </ng-template>
                         <ng-template #actions_template let-row="row">
                             <div class="flex space-x-2 p-2">
-                                {{ backoffice_link | json }}
                                 <a
                                     icon
                                     matRipple
                                     [href]="
                                         (backoffice_link() || '/backoffice/') +
                                         '#/systems/' +
-                                        row.location
+                                        row.location +
+                                        '/modules'
                                     "
                                     target="_blank"
                                     ref="noopener noreferrer"
-                                    class="rounded"
+                                    class="rounded-sm"
                                     matTooltip="Manage Room"
                                 >
                                     <icon class="text-2xl">build</icon>
@@ -370,7 +368,7 @@ import { SidebarComponent } from './ui/sidebar.component';
                                     [href]="service_link()"
                                     target="_blank"
                                     ref="noopener noreferrer"
-                                    class="rounded"
+                                    class="rounded-sm"
                                     matTooltip="Raise Ticket"
                                 >
                                     <icon class="text-2xl"
@@ -420,7 +418,7 @@ export class AlertsComponent extends AsyncHandler implements OnInit {
     private _router = inject(Router);
     private _dashboards = inject(DashboardsService);
     private _org = inject(OrganisationService);
-    private _initialized = false;
+    private _initialized = signal(false);
 
     public readonly search = signal('');
     public readonly severity_types = {
@@ -447,9 +445,10 @@ export class AlertsComponent extends AsyncHandler implements OnInit {
         const status = this.status();
         const region = this._dashboards.region_id();
         const building = this._dashboards.building_id();
+        const initialized = this._initialized();
 
         // Skip until after we've loaded from query params
-        if (!this._initialized) {
+        if (!initialized) {
             return;
         }
 
@@ -458,9 +457,10 @@ export class AlertsComponent extends AsyncHandler implements OnInit {
             severity: severity || undefined,
             device_type: device_type || undefined,
             status: status || undefined,
-            region: region || undefined,
-            // Only include building if region is selected
-            building: region && building ? building : undefined,
+            // Use 'all' to represent all regions selected, actual region id otherwise
+            region: region || 'all',
+            // Use 'all' to represent all buildings when region is selected
+            building: region ? (building || 'all') : undefined,
         };
 
         this._router.navigate([], {
@@ -524,17 +524,27 @@ export class AlertsComponent extends AsyncHandler implements OnInit {
         if (query_params['status']) {
             this.status.set(query_params['status']);
         }
-        if (query_params['region']) {
+        // Handle region query param - 'all' means all regions, otherwise specific region id
+        const region_param = query_params['region'];
+        const building_param = query_params['building'];
+        if (region_param === 'all') {
+            // Explicitly set to all regions via dashboards service
+            this._dashboards.setRegionFromParams('', '');
+        } else if (region_param) {
             const region = this._org.regions.find(
-                (r) => r.id === query_params['region'],
+                (r) => r.id === region_param,
             );
             if (region) {
                 this._org.region = region;
+                // Handle building param - 'all' means all buildings, otherwise specific building id
+                const building_id = building_param === 'all' ? '' : (building_param || '');
+                // Set via dashboards service to prevent constructor overwrite
+                this._dashboards.setRegionFromParams(region.id, building_id);
 
-                // Only apply building if region is set
-                if (query_params['building']) {
+                // Only apply building to org if specific building is set (not 'all')
+                if (building_param && building_param !== 'all') {
                     const building = this._org.buildings.find(
-                        (b) => b.id === query_params['building'],
+                        (b) => b.id === building_param,
                     );
                     if (building) {
                         this._org.building = building;
@@ -542,9 +552,11 @@ export class AlertsComponent extends AsyncHandler implements OnInit {
                 }
             }
         }
+        // Note: If no region param exists, we don't call setRegionFromParams
+        // so the constructor can set defaults from org service
 
         // Enable effect after loading from query params
-        this._initialized = true;
+        this._initialized.set(true);
 
         this._dashboards.loadDashboards();
         this.timeout('apply_dash', () => this._applyDashboard(''));

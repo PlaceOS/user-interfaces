@@ -55,7 +55,7 @@ import { PointOfInterest } from './poi-management.service';
         >
             <form [formGroup]="form">
                 <image-field
-                    class="!mb-4 block"
+                    class="mb-4! block"
                     formControlName="image"
                 ></image-field>
                 @if (form.controls.name) {
@@ -149,7 +149,7 @@ import { PointOfInterest } from './poi-management.service';
                             <button
                                 icon
                                 matRipple
-                                class="h-12 w-12 rounded border border-secondary text-secondary"
+                                class="h-12 w-12 rounded-sm border border-secondary text-secondary"
                                 [matTooltip]="
                                     'APP.CONCIERGE.POI_MAP_SELECT' | translate
                                 "
@@ -396,7 +396,6 @@ export class POIModalComponent extends AsyncHandler implements OnInit {
         const old_metadata = await showMetadata(
             this._org.organisation.id,
             'points-of-interest',
-            {},
         ).toPromise();
         const metadata = old_metadata.details || {};
         if (!metadata[data.level_id]) metadata[data.level_id] = [];

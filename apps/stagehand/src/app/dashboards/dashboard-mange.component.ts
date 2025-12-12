@@ -27,10 +27,10 @@ import { DashboardsService } from './dashboards.service';
     template: `
         <div class="fixed inset-0 overflow-auto bg-base-200">
             <div
-                class="mx-auto min-h-full w-[40rem] max-w-full border-x border-base-300 bg-base-100 p-2"
+                class="mx-auto min-h-full w-160 max-w-full border-x border-base-300 bg-base-100 p-2"
             >
                 <header
-                    class="sticky top-0 z-10 mx-auto flex h-14 w-full max-w-[39rem] items-center justify-between rounded border-none bg-base-200 px-4 py-2"
+                    class="sticky top-0 z-10 mx-auto flex h-14 w-full max-w-156 items-center justify-between rounded-sm border-none bg-base-200 px-4 py-2"
                 >
                     <h2 class="text-xl font-medium capitalize">
                         {{
@@ -84,7 +84,7 @@ import { DashboardsService } from './dashboards.service';
                     </form>
                 </main>
                 <footer
-                    class="fixed bottom-2 flex w-[39rem] max-w-full justify-end rounded bg-base-200 p-2"
+                    class="fixed bottom-2 flex w-156 max-w-full justify-end rounded-sm bg-base-200 p-2"
                 >
                     <button btn matRipple class="min-w-32" (click)="save()">
                         {{ 'COMMON.SAVE' | translate }}

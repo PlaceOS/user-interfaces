@@ -26,7 +26,7 @@ import { LandingStateService } from './landing-state.service';
     selector: 'landing-colleagues',
     template: `
         <div
-            class="mx-2 flex items-center justify-between rounded bg-base-200 p-2 text-sm"
+            class="mx-2 flex items-center justify-between rounded-sm bg-base-200 p-2 text-sm"
         >
             <h2>
                 {{
@@ -72,7 +72,7 @@ import { LandingStateService } from './landing-state.service';
                         <button
                             icon
                             name="colleague-more"
-                            class="!rounded bg-base-200"
+                            class="rounded-sm! bg-base-200"
                             [matMenuTriggerFor]="menu"
                         >
                             <icon>more_horiz</icon>
@@ -134,7 +134,7 @@ import { LandingStateService } from './landing-state.service';
         <div
             search
             [class.hidden]="!show_search"
-            class="absolute inset-x-2 bottom-16 top-2 flex flex-col overflow-hidden rounded border border-base-200 bg-base-100"
+            class="absolute inset-x-2 bottom-16 top-2 flex flex-col overflow-hidden rounded-sm border border-base-200 bg-base-100"
         >
             <input
                 #search_input

@@ -113,7 +113,7 @@ import { ParkingStateService } from './parking-state.service';
         <ng-template #state_template let-row="row">
             @if (!row?.checked_in && row.checked_out_at) {
                 <div
-                    class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-base-300 text-2xl text-base-100"
+                    class="mx-auto flex h-8 w-8 items-center justify-center rounded-sm bg-base-300 text-2xl text-base-100"
                     [matTooltip]="
                         'APP.CONCIERGE.PARKING_CHECKED_OUT_AT'
                             | translate
@@ -130,7 +130,7 @@ import { ParkingStateService } from './parking-state.service';
             }
             @if (!row?.checked_in && !row.checked_out_at) {
                 <div
-                    class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-warning text-2xl text-warning-content"
+                    class="mx-auto flex h-8 w-8 items-center justify-center rounded-sm bg-warning text-2xl text-warning-content"
                     [matTooltip]="
                         'APP.CONCIERGE.PARKING_NOT_CHECKED_IN' | translate
                     "
@@ -141,7 +141,7 @@ import { ParkingStateService } from './parking-state.service';
             }
             @if (row?.checked_in) {
                 <div
-                    class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-success text-2xl text-success-content"
+                    class="mx-auto flex h-8 w-8 items-center justify-center rounded-sm bg-success text-2xl text-success-content"
                     [matTooltip]="
                         'APP.CONCIERGE.PARKING_CHECKED_IN' | translate
                     "
@@ -165,7 +165,7 @@ import { ParkingStateService } from './parking-state.service';
             <div class="px-4">
                 <button
                     matRipple
-                    class="h-10 w-[7.5rem] rounded-3xl border-none"
+                    class="h-10 w-30 rounded-3xl border-none"
                     [class.text-success-content]="row?.status === 'approved'"
                     [class.bg-success]="row?.status === 'approved'"
                     [class.text-error-content]="row?.status === 'declined'"

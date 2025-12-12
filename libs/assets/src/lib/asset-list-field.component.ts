@@ -36,7 +36,7 @@ const EMPTY_FAVS: string[] = [];
             @for (request of asset_requests; track request) {
                 <div
                     request
-                    class="overflow-hidden rounded-xl border bg-base-100 shadow"
+                    class="overflow-hidden rounded-xl border bg-base-100 shadow-sm"
                     [class.border-error]="end_time < request.deliver_at"
                     [class.border-base-300]="end_time >= request.deliver_at"
                 >
@@ -131,7 +131,7 @@ const EMPTY_FAVS: string[] = [];
                                     {{ item.name || 'Item' }}
                                 </div>
                                 <div
-                                    class="rounded bg-success px-2 py-1 text-xs text-success-content"
+                                    class="rounded-sm bg-success px-2 py-1 text-xs text-success-content"
                                 >
                                     x{{ item.quantity }}
                                 </div>

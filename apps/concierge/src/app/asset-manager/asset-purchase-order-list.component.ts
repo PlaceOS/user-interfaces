@@ -14,7 +14,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
         >
             <div class="h-1/2 w-full flex-1 overflow-auto p-4">
                 <simple-table
-                    class="block min-w-[52rem] text-sm"
+                    class="block min-w-208 text-sm"
                     purchase-orders
                     [data]="purchase_orders"
                     [columns]="[

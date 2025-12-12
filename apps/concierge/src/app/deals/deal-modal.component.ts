@@ -16,9 +16,9 @@ import {
 @Component({
     selector: 'app-deal-modal',
     template: `
-        <div class="relative w-[32rem] max-w-[80vw] bg-base-100">
+        <div class="relative w-lg max-w-[80vw] bg-base-100">
             <div
-                class="relative h-48 w-[32rem] max-w-full overflow-hidden rounded-b-lg bg-base-300"
+                class="relative h-48 w-lg max-w-full overflow-hidden rounded-b-lg bg-base-300"
             >
                 @if (deal.image) {
                     <img
@@ -30,7 +30,7 @@ import {
                 }
                 @if (deal.details) {
                     <div
-                        class="absolute bottom-2 left-2 max-w-full truncate rounded bg-info px-2 py-1 text-xs text-info-content shadow"
+                        class="absolute bottom-2 left-2 max-w-full truncate rounded-sm bg-info px-2 py-1 text-xs text-info-content shadow-sm"
                     >
                         {{ deal.details }}
                     </div>

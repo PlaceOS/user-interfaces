@@ -111,7 +111,7 @@ import { EventStateService } from './event-state.service';
         @if (!has_calendar) {
             <div class="absolute inset-0 z-50 flex items-center justify-center">
                 <div class="absolute inset-0 bg-base-100 opacity-80"></div>
-                <p class="max-w-[32rem] text-lg opacity-60">
+                <p class="max-w-lg text-lg opacity-60">
                     {{ 'APP.CONCIERGE.EVENTS_CONFIG_ERROR' | translate }}
                 </p>
             </div>

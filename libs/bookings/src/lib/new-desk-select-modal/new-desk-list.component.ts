@@ -28,8 +28,8 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
                     @for (desk of desks | async; track desk) {
                         <li
                             desk
-                            class="relative w-full overflow-hidden rounded-lg border border-base-200 bg-base-100 shadow"
-                            [class.!border-info]="active() === desk.id"
+                            class="relative w-full overflow-hidden rounded-lg border border-base-200 bg-base-100 shadow-sm"
+                            [class.border-info!]="active() === desk.id"
                         >
                             <button
                                 name="select-desk"
@@ -100,7 +100,7 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
                         </li>
                     }
                     <li
-                        class="rounded bg-base-400 p-2 text-center text-sm opacity-30"
+                        class="rounded-sm bg-base-400 p-2 text-center text-sm opacity-30"
                     >
                         {{ 'COMMON.END_OF_LIST' | translate }}
                     </li>

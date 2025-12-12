@@ -1,10 +1,10 @@
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import {
-    Asset,
-    AssetCategory,
     AssetGroup,
-    AssetPurchaseOrder,
     CalendarEvent,
+    PlaceAsset,
+    PlaceAssetCategory,
+    PlaceAssetPurchaseOrder,
     stringToMinutes,
 } from '@placeos/common';
 import { AttachedResourceRuleset } from '@placeos/components';
@@ -13,7 +13,9 @@ import { isAfter, isBefore, setHours, subHours } from 'date-fns';
 import { Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
-export function generateAssetCategoryForm(category: AssetCategory = {} as any) {
+export function generateAssetCategoryForm(
+    category: Partial<PlaceAssetCategory> = {},
+) {
     return new FormGroup({
         id: new FormControl(category.id),
         name: new FormControl(category.name || '', [Validators.required]),
@@ -22,31 +24,33 @@ export function generateAssetCategoryForm(category: AssetCategory = {} as any) {
 }
 
 export function generateAssetPurchaseOrderForm(
-    order: AssetPurchaseOrder = {} as any,
+    order: Partial<PlaceAssetPurchaseOrder> = {},
 ) {
     return new FormGroup({
         id: new FormControl(order.id),
-        order_number: new FormControl(
-            order.order_number || (order as any).purchase_order_number || '',
+        purchase_order_number: new FormControl(
+            order.purchase_order_number || '',
             [Validators.required],
         ),
         invoice_number: new FormControl(order.invoice_number || ''),
         unit_price: new FormControl(order.unit_price || 0),
-        purchase_date: new FormControl(order.purchase_date * 1000 || null),
+        purchase_date: new FormControl(
+            order.purchase_date ? order.purchase_date * 1000 : null,
+        ),
         expected_service_start_date: new FormControl(
-            order.expected_service_start_date * 1000 ||
-                (order as any).depreciation_start_date ||
-                null,
+            order.expected_service_start_date
+                ? order.expected_service_start_date * 1000
+                : null,
         ),
         expected_service_end_date: new FormControl(
-            order.expected_service_end_date * 1000 ||
-                (order as any).depreciation_end_date ||
-                null,
+            order.expected_service_end_date
+                ? order.expected_service_end_date * 1000
+                : null,
         ),
     });
 }
 
-export function generateAssetGroupForm(group: AssetGroup = new AssetGroup()) {
+export function generateAssetGroupForm(group: Partial<AssetGroup> = {}) {
     return new FormGroup({
         id: new FormControl(group.id),
         category_id: new FormControl(group.category_id || '', [
@@ -59,11 +63,13 @@ export function generateAssetGroupForm(group: AssetGroup = new AssetGroup()) {
     });
 }
 
-export function generateAssetForm(asset: Asset = new Asset()) {
+export function generateAssetForm(asset: Partial<PlaceAsset> = {}) {
     return new FormGroup({
         id: new FormControl(asset.id),
-        type_id: new FormControl(asset.type_id || '', [Validators.required]),
-        description: new FormControl(asset.description || ''),
+        asset_type_id: new FormControl(asset.asset_type_id || '', [
+            Validators.required,
+        ]),
+        name: new FormControl(asset.name || ''),
         serial_number: new FormControl(asset.serial_number || ''),
         barcode: new FormControl(asset.barcode || ''),
         identifier: new FormControl(asset.identifier || ''),

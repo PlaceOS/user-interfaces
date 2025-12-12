@@ -29,7 +29,7 @@ import { TranslatePipe } from './translate.pipe';
     selector: 'work-location-tooltip',
     template: `
         <div
-            class="relative -right-1 -top-12 flex w-[18.5rem] flex-col overflow-hidden rounded bg-base-100 shadow"
+            class="relative -right-1 -top-12 flex w-74 flex-col overflow-hidden rounded-sm bg-base-100 shadow-sm"
         >
             <div class="flex items-center justify-between px-2">
                 <h3 class="px-2 py-4 font-medium">
@@ -82,7 +82,7 @@ import { TranslatePipe } from './translate.pipe';
                             <div class="ml-2 flex-1">
                                 <button
                                     matRipple
-                                    class="flex items-center space-x-2 rounded px-2 py-1 font-medium hover:bg-base-200"
+                                    class="flex items-center space-x-2 rounded-sm px-2 py-1 font-medium hover:bg-base-200"
                                     [matMenuTriggerFor]="work_menu"
                                 >
                                     <div>

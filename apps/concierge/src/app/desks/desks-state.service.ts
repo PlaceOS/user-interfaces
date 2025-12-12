@@ -1,4 +1,9 @@
-import { inject, Injectable } from '@angular/core';
+import { computed, inject, Injectable, signal } from '@angular/core';
+import {
+    outputToObservable,
+    toObservable,
+    toSignal,
+} from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import {
     approveBooking,
@@ -32,14 +37,7 @@ import {
     updateMetadata,
 } from '@placeos/ts-client';
 import { addHours, endOfDay, getUnixTime, set, startOfDay } from 'date-fns';
-import {
-    BehaviorSubject,
-    combineLatest,
-    lastValueFrom,
-    Observable,
-    of,
-    Subject,
-} from 'rxjs';
+import { combineLatest, lastValueFrom, of, Subject } from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -69,11 +67,14 @@ function addQRCodeToBooking(booking: Booking): Booking {
     });
 }
 
+export type DeskView = 'manage' | 'events' | 'map';
+
 export interface DeskFilters {
     date?: number;
     zones?: string[];
     show_map?: boolean;
     search?: string;
+    view?: DeskView;
 }
 
 @Injectable({
@@ -84,21 +85,25 @@ export class DesksStateService extends AsyncHandler {
     private _dialog = inject(MatDialog);
     private _settings = inject(SettingsService);
 
-    private _filters = new BehaviorSubject<DeskFilters>({});
+    private _filters = signal<DeskFilters>({});
     private _desk_bookings: Booking[] = [];
-    private _loading = new BehaviorSubject<boolean>(false);
-    private _change = new BehaviorSubject(0);
+    private _loading = signal<boolean>(false);
+    private _change = signal(0);
 
-    public readonly loading = this._loading.asObservable();
+    public readonly loading = this._loading.asReadonly();
+    public readonly filters = this._filters.asReadonly();
 
-    public readonly filters = this._filters.asObservable();
-
-    public readonly desks: Observable<Desk[]> = combineLatest([
-        this._filters,
-        this._change,
+    private readonly _desks$ = combineLatest([
+        toObservable(this._filters),
+        toObservable(this._change),
     ]).pipe(
         debounceTime(500),
         switchMap(([filters]) => {
+            // Only load desk metadata when on manage view
+            if (filters.view !== 'manage') {
+                return of([]);
+            }
+            this._loading.set(true);
             const zones = filters.zones || [];
             return zones && !zones.includes('All')
                 ? showMetadata(zones[0], 'desks').pipe(
@@ -119,21 +124,26 @@ export class DesksStateService extends AsyncHandler {
         map((list) => {
             if (!(list instanceof Array)) list = [];
             list.sort((a, b) => a.name?.localeCompare(b.name));
+            this._loading.set(false);
             return list.map((i) => new Desk({ ...i, qr_code: '' }));
         }),
         shareReplay(1),
     );
+    public readonly desks = toSignal(this._desks$, {
+        initialValue: [] as Desk[],
+    });
 
     private _next_page = new Subject<() => QueryResponse<Booking>>();
     private _call_next_page = new Subject<string>();
     private _all_zones_keys = ['All', -1, '-1', ''];
     public readonly setup_paging = combineLatest([
-        this._filters,
+        toObservable(this._filters),
         this._org.initialised,
     ]).pipe(
         debounceTime(500),
         tap(([filters, loaded]) => {
-            if (!loaded) return;
+            // Only load bookings when on events view
+            if (!loaded || filters.view !== 'events') return;
             const date = filters.date || Date.now();
             const active_zones = (filters.zones || []).filter(
                 (_) => !this._all_zones_keys.includes(_),
@@ -160,14 +170,14 @@ export class DesksStateService extends AsyncHandler {
         }),
     );
 
-    public readonly paged_bookings: Observable<any> = combineLatest([
+    private readonly _paged_bookings$ = combineLatest([
         this._next_page,
         this._call_next_page,
     ]).pipe(
         debounceTime(500),
         distinctUntilChanged((a, b) => a[1] === b[1]),
         switchMap(([next_page, action]) => {
-            this._loading.next(true);
+            this._loading.set(true);
             if (!next_page) {
                 return of({
                     data: [],
@@ -206,17 +216,17 @@ export class DesksStateService extends AsyncHandler {
             },
             { list: [], total: 0, has_next: false },
         ),
-        tap((_) => this._loading.next(false)),
+        tap((_) => this._loading.set(false)),
         shareReplay(1),
     );
+    public readonly paged_bookings = toSignal(this._paged_bookings$, {
+        initialValue: { list: [], total: 0, has_next: false },
+    });
 
-    public readonly has_more_pages = this.paged_bookings.pipe(
-        map((_) => _.has_next),
+    public readonly has_more_pages = computed(
+        () => this.paged_bookings().has_next,
     );
-    public readonly bookings = combineLatest([
-        this.paged_bookings,
-        this._change,
-    ]).pipe(map(([i]) => i.list));
+    public readonly bookings = computed(() => this.paged_bookings().list);
 
     public nextPage() {
         this._call_next_page.next(`NEXT_${Date.now()}`);
@@ -235,23 +245,20 @@ export class DesksStateService extends AsyncHandler {
                     .levelsForBuilding(this._org.building)
                     .map((lvl) => lvl.id),
             ];
-        } else if (
-            filters.zones &&
-            this._filters.getValue()?.zones?.includes('All')
-        ) {
+        } else if (filters.zones && this._filters()?.zones?.includes('All')) {
             filters.zones = [];
         }
-        this._filters.next({ ...this._filters.getValue(), ...filters });
+        this._filters.set({ ...this._filters(), ...filters });
     }
 
     public refresh() {
-        this._loading.next(true);
-        this.timeout('poll', () => this.setFilters(this._filters.getValue()));
+        this._loading.set(true);
+        this.timeout('poll', () => this.setFilters(this._filters()));
     }
 
     public async addDesks(list: Desk[]) {
-        const zone = this._filters.getValue().zones[0];
-        const desk_list = await nextValueFrom(this.desks);
+        const zone = this._filters().zones[0];
+        const desk_list = [...this.desks()];
         for (const desk of list) {
             const idx = desk_list.findIndex((_) => _.id === desk.id);
             if (idx >= 0) desk_list[idx] = desk;
@@ -262,7 +269,7 @@ export class DesksStateService extends AsyncHandler {
             details: desk_list,
             description: 'List of available desks',
         }).toPromise();
-        this._change.next(Date.now());
+        this._change.set(Date.now());
     }
 
     public async editDesk(desk: Desk = new Desk()) {
@@ -270,20 +277,20 @@ export class DesksStateService extends AsyncHandler {
         const state = await Promise.race([
             lastValueFrom(ref.afterClosed()),
             lastValueFrom(
-                ref.componentInstance.event.pipe(
+                outputToObservable(ref.componentInstance.event).pipe(
                     first((_) => _.reason === 'done'),
                 ),
             ),
         ]);
         if (state?.reason !== 'done') return;
-        const zone = this._filters.getValue().zones[0];
+        const zone = this._filters().zones[0];
         const new_desk = {
             ...state.metadata,
             id:
                 state.metadata.id ||
                 `desk-${zone.slice(-3)}.${randomInt(999_999)}`,
         };
-        const desk_list = await nextValueFrom(this.desks);
+        const desk_list = [...this.desks()];
         const idx = desk_list.findIndex((_) => _.id === desk.id);
         if (idx >= 0) desk_list[idx] = new_desk;
         else desk_list.push(new_desk);
@@ -300,7 +307,7 @@ export class DesksStateService extends AsyncHandler {
             }),
         ).catch((e) => {
             notifyError(i18n('APP.CONCIERGE.DESKS_SAVE_ERROR', { error: e }));
-            ref.componentInstance.loading = false;
+            ref.componentInstance.loading.set(false);
             throw e;
         });
         let recreate = false;
@@ -353,7 +360,7 @@ export class DesksStateService extends AsyncHandler {
                 }),
             ).toPromise();
         }
-        this._change.next(Date.now());
+        this._change.set(Date.now());
         ref.close();
     }
 
@@ -456,7 +463,7 @@ export class DesksStateService extends AsyncHandler {
     }
 
     public async rejectAllDesks() {
-        const list = await nextValueFrom(this.bookings);
+        const list = this.bookings();
         if (list.length <= 0)
             return notifyInfo('No desks to reject for the selected date');
         const resp = await openConfirmModal(

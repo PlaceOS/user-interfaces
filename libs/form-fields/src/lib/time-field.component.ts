@@ -37,7 +37,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
         <button
             time-field
             matRipple
-            class="flex h-12 w-full items-center justify-between rounded border border-neutral px-2"
+            class="flex h-12 w-full items-center justify-between rounded-sm border border-neutral px-2"
             [disabled]="disabled()"
             [class.opacity-30]="disabled()"
             [matMenuTriggerFor]="menu"
@@ -56,7 +56,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
             </div>
             <icon class="text-2xl">arrow_drop_down</icon>
         </button>
-        <mat-menu #menu="matMenu" class="max-h-[15rem] min-w-[18rem]">
+        <mat-menu #menu="matMenu" class="max-h-60 min-w-[18rem]">
             @if (force_time()) {
                 <button
                     mat-menu-item

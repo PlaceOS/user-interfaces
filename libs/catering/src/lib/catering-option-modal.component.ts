@@ -28,7 +28,7 @@ export interface CateringItemOptionModalData {
     selector: 'catering-option-modal',
     template: `
         <header
-            class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded border-none bg-base-200 p-2"
+            class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none bg-base-200 p-2"
         >
             <h2 class="px-2 text-xl font-medium">
                 {{
@@ -46,7 +46,7 @@ export interface CateringItemOptionModalData {
         </header>
         @if (form && !loading) {
             <form
-                class="max-h-[65vh] w-[28rem] overflow-auto px-4"
+                class="max-h-[65vh] w-md overflow-auto px-4"
                 [formGroup]="form"
             >
                 @if (form.controls.name) {

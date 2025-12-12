@@ -22,6 +22,7 @@ import {
 
 import { log, mapLastValueFrom, unique } from '../general';
 import { notifyError } from '../notifications';
+import { setLoadingMessage } from '../placeos.service';
 import { SettingsService } from '../settings.service';
 import {
     Building,
@@ -375,13 +376,17 @@ export class OrganisationService {
      * Initialise service data
      */
     private async load(): Promise<void> {
+        setLoadingMessage('Loading organistion data...');
         await this.loadOrganisation();
+        setLoadingMessage('Loading region data...');
         await this.loadRegions();
         if (!this._regions.getValue().length) {
+            setLoadingMessage('Loading building data...');
             const list = await this.loadBuildings();
             this._buildings.next(list);
             this.buildings_signal.set(list);
         } else {
+            setLoadingMessage('Loading region buildings data...');
             for (const region of this._regions.getValue()) {
                 const blds = await this.loadBuildings(region.id);
                 if (blds.length) {
@@ -391,10 +396,12 @@ export class OrganisationService {
                 }
             }
         }
+        setLoadingMessage('Loading zone settings...');
         await this.loadSettings();
         if (!this._buildings.getValue()?.length) {
             log('ORG', 'Unable to find any building zones');
         }
+        setLoadingMessage('Loading active building levels...');
         await this.loadLevels();
         this._updateSettingOverrides();
     }

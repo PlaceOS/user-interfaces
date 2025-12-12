@@ -18,12 +18,14 @@ import { SignageStateService } from './signage-state.service';
 @Component({
     selector: 'signage-media',
     template: `
-        <div class="relative flex h-full w-full space-x-4 overflow-visible">
+        <div class="relative flex h-full w-full space-x-2 overflow-visible">
             <div
                 sidebar
-                class="flex h-full w-64 flex-col space-y-4 overflow-auto py-4"
+                class="flex h-full w-64 flex-col space-y-2 overflow-auto rounded-xl border border-base-300 p-2"
             >
-                <h3 class="text-center text-xl font-medium">
+                <h3
+                    class="rounded-lg bg-base-200 p-2 text-center text-xl font-medium"
+                >
                     {{ 'APP.CONCIERGE.SIGNAGE_PLAYLISTS' | translate }}
                 </h3>
                 <mat-form-field
@@ -39,21 +41,23 @@ import { SignageStateService } from './signage-state.service';
                 </mat-form-field>
                 <a
                     matRipple
-                    class="flex min-h-12 w-full items-center rounded-3xl px-6 hover:bg-base-200"
-                    [class.!bg-secondary]="!selected_playlist()"
+                    class="flex min-h-12 w-full items-center rounded-xl px-6 hover:bg-base-200"
+                    [class.bg-secondary!]="!selected_playlist()"
                     [class.text-secondary-content]="!selected_playlist()"
                     [routerLink]="[]"
                     [queryParams]="{ playlist: '' }"
                 >
                     {{ 'APP.CONCIERGE.SIGNAGE_MEDIA_ALL' | translate }}
                 </a>
-                <hr class="w-full" />
+                <hr
+                    class="-mx-2 w-[calc(100%+1rem)] border-base-300 bg-base-300"
+                />
                 @if (playlists()?.length > 0) {
                     @for (playlist of playlists(); track playlist.id) {
                         <a
                             matRipple
-                            class="flex h-12 min-h-12 w-full items-center rounded-3xl px-6 hover:bg-base-200"
-                            [class.!bg-secondary]="
+                            class="flex h-12 min-h-12 w-full items-center rounded-3xl border border-base-100 px-6 even:border-base-200 even:bg-base-200 hover:border-info"
+                            [class.bg-secondary!]="
                                 selected_playlist() === playlist.id
                             "
                             [class.text-secondary-content]="
@@ -76,6 +80,9 @@ import { SignageStateService } from './signage-state.service';
                             <div class="flex-1">
                                 {{ playlist.name }}
                             </div>
+                            <!-- @if (!playlist.approved) {
+                                <icon>warning</icon>
+                            } -->
                         </a>
                     }
                 } @else {
@@ -113,7 +120,7 @@ import { SignageStateService } from './signage-state.service';
                 }
             </div>
             <div
-                class="relative h-full w-1/2 flex-1 overflow-hidden rounded-lg border border-base-300 shadow"
+                class="relative h-full w-1/2 flex-1 overflow-hidden rounded-lg border border-base-300 bg-base-200 shadow-sm"
                 (dragover)="onEnter($event)"
                 (dragenter)="onEnter($event)"
                 (window:drop)="hideOverlay($event)"
@@ -201,11 +208,12 @@ export class SignageMediaComponent extends AsyncHandler {
     });
     public readonly selected_playlist = signal('');
     public readonly show_dropzone = signal(false);
+    private _route_query = toSignal(this._route.queryParamMap);
 
     constructor() {
         super();
         effect(() => {
-            const params = toSignal(this._route.queryParamMap)();
+            const params = this._route_query();
             if (params?.has('playlist')) {
                 this.selected_playlist.set(params.get('playlist'));
             }

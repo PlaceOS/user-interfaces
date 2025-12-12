@@ -261,17 +261,21 @@ export class AssetManagerStateService extends AsyncHandler {
     ]).pipe(
         map(([products, category_list]) => {
             const map = { _count: products.length };
-            products.forEach(
-                (item) =>
-                    (item.category_id = category_list.find(
-                        (_) => _.id === item.category_id,
-                    )
-                        ? item.category_id
-                        : ''),
+            const mapped_products = products.map((item) => ({
+                ...item,
+                category_id: category_list.find(
+                    (_) => _.id === item.category_id,
+                )
+                    ? item.category_id
+                    : '',
+            }));
+            const categories = unique(
+                mapped_products.map((i) => i.category_id),
             );
-            const categories = unique(products.map((i) => i.category_id));
             for (const group of categories) {
-                map[group] = products.filter((i) => i.category_id === group);
+                map[group] = mapped_products.filter(
+                    (i) => i.category_id === group,
+                );
             }
             return map;
         }),

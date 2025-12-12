@@ -64,7 +64,7 @@ export interface UploadDetails {
         >
             <div
                 image
-                class="relative flex h-32 w-36 flex-shrink-0 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-base-200 hover:border-base-300 hover:bg-base-200"
+                class="relative flex h-32 w-36 shrink-0 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-base-200 hover:border-base-300 hover:bg-base-200"
                 [style.transform]="'translate(-' + offset + '00%)'"
             >
                 <icon class="text-4xl opacity-60">add</icon>
@@ -81,7 +81,7 @@ export interface UploadDetails {
             @for (url of list; track url; let i = $index) {
                 <div
                     image
-                    class="relative h-32 w-36 flex-shrink-0 overflow-hidden rounded bg-base-200 bg-cover bg-center"
+                    class="relative h-32 w-36 shrink-0 overflow-hidden rounded-sm bg-base-200 bg-cover bg-center"
                     [style.transform]="'translate(-' + offset + '00%)'"
                 >
                     <img
@@ -114,7 +114,7 @@ export interface UploadDetails {
             @for (item of uploads | async; track item; let i = $index) {
                 <div
                     upload
-                    class="border-base-content/10 /5 flex h-32 w-36 flex-shrink-0 items-center justify-center rounded border bg-base-200 bg-cover bg-center"
+                    class="border-base-content/10 /5 flex h-32 w-36 shrink-0 items-center justify-center rounded-sm border bg-base-200 bg-cover bg-center"
                     [style.transform]="'translate(-' + offset + '00%)'"
                     [matTooltip]="item.error"
                     (click)="retryUpload(item)"

@@ -25,7 +25,7 @@ export const FAV_PARKING_KEY = 'favourite_parking_spaces';
     selector: 'parking-space-select-modal',
     template: `
         <div
-            class="flex h-[100vh] w-[100vw] flex-col bg-base-100 sm:relative sm:h-auto sm:w-auto"
+            class="flex h-screen w-screen flex-col bg-base-100 sm:relative sm:h-auto sm:w-auto"
         >
             <header class="flex w-full items-center space-x-4">
                 <button icon matRipple mat-dialog-close class="bg-base-200">

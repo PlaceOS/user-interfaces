@@ -40,7 +40,7 @@ const URL_STARTS = [
     template: `
         @if (show()) {
             <div
-                class="absolute bottom-2 left-2 z-[998] flex h-[24rem] max-h-[65vh] w-[40rem] max-w-[80vw] flex-col overflow-hidden rounded border border-base-300 bg-base-200 text-base-content shadow"
+                class="absolute bottom-2 left-2 z-998 flex h-96 max-h-[65vh] w-160 max-w-[80vw] flex-col overflow-hidden rounded-sm border border-base-300 bg-base-200 text-base-content shadow-sm"
             >
                 <div
                     class="flex items-center justify-between border-b border-base-300 bg-base-100"
@@ -53,7 +53,7 @@ const URL_STARTS = [
                 @if ((filtered_logs | async)?.length) {
                     <cdk-virtual-scroll-viewport
                         itemSize="32"
-                        class="h-[30rem] max-h-full w-full flex-1"
+                        class="h-120 max-h-full w-full flex-1"
                     >
                         <div
                             class="flex h-8 max-w-full items-center space-x-1 truncate p-2 font-mono text-sm hover:bg-base-100"
@@ -63,7 +63,7 @@ const URL_STARTS = [
                             "
                         >
                             <div
-                                class="bg-base-100/10 rounded p-1 font-mono text-xs uppercase"
+                                class="bg-base-100/10 rounded-sm p-1 font-mono text-xs uppercase"
                             >
                                 {{ log.timestamp | date: 'MMM d HH:mm:ss' }}
                             </div>
@@ -71,7 +71,7 @@ const URL_STARTS = [
                                 [class]="
                                     'p-1 text-xs uppercase ' +
                                     colors[log.type] +
-                                    ' rounded font-mono'
+                                    ' rounded-sm font-mono'
                                 "
                             >
                                 {{ log.type }}
@@ -80,7 +80,7 @@ const URL_STARTS = [
                                 [class]="
                                     'p-1 text-xs capitalize ' +
                                     colors[log.subtype] +
-                                    ' w-16 rounded text-center font-mono'
+                                    ' w-16 rounded-sm text-center font-mono'
                                 "
                             >
                                 {{ log.subtype }}
@@ -124,7 +124,7 @@ const URL_STARTS = [
                     </cdk-virtual-scroll-viewport>
                 } @else {
                     <div
-                        class="flex h-[30rem] w-full flex-1 flex-col items-center justify-center"
+                        class="flex h-120 w-full flex-1 flex-col items-center justify-center"
                     >
                         <div class="text-2xl opacity-30">
                             No {{ filter.getValue() ? 'matching' : '' }} logs
@@ -138,7 +138,7 @@ const URL_STARTS = [
                         class="absolute inset-0 z-0 bg-base-content opacity-60"
                     ></div>
                     <div
-                        class="absolute inset-1 z-0 rounded bg-base-content opacity-90"
+                        class="absolute inset-1 z-0 rounded-sm bg-base-content opacity-90"
                     ></div>
                     <input
                         #search_input
@@ -146,7 +146,7 @@ const URL_STARTS = [
                         [ngModel]="filter | async"
                         (ngModelChange)="filter.next($event)"
                         placeholder="Filter logs..."
-                        class="relative flex-1 rounded border-none px-2 py-1 font-mono text-sm text-base-100"
+                        class="relative flex-1 rounded-sm border-none px-2 py-1 font-mono text-sm text-base-100"
                     />
                     <div
                         class="relative px-2 text-center font-mono text-xs text-base-100"

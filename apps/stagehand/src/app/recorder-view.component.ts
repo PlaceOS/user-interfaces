@@ -27,7 +27,7 @@ interface RecorderStreamMetadata {
         <sidebar />
         <div class="flex flex-1 flex-col">
             <header
-                class="flex h-[4.5rem] w-full items-center justify-between border-base-400 bg-base-100 p-4"
+                class="flex h-18 w-full items-center justify-between border-base-400 bg-base-100 p-4"
             >
                 <h1 class="text-2xl font-bold">Recorder Streams</h1>
             </header>
@@ -47,7 +47,7 @@ interface RecorderStreamMetadata {
                             />
                         </div>
                         <div
-                            class="overflow absolute bottom-4 left-1/2 -translate-x-1/2 rounded bg-base-400 bg-opacity-30 px-2 py-1 text-xs"
+                            class="overflow absolute bottom-4 left-1/2 -translate-x-1/2 rounded-sm bg-base-400 bg-opacity-30 px-2 py-1 text-xs"
                         >
                             {{ image.name }}
                         </div>

@@ -14,13 +14,13 @@ interface ParkingSpaceExtended extends ParkingSpace {
     selector: 'explore-parking-info',
     template: `
         <div
-            class="absolute left-1/2 top-1/2 rounded-lg !rounded-tl-none bg-base-300 p-2 text-left shadow"
-            [class.!bg-error]="status === 'busy'"
-            [class.!text-error-content]="status === 'busy'"
-            [class.!bg-warning]="status === 'reserved'"
-            [class.!text-warning-content]="status === 'reserved'"
-            [class.!bg-success]="status === 'free'"
-            [class.!text-success-content]="status === 'free'"
+            class="absolute left-1/2 top-1/2 rounded-lg rounded-tl-none! bg-base-300 p-2 text-left shadow-sm"
+            [class.bg-error!]="status === 'busy'"
+            [class.text-error-content!]="status === 'busy'"
+            [class.bg-warning!]="status === 'reserved'"
+            [class.text-warning-content!]="status === 'reserved'"
+            [class.bg-success!]="status === 'free'"
+            [class.text-success-content!]="status === 'free'"
         >
             <div class="triangle absolute left-0.5 top-0.5"></div>
             <div class="flex space-x-2">
@@ -32,7 +32,7 @@ interface ParkingSpaceExtended extends ParkingSpace {
                 </div>
                 @if (is_concierge && plate_number) {
                     <div
-                        class="relative flex h-full flex-col rounded bg-base-100 px-2 leading-tight text-base-content shadow"
+                        class="relative flex h-full flex-col rounded-sm bg-base-100 px-2 leading-tight text-base-content shadow-sm"
                     >
                         <div
                             class="w-full whitespace-nowrap pt-1 text-center text-[0.625rem] font-medium"

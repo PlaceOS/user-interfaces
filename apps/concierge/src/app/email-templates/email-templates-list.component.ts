@@ -31,17 +31,6 @@ import {
                         {{ 'APP.CONCIERGE.EMAIL_TEMPLATES_HEADER' | translate }}
                     </h2>
                     <div class="flex-1"></div>
-                    <!-- <mat-form-field appearance="outline" class="w-56 no-subscript">
-                <mat-select
-                  [ngModel]="(filters | async)?.category"
-                  [placeholder]="'COMMON.CATEGORY_ALL' | translate"
-                  (ngModelChange)="setFilters({ category: $event })"
-                  >
-                  <mat-option value="">{{'COMMON.CATEGORY_ALL' | translate}}</mat-option>
-                  <mat-option value="internal">{{'COMMON.TYPE_INTERNAL' | translate}}</mat-option>
-                  <mat-option value="external">{{'COMMON.TYPE_EXTERNAL' | translate}}</mat-option>
-                </mat-select>
-              </mat-form-field> -->
                     <a
                         btn
                         matRipple

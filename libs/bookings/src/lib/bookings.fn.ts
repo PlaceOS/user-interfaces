@@ -74,6 +74,41 @@ export function bookedResourceList(
     );
 }
 
+export interface BookingClashQueryOptions {
+    // Requires multple assets in the booking to use
+    return_available?: boolean;
+    // Added the time that the clashes occur with each returned asset
+    include_clash_time?: boolean;
+}
+
+export interface BookingClash {
+    asset_id: string;
+    booking_start: number;
+    booking_end: number;
+}
+
+/**
+ * List resources that clash within the given parameters
+ * @param q Parameters to pass to the API request
+ */
+export function findBookingClashes(
+    booking: Booking,
+    q: BookingClashQueryOptions = {},
+): Observable<string[] | BookingClash[]> {
+    const query = toQueryString({ ...q, limit: 10000 });
+    return post(
+        `${BOOKINGS_ENDPOINT}/clashing-assets${query ? '?' + query : ''}`,
+        booking.toJSON(),
+    ).pipe(
+        map((list) =>
+            q.include_clash_time
+                ? (list as BookingClash[])
+                : (list as string[]),
+        ),
+        catchError((_) => of([])),
+    );
+}
+
 /**
  * List bookings with link to next page of bookings
  * @param q Parameters to pass to the API request

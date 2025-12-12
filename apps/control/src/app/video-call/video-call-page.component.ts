@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject, input } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -15,6 +16,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
 import { getModule } from '@placeos/ts-client';
 import { filter } from 'rxjs/operators';
 import { ControlStateService } from '../control-state.service';
+import { DialpadComponent } from '../ui/dialpad.component';
 import { VideoCallStateService } from './video-call-state.service';
 
 @Component({
@@ -50,7 +52,7 @@ import { VideoCallStateService } from './video-call-state.service';
                         @if (present_output() && (presentables$ | async)) {
                             <mat-form-field
                                 appearance="outline"
-                                class="h-[3.5rem] w-full"
+                                class="h-14 w-full"
                             >
                                 <mat-select
                                     ngModel
@@ -75,7 +77,7 @@ import { VideoCallStateService } from './video-call-state.service';
                         </p>
                         <mat-form-field
                             appearance="outline"
-                            class="h-[3.5rem] w-full"
+                            class="h-14 w-full"
                         >
                             <mat-select
                                 [ngModel]="presentation_mode | async"
@@ -101,7 +103,7 @@ import { VideoCallStateService } from './video-call-state.service';
                         </p>
                         <mat-form-field
                             appearance="outline"
-                            class="h-[3.5rem] w-full"
+                            class="h-14 w-full"
                         >
                             <mat-select
                                 [ngModel]="video_layout | async"
@@ -224,12 +226,14 @@ import { VideoCallStateService } from './video-call-state.service';
     ],
     imports: [
         CommonModule,
+        FormsModule,
         MatProgressSpinnerModule,
         TranslatePipe,
         MatRippleModule,
         IconComponent,
         MatFormFieldModule,
         MatSelectModule,
+        DialpadComponent,
     ],
 })
 export class VideoCallPageComponent extends AsyncHandler implements OnInit {

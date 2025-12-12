@@ -49,7 +49,7 @@ import { AccessibilityControlsComponent } from './accessibility-controls.compone
             topbar
             class="relative flex items-center justify-between border-b border-base-300 bg-base-100 px-4 py-2 text-base-content"
         >
-            <a matRipple routerLink="/" class="rounded p-2 text-2xl">
+            <a matRipple routerLink="/" class="rounded-sm p-2 text-2xl">
                 <img
                     auth
                     class="h-12"
@@ -73,7 +73,7 @@ import { AccessibilityControlsComponent } from './accessibility-controls.compone
                     <icon>accessible</icon>
                 </button>
                 <ng-template #accessibility_controls>
-                    <div class="w-[18rem] rounded bg-base-100 p-2">
+                    <div class="w-[18rem] rounded-sm bg-base-100 p-2">
                         <accessibility-controls></accessibility-controls>
                     </div>
                 </ng-template>
@@ -115,7 +115,7 @@ import { AccessibilityControlsComponent } from './accessibility-controls.compone
                     <mat-menu #legendMenu="matMenu">
                         @for (value of legend; track value) {
                             <div
-                                class="flex w-full items-center space-x-4 rounded px-4 py-2 hover:bg-base-200"
+                                class="flex w-full items-center space-x-4 rounded-sm px-4 py-2 hover:bg-base-200"
                             >
                                 <div
                                     class="h-3 w-3 rounded-full"
@@ -190,7 +190,7 @@ import { AccessibilityControlsComponent } from './accessibility-controls.compone
                         <div class="space-y-2 py-4">
                             @for (value of legend; track value) {
                                 <div
-                                    class="flex w-full items-center space-x-4 rounded px-4 py-2 hover:bg-base-200"
+                                    class="flex w-full items-center space-x-4 rounded-sm px-4 py-2 hover:bg-base-200"
                                 >
                                     <div
                                         class="h-3 w-3 rounded-full"

@@ -192,7 +192,7 @@ import { SplitJoinPipe } from './split-join.pipe';
             <div class="px-4 py-2">
                 <button
                     matRipple
-                    class="flex w-full items-center rounded bg-none px-2 py-1 text-left"
+                    class="flex w-full items-center rounded-sm bg-none px-2 py-1 text-left"
                     [matMenuTriggerFor]="tracking_menu"
                     (click)="$event.stopPropagation()"
                     [disabled]="loading[row.id]"

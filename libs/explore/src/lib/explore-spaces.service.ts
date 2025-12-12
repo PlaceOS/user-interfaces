@@ -164,7 +164,15 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
             return this._event_form.openEventLinkModal();
         }
         if (space.room_booking_url) {
-            window.open(space.room_booking_url, '_blank', 'noopener noreferer');
+            const [email_start, email_end] = space.email.split('@');
+            const url = space.room_booking_url
+                .replace(/\{id\}/g, encodeURIComponent(space.id))
+                .replace(/\{name\}/g, encodeURIComponent(space.display_name || space.name))
+                .replace(/\{map_id\}/g, encodeURIComponent(space.map_id))
+                .replace(/\{email\}/g, encodeURIComponent(space.email))
+                .replace(/\{email_start\}/g, encodeURIComponent(email_start || ''))
+                .replace(/\{email_end\}/g, encodeURIComponent(email_end || ''));
+            window.open(url, '_blank', 'noopener noreferer');
             return;
         }
         this._dialog.open(

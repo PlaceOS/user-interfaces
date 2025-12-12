@@ -18,7 +18,7 @@ import { ControlSpaceListItemComponent } from './list-item.component';
         <div
             class="flex w-full items-center justify-center border-b border-base-300 bg-base-100 p-2"
         >
-            <mat-form-field overlay class="h-12 rounded" appearance="outline">
+            <mat-form-field overlay class="h-12 rounded-sm" appearance="outline">
                 <icon class="text-xl" matPrefix>search</icon>
                 <input
                     matInput

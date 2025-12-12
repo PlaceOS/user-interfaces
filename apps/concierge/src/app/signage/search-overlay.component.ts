@@ -21,11 +21,11 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
         >
             <div class="absolute inset-0 z-0 bg-base-content opacity-70"></div>
             <div
-                class="relative z-10 mx-auto mb-4 w-[32rem] max-w-[calc(100%-2rem)]"
+                class="relative z-10 mx-auto mb-4 w-lg max-w-[calc(100%-2rem)]"
                 (click)="$event.stopPropagation()"
             >
                 <input
-                    class="w-full rounded-[4rem] border border-base-300 bg-base-100 py-4 pl-14 pr-6 text-xl text-base-content shadow"
+                    class="w-full rounded-[4rem] border border-base-300 bg-base-100 py-4 pl-14 pr-6 text-xl text-base-content shadow-sm"
                     [ngModel]="search()"
                     (ngModelChange)="search.set($event)"
                     [placeholder]="'COMMON.SEARCH' | translate"
@@ -37,7 +37,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                 </icon>
             </div>
             <div
-                class="z-10 mx-auto max-h-[65%] w-[32rem] max-w-[calc(100%-2rem)] overflow-auto rounded"
+                class="z-10 mx-auto max-h-[65%] w-lg max-w-[calc(100%-2rem)] overflow-auto rounded-sm"
                 (click)="$event.stopPropagation()"
             >
                 @for (item of item_list(); track item) {

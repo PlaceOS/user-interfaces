@@ -12,7 +12,7 @@ import { TranslatePipe } from './translate.pipe';
     selector: 'region-select',
     template: `
         <div
-            class="relative -right-1 -top-12 flex max-h-[65vh] w-[18.5rem] flex-col overflow-auto rounded bg-base-100 pb-3 shadow"
+            class="relative -right-1 -top-12 flex max-h-[65vh] w-74 flex-col overflow-auto rounded-sm bg-base-100 pb-3 shadow-sm"
             (click)="close()"
         >
             <div

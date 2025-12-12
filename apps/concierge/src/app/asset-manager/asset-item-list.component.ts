@@ -38,11 +38,11 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     <ng-container [ngSwitch]="(options | async).view">
                         <ng-container *ngSwitchCase="'list'">
                             <div
-                                class="divide-y divide-base-200 overflow-hidden rounded border border-base-200 bg-base-100"
+                                class="divide-y divide-base-200 overflow-hidden rounded-sm border border-base-200 bg-base-100"
                             >
                                 <a
                                     matRipple
-                                    class="hover:border-indigo-400 flex items-center space-x-4 rounded border border-base-200 p-4 text-left"
+                                    class="hover:border-indigo-400 flex items-center space-x-4 rounded-sm border border-base-200 p-4 text-left"
                                     *ngFor="
                                         let asset of (products | async)[
                                             group.id
@@ -103,7 +103,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                             >
                                 <a
                                     matRipple
-                                    class="hover:border-indigo-400 m-2 flex h-44 w-40 flex-col rounded border border-base-200 bg-base-100 text-left shadow"
+                                    class="hover:border-indigo-400 m-2 flex h-44 w-40 flex-col rounded-sm border border-base-200 bg-base-100 text-left shadow-sm"
                                     *ngFor="
                                         let asset of (products | async)[
                                             group.id

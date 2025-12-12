@@ -34,7 +34,7 @@ import {
             <button
                 icon
                 matRipple
-                class="relative rounded"
+                class="relative rounded-sm"
                 customTooltip
                 [content]="calendar_picker"
                 yPosition="top"
@@ -47,7 +47,7 @@ import {
         <button
             icon
             matRipple
-            class="rounded hover:bg-base-200"
+            class="rounded-sm hover:bg-base-200"
             (click)="previousDay()"
         >
             <icon>keyboard_arrow_left</icon>
@@ -56,7 +56,7 @@ import {
             <button
                 icon
                 matRipple
-                class="rounded hover:bg-base-200"
+                class="rounded-sm hover:bg-base-200"
                 (click)="nextDay()"
             >
                 <icon>keyboard_arrow_right</icon>
@@ -65,7 +65,7 @@ import {
         <button
             matRipple
             (dblclick)="setDate()"
-            class="display relative mx-4 flex h-12 w-28 items-center justify-center rounded leading-none hover:bg-base-200"
+            class="display relative mx-4 flex h-12 w-28 items-center justify-center rounded-sm leading-none hover:bg-base-200"
         >
             @if (is_today) {
                 <div
@@ -82,7 +82,7 @@ import {
             <button
                 icon
                 matRipple
-                class="rounded hover:bg-base-200"
+                class="rounded-sm hover:bg-base-200"
                 (click)="nextDay()"
             >
                 <icon>keyboard_arrow_right</icon>
@@ -92,7 +92,7 @@ import {
             <button
                 icon
                 matRipple
-                class="relative rounded border border-base-200"
+                class="relative rounded-sm border border-base-200"
                 customTooltip
                 [content]="calendar_picker"
                 yPosition="top"
@@ -103,7 +103,7 @@ import {
             </button>
         }
         <ng-template #calendar_picker>
-            <div class="relative w-[19rem] rounded bg-base-100 px-2 py-4">
+            <div class="relative w-76 rounded-sm bg-base-100 px-2 py-4">
                 <date-calendar
                     [ngModel]="date()"
                     [offset_weekday]="week_start()"

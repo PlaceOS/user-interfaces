@@ -43,7 +43,7 @@ import { SignageStateService } from './signage-state.service';
                     }
                 </div>
                 <div class="px-8">
-                    <div class="overflow-hidden rounded bg-base-200">
+                    <div class="overflow-hidden rounded-sm bg-base-200">
                         <nav mat-tab-nav-bar [tabPanel]="tabPanel">
                             @for (link of links(); track link.id) {
                                 <a
@@ -61,7 +61,7 @@ import { SignageStateService } from './signage-state.service';
                     </div>
                 </div>
                 <mat-tab-nav-panel
-                    class="h-1/2 flex-1 overflow-auto px-8 py-4"
+                    class="h-1/2 flex-1 overflow-auto px-8 py-2"
                     #tabPanel
                 >
                     <router-outlet></router-outlet>

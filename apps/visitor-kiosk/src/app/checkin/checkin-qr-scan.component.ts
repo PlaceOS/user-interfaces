@@ -27,7 +27,7 @@ import { CheckinStateService } from './checkin-state.service';
     selector: '[checkin-qr-scan]',
     template: `
         <div
-            class="relative flex w-[36rem] flex-col items-center overflow-hidden rounded bg-base-100 p-4 shadow"
+            class="relative flex w-xl flex-col items-center overflow-hidden rounded-sm bg-base-100 p-4 shadow-sm"
             [class.hidden]="checking_code"
         >
             <p class="my-4">
@@ -56,7 +56,7 @@ import { CheckinStateService } from './checkin-state.service';
                 </button>
             </div>
             <div
-                class="relative mt-4 overflow-hidden rounded border border-base-200 bg-base-200"
+                class="relative mt-4 overflow-hidden rounded-sm border border-base-200 bg-base-200"
             >
                 <div
                     class="absolute left-1/2 top-1/2 z-0 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center space-y-2 opacity-30"
@@ -86,7 +86,7 @@ import { CheckinStateService } from './checkin-state.service';
             </a>
         </div>
         <div
-            class="relative flex flex-col items-center overflow-hidden rounded bg-base-100 p-16 shadow"
+            class="relative flex flex-col items-center overflow-hidden rounded-sm bg-base-100 p-16 shadow-sm"
             [class.hidden]="!checking_code"
         >
             <mat-spinner diameter="32"></mat-spinner>

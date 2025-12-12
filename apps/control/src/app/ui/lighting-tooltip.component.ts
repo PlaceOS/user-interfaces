@@ -1,11 +1,11 @@
 import { Component, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import {
     BindingDirective,
     CustomTooltipData,
     TranslatePipe,
 } from '@placeos/components';
 
-import { CommonModule } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
 import {
     ControlStateService,
@@ -16,16 +16,16 @@ import {
     selector: 'lighting-tooltip',
     template: `
         <div
-            class="my-2 flex flex-col items-center space-y-2 rounded bg-base-100 p-4 shadow"
+            class="my-2 flex flex-col items-center space-y-2 rounded-sm bg-base-100 p-4 shadow-sm"
         >
-            @if (!!(lights | async)[0]) {
+            @if (lights()[0]) {
                 <div hidden>
                     <i
                         binding
                         [(model)]="light"
                         [sys]="id"
                         mod="System"
-                        [bind]="'lights/' + (lights | async)[0]"
+                        [bind]="'lights/' + lights()[0]"
                     ></i>
                 </div>
             }
@@ -45,7 +45,7 @@ import {
                         [sys]="id"
                         mod="System"
                         exec="environment"
-                        [params]="[(lights | async)[0], state]"
+                        [params]="[lights()[0], state]"
                     >
                         {{ state }}
                     </button>
@@ -58,7 +58,7 @@ import {
         </div>
     `,
     styles: [``],
-    imports: [CommonModule, BindingDirective, TranslatePipe, MatRippleModule],
+    imports: [BindingDirective, TranslatePipe, MatRippleModule],
 })
 export class LightingTooltipComponent {
     private _state = inject(ControlStateService);
@@ -66,7 +66,7 @@ export class LightingTooltipComponent {
 
     public light: EnvironmentSource;
 
-    public readonly lights = this._state.lights;
+    public readonly lights = toSignal(this._state.lights, { initialValue: [] });
     /** Close the tooltip */
     public readonly close = () => this._tooltip.close();
 

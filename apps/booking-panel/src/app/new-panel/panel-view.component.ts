@@ -25,7 +25,7 @@ import { PanelViewStatusComponent } from './panel-view-status.component';
                     "
                 >
                     <div
-                        class="absolute left-4 top-4 flex w-1/2 items-center justify-center rounded bg-warning p-4 text-5xl font-medium text-white shadow"
+                        class="absolute left-4 top-4 flex w-1/2 items-center justify-center rounded-sm bg-warning p-4 text-5xl font-medium text-white shadow-sm"
                     >
                         {{
                             name ||

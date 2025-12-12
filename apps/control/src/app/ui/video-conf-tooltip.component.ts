@@ -1,24 +1,25 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { CustomTooltipData, TranslatePipe } from '@placeos/components';
 
-import { CommonModule } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
 import { RouterModule } from '@angular/router';
+import { ControlStateService } from '../control-state.service';
 import { VideoCallDialViewComponent } from '../video-call/video-call-dial-view.component';
 import { VideoCallStateService } from '../video-call/video-call-state.service';
 
 @Component({
     selector: 'video-conf-tooltip',
     template: `
-        @if (!(call | async)) {
+        @if (!call()) {
             <div
-                class="my-2 flex flex-col items-center rounded bg-base-100 shadow"
+                class="my-2 flex flex-col items-center rounded-sm bg-base-100 shadow-sm"
             >
                 <video-call-dial-view (close)="close()"></video-call-dial-view>
             </div>
         } @else {
             <div
-                class="my-2 flex flex-col items-center space-y-2 rounded bg-base-100 p-2 shadow"
+                class="my-2 flex flex-col items-center space-y-2 rounded-sm bg-base-100 p-2 shadow-sm"
             >
                 <h3 class="w-full p-2 text-center font-medium">
                     {{ 'APP.CONTROL.VC_IN_CALL' | translate }}
@@ -47,7 +48,6 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
     `,
     styles: [``],
     imports: [
-        CommonModule,
         RouterModule,
         TranslatePipe,
         MatRippleModule,
@@ -55,15 +55,20 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
     ],
 })
 export class VideoConferenceTooltipComponent {
+    private _state = inject(ControlStateService);
     private _vc_state = inject(VideoCallStateService);
     private _ref = inject(CustomTooltipData);
 
-    public dial_number = '';
-    public loading = false;
-    public readonly call = this._vc_state.call;
+    public readonly dial_number = signal('');
+    public readonly loading = signal(false);
+    public readonly call = toSignal(this._vc_state.call);
+
+    public get id(): string {
+        return this._state.id;
+    }
 
     public addDigit(digit: string) {
-        this.dial_number += digit;
+        this.dial_number.update((v) => v + digit);
     }
 
     public close() {

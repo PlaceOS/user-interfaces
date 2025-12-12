@@ -2,11 +2,15 @@ import { CommonModule } from '@angular/common';
 import {
     AfterViewInit,
     Component,
+    computed,
     ElementRef,
-    Renderer2,
     inject,
+    Injector,
+    Renderer2,
+    signal,
     viewChild,
 } from '@angular/core';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import {
@@ -32,7 +36,7 @@ import { UserAvatarComponent } from 'libs/components/src/lib/user-avatar.compone
 import { queryUserFreeBusy } from 'libs/events/src/lib/calendar.fn';
 import { DateFieldComponent } from 'libs/form-fields/src/lib/date-field.component';
 import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-field.component';
-import { BehaviorSubject, combineLatest, of } from 'rxjs';
+import { of } from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -56,9 +60,9 @@ export interface FindAvailabilityData {
 @Component({
     selector: 'find-availability-modal',
     template: `
-        <div class="flex flex-col space-y-2 p-2">
+        <div class="fixed inset-0 flex flex-col space-y-2 bg-base-100 p-2">
             <header
-                class="flex h-14 w-full items-center justify-between space-x-2 rounded border-none bg-base-200 p-2"
+                class="flex h-14 w-full items-center justify-between space-x-2 rounded-sm border-none bg-base-200 p-2"
             >
                 <h2 class="flex-1 px-2 text-xl font-medium capitalize">
                     {{ 'CALENDAR_EVENT.FIND_AVAILABILITY' | translate }}
@@ -68,70 +72,73 @@ export interface FindAvailabilityData {
                 </button>
             </header>
             <main
-                class="flex h-[calc(100vh-9rem)] flex-col overflow-hidden rounded border border-base-300 sm:h-[65vh]"
+                class="flex h-[calc(100vh-9rem)] flex-1 flex-col overflow-hidden rounded-sm border border-base-300 sm:h-[65vh]"
             >
                 <div
                     class="flex w-full flex-col space-y-2 p-2 sm:flex-row sm:space-x-2 sm:space-y-0"
                 >
                     <a-date-field
-                        [(ngModel)]="date"
-                        class="max-h-[3.25rem] flex-1"
-                        (ngModelChange)="
-                            on_change.next(on_change.getValue() + 1)
-                        "
+                        [ngModel]="date()"
+                        (ngModelChange)="onDateChange($event)"
+                        class="max-h-13 flex-1"
                     ></a-date-field>
                     <a-user-search-field
-                        [(ngModel)]="user"
+                        [ngModel]="user()"
                         (ngModelChange)="addUser($event)"
-                        class="max-h-[3.25rem] flex-1"
+                        class="max-h-13 flex-1"
                     ></a-user-search-field>
                 </div>
                 <div
-                    class="relative grid h-1/2 w-full max-w-[100vw] flex-1 divide-x divide-y divide-base-200 overflow-hidden border-t border-base-200 sm:max-w-[80vw]"
+                    class="relative grid h-1/2 w-full max-w-full flex-1 divide-x divide-y divide-base-300 overflow-hidden border-t border-base-300"
                 >
                     <div
                         times
-                        class="col-start-2 flex h-10 overflow-hidden border-l border-base-200"
+                        class="col-start-2 flex h-10 overflow-hidden border-l border-base-300"
                     >
                         @for (hr of hours; track hr; let hour = $index) {
                             <div
                                 hour
-                                class="relative h-10 min-w-[5rem] border-r border-base-200 p-2 text-sm"
-                                [attr.disabled]="today && current_hour > hour"
-                                [style.left]="-offset_x + 'px'"
+                                class="relative h-10 min-w-20 border-r border-base-300 p-2 text-sm"
+                                [attr.disabled]="
+                                    today() && current_hour() > hour
+                                "
+                                [style.left]="-offset_x() + 'px'"
                             >
                                 <span>{{ hr | date: 'haa' }}</span>
                             </div>
                         }
                     </div>
-                    <div users class="row-start-2 w-24 overflow-hidden">
+                    <div
+                        users
+                        class="!border-l-none row-start-2 w-24 overflow-hidden"
+                    >
                         <div
                             host
-                            class="relative flex h-32 w-24 flex-col items-center justify-center border-b border-base-200 py-2"
-                            [style.top]="-offset_y + 'px'"
+                            class="relative flex h-32 w-24 flex-col items-center justify-center border-b border-base-300 py-2"
+                            [style.top]="-offset_y() + 'px'"
                         >
                             <a-user-avatar
                                 class="text-2xl"
                                 [user]="host"
                             ></a-user-avatar>
                             <div
-                                class="max-w-full overflow-hidden break-words px-2 text-center text-xs"
+                                class="max-w-full overflow-hidden wrap-break-word px-2 text-center text-xs"
                             >
                                 {{ host.name || host.email }}
                             </div>
                         </div>
-                        @for (user of users | async; track user) {
+                        @for (user of users(); track user) {
                             <div
                                 person
-                                class="relative flex h-32 w-24 flex-col items-center justify-center border-b border-base-200 py-2"
-                                [style.top]="-offset_y + 'px'"
+                                class="relative flex h-32 w-24 flex-col items-center justify-center border-b border-base-300 py-2"
+                                [style.top]="-offset_y() + 'px'"
                             >
                                 <a-user-avatar
                                     class="text-2xl"
                                     [user]="user"
                                 ></a-user-avatar>
                                 <div
-                                    class="max-w-full break-words px-2 text-center text-xs"
+                                    class="max-w-full wrap-break-word px-2 text-center text-xs"
                                 >
                                     {{ user.name || host.email }}
                                 </div>
@@ -153,22 +160,24 @@ export interface FindAvailabilityData {
                             @for (_ of hours; track _; let h = $index) {
                                 <div
                                     divider
-                                    class="relative h-full min-w-[5rem] border-l border-base-200"
-                                    [style.left]="-(offset_x + 1) + 'px'"
-                                    [attr.disabled]="today && current_hour > h"
+                                    class="relative h-full min-w-20 border-l border-base-300"
+                                    [style.left]="-(offset_x() + 1) + 'px'"
+                                    [attr.disabled]="
+                                        today() && current_hour() > h
+                                    "
                                 ></div>
                             }
                             <div
                                 selection
-                                class="absolute inset-y-0 z-20 cursor-grab !border-x-2 !border-info active:cursor-grabbing"
+                                class="absolute inset-y-0 z-20 cursor-grab border-x-2! border-info! active:cursor-grabbing"
                                 [style.left]="
                                     'calc(' +
-                                    selection_left +
+                                    selection_left() +
                                     'rem - ' +
-                                    offset_x +
+                                    offset_x() +
                                     'px)'
                                 "
-                                [style.width]="selection_width + 'rem'"
+                                [style.width]="selection_width() + 'rem'"
                                 (mousedown)="startMovePeriod($event)"
                                 (touchstart)="startMovePeriod($event)"
                             >
@@ -186,15 +195,15 @@ export interface FindAvailabilityData {
                                     (touchstart)="startMoveDuration($event)"
                                 ></div>
                                 <div
-                                    class="absolute left-1/2 top-2 -translate-x-1/2 whitespace-nowrap rounded border border-base-200 bg-base-100 p-2 text-xs shadow"
+                                    class="absolute left-1/2 top-2 -translate-x-1/2 whitespace-nowrap rounded-sm border border-base-300 bg-base-100 p-2 text-xs shadow-sm"
                                 >
-                                    {{ duration | duration }}
+                                    {{ duration() | duration }}
                                 </div>
-                                @if (move_time) {
+                                @if (move_time()) {
                                     <div
-                                        class="absolute left-1/2 top-12 -translate-x-1/2 whitespace-nowrap rounded border border-base-200 bg-base-100 p-2 text-xs shadow"
+                                        class="absolute left-1/2 top-12 -translate-x-1/2 whitespace-nowrap rounded-sm border border-base-300 bg-base-100 p-2 text-xs shadow-sm"
                                     >
-                                        {{ date | date: 'shortTime' }}
+                                        {{ date() | date: 'shortTime' }}
                                     </div>
                                 }
                             </div>
@@ -208,24 +217,20 @@ export interface FindAvailabilityData {
                             <user-availability-list
                                 class="pointer-events-none"
                                 [user]="host"
-                                [date]="date"
+                                [date]="date()"
                                 [availability]="
-                                    (availability | async)
-                                        ? (availability | async)[host.email]
-                                        : []
+                                    availability()[host.email] ?? []
                                 "
                             ></user-availability-list>
-                            @for (user of users | async; track user) {
+                            @for (user of users(); track user) {
                                 <user-availability-list
                                     class="pointer-events-none"
                                     [user]="user"
-                                    [date]="date"
+                                    [date]="date()"
                                     [availability]="
-                                        (availability | async)
-                                            ? (availability | async)[
-                                                  user.email.toLowerCase()
-                                              ]
-                                            : []
+                                        availability()[
+                                            user.email.toLowerCase()
+                                        ] ?? []
                                     "
                                 ></user-availability-list>
                             }
@@ -234,7 +239,7 @@ export interface FindAvailabilityData {
                 </div>
             </main>
             <footer
-                class="flex h-14 w-full items-center justify-between space-x-2 rounded border-none bg-base-200 p-2"
+                class="flex h-14 w-full items-center justify-between space-x-2 rounded-sm border-none bg-base-200 p-2"
             >
                 <button
                     btn
@@ -260,7 +265,7 @@ export interface FindAvailabilityData {
             }
             [disabled='true'],
             [disabled='true'] [header] {
-                background: var(--base-300) !important;
+                background: var(--base-200) !important;
                 pointer-events: none;
             }
             [disabled='true'] > * {
@@ -290,34 +295,34 @@ export class FindAvailabilityModalComponent
     private _renderer = inject(Renderer2);
     private _dialog_ref =
         inject<MatDialogRef<FindAvailabilityModalComponent>>(MatDialogRef);
+    private _injector = inject(Injector);
 
-    public readonly users = new BehaviorSubject([]);
-    public search = '';
-    public date = this._data.date || Date.now();
-    public duration = this._data.duration || 60;
-    public user?: User;
-    public offset_y = 0;
-    public offset_x = 0;
+    public readonly users = signal<User[]>([...this._data.users]);
+    public readonly search = signal('');
+    public readonly date = signal(this._data.date || Date.now());
+    public readonly duration = signal(this._data.duration || 60);
+    public readonly user = signal<User | undefined>(undefined);
+    public readonly offset_y = signal(0);
+    public readonly offset_x = signal(0);
+    public readonly move_time = signal(false);
 
     public readonly host = this._data.host;
     public readonly hours = new Array(24)
         .fill(0)
         .map((_, idx) => setHours(startOfDay(Date.now()), idx).valueOf());
-    public readonly on_change = new BehaviorSubject(0);
 
-    public readonly availability = combineLatest([
-        this.users,
-        this.on_change,
-    ]).pipe(
+    private readonly _availability$ = toObservable(this.users, {
+        injector: this._injector,
+    }).pipe(
         debounceTime(300),
-        switchMap(([users]) => {
+        switchMap((users) => {
             return queryUserFreeBusy({
                 calendars: [
                     this.host.email,
                     ...users.map((_) => _.email.toLowerCase()),
                 ].join(','),
-                period_start: getUnixTime(startOfDay(this.date)),
-                period_end: getUnixTime(endOfDay(this.date)),
+                period_start: getUnixTime(startOfDay(this.date())),
+                period_end: getUnixTime(endOfDay(this.date())),
             }).pipe(catchError(() => of([])));
         }),
         map((availability_list) => {
@@ -348,44 +353,59 @@ export class FindAvailabilityModalComponent
         shareReplay(1),
     );
 
+    public readonly availability = toSignal(this._availability$, {
+        initialValue: {} as Record<string, AvailabilityBlock[]>,
+        injector: this._injector,
+    });
+
     private readonly _container_el =
         viewChild.required<ElementRef<HTMLDivElement>>('container');
 
-    public get today() {
-        return isSameDay(this.date, Date.now());
-    }
+    public readonly today = computed(() => isSameDay(this.date(), Date.now()));
 
-    public get current_hour() {
-        return new Date().getHours();
-    }
+    public readonly current_hour = computed(() => new Date().getHours());
 
-    public get selection_left() {
-        const date = new Date(this.date);
-        return (date.getHours() + date.getMinutes() / 60) * 5;
-    }
+    public readonly selection_left = computed(() => {
+        const d = new Date(this.date());
+        return (d.getHours() + d.getMinutes() / 60) * 5;
+    });
 
-    public get selection_width() {
-        return (this.duration / 60) * 5;
-    }
+    public readonly selection_width = computed(
+        () => (this.duration() / 60) * 5,
+    );
+
+    private _start_time = 0;
+    private _move_last = 0;
+    private _move_size = 80 * 24;
 
     constructor() {
         super();
-        this.users.next([...this._data.users]);
+        toObservable(this.date, { injector: this._injector })
+            .pipe(debounceTime(300))
+            .subscribe(() => {
+                // Re-trigger availability fetch when date changes
+                this.users.update((u) => [...u]);
+            });
     }
 
-    public addUser(user: User) {
-        this.users.next([
-            ...this.users.getValue().filter((u) => u.email !== user.email),
-            user,
+    public onDateChange(new_date: number) {
+        this.date.set(new_date);
+    }
+
+    public addUser(new_user: User) {
+        if (!new_user) return;
+        this.users.update((current) => [
+            ...current.filter((u) => u.email !== new_user.email),
+            new_user,
         ]);
-        this.user = null;
+        this.user.set(undefined);
     }
 
-    public removeUser(user: User) {
-        this.users.next(
-            this.users.getValue().filter((u) => u.email !== user.email),
+    public removeUser(user_to_remove: User) {
+        this.users.update((current) =>
+            current.filter((u) => u.email !== user_to_remove.email),
         );
-        this.user = null;
+        this.user.set(undefined);
     }
 
     public closeAndUpdate() {
@@ -393,23 +413,17 @@ export class FindAvailabilityModalComponent
     }
 
     public ngAfterViewInit() {
-        const date = new Date(this.date);
+        const d = new Date(this.date());
+        const hour_width = 80; // 5rem = 80px
 
         this.timeout(
             'init',
             () => {
-                const el = this._container_el().nativeElement.querySelector(
-                    `[hour="${date.getHours()}"]`,
-                );
-                if (el) {
-                    const rect =
-                        this._container_el().nativeElement.getBoundingClientRect();
-                    const el_rect = el.getBoundingClientRect();
-                    this._container_el().nativeElement.scrollTo(
-                        el_rect.left - 128 - rect.left,
-                        0,
-                    );
-                }
+                // Calculate scroll position based on selected time
+                // Each hour block is 80px wide, scroll to center the selected time
+                const selected_hour = d.getHours() + d.getMinutes() / 60;
+                const scroll_x = Math.max(0, selected_hour * hour_width - 48);
+                this._container_el().nativeElement.scrollTo(scroll_x, 0);
                 this.onScroll();
             },
             300,
@@ -417,14 +431,9 @@ export class FindAvailabilityModalComponent
     }
 
     public onScroll() {
-        this.offset_x = this._container_el().nativeElement.scrollLeft;
-        this.offset_y = this._container_el().nativeElement.scrollTop;
+        this.offset_x.set(this._container_el().nativeElement.scrollLeft);
+        this.offset_y.set(this._container_el().nativeElement.scrollTop);
     }
-
-    public move_time = false;
-    private _start_time = 0;
-    private _move_last = 0;
-    private _move_size = 80 * 24;
 
     public startMovePeriod(event: MouseEvent | TouchEvent) {
         event.preventDefault();
@@ -433,8 +442,8 @@ export class FindAvailabilityModalComponent
             event instanceof MouseEvent
                 ? event.clientX
                 : event.touches[0].clientX;
-        this.move_time = true;
-        this._start_time = this.date;
+        this.move_time.set(true);
+        this._start_time = this.date();
         event instanceof MouseEvent
             ? this.subscription(
                   'on_move',
@@ -470,7 +479,7 @@ export class FindAvailabilityModalComponent
             event instanceof MouseEvent
                 ? event.clientX
                 : event.touches[0].clientX;
-        this._start_time = this.duration;
+        this._start_time = this.duration();
         event instanceof MouseEvent
             ? this.subscription(
                   'on_move',
@@ -511,9 +520,11 @@ export class FindAvailabilityModalComponent
             Math.floor(Math.abs((change_px / this._move_size) * 24 * 60) / 5) *
             5;
         if (change_min) {
-            const old_date = this.date;
-            this.date = addMinutes(this._start_time, change_min).valueOf();
-            if (this.date < Date.now()) this.date = old_date;
+            const old_date = this.date();
+            const new_date = addMinutes(this._start_time, change_min).valueOf();
+            if (new_date >= Date.now()) {
+                this.date.set(new_date);
+            }
         }
     }
 
@@ -529,7 +540,7 @@ export class FindAvailabilityModalComponent
             Math.floor(Math.abs((change_px / this._move_size) * 24 * 60) / 5) *
             5;
         if (change_min) {
-            this.duration = Math.max(30, this._start_time + change_min);
+            this.duration.set(Math.max(30, this._start_time + change_min));
         }
     }
 
@@ -537,6 +548,6 @@ export class FindAvailabilityModalComponent
         this.unsub('on_move');
         this.unsub('on_move_end');
         this._move_last = 0;
-        this.move_time = false;
+        this.move_time.set(false);
     }
 }

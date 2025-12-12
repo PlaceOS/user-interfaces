@@ -16,7 +16,7 @@ import { Locker, LockerBank } from './locker.class';
             @for (locker of bank()?.lockers || []; track locker) {
                 <button
                     matRipple
-                    class="relative overflow-hidden rounded border border-base-200"
+                    class="relative overflow-hidden rounded-sm border border-base-200"
                     [class.opacity-60]="selected() && selected() !== locker.id"
                     [style.grid-column-start]="locker.position[0] + 1"
                     [style.grid-row-start]="locker.position[1] + 1"
@@ -35,7 +35,7 @@ import { Locker, LockerBank } from './locker.class';
                 >
                     <div
                         handle
-                        class="absolute left-2 top-1/2 h-6 w-1 -translate-y-1/2 rounded bg-base-400 opacity-60"
+                        class="absolute left-2 top-1/2 h-6 w-1 -translate-y-1/2 rounded-sm bg-base-400 opacity-60"
                     ></div>
                     <div
                         vent

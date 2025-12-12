@@ -23,12 +23,12 @@ import { GroupEventsStateService } from './group-events-state.service';
                     <group-event-card
                         [event]="featured | async"
                         [featured]="true"
-                        class="mx-auto my-2 w-[64rem] max-w-full"
+                        class="mx-auto my-2 w-5xl max-w-full"
                     ></group-event-card>
                 }
                 @if ((event_list | async)?.length) {
                     <div
-                        class="mx-auto mt-2 flex w-[64rem] max-w-full flex-wrap"
+                        class="mx-auto mt-2 flex w-5xl max-w-full flex-wrap"
                     >
                         @for (
                             event of events_without_featured | async;

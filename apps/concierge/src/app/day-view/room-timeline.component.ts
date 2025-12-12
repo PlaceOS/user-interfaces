@@ -164,12 +164,12 @@ import { RoomBookingSearchComponent } from './room-booking-search.component';
                                 [matTooltip]="eventTooltip(event)"
                             >
                                 <div
-                                    class="relative h-full w-full overflow-hidden rounded-lg border border-base-200 bg-base-100 px-3 py-1 text-xs shadow hover:bg-base-200"
+                                    class="relative h-full w-full overflow-hidden rounded-lg border border-base-200 bg-base-100 px-3 py-1 text-xs shadow-sm hover:bg-base-200"
                                     [class.opacity-60]="event.state === 'done'"
-                                    [class.!rounded-none]="
+                                    [class.rounded-none!]="
                                         event.is_system_event
                                     "
-                                    [class.!border-secondary]="
+                                    [class.border-secondary!]="
                                         event.is_system_event
                                     "
                                 >

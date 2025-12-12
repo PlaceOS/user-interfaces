@@ -9,7 +9,7 @@ import { TranslatePipe } from './translate.pipe';
     selector: 'help-tooltip',
     template: `
         <div
-            class="relative -right-1 -top-12 flex w-[18.5rem] flex-col rounded bg-base-100 shadow"
+            class="relative -right-1 -top-12 flex w-74 flex-col rounded-sm bg-base-100 shadow-sm"
             (click)="close()"
         >
             <div
@@ -28,7 +28,7 @@ import { TranslatePipe } from './translate.pipe';
                     [href]="tile.link"
                 >
                     <div
-                        class="flex w-full items-center space-x-2 rounded p-2 hover:bg-base-200"
+                        class="flex w-full items-center space-x-2 rounded-sm p-2 hover:bg-base-200"
                     >
                         <icon class="text-xl" [icon]="tile.icon"></icon>
                         <div>{{ tile.name }}</div>

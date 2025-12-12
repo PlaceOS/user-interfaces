@@ -22,7 +22,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
         >
             <div
                 value
-                class="relative z-0 -mx-px flex h-12 min-w-16 flex-1 items-center justify-center rounded border border-secondary p-1 focus-within:z-20"
+                class="relative z-0 -mx-px flex h-12 min-w-16 flex-1 items-center justify-center rounded-sm border border-secondary p-1 focus-within:z-20"
             >
                 @if (!focused) {
                     <span class="px-3">
@@ -44,7 +44,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
                     icon
                     matRipple
                     type="button"
-                    class="z-10 h-[1.375rem] w-[1.375rem] min-w-0 rounded border border-secondary text-sm text-secondary"
+                    class="z-10 h-5.5 w-5.5 min-w-0 rounded-sm border border-secondary text-sm text-secondary"
                     [disabled]="value === max()"
                     (click)="add()"
                 >
@@ -55,7 +55,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
                     icon
                     matRipple
                     type="button"
-                    class="z-10 h-[1.375rem] w-[1.375rem] min-w-0 rounded border border-secondary text-sm text-secondary"
+                    class="z-10 h-5.5 w-5.5 min-w-0 rounded-sm border border-secondary text-sm text-secondary"
                     [disabled]="!value || value === min()"
                     (click)="remove()"
                 >

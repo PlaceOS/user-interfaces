@@ -40,12 +40,12 @@ import { LandingStateService } from './landing-state.service';
                         <button
                             name="landing-view-space"
                             matRipple
-                            class="flex w-64 snap-start items-center space-x-2 rounded border border-base-200 bg-base-100 p-2 shadow"
+                            class="flex w-64 snap-start items-center space-x-2 rounded-sm border border-base-200 bg-base-100 p-2 shadow-sm"
                             [routerLink]="['/explore']"
                             [queryParams]="{ level: lvl.id }"
                         >
                             <div
-                                class="flex h-16 w-16 min-w-[4rem] items-center justify-center overflow-hidden rounded bg-base-200"
+                                class="flex h-16 w-16 min-w-16 items-center justify-center overflow-hidden rounded-sm bg-base-200"
                             >
                                 @if (lvl?.images?.length) {
                                     <img
@@ -116,11 +116,11 @@ import { LandingStateService } from './landing-state.service';
                         <button
                             name="landing-book-room"
                             matRipple
-                            class="flex w-64 snap-start items-center space-x-4 rounded border border-base-200 bg-base-100 p-2 shadow"
+                            class="flex w-64 snap-start items-center space-x-4 rounded-sm border border-base-200 bg-base-100 p-2 shadow-sm"
                             (click)="book(space)"
                         >
                             <div
-                                class="flex h-16 w-16 min-w-[4rem] items-center justify-center overflow-hidden rounded bg-base-200"
+                                class="flex h-16 w-16 min-w-16 items-center justify-center overflow-hidden rounded-sm bg-base-200"
                             >
                                 @if (
                                     (space.id | space | async)?.images?.length
@@ -175,7 +175,7 @@ import { LandingStateService } from './landing-state.service';
     styles: [
         `
             * {
-                flex-shrink: 0;
+                shrink: 0;
             }
         `,
     ],

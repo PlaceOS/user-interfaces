@@ -6,9 +6,9 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { CateringItem } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { MockComponent } from 'ng-mocks';
-import { CateringItem } from '@placeos/common';
 
 import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
 import { CateringItemOptionModalComponent } from '../lib/catering-option-modal.component';

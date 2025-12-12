@@ -1,4 +1,5 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { first } from 'rxjs/operators';
 
@@ -12,15 +13,14 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { showBooking } from '@placeos/bookings';
 import {
     AsyncHandler,
-    Desk,
-    OrganisationService,
     csvToJson,
+    Desk,
     downloadFile,
     jsonToCsv,
     loadTextFileFromInputEvent,
-    nextValueFrom,
     notifyError,
     notifyInfo,
+    OrganisationService,
     randomInt,
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
@@ -39,26 +39,24 @@ import { DesksStateService } from './desks-state.service';
             <mat-form-field appearance="outline">
                 <mat-select
                     [ngModel]="
-                        (filters | async).zones
-                            ? (filters | async).zones[0]
-                            : 'All'
+                        filters().zones?.length ? filters().zones[0] : 'All'
                     "
                     (ngModelChange)="updateZones([$event])"
                     [placeholder]="'COMMON.LEVEL_ALL' | translate"
                 >
-                    @if (!is_map) {
+                    @if (!is_map()) {
                         <mat-option value="All">
                             {{ 'COMMON.LEVEL_ALL' | translate }}
                         </mat-option>
                     }
-                    @for (level of levels | async; track level) {
+                    @for (level of levels(); track level) {
                         <mat-option [value]="level.id">
                             {{ level.display_name || level.name }}
                         </mat-option>
                     }
                 </mat-select>
             </mat-form-field>
-            @if (!manage) {
+            @if (!manage()) {
                 <button
                     btn
                     matRipple
@@ -69,22 +67,22 @@ import { DesksStateService } from './desks-state.service';
                     {{ 'APP.CONCIERGE.NEW_BOOKING' | translate }}
                 </button>
             }
-            @if (manage) {
+            @if (manage()) {
                 <button
                     icon
                     matRipple
-                    class="mx-2 rounded bg-primary text-white"
+                    class="mx-2 rounded-sm bg-primary text-white"
                     (click)="newDesk()"
                     [matTooltip]="'APP.CONCIERGE.DESKS_NEW' | translate"
                 >
                     <icon>add</icon>
                 </button>
             }
-            @if (manage) {
+            @if (manage()) {
                 <button
                     icon
                     matRipple
-                    class="relative rounded bg-primary text-white"
+                    class="relative rounded-sm bg-primary text-white"
                     [matTooltip]="'APP.CONCIERGE.DESKS_LIST_UPLOAD' | translate"
                 >
                     <icon>cloud_upload</icon>
@@ -95,11 +93,11 @@ import { DesksStateService } from './desks-state.service';
                     />
                 </button>
             }
-            @if (manage) {
+            @if (manage()) {
                 <button
                     icon
                     matRipple
-                    class="mx-2 rounded bg-primary text-white"
+                    class="mx-2 rounded-sm bg-primary text-white"
                     (click)="downloadTemplate()"
                     [matTooltip]="
                         'APP.CONCIERGE.DESKS_LIST_DOWNLOAD' | translate
@@ -108,11 +106,11 @@ import { DesksStateService } from './desks-state.service';
                     <icon>download</icon>
                 </button>
             }
-            @if (manage) {
+            @if (manage()) {
                 <button
                     icon
                     matRipple
-                    class="mx-2 rounded bg-primary text-white"
+                    class="mx-2 rounded-sm bg-primary text-white"
                     (click)="manageRestrictions()"
                     [matTooltip]="
                         'APP.CONCIERGE.DESKS_BOOKING_RULES' | translate
@@ -124,7 +122,7 @@ import { DesksStateService } from './desks-state.service';
             <div class="w-2 flex-1"></div>
             <searchbar
                 class="mr-2"
-                [model]="(filters | async)?.search"
+                [model]="filters().search"
                 (modelChange)="setFilters({ search: $event })"
             ></searchbar>
             <date-options (dateChange)="setDate($event)"></date-options>
@@ -159,12 +157,14 @@ export class DesksTopbarComponent extends AsyncHandler implements OnInit {
     private _dialog = inject(MatDialog);
 
     /** List of levels for the active building */
-    public readonly levels = this._org.active_levels;
+    public readonly levels = toSignal(this._org.active_levels, {
+        initialValue: [],
+    });
     /** List of levels for the active building */
     public readonly filters = this._desks.filters;
 
-    public manage = false;
-    public is_map = false;
+    public manage = signal(false);
+    public is_map = signal(false);
     /** Set filtered date */
     public readonly setDate = (date) => this._desks.setFilters({ date });
     public readonly setFilters = (o) => this._desks.setFilters(o);
@@ -202,21 +202,21 @@ export class DesksTopbarComponent extends AsyncHandler implements OnInit {
                 } else if (params.has('reject')) {
                     this.reject(params.get('reject'));
                 }
-                this.manage = this._router.url?.includes('manage');
-                this.is_map = this._router.url?.includes('map');
+                this.manage.set(this._router.url?.includes('manage'));
+                this.is_map.set(this._router.url?.includes('map'));
             }),
         );
         this.subscription(
             'router.events',
             this._router.events.subscribe(() => {
-                this.manage = this._router.url?.includes('manage');
-                this.is_map = this._router.url?.includes('map');
+                this.manage.set(this._router.url?.includes('manage'));
+                this.is_map.set(this._router.url?.includes('map'));
             }),
         );
         this.subscription(
             'levels',
             this._org.active_levels.subscribe(async (levels) => {
-                const filters = await nextValueFrom(this.filters);
+                const filters = this.filters();
                 const zones =
                     filters?.zones?.filter(
                         (zone) =>
@@ -229,8 +229,8 @@ export class DesksTopbarComponent extends AsyncHandler implements OnInit {
                 this.updateZones(zones);
             }),
         );
-        this.manage = this._router.url?.includes('manage');
-        this.is_map = this._router.url?.includes('map');
+        this.manage.set(this._router.url?.includes('manage'));
+        this.is_map.set(this._router.url?.includes('map'));
     }
 
     public newDesk() {

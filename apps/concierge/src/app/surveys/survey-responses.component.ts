@@ -80,7 +80,7 @@ import { NewSurveyService } from './new-survey.service';
         </header>
         <div class="mb-4 flex justify-end space-x-4 px-8">
             <div
-                class="flex flex-1 flex-col items-center rounded border border-base-300 p-4"
+                class="flex flex-1 flex-col items-center rounded-sm border border-base-300 p-4"
             >
                 <h3>
                     {{ 'APP.CONCIERGE.SURVEY_ANSWERS_QUESTIONS' | translate }}
@@ -90,7 +90,7 @@ import { NewSurveyService } from './new-survey.service';
                 </p>
             </div>
             <div
-                class="flex flex-1 flex-col items-center rounded border border-base-300 p-4"
+                class="flex flex-1 flex-col items-center rounded-sm border border-base-300 p-4"
             >
                 <h3>
                     {{ 'APP.CONCIERGE.SURVEY_ANSWERS_ANSWERS' | translate }}
@@ -100,7 +100,7 @@ import { NewSurveyService } from './new-survey.service';
                 </p>
             </div>
             <div
-                class="flex flex-1 flex-col items-center space-y-2 rounded border border-base-300 p-4"
+                class="flex flex-1 flex-col items-center space-y-2 rounded-sm border border-base-300 p-4"
             >
                 <h3>
                     {{ 'APP.CONCIERGE.SURVEY_ANSWERS_TRIGGER' | translate }}
@@ -143,7 +143,7 @@ import { NewSurveyService } from './new-survey.service';
         </div>
         <ng-template #empty_template>
             <div
-                class="flex min-h-[10rem] w-full flex-col items-center justify-center"
+                class="flex min-h-40 w-full flex-col items-center justify-center"
             >
                 <span class="text-lg opacity-30">{{
                     'APP.CONCIERGE.SURVEY_ANSWERS_EMPTY' | translate

@@ -16,7 +16,7 @@ import { LevelManagementService } from './level-management.service';
     template: `
         <div class="absolute inset-0 overflow-auto px-8">
             <simple-table
-                class="block min-w-[48rem] text-sm"
+                class="block min-w-3xl text-sm"
                 [data]="levels"
                 [empty_message]="'APP.CONCIERGE.LEVELS_EMPTY' | translate"
                 [columns]="[
@@ -68,7 +68,7 @@ import { LevelManagementService } from './level-management.service';
         <ng-template #parking_template let-row="row">
             @if (row.tags?.includes('parking')) {
                 <div
-                    class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-success text-2xl text-success-content"
+                    class="mx-auto flex h-8 w-8 items-center justify-center rounded-sm bg-success text-2xl text-success-content"
                 >
                     <icon>done</icon>
                 </div>
@@ -79,7 +79,7 @@ import { LevelManagementService } from './level-management.service';
                 <button
                     icon
                     matRipple
-                    class="h-12 w-12 rounded"
+                    class="h-12 w-12 rounded-sm"
                     [matMenuTriggerFor]="menu"
                 >
                     <icon>more_vert</icon>

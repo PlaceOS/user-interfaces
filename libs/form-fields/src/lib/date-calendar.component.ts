@@ -77,7 +77,7 @@ interface DateItem {
                         name="schedule-set-date"
                         class="relative my-0.5 h-9 w-9 min-w-[14%] overflow-visible"
                         [class.hover:bg-base-100]="day.id !== active_date"
-                        [class.!text-base-300]="!day.is_month"
+                        [class.text-base-300!]="!day.is_month"
                         [class.text-secondary-content]="day.id === active_date"
                         [class.text-base-content]="day.id !== active_date"
                         [class.bg-secondary]="day.id === active_date"

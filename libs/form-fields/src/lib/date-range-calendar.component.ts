@@ -39,7 +39,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
             </div>
         </div>
         <div
-            class="grid h-[17.25rem] w-[17.25rem] grid-cols-7 grid-rows-7 gap-1"
+            class="grid h-69 w-69 grid-cols-7 grid-rows-7 gap-1"
         >
             <div
                 class="col-span-full grid grid-cols-7 border-b border-base-200"

@@ -30,7 +30,7 @@ import { FeaturesFilterService } from './features-filter.service';
                         class="flex flex-col items-center border-b border-base-200 py-5"
                     >
                         <div
-                            class="flex w-[calc(100%-2rem)] max-w-[22.5rem] flex-col self-center"
+                            class="flex w-[calc(100%-2rem)] max-w-90 flex-col self-center"
                         >
                             <div class="flex flex-row items-center">
                                 <button icon matRipple (click)="closeModal()">
@@ -51,7 +51,7 @@ import { FeaturesFilterService } from './features-filter.service';
                         class="flex flex-col items-center border-b border-base-200"
                     >
                         <div
-                            class="flex w-[calc(100%-2rem)] max-w-[22.5rem] flex-col self-center"
+                            class="flex w-[calc(100%-2rem)] max-w-90 flex-col self-center"
                         >
                             <div class="my-2 text-lg">Details</div>
                             <div class="flex flex-col">
@@ -147,7 +147,7 @@ import { FeaturesFilterService } from './features-filter.service';
                         class="flex flex-col items-center border-b border-base-200"
                     >
                         <div
-                            class="flex w-[calc(100%-2rem)] max-w-[22.5rem] flex-col self-center"
+                            class="flex w-[calc(100%-2rem)] max-w-90 flex-col self-center"
                         >
                             <div class="my-2 text-lg">Favourites</div>
                             <div class="mb-2 flex flex-row">
@@ -158,7 +158,7 @@ import { FeaturesFilterService } from './features-filter.service';
                     </section>
                     <section class="flex flex-col border-base-200">
                         <div
-                            class="mx-auto w-[calc(100%-2rem)] max-w-[22.5rem]"
+                            class="mx-auto w-[calc(100%-2rem)] max-w-90"
                         >
                             <div class="my-2 text-lg">Facilities</div>
                             @for (feature of features$ | async; track feature) {

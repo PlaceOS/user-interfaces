@@ -77,7 +77,7 @@ import { CounterComponent } from 'libs/form-fields/src/lib/counter.component';
                 </section>
                 <section
                     details
-                    class="relative space-y-2 rounded border border-base-400 px-3 pb-2 pt-2"
+                    class="relative space-y-2 rounded-sm border border-base-400 px-3 pb-2 pt-2"
                 >
                     <h2
                         class="absolute left-2 top-0 -translate-y-1/2 bg-base-100 px-2 text-lg font-medium"

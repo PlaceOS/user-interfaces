@@ -16,7 +16,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
     selector: 'parking-flow-confirm',
     template: `
         <header
-            class="sticky top-2 z-10 mx-auto mb-4 flex h-14 w-full max-w-[calc(100%-1rem)] items-center justify-between rounded border-none bg-base-200 px-4 py-2"
+            class="sticky top-2 z-10 mx-auto mb-4 flex h-14 w-full max-w-[calc(100%-1rem)] items-center justify-between rounded-sm border-none bg-base-200 px-4 py-2"
         >
             <h2 class="m-0 flex-1 text-xl font-medium capitalize">
                 {{ 'APP.WORKPLACE.PARKING_CONFIRM_TITLE' | translate }}

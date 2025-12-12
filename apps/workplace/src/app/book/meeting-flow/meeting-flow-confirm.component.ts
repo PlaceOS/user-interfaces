@@ -33,7 +33,7 @@ import { SpacePipe } from '@placeos/events';
     selector: 'meeting-flow-confirm',
     template: `
         <header
-            class="sticky top-2 z-10 mx-auto mb-4 flex h-14 w-full max-w-[calc(100%-1rem)] items-center justify-between rounded border-none bg-base-200 px-4 py-2"
+            class="sticky top-2 z-10 mx-auto mb-4 flex h-14 w-full max-w-[calc(100%-1rem)] items-center justify-between rounded-sm border-none bg-base-200 px-4 py-2"
         >
             <h2 class="m-0 flex-1 text-xl font-medium capitalize">
                 {{ 'APP.WORKPLACE.MEETING_CONFIRM' | translate }}
@@ -127,7 +127,7 @@ import { SpacePipe } from '@placeos/events';
         @if (requires_approval) {
             <section class="px-2 pt-4">
                 <div
-                    class="rounded !border-none bg-warning px-2 py-1 text-center text-sm text-warning-content"
+                    class="rounded-sm border-none! bg-warning px-2 py-1 text-center text-sm text-warning-content"
                 >
                     {{ 'CALENDAR_EVENT.APPROVAL_REQUIRED_MSG' | translate }}
                 </div>

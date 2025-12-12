@@ -17,3 +17,4 @@ export * from './lib/parking.service';
 
 export * from './lib/visitor-invite-form.component';
 export * from './lib/visitor-invite-success.component';
+export * from './lib/recurring-clash-modal.component';

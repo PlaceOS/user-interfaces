@@ -109,7 +109,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                             }
                         </div>
                         <div
-                            class="w-full divide-y divide-base-200 rounded border border-base-200 bg-base-100"
+                            class="w-full divide-y divide-base-200 rounded-sm border border-base-200 bg-base-100"
                         >
                             <div
                                 class="flex h-16 items-center justify-between p-2"
@@ -220,7 +220,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                 </a>
                             </div>
                             <simple-table
-                                class="block min-w-[40rem] text-sm"
+                                class="block min-w-160 text-sm"
                                 [data]="asset_list"
                                 [columns]="[
                                     {
@@ -352,7 +352,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                 }}
                             </a>
                             <simple-table
-                                class="block min-w-[40rem] text-sm"
+                                class="block min-w-160 text-sm"
                                 asset-purchases
                                 [data]="(item | async)?.purchase_orders"
                                 [columns]="[
@@ -449,7 +449,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
         </ng-template>
         <ng-template #delete_tooltip>
             @if (!deleting()) {
-                <div class="my-2 w-[18rem] rounded bg-base-100 p-4 text-center">
+                <div class="my-2 w-[18rem] rounded-sm bg-base-100 p-4 text-center">
                     <p>
                         {{ 'APP.CONCIERGE.ASSETS_ITEM_DELETE_MSG' | translate }}
                     </p>
@@ -477,7 +477,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 </div>
             } @else {
                 <div
-                    class="my-2 flex h-36 w-64 flex-col items-center justify-center space-y-2 rounded bg-base-100 p-4"
+                    class="my-2 flex h-36 w-64 flex-col items-center justify-center space-y-2 rounded-sm bg-base-100 p-4"
                 >
                     <mat-spinner [diameter]="32"></mat-spinner>
                     <p>
@@ -529,7 +529,7 @@ export class AssetViewComponent extends AsyncHandler implements OnInit {
             return unique(
                 [
                     ...item.assets,
-                    ...assets.filter((_) => _.type_id === item.id),
+                    ...assets.filter((_) => _.asset_type_id === item.id),
                 ],
                 'id',
             );

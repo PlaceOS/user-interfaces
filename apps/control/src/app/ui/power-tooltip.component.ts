@@ -1,4 +1,5 @@
 import { Component, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import {
     CustomTooltipData,
     SanitizePipe,
@@ -12,7 +13,7 @@ import { ControlStateService } from '../control-state.service';
     selector: 'power-tooltip',
     template: `
         <div
-            class="my-2 flex flex-col items-center space-y-2 rounded bg-base-100 p-4 shadow"
+            class="my-2 flex flex-col items-center space-y-2 rounded-sm bg-base-100 p-4 shadow-sm"
         >
             <h3
                 class="mb-2 text-center font-medium"
@@ -38,5 +39,5 @@ export class PowerTooltipComponent {
     /** Close the tooltip */
     public readonly close = () => this._tooltip.close();
 
-    public readonly joined = this._state.joined;
+    public readonly joined = toSignal(this._state.joined);
 }

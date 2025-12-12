@@ -3,27 +3,17 @@ import { MatDialog } from '@angular/material/dialog';
 import { BehaviorSubject } from 'rxjs';
 
 import {
-    Amazon,
-    Azure,
-    Google,
-    OpenStack,
-    initialiseUploadService,
+    humanReadableByteCount,
+    initUploads,
+    uploadFile,
 } from '@placeos/cloud-uploads';
 import { token } from '@placeos/ts-client';
+import { Observable } from 'rxjs';
+import { takeWhile } from 'rxjs/operators';
 import { AsyncHandler } from './async-handler.class';
 import { log } from './general';
 
-import {
-    Upload,
-    humanReadableByteCount,
-    uploadFiles,
-} from '@placeos/cloud-uploads';
-import { Observable } from 'rxjs';
-import { takeWhile } from 'rxjs/operators';
-
 import { randomString } from './general';
-
-import * as blobUtil from 'blob-util';
 
 export interface UploadDetails {
     /** Unique ID for the upload */
@@ -43,7 +33,7 @@ export interface UploadDetails {
     /** Error with upload request */
     error?: string;
     /** Upload object associated with the file */
-    upload: Upload;
+    upload: any;
 }
 
 export type UploadPermissions = 'none' | 'support' | 'admin';
@@ -77,12 +67,11 @@ export class UploadsService extends AsyncHandler {
     public init(tries = 1) {
         this.timeout('init_uploads', () => {
             try {
-                initialiseUploadService({
+                initUploads({
                     auto_start: true,
                     token: token(),
                     endpoint: '/api/engine/v2/uploads',
                     worker_url: 'assets/md5_worker.js',
-                    providers: [Amazon, Azure, Google, OpenStack] as any,
                 });
             } catch (e) {
                 this.timeout(
@@ -101,7 +90,7 @@ export class UploadsService extends AsyncHandler {
         this._upload_list.next(in_progress_list);
     }
 
-    public uploadFileWithPermissions(file: File, default_public = true) {
+    public uploadFileWithPermissions(file: File, default_public = false) {
         if (!this._permissions_modal) {
             log(
                 'UPLOAD',
@@ -133,14 +122,16 @@ export class UploadsService extends AsyncHandler {
 
     public uploadFile(
         file: File,
-        pub = true,
+        pub = false,
         permissions: UploadPermissions = 'none',
     ) {
         return new Promise<string>((resolve) => {
             let resolved = false;
             const update_fn = (details) => {
                 if (!resolved) {
-                    resolve(details.upload?.id || details.id);
+                    resolve(
+                        details.upload_id || details.upload?.id || details.id,
+                    );
                     resolved = true;
                 }
                 this._upload_list.next([
@@ -160,7 +151,7 @@ export class UploadsService extends AsyncHandler {
 
     public uploadFileWithProgress(
         file: File,
-        pub = true,
+        pub = false,
         permissions: UploadPermissions = 'none',
     ): Observable<UploadDetails> {
         return this._uploadFile(file, pub, permissions);
@@ -182,22 +173,16 @@ export class UploadsService extends AsyncHandler {
      */
     private _uploadFile(
         file: File,
-        pub = true,
+        pub = false,
         permissions: UploadPermissions = 'none',
     ): Observable<UploadDetails> {
         return new Observable((observer) => {
-            const fileReader = new FileReader();
-            fileReader.addEventListener('loadend', (e: any) => {
-                const arrayBuffer = e.target.result;
-                const blob = blobUtil.arrayBufferToBlob(arrayBuffer, file.type);
-                const upload_list = uploadFiles([blob], {
-                    file_name: file.name,
-                    permissions,
-                    public: pub,
-                } as any);
-                const upload = upload_list[0];
+            uploadFile(file, {
+                permissions,
+                public: pub,
+            }).then((upload) => {
                 const upload_details: UploadDetails = {
-                    id: upload?.id || `uploads-${randomString(8)}`,
+                    id: upload?.id || `upi-${randomString(8)}`,
                     name: file.name,
                     progress: 0,
                     link: '',
@@ -205,33 +190,33 @@ export class UploadsService extends AsyncHandler {
                     size: file.size,
                     upload,
                 };
-                upload.status
-                    .pipe(takeWhile((_) => _.status !== 'complete', true))
+                upload.state
+                    .pipe(takeWhile((_) => _.status !== 'COMPLETED', true))
                     .subscribe((state) => {
-                        upload_details.upload_id = (
-                            upload as any
-                        )._request.upload_id;
-                        if (upload.access_url) {
-                            upload_details.link = !pub
-                                ? `${
-                                      location.origin
-                                  }/api/engine/v2/uploads/${encodeURIComponent(
-                                      upload_details.upload_id || upload.id,
-                                  )}/url`
-                                : upload.access_url;
+                        upload_details.upload_id = upload.id;
+                        console.log('Upload:', state, upload);
+                        if (
+                            (upload as any).access_url ||
+                            state.progress >= 100
+                        ) {
+                            const local_url = `${
+                                location.origin
+                            }/api/engine/v2/uploads/${encodeURIComponent(
+                                upload_details.upload_id || upload.id,
+                            )}/url`;
+                            upload_details.link = local_url;
                         }
                         upload_details.progress = state.progress;
                         observer.next(upload_details);
-                        if (state.status === 'error')
+                        if (state.status === 'FAILED')
                             observer.error({
                                 ...upload_details,
-                                error: state.error,
+                                error: (state as any).error || 'Error',
                             });
-                        if (state.status === 'complete') observer.complete();
+                        if (state.status === 'COMPLETED') observer.complete();
                     });
                 observer.next(upload_details);
             });
-            fileReader.readAsArrayBuffer(file);
         });
     }
 }

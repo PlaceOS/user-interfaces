@@ -16,13 +16,7 @@ import {
     Region,
     SettingsService,
 } from '@placeos/common';
-import {
-    DateFieldComponent,
-    DurationFieldComponent,
-    TimeFieldComponent,
-} from '@placeos/form-fields';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
+import { MockModule, MockProvider } from 'ng-mocks';
 import { BehaviorSubject, of } from 'rxjs';
 import { DeskFiltersComponent } from '../../lib/desk-select-modal/desk-filters.component';
 

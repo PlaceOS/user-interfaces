@@ -36,7 +36,7 @@ const EMPTY_FAVS = [];
             @for (order of orders; track order.id) {
                 <div
                     order
-                    class="overflow-hidden rounded-xl border bg-base-100 shadow"
+                    class="overflow-hidden rounded-xl border bg-base-100 shadow-sm"
                     [class.border-error]="end_time < order.deliver_at"
                     [class.border-base-300]="end_time >= order.deliver_at"
                 >
@@ -168,12 +168,12 @@ const EMPTY_FAVS = [];
                                     }
                                 </div>
                                 <div
-                                    class="rounded bg-success px-2 py-1 text-xs text-success-content"
+                                    class="rounded-sm bg-success px-2 py-1 text-xs text-success-content"
                                 >
                                     x{{ item.quantity }}
                                 </div>
                                 <div
-                                    class="rounded bg-info px-2 py-1 text-xs text-info-content"
+                                    class="rounded-sm bg-info px-2 py-1 text-xs text-info-content"
                                 >
                                     {{
                                         item.unit_price_with_options / 100

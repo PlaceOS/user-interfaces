@@ -23,9 +23,14 @@ import { SignageStateService } from './signage-state.service';
 @Component({
     selector: 'signage-zones',
     template: `
-        <div class="relative flex h-full w-full space-x-4 overflow-visible">
-            <div sidebar class="flex h-full w-64 flex-col space-y-4 py-4">
-                <h3 class="text-center text-xl font-medium">
+        <div class="relative flex h-full w-full space-x-2 overflow-visible">
+            <div
+                sidebar
+                class="flex h-full w-64 flex-col space-y-2 overflow-auto rounded-xl border border-base-300 p-2"
+            >
+                <h3
+                    class="rounded-lg bg-base-200 p-2 text-center text-xl font-medium"
+                >
                     {{ 'APP.CONCIERGE.SIGNAGE_ZONES' | translate }}
                 </h3>
                 <mat-form-field
@@ -44,8 +49,8 @@ import { SignageStateService } from './signage-state.service';
                         @for (zone of zones(); track zone.id) {
                             <a
                                 matRipple
-                                class="z-10 flex min-h-12 w-full items-center truncate rounded-3xl px-6 hover:bg-base-200"
-                                [class.!bg-secondary]="selected() === zone.id"
+                                class="z-10 flex h-12 min-h-12 w-full items-center truncate rounded-3xl border border-base-100 px-6 even:border-base-200 even:bg-base-200 hover:border-info"
+                                [class.bg-secondary!]="selected() === zone.id"
                                 [class.text-secondary-content]="
                                     selected() === zone.id
                                 "
@@ -69,7 +74,7 @@ import { SignageStateService } from './signage-state.service';
                                         <a
                                             matRipple
                                             class="flex min-h-12 w-full items-center truncate rounded-3xl px-6 hover:bg-base-200"
-                                            [class.!bg-secondary]="
+                                            [class.bg-secondary!]="
                                                 selected_trigger() ===
                                                 trigger?.id
                                             "
@@ -111,7 +116,7 @@ import { SignageStateService } from './signage-state.service';
                 }
             </div>
             <div
-                class="relative flex h-full w-1/2 flex-1 flex-col space-y-4 overflow-auto rounded-lg border border-base-300 p-4 shadow"
+                class="relative flex h-full w-1/2 flex-1 flex-col space-y-2 overflow-auto rounded-lg border border-base-300 bg-base-200 p-2 shadow-sm"
             >
                 @if (active_zone()) {
                     <signage-item-playlists

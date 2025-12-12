@@ -67,7 +67,7 @@ import { BookingFormService } from '../booking-form.service';
                     (!(use_region && (regions | async)?.length) ||
                         !(!use_region && (buildings | async)?.length > 1))
                 ) {
-                    <div class="flex min-w-[8rem] flex-1 flex-col">
+                    <div class="flex min-w-32 flex-1 flex-col">
                         <label for="location">
                             {{ 'BOOKINGS.LOCATION' | translate }}
                         </label>

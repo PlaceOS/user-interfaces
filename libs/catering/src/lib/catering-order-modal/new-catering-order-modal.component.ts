@@ -20,7 +20,7 @@ const EMPTY_FAVS: string[] = [];
     selector: 'new-catering-order-modal',
     template: `
         <div
-            class="flex h-[100vh] w-[100vw] flex-col bg-base-100 sm:relative sm:h-auto sm:w-auto"
+            class="flex h-screen w-screen flex-col bg-base-100 sm:relative sm:h-auto sm:w-auto"
         >
             <header class="flex w-full items-center justify-between space-x-4">
                 <h3>{{ 'CATERING.ORDER' | translate }}</h3>
@@ -32,7 +32,7 @@ const EMPTY_FAVS: string[] = [];
                 class="flex h-[65vh] min-h-[65vh] w-full flex-1 items-center divide-x divide-base-200 overflow-hidden sm:max-h-[65vh] sm:max-w-[95vw]"
             >
                 <catering-item-filters
-                    class="hidden h-full sm:block sm:h-[65vh] sm:max-h-full sm:max-w-[12rem]"
+                    class="hidden h-full sm:block sm:h-[65vh] sm:max-h-full sm:max-w-48"
                     [(at_time)]="exact_time"
                     [(offset)]="offset"
                     [(offset_day)]="offset_day"
@@ -71,7 +71,7 @@ const EMPTY_FAVS: string[] = [];
                 ></catering-item-details>
             </main>
             <footer
-                class="flex w-full flex-col-reverse items-center justify-end border-t border-base-200 px-2 pb-[5.5rem] pt-2 sm:hidden"
+                class="flex w-full flex-col-reverse items-center justify-end border-t border-base-200 px-2 pb-22 pt-2 sm:hidden"
             >
                 @if (displayed) {
                     <button

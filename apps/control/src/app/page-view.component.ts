@@ -1,11 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { ControlAdvancedViewComponent } from './advanced-view.component';
 import { SourceSelectComponent } from './ui/source-select.component';
 
 @Component({
     selector: '[control-page-view]',
     template: `
-        @switch (view) {
+        @switch (view()) {
             @case ('basic') {
                 <source-select output="'ALL'" />
             }
@@ -29,5 +29,5 @@ import { SourceSelectComponent } from './ui/source-select.component';
     imports: [ControlAdvancedViewComponent, SourceSelectComponent],
 })
 export class ControlPageViewComponent {
-    public view: 'basic' | 'advanced';
+    public readonly view = signal<'basic' | 'advanced'>('advanced');
 }

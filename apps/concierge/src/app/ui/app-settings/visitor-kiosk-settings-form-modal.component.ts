@@ -46,7 +46,7 @@ import { UploadButtonComponent } from './upload-button.component';
             (confirm)="save()"
         >
             <form [formGroup]="form" class="flex flex-col space-y-8">
-                <section general class="space-y-2 rounded bg-base-100">
+                <section general class="space-y-2 rounded-sm bg-base-100">
                     <div>
                         <label for="logo_light">Light Mode Logo</label>
                         <div class="mb-4 flex items-center space-x-2">
@@ -159,11 +159,11 @@ import { UploadButtonComponent } from './upload-button.component';
                 </section>
                 <section
                     explore
-                    class="relative rounded border border-base-300 px-4 pb-2 pt-4"
+                    class="relative rounded-sm border border-base-300 px-4 pb-2 pt-4"
                     formGroupName="explore"
                 >
                     <h3
-                        class="absolute left-4 top-0 -translate-y-1/2 rounded bg-base-100 px-2 py-1 font-medium"
+                        class="absolute left-4 top-0 -translate-y-1/2 rounded-sm bg-base-100 px-2 py-1 font-medium"
                     >
                         PlaceOS Maps
                     </h3>
@@ -322,10 +322,10 @@ import { UploadButtonComponent } from './upload-button.component';
                     </div>
                     @if (form.value.explore?.show_legend) {
                         <div
-                            class="relative rounded border border-base-300 p-4"
+                            class="relative rounded-sm border border-base-300 p-4"
                         >
                             <h3
-                                class="absolute left-4 top-0 -translate-y-1/2 rounded bg-base-100 px-2 py-1 font-medium"
+                                class="absolute left-4 top-0 -translate-y-1/2 rounded-sm bg-base-100 px-2 py-1 font-medium"
                             >
                                 Legend
                             </h3>
@@ -366,7 +366,7 @@ import { UploadButtonComponent } from './upload-button.component';
                                     <button
                                         icon
                                         matRipple
-                                        class="h-12 w-12 rounded border border-error text-error"
+                                        class="h-12 w-12 rounded-sm border border-error text-error"
                                         (click)="removeLegend(i)"
                                     >
                                         <icon>delete</icon>

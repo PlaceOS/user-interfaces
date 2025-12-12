@@ -29,7 +29,7 @@ import { CheckinStateService } from './checkin/checkin-state.service';
         <div class="absolute inset-0 flex items-center p-8">
             <img
                 [src]="background"
-                class="absolute left-1/2 top-1/2 min-h-[100%] min-w-[100%] -translate-x-1/2 -translate-y-1/2"
+                class="absolute left-1/2 top-1/2 min-h-full min-w-full -translate-x-1/2 -translate-y-1/2"
             />
             <img
                 src="assets/img/building.png"
@@ -37,11 +37,11 @@ import { CheckinStateService } from './checkin/checkin-state.service';
             />
             @if (!loading) {
                 <div
-                    class="absolute left-4 top-1/2 max-h-[80vh] w-[32rem] max-w-[calc(100%-2rem)] -translate-y-1/2 overflow-auto rounded bg-base-100 shadow"
+                    class="absolute left-4 top-1/2 max-h-[80vh] w-lg max-w-[calc(100%-2rem)] -translate-y-1/2 overflow-auto rounded-sm bg-base-100 shadow-sm"
                     [formGroup]="form"
                 >
                     <div
-                        class="sticky top-0 z-10 m-2 flex w-[calc(100%-1rem)] items-center justify-between rounded border-none bg-base-200 p-2"
+                        class="sticky top-0 z-10 m-2 flex w-[calc(100%-1rem)] items-center justify-between rounded-sm border-none bg-base-200 p-2"
                     >
                         <h3 class="px-2 text-lg font-medium">
                             {{ 'APP.VISITOR_KIOSK.REGISTRATION' | translate }}
@@ -152,7 +152,7 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                         }
                     </div>
                     <div
-                        class="sticky bottom-0 z-10 m-2 flex w-[calc(100%-1rem)] items-center justify-end rounded border-none bg-base-200 p-2"
+                        class="sticky bottom-0 z-10 m-2 flex w-[calc(100%-1rem)] items-center justify-end rounded-sm border-none bg-base-200 p-2"
                     >
                         <button btn matRipple class="w-40" (click)="register()">
                             {{ 'APP.VISITOR_KIOSK.REGISTER' | translate }}
@@ -161,7 +161,7 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                 </div>
             } @else {
                 <div
-                    class="absolute left-4 top-1/2 flex w-[24rem] -translate-y-1/2 flex-col items-center justify-center space-y-4 rounded bg-base-100 p-16 shadow"
+                    class="absolute left-4 top-1/2 flex w-[24rem] -translate-y-1/2 flex-col items-center justify-center space-y-4 rounded-sm bg-base-100 p-16 shadow-sm"
                 >
                     <mat-spinner diameter="32"></mat-spinner>
                     <p>{{ 'APP.VISITOR_KIOSK.REGISTERING' | translate }}</p>

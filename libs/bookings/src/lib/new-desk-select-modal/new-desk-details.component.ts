@@ -53,7 +53,7 @@ import { BookingAsset } from '../booking-form.service';
                 name="toggle-desk-favourite-details"
                 class="absolute right-2 top-2 z-20 bg-base-200"
                 [class.text-info-content]="fav()"
-                [class.!bg-info]="fav()"
+                [class.bg-info!]="fav()"
                 (click)="toggleFav.emit()"
             >
                 <icon
@@ -76,7 +76,7 @@ import { BookingAsset } from '../booking-form.service';
                 </section>
                 <section
                     details
-                    class="relative space-y-2 rounded border border-base-400 px-3 pb-2 pt-4"
+                    class="relative space-y-2 rounded-sm border border-base-400 px-3 pb-2 pt-4"
                 >
                     <h2
                         class="absolute left-2 top-0 -translate-y-1/2 bg-base-100 px-2 text-lg font-medium"
@@ -105,7 +105,7 @@ import { BookingAsset } from '../booking-form.service';
                 @if (desk().features?.length) {
                     <section
                         facilities
-                        class="relative !mt-4 space-y-2 rounded border border-base-400 px-2 pb-1 pt-1"
+                        class="relative mt-4! space-y-2 rounded-sm border border-base-400 px-2 pb-1 pt-1"
                     >
                         <h2
                             class="absolute left-2 top-0 -translate-y-1/2 bg-base-100 px-2 text-lg font-medium"
@@ -127,7 +127,7 @@ import { BookingAsset } from '../booking-form.service';
                 @if (!hide_map()) {
                     <section
                         map
-                        class="relative mx-auto h-64 w-full overflow-hidden rounded bg-base-200 sm:h-48"
+                        class="relative mx-auto h-64 w-full overflow-hidden rounded-sm bg-base-200 sm:h-48"
                     >
                         <interactive-map
                             class="pointer-events-none"

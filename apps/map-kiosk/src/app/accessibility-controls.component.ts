@@ -9,7 +9,7 @@ import { AsyncHandler, SettingsService } from '@placeos/common';
         @if (can_change_dark_mode) {
             <button
                 matRipple
-                class="flex w-full items-center justify-between rounded p-2 hover:bg-base-200"
+                class="flex w-full items-center justify-between rounded-sm p-2 hover:bg-base-200"
                 (click)="setDarkMode(!dark_mode)"
             >
                 <div>Dark Mode</div>
@@ -21,7 +21,7 @@ import { AsyncHandler, SettingsService } from '@placeos/common';
         }
         <!-- <button
             matRipple
-            class="flex items-center justify-between hover:bg-base-200 w-full p-2 rounded"
+            class="flex items-center justify-between hover:bg-base-200 w-full p-2 rounded-sm"
             (click)="applySetting('accessible', !accessible)"
         >
             <div>Text Size</div>
@@ -47,7 +47,7 @@ import { AsyncHandler, SettingsService } from '@placeos/common';
             </mat-slider>
             <div class="text-2xl">A</div>
             <div
-                class="text-base py-1 px-2 rounded bg-base-300 text-base-content my-2"
+                class="text-base py-1 px-2 rounded-sm bg-base-300 text-base-content my-2"
             >
                 {{ font_size }}px
             </div>

@@ -23,7 +23,7 @@ import { EventStateService } from './event-state.service';
     template: `
         <div class="absolute inset-0 overflow-auto">
             <div
-                class="m-2 grid h-[56rem] min-h-full w-[80rem] min-w-full grid-cols-7 border-b border-base-200"
+                class="m-2 grid h-224 min-h-full w-7xl min-w-full grid-cols-7 border-b border-base-200"
             >
                 @for (weekday of weekdays; track $index) {
                     <div
@@ -55,7 +55,7 @@ import { EventStateService } from './event-state.service';
                             <button
                                 matRipple
                                 (click)="viewEvent(event)"
-                                class="relative mx-1 h-7 w-[calc(100%-0.5rem)] overflow-hidden rounded border border-base-200 bg-base-100 py-1 pl-3 pr-2 shadow hover:border-info"
+                                class="relative mx-1 h-7 w-[calc(100%-0.5rem)] overflow-hidden rounded-sm border border-base-200 bg-base-100 py-1 pl-3 pr-2 shadow-sm hover:border-info"
                             >
                                 <div
                                     class="absolute inset-y-0 left-0 w-1.5 bg-info"
@@ -90,7 +90,7 @@ import { EventStateService } from './event-state.service';
                             <button
                                 matRipple
                                 matTooltip="More events"
-                                class="relative mx-1 h-7 w-[calc(100%-0.5rem)] overflow-hidden rounded py-1 pl-3 pr-2 text-sm underline"
+                                class="relative mx-1 h-7 w-[calc(100%-0.5rem)] overflow-hidden rounded-sm py-1 pl-3 pr-2 text-sm underline"
                                 [matMenuTriggerFor]="menu"
                             >
                                 {{
@@ -124,7 +124,7 @@ import { EventStateService } from './event-state.service';
                                             {{ event.title }}
                                         </div>
                                         <div
-                                            class="rounded bg-base-200 px-2 py-1 text-xs text-base-content opacity-60"
+                                            class="rounded-sm bg-base-200 px-2 py-1 text-xs text-base-content opacity-60"
                                         >
                                             {{ event.date | date: 'shortTime' }}
                                         </div>

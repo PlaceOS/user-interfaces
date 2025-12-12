@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
@@ -18,9 +18,9 @@ import { DesksStateService } from './desks-state.service';
     template: `
         <div class="absolute inset-0 overflow-auto px-8">
             <simple-table
-                class="block min-w-[92rem] text-sm"
-                [data]="bookings"
-                [filter]="(filters | async)?.search"
+                class="block min-w-368 text-sm"
+                [data]="bookings()"
+                [filter]="filters().search"
                 [filter_on]="[
                     'user_name',
                     'asset_name',
@@ -86,7 +86,7 @@ import { DesksStateService } from './desks-state.service';
                     },
                 ]"
                 [empty_message]="
-                    ((filters | async)?.search
+                    (filters().search
                         ? 'APP.CONCIERGE.DESKS_BOOKINGS_SEARCH_EMPTY'
                         : 'APP.CONCIERGE.DESKS_BOOKINGS_EMPTY'
                     ) | translate
@@ -167,15 +167,15 @@ import { DesksStateService } from './desks-state.service';
                 <div class="px-2">
                     <button
                         matRipple
-                        class="h-10 w-[7.5rem] rounded-3xl border-none bg-warning text-warning-content"
-                        [class.!text-success-content]="
+                        class="h-10 w-30 rounded-3xl border-none bg-warning text-warning-content"
+                        [class.text-success-content!]="
                             row?.status === 'approved'
                         "
-                        [class.!bg-success]="row?.status === 'approved'"
-                        [class.!text-error-content]="row?.status === 'declined'"
-                        [class.!bg-error]="row?.status === 'declined'"
-                        [class.!text-neutral-content]="row?.status === 'ended'"
-                        [class.!bg-neutral]="row?.status === 'ended'"
+                        [class.bg-success!]="row?.status === 'approved'"
+                        [class.text-error-content!]="row?.status === 'declined'"
+                        [class.bg-error!]="row?.status === 'declined'"
+                        [class.text-neutral-content!]="row?.status === 'ended'"
+                        [class.bg-neutral!]="row?.status === 'ended'"
                         [class.opacity-30]="row?.status === 'ended'"
                         [matMenuTriggerFor]="menu"
                         [disabled]="row?.status === 'ended'"
@@ -226,12 +226,12 @@ import { DesksStateService } from './desks-state.service';
                 <div class="px-2">
                     <button
                         matRipple
-                        class="h-10 w-[4.5rem] rounded-3xl border-none bg-warning text-warning-content"
+                        class="h-10 w-18 rounded-3xl border-none bg-warning text-warning-content"
                         [matMenuTriggerFor]="checkinMenu"
-                        [class.!bg-neutral]="!data"
-                        [class.!text-neutral-content]="!data"
-                        [class.!bg-success]="data"
-                        [class.!text-success-content]="data"
+                        [class.bg-neutral!]="!data"
+                        [class.text-neutral-content!]="!data"
+                        [class.bg-success!]="data"
+                        [class.text-success-content!]="data"
                         [class.opacity-30]="row.status === 'ended'"
                         [disabled]="row.status === 'ended'"
                         [matTooltip]="
@@ -271,7 +271,7 @@ import { DesksStateService } from './desks-state.service';
                     <button
                         icon
                         matRipple
-                        class="h-12 w-12 rounded"
+                        class="h-12 w-12 rounded-sm"
                         [matMenuTriggerFor]="actionMenu"
                     >
                         <icon class="text-2xl">more_vert</icon>
@@ -289,7 +289,7 @@ import { DesksStateService } from './desks-state.service';
                 </div>
             </ng-template>
         </div>
-        @if (!loading && (has_more_pages | async)) {
+        @if (!loading() && has_more_pages()) {
             <button
                 btn
                 matRipple
@@ -326,7 +326,7 @@ export class DeskBookingsComponent {
     private _state = inject(DesksStateService);
     private _settings = inject(SettingsService);
 
-    public loading: string;
+    public loading = signal<string>('');
     public readonly filters = this._state.filters;
     public readonly has_more_pages = this._state.has_more_pages;
     public readonly bookings = this._state.bookings;
@@ -363,8 +363,8 @@ export class DeskBookingsComponent {
     }
 
     private async runMethod(name: string, fn: () => Promise<void>) {
-        this.loading = name;
+        this.loading.set(name);
         await fn().catch(() => null);
-        this.loading = '';
+        this.loading.set('');
     }
 }

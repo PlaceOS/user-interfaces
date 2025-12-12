@@ -133,7 +133,7 @@ import { VisitorsStateService } from './visitors-state.service';
         <ng-template #state_template let-row="row">
             @if (!row?.checked_in && row.checked_out_at) {
                 <div
-                    class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-base-400 text-2xl text-neutral-content"
+                    class="mx-auto flex h-8 w-8 items-center justify-center rounded-sm bg-base-400 text-2xl text-neutral-content"
                     [matTooltip]="
                         'APP.CONCIERGE.VISITOR_STATUS_CHECKED_OUT'
                             | translate
@@ -150,7 +150,7 @@ import { VisitorsStateService } from './visitors-state.service';
             }
             @if (!row?.checked_in && !row.checked_out_at) {
                 <div
-                    class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-warning text-2xl text-warning-content"
+                    class="mx-auto flex h-8 w-8 items-center justify-center rounded-sm bg-warning text-2xl text-warning-content"
                     [matTooltip]="
                         'APP.CONCIERGE.VISITOR_STATUS_NOT_CHECKED_IN'
                             | translate
@@ -162,7 +162,7 @@ import { VisitorsStateService } from './visitors-state.service';
             }
             @if (row?.checked_in) {
                 <div
-                    class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-success text-2xl text-success-content"
+                    class="mx-auto flex h-8 w-8 items-center justify-center rounded-sm bg-success text-2xl text-success-content"
                     [matTooltip]="
                         'APP.CONCIERGE.VISITOR_STATUS_CHECKED_IN'
                             | translate
@@ -217,11 +217,11 @@ import { VisitorsStateService } from './visitors-state.service';
             </div>
             <ng-template #id_confirmation>
                 <div
-                    class="my-2 flex w-[20rem] flex-col space-y-2 rounded bg-base-100 p-2"
+                    class="my-2 flex w-[20rem] flex-col space-y-2 rounded-sm bg-base-100 p-2"
                 >
                     <img
                         [src]="row.extension_data?.id_data?.url"
-                        class="max-h-[20rem] max-w-[20rem] object-contain"
+                        class="max-h-80 max-w-[20rem] object-contain"
                     />
                     <button
                         matRipple
@@ -248,7 +248,7 @@ import { VisitorsStateService } from './visitors-state.service';
         <ng-template #parking_template let-row="row">
             @if (row.extension_data.parking_booking_id) {
                 <div
-                    class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-success text-2xl text-success-content"
+                    class="mx-auto flex h-8 w-8 items-center justify-center rounded-sm bg-success text-2xl text-success-content"
                 >
                     <icon>done</icon>
                 </div>
@@ -256,7 +256,7 @@ import { VisitorsStateService } from './visitors-state.service';
         </ng-template>
         <ng-template #induction_template let-data="data">
             <div
-                class="mx-auto flex h-8 w-8 items-center justify-center rounded text-2xl"
+                class="mx-auto flex h-8 w-8 items-center justify-center rounded-sm text-2xl"
                 [class.bg-success]="data === 'accepted'"
                 [class.text-success-content]="data === 'accepted'"
                 [class.bg-warning]="data !== 'accepted' && data !== 'declined'"
@@ -281,7 +281,7 @@ import { VisitorsStateService } from './visitors-state.service';
             <div class="px-4">
                 <button
                     matRipple
-                    class="h-10 w-[7.5rem] rounded-3xl border-none"
+                    class="h-10 w-30 rounded-3xl border-none"
                     [class.text-success-content]="row?.status === 'approved'"
                     [class.bg-success]="row?.status === 'approved'"
                     [class.text-error-content]="row?.status === 'declined'"
@@ -648,7 +648,7 @@ import { VisitorsStateService } from './visitors-state.service';
         </ng-template>
         @if ((guests | async)?.length) {
             <button
-                class="absolute bottom-4 right-4 z-20 h-12 w-12 bg-secondary text-white shadow hover:shadow-lg"
+                class="absolute bottom-4 right-4 z-20 h-12 w-12 bg-secondary text-white shadow-sm hover:shadow-lg"
                 [matTooltip]="'APP.CONCIERGE.VISITORS_DOWNLOAD' | translate"
                 matTooltipPosition="left"
                 icon

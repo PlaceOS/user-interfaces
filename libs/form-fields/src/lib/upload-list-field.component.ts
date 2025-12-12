@@ -3,19 +3,24 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { uploadFiles } from '@placeos/cloud-uploads';
-import { Attachment, randomInt } from '@placeos/common';
+import {
+    Attachment,
+    randomInt,
+    UPLOAD_PERMISSIONS_MODAL,
+} from '@placeos/common';
 import { takeWhile } from 'rxjs/operators';
 
 import * as blobUtil from 'blob-util';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-permissions-modal.component';
 
 @Component({
     selector: 'upload-list',
     template: `
         <div class="flex items-center space-x-2">
             <div
-                class="relative flex h-48 w-52 cursor-pointer flex-col items-center justify-center rounded border-2 border-dashed border-base-200 hover:bg-neutral"
+                class="relative flex h-48 w-52 cursor-pointer flex-col items-center justify-center rounded-sm border-2 border-dashed border-base-200 hover:bg-neutral"
             >
                 <icon class="mb-2 text-3xl">upload_file</icon>
                 <p class="text-center">Drop files</p>
@@ -34,8 +39,8 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
                         @for (item of list; track item) {
                             <div
                                 item
-                                class="flex w-full items-center rounded border border-base-200 bg-base-100 hover:bg-base-200"
-                                [class.!bg-error]="item.progress < 1"
+                                class="flex w-full items-center rounded-sm border border-base-200 bg-base-100 hover:bg-base-200"
+                                [class.bg-error!]="item.progress < 1"
                                 [class.!bg-opacity-20]="item.progress < 1"
                             >
                                 <div
@@ -92,6 +97,10 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
             provide: NG_VALUE_ACCESSOR,
             useExisting: forwardRef(() => UploadListFieldComponent),
             multi: true,
+        },
+        {
+            provide: UPLOAD_PERMISSIONS_MODAL,
+            useValue: UploadPermissionsModalComponent,
         },
     ],
     imports: [MatProgressSpinnerModule, IconComponent, MatRippleModule],

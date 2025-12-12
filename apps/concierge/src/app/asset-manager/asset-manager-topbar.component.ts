@@ -78,7 +78,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
         </div>
         @if (active() === 'items') {
             <div class="mb-2 flex items-center space-x-2 px-8">
-                <div class="flex items-center rounded border border-secondary">
+                <div class="flex items-center rounded-sm border border-secondary">
                     <button
                         icon
                         matRipple
@@ -114,7 +114,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 <button
                     icon
                     matRipple
-                    class="h-12 w-12 rounded bg-secondary text-secondary-content"
+                    class="h-12 w-12 rounded-sm bg-secondary text-secondary-content"
                     [matTooltip]="
                         'APP.CONCIERGE.ASSETS_MANAGE_CONFIG' | translate
                     "
@@ -125,7 +125,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 <button
                     icon
                     matRipple
-                    class="h-12 w-12 rounded bg-secondary text-secondary-content"
+                    class="h-12 w-12 rounded-sm bg-secondary text-secondary-content"
                     [matTooltip]="
                         'APP.CONCIERGE.ASSETS_MANAGE_BOOKING_RULES' | translate
                     "
@@ -137,7 +137,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     <button
                         icon
                         matRipple
-                        class="h-12 w-12 rounded bg-secondary text-secondary-content"
+                        class="h-12 w-12 rounded-sm bg-secondary text-secondary-content"
                         [matTooltip]="
                             'APP.CONCIERGE.ASSETS_MANAGE_CATEGORIES' | translate
                         "

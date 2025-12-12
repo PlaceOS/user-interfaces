@@ -11,7 +11,7 @@ import { debounceTime, map } from 'rxjs/operators';
     selector: 'a-topbar-header',
     template: `
         <div
-            class="flex items-center justify-between bg-[hsl(237,37%,10%)] shadow"
+            class="flex items-center justify-between bg-[hsl(237,37%,10%)] shadow-sm"
         >
             <a
                 matRipple

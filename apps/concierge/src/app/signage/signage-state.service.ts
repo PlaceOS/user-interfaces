@@ -23,6 +23,7 @@ import {
     removeSystem,
     SignageMedia,
     SignagePlaylist,
+    token,
     updateSignageMedia,
     updateSignagePlaylist,
     updateSignagePlaylistMedia,
@@ -45,6 +46,7 @@ import {
 } from 'rxjs/operators';
 
 import { MatDialog } from '@angular/material/dialog';
+import { SignedRequest } from '@placeos/cloud-uploads';
 import { openConfirmModal } from '@placeos/components';
 import { SignageApprovePlaylistModalComponent } from './signage-approve-playlist-modal.component';
 import { SignageDisplayModalComponent } from './signage-display-modal.component';
@@ -163,6 +165,7 @@ export class SignageStateService extends AsyncHandler {
         switchMap(() =>
             queryZones({
                 limit: 250,
+                tags: 'signage',
             } as any).pipe(catchError(() => of({ data: [] }))),
         ),
         map((_) =>
@@ -385,18 +388,26 @@ export class SignageStateService extends AsyncHandler {
             new Promise<{ id: string; link: string }>((resolve, reject) => {
                 let state = null;
                 let resolved = false;
+
                 this.subscription(
                     `upload-${id}`,
                     this._uploads.upload_list.subscribe(
                         (list) => {
-                            state = list.find(
-                                (s) => s.upload?.id === id || s.id,
-                            );
-                            if (state && state.link) {
+                            console.log('Upload List:', list, id);
+                            state = list.find((s) => id === s.id);
+                            if (
+                                state &&
+                                (state.link || state.progress >= 100)
+                            ) {
                                 resolved = true;
+                                const uid =
+                                    state.upload_id || state.upload?.id || id;
+                                const url = `/api/engine/v2/uploads/${encodeURIComponent(
+                                    uid,
+                                )}/url`;
                                 resolve({
-                                    id: state.upload.id || id,
-                                    link: state.link,
+                                    id: uid,
+                                    link: state.link || url,
                                 });
                                 this.unsub(`upload-${id}`);
                             }
@@ -413,16 +424,17 @@ export class SignageStateService extends AsyncHandler {
             720,
         ).catch(() => null);
         const media_id = await this._uploads.uploadFileWithPermissions(file);
+        const tkn = token();
+        if (!tkn) throw new Error('Token expired. Try again.');
+        SignedRequest.setToken(tkn);
         const media = await uploadDetails(media_id);
         let thumbnail = null;
         if (thumbnail_image) {
             const name_parts = file.name.split('.');
             name_parts.pop(); // Drop the extension
             const name = `thumb+${name_parts.join('.')}.jpg`;
-
             const thumb_id = await this._uploads.uploadFile(
                 dataURLtoFile(thumbnail_image, name),
-                true,
             );
             thumbnail = await uploadDetails(thumb_id);
         }
@@ -442,7 +454,7 @@ export class SignageStateService extends AsyncHandler {
         }
         const result = await lastValueFrom(addSignageMedia(data));
         this._active_upload.next(null);
-        this._change.next(Date.now());
+        this.timeout('changed', () => this._change.next(Date.now()), 500);
         return result;
     }
 

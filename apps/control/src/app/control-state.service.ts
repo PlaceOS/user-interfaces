@@ -249,11 +249,13 @@ export class ControlStateService extends AsyncHandler {
         switchMap((id) => this._listenToSystemBinding(id, 'lighting_scene')),
         shareReplay(1),
     );
-    public readonly lighting_levels: Observable<{
-        name: string;
-        area: any;
-        binding: string;
-    }> = this.system_id.pipe(
+    public readonly lighting_levels: Observable<
+        {
+            name: string;
+            area: any;
+            binding: string;
+        }[]
+    > = this.system_id.pipe(
         switchMap((id) => this._listenToSystemBinding(id, 'lighting_levels')),
         shareReplay(1),
     );

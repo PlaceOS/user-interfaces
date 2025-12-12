@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, output } from '@angular/core';
+import { Component, inject, OnInit, output, signal } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { BookingFormService } from '@placeos/bookings';
 import {
@@ -13,7 +13,6 @@ import {
     FullscreenModalShellComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { BehaviorSubject } from 'rxjs';
 
 import { CommonModule } from '@angular/common';
 import { NewDeskFormDetailsComponent } from 'apps/workplace/src/app/book/desk-flow/desk-form-details.component';
@@ -29,7 +28,7 @@ import { NewDeskFormDetailsComponent } from 'apps/workplace/src/app/book/desk-fl
                 ) | translate
             "
             [loading]="
-                (loading | async)
+                loading()
                     ? ('APP.CONCIERGE.DESKS_BOOKING_LOADING' | translate)
                     : ''
             "
@@ -53,7 +52,7 @@ export class DeskBookModalComponent implements OnInit {
     private _settings = inject(SettingsService);
 
     public readonly event = output<DialogEvent>();
-    public readonly loading = new BehaviorSubject(false);
+    public readonly loading = signal(false);
 
     public get form() {
         return this._booking_form.form;
@@ -69,7 +68,7 @@ export class DeskBookModalComponent implements OnInit {
     }
 
     public async save() {
-        this.loading.next(true);
+        this.loading.set(true);
         this.form.patchValue({ booking_type: 'desk' });
         let method = () => this._booking_form.postForm();
         if ((await nextValueFrom(this._booking_form.options))?.group) {
@@ -77,12 +76,12 @@ export class DeskBookModalComponent implements OnInit {
         }
         const event = await method().catch((_) => {
             notifyError(_);
-            this.loading.next(false);
+            this.loading.set(false);
             throw _;
         });
         this.event.emit({ reason: 'done', metadata: event });
         notifySuccess(i18n('APP.CONCIERGE.DESKS_BOOKING_SUCCESS'));
         this._dialog_ref.close();
-        this.loading.next(false);
+        this.loading.set(false);
     }
 }

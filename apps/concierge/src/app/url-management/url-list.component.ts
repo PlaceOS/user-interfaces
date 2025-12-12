@@ -22,7 +22,7 @@ import { UrlManagementService } from './url-management.service';
     template: `
         <div class="absolute inset-0 overflow-auto px-8">
             <simple-table
-                class="block min-w-[64rem] text-sm"
+                class="block min-w-5xl text-sm"
                 [data]="features"
                 empty_message="No Points of Interest found."
                 [columns]="[
@@ -58,7 +58,7 @@ import { UrlManagementService } from './url-management.service';
             <a
                 link
                 [href]="data"
-                class="w-full overflow-hidden break-words p-4 text-xs"
+                class="w-full overflow-hidden wrap-break-word p-4 text-xs"
             >
                 {{ data }}
             </a>
@@ -85,7 +85,7 @@ import { UrlManagementService } from './url-management.service';
                     <icon>qr_code</icon>
                 </button>
                 <ng-template #qr_menu>
-                    <div class="rounded bg-base-100 py-2 shadow">
+                    <div class="rounded-sm bg-base-100 py-2 shadow-sm">
                         <div class="" printable [content]="print_content">
                             <ng-template #print_content>
                                 <a
@@ -108,7 +108,7 @@ import { UrlManagementService } from './url-management.service';
                                     }
                                 </a>
                                 <div
-                                    class="mx-4 mt-2 w-[calc(100%-2rem)] rounded bg-base-200 p-2 text-center font-mono text-sm"
+                                    class="mx-4 mt-2 w-[calc(100%-2rem)] rounded-sm bg-base-200 p-2 text-center font-mono text-sm"
                                 >
                                     {{ row.name || row.id }}
                                 </div>

@@ -1,5 +1,5 @@
-import { Component, inject } from '@angular/core';
-import { AsyncHandler } from '@placeos/common';
+import { Component, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import {
     BindingDirective,
     CustomTooltipData,
@@ -8,7 +8,6 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatSliderModule } from '@angular/material/slider';
@@ -19,20 +18,20 @@ import { ControlStateService } from '../control-state.service';
     selector: 'microphone-tooltip',
     template: `
         <div
-            class="my-2 flex max-h-[65vh] max-w-[28rem] flex-col items-center space-y-5 overflow-y-auto overflow-x-hidden rounded bg-base-100 p-2 shadow"
+            class="my-2 flex max-h-[65vh] max-w-md flex-col items-center space-y-5 overflow-y-auto overflow-x-hidden rounded-sm bg-base-100 p-2 shadow-sm"
         >
             <h3
-                class="sticky top-0 z-20 w-full rounded bg-base-200 px-4 py-2 text-xl font-medium"
+                class="sticky top-0 z-20 w-full rounded-sm bg-base-200 px-4 py-2 text-xl font-medium"
             >
                 {{ 'APP.CONTROL.ACTION_MICS' | translate }}
             </h3>
-            @if ((mic_list | async)?.length || (microphones | async)?.length) {
-                @for (mic of mic_list | async; track mic) {
+            @if (mic_list()?.length || microphones()?.length) {
+                @for (mic of mic_list(); track mic) {
                     <div
-                        class="relative min-w-[20rem] rounded border border-base-300 p-2"
+                        class="relative min-w-[20rem] rounded-sm border border-base-300 p-2"
                     >
                         <div
-                            class="absolute left-2 top-0 -translate-y-1/2 rounded rounded-full bg-base-100 px-2 py-1 text-sm font-medium"
+                            class="absolute left-2 top-0 -translate-y-1/2 rounded-sm rounded-full bg-base-100 px-2 py-1 text-sm font-medium"
                         >
                             {{ mic.name }}
                         </div>
@@ -105,7 +104,7 @@ import { ControlStateService } from '../control-state.service';
                                     [mod]="mic.mod"
                                     bind="volume"
                                     exec="volume"
-                                    [ignore]="changing"
+                                    [ignore]="changing()"
                                     [(model)]="volume[mic.id]"
                                 ></i>
                                 <i
@@ -120,12 +119,12 @@ import { ControlStateService } from '../control-state.service';
                         }
                     </div>
                 }
-                @for (mic of microphones | async; track mic; let i = $index) {
+                @for (mic of microphones(); track mic; let i = $index) {
                     <div
-                        class="relative min-w-[20rem] rounded border border-base-300 p-2"
+                        class="relative min-w-[20rem] rounded-sm border border-base-300 p-2"
                     >
                         <div
-                            class="absolute left-2 top-0 -translate-y-1/2 rounded rounded-full bg-base-100 px-2 py-1 text-sm font-medium"
+                            class="absolute left-2 top-0 -translate-y-1/2 rounded-sm rounded-full bg-base-100 px-2 py-1 text-sm font-medium"
                         >
                             {{ mic.name }}
                         </div>
@@ -201,7 +200,7 @@ import { ControlStateService } from '../control-state.service';
                                     [mod]="mic.module_id"
                                     [bind]="mic.level_feedback"
                                     exec="fader"
-                                    [ignore]="changing"
+                                    [ignore]="changing()"
                                     [params]="[mic.level_id, volume[i]]"
                                     [(model)]="volume[i]"
                                 ></i>
@@ -227,7 +226,6 @@ import { ControlStateService } from '../control-state.service';
     `,
     styles: [``],
     imports: [
-        CommonModule,
         TranslatePipe,
         BindingDirective,
         MatSliderModule,
@@ -237,22 +235,28 @@ import { ControlStateService } from '../control-state.service';
         IconComponent,
     ],
 })
-export class MicrophoneTooltipComponent extends AsyncHandler {
+export class MicrophoneTooltipComponent {
     private _state = inject(ControlStateService);
     private _tooltip = inject(CustomTooltipData);
 
+    private _change_timeout: any;
+
     /** List of microphone inputs */
-    public readonly mic_list = this._state.mic_list;
+    public readonly mic_list = toSignal(this._state.mic_list, {
+        initialValue: [] as any[],
+    });
     /** List of microphones */
-    public readonly microphones = this._state.microphones;
+    public readonly microphones = toSignal(this._state.microphones, {
+        initialValue: [] as any[],
+    });
     /** Mapping of microphones to their volume */
-    public readonly volume = {};
+    public readonly volume: Record<string | number, number> = {};
     /** Mapping of microphones to their mute state */
-    public readonly mute = {};
+    public readonly mute: Record<string | number, boolean> = {};
     /** Close the tooltip */
     public readonly close = () => this._tooltip.close();
 
-    public changing = false;
+    public readonly changing = signal(false);
 
     public get id(): string {
         return this._state.id;
@@ -264,13 +268,14 @@ export class MicrophoneTooltipComponent extends AsyncHandler {
         mod.execute('mic_room_selection', [mic_name, room_name, state]);
     }
 
-    public setVolume(idx: number, value: number) {
+    public setVolume(idx: number | string, value: number) {
         this.volume[idx] = value;
         this.mute[idx] = false;
     }
 
     public onChange() {
-        this.changing = true;
-        this.timeout('change', () => (this.changing = false), 1000);
+        this.changing.set(true);
+        clearTimeout(this._change_timeout);
+        this._change_timeout = setTimeout(() => this.changing.set(false), 1000);
     }
 }

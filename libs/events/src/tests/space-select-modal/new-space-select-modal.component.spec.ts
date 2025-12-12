@@ -6,8 +6,8 @@ import {
 import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
 import { SettingsService, Space } from '@placeos/common';
 import { EventFormService, generateEventForm } from '@placeos/events';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { mockComponent } from 'libs/common/src/tests/test-helpers';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { MockModule, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 import { NewSpaceSelectModalComponent } from '../../lib/new-space-select-modal/new-space-select-modal.component';
