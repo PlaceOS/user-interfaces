@@ -1,7 +1,7 @@
 {
   "version": 3,
-  "sources": ["angular:styles/component:css;899ccc7ed5132c6d2908ee18e4342c82da91e820bd29409075a9a47d83d2f412;/home/runner/work/user-interfaces/user-interfaces/apps/control/src/app/topbar-header.component.ts"],
+  "sources": ["topbar-header.component.ts"],
   "sourcesContent": ["\n            :host {\n                display: flex;\n                align-items: center;\n            }\n\n            img {\n                max-height: calc(100% - 1rem);\n            }\n\n            button {\n                border-radius: 0.25rem;\n                background-color: rgba(255, 255, 255, 0.15);\n            }\n        "],
-  "mappings": ";AACY;AACI,WAAS;AACT,eAAa;AACjB;AAEA;AACI,cAAY,KAAK,KAAK,EAAE;AAC5B;AAEA;AACI,iBAAe;AACf,oBAAkB,KAAK,GAAG,EAAE,GAAG,EAAE,GAAG,EAAE;AAC1C;",
+  "mappings": ";AACY;AACI,WAAA;AACA,eAAA;AACJ;AAEA;AACI,cAAA,KAAA,KAAA,EAAA;AACJ;AAEA;AACI,iBAAA;AACA,oBAAA,KAAA,GAAA,EAAA,GAAA,EAAA,GAAA,EAAA;AACJ;",
   "names": []
 }

@@ -1,7 +1,7 @@
 {
   "version": 3,
-  "sources": ["angular:styles/component:css;405420df6572f0e3056341d3cfbaf3906d9ff0fe780174c84056aa6473cb7e9a;/home/runner/work/user-interfaces/user-interfaces/apps/control/src/app/page-view.component.ts"],
+  "sources": ["page-view.component.ts"],
   "sourcesContent": ["\n            :host {\n                width: 100%;\n                flex: 1;\n                height: 50%;\n                overflow: hidden;\n                background: #f0f0f0;\n                color: rgba(0, 0, 0, 0.85);\n            }\n        "],
-  "mappings": ";AACY;AACI,SAAO;AACP,QAAM;AACN,UAAQ;AACR,YAAU;AACV,cAAY;AACZ,SAAO,KAAK,CAAC,EAAE,CAAC,EAAE,CAAC,EAAE;AACzB;",
+  "mappings": ";AACY;AACI,SAAA;AACA,QAAA;AACA,UAAA;AACA,YAAA;AACA,cAAA;AACA,SAAA,KAAA,CAAA,EAAA,CAAA,EAAA,CAAA,EAAA;AACJ;",
   "names": []
 }

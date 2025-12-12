@@ -1,7 +1,7 @@
 {
   "version": 3,
-  "sources": ["angular:styles/component:css;d92aee00fdc2cc86ae308ad59f46307cdc384e2d21118fa25aa73a91002c5781;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/global-loading.component.ts"],
-  "sourcesContent": ["\n            :host {\n                pointer-events: none;\n            }\n\n            [loader] {\n                background-image: linear-gradient(\n                    to right,\n                    #6a11cb 0%,\n                    #2575fc 100%\n                );\n            }\n        "],
-  "mappings": ";AACY;AACI,kBAAgB;AACpB;AAEA,CAAC;AACG;AAAA,IAAkB;AAAA,MACd,GAAG,KADW;AAAA,MAEd,QAAQ,EAFM;AAAA,MAGd,QAAQ;AAEhB;",
+  "sources": ["global-loading.component.ts"],
+  "sourcesContent": ["\n            :host {\n                pointer-events: none;\n            }\n\n            [loader] {\n                background-image: linear-gradient(\n                    to right,\n                    #0d47a1 0%,\n                    #2196f3 100%\n                );\n            }\n        "],
+  "mappings": ";AACY;AACI,kBAAA;AACJ;AAEA,CAAA;AACI;IAAA;cAAA;gBAAA;;AAKJ;",
   "names": []
 }

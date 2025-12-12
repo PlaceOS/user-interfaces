@@ -1,7 +1,7 @@
 {
   "version": 3,
-  "sources": ["angular:styles/component:css;90c7ea3359a529ac871b05907f35a5977bf5db6008218c40ad219ab280ccfa5d;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/global-banner.component.ts"],
+  "sources": ["global-banner.component.ts"],
   "sourcesContent": ["\n            :host {\n                display: block;\n                width: 100%;\n            }\n        "],
-  "mappings": ";AACY;AACI,WAAS;AACT,SAAO;AACX;",
+  "mappings": ";AACY;AACI,WAAA;AACA,SAAA;AACJ;",
   "names": []
 }
