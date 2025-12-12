@@ -24,7 +24,7 @@ import { LockerFiltersComponent } from './locker-filters.component';
     styles: [],
     template: `
         <div
-            class="flex h-[100vh] w-[100vw] flex-col bg-base-100 sm:relative sm:h-auto sm:w-auto"
+            class="flex h-screen w-screen flex-col bg-base-100 sm:relative sm:h-auto sm:w-auto"
         >
             <header class="flex w-full items-center space-x-4">
                 <button icon mat-dialog-close class="bg-base-200">
@@ -107,7 +107,7 @@ import { LockerFiltersComponent } from './locker-filters.component';
                 </div>
             </main>
             <footer
-                class="flex w-full flex-col-reverse items-center justify-end border-t border-base-200 px-2 pb-[5.5rem] pt-2 sm:hidden"
+                class="flex w-full flex-col-reverse items-center justify-end border-t border-base-200 px-2 pb-22 pt-2 sm:hidden"
             >
                 @if (displayed) {
                     <button

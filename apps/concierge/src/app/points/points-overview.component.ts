@@ -8,7 +8,7 @@ import { CounterComponent } from '@placeos/form-fields';
     selector: 'points-overview',
     template: `
         <h2
-            class="mb-4 w-full rounded border border-base-300 px-4 py-3 text-lg font-medium"
+            class="mb-4 w-full rounded-sm border border-base-300 px-4 py-3 text-lg font-medium"
         >
             {{ 'APP.CONCIERGE.POINTS_OVERVIEW_HEADER' | translate }}
         </h2>

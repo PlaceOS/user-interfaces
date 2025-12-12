@@ -42,7 +42,7 @@ import { SignageStateService } from './signage-state.service';
                 <a
                     matRipple
                     class="flex min-h-12 w-full items-center rounded-xl px-6 hover:bg-base-200"
-                    [class.!bg-secondary]="!selected_playlist()"
+                    [class.bg-secondary!]="!selected_playlist()"
                     [class.text-secondary-content]="!selected_playlist()"
                     [routerLink]="[]"
                     [queryParams]="{ playlist: '' }"
@@ -57,7 +57,7 @@ import { SignageStateService } from './signage-state.service';
                         <a
                             matRipple
                             class="flex h-12 min-h-12 w-full items-center rounded-3xl border border-base-100 px-6 even:border-base-200 even:bg-base-200 hover:border-info"
-                            [class.!bg-secondary]="
+                            [class.bg-secondary!]="
                                 selected_playlist() === playlist.id
                             "
                             [class.text-secondary-content]="
@@ -120,7 +120,7 @@ import { SignageStateService } from './signage-state.service';
                 }
             </div>
             <div
-                class="relative h-full w-1/2 flex-1 overflow-hidden rounded-lg border border-base-300 bg-base-200 shadow"
+                class="relative h-full w-1/2 flex-1 overflow-hidden rounded-lg border border-base-300 bg-base-200 shadow-sm"
                 (dragover)="onEnter($event)"
                 (dragenter)="onEnter($event)"
                 (window:drop)="hideOverlay($event)"

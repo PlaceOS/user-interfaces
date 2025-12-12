@@ -29,7 +29,7 @@ import { DealsService } from './deals.service';
             >
                 @let deal_list = filtered_deals$ | async;
                 <div
-                    class="sticky top-0 z-20 mx-auto mb-2 w-[40rem] max-w-full bg-base-200 px-2 pt-2"
+                    class="sticky top-0 z-20 mx-auto mb-2 w-160 max-w-full bg-base-200 px-2 pt-2"
                 >
                     <div class="-mx-2 flex flex-wrap py-2">
                         @let type_list = types | async;
@@ -63,7 +63,7 @@ import { DealsService } from './deals.service';
                         </div>
                         <button
                             matRipple
-                            class="flex items-center rounded p-2"
+                            class="flex items-center rounded-sm p-2"
                             [matMenuTriggerFor]="sortMenu"
                         >
                             <div>
@@ -103,12 +103,12 @@ import { DealsService } from './deals.service';
                     </div>
                 </div>
                 <div
-                    class="mx-auto mb-4 grid w-[40rem] max-w-full grid-cols-1 gap-4 px-2 sm:grid-cols-2 lg:grid-cols-3"
+                    class="mx-auto mb-4 grid w-160 max-w-full grid-cols-1 gap-4 px-2 sm:grid-cols-2 lg:grid-cols-3"
                 >
                     @for (deal of deal_list; track deal.id) {
                         <div>
                             <button
-                                class="flex w-full flex-col items-center overflow-hidden rounded-lg border border-base-300 bg-base-100 shadow"
+                                class="flex w-full flex-col items-center overflow-hidden rounded-lg border border-base-300 bg-base-100 shadow-sm"
                                 (click)="view(deal)"
                             >
                                 <div
@@ -124,7 +124,7 @@ import { DealsService } from './deals.service';
                                     }
                                     @if (deal.details) {
                                         <div
-                                            class="absolute bottom-2 left-2 max-w-full truncate rounded bg-info px-2 py-1 text-xs text-info-content shadow"
+                                            class="absolute bottom-2 left-2 max-w-full truncate rounded-sm bg-info px-2 py-1 text-xs text-info-content shadow-sm"
                                         >
                                             {{ deal.details }}
                                         </div>

@@ -30,7 +30,7 @@ export enum ZoomDirection {
     selector: 'camera-tooltip',
     template: `
         @if (camera_list()?.length) {
-            <div class="my-2 flex flex-col rounded bg-base-100 shadow">
+            <div class="my-2 flex flex-col rounded-sm bg-base-100 shadow-sm">
                 <mat-form-field appearance="outline" class="no-subscript m-2">
                     <mat-select
                         [ngModel]="active_camera()"
@@ -70,7 +70,7 @@ export enum ZoomDirection {
                                         <button
                                             icon
                                             matRipple
-                                            class="h-12 w-12 rounded border border-error bg-base-100 text-error"
+                                            class="h-12 w-12 rounded-sm border border-error bg-base-100 text-error"
                                             (click)="removePreset(name)"
                                         >
                                             <icon>delete</icon>
@@ -80,7 +80,7 @@ export enum ZoomDirection {
                             }
                         } @else {
                             <p
-                                class="w-full rounded bg-base-300 p-8 opacity-30"
+                                class="w-full rounded-sm bg-base-300 p-8 opacity-30"
                             >
                                 {{
                                     'APP.CONTROL.CAMERA_PRESETS_EMPTY'
@@ -100,7 +100,7 @@ export enum ZoomDirection {
                             <div class="flex w-full flex-col px-2">
                                 <mat-form-field
                                     appearance="outline"
-                                    class="h-[3.5rem] w-full"
+                                    class="h-14 w-full"
                                     (click)="$event.stopPropagation()"
                                 >
                                     <input
@@ -146,13 +146,13 @@ export enum ZoomDirection {
                             ></joystick>
                             <div
                                 zoom
-                                class="flex flex-col items-center rounded border border-base-200"
+                                class="flex flex-col items-center rounded-sm border border-base-200"
                             >
                                 <button
                                     zoom-in
                                     icon
                                     matRipple
-                                    class="rounded"
+                                    class="rounded-sm"
                                     (mousedown)="startZoom('in', $event)"
                                     (touchstart)="startZoom('in', $event)"
                                     (contextmenu)="$event.preventDefault()"
@@ -169,7 +169,7 @@ export enum ZoomDirection {
                                     zoom-out
                                     icon
                                     matRipple
-                                    class="rounded"
+                                    class="rounded-sm"
                                     (mousedown)="startZoom('out', $event)"
                                     (touchstart)="startZoom('out', $event)"
                                     (contextmenu)="$event.preventDefault()"
@@ -195,7 +195,7 @@ export enum ZoomDirection {
             </div>
         } @else {
             <div
-                class="my-2 flex flex-col rounded bg-base-100 p-8 text-center shadow"
+                class="my-2 flex flex-col rounded-sm bg-base-100 p-8 text-center shadow-sm"
             >
                 <p>{{ 'APP.CONTROL.CAMERAS_EMPTY' | translate }}</p>
             </div>

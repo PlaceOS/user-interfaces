@@ -23,7 +23,7 @@ import { PlaceSystem, showMetadata, updateMetadata } from '@placeos/ts-client';
     selector: 'room-alert-modal',
     template: `
         <header
-            class="sticky top-0 z-10 mx-auto my-2 flex h-14 w-[calc(100%-1rem)] items-center justify-between rounded border-none bg-base-200 p-2"
+            class="sticky top-0 z-10 mx-auto my-2 flex h-14 w-[calc(100%-1rem)] items-center justify-between rounded-sm border-none bg-base-200 p-2"
         >
             <h2 class="px-2 text-xl font-medium capitalize">
                 {{
@@ -39,7 +39,7 @@ import { PlaceSystem, showMetadata, updateMetadata } from '@placeos/ts-client';
         </header>
         @if (!loading) {
             <main
-                class="flex max-h-[65vh] min-w-[28rem] flex-col overflow-y-auto overflow-x-hidden p-4"
+                class="flex max-h-[65vh] min-w-md flex-col overflow-y-auto overflow-x-hidden p-4"
                 [formGroup]="form"
             >
                 <label for="status">{{ 'COMMON.STATUS' | translate }}</label>

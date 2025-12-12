@@ -56,7 +56,7 @@ import { ParkingService } from './parking.service';
                 (click)="viewDetails()"
             >
                 <div
-                    class="relative w-full rounded-xl border border-base-300 bg-base-100 py-4 shadow"
+                    class="relative w-full rounded-xl border border-base-300 bg-base-100 py-4 shadow-sm"
                 >
                     <div
                         class="absolute right-2 top-2 rounded-full bg-base-300 p-1 text-2xl"

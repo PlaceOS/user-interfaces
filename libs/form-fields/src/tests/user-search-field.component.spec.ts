@@ -118,7 +118,7 @@ describe('UserSearchFieldComponent', () => {
         spectator.component.search_term.next('Test' as any);
         spectator.detectChanges();
         expect(spectator.component.search_term.value).toBe('Test');
-        spectator.dispatchFakeEvent('input', 'blur');
+        spectator.dispatchFakeEvent('input', 'blur-sm');
         spectator.tick(111);
         spectator.detectChanges();
         expect(spectator.component.search_term.value).toEqual(user);

@@ -19,7 +19,7 @@ import { MediaPlayerItem } from './types';
             <div class="flex items-center space-x-4 p-2">
                 <h2>{{ 'APP.SIGNAGE.MEDIA_LIST' | translate }}</h2>
                 <div
-                    class="rounded-full bg-info-light px-2 py-1 text-xs shadow"
+                    class="rounded-full bg-info-light px-2 py-1 text-xs shadow-sm"
                 >
                     <div class="text-info">
                         {{
@@ -48,8 +48,8 @@ import { MediaPlayerItem } from './types';
                                 [class.bg-info]="i === index()"
                                 [class.text-info-content]="i === index()"
                                 [class.bg-base-300]="i !== index()"
-                                [class.!bg-error]="!is_valid"
-                                [class.!text-error-content]="!is_valid"
+                                [class.bg-error!]="!is_valid"
+                                [class.text-error-content!]="!is_valid"
                                 [matTooltip]="validateMedia(item)"
                                 matTooltipPosition="left"
                             >
@@ -81,7 +81,7 @@ import { MediaPlayerItem } from './types';
                                 </div>
                             </div>
                             <div
-                                class="rounded bg-info px-2 py-1 font-mono text-xs text-info-content"
+                                class="rounded-sm bg-info px-2 py-1 font-mono text-xs text-info-content"
                             >
                                 {{ item.duration / 1000 | mediaDuration }}
                             </div>

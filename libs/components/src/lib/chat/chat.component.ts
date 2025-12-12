@@ -31,14 +31,14 @@ import { ChatService } from './chat.service';
                 <button
                     icon
                     matRipple
-                    class="rounded-full border border-base-300 bg-base-100 shadow"
+                    class="rounded-full border border-base-300 bg-base-100 shadow-sm"
                     (click)="toggleChat()"
                 >
                     <icon>chat</icon>
                 </button>
                 @if (show()) {
                     <div
-                        class="absolute bottom-2 right-2 w-[40rem] max-w-[calc(100vw-1rem)] overflow-hidden rounded-xl border border-base-300 bg-base-200 shadow"
+                        class="absolute bottom-2 right-2 w-160 max-w-[calc(100vw-1rem)] overflow-hidden rounded-xl border border-base-300 bg-base-200 shadow-sm"
                     >
                         <div
                             class="flex w-full items-center justify-between border-b border-base-300 bg-base-100 p-2"
@@ -51,7 +51,7 @@ import { ChatService } from './chat.service';
                             </button>
                         </div>
                         <div
-                            class="h-[32rem] max-h-[60vh] overflow-auto"
+                            class="h-128 max-h-[60vh] overflow-auto"
                             #container
                         >
                             <div
@@ -71,7 +71,7 @@ import { ChatService } from './chat.service';
                             </div>
                             @if (hint | async) {
                                 <div
-                                    class="m-2 rounded border-base-300 bg-base-100 p-4 text-sm shadow"
+                                    class="m-2 rounded-sm border-base-300 bg-base-100 p-4 text-sm shadow-sm"
                                 >
                                     {{ hint | async }}
                                 </div>
@@ -115,7 +115,7 @@ import { ChatService } from './chat.service';
                                     </div>
                                     <div
                                         message
-                                        class="markdown selectable rounded border-base-300 bg-base-100 p-4 text-sm shadow"
+                                        class="markdown selectable rounded-sm border-base-300 bg-base-100 p-4 text-sm shadow-sm"
                                         [innerHTML]="message.content | sanitize"
                                     ></div>
                                 </div>
@@ -123,7 +123,7 @@ import { ChatService } from './chat.service';
                             @if (progress | async) {
                                 <div class="p-4">
                                     <button
-                                        class="block w-full rounded border-base-300 bg-info p-2 text-info-content"
+                                        class="block w-full rounded-sm border-base-300 bg-info p-2 text-info-content"
                                         (click)="show_info.set(!show_info)"
                                     >
                                         <div
@@ -144,14 +144,14 @@ import { ChatService } from './chat.service';
                                             </p>
                                         </div>
                                         <div
-                                            class="relative w-full overflow-hidden rounded"
+                                            class="relative w-full overflow-hidden rounded-sm"
                                         >
                                             <div
                                                 class="absolute inset-0 bg-base-100 opacity-10"
                                             ></div>
                                             @if (show_info) {
                                                 <div
-                                                    class="text-mono break-words p-2 text-left text-xs"
+                                                    class="text-mono wrap-break-word p-2 text-left text-xs"
                                                     [innerHTML]="
                                                         (progress | async)
                                                             .content | sanitize
@@ -183,7 +183,7 @@ import { ChatService } from './chat.service';
                             </div>
                         }
                         <div
-                            class="flex max-h-[10rem] overflow-y-auto border-t border-base-300 bg-base-100 outline-info focus-within:outline"
+                            class="flex max-h-40 overflow-y-auto border-t border-base-300 bg-base-100 outline-info focus-within:outline-solid"
                         >
                             <textarea
                                 #input
@@ -191,7 +191,7 @@ import { ChatService } from './chat.service';
                                     'APP.WORKPLACE.CHAT_MESSAGE_PLACEHOLDER'
                                         | translate
                                 "
-                                class="w-1/2 flex-1 resize-none overflow-hidden p-4 focus:outline-none"
+                                class="w-1/2 flex-1 resize-none overflow-hidden p-4 focus:outline-hidden"
                                 [style.height]="height() + 'px'"
                                 [(ngModel)]="message"
                                 (ngModelChange)="resizeInput()"

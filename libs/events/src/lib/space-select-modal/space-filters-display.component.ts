@@ -50,14 +50,14 @@ import { SpaceFiltersComponent } from './space-filters.component';
         </section>
         <section
             filters
-            class="flex w-[35rem] max-w-full flex-wrap items-center p-2 sm:max-w-[35rem]"
+            class="flex w-140 max-w-full flex-wrap items-center p-2 sm:max-w-140"
         >
             @if ((options | async)?.features?.length > 1) {
                 <button
                     btn
                     matRipple
                     name="clear-space-filters"
-                    class="mb-2 mr-2 min-h-[2rem]"
+                    class="mb-2 mr-2 min-h-8"
                     (click)="removeAllFeatures()"
                 >
                     {{ 'COMMON.FILTERS_CLEAR' | translate }}

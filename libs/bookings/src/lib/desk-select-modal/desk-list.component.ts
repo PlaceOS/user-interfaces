@@ -36,8 +36,8 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
                     @for (desk of desks | async; track desk.id) {
                         <li
                             desk
-                            class="relative w-full overflow-hidden rounded-lg border border-base-200 bg-base-100 shadow"
-                            [class.!border-info]="active() === desk.id"
+                            class="relative w-full overflow-hidden rounded-lg border border-base-200 bg-base-100 shadow-sm"
+                            [class.border-info!]="active() === desk.id"
                         >
                             <button
                                 name="select-desk"

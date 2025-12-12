@@ -40,10 +40,10 @@ import { CheckinTimetableComponent } from './checkin-timetable.component';
         </h3>
         <div class="space-y-2 bg-base-100 p-2">
             <div
-                class="flex items-center rounded border border-base-300 p-2 shadow"
+                class="flex items-center rounded-sm border border-base-300 p-2 shadow-sm"
             >
                 <div
-                    class="h-full min-h-[3rem] w-2 rounded"
+                    class="h-full min-h-12 w-2 rounded-sm"
                     [class.bg-error]="(state | async) === 'busy'"
                     [class.bg-success]="(state | async) === 'free'"
                     [class.bg-warning]="(state | async) === 'pending'"
@@ -147,10 +147,10 @@ import { CheckinTimetableComponent } from './checkin-timetable.component';
                 }
             </div>
             <div
-                class="flex items-center rounded border border-base-300 p-2 shadow"
+                class="flex items-center rounded-sm border border-base-300 p-2 shadow-sm"
             >
                 <div
-                    class="h-full min-h-[3rem] w-2 rounded bg-error"
+                    class="h-full min-h-12 w-2 rounded-sm bg-error"
                     [class.bg-error]="(event_state | async)?.next"
                     [class.bg-success]="!(event_state | async)?.next"
                 ></div>
@@ -178,7 +178,7 @@ import { CheckinTimetableComponent } from './checkin-timetable.component';
             {{ 'APP.BOOKING_PANEL.SCHEDULE' | translate }}
         </h3>
         <div
-            class="mx-2 flex items-center overflow-auto rounded border border-base-300 shadow"
+            class="mx-2 flex items-center overflow-auto rounded-sm border border-base-300 shadow-sm"
         >
             <checkin-timetable
                 [events]="bookings | async"

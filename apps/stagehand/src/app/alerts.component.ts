@@ -33,7 +33,7 @@ import { SidebarComponent } from './ui/sidebar.component';
 
             <div class="flex w-px flex-1 flex-col">
                 <header
-                    class="flex h-[4.5rem] w-full items-center justify-between space-x-2 border-base-400 bg-base-100 p-4"
+                    class="flex h-18 w-full items-center justify-between space-x-2 border-base-400 bg-base-100 p-4"
                 >
                     <h1 class="text-2xl font-bold">AV Systems Alerts</h1>
                     <div class="flex-1"></div>
@@ -78,7 +78,7 @@ import { SidebarComponent } from './ui/sidebar.component';
                         class="grid w-full flex-1 grid-cols-1 gap-4 p-4 sm:grid-cols-2 md:grid-cols-3"
                     >
                         <div
-                            class="flex items-center space-x-2 rounded-lg border border-base-300 bg-base-100 px-4 py-2 shadow"
+                            class="flex items-center space-x-2 rounded-lg border border-base-300 bg-base-100 px-4 py-2 shadow-sm"
                         >
                             <icon
                                 class="mb-5 text-3xl text-error"
@@ -96,7 +96,7 @@ import { SidebarComponent } from './ui/sidebar.component';
                             </div>
                         </div>
                         <div
-                            class="flex items-center space-x-2 rounded-lg border border-base-300 bg-base-100 px-4 py-2 shadow"
+                            class="flex items-center space-x-2 rounded-lg border border-base-300 bg-base-100 px-4 py-2 shadow-sm"
                         >
                             <icon
                                 class="mb-5 text-3xl text-warning"
@@ -114,7 +114,7 @@ import { SidebarComponent } from './ui/sidebar.component';
                             </div>
                         </div>
                         <div
-                            class="flex items-center space-x-2 rounded-lg border border-base-300 bg-base-100 px-4 py-2 shadow"
+                            class="flex items-center space-x-2 rounded-lg border border-base-300 bg-base-100 px-4 py-2 shadow-sm"
                         >
                             <icon
                                 class="mb-5 text-3xl text-info"
@@ -230,7 +230,7 @@ import { SidebarComponent } from './ui/sidebar.component';
                     </div>
                     <div class="overflow-auto p-4">
                         <simple-table
-                            class="block w-full min-w-[56rem] overflow-hidden bg-base-100 text-sm"
+                            class="block w-full min-w-4xl overflow-hidden bg-base-100 text-sm"
                             [data]="filtered_alerts()"
                             [filter]="search()"
                             [columns]="[
@@ -357,7 +357,7 @@ import { SidebarComponent } from './ui/sidebar.component';
                                     "
                                     target="_blank"
                                     ref="noopener noreferrer"
-                                    class="rounded"
+                                    class="rounded-sm"
                                     matTooltip="Manage Room"
                                 >
                                     <icon class="text-2xl">build</icon>
@@ -368,7 +368,7 @@ import { SidebarComponent } from './ui/sidebar.component';
                                     [href]="service_link()"
                                     target="_blank"
                                     ref="noopener noreferrer"
-                                    class="rounded"
+                                    class="rounded-sm"
                                     matTooltip="Raise Ticket"
                                 >
                                     <icon class="text-2xl"

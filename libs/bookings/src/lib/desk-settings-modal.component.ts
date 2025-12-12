@@ -22,7 +22,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
     selector: 'desk-settings-modal',
     template: `
         @if (!edit_presets) {
-            <div class="relative w-[20rem] rounded bg-base-100 p-4 shadow">
+            <div class="relative w-[20rem] rounded-sm bg-base-100 p-4 shadow-sm">
                 <div class="text-lg">Desk Height</div>
                 <div class="mb-4 text-xs opacity-60">
                     Set your desk height for the best experience
@@ -50,7 +50,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
                             icon
                             matRipple
                             (click)="edit_presets = true"
-                            class="h-12 w-12 rounded bg-secondary text-secondary-content"
+                            class="h-12 w-12 rounded-sm bg-secondary text-secondary-content"
                         >
                             <icon>edit</icon>
                         </button>

@@ -57,7 +57,7 @@ const EMPTY_ACTIONS = [];
     selector: 'event-details-modal',
     template: `
         <div
-            class="h-screen w-screen space-y-2 overflow-auto bg-base-100 pb-2 sm:relative sm:inset-auto sm:h-auto sm:max-h-[80vh] sm:w-[51rem] sm:rounded sm:bg-base-200 print:min-h-screen print:w-screen print:overflow-visible"
+            class="h-screen w-screen space-y-2 overflow-auto bg-base-100 pb-2 sm:relative sm:inset-auto sm:h-auto sm:max-h-[80vh] sm:w-204 sm:rounded-sm sm:bg-base-200 print:min-h-screen print:w-screen print:overflow-visible"
         >
             <div
                 class="max-h-screen flex-col items-center border-base-200 bg-base-100 pb-4 sm:flex sm:max-h-[80vh] sm:border-b sm:px-16 print:border-none"
@@ -159,7 +159,7 @@ const EMPTY_ACTIONS = [];
                                     icon
                                     matRipple
                                     [matMenuTriggerFor]="menu"
-                                    class="h-12 w-12 rounded bg-secondary text-white"
+                                    class="h-12 w-12 rounded-sm bg-secondary text-white"
                                 >
                                     <icon>more_horiz</icon>
                                 </button>
@@ -170,7 +170,7 @@ const EMPTY_ACTIONS = [];
             </div>
             <div class="flex-wrap sm:flex sm:px-12">
                 <div
-                    class="min-w-1/3 flex-grow-[3] space-y-2 rounded border-base-200 sm:m-2 sm:w-[16rem] sm:border sm:bg-base-100 sm:p-4"
+                    class="min-w-1/3 grow-3 space-y-2 rounded-sm border-base-200 sm:m-2 sm:w-[16rem] sm:border sm:bg-base-100 sm:p-4"
                 >
                     <h3 class="mb-2 mt-2 px-3 text-lg font-medium">
                         {{ 'CALENDAR_EVENT.DETAILS' | translate }}
@@ -254,7 +254,7 @@ const EMPTY_ACTIONS = [];
                     }
                 </div>
                 <div
-                    class="min-w-1/3 mt-4 flex-grow-[3] rounded border-base-200 sm:m-2 sm:w-[16rem] sm:border sm:bg-base-100 sm:p-4"
+                    class="min-w-1/3 mt-4 grow-3 rounded-sm border-base-200 sm:m-2 sm:w-[16rem] sm:border sm:bg-base-100 sm:p-4"
                 >
                     <div
                         class="mx-3 flex items-center justify-between border-t border-base-200 sm:border-none"
@@ -350,7 +350,7 @@ const EMPTY_ACTIONS = [];
                 </div>
                 @if (has_catering()) {
                     <div
-                        class="min-w-1/3 mt-4 flex-grow-[3] rounded border-base-200 sm:m-2 sm:w-[16rem] sm:border sm:bg-base-100 sm:p-4"
+                        class="min-w-1/3 mt-4 grow-3 rounded-sm border-base-200 sm:m-2 sm:w-[16rem] sm:border sm:bg-base-100 sm:p-4"
                     >
                         <h3 class="mx-3 my-2 text-lg font-medium">
                             {{ 'CALENDAR_EVENT.CATERING' | translate }}
@@ -400,7 +400,7 @@ const EMPTY_ACTIONS = [];
                                                 </div>
                                                 @if (order.caterer) {
                                                     <div
-                                                        class="rounded bg-base-200 px-2 py-1 text-xs"
+                                                        class="rounded-sm bg-base-200 px-2 py-1 text-xs"
                                                     >
                                                         {{ order.caterer }}
                                                     </div>
@@ -472,12 +472,12 @@ const EMPTY_ACTIONS = [];
                                                     }
                                                 </div>
                                                 <div
-                                                    class="rounded bg-success px-2 py-1 text-xs text-success-content"
+                                                    class="rounded-sm bg-success px-2 py-1 text-xs text-success-content"
                                                 >
                                                     x{{ item.quantity }}
                                                 </div>
                                                 <div
-                                                    class="rounded bg-info px-2 py-1 text-xs text-info-content"
+                                                    class="rounded-sm bg-info px-2 py-1 text-xs text-info-content"
                                                 >
                                                     {{
                                                         item.unit_price_with_options /
@@ -497,7 +497,7 @@ const EMPTY_ACTIONS = [];
                 }
                 <button
                     map
-                    class="min-w-1/3 relative m-2 mt-4 h-64 w-[calc(100%-1rem)] flex-grow-[3] overflow-hidden rounded border border-base-200 p-2 sm:mt-2 sm:h-48 sm:w-[16rem] sm:bg-base-100"
+                    class="min-w-1/3 relative m-2 mt-4 h-64 w-[calc(100%-1rem)] grow-3 overflow-hidden rounded-sm border border-base-200 p-2 sm:mt-2 sm:h-48 sm:w-[16rem] sm:bg-base-100"
                     (click)="viewLocation()"
                 >
                     @if (!hide_map()) {
@@ -514,7 +514,7 @@ const EMPTY_ACTIONS = [];
                 </button>
                 @if (raw_body()) {
                     <div
-                        class="min-w-1/3 mt-4 flex-grow-[3] rounded border-base-200 sm:m-2 sm:w-[16rem] sm:border sm:bg-base-100 sm:p-4"
+                        class="min-w-1/3 mt-4 grow-3 rounded-sm border-base-200 sm:m-2 sm:w-[16rem] sm:border sm:bg-base-100 sm:p-4"
                     >
                         <h3
                             class="mx-3 border-t border-base-200 text-lg font-medium sm:border-none"
@@ -532,7 +532,7 @@ const EMPTY_ACTIONS = [];
                 }
                 @if (has_assets()) {
                     <div
-                        class="min-w-1/3 mt-4 flex-grow-[3] rounded border-base-200 sm:m-2 sm:w-[16rem] sm:border sm:bg-base-100 sm:p-4"
+                        class="min-w-1/3 mt-4 grow-3 rounded-sm border-base-200 sm:m-2 sm:w-[16rem] sm:border sm:bg-base-100 sm:p-4"
                     >
                         <h3 class="mx-3 pt-2 text-lg font-medium">
                             {{ 'CALENDAR_EVENT.ASSETS_HEADER' | translate }} ({{
@@ -643,7 +643,7 @@ const EMPTY_ACTIONS = [];
                                                     }}</span>
                                                 </div>
                                                 <div
-                                                    class="rounded bg-success px-2 py-1 text-xs text-success-content"
+                                                    class="rounded-sm bg-success px-2 py-1 text-xs text-success-content"
                                                 >
                                                     x{{ item.quantity }}
                                                 </div>

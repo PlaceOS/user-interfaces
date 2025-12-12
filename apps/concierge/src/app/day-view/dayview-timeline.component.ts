@@ -52,7 +52,7 @@ const HOUR_BLOCKS = new Array(24).fill(0).map((_, idx) => {
                     @for (space of space_list | async; track space) {
                         <div
                             change-transform
-                            class="relative h-16 w-48 min-w-[12rem]"
+                            class="relative h-16 w-48 min-w-48"
                             [style.transform]="
                                 'translateX(-' + scroll.x + 'px)'
                             "
@@ -76,7 +76,7 @@ const HOUR_BLOCKS = new Array(24).fill(0).map((_, idx) => {
                     @for (space of space_list | async; track space) {
                         <dayview-space
                             [space]="space"
-                            class="h-[96rem] w-48 min-w-[12rem] border-r border-base-300"
+                            class="h-384 w-48 min-w-48 border-r border-base-300"
                         ></dayview-space>
                     }
                     @for (time of blocks; track time; let i = $index) {

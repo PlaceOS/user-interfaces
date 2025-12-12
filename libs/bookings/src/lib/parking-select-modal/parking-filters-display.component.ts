@@ -48,7 +48,7 @@ import { ParkingSpaceFiltersComponent } from './parking-filters.component';
         </section>
         <section
             filters
-            class="flex w-[35rem] max-w-full flex-wrap items-center p-2 sm:max-w-[35rem]"
+            class="flex w-140 max-w-full flex-wrap items-center p-2 sm:max-w-140"
         >
             @if (location) {
                 <div filter-item zone>

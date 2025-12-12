@@ -19,7 +19,7 @@ describe('IconComponent', () => {
     it('should show font icons', () => {
         spectator.setInput('icon', {
             type: 'icon',
-            class: 'rounded',
+            class: 'rounded-sm',
             content: 'test-contents',
         });
         spectator.detectChanges();

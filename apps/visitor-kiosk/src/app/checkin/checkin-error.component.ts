@@ -9,7 +9,7 @@ import { CheckinStateService } from './checkin-state.service';
     selector: 'checkin-error',
     template: `
         <div
-            class="relative m-4 flex flex-col items-center space-y-4 overflow-hidden rounded bg-base-100 px-16 py-4 text-center shadow"
+            class="relative m-4 flex flex-col items-center space-y-4 overflow-hidden rounded-sm bg-base-100 px-16 py-4 text-center shadow-sm"
         >
             <h3 class="pb-2 text-2xl">Please see reception.</h3>
             @if (error | async) {

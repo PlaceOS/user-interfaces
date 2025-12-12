@@ -17,7 +17,7 @@ import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-
     selector: 'upload-file',
     template: `
         <div
-            class="relative w-full cursor-pointer rounded border border-base-200 bg-base-200 p-2 hover:bg-base-200"
+            class="relative w-full cursor-pointer rounded-sm border border-base-200 bg-base-200 p-2 hover:bg-base-200"
         >
             <input
                 type="file"
@@ -27,8 +27,8 @@ import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-
             @if (item) {
                 <div
                     item
-                    class="relative z-50 flex w-full items-center rounded border border-base-200 bg-base-100 hover:bg-base-200"
-                    [class.!bg-error]="item.progress < 1"
+                    class="relative z-50 flex w-full items-center rounded-sm border border-base-200 bg-base-100 hover:bg-base-200"
+                    [class.bg-error!]="item.progress < 1"
                     [class.!bg-opacity-20]="item.progress < 1"
                 >
                     <div class="w-px flex-1 truncate px-2 font-mono text-sm">

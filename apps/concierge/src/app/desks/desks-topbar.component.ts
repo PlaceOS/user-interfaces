@@ -71,7 +71,7 @@ import { DesksStateService } from './desks-state.service';
                 <button
                     icon
                     matRipple
-                    class="mx-2 rounded bg-primary text-white"
+                    class="mx-2 rounded-sm bg-primary text-white"
                     (click)="newDesk()"
                     [matTooltip]="'APP.CONCIERGE.DESKS_NEW' | translate"
                 >
@@ -82,7 +82,7 @@ import { DesksStateService } from './desks-state.service';
                 <button
                     icon
                     matRipple
-                    class="relative rounded bg-primary text-white"
+                    class="relative rounded-sm bg-primary text-white"
                     [matTooltip]="'APP.CONCIERGE.DESKS_LIST_UPLOAD' | translate"
                 >
                     <icon>cloud_upload</icon>
@@ -97,7 +97,7 @@ import { DesksStateService } from './desks-state.service';
                 <button
                     icon
                     matRipple
-                    class="mx-2 rounded bg-primary text-white"
+                    class="mx-2 rounded-sm bg-primary text-white"
                     (click)="downloadTemplate()"
                     [matTooltip]="
                         'APP.CONCIERGE.DESKS_LIST_DOWNLOAD' | translate
@@ -110,7 +110,7 @@ import { DesksStateService } from './desks-state.service';
                 <button
                     icon
                     matRipple
-                    class="mx-2 rounded bg-primary text-white"
+                    class="mx-2 rounded-sm bg-primary text-white"
                     (click)="manageRestrictions()"
                     [matTooltip]="
                         'APP.CONCIERGE.DESKS_BOOKING_RULES' | translate

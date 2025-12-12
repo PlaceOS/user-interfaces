@@ -20,9 +20,9 @@ import {
 
 @Component({
     selector: `select-user-modal`,
-    template: ` <div class="w-[28rem]">
+    template: ` <div class="w-md">
         <header
-            class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded border-none bg-base-200 p-2"
+            class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none bg-base-200 p-2"
         >
             <h2 class="px-2 text-xl font-medium">
                 {{ 'COMMON.SELECT_USER_TITLE' | translate }}
@@ -47,7 +47,7 @@ import {
             <div class="relative z-0 w-full space-y-2">
                 @for (user of users | async; track user) {
                     <button
-                        class="w-full rounded border border-base-300 p-2 text-left hover:bg-base-200"
+                        class="w-full rounded-sm border border-base-300 p-2 text-left hover:bg-base-200"
                         matRipple
                         (click)="select(user)"
                     >

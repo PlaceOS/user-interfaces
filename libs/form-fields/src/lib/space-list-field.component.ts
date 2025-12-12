@@ -74,7 +74,7 @@ const EMPTY_FAVS: string[] = [];
             @for (space of space_list | async; track space) {
                 <div
                     space
-                    class="relative flex w-full items-center rounded-lg border border-base-200 p-2 shadow"
+                    class="relative flex w-full items-center rounded-lg border border-base-200 p-2 shadow-sm"
                 >
                     <div
                         class="mr-4 flex h-24 w-24 items-center justify-center overflow-hidden rounded-xl bg-base-200"

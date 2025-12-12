@@ -33,7 +33,7 @@ import { Locker, LockerBank } from '../locker.class';
                     ) {
                         <li
                             locker_bank
-                            class="relative w-full overflow-hidden rounded-lg border border-base-200 bg-base-100 shadow"
+                            class="relative w-full overflow-hidden rounded-lg border border-base-200 bg-base-100 shadow-sm"
                             [class.!border-blue-400]="
                                 active() === locker_bank.id
                             "
@@ -136,7 +136,7 @@ import { Locker, LockerBank } from '../locker.class';
               </button> -->
                             @if (locker_bank.tags?.length) {
                                 <div
-                                    class="absolute bottom-2 right-2 rounded bg-base-200 px-2 py-1 font-mono text-xs"
+                                    class="absolute bottom-2 right-2 rounded-sm bg-base-200 px-2 py-1 font-mono text-xs"
                                 >
                                     {{ locker_bank.tags[0] }}
                                 </div>

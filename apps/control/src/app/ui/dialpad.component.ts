@@ -7,7 +7,7 @@ import { TranslatePipe } from '@placeos/components';
     template: `
         <div
             dialpad
-            class="relative flex w-60 flex-wrap items-center justify-center !text-base-content"
+            class="relative flex w-60 flex-wrap items-center justify-center text-base-content!"
         >
             @for (digit of digits; track digit) {
                 <button

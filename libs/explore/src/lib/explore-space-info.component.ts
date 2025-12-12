@@ -82,7 +82,7 @@ export interface SpaceInfoData {
                         <div
                             status
                             [class]="
-                                'text-light rounded border border-white p-1 px-2 capitalize shadow ' +
+                                'text-light rounded-sm border border-white p-1 px-2 capitalize shadow-sm ' +
                                 status
                             "
                         >
@@ -135,7 +135,7 @@ export interface SpaceInfoData {
                         }
                         @if (show_event_details() && next()) {
                             @let host = next().host | user;
-                            <div class="rounded px-2 pb-1 text-xs opacity-30">
+                            <div class="rounded-sm px-2 pb-1 text-xs opacity-30">
                                 {{ current() ? 'Current' : 'Upcoming' }}
                                 booking
                             </div>

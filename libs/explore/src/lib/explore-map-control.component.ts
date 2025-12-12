@@ -18,7 +18,7 @@ import { ExploreStateService } from './explore-state.service';
                 <mat-form-field
                     overlay
                     buildings
-                    class="no-subscript min-w-[10.5rem] flex-1"
+                    class="no-subscript min-w-42 flex-1"
                     has-bld="true"
                     appearance="outline"
                 >
@@ -39,7 +39,7 @@ import { ExploreStateService } from './explore-state.service';
                 <mat-form-field
                     overlay
                     levels
-                    class="no-subscript min-w-[10.25rem] flex-1"
+                    class="no-subscript min-w-41 flex-1"
                     [attr.has-bld]="(buildings | async)?.length > 1"
                     appearance="outline"
                 >

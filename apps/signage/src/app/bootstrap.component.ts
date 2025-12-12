@@ -36,7 +36,7 @@ const STORE_BUILDING_KEY = `${STORE_PREFIX}.building`;
         <div class="absolute inset-0 bg-base-300">
             <div
                 form
-                class="absolute left-1/2 top-2 flex w-[30rem] max-w-[calc(100vw-2rem)] -translate-x-1/2 transform flex-col items-center overflow-hidden rounded bg-base-100 shadow"
+                class="absolute left-1/2 top-2 flex w-120 max-w-[calc(100vw-2rem)] -translate-x-1/2 transform flex-col items-center overflow-hidden rounded-sm bg-base-100 shadow-sm"
             >
                 <header
                     class="mb-2 w-full bg-secondary px-4 py-3 text-lg font-medium text-secondary-content"

@@ -31,7 +31,7 @@ import { LockersReportService } from './lockers-report.service';
             (window:resize)="updateCharts()"
         >
             <div
-                class="h-[18rem] w-1/2 flex-1 rounded border border-base-200 bg-base-100"
+                class="h-72 w-1/2 flex-1 rounded-sm border border-base-200 bg-base-100"
             >
                 <div class="border-b border-base-200 p-4 text-xl font-bold">
                     {{ 'APP.CONCIERGE.REPORTS_DAILY_HEADER' | translate }}
@@ -42,7 +42,7 @@ import { LockersReportService } from './lockers-report.service';
                 ></div>
             </div>
             <div
-                class="h-[18rem] w-1/2 flex-1 rounded border border-base-200 bg-base-100"
+                class="h-72 w-1/2 flex-1 rounded-sm border border-base-200 bg-base-100"
             >
                 <div class="border-b border-base-200 p-4 text-xl font-bold">
                     {{ 'APP.CONCIERGE.REPORTS_LEVEL_UTIL_HEADER' | translate }}

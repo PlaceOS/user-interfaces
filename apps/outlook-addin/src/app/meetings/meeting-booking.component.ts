@@ -15,10 +15,10 @@ import { MeetingBookingFormComponent } from './meeting-form.component';
     template: `
         <div class="absolute inset-0 overflow-auto bg-base-200">
             <div
-                class="mx-auto w-[40rem] max-w-full border-x border-base-300 bg-base-100 pt-2"
+                class="mx-auto w-160 max-w-full border-x border-base-300 bg-base-100 pt-2"
             >
                 <header
-                    class="sticky top-0 z-10 mx-auto mb-2 flex h-14 w-full max-w-[calc(100%-1rem)] items-center justify-between rounded border-none bg-base-200 px-4 py-2"
+                    class="sticky top-0 z-10 mx-auto mb-2 flex h-14 w-full max-w-[calc(100%-1rem)] items-center justify-between rounded-sm border-none bg-base-200 px-4 py-2"
                 >
                     <h2 class="text-xl font-medium capitalize">Book Meeting</h2>
                 </header>

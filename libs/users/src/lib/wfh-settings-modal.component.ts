@@ -31,7 +31,7 @@ import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.componen
     selector: `wfh-settings-modal`,
     template: `
         <header
-            class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded border-none bg-base-200 p-2"
+            class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none bg-base-200 p-2"
         >
             <h2 class="px-2 text-xl font-medium">
                 {{ 'COMMON.WORK_LOCATION_SETTINGS' | translate }}
@@ -44,10 +44,10 @@ import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.componen
         </header>
         @if (!loading) {
             <main
-                class="relative flex max-h-[calc(100vh-9rem)] w-[40rem] max-w-full flex-col space-y-2 overflow-y-auto overflow-x-hidden rounded px-2 py-4 sm:max-h-[65vh] sm:p-4"
+                class="relative flex max-h-[calc(100vh-9rem)] w-160 max-w-full flex-col space-y-2 overflow-y-auto overflow-x-hidden rounded-sm px-2 py-4 sm:max-h-[65vh] sm:p-4"
             >
                 <div
-                    class="relative mb-4 flex w-full items-center justify-between space-x-2 rounded border border-base-300 p-2"
+                    class="relative mb-4 flex w-full items-center justify-between space-x-2 rounded-sm border border-base-300 p-2"
                 >
                     @for (day of days; track day) {
                         <div class="flex flex-1 flex-col items-center pt-2">
@@ -71,12 +71,12 @@ import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.componen
                 </div>
                 @if (has_working_days) {
                     <div
-                        class="relative flex w-full flex-col items-center justify-between space-y-4 rounded border border-base-300 px-2 pb-4 pt-6 sm:px-4"
+                        class="relative flex w-full flex-col items-center justify-between space-y-4 rounded-sm border border-base-300 px-2 pb-4 pt-6 sm:px-4"
                     >
                         @for (day of days; track day) {
                             @if (weekdays_enabled[day.getDay()]) {
                                 <div
-                                    class="relative flex w-full items-center justify-between space-x-2 rounded border border-base-200 p-2"
+                                    class="relative flex w-full items-center justify-between space-x-2 rounded-sm border border-base-200 p-2"
                                 >
                                     <div class="w-1/2 flex-1 space-y-2 pt-2">
                                         @for (
@@ -170,7 +170,7 @@ import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.componen
                                                                 i
                                                             )
                                                         "
-                                                        class="h-12 w-12 rounded border border-base-400"
+                                                        class="h-12 w-12 rounded-sm border border-base-400"
                                                     >
                                                         <icon>add</icon>
                                                     </button>
@@ -179,7 +179,7 @@ import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.componen
                                                     <button
                                                         icon
                                                         matRipple
-                                                        class="h-12 w-12 rounded border border-error text-error"
+                                                        class="h-12 w-12 rounded-sm border border-error text-error"
                                                         (click)="
                                                             removeBlock(
                                                                 settings[
@@ -196,7 +196,7 @@ import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.componen
                                         }
                                     </div>
                                     <h3
-                                        class="absolute left-2 top-0 -translate-y-1/2 rounded border border-base-200 bg-base-100 bg-opacity-50 px-2 text-sm font-medium"
+                                        class="absolute left-2 top-0 -translate-y-1/2 rounded-sm border border-base-200 bg-base-100 bg-opacity-50 px-2 text-sm font-medium"
                                     >
                                         {{ day | date: 'EEEE' }}
                                     </h3>
@@ -204,7 +204,7 @@ import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.componen
                             }
                         }
                         <h3
-                            class="absolute left-2 top-0 !m-0 -translate-y-1/2 bg-base-100 px-2"
+                            class="absolute left-2 top-0 m-0! -translate-y-1/2 bg-base-100 px-2"
                         >
                             {{ 'COMMON.WORK_HOURS' | translate }}
                         </h3>
@@ -223,7 +223,7 @@ import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.componen
         } @else {
             <div
                 loading
-                class="relative flex h-[18rem] w-[24rem] flex-col items-center justify-center space-y-2 overflow-hidden rounded bg-base-100 text-center"
+                class="relative flex h-72 w-[24rem] flex-col items-center justify-center space-y-2 overflow-hidden rounded-sm bg-base-100 text-center"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <p class="opacity-30">

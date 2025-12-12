@@ -38,7 +38,7 @@ import { SplitJoinPipe } from './split-join.pipe';
             </div>
             <div class="h-1/2 w-full flex-1 overflow-auto pt-2">
                 <simple-table
-                    class="block min-w-[82rem] text-sm"
+                    class="block min-w-328 text-sm"
                     asset-requests
                     [data]="requests"
                     [filter]="(filters | async)?.search"
@@ -211,7 +211,7 @@ import { SplitJoinPipe } from './split-join.pipe';
             <div class="px-4 py-2">
                 <button
                     matRipple
-                    class="flex w-full items-center rounded bg-none px-2 py-1 text-left"
+                    class="flex w-full items-center rounded-sm bg-none px-2 py-1 text-left"
                     [matMenuTriggerFor]="tracking_menu"
                     (click)="$event.stopPropagation()"
                     [disabled]="loading[row.id]"

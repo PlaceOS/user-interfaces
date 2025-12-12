@@ -34,10 +34,10 @@ import {
     template: `
         <div class="absolute inset-0 overflow-auto bg-base-200">
             <div
-                class="absolute left-1/2 top-0 h-full w-[41rem] max-w-full -translate-x-1/2 border-x border-base-300 bg-base-100"
+                class="absolute left-1/2 top-0 h-full w-164 max-w-full -translate-x-1/2 border-x border-base-300 bg-base-100"
             ></div>
             <header
-                class="sticky top-0 z-20 mx-auto my-2 flex w-full max-w-[40rem] items-center justify-between rounded border-none bg-base-200 px-4 py-2"
+                class="sticky top-0 z-20 mx-auto my-2 flex w-full max-w-160 items-center justify-between rounded-sm border-none bg-base-200 px-4 py-2"
             >
                 <h2 class="text-xl font-medium">
                     {{
@@ -54,7 +54,7 @@ import {
                 }
             </header>
             <form
-                class="relative z-10 mx-auto w-full max-w-[40rem] overflow-visible p-2"
+                class="relative z-10 mx-auto w-full max-w-160 overflow-visible p-2"
                 [formGroup]="form"
             >
                 <div class="flex items-center space-x-4">
@@ -89,7 +89,7 @@ import {
                             {{ 'COMMON.TRIGGER' | translate }}
                         </label>
                         <button
-                            class="inverse flex h-12 w-full items-center justify-between rounded border border-base-300 px-2"
+                            class="inverse flex h-12 w-full items-center justify-between rounded-sm border border-base-300 px-2"
                             btn
                             matRipple
                             [matMenuTriggerFor]="trigger_menu"
@@ -114,7 +114,7 @@ import {
                             </div>
                             <icon class="text-2xl"> arrow_drop_down </icon>
                         </button>
-                        <mat-menu #trigger_menu="matMenu" class="max-h-[24rem]">
+                        <mat-menu #trigger_menu="matMenu" class="max-h-96">
                             <button
                                 mat-menu-item
                                 (click)="form.patchValue({ trigger: '' })"
@@ -177,7 +177,7 @@ import {
                                 | translate
                         }}
                     </button>
-                    <mat-menu #tracking_menu="matMenu" class="max-h-[24rem]">
+                    <mat-menu #tracking_menu="matMenu" class="max-h-96">
                         @for (
                             field of active_trigger?.fields || [];
                             track field
@@ -260,7 +260,7 @@ import {
             </form>
             @if (!loading) {
                 <footer
-                    class="fixed bottom-0 left-1/2 z-20 mx-auto my-2 flex w-full max-w-[640px] -translate-x-1/2 items-center justify-end rounded border-none bg-base-200 px-4 py-2"
+                    class="fixed bottom-0 left-1/2 z-20 mx-auto my-2 flex w-full max-w-[640px] -translate-x-1/2 items-center justify-end rounded-sm border-none bg-base-200 px-4 py-2"
                 >
                     <button btn matRipple class="w-40" (click)="save()">
                         {{ 'APP.CONCIERGE.EMAIL_TEMPLATES_SAVE' | translate }}

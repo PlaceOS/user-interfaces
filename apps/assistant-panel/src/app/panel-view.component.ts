@@ -143,7 +143,7 @@ declare let loadVosklet: any;
                     @if (progress | async) {
                         <div class="p-4">
                             <button
-                                class="block w-full rounded border-base-300 bg-info p-2 text-info-content"
+                                class="block w-full rounded-sm border-base-300 bg-info p-2 text-info-content"
                                 (click)="show_info = !show_info"
                             >
                                 <div class="flex items-center space-x-2">
@@ -159,14 +159,14 @@ declare let loadVosklet: any;
                                     </p>
                                 </div>
                                 <div
-                                    class="relative w-full overflow-hidden rounded"
+                                    class="relative w-full overflow-hidden rounded-sm"
                                 >
                                     <div
                                         class="absolute inset-0 bg-base-100 opacity-10"
                                     ></div>
                                     @if (show_info) {
                                         <div
-                                            class="text-mono break-words p-2 text-left text-xs"
+                                            class="text-mono wrap-break-word p-2 text-left text-xs"
                                             [innerHTML]="
                                                 (progress | async).content
                                                     | sanitize
@@ -201,7 +201,7 @@ declare let loadVosklet: any;
             <button
                 icon
                 matRipple
-                class="absolute left-2 top-2 h-12 w-12 bg-error text-error-content shadow"
+                class="absolute left-2 top-2 h-12 w-12 bg-error text-error-content shadow-sm"
                 (click)="endService()"
             >
                 <icon class="text-2xl">call_end</icon>

@@ -71,7 +71,7 @@ export interface CateringOrderModalData {
                                                     }
                                                 </div>
                                                 <div
-                                                    class="mx-2 rounded bg-primary px-4 py-2 text-xs font-medium text-white"
+                                                    class="mx-2 rounded-sm bg-primary px-4 py-2 text-xs font-medium text-white"
                                                 >
                                                     {{
                                                         item.unit_price / 100
@@ -139,7 +139,7 @@ export interface CateringOrderModalData {
                         }
                     </mat-tab-group>
                 } @else {
-                    <header class="h-[3.25rem]">
+                    <header class="h-13">
                         <h3>
                             {{ 'CATERING.ORDERS_CONFIRM' | translate }}
                         </h3>
@@ -172,7 +172,7 @@ export interface CateringOrderModalData {
                                     }
                                 </div>
                                 <div
-                                    class="mx-2 rounded bg-primary px-4 py-2 text-xs font-medium text-white"
+                                    class="mx-2 rounded-sm bg-primary px-4 py-2 text-xs font-medium text-white"
                                 >
                                     {{ item.total_cost / 100 | currency: code }}
                                 </div>

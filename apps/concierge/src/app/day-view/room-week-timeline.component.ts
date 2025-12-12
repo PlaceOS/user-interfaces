@@ -128,7 +128,7 @@ import { RoomBookingSearchComponent } from './room-booking-search.component';
                         ) {
                             <button
                                 matRipple
-                                class="flex w-full space-x-2 rounded p-2 text-left hover:bg-base-200"
+                                class="flex w-full space-x-2 rounded-sm p-2 text-left hover:bg-base-200"
                                 (click)="viewEvent(event)"
                             >
                                 <div

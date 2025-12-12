@@ -36,13 +36,13 @@ import { NewLockerMapComponent } from './new-locker-map.component';
             [style.height]="is_safari ? 'calc(100vh - 80px)' : ''"
         >
             <header
-                class="flex h-14 w-full items-center space-x-2 rounded border-none bg-base-200 p-2"
+                class="flex h-14 w-full items-center space-x-2 rounded-sm border-none bg-base-200 p-2"
             >
                 <h2 class="flex-1 px-2 text-xl font-medium capitalize">
                     {{ 'BOOKINGS.DESK_FIND' | translate }}
                 </h2>
                 <div
-                    class="flex divide-x divide-secondary rounded border border-secondary"
+                    class="flex divide-x divide-secondary rounded-sm border border-secondary"
                 >
                     <button
                         icon
@@ -77,7 +77,7 @@ import { NewLockerMapComponent } from './new-locker-map.component';
                 class="relative flex h-1/2 max-h-[calc(100vh-7rem)] flex-1 sm:h-[65vh] sm:flex-none sm:space-x-2"
             >
                 <div
-                    class="h-full w-full overflow-y-auto overflow-x-hidden rounded border border-base-300 shadow sm:block sm:w-[20rem]"
+                    class="h-full w-full overflow-y-auto overflow-x-hidden rounded-sm border border-base-300 shadow-sm sm:block sm:w-[20rem]"
                     [class.hidden]="!show_filters"
                 >
                     <new-locker-filters
@@ -85,7 +85,7 @@ import { NewLockerMapComponent } from './new-locker-map.component';
                     ></new-locker-filters>
                 </div>
                 <div
-                    class="h-full w-full overflow-auto rounded border border-base-300 bg-base-200 sm:w-[20rem] md:w-[40rem] lg:block"
+                    class="h-full w-full overflow-auto rounded-sm border border-base-300 bg-base-200 sm:w-[20rem] md:w-160 lg:block"
                     [class.hidden]="show_filters"
                     [class.p-2]="view === 'list'"
                 >
@@ -155,7 +155,7 @@ import { NewLockerMapComponent } from './new-locker-map.component';
                 }
             </main>
             <footer
-                class="flex w-full items-center justify-between space-x-2 rounded border-none bg-base-200 p-2"
+                class="flex w-full items-center justify-between space-x-2 rounded-sm border-none bg-base-200 p-2"
             >
                 <button
                     btn

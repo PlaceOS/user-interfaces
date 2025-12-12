@@ -159,7 +159,7 @@ import { ParkingStateService } from './parking-state.service';
                 <button
                     icon
                     matRipple
-                    class="h-12 w-12 rounded bg-secondary text-secondary-content"
+                    class="h-12 w-12 rounded-sm bg-secondary text-secondary-content"
                     (click)="manageRestrictions()"
                     [matTooltip]="
                         'APP.CONCIERGE.PARKING_BOOKING_RULES' | translate
@@ -175,12 +175,12 @@ import { ParkingStateService } from './parking-state.service';
                 >
                     {{ (bookings | async)?.length || 0 }} of
                     {{ (spaces | async)?.length || '' }}
-                    <icon class="!ml-1 text-lg">car_lock</icon>
+                    <icon class="ml-1! text-lg">car_lock</icon>
                     @let percent =
                         ((bookings | async)?.length || 0) /
                         ((spaces | async)?.length || 0);
                     <span
-                        class="rounded px-2 py-1 font-mono text-xs"
+                        class="rounded-sm px-2 py-1 font-mono text-xs"
                         [class.bg-error]="percent === 100"
                         [class.text-error-content]="percent === 100"
                         [class.bg-warning]="percent > 50 && percent < 100"

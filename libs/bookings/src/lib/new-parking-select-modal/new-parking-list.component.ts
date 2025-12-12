@@ -28,8 +28,8 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
                     @for (space of assets | async; track space) {
                         <li
                             space
-                            [class.!border-info]="active() === space.id"
-                            class="relative w-full rounded-lg border border-base-200 bg-base-100 p-2 shadow"
+                            [class.border-info!]="active() === space.id"
+                            class="relative w-full rounded-lg border border-base-200 bg-base-100 p-2 shadow-sm"
                         >
                             <button
                                 matRipple

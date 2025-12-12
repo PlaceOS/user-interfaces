@@ -66,13 +66,13 @@ export async function openConfirmModal(
     selector: 'confirm-modal',
     template: `
         <header
-            class="sticky top-0 z-10 m-2 h-14 w-[calc(100%-1rem)] min-w-[20rem] rounded border-none bg-base-200 p-2"
+            class="sticky top-0 z-10 m-2 h-14 w-[calc(100%-1rem)] min-w-[20rem] rounded-sm border-none bg-base-200 p-2"
         >
             <h2 class="px-2 text-xl font-medium">{{ title }}</h2>
         </header>
         @if (!loading) {
             <main
-                class="flex w-[28rem] max-w-[85vw] flex-col items-center space-y-4 p-4 sm:h-auto"
+                class="flex w-md max-w-[85vw] flex-col items-center space-y-4 p-4 sm:h-auto"
             >
                 <icon [icon]="icon" class="text-5xl"></icon>
                 <p content class="text-center" [innerHTML]="content"></p>
@@ -89,7 +89,7 @@ export async function openConfirmModal(
         }
         @if (!loading) {
             <footer
-                class="sticky bottom-0 m-2 flex items-center justify-center space-x-2 rounded border-none bg-base-200 p-2"
+                class="sticky bottom-0 m-2 flex items-center justify-center space-x-2 rounded-sm border-none bg-base-200 p-2"
             >
                 <button
                     btn

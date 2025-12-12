@@ -28,7 +28,7 @@ import { lastValueFrom } from 'rxjs';
     selector: 'induction-settings-modal',
     template: `
         <header
-            class="m-2 flex h-14 w-[calc(100%-1rem)] items-center justify-between rounded border-none bg-base-200 px-4 py-2"
+            class="m-2 flex h-14 w-[calc(100%-1rem)] items-center justify-between rounded-sm border-none bg-base-200 px-4 py-2"
         >
             <h3 class="text-xl font-medium">
                 {{ 'APP.CONCIERGE.INDUCTION_HEADER' | translate }}
@@ -47,7 +47,7 @@ import { lastValueFrom } from 'rxjs';
                 ></settings-toggle>
                 <mat-form-field
                     appearance="outline"
-                    class="h-[50vh] w-[36rem] max-w-[80vw]"
+                    class="h-[50vh] w-xl max-w-[80vw]"
                 >
                     <textarea
                         matInput
@@ -55,7 +55,7 @@ import { lastValueFrom } from 'rxjs';
                         [placeholder]="
                             'APP.CONCIERGE.INDUCTION_DETAILS' | translate
                         "
-                        class="h-[calc(50vh-2rem)] w-[34rem] max-w-[calc(80vw-2rem)] resize-none"
+                        class="h-[calc(50vh-2rem)] w-136 max-w-[calc(80vw-2rem)] resize-none"
                     ></textarea>
                 </mat-form-field>
             </main>

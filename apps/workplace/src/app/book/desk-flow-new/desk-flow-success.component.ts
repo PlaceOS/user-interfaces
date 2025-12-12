@@ -55,7 +55,7 @@ import { forkJoin, lastValueFrom } from 'rxjs';
                 }
                 <img src="assets/icons/success.svg" />
                 @if (last_event) {
-                    <p class="max-w-[40rem] text-center">
+                    <p class="max-w-160 text-center">
                         @let details =
                             {
                                 date:
@@ -181,7 +181,7 @@ import { forkJoin, lastValueFrom } from 'rxjs';
                             btn
                             matRipple
                             name="desk-outlook-link"
-                            class="inverse flex w-64 items-center space-x-2 rounded p-2 pr-4"
+                            class="inverse flex w-64 items-center space-x-2 rounded-sm p-2 pr-4"
                             [href]="outlook_link() | sanitize: 'url'"
                             target="_blank"
                             rel="noopener noreferer"
@@ -195,7 +195,7 @@ import { forkJoin, lastValueFrom } from 'rxjs';
                             btn
                             matRipple
                             name="desk-google-link"
-                            class="inverse flex w-64 items-center space-x-2 rounded p-2 pr-4"
+                            class="inverse flex w-64 items-center space-x-2 rounded-sm p-2 pr-4"
                             [href]="google_link() | sanitize: 'url'"
                             target="_blank"
                             rel="noopener noreferer"
@@ -209,7 +209,7 @@ import { forkJoin, lastValueFrom } from 'rxjs';
                             btn
                             matRipple
                             name="desk-ical-link"
-                            class="inverse flex w-64 items-center space-x-2 rounded p-2 pr-4"
+                            class="inverse flex w-64 items-center space-x-2 rounded-sm p-2 pr-4"
                             [href]="ical_link() | safe: 'url'"
                             target="_blank"
                             rel="noopener noreferer"
@@ -227,7 +227,7 @@ import { forkJoin, lastValueFrom } from 'rxjs';
                     btn
                     name="desk-confirm-continue"
                     matRipple
-                    class="mx-auto w-full max-w-[32rem]"
+                    class="mx-auto w-full max-w-lg"
                     [routerLink]="['/']"
                 >
                     {{ 'APP.WORKPLACE.BOOKING_FINISHED' | translate }}

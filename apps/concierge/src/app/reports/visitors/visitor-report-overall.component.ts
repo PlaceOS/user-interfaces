@@ -10,7 +10,7 @@ import { VisitorsReportService } from './visitors-report.service';
     selector: 'visitor-report-overall',
     template: `
         <div
-            class="m-4 flex items-center justify-center space-x-2 rounded border border-base-200 bg-base-100 p-4"
+            class="m-4 flex items-center justify-center space-x-2 rounded-sm border border-base-200 bg-base-100 p-4"
         >
             <div class="flex flex-1 flex-col items-center">
                 <h3 class="text-sm">

@@ -28,7 +28,7 @@ export interface DurationOption {
     template: `
         <button
             duration-field
-            class="flex h-12 w-full items-center justify-between rounded border border-neutral px-2"
+            class="flex h-12 w-full items-center justify-between rounded-sm border border-neutral px-2"
             [disabled]="disabled()"
             [class.opacity-30]="disabled()"
             matRipple
@@ -56,7 +56,7 @@ export interface DurationOption {
             </div>
             <icon class="text-2xl">arrow_drop_down</icon>
         </button>
-        <mat-menu #menu="matMenu" class="max-h-[15rem] min-w-[18rem]">
+        <mat-menu #menu="matMenu" class="max-h-60 min-w-[18rem]">
             @for (option of duration_options; track option.id) {
                 <button
                     mat-menu-item

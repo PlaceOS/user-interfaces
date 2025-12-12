@@ -11,7 +11,7 @@ import { CheckinStateService } from './checkin-state.service';
     selector: '[checkin-covid]',
     template: `
         <div
-            class="relative overflow-y-auto overflow-x-hidden rounded bg-base-100 p-4"
+            class="relative overflow-y-auto overflow-x-hidden rounded-sm bg-base-100 p-4"
         >
             <h3 class="mb-4 text-xl font-medium">COVID Disclaimer</h3>
             <ol class="list-inside list-decimal">

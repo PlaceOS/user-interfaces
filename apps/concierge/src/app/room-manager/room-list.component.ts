@@ -16,7 +16,7 @@ import { RoomManagementService } from './room-management.service';
     template: `
         <div class="absolute inset-0 overflow-auto px-8">
             <simple-table
-                class="block min-w-[56rem] text-sm"
+                class="block min-w-4xl text-sm"
                 [data]="rooms"
                 empty_message="No rooms for selected level or building"
                 [columns]="[
@@ -94,7 +94,7 @@ import { RoomManagementService } from './room-management.service';
                 <div
                     [class.bg-error]="!data"
                     [class.bg-success]="data"
-                    class="mx-auto flex h-8 w-8 items-center justify-center rounded text-2xl text-white"
+                    class="mx-auto flex h-8 w-8 items-center justify-center rounded-sm text-2xl text-white"
                 >
                     <icon>{{ data ? 'done' : 'close' }}</icon>
                 </div>
@@ -110,7 +110,7 @@ import { RoomManagementService } from './room-management.service';
                     [class.text-error-content]="data.status === 'closed'"
                     [class.text-info-content]="data.status === 'info'"
                     [matTooltip]="data.message"
-                    class="mx-auto flex h-8 w-8 items-center justify-center rounded text-2xl text-white"
+                    class="mx-auto flex h-8 w-8 items-center justify-center rounded-sm text-2xl text-white"
                 >
                     <icon>{{
                         data.status === 'warn'
@@ -127,7 +127,7 @@ import { RoomManagementService } from './room-management.service';
                 <button
                     icon
                     matRipple
-                    class="h-12 w-12 rounded"
+                    class="h-12 w-12 rounded-sm"
                     [matMenuTriggerFor]="menu"
                 >
                     <icon>more_vert</icon>

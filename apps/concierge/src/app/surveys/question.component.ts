@@ -68,7 +68,7 @@ import { QuestionType, QuestionTypeOptions } from './types';
             }
 
             <div
-                class="my-2 flex w-full flex-col rounded border-base-200"
+                class="my-2 flex w-full flex-col rounded-sm border-base-200"
                 [class.border]="!is_card()"
                 [class.p-4]="!is_card()"
             >
@@ -171,7 +171,7 @@ import { QuestionType, QuestionTypeOptions } from './types';
                                         <button
                                             icon
                                             matRipple
-                                            class="h-12 min-w-12 rounded border border-error text-error"
+                                            class="h-12 min-w-12 rounded-sm border border-error text-error"
                                             (click)="deleteOption(i)"
                                         >
                                             <icon> delete_outline</icon>
@@ -251,7 +251,7 @@ import { QuestionType, QuestionTypeOptions } from './types';
                             @for (idx of rating_options; track idx) {
                                 <button
                                     matRipple
-                                    class="h-12 w-12 border-y border-secondary first:rounded-l first:border-l last:rounded-r last:!border-r"
+                                    class="h-12 w-12 border-y border-secondary first:rounded-l first:border-l last:rounded-r last:border-r!"
                                 >
                                     {{ idx }}
                                 </button>
@@ -344,7 +344,7 @@ export class QuestionComponent implements AfterViewInit, OnInit {
                 'border',
                 'border-base-400',
                 'bg-base-100',
-                'shadow',
+                'shadow-sm',
             );
         }
     }

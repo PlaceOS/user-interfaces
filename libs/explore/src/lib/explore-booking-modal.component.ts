@@ -37,7 +37,7 @@ export interface ExploreBookingModalData {
     selector: 'explore-booking-modal',
     template: `
         <header
-            class="sticky top-0 z-10 m-2 h-14 w-[calc(100%-1rem)] rounded border-none bg-base-200 p-2"
+            class="sticky top-0 z-10 m-2 h-14 w-[calc(100%-1rem)] rounded-sm border-none bg-base-200 p-2"
         >
             <h2 class="px-2 text-xl font-medium">
                 {{ 'EXPLORE.BOOKING_HEADER' | translate }}
@@ -85,7 +85,7 @@ export interface ExploreBookingModalData {
                         >
                         <div
                             name="space"
-                            class="mb-4 w-full rounded border border-base-200 px-4 py-3"
+                            class="mb-4 w-full rounded-sm border border-base-200 px-4 py-3"
                         >
                             {{
                                 form.controls.resources?.value[0]
@@ -95,7 +95,7 @@ export interface ExploreBookingModalData {
                         </div>
                         @if (alert()?.[0]) {
                             <div
-                                class="-mt-2 mb-4 rounded px-2 py-1 text-xs"
+                                class="-mt-2 mb-4 rounded-sm px-2 py-1 text-xs"
                                 [class.bg-info]="alert()[0] === 'info'"
                                 [class.text-info-content]="
                                     alert()[0] === 'info'
@@ -118,7 +118,7 @@ export interface ExploreBookingModalData {
                             <div class="flex w-full flex-1 flex-col sm:w-auto">
                                 <label>{{ 'FORM.DATE' | translate }}:</label>
                                 <div
-                                    class="mb-4 w-full rounded border border-base-200 px-4 py-3"
+                                    class="mb-4 w-full rounded-sm border border-base-200 px-4 py-3"
                                 >
                                     {{ form.value.date | date: 'mediumDate' }}
                                     at

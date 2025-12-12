@@ -22,7 +22,7 @@ import { DateFieldComponent } from './date-field.component';
     selector: 'recurrence-modal',
     template: `
         <header
-            class="m-2 flex h-14 w-[calc(100%-1rem)] items-center justify-between rounded border-none bg-base-200 px-4 py-2"
+            class="m-2 flex h-14 w-[calc(100%-1rem)] items-center justify-between rounded-sm border-none bg-base-200 px-4 py-2"
         >
             <h3 class="text-xl font-medium">
                 {{ 'FORM.RECURRENCE_CUSTOM_HEADER' | translate }}
@@ -82,7 +82,7 @@ import { DateFieldComponent } from './date-field.component';
                         <button
                             icon
                             matRipple
-                            class="h-12 w-12 rounded border border-secondary"
+                            class="h-12 w-12 rounded-sm border border-secondary"
                             [class.bg-secondary]="has_date"
                             [class.text-secondary]="!has_date"
                             [class.text-base-200]="has_date"

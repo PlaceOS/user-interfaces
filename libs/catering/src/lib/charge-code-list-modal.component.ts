@@ -20,7 +20,7 @@ import { CateringStateService } from './catering-state.service';
     selector: 'charge-code-list-modal',
     template: `
         <header
-            class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded border-none bg-base-200 p-2"
+            class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none bg-base-200 p-2"
         >
             <h2 class="px-2 text-xl font-medium">
                 {{ 'CATERING.CHARGE_CODES_EDIT' | translate }}
@@ -33,7 +33,7 @@ import { CateringStateService } from './catering-state.service';
         </header>
         @if (!loading()) {
             <main
-                class="flex max-h-[65vh] min-h-[20rem] flex-col overflow-auto"
+                class="flex max-h-[65vh] min-h-80 flex-col overflow-auto"
             >
                 @if (charge_codes().length) {
                     @for (code of charge_codes(); track i; let i = $index) {
@@ -55,7 +55,7 @@ import { CateringStateService } from './catering-state.service';
                             <button
                                 icon
                                 matRipple
-                                class="h-12 w-12 rounded border border-error text-error"
+                                class="h-12 w-12 rounded-sm border border-error text-error"
                                 [matTooltip]="
                                     'CATERING.CHARGE_CODES_REMOVE' | translate
                                 "
@@ -67,7 +67,7 @@ import { CateringStateService } from './catering-state.service';
                     }
                 } @else {
                     <main
-                        class="flex h-full min-h-[20rem] w-full flex-col items-center justify-center space-y-2"
+                        class="flex h-full min-h-80 w-full flex-col items-center justify-center space-y-2"
                     >
                         <p class="opacity-30">
                             {{ 'CATERING.CHARGE_CODE_EMPTY' | translate }}
@@ -100,7 +100,7 @@ import { CateringStateService } from './catering-state.service';
                     matRipple
                     (click)="downloadTemplate()"
                     [matTooltip]="'CATERING.CHARGE_CODE_DOWNLOAD' | translate"
-                    class="h-12 w-12 rounded border border-secondary text-secondary"
+                    class="h-12 w-12 rounded-sm border border-secondary text-secondary"
                 >
                     <icon>download</icon>
                 </button>

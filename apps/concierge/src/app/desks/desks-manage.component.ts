@@ -41,7 +41,7 @@ const QR_CODES = {};
             (window:dragend)="handleDrag('end', $event)"
         >
             <simple-table
-                class="block w-full min-w-[72rem] text-sm"
+                class="block w-full min-w-6xl text-sm"
                 [filter]="filters().search"
                 [data]="desks()"
                 [columns]="[
@@ -119,7 +119,7 @@ const QR_CODES = {};
                 <div
                     [class.bg-error]="!data"
                     [class.bg-success]="data"
-                    class="mx-auto flex h-8 w-8 items-center justify-center rounded text-2xl text-white"
+                    class="mx-auto flex h-8 w-8 items-center justify-center rounded-sm text-2xl text-white"
                 >
                     <icon>{{ data ? 'done' : 'close' }}</icon>
                 </div>
@@ -179,7 +179,7 @@ const QR_CODES = {};
                         <icon class="text-error">delete</icon>
                     </button>
                     <ng-template #qr_menu>
-                        <div class="rounded bg-base-100 py-2 shadow">
+                        <div class="rounded-sm bg-base-100 py-2 shadow-sm">
                             <div class="" printable [content]="print_content">
                                 <ng-template #print_content>
                                     <a
@@ -191,7 +191,7 @@ const QR_CODES = {};
                                         <img class="w-48" [src]="row.qr_code" />
                                     </a>
                                     <div
-                                        class="mx-4 mt-2 w-[calc(100%-2rem)] rounded bg-base-200 p-2 text-center font-mono text-sm"
+                                        class="mx-4 mt-2 w-[calc(100%-2rem)] rounded-sm bg-base-200 p-2 text-center font-mono text-sm"
                                     >
                                         {{ row.name || row.id }}
                                     </div>
@@ -226,9 +226,9 @@ const QR_CODES = {};
                 <div
                     class="absolute inset-0 flex items-center justify-center bg-neutral"
                 >
-                    <div class="rounded bg-base-100 p-4 shadow">
+                    <div class="rounded-sm bg-base-100 p-4 shadow-sm">
                         <div
-                            class="flex h-64 w-64 flex-col items-center justify-center rounded border-4 border-dashed border-base-200"
+                            class="flex h-64 w-64 flex-col items-center justify-center rounded-sm border-4 border-dashed border-base-200"
                         >
                             {{
                                 'APP.CONCIERGE.DESKS_DROP_TEMPLATE' | translate

@@ -13,13 +13,13 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
     template: `
         @if (!call()) {
             <div
-                class="my-2 flex flex-col items-center rounded bg-base-100 shadow"
+                class="my-2 flex flex-col items-center rounded-sm bg-base-100 shadow-sm"
             >
                 <video-call-dial-view (close)="close()"></video-call-dial-view>
             </div>
         } @else {
             <div
-                class="my-2 flex flex-col items-center space-y-2 rounded bg-base-100 p-2 shadow"
+                class="my-2 flex flex-col items-center space-y-2 rounded-sm bg-base-100 p-2 shadow-sm"
             >
                 <h3 class="w-full p-2 text-center font-medium">
                     {{ 'APP.CONTROL.VC_IN_CALL' | translate }}

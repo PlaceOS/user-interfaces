@@ -14,10 +14,10 @@ import { ControlStateService } from '../control-state.service';
     selector: 'lighting-tooltip',
     template: `
         <div
-            class="my-2 flex flex-col items-center space-y-2 rounded bg-base-100 px-2 pb-4 pt-2 shadow"
+            class="my-2 flex flex-col items-center space-y-2 rounded-sm bg-base-100 px-2 pb-4 pt-2 shadow-sm"
         >
             <h3
-                class="w-full rounded bg-base-200 px-4 py-2 text-xl font-medium"
+                class="w-full rounded-sm bg-base-200 px-4 py-2 text-xl font-medium"
             >
                 {{ 'APP.CONTROL.ACTION_LIGHT_SCENES' | translate }}
             </h3>

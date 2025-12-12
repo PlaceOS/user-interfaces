@@ -20,7 +20,7 @@ import { BookingAsset } from '../booking-form.service';
                 [class.h-64]="space().images?.length"
                 [class.sm:h-0]="!space().images?.length"
                 [class.h-12]="!space().images?.length"
-                [class.!bg-transparent]="!space().images?.length"
+                [class.bg-transparent!]="!space().images?.length"
             >
                 @if (space().images?.length) {
                     <image-carousel
@@ -42,7 +42,7 @@ import { BookingAsset } from '../booking-form.service';
                     matRipple
                     fav
                     [class.text-info-content]="fav()"
-                    [class.!bg-info]="fav()"
+                    [class.bg-info!]="fav()"
                     (click)="toggleFav.emit()"
                     class="absolute right-2 top-2 bg-base-200"
                 >
@@ -81,7 +81,7 @@ import { BookingAsset } from '../booking-form.service';
                 @if (!hide_map()) {
                     <section
                         map
-                        class="relative mx-auto h-64 w-full overflow-hidden rounded border border-base-200 sm:h-48"
+                        class="relative mx-auto h-64 w-full overflow-hidden rounded-sm border border-base-200 sm:h-48"
                     >
                         <interactive-map
                             class="pointer-events-none"

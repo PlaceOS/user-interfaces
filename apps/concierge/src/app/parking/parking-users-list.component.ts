@@ -21,7 +21,7 @@ import { ParkingStateService } from './parking-state.service';
             class="w-full"
         />
         <simple-table
-            class="block min-w-[68rem] text-sm"
+            class="block min-w-272 text-sm"
             [data]="user_list"
             [columns]="[
                 {
@@ -70,7 +70,7 @@ import { ParkingStateService } from './parking-state.service';
         <ng-template #denied_template let-data="data">
             @if (data) {
                 <div
-                    class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-error text-2xl text-error-content"
+                    class="mx-auto flex h-8 w-8 items-center justify-center rounded-sm bg-error text-2xl text-error-content"
                 >
                     <icon>close</icon>
                 </div>

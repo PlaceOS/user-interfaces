@@ -35,7 +35,7 @@ import { AssetsReportService } from './assets-report.service';
             class="relative h-1/2 w-full flex-1 overflow-auto print:h-auto print:overflow-visible"
         >
             <div class="w-full">
-                <div class="m-4 flex items-center rounded bg-base-200 p-4">
+                <div class="m-4 flex items-center rounded-sm bg-base-200 p-4">
                     <img
                         auth
                         class="h-12"

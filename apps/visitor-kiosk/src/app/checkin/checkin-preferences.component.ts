@@ -41,7 +41,7 @@ import { CheckinStateService } from './checkin-state.service';
     template: `
         @if (!loading()) {
             <div
-                class="relative flex w-[36rem] flex-col items-center overflow-hidden rounded bg-base-100 p-4 shadow"
+                class="relative flex w-xl flex-col items-center overflow-hidden rounded-sm bg-base-100 p-4 shadow-sm"
             >
                 @let has_beverage = !!(event | async)?.extension_data.beverage;
                 <h3 class="mb-2 w-full text-xl">
@@ -65,7 +65,7 @@ import { CheckinStateService } from './checkin-state.service';
                 </div>
                 @if (has_beverage) {
                     <div
-                        class="rounded bg-warning px-2 py-1 text-warning-content"
+                        class="rounded-sm bg-warning px-2 py-1 text-warning-content"
                     >
                         You have already selected a beverage.
                     </div>
@@ -97,7 +97,7 @@ import { CheckinStateService } from './checkin-state.service';
             </div>
         } @else {
             <div
-                class="relative flex h-[20rem] w-[28rem] flex-col items-center justify-center space-y-2 overflow-hidden rounded bg-base-100 p-8 shadow"
+                class="relative flex h-80 w-md flex-col items-center justify-center space-y-2 overflow-hidden rounded-sm bg-base-100 p-8 shadow-sm"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <div>

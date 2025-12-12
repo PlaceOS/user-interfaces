@@ -32,7 +32,7 @@ import { SplitJoinPipe } from './split-join.pipe';
                 {{ (asset | async)?.name }} in use location:
                 {{ (requests | async)?.length }}
             </h2>
-            <mat-form-field appearance="outline" class="mb-2 h-[3.5rem]">
+            <mat-form-field appearance="outline" class="mb-2 h-14">
                 <icon matPrefix>search</icon>
                 <input matInput placeholder="Search..." />
             </mat-form-field>
@@ -98,7 +98,7 @@ import { SplitJoinPipe } from './split-join.pipe';
             <div class="px-4 py-2">
                 <button
                     matRipple
-                    class="flex w-full items-center rounded bg-none px-2 py-1 text-left"
+                    class="flex w-full items-center rounded-sm bg-none px-2 py-1 text-left"
                     [matMenuTriggerFor]="tracking_menu"
                     (click)="$event.stopPropagation()"
                     [disabled]="loading[row.id]"

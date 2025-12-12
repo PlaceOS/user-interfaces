@@ -344,7 +344,7 @@ import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.compone
                             <button
                                 icon
                                 matRipple
-                                class="h-12 w-12 rounded border border-secondary text-secondary"
+                                class="h-12 w-12 rounded-sm border border-secondary text-secondary"
                                 [matTooltip]="
                                     'APP.CONCIERGE.POI_MAP_SELECT' | translate
                                 "

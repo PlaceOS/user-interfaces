@@ -32,9 +32,9 @@ import { ScheduleStateService } from '../schedule/schedule-state.service';
             </button>
             <div
                 search
-                class="absolute right-2 top-1/2 z-50 flex h-12 max-w-[calc(100vw-4rem)] -translate-y-1/2 items-center space-x-2 rounded-[24px] border-2 border-neutral bg-base-100 px-2 shadow"
+                class="absolute right-2 top-1/2 z-50 flex h-12 max-w-[calc(100vw-4rem)] -translate-y-1/2 items-center space-x-2 rounded-[24px] border-2 border-neutral bg-base-100 px-2 shadow-sm"
                 [ngClass]="{
-                    'w-[32rem]': show(),
+                    'w-lg': show(),
                     'w-px': !show(),
                     'opacity-100': show(),
                     'opacity-0': !show(),
@@ -46,7 +46,7 @@ import { ScheduleStateService } from '../schedule/schedule-state.service';
                 <input
                     #input
                     [placeholder]="'APP.WORKPLACE.GLOBAL_SEARCH' | translate"
-                    class="w-1/2 flex-1 py-2 outline-none"
+                    class="w-1/2 flex-1 py-2 outline-hidden"
                     [(ngModel)]="filter_str"
                     (ngModelChange)="setFilter($event)"
                     (blur)="hideInput()"
@@ -58,9 +58,9 @@ import { ScheduleStateService } from '../schedule/schedule-state.service';
             @if (filter_str()) {
                 <div
                     search
-                    class="absolute bottom-0 right-2 flex max-h-[40vh] max-w-[calc(100vw-4rem)] translate-y-[calc(100%-1rem)] flex-col items-center overflow-auto rounded-b border border-base-200 bg-base-100 pt-4 shadow"
+                    class="absolute bottom-0 right-2 flex max-h-[40vh] max-w-[calc(100vw-4rem)] translate-y-[calc(100%-1rem)] flex-col items-center overflow-auto rounded-b border border-base-200 bg-base-100 pt-4 shadow-sm"
                     [ngClass]="{
-                        'w-[32rem]': show(),
+                        'w-lg': show(),
                         'w-px': !show(),
                         'opacity-100': show(),
                         'opacity-0': !show(),
@@ -117,7 +117,7 @@ import { ScheduleStateService } from '../schedule/schedule-state.service';
                                     </div>
                                 </div>
                                 <div
-                                    class="rounded bg-secondary p-2 text-xs font-medium capitalize text-secondary-content text-white"
+                                    class="rounded-sm bg-secondary p-2 text-xs font-medium capitalize text-secondary-content text-white"
                                 >
                                     {{ option.type }}
                                 </div>

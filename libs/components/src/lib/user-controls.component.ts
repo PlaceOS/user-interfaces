@@ -44,7 +44,7 @@ export interface AppLocale {
     selector: 'user-controls',
     template: `
         <div
-            class="relative mt-1 flex max-h-[90vh] flex-col divide-y divide-base-200 overflow-auto rounded border border-base-300 bg-base-100 shadow"
+            class="relative mt-1 flex max-h-[90vh] flex-col divide-y divide-base-200 overflow-auto rounded-sm border border-base-300 bg-base-100 shadow-sm"
         >
             <div avatar class="flex w-[18rem] flex-col items-center p-2">
                 <a-user-avatar
@@ -75,7 +75,7 @@ export interface AppLocale {
                                 {{ locations | json }}
                                 <button
                                     matRipple
-                                    class="flex items-center space-x-2 rounded px-2 py-1 font-medium hover:bg-base-200"
+                                    class="flex items-center space-x-2 rounded-sm px-2 py-1 font-medium hover:bg-base-200"
                                     [matMenuTriggerFor]="work_menu"
                                 >
                                     <div>
@@ -139,7 +139,7 @@ export interface AppLocale {
                     <button
                         btn
                         matRipple
-                        class="clear h-[3.5rem] w-full text-left"
+                        class="clear h-14 w-full text-left"
                     >
                         <div class="flex w-full items-center space-x-2">
                             <div
@@ -165,7 +165,7 @@ export interface AppLocale {
                     <button
                         btn
                         matRipple
-                        class="clear h-[3.5rem] w-full text-left"
+                        class="clear h-14 w-full text-left"
                     >
                         <div class="flex w-full items-center space-x-2">
                             <div
@@ -191,7 +191,7 @@ export interface AppLocale {
                     <button
                         btn
                         matRipple
-                        class="clear h-[3.5rem] w-full text-left"
+                        class="clear h-14 w-full text-left"
                     >
                         <div class="flex w-full items-center space-x-2">
                             <div
@@ -214,7 +214,7 @@ export interface AppLocale {
                     <button
                         btn
                         matRipple
-                        class="clear h-[3.5rem] w-full text-left"
+                        class="clear h-14 w-full text-left"
                     >
                         <div class="flex w-full items-center space-x-2">
                             <div
@@ -237,9 +237,9 @@ export interface AppLocale {
             <div
                 customTooltip
                 [content]="accessibility_tooltip"
-                [class.!border-b]="!locales?.length || !desk_height"
+                [class.border-b!]="!locales?.length || !desk_height"
             >
-                <button btn matRipple class="clear h-[3.5rem] w-full text-left">
+                <button btn matRipple class="clear h-14 w-full text-left">
                     <div class="flex w-full items-center space-x-2">
                         <div
                             class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
@@ -257,12 +257,12 @@ export interface AppLocale {
                 <div
                     customTooltip
                     [content]="desk_height_tooltip"
-                    [class.!border-b]="!locales?.length"
+                    [class.border-b!]="!locales?.length"
                 >
                     <button
                         btn
                         matRipple
-                        class="clear h-[3.5rem] w-full text-left"
+                        class="clear h-14 w-full text-left"
                     >
                         <div class="flex w-full items-center space-x-2">
                             <div
@@ -288,12 +288,12 @@ export interface AppLocale {
                 <div
                     customTooltip
                     [content]="parking_tooltip"
-                    [class.!border-b]="!locales?.length"
+                    [class.border-b!]="!locales?.length"
                 >
                     <button
                         btn
                         matRipple
-                        class="clear h-[3.5rem] w-full text-left"
+                        class="clear h-14 w-full text-left"
                     >
                         <div class="flex w-full items-center space-x-2">
                             <div
@@ -315,12 +315,12 @@ export interface AppLocale {
                 <div
                     customTooltip
                     [content]="language_tooltip"
-                    class="!border-b"
+                    class="border-b!"
                 >
                     <button
                         btn
                         matRipple
-                        class="clear h-[3.5rem] w-full text-left"
+                        class="clear h-14 w-full text-left"
                     >
                         <div class="flex w-full items-center space-x-2">
                             <div
@@ -345,7 +345,7 @@ export interface AppLocale {
                                     }
                                 </div>
                                 <div
-                                    class="max-w-24 truncate rounded bg-base-200 px-2 py-1 text-sm"
+                                    class="max-w-24 truncate rounded-sm bg-base-200 px-2 py-1 text-sm"
                                     [matTooltip]="active_locale | translate"
                                 >
                                     {{ active_locale | translate }}
@@ -363,7 +363,7 @@ export interface AppLocale {
                 <button
                     btn
                     matRipple
-                    class="clear h-[3.5rem] w-full text-left"
+                    class="clear h-14 w-full text-left"
                     (click)="newSupportTicket()"
                 >
                     <div class="flex w-full items-center space-x-2">

@@ -30,7 +30,7 @@ import { DesksStateService } from '../desks/desks-state.service';
     selector: 'points-asset-modal',
     template: `
         <header
-            class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded border-none bg-base-200 p-2"
+            class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none bg-base-200 p-2"
         >
             <h2 class="px-2 text-xl font-medium">
                 {{
@@ -48,14 +48,14 @@ import { DesksStateService } from '../desks/desks-state.service';
         </header>
         @if (form) {
             <main
-                class="min-w-[28rem] overflow-hidden px-4 py-2"
+                class="min-w-md overflow-hidden px-4 py-2"
                 [formGroup]="form"
             >
                 <div class="flex flex-col">
                     <label>{{ 'APP.CONCIERGE.POINTS_TYPE' | translate }}</label>
                     <mat-form-field
                         appearance="outline"
-                        class="h-[3.25rem] flex-1"
+                        class="h-13 flex-1"
                     >
                         <mat-select
                             formControlName="type"
@@ -74,7 +74,7 @@ import { DesksStateService } from '../desks/desks-state.service';
                     <label>{{ 'RESOURCE.ASSET' | translate }}</label>
                     <mat-form-field
                         appearance="outline"
-                        class="h-[3.25rem] flex-1"
+                        class="h-13 flex-1"
                     >
                         <icon
                             matPrefix
@@ -165,7 +165,7 @@ import { DesksStateService } from '../desks/desks-state.service';
                                 >
                                     <mat-form-field
                                         appearance="outline"
-                                        class="flex-2 h-[3.25rem] w-32"
+                                        class="flex-2 h-13 w-32"
                                     >
                                         <mat-select
                                             [(ngModel)]="rule.type"
@@ -211,7 +211,7 @@ import { DesksStateService } from '../desks/desks-state.service';
                                 </div>
                                 <span class="mx-2">&#64;</span>
                                 <a-counter
-                                    class="rounded border border-base-200"
+                                    class="rounded-sm border border-base-200"
                                     [(ngModel)]="rule.rate"
                                     [ngModelOptions]="{ standalone: true }"
                                     [min]="0"

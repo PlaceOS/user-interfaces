@@ -38,7 +38,7 @@ import { IconComponent, SafePipe, TranslatePipe } from '@placeos/components';
                             <img class="w-48" [src]="desk.qr_code" />
                         </div>
                         <div
-                            class="mx-4 my-1 w-[calc(100%-2rem)] rounded bg-base-200 p-1 text-center font-mono text-sm"
+                            class="mx-4 my-1 w-[calc(100%-2rem)] rounded-sm bg-base-200 p-1 text-center font-mono text-sm"
                         >
                             {{ desk.name || desk.id }}
                         </div>

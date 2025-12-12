@@ -9,12 +9,12 @@ import { getHours, getMinutes } from 'date-fns';
         @if (event()) {
             <div
                 event
-                class="absolute inset-x-1 overflow-hidden rounded border bg-base-100 px-2 py-1"
+                class="absolute inset-x-1 overflow-hidden rounded-sm border bg-base-100 px-2 py-1"
                 [style.top]="top() + '%'"
                 [style.height]="height() + '%'"
                 [class.border-base-300]="event().state !== 'in_progress'"
                 [class.border-info]="event().state === 'in_progress'"
-                [class.!opacity-30]="event().state === 'done'"
+                [class.opacity-30!]="event().state === 'done'"
             >
                 <h2>{{ event().title }}</h2>
                 <p>

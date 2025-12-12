@@ -31,7 +31,7 @@ export interface POI {
     selector: `explore-poi-modal`,
     template: `
         <div
-            class="h-screen w-full min-w-[20rem] max-w-[28rem] overflow-auto rounded bg-base-100 sm:h-auto"
+            class="h-screen w-full min-w-[20rem] max-w-md overflow-auto rounded-sm bg-base-100 sm:h-auto"
         >
             <header>
                 <h2>{{ item.name }}</h2>

@@ -39,7 +39,7 @@ const LETTERS = `ABCDEFGHIJKLMNOPQRSTUVWXYZ`.split('');
                 <div class="flex w-full items-center justify-center p-2">
                     <mat-form-field
                         overlay
-                        class="rounded"
+                        class="rounded-sm"
                         appearance="outline"
                     >
                         <icon class="text-xl" matPrefix>search</icon>

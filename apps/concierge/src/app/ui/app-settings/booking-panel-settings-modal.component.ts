@@ -49,7 +49,7 @@ import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
         >
             <form [formGroup]="form" class="flex flex-col space-y-4">
                 <div
-                    class="relative mb-4 flex flex-col rounded border border-base-300 p-2"
+                    class="relative mb-4 flex flex-col rounded-sm border border-base-300 p-2"
                 >
                     <h4
                         class="absolute left-8 top-0 -translate-y-1/2 bg-base-100 p-2 text-sm"
@@ -189,7 +189,7 @@ don't detect presence in room after a period of time"
                                 icon
                                 matRipple
                                 [disabled]="uploading()"
-                                class="h-12 w-12 rounded bg-secondary text-secondary-content"
+                                class="h-12 w-12 rounded-sm bg-secondary text-secondary-content"
                             >
                                 <icon>cloud_upload</icon>
                                 <input
@@ -221,7 +221,7 @@ don't detect presence in room after a period of time"
                                 icon
                                 matRipple
                                 [disabled]="uploading()"
-                                class="relative h-12 w-12 rounded bg-secondary text-secondary-content"
+                                class="relative h-12 w-12 rounded-sm bg-secondary text-secondary-content"
                             >
                                 <icon>cloud_upload</icon>
                                 <input

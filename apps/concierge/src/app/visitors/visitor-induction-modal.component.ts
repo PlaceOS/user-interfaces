@@ -9,13 +9,13 @@ import { SettingsService } from '@placeos/common';
     selector: 'visitor-induction-modal',
     template: `
         <div
-            class="relative flex w-[32rem] flex-col items-center overflow-hidden rounded bg-base-100 p-4 shadow"
+            class="relative flex w-lg flex-col items-center overflow-hidden rounded-sm bg-base-100 p-4 shadow-sm"
         >
             <p class="my-4">
                 Please read the induction information below before proceeding
             </p>
             <div
-                class="max-h-[50vh] w-full overflow-y-auto overflow-x-hidden whitespace-pre-wrap rounded border border-base-300 p-4 text-sm opacity-60"
+                class="max-h-[50vh] w-full overflow-y-auto overflow-x-hidden whitespace-pre-wrap rounded-sm border border-base-300 p-4 text-sm opacity-60"
             >
                 {{ induction_details }}
             </div>

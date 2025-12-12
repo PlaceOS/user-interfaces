@@ -15,20 +15,20 @@ import { ControlStateService } from '../control-state.service';
     selector: 'lighting-tooltip',
     template: `
         <div
-            class="my-2 flex flex-col items-center space-y-4 rounded bg-base-100 p-2 shadow"
+            class="my-2 flex flex-col items-center space-y-4 rounded-sm bg-base-100 p-2 shadow-sm"
         >
             <h3
-                class="w-full rounded bg-base-200 px-4 py-2 text-xl font-medium"
+                class="w-full rounded-sm bg-base-200 px-4 py-2 text-xl font-medium"
             >
                 {{ 'APP.CONTROL.LIGHTING_LEVELS' | translate }}
             </h3>
             @if (lights().length > 0) {
                 @for (light of lights(); track light.binding) {
                     <div
-                        class="relative min-w-[20rem] rounded border border-base-300 px-4"
+                        class="relative min-w-[20rem] rounded-sm border border-base-300 px-4"
                     >
                         <div
-                            class="absolute left-2 top-0 -translate-y-1/2 rounded bg-base-100 px-2 py-1 text-sm font-medium"
+                            class="absolute left-2 top-0 -translate-y-1/2 rounded-sm bg-base-100 px-2 py-1 text-sm font-medium"
                         >
                             {{ light?.name }}
                         </div>

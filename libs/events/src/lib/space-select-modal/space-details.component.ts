@@ -28,7 +28,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                 [class.h-40]="space().images?.length"
                 [class.sm:h-0]="!space().images?.length"
                 [class.h-12]="!space().images?.length"
-                [class.!bg-transparent]="!space().images?.length"
+                [class.bg-transparent!]="!space().images?.length"
             >
                 @if (space().images?.length) {
                     <image-carousel
@@ -65,7 +65,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                 </section>
                 @if (alert()) {
                     <div
-                        class="my-2 rounded px-2 py-1 text-xs"
+                        class="my-2 rounded-sm px-2 py-1 text-xs"
                         [class.bg-info]="alert()[0] === 'info'"
                         [class.text-info-content]="alert()[0] === 'info'"
                         [class.bg-warning]="alert()[0] === 'warn'"
@@ -124,7 +124,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                 @if (!hide_map()) {
                     <section
                         map
-                        class="relative mx-auto h-64 w-full overflow-hidden rounded border border-base-200 sm:h-48"
+                        class="relative mx-auto h-64 w-full overflow-hidden rounded-sm border border-base-200 sm:h-48"
                     >
                         <interactive-map
                             class="pointer-events-none"
@@ -140,7 +140,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                 }
             </div>
             <div
-                class="border-t border-base-200 px-2 pb-[5.5rem] pt-2 shadow sm:hidden"
+                class="border-t border-base-200 px-2 pb-22 pt-2 shadow-sm sm:hidden"
             >
                 <button
                     btn

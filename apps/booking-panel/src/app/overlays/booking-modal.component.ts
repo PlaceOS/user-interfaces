@@ -71,10 +71,10 @@ export async function openBookingModal(
             class="absolute left-0 top-0 z-50 h-screen w-screen -translate-x-1/2 -translate-y-1/2 sm:m-4"
         >
             <div
-                class="mx-auto h-full w-full overflow-auto rounded bg-base-100 sm:h-auto sm:w-[32rem]"
+                class="mx-auto h-full w-full overflow-auto rounded-sm bg-base-100 sm:h-auto sm:w-lg"
             >
                 <header
-                    class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded border-none bg-base-200 p-2"
+                    class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none bg-base-200 p-2"
                 >
                     <h2 class="px-2 text-xl font-medium">
                         {{ 'APP.BOOKING_PANEL.BOOKING_NEW' | translate }}
@@ -168,7 +168,7 @@ export async function openBookingModal(
                 }
                 @if (!loading) {
                     <footer
-                        class="sticky bottom-0 z-10 m-2 flex w-[calc(100%-1rem)] justify-end rounded border-none bg-base-200 p-2"
+                        class="sticky bottom-0 z-10 m-2 flex w-[calc(100%-1rem)] justify-end rounded-sm border-none bg-base-200 p-2"
                     >
                         <button
                             btn

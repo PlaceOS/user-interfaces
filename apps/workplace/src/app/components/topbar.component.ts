@@ -23,7 +23,7 @@ const EMPTY = [];
     template: `
         <div
             topbar
-            class="relative z-50 flex h-[3.5rem] items-center justify-between border-b border-base-200 bg-base-100 shadow"
+            class="relative z-50 flex h-14 items-center justify-between border-b border-base-200 bg-base-100 shadow-sm"
         >
             <a
                 name="nav-logo"

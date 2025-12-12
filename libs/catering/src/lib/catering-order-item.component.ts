@@ -45,7 +45,7 @@ const ACTIVE_ITEMS = new Set<string>();
                     @for (opt of item().option_list; track opt) {
                         @if (opt) {
                             <div
-                                class="rounded-2xl bg-warning px-2 py-1 text-xs text-warning-content shadow"
+                                class="rounded-2xl bg-warning px-2 py-1 text-xs text-warning-content shadow-sm"
                             >
                                 {{ opt.name }}
                             </div>

@@ -39,7 +39,7 @@ import { TranslatePipe } from './translate.pipe';
                 >
                     <div
                         matRipple
-                        class="absolute left-4 top-1/2 h-10 w-10 -translate-y-1/2 rounded-full border border-base-300 bg-base-100 text-base-content shadow"
+                        class="absolute left-4 top-1/2 h-10 w-10 -translate-y-1/2 rounded-full border border-base-300 bg-base-100 text-base-content shadow-sm"
                     >
                         <icon class="text-3xl">chevron_left</icon>
                     </div>
@@ -53,7 +53,7 @@ import { TranslatePipe } from './translate.pipe';
                 >
                     <div
                         matRipple
-                        class="absolute right-4 top-1/2 h-10 w-10 -translate-y-1/2 rounded-full border border-base-300 bg-base-100 text-base-content shadow"
+                        class="absolute right-4 top-1/2 h-10 w-10 -translate-y-1/2 rounded-full border border-base-300 bg-base-100 text-base-content shadow-sm"
                     >
                         <icon class="text-3xl">chevron_right</icon>
                     </div>
@@ -70,7 +70,7 @@ import { TranslatePipe } from './translate.pipe';
                             class="flex h-4 w-4 items-center justify-center"
                         >
                             <div
-                                class="rounded-full bg-base-100 shadow transition-all"
+                                class="rounded-full bg-base-100 shadow-sm transition-all"
                                 [class.opacity-30]="offset !== i"
                                 [class.h-2]="offset !== i"
                                 [class.w-2]="offset !== i"

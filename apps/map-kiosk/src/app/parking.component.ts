@@ -28,7 +28,7 @@ import { combineLatest, map } from 'rxjs';
             <header
                 class="flex w-full items-center justify-center space-x-2 bg-base-100 p-4 text-2xl"
             >
-                <div class="rounded border-2 border-info text-info">
+                <div class="rounded-sm border-2 border-info text-info">
                     <icon>local_parking</icon>
                 </div>
                 <div class="pl-2">Parking Available</div>

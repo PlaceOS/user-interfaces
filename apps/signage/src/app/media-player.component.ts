@@ -87,7 +87,7 @@ import { MediaPlayerItem, MediaPlayerState } from './types';
                                 }}
                             </h2>
                             <div
-                                class="rounded bg-base-200 px-2 py-1 font-mono text-[0.625rem]"
+                                class="rounded-sm bg-base-200 px-2 py-1 font-mono text-[0.625rem]"
                             >
                                 Override
                             </div>
@@ -114,7 +114,7 @@ import { MediaPlayerItem, MediaPlayerState } from './types';
                 <button
                     icon
                     matRipple
-                    class="absolute right-6 top-6 border border-base-200 bg-base-100 shadow"
+                    class="absolute right-6 top-6 border border-base-200 bg-base-100 shadow-sm"
                     (click)="show_playlist.set(!show_playlist())"
                 >
                     <icon>{{ show_playlist() ? 'close' : 'queue_music' }}</icon>

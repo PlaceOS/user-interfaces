@@ -44,7 +44,7 @@ import { set } from 'date-fns';
                         }}
                     </h2>
                     <img src="assets/icons/success.svg" />
-                    <p class="max-w-[32rem] text-center">
+                    <p class="max-w-lg text-center">
                         @if (last_event()?.all_day) {
                             {{
                                 (space
@@ -97,7 +97,7 @@ import { set } from 'date-fns';
                         btn
                         name="meeting-created-continue"
                         matRipple
-                        class="w-full max-w-[32rem]"
+                        class="w-full max-w-lg"
                         [routerLink]="['/']"
                     >
                         {{ 'APP.WORKPLACE.MEETING_FINISHED' | translate }}

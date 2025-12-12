@@ -55,7 +55,7 @@ import { SignageStateService } from './signage-state.service';
                 >
                     <div class="text-xl font-medium">Playlist</div>
                     <div
-                        class="rounded bg-base-200 px-2 py-1 font-mono text-xs"
+                        class="rounded-sm bg-base-200 px-2 py-1 font-mono text-xs"
                     >
                         {{ playlist?.name }}
                     </div>
@@ -64,7 +64,7 @@ import { SignageStateService } from './signage-state.service';
                     icon
                     matRipple
                     [matMenuTriggerFor]="menu"
-                    class="absolute right-2.5 top-2.5 !m-0"
+                    class="absolute right-2.5 top-2.5 m-0!"
                 >
                     <icon>more_vert</icon>
                 </button>
@@ -123,7 +123,7 @@ import { SignageStateService } from './signage-state.service';
                     class="flex flex-wrap items-center rounded-xl bg-base-100 p-1"
                 >
                     <div
-                        class="m-1 ml-2 rounded px-2 py-1 text-xs"
+                        class="m-1 ml-2 rounded-sm px-2 py-1 text-xs"
                         [class.bg-success]="selected_playlist()?.enabled"
                         [class.text-success-content]="
                             selected_playlist()?.enabled
@@ -142,18 +142,18 @@ import { SignageStateService } from './signage-state.service';
                     </div>
                     @if (selected_playlist()?.random) {
                         <div
-                            class="m-1 ml-2 rounded bg-secondary px-2 py-1 text-xs text-secondary-content"
+                            class="m-1 ml-2 rounded-sm bg-secondary px-2 py-1 text-xs text-secondary-content"
                         >
                             {{ 'APP.CONCIERGE.SIGNAGE_SHUFFLE' | translate }}
                         </div>
                     }
                     <div
-                        class="m-1 rounded bg-base-200 px-2 py-2 text-xs"
+                        class="m-1 rounded-sm bg-base-200 px-2 py-2 text-xs"
                         matTooltip="Default Transition Animation"
                     >
                         {{ 'APP.CONCIERGE.SIGNAGE_ANIMATION' | translate }}
                         <span
-                            class="ml-1 rounded bg-base-300 px-2 py-1 uppercase"
+                            class="ml-1 rounded-sm bg-base-300 px-2 py-1 uppercase"
                             >{{
                                 animation_name(
                                     selected_playlist()?.default_animation
@@ -162,12 +162,12 @@ import { SignageStateService } from './signage-state.service';
                         >
                     </div>
                     <div
-                        class="m-1 rounded bg-base-200 px-2 py-2 text-xs"
+                        class="m-1 rounded-sm bg-base-200 px-2 py-2 text-xs"
                         matTooltip="Default Playback Duration"
                     >
                         {{ 'APP.CONCIERGE.SIGNAGE_DURATION' | translate }}
                         <span
-                            class="ml-1 rounded bg-base-300 px-2 py-1 font-mono"
+                            class="ml-1 rounded-sm bg-base-300 px-2 py-1 font-mono"
                             >{{
                                 selected_playlist()?.default_duration / 1000
                                     | mediaDuration
@@ -175,18 +175,18 @@ import { SignageStateService } from './signage-state.service';
                         >
                     </div>
                     <div
-                        class="m-1 rounded bg-base-200 px-2 py-2 text-xs"
+                        class="m-1 rounded-sm bg-base-200 px-2 py-2 text-xs"
                         matTooltip="Prefered Orientation"
                     >
                         {{ 'APP.CONCIERGE.SIGNAGE_ORIENTATION' | translate }}
                         <span
-                            class="ml-1 rounded bg-base-300 px-2 py-1 uppercase"
+                            class="ml-1 rounded-sm bg-base-300 px-2 py-1 uppercase"
                             >{{ selected_playlist()?.orientation }}</span
                         >
                     </div>
                     @if (isScheduled(selected_playlist())) {
                         <div
-                            class="m-1 rounded bg-base-200 px-2 py-2 text-xs uppercase"
+                            class="m-1 rounded-sm bg-base-200 px-2 py-2 text-xs uppercase"
                         >
                             {{ 'COMMON.SCHEDULED' | translate }}
                         </div>
@@ -195,7 +195,7 @@ import { SignageStateService } from './signage-state.service';
                 @if (!approved()) {
                     <button
                         matRipple
-                        class="flex w-full items-center space-x-2 rounded border-warning bg-warning p-1 text-xs text-warning-content shadow"
+                        class="flex w-full items-center space-x-2 rounded-sm border-warning bg-warning p-1 text-xs text-warning-content shadow-sm"
                         [disabled]="!is_admin"
                         [matTooltip]=""
                         (click)="approvePlaylist(playlist)"
@@ -256,7 +256,7 @@ import { SignageStateService } from './signage-state.service';
                             <button
                                 matRipple
                                 cdkDragHandle
-                                class="!m-0 flex h-full w-6 items-center justify-center rounded hover:bg-base-200"
+                                class="m-0! flex h-full w-6 items-center justify-center rounded-sm hover:bg-base-200"
                                 matTooltip="Drag to reorder"
                             >
                                 <icon>drag_handle</icon>
@@ -264,7 +264,7 @@ import { SignageStateService } from './signage-state.service';
                             <button
                                 preview
                                 matRipple
-                                class="relative h-16 w-[4.5rem] overflow-hidden rounded-lg bg-base-200"
+                                class="relative h-16 w-18 overflow-hidden rounded-lg bg-base-200"
                                 (click)="previewItem(item)"
                             >
                                 <img

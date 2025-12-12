@@ -34,7 +34,7 @@ const DEFAULT_TEMPLATE = `
     template: `
         @if (event | async) {
             <div
-                class="relative flex w-[36rem] flex-col items-center space-y-4 overflow-hidden rounded bg-base-100 p-4 shadow print:hidden"
+                class="relative flex w-xl flex-col items-center space-y-4 overflow-hidden rounded-sm bg-base-100 p-4 shadow-sm print:hidden"
             >
                 @let ev = event | async;
                 <h3 class="text-xl">

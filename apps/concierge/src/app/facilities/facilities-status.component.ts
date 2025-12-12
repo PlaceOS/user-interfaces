@@ -4,7 +4,7 @@ import { IconComponent } from '@placeos/components';
 @Component({
     selector: 'facilities-status',
     template: `
-        <div class="w-full flex-1 rounded-lg bg-base-100 p-6 shadow-sm">
+        <div class="w-full flex-1 rounded-lg bg-base-100 p-6 shadow-xs">
             <h3 class="mb-4 mt-0">People Count</h3>
             <div
                 class="mb-2 flex w-full items-center rounded-lg border border-base-200"
@@ -19,7 +19,7 @@ import { IconComponent } from '@placeos/components';
             </div>
             <div class="text-bold mr-4 text-right">Total: {{ total || 0 }}</div>
         </div>
-        <div class="w-full rounded bg-base-100 p-6 shadow-sm">
+        <div class="w-full rounded-sm bg-base-100 p-6 shadow-xs">
             <h3 class="mb-2 mt-0">Mood</h3>
             <div
                 name="mood"

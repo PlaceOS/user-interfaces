@@ -25,7 +25,7 @@ import {
             </div>
             <!-- <mat-form-field
                 appearance="outline"
-                class="flex-1 max-w-[65vw] h-[3.25rem]"
+                class="flex-1 max-w-[65vw] h-13"
             >
                 <icon matPrefix class="text-2xl relative -left-1">
                     search

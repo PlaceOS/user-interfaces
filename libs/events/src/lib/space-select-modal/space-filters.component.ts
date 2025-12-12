@@ -57,7 +57,7 @@ import { SpacesService } from '../spaces.service';
                 <h2 class="mb-1 text-lg font-medium">
                     {{ 'CALENDAR_EVENT.DETAILS' | translate }}
                 </h2>
-                <div class="flex min-w-[8rem] flex-1 flex-col">
+                <div class="flex min-w-32 flex-1 flex-col">
                     <label for="location">
                         {{ 'CALENDAR_EVENT.SPACE_LOCATION' | translate }}
                     </label>
@@ -142,7 +142,7 @@ import { SpacesService } from '../spaces.service';
                     }
                 </div>
                 <div class="flex flex-wrap items-center sm:space-x-2">
-                    <div class="min-w-[8rem] flex-1">
+                    <div class="min-w-32 flex-1">
                         <label for="date">
                             {{ 'FORM.DATE' | translate }}<span>*</span>
                         </label>
@@ -160,7 +160,7 @@ import { SpacesService } from '../spaces.service';
                         </a-date-field>
                     </div>
                     @if (multiday()) {
-                        <div class="relative min-w-[8rem] flex-1">
+                        <div class="relative min-w-32 flex-1">
                             <label for="date">
                                 {{ 'FORM.DATE_END' | translate }}<span>*</span>
                             </label>

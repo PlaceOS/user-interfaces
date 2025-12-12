@@ -69,7 +69,7 @@ import { RoomManagementService } from './room-management.service';
                 btn
                 icon
                 matRipple
-                class="h-12 w-12 rounded bg-secondary text-secondary-content"
+                class="h-12 w-12 rounded-sm bg-secondary text-secondary-content"
                 (click)="manageRestrictions()"
                 [matTooltip]="'APP.CONCIERGE.ROOMS_BOOKING_RULES' | translate"
             >

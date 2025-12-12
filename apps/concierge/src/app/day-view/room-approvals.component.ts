@@ -117,7 +117,7 @@ import { EventsStateService } from './events-state.service';
                         </p>
                         @if (space?.images?.length) {
                             <div
-                                class="mb-2 h-32 w-full overflow-hidden rounded bg-base-200"
+                                class="mb-2 h-32 w-full overflow-hidden rounded-sm bg-base-200"
                             >
                                 <img
                                     auth
@@ -266,7 +266,7 @@ import { EventsStateService } from './events-state.service';
                 btn
                 icon
                 matRipple
-                class="absolute -left-8 top-3 bg-warning text-warning-content shadow"
+                class="absolute -left-8 top-3 bg-warning text-warning-content shadow-sm"
                 (click)="setShow(!show())"
                 [matTooltip]="'APP.CONCIERGE.ROOMS_PENDING_SHOW' | translate"
                 matTooltipPosition="left"

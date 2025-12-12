@@ -37,11 +37,11 @@ import { RoomConfirmService } from './room-confirm.service';
     template: `
         <div class="fixed inset-0 z-10 flex flex-col bg-base-200">
             <div
-                class="mx-auto flex h-full w-[32rem] max-w-full flex-col border-x border-base-300 bg-base-100"
+                class="mx-auto flex h-full w-lg max-w-full flex-col border-x border-base-300 bg-base-100"
             >
                 <header class="space-y-2 p-2">
                     <div
-                        class="flex items-center justify-between rounded bg-base-200 p-2"
+                        class="flex items-center justify-between rounded-sm bg-base-200 p-2"
                     >
                         <h2 class="px-2 text-xl font-medium">Find Space</h2>
                         <button icon matRipple (click)="closeModal()">
@@ -66,7 +66,7 @@ import { RoomConfirmService } from './room-confirm.service';
                             }
                         </button>
                         <div
-                            class="mx-1 flex divide-x divide-secondary rounded border border-secondary"
+                            class="mx-1 flex divide-x divide-secondary rounded-sm border border-secondary"
                         >
                             <button
                                 icon
@@ -148,7 +148,7 @@ import { RoomConfirmService } from './room-confirm.service';
                         } @else {
                             <div class="h-1/2 w-full flex-1 px-2 pb-2">
                                 <div
-                                    class="flex h-full w-full items-center justify-center rounded bg-base-200 opacity-30"
+                                    class="flex h-full w-full items-center justify-center rounded-sm bg-base-200 opacity-30"
                                 >
                                     <p class="">No spaces</p>
                                 </div>
@@ -207,7 +207,7 @@ import { RoomConfirmService } from './room-confirm.service';
                             </button>
                         </div>
                         <div
-                            class="flex divide-x divide-secondary rounded border border-secondary"
+                            class="flex divide-x divide-secondary rounded-sm border border-secondary"
                         >
                             <button
                                 icon
@@ -357,7 +357,7 @@ import { RoomConfirmService } from './room-confirm.service';
                                                             track map
                                                         ) {
                                                             <div
-                                                                class="max-w-screen relative m-3 h-[12rem]"
+                                                                class="max-w-screen relative m-3 h-48"
                                                             >
                                                                 <interactive-map
                                                                     [src]="
@@ -385,7 +385,7 @@ import { RoomConfirmService } from './room-confirm.service';
                                                 <!-- If an individual level is selected -->
                                                 @if (!selected_level?.length) {
                                                     <div
-                                                        class="max-w-screen relative m-3 h-[24rem]"
+                                                        class="max-w-screen relative m-3 h-96"
                                                     >
                                                         <interactive-map
                                                             [src]="

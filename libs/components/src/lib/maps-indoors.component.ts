@@ -51,7 +51,7 @@ const RESOURCE_MAP: Record<string, any> = {};
             <button
                 btn
                 matRipple
-                class="absolute bottom-2 left-2 z-10 space-x-2 border-base-200 bg-base-100 text-base-content shadow"
+                class="absolute bottom-2 left-2 z-10 space-x-2 border-base-200 bg-base-100 text-base-content shadow-sm"
                 (click)="toggleDirections()"
             >
                 <icon>place</icon>

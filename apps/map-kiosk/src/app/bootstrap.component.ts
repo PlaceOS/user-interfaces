@@ -27,13 +27,13 @@ import { first } from 'rxjs/operators';
         <div class="absolute inset-0 z-0 bg-base-200"></div>
         <div
             form
-            class="relative z-10 mx-auto my-8 w-[28rem] max-w-[calc(100%-2rem)] overflow-hidden rounded-lg border border-base-300 bg-base-100 shadow"
+            class="relative z-10 mx-auto my-8 w-md max-w-[calc(100%-2rem)] overflow-hidden rounded-lg border border-base-300 bg-base-100 shadow-sm"
         >
             <header
                 class="flex w-full items-center justify-between bg-secondary px-4 py-3 text-xl font-medium text-secondary-content"
             >
                 <div>Map Kiosk</div>
-                <div class="rounded px-2 py-1 font-mono text-sm">SETUP</div>
+                <div class="rounded-sm px-2 py-1 font-mono text-sm">SETUP</div>
             </header>
             @if (!loading) {
                 <div class="flex flex-col px-4">
@@ -59,7 +59,7 @@ import { first } from 'rxjs/operators';
                                             }}
                                         </div>
                                         <div
-                                            class="!mr-4 rounded bg-base-200 px-1.5 font-mono text-[0.625rem]"
+                                            class="mr-4! rounded-sm bg-base-200 px-1.5 font-mono text-[0.625rem]"
                                         >
                                             {{ active_region?.id }}
                                         </div>
@@ -110,7 +110,7 @@ import { first } from 'rxjs/operators';
                                             }}
                                         </div>
                                         <div
-                                            class="!mr-4 rounded bg-base-200 px-1.5 font-mono text-[0.625rem]"
+                                            class="mr-4! rounded-sm bg-base-200 px-1.5 font-mono text-[0.625rem]"
                                         >
                                             {{ active_building?.id }}
                                         </div>
@@ -164,7 +164,7 @@ import { first } from 'rxjs/operators';
                                             }}
                                         </div>
                                         <div
-                                            class="!mr-4 rounded bg-base-200 px-1.5 font-mono text-[0.625rem]"
+                                            class="mr-4! rounded-sm bg-base-200 px-1.5 font-mono text-[0.625rem]"
                                         >
                                             {{ active_level?.id }}
                                         </div>
@@ -282,7 +282,7 @@ import { first } from 'rxjs/operators';
             }
             @if (!loading) {
                 <div
-                    class="!mt-4 flex w-full items-center justify-end border-t border-base-300 px-4 py-2"
+                    class="mt-4! flex w-full items-center justify-end border-t border-base-300 px-4 py-2"
                 >
                     <button
                         btn

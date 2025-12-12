@@ -19,13 +19,13 @@ const SYS_ID_KEY = 'PLACEOS.ASSISTANT.system';
     template: `
         <div class="absolute inset-0 z-0 bg-base-200"></div>
         <div
-            class="relative z-10 mx-auto my-8 w-[28rem] overflow-hidden rounded-lg border border-base-300 bg-base-100"
+            class="relative z-10 mx-auto my-8 w-md overflow-hidden rounded-lg border border-base-300 bg-base-100"
         >
             <header
                 class="flex w-full items-center justify-between bg-secondary px-4 py-3 text-xl font-medium text-secondary-content"
             >
                 <div>{{ 'COMMON.BOOTSTRAP_ASSISTANT' | translate }}</div>
-                <div class="rounded px-2 py-1 font-mono text-sm uppercase">
+                <div class="rounded-sm px-2 py-1 font-mono text-sm uppercase">
                     {{ 'COMMON.BOOTSTRAP_SETUP' | translate }}
                 </div>
             </header>
@@ -75,7 +75,7 @@ const SYS_ID_KEY = 'PLACEOS.ASSISTANT.system';
                                         }
                                     </div>
                                     <div
-                                        class="rounded bg-base-200 px-2 py-1 font-mono text-[0.625rem]"
+                                        class="rounded-sm bg-base-200 px-2 py-1 font-mono text-[0.625rem]"
                                     >
                                         {{ option.id }}
                                     </div>

@@ -28,7 +28,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                 [class.h-40]="space().images?.length"
                 [class.sm:h-0]="!space().images?.length"
                 [class.h-12]="!space().images?.length"
-                [class.!bg-transparent]="!space().images?.length"
+                [class.bg-transparent!]="!space().images?.length"
             >
                 @if (space().images?.length) {
                     <image-carousel
@@ -71,7 +71,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                 </section>
                 @if (alert()) {
                     <div
-                        class="my-2 rounded px-2 py-1 text-xs"
+                        class="my-2 rounded-sm px-2 py-1 text-xs"
                         [class.bg-info]="alert()[0] === 'info'"
                         [class.text-info-content]="alert()[0] === 'info'"
                         [class.bg-warning]="alert()[0] === 'warn'"
@@ -84,7 +84,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                 }
                 <section
                     details
-                    class="relative !mt-4 space-y-2 rounded border border-base-400 px-2 pb-1 pt-1"
+                    class="relative mt-4! space-y-2 rounded-sm border border-base-400 px-2 pb-1 pt-1"
                 >
                     <h2
                         class="absolute left-2 top-0 -translate-y-1/2 bg-base-100 px-2 text-lg font-medium"
@@ -120,7 +120,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                 @if (space().features?.length) {
                     <section
                         facilities
-                        class="relative !mt-4 space-y-2 rounded border border-base-400 px-2 pb-1 pt-1"
+                        class="relative mt-4! space-y-2 rounded-sm border border-base-400 px-2 pb-1 pt-1"
                     >
                         <h2
                             class="absolute left-2 top-0 -translate-y-1/2 bg-base-100 px-2 text-lg font-medium"
@@ -142,7 +142,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                 @if (!hide_map()) {
                     <section
                         map
-                        class="relative mx-auto !mb-2 h-64 w-full overflow-hidden rounded bg-base-200 sm:h-48"
+                        class="relative mx-auto mb-2! h-64 w-full overflow-hidden rounded-sm bg-base-200 sm:h-48"
                     >
                         <interactive-map
                             class="pointer-events-none"

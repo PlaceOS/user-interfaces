@@ -22,7 +22,7 @@ const EMPTY_FAVS: string[] = [];
             @for (item of items; track item) {
                 <div
                     locker
-                    class="relative flex w-full items-center rounded-lg border border-base-200 p-2 shadow"
+                    class="relative flex w-full items-center rounded-lg border border-base-200 p-2 shadow-sm"
                 >
                     @if (features()?.length) {
                         <div class="flex flex-col">

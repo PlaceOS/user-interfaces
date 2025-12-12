@@ -14,7 +14,7 @@ import { CateringReportStateService } from './catering-report-state.service';
     selector: 'catering-report-orders',
     template: `
         <div
-            class="mx-auto my-2 w-[64rem] max-w-[calc(100%-2rem)] overflow-hidden rounded border border-base-200 bg-base-100"
+            class="mx-auto my-2 w-5xl max-w-[calc(100%-2rem)] overflow-hidden rounded-sm border border-base-200 bg-base-100"
         >
             <div
                 class="flex items-center justify-between border-b border-base-200 px-4"

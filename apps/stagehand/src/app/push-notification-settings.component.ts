@@ -20,12 +20,12 @@ interface SeverityOption {
 @Component({
     selector: 'placeos-push-notification-settings',
     template: `
-        <div class="w-[28rem] max-w-full">
+        <div class="w-md max-w-full">
             <header
-                class="sticky top-0 z-10 mx-2 mt-2 h-14 w-[calc(100%-1rem)] rounded border-none bg-base-200 p-2"
+                class="sticky top-0 z-10 mx-2 mt-2 h-14 w-[calc(100%-1rem)] rounded-sm border-none bg-base-200 p-2"
             >
                 <h2 class="px-2 text-xl font-medium">Push Notifications</h2>
-                <button icon matRipple mat-dialog-close class="rounded">
+                <button icon matRipple mat-dialog-close class="rounded-sm">
                     <icon>close</icon>
                 </button>
             </header>
@@ -33,7 +33,7 @@ interface SeverityOption {
             <main class="p-4">
                 @if (!push.supported()) {
                     <div
-                        class="flex items-center space-x-2 rounded bg-warning-light p-3 text-warning"
+                        class="flex items-center space-x-2 rounded-sm bg-warning-light p-3 text-warning"
                     >
                         <icon>warning</icon>
                         <span class="text-sm"
@@ -43,7 +43,7 @@ interface SeverityOption {
                     </div>
                 } @else if (push.permission() === 'denied') {
                     <div
-                        class="flex items-center space-x-2 rounded bg-error-light p-3 text-error"
+                        class="flex items-center space-x-2 rounded-sm bg-error-light p-3 text-error"
                     >
                         <icon>block</icon>
                         <span class="text-sm"
@@ -79,7 +79,7 @@ interface SeverityOption {
                     <div class="space-y-3">
                         @for (option of severity_options; track option.key) {
                             <div
-                                class="flex items-center justify-between rounded border border-base-300 p-3"
+                                class="flex items-center justify-between rounded-sm border border-base-300 p-3"
                             >
                                 <div class="flex items-center space-x-3">
                                     <icon
@@ -110,7 +110,7 @@ interface SeverityOption {
                         }
                     </div>
 
-                    <div class="mt-4 rounded bg-info-light p-3">
+                    <div class="mt-4 rounded-sm bg-info-light p-3">
                         <div class="flex items-center space-x-2">
                             <icon class="text-2xl text-info">info</icon>
                             <span class="text-xs opacity-60"

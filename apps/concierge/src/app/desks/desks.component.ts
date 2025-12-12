@@ -181,7 +181,7 @@ import { DesksStateService } from './desks-state.service';
                             icon
                             matRipple
                             [matTooltip]="'COMMON.REFRESH' | translate"
-                            class="ml-2 rounded border border-base-200"
+                            class="ml-2 rounded-sm border border-base-200"
                             (click)="refresh()"
                             [disabled]="loading()"
                         >
@@ -194,7 +194,7 @@ import { DesksStateService } from './desks-state.service';
                             [matTooltip]="
                                 'APP.CONCIERGE.REJECT_ALL' | translate
                             "
-                            class="ml-2 rounded border border-base-200"
+                            class="ml-2 rounded-sm border border-base-200"
                             (click)="rejectAll()"
                             [disabled]="loading()"
                         >
@@ -206,7 +206,7 @@ import { DesksStateService } from './desks-state.service';
                             btn
                             icon
                             matRipple
-                            class="h-12 w-12 rounded bg-secondary text-secondary-content"
+                            class="h-12 w-12 rounded-sm bg-secondary text-secondary-content"
                             [matTooltip]="
                                 'APP.CONCIERGE.DESKS_VIEW_QR_CODE_LIST'
                                     | translate
@@ -219,7 +219,7 @@ import { DesksStateService } from './desks-state.service';
                             btn
                             icon
                             matRipple
-                            class="h-12 w-12 rounded bg-secondary text-secondary-content"
+                            class="h-12 w-12 rounded-sm bg-secondary text-secondary-content"
                             [matTooltip]="
                                 'APP.CONCIERGE.DESKS_LIST_UPLOAD' | translate
                             "
@@ -235,7 +235,7 @@ import { DesksStateService } from './desks-state.service';
                             btn
                             icon
                             matRipple
-                            class="h-12 w-12 rounded bg-secondary text-secondary-content"
+                            class="h-12 w-12 rounded-sm bg-secondary text-secondary-content"
                             (click)="downloadTemplate()"
                             [matTooltip]="
                                 'APP.CONCIERGE.DESKS_LIST_DOWNLOAD' | translate
@@ -246,7 +246,7 @@ import { DesksStateService } from './desks-state.service';
                         <button
                             icon
                             matRipple
-                            class="h-12 w-12 rounded bg-secondary text-secondary-content"
+                            class="h-12 w-12 rounded-sm bg-secondary text-secondary-content"
                             (click)="manageRestrictions()"
                             [matTooltip]="
                                 'APP.CONCIERGE.DESKS_BOOKING_RULES' | translate

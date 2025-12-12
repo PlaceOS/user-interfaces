@@ -57,7 +57,7 @@ const EMPTY = [];
         @if (!loading()) {
             <div class="absolute inset-0 overflow-auto bg-base-100">
                 <header
-                    class="sticky top-0 z-10 mx-auto my-2 flex w-full max-w-[640px] items-center justify-between rounded border-none bg-base-200 px-4 py-2"
+                    class="sticky top-0 z-10 mx-auto my-2 flex w-full max-w-[640px] items-center justify-between rounded-sm border-none bg-base-200 px-4 py-2"
                 >
                     <h2 class="text-xl font-medium">
                         {{
@@ -78,7 +78,7 @@ const EMPTY = [];
                     }
                 </header>
                 <form
-                    class="mx-auto my-2 flex w-[40rem] max-w-full flex-col px-4 pb-16"
+                    class="mx-auto my-2 flex w-160 max-w-full flex-col px-4 pb-16"
                     [formGroup]="form"
                 >
                     <section class="flex flex-col space-y-2">
@@ -373,7 +373,7 @@ const EMPTY = [];
                                 </mat-select>
                             </mat-form-field>
                             <div class="flex space-x-2">
-                                <div class="flex flex-[2] flex-col">
+                                <div class="flex flex-2 flex-col">
                                     <label for="level">{{
                                         'RESOURCE.LEVEL' | translate
                                     }}</label>
@@ -403,7 +403,7 @@ const EMPTY = [];
                                         </mat-select>
                                     </mat-form-field>
                                 </div>
-                                <div class="flex flex-[3] flex-col">
+                                <div class="flex flex-3 flex-col">
                                     <label for="level">{{
                                         'RESOURCE.ROOM' | translate
                                     }}</label>
@@ -469,7 +469,7 @@ const EMPTY = [];
                     </section>
                     @if (!loading()) {
                         <footer
-                            class="fixed bottom-0 left-1/2 z-10 mx-auto my-2 flex w-full max-w-[640px] -translate-x-1/2 items-center justify-end rounded border-none bg-base-200 px-4 py-2"
+                            class="fixed bottom-0 left-1/2 z-10 mx-auto my-2 flex w-full max-w-[640px] -translate-x-1/2 items-center justify-end rounded-sm border-none bg-base-200 px-4 py-2"
                         >
                             <button btn matRipple class="w-32" (click)="save()">
                                 {{ 'COMMON.SAVE' | translate }}

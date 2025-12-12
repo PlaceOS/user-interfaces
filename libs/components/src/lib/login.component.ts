@@ -20,7 +20,7 @@ import { AuthenticatedImageDirective } from './authenticated-image.directive';
     template: `
         <div class="fixed inset-0 overflow-auto">
             <form
-                class="mx-auto my-4 flex flex-col items-center overflow-hidden rounded bg-base-100 p-4 shadow"
+                class="mx-auto my-4 flex flex-col items-center overflow-hidden rounded-sm bg-base-100 p-4 shadow-sm"
             >
                 <div class="flex items-center justify-center">
                     <img

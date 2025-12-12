@@ -23,7 +23,7 @@ let shown_id = '';
             [content]="stats"
             yPosition="center"
             xPosition="center"
-            class="pointer-events-auto absolute left-1/2 top-1/2 h-7 w-7 min-w-0 -translate-x-1/2 -translate-y-1/2 bg-base-100 shadow"
+            class="pointer-events-auto absolute left-1/2 top-1/2 h-7 w-7 min-w-0 -translate-x-1/2 -translate-y-1/2 bg-base-100 shadow-sm"
         >
             <icon> visibility </icon>
         </button>

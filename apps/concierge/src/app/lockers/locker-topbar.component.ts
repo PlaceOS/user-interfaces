@@ -111,7 +111,7 @@ import { LockerStateService } from './locker-state.service';
                 <button
                     icon
                     matRipple
-                    class="mr-2 h-12 w-12 rounded border border-error text-error"
+                    class="mr-2 h-12 w-12 rounded-sm border border-error text-error"
                     (click)="releaseAllLockers()"
                     [matTooltip]="
                         'APP.CONCIERGE.LOCKERS_RELEASE_ALL' | translate
@@ -124,7 +124,7 @@ import { LockerStateService } from './locker-state.service';
                 <button
                     icon
                     matRipple
-                    class="h-12 w-12 rounded bg-secondary text-secondary-content"
+                    class="h-12 w-12 rounded-sm bg-secondary text-secondary-content"
                     (click)="manageRestrictions()"
                     [matTooltip]="
                         'APP.CONCIERGE.LOCKERS_BOOKING_RULES' | translate

@@ -20,7 +20,7 @@ import { VideoCallPageComponent } from './video-call-page.component';
                     <topbar-header></topbar-header>
                     <div class="h-1/2 flex-1">
                         <div
-                            class="absolute inset-4 flex flex-col rounded bg-base-100 shadow"
+                            class="absolute inset-4 flex flex-col rounded-sm bg-base-100 shadow-sm"
                             video-call-page
                         ></div>
                     </div>
