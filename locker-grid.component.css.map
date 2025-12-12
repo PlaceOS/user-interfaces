@@ -1,7 +1,7 @@
 {
   "version": 3,
-  "sources": ["angular:styles/component:css;32afd79bdb50e1a260a311dcbbe42ad630e05ff005c6bd90901be0d3385e4315;/home/runner/work/user-interfaces/user-interfaces/libs/bookings/src/lib/locker-grid.component.ts"],
+  "sources": ["locker-grid.component.ts"],
   "sourcesContent": ["\n            :host {\n                display: flex;\n                flex-direction: column;\n                height: 100%;\n            }\n            button[disabled] {\n                pointer-events: none;\n            }\n        "],
-  "mappings": ";AACY;AACI,WAAS;AACT,kBAAgB;AAChB,UAAQ;AACZ;AACA,MAAM,CAAC;AACH,kBAAgB;AACpB;",
+  "mappings": ";AACY;AACI,WAAA;AACA,kBAAA;AACA,UAAA;AACJ;AACA,MAAA,CAAA;AACI,kBAAA;AACJ;",
   "names": []
 }

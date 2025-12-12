@@ -1,7 +1,8 @@
 import {
   CheckinStateService
-} from "./chunk-UMPME6HK.js";
+} from "./chunk-CA3RXT2G.js";
 import {
+  $o,
   ANIMATION_MODULE_TYPE,
   AUTO_STYLE,
   ActivatedRoute,
@@ -41,7 +42,6 @@ import {
   Inject,
   Injectable,
   InteractiveMapComponent,
-  Is,
   LOCALE_ID,
   LocaleService,
   MAP_FEATURE_DATA,
@@ -108,11 +108,14 @@ import {
   TimeFieldComponent,
   TraceService,
   TranslatePipe,
+  UPLOAD_PERMISSIONS_MODAL,
+  UploadPermissionsModalComponent,
   User,
   UserSearchFieldComponent,
   Validators,
   VirtualKeyboardComponent,
-  Vt,
+  We,
+  Yo,
   __objRest,
   __spreadProps,
   __spreadValues,
@@ -121,7 +124,6 @@ import {
   addMonths,
   addSeconds,
   addYears,
-  arrayBufferToBlob,
   capitalizeFirstLetter,
   catchError,
   combineLatest,
@@ -143,7 +145,6 @@ import {
   i18n,
   inject,
   input,
-  is,
   isAfter,
   isBefore,
   isMobileSafari,
@@ -182,7 +183,7 @@ import {
   toEventRecurrence,
   unique,
   viewChild,
-  za,
+  yh,
   ɵNgNoValidate,
   ɵPRE_STYLE,
   ɵsetClassDebugInfo,
@@ -242,7 +243,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-JORPZAQP.js";
+} from "./chunk-WLIO66DZ.js";
 
 // node_modules/@angular/animations/fesm2022/util-CPU6TNml.mjs
 var LINE_START = "\n - ";
@@ -5165,7 +5166,7 @@ _BootstrapComponent.\u0275fac = /* @__PURE__ */ (() => {
     return (\u0275BootstrapComponent_BaseFactory || (\u0275BootstrapComponent_BaseFactory = \u0275\u0275getInheritedFactory(_BootstrapComponent)))(__ngFactoryType__ || _BootstrapComponent);
   };
 })();
-_BootstrapComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _BootstrapComponent, selectors: [["", "bootstrap", ""]], features: [\u0275\u0275InheritDefinitionFeature], attrs: _c0, decls: 14, vars: 8, consts: [["select", ""], [1, "absolute", "inset-0", "z-0", "bg-base-200"], ["form", "", 1, "relative", "z-10", "mx-auto", "my-8", "w-[28rem]", "max-w-[calc(100%-2rem)]", "overflow-hidden", "rounded-lg", "border", "border-base-300", "bg-base-100", "shadow"], [1, "flex", "w-full", "items-center", "justify-between", "bg-secondary", "px-4", "py-3", "text-xl", "font-medium", "text-secondary-content"], [1, "relative", "overflow-hidden", "rounded", "px-2", "py-1"], [1, "absolute", "inset-0", "z-0", "bg-base-100", "opacity-10"], [1, "relative", "z-10", "font-mono", "text-sm", "uppercase"], [1, "flex", "flex-col", "space-y-2", "px-4"], [1, "m-auto", "flex", "flex-col", "items-center", "p-8"], [1, "!mt-4", "flex", "w-full", "items-center", "justify-end", "border-t", "border-base-300", "px-4", "py-2"], ["appearance", "outline", 1, "no-subscript"], ["building", "", 3, "ngModelChange", "ngModel", "placeholder"], [1, "flex", "items-center", "space-x-4"], [1, "flex-1", "truncate"], [1, "!mr-4", "rounded", "bg-base-200", "px-1.5", "font-mono", "text-[0.625rem]"], [3, "value"], [1, "leading-tight"], [1, "font-mono", "text-[0.625rem]", "opacity-30"], [1, "hidden"], [1, "font-mono", "text-[0.625rem]", "opacity-60"], ["level", "", 3, "ngModelChange", "ngModel", "placeholder"], [3, "valueChange", "value", "placeholder"], [3, "diameter"], ["btn", "", "matRipple", "", 1, "w-32", 3, "click", "disabled"]], template: function BootstrapComponent_Template(rf, ctx) {
+_BootstrapComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _BootstrapComponent, selectors: [["", "bootstrap", ""]], features: [\u0275\u0275InheritDefinitionFeature], attrs: _c0, decls: 14, vars: 8, consts: [["select", ""], [1, "absolute", "inset-0", "z-0", "bg-base-200"], ["form", "", 1, "relative", "z-10", "mx-auto", "my-8", "w-md", "max-w-[calc(100%-2rem)]", "overflow-hidden", "rounded-lg", "border", "border-base-300", "bg-base-100", "shadow-sm"], [1, "flex", "w-full", "items-center", "justify-between", "bg-secondary", "px-4", "py-3", "text-xl", "font-medium", "text-secondary-content"], [1, "relative", "overflow-hidden", "rounded-sm", "px-2", "py-1"], [1, "absolute", "inset-0", "z-0", "bg-base-100", "opacity-10"], [1, "relative", "z-10", "font-mono", "text-sm", "uppercase"], [1, "flex", "flex-col", "space-y-2", "px-4"], [1, "m-auto", "flex", "flex-col", "items-center", "p-8"], [1, "mt-4!", "flex", "w-full", "items-center", "justify-end", "border-t", "border-base-300", "px-4", "py-2"], ["appearance", "outline", 1, "no-subscript"], ["building", "", 3, "ngModelChange", "ngModel", "placeholder"], [1, "flex", "items-center", "space-x-4"], [1, "flex-1", "truncate"], [1, "mr-4!", "rounded-sm", "bg-base-200", "px-1.5", "font-mono", "text-[0.625rem]"], [3, "value"], [1, "leading-tight"], [1, "font-mono", "text-[0.625rem]", "opacity-30"], [1, "hidden"], [1, "font-mono", "text-[0.625rem]", "opacity-60"], ["level", "", 3, "ngModelChange", "ngModel", "placeholder"], [3, "valueChange", "value", "placeholder"], [3, "diameter"], ["btn", "", "matRipple", "", 1, "w-32", 3, "click", "disabled"]], template: function BootstrapComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "div", 1);
     \u0275\u0275elementStart(1, "div", 2)(2, "header", 3)(3, "div");
@@ -5218,13 +5219,13 @@ var BootstrapComponent = _BootstrapComponent;
         <div class="absolute inset-0 z-0 bg-base-200"></div>
         <div
             form
-            class="relative z-10 mx-auto my-8 w-[28rem] max-w-[calc(100%-2rem)] overflow-hidden rounded-lg border border-base-300 bg-base-100 shadow"
+            class="relative z-10 mx-auto my-8 w-md max-w-[calc(100%-2rem)] overflow-hidden rounded-lg border border-base-300 bg-base-100 shadow-sm"
         >
             <header
                 class="flex w-full items-center justify-between bg-secondary px-4 py-3 text-xl font-medium text-secondary-content"
             >
                 <div>{{ 'APP.VISITOR_KIOSK.APP' | translate }}</div>
-                <div class="relative overflow-hidden rounded px-2 py-1">
+                <div class="relative overflow-hidden rounded-sm px-2 py-1">
                     <div
                         class="absolute inset-0 z-0 bg-base-100 opacity-10"
                     ></div>
@@ -5265,7 +5266,7 @@ var BootstrapComponent = _BootstrapComponent;
                                             }}
                                         </div>
                                         <div
-                                            class="!mr-4 rounded bg-base-200 px-1.5 font-mono text-[0.625rem]"
+                                            class="mr-4! rounded-sm bg-base-200 px-1.5 font-mono text-[0.625rem]"
                                         >
                                             {{ active_region()?.id }}
                                         </div>
@@ -5325,7 +5326,7 @@ var BootstrapComponent = _BootstrapComponent;
                                             }}
                                         </div>
                                         <div
-                                            class="!mr-4 rounded bg-base-200 px-1.5 font-mono text-[0.625rem]"
+                                            class="mr-4! rounded-sm bg-base-200 px-1.5 font-mono text-[0.625rem]"
                                         >
                                             {{ active_building()?.id }}
                                         </div>
@@ -5385,7 +5386,7 @@ var BootstrapComponent = _BootstrapComponent;
                                             }}
                                         </div>
                                         <div
-                                            class="!mr-4 rounded bg-base-200 px-1.5 font-mono text-[0.625rem]"
+                                            class="mr-4! rounded-sm bg-base-200 px-1.5 font-mono text-[0.625rem]"
                                         >
                                             {{ active_level()?.id }}
                                         </div>
@@ -5512,7 +5513,7 @@ var BootstrapComponent = _BootstrapComponent;
             }
             @if (!loading()) {
                 <div
-                    class="!mt-4 flex w-full items-center justify-end border-t border-base-300 px-4 py-2"
+                    class="mt-4! flex w-full items-center justify-end border-t border-base-300 px-4 py-2"
                 >
                     <button
                         btn
@@ -5561,7 +5562,7 @@ var _ActionFieldComponent = class _ActionFieldComponent {
 _ActionFieldComponent.\u0275fac = function ActionFieldComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _ActionFieldComponent)();
 };
-_ActionFieldComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ActionFieldComponent, selectors: [["an-action-field"]], inputs: { name: [1, "name"], disabled: [1, "disabled"] }, outputs: { on_action: "onAction" }, ngContentSelectors: _c02, decls: 5, vars: 3, consts: [["type", "button", "role", "button", "form-field", "", "tabindex", "0", 1, "flex", "w-full", "items-center", "rounded", "border", "border-base-200", "p-2", "hover:border-base-200", 3, "keydown.enter"], ["placeholder", "", 1, "w-0", "flex-1", "truncate", 3, "click"], [1, "text-xl", 3, "click"]], template: function ActionFieldComponent_Template(rf, ctx) {
+_ActionFieldComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ActionFieldComponent, selectors: [["an-action-field"]], inputs: { name: [1, "name"], disabled: [1, "disabled"] }, outputs: { on_action: "onAction" }, ngContentSelectors: _c02, decls: 5, vars: 3, consts: [["type", "button", "role", "button", "form-field", "", "tabindex", "0", 1, "flex", "w-full", "items-center", "rounded-sm", "border", "border-base-200", "p-2", "hover:border-base-200", 3, "keydown.enter"], ["placeholder", "", 1, "w-0", "flex-1", "truncate", 3, "click"], [1, "text-xl", 3, "click"]], template: function ActionFieldComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275projectionDef();
     \u0275\u0275elementStart(0, "button", 0);
@@ -5593,7 +5594,7 @@ var ActionFieldComponent = _ActionFieldComponent;
     type: Component,
     args: [{ selector: "an-action-field", template: `
         <button
-            class="flex w-full items-center rounded border border-base-200 p-2 hover:border-base-200"
+            class="flex w-full items-center rounded-sm border border-base-200 p-2 hover:border-base-200"
             type="button"
             role="button"
             [attr.disabled]="disabled()"
@@ -5799,7 +5800,7 @@ var _DateRangeCalendarComponent = class _DateRangeCalendarComponent {
 _DateRangeCalendarComponent.\u0275fac = function DateRangeCalendarComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _DateRangeCalendarComponent)();
 };
-_DateRangeCalendarComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DateRangeCalendarComponent, selectors: [["date-range-calendar"]], inputs: { from_date: [1, "from", "from_date"], to_date: [1, "to", "to_date"], offset_weekday: [1, "offset_weekday"], start: [1, "start"], end: [1, "end"], month: [1, "month"] }, outputs: { start: "startChange", end: "endChange", month: "monthChange", startChange: "startChange", endChange: "endChange" }, features: [\u0275\u0275NgOnChangesFeature], decls: 17, vars: 4, consts: [[1, "flex", "items-center", "justify-between"], ["month", "", 1, "px-2", "font-medium"], [1, "flex", "items-center", "space-x-2"], ["icon", "", "matRipple", "", 3, "click"], [1, "grid", "h-[17.25rem]", "w-[17.25rem]", "grid-cols-7", "grid-rows-7", "gap-1"], [1, "col-span-full", "grid", "grid-cols-7", "border-b", "border-base-200"], ["weekday", "", 1, "relative", "flex", "items-center", "justify-center", "text-sm", "opacity-60"], [1, "relative", "h-9", "w-9", "rounded-full", "hover:bg-base-200", 3, "text-secondary-content", "disabled"], [1, "relative", "h-9", "w-9", "rounded-full", "hover:bg-base-200", 3, "click", "mouseenter", "disabled"], [1, "absolute", "-inset-x-0.5", "inset-y-0", "border-y", "border-dashed", "border-base-content", "bg-base-200"], [1, "absolute", "inset-y-0", "-right-0.5", "w-[calc(50%+2px)]", "border-y", "border-dashed", "border-base-content", "bg-base-200"], [1, "absolute", "inset-y-0", "-left-0.5", "w-[calc(50%+2px)]", "border-y", "border-dashed", "border-base-content", "bg-base-200"], [1, "absolute", "inset-0", "z-10", "flex", "items-center", "justify-center", "rounded-full", "bg-secondary"], ["matRipple", "", 1, "absolute", "inset-0", "z-20", "flex", "items-center", "justify-center", "rounded-full"], [1, "absolute", "-inset-[3px]", "z-10", "flex", "items-center", "justify-center", "rounded-full", "border", "border-secondary"]], template: function DateRangeCalendarComponent_Template(rf, ctx) {
+_DateRangeCalendarComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DateRangeCalendarComponent, selectors: [["date-range-calendar"]], inputs: { from_date: [1, "from", "from_date"], to_date: [1, "to", "to_date"], offset_weekday: [1, "offset_weekday"], start: [1, "start"], end: [1, "end"], month: [1, "month"] }, outputs: { start: "startChange", end: "endChange", month: "monthChange", startChange: "startChange", endChange: "endChange" }, features: [\u0275\u0275NgOnChangesFeature], decls: 17, vars: 4, consts: [[1, "flex", "items-center", "justify-between"], ["month", "", 1, "px-2", "font-medium"], [1, "flex", "items-center", "space-x-2"], ["icon", "", "matRipple", "", 3, "click"], [1, "grid", "h-69", "w-69", "grid-cols-7", "grid-rows-7", "gap-1"], [1, "col-span-full", "grid", "grid-cols-7", "border-b", "border-base-200"], ["weekday", "", 1, "relative", "flex", "items-center", "justify-center", "text-sm", "opacity-60"], [1, "relative", "h-9", "w-9", "rounded-full", "hover:bg-base-200", 3, "text-secondary-content", "disabled"], [1, "relative", "h-9", "w-9", "rounded-full", "hover:bg-base-200", 3, "click", "mouseenter", "disabled"], [1, "absolute", "-inset-x-0.5", "inset-y-0", "border-y", "border-dashed", "border-base-content", "bg-base-200"], [1, "absolute", "inset-y-0", "-right-0.5", "w-[calc(50%+2px)]", "border-y", "border-dashed", "border-base-content", "bg-base-200"], [1, "absolute", "inset-y-0", "-left-0.5", "w-[calc(50%+2px)]", "border-y", "border-dashed", "border-base-content", "bg-base-200"], [1, "absolute", "inset-0", "z-10", "flex", "items-center", "justify-center", "rounded-full", "bg-secondary"], ["matRipple", "", 1, "absolute", "inset-0", "z-20", "flex", "items-center", "justify-center", "rounded-full"], [1, "absolute", "-inset-[3px]", "z-10", "flex", "items-center", "justify-center", "rounded-full", "border", "border-secondary"]], template: function DateRangeCalendarComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "div", 1);
     \u0275\u0275text(2);
@@ -5853,7 +5854,7 @@ var DateRangeCalendarComponent = _DateRangeCalendarComponent;
             </div>
         </div>
         <div
-            class="grid h-[17.25rem] w-[17.25rem] grid-cols-7 grid-rows-7 gap-1"
+            class="grid h-69 w-69 grid-cols-7 grid-rows-7 gap-1"
         >
             <div
                 class="col-span-full grid grid-cols-7 border-b border-base-200"
@@ -5992,7 +5993,7 @@ _DateRangeFieldComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent
   if (rf & 2) {
     \u0275\u0275queryAdvance();
   }
-}, inputs: { from_date: [1, "from", "from_date"], to_date: [1, "to", "to_date"], week_start: [1, "week_start"], disabled: [1, "disabled"], short: [1, "short"] }, features: [\u0275\u0275InheritDefinitionFeature], ngContentSelectors: _c3, decls: 16, vars: 12, consts: [["calendar_picker", ""], ["matRipple", "", "type", "button", "role", "date-picker", "customTooltip", "", "yPosition", "top", 1, "flex", "min-w-max", "items-center", "space-x-2", "rounded", "border", "border-neutral", "px-4", "py-2", "outline-base-content", "hover:border-base-content", "focus:outline-2", 3, "content", "disabled"], [1, "flex-1", "whitespace-nowrap"], [1, "text-2xl"], [1, "hidden"], [1, "relative", "w-[18.25rem]", "rounded", "bg-base-100", "px-2", "py-4"], [3, "startChange", "endChange", "month", "from", "to", "offset_weekday"]], template: function DateRangeFieldComponent_Template(rf, ctx) {
+}, inputs: { from_date: [1, "from", "from_date"], to_date: [1, "to", "to_date"], week_start: [1, "week_start"], disabled: [1, "disabled"], short: [1, "short"] }, features: [\u0275\u0275InheritDefinitionFeature], ngContentSelectors: _c3, decls: 16, vars: 12, consts: [["calendar_picker", ""], ["matRipple", "", "type", "button", "role", "date-picker", "customTooltip", "", "yPosition", "top", 1, "flex", "min-w-max", "items-center", "space-x-2", "rounded-sm", "border", "border-neutral", "px-4", "py-2", "outline-base-content", "hover:border-base-content", "focus:outline-2", 3, "content", "disabled"], [1, "flex-1", "whitespace-nowrap"], [1, "text-2xl"], [1, "hidden"], [1, "relative", "w-73", "rounded-sm", "bg-base-100", "px-2", "py-4"], [3, "startChange", "endChange", "month", "from", "to", "offset_weekday"]], template: function DateRangeFieldComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275projectionDef(_c2);
     \u0275\u0275elementStart(0, "button", 1)(1, "div", 2);
@@ -6040,7 +6041,7 @@ var DateRangeFieldComponent = _DateRangeFieldComponent;
     args: [{ selector: "date-range-field", template: `
         <button
             matRipple
-            class="flex min-w-max items-center space-x-2 rounded border border-neutral px-4 py-2 outline-base-content hover:border-base-content focus:outline-2"
+            class="flex min-w-max items-center space-x-2 rounded-sm border border-neutral px-4 py-2 outline-base-content hover:border-base-content focus:outline-2"
             type="button"
             role="date-picker"
             customTooltip
@@ -6063,7 +6064,7 @@ var DateRangeFieldComponent = _DateRangeFieldComponent;
             <ng-content select="input[endDate]"></ng-content>
         </div>
         <ng-template #calendar_picker>
-            <div class="relative w-[18.25rem] rounded bg-base-100 px-2 py-4">
+            <div class="relative w-73 rounded-sm bg-base-100 px-2 py-4">
                 <date-range-calendar
                     [month]="start_date()?.control?.value || now"
                     [from]="from"
@@ -6481,7 +6482,7 @@ _CompactCounterComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent
     useExisting: forwardRef(() => _CompactCounterComponent),
     multi: true
   }
-])], decls: 11, vars: 6, consts: [["counter", "", 1, "flex", "items-center", "space-x-1", "text-base", 3, "keydown.shift", "keydown.control", "keydown.meta", "keyup.shift", "keyup.control", "keyup.meta"], ["value", "", 1, "relative", "z-0", "-mx-px", "flex", "h-12", "min-w-16", "flex-1", "items-center", "justify-center", "rounded", "border", "border-secondary", "p-1", "focus-within:z-20"], [1, "px-3"], ["type", "text", "limitInput", "", 1, "absolute", "inset-0", "rounded-none", "p-2", "opacity-0", "focus:opacity-100", 3, "ngModelChange", "focus", "blur", "ngModel"], [1, "flex", "flex-col", "justify-center", "space-y-1"], ["increase", "", "icon", "", "matRipple", "", "type", "button", 1, "z-10", "h-[1.375rem]", "w-[1.375rem]", "min-w-0", "rounded", "border", "border-secondary", "text-sm", "text-secondary", 3, "click", "disabled"], ["decrease", "", "icon", "", "matRipple", "", "type", "button", 1, "z-10", "h-[1.375rem]", "w-[1.375rem]", "min-w-0", "rounded", "border", "border-secondary", "text-sm", "text-secondary", 3, "click", "disabled"]], template: function CompactCounterComponent_Template(rf, ctx) {
+])], decls: 11, vars: 6, consts: [["counter", "", 1, "flex", "items-center", "space-x-1", "text-base", 3, "keydown.shift", "keydown.control", "keydown.meta", "keyup.shift", "keyup.control", "keyup.meta"], ["value", "", 1, "relative", "z-0", "-mx-px", "flex", "h-12", "min-w-16", "flex-1", "items-center", "justify-center", "rounded-sm", "border", "border-secondary", "p-1", "focus-within:z-20"], [1, "px-3"], ["type", "text", "limitInput", "", 1, "absolute", "inset-0", "rounded-none", "p-2", "opacity-0", "focus:opacity-100", 3, "ngModelChange", "focus", "blur", "ngModel"], [1, "flex", "flex-col", "justify-center", "space-y-1"], ["increase", "", "icon", "", "matRipple", "", "type", "button", 1, "z-10", "h-5.5", "w-5.5", "min-w-0", "rounded-sm", "border", "border-secondary", "text-sm", "text-secondary", 3, "click", "disabled"], ["decrease", "", "icon", "", "matRipple", "", "type", "button", 1, "z-10", "h-5.5", "w-5.5", "min-w-0", "rounded-sm", "border", "border-secondary", "text-sm", "text-secondary", 3, "click", "disabled"]], template: function CompactCounterComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0);
     \u0275\u0275listener("keydown.shift", function CompactCounterComponent_Template_div_keydown_shift_0_listener() {
@@ -6537,7 +6538,7 @@ _CompactCounterComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent
     \u0275\u0275advance(3);
     \u0275\u0275property("disabled", !ctx.value || ctx.value === ctx.min());
   }
-}, dependencies: [FormsModule, DefaultValueAccessor, NgControlStatus, NgModel, IconComponent], styles: ["\n\n[counter].disabled[_ngcontent-%COMP%] {\n  pointer-events: none;\n  opacity: 0.3;\n}\n/*# sourceMappingURL=compact-counter.component.css.map */"] });
+}, dependencies: [FormsModule, DefaultValueAccessor, NgControlStatus, NgModel, IconComponent], styles: ["\n\n[counter].disabled[_ngcontent-%COMP%] {\n  pointer-events: none;\n  opacity: 30%;\n}\n\n\n/*# sourceMappingURL=compact-counter.component.css.map */"] });
 var CompactCounterComponent = _CompactCounterComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(CompactCounterComponent, [{
@@ -6556,7 +6557,7 @@ var CompactCounterComponent = _CompactCounterComponent;
         >
             <div
                 value
-                class="relative z-0 -mx-px flex h-12 min-w-16 flex-1 items-center justify-center rounded border border-secondary p-1 focus-within:z-20"
+                class="relative z-0 -mx-px flex h-12 min-w-16 flex-1 items-center justify-center rounded-sm border border-secondary p-1 focus-within:z-20"
             >
                 @if (!focused) {
                     <span class="px-3">
@@ -6578,7 +6579,7 @@ var CompactCounterComponent = _CompactCounterComponent;
                     icon
                     matRipple
                     type="button"
-                    class="z-10 h-[1.375rem] w-[1.375rem] min-w-0 rounded border border-secondary text-sm text-secondary"
+                    class="z-10 h-5.5 w-5.5 min-w-0 rounded-sm border border-secondary text-sm text-secondary"
                     [disabled]="value === max()"
                     (click)="add()"
                 >
@@ -6589,7 +6590,7 @@ var CompactCounterComponent = _CompactCounterComponent;
                     icon
                     matRipple
                     type="button"
-                    class="z-10 h-[1.375rem] w-[1.375rem] min-w-0 rounded border border-secondary text-sm text-secondary"
+                    class="z-10 h-5.5 w-5.5 min-w-0 rounded-sm border border-secondary text-sm text-secondary"
                     [disabled]="!value || value === min()"
                     (click)="remove()"
                 >
@@ -6604,7 +6605,7 @@ var CompactCounterComponent = _CompactCounterComponent;
         useExisting: forwardRef(() => CompactCounterComponent),
         multi: true
       }
-    ], imports: [FormsModule, IconComponent], styles: ["/* angular:styles/component:css;a6b2eba167820a19f3bfe4858772015401d059291041c0f38f39de4e622992d8;/home/runner/work/user-interfaces/user-interfaces/libs/form-fields/src/lib/compact-counter.component.ts */\n[counter].disabled {\n  pointer-events: none;\n  opacity: 0.3;\n}\n/*# sourceMappingURL=compact-counter.component.css.map */\n"] }]
+    ], imports: [FormsModule, IconComponent], styles: ["/* angular:styles/component:css;a6b2eba167820a19f3bfe4858772015401d059291041c0f38f39de4e622992d8;/home/runner/work/user-interfaces/user-interfaces/libs/form-fields/src/lib/compact-counter.component.ts */\n[counter].disabled {\n  pointer-events: none;\n  opacity: 30%;\n}\n/*! tailwindcss v4.1.18 | MIT License | https://tailwindcss.com */\n/*# sourceMappingURL=compact-counter.component.css.map */\n"] }]
   }], null, null);
 })();
 (() => {
@@ -6770,7 +6771,7 @@ var _RecurrenceModalComponent = class _RecurrenceModalComponent extends AsyncHan
 _RecurrenceModalComponent.\u0275fac = function RecurrenceModalComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _RecurrenceModalComponent)();
 };
-_RecurrenceModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _RecurrenceModalComponent, selectors: [["recurrence-modal"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 45, vars: 40, consts: [[1, "m-2", "flex", "h-14", "w-[calc(100%-1rem)]", "items-center", "justify-between", "rounded", "border-none", "bg-base-200", "px-4", "py-2"], [1, "text-xl", "font-medium"], [1, "flex", "min-w-[24rem]", "flex-col", "space-y-2", "px-4", 3, "formGroup"], [1, "w-auto"], [1, "mt-2", "flex", "items-center", "space-x-4", "pb-4"], ["formControlName", "interval", 3, "min", "max", "step"], ["appearance", "outline", 1, "no-subscript", "flex-1"], ["formControlName", "type"], ["value", "daily"], ["value", "weekly"], ["value", "monthly"], ["appearance", "outline"], [1, "pb-4"], ["formControlName", "end_type"], [1, "flex", "items-center"], ["value", "never"], [1, "mt-2", "flex", "items-center"], ["value", "date"], ["formControlName", "end_date", 3, "to"], ["value", "instances"], ["formControlName", "end_instances", 1, "flex-1", 3, "render_fn", "min", "max"], [1, "flex", "items-center", "justify-end", "space-x-2", "border-t", "border-base-200", "px-4", "py-2"], ["btn", "", "matRipple", "", "mat-dialog-close", "", 1, "inverse", "w-32"], ["btn", "", "matRipple", "", 1, "w-32", 3, "mat-dialog-close"], [1, "flex", "items-center", "space-x-2", "pb-4"], ["icon", "", "matRipple", "", 1, "h-12", "w-12", "rounded", "border", "border-secondary", 3, "bg-secondary", "text-secondary", "text-base-200"], ["icon", "", "matRipple", "", 1, "h-12", "w-12", "rounded", "border", "border-secondary", 3, "click"], ["formControlName", "monthly_type"], ["value", "day_of_month"], ["value", "day_of_week"]], template: function RecurrenceModalComponent_Template(rf, ctx) {
+_RecurrenceModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _RecurrenceModalComponent, selectors: [["recurrence-modal"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 45, vars: 40, consts: [[1, "m-2", "flex", "h-14", "w-[calc(100%-1rem)]", "items-center", "justify-between", "rounded-sm", "border-none", "bg-base-200", "px-4", "py-2"], [1, "text-xl", "font-medium"], [1, "flex", "min-w-[24rem]", "flex-col", "space-y-2", "px-4", 3, "formGroup"], [1, "w-auto"], [1, "mt-2", "flex", "items-center", "space-x-4", "pb-4"], ["formControlName", "interval", 3, "min", "max", "step"], ["appearance", "outline", 1, "no-subscript", "flex-1"], ["formControlName", "type"], ["value", "daily"], ["value", "weekly"], ["value", "monthly"], ["appearance", "outline"], [1, "pb-4"], ["formControlName", "end_type"], [1, "flex", "items-center"], ["value", "never"], [1, "mt-2", "flex", "items-center"], ["value", "date"], ["formControlName", "end_date", 3, "to"], ["value", "instances"], ["formControlName", "end_instances", 1, "flex-1", 3, "render_fn", "min", "max"], [1, "flex", "items-center", "justify-end", "space-x-2", "border-t", "border-base-200", "px-4", "py-2"], ["btn", "", "matRipple", "", "mat-dialog-close", "", 1, "inverse", "w-32"], ["btn", "", "matRipple", "", 1, "w-32", 3, "mat-dialog-close"], [1, "flex", "items-center", "space-x-2", "pb-4"], ["icon", "", "matRipple", "", 1, "h-12", "w-12", "rounded-sm", "border", "border-secondary", 3, "bg-secondary", "text-secondary", "text-base-200"], ["icon", "", "matRipple", "", 1, "h-12", "w-12", "rounded-sm", "border", "border-secondary", 3, "click"], ["formControlName", "monthly_type"], ["value", "day_of_month"], ["value", "day_of_week"]], template: function RecurrenceModalComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "header", 0)(1, "h3", 1);
     \u0275\u0275text(2);
@@ -6886,7 +6887,7 @@ var RecurrenceModalComponent = _RecurrenceModalComponent;
     type: Component,
     args: [{ selector: "recurrence-modal", template: `
         <header
-            class="m-2 flex h-14 w-[calc(100%-1rem)] items-center justify-between rounded border-none bg-base-200 px-4 py-2"
+            class="m-2 flex h-14 w-[calc(100%-1rem)] items-center justify-between rounded-sm border-none bg-base-200 px-4 py-2"
         >
             <h3 class="text-xl font-medium">
                 {{ 'FORM.RECURRENCE_CUSTOM_HEADER' | translate }}
@@ -6946,7 +6947,7 @@ var RecurrenceModalComponent = _RecurrenceModalComponent;
                         <button
                             icon
                             matRipple
-                            class="h-12 w-12 rounded border border-secondary"
+                            class="h-12 w-12 rounded-sm border border-secondary"
                             [class.bg-secondary]="has_date"
                             [class.text-secondary]="!has_date"
                             [class.text-base-200]="has_date"
@@ -7488,7 +7489,7 @@ function NewSpaceDetailsComponent_Conditional_0_Template(rf, ctx) {
     let tmp_6_0;
     let tmp_15_0;
     const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275classProp("sm:h-64", (tmp_1_0 = ctx_r1.space().images) == null ? null : tmp_1_0.length)("h-40", (tmp_2_0 = ctx_r1.space().images) == null ? null : tmp_2_0.length)("sm:h-0", !((tmp_3_0 = ctx_r1.space().images) == null ? null : tmp_3_0.length))("h-12", !((tmp_4_0 = ctx_r1.space().images) == null ? null : tmp_4_0.length))("!bg-transparent", !((tmp_5_0 = ctx_r1.space().images) == null ? null : tmp_5_0.length));
+    \u0275\u0275classProp("sm:h-64", (tmp_1_0 = ctx_r1.space().images) == null ? null : tmp_1_0.length)("h-40", (tmp_2_0 = ctx_r1.space().images) == null ? null : tmp_2_0.length)("sm:h-0", !((tmp_3_0 = ctx_r1.space().images) == null ? null : tmp_3_0.length))("h-12", !((tmp_4_0 = ctx_r1.space().images) == null ? null : tmp_4_0.length))("bg-transparent!", !((tmp_5_0 = ctx_r1.space().images) == null ? null : tmp_5_0.length));
     \u0275\u0275advance();
     \u0275\u0275conditional(((tmp_6_0 = ctx_r1.space().images) == null ? null : tmp_6_0.length) ? 1 : -1);
     \u0275\u0275advance(4);
@@ -7564,7 +7565,7 @@ var _NewSpaceDetailsComponent = class _NewSpaceDetailsComponent {
 _NewSpaceDetailsComponent.\u0275fac = function NewSpaceDetailsComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _NewSpaceDetailsComponent)();
 };
-_NewSpaceDetailsComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewSpaceDetailsComponent, selectors: [["new-space-details"]], inputs: { space: [1, "space"], fav: [1, "fav"], active: [1, "active"], hide_map: [1, "hide_map"], alert: [1, "alert"] }, outputs: { activeChange: "activeChange", close: "close", toggleFav: "toggleFav" }, features: [\u0275\u0275NgOnChangesFeature], decls: 2, vars: 1, consts: [["empty", "", 1, "flex", "h-full", "w-full", "flex-col", "items-center", "justify-center", "space-y-2", "p-16"], ["image", "", 1, "relative", "w-full", "bg-neutral"], [1, "absolute", "inset-0", 3, "images"], ["icon", "", "matRipple", "", "name", "close-space-details", 1, "absolute", "left-2", "top-2", "bg-base-100", "lg:hidden", 3, "click"], ["icon", "", "matRipple", "", "name", "toggle-space-favourite-details", 1, "absolute", "right-2", "top-2", "bg-base-100", 3, "click"], [3, "className"], [1, "h-1/2", "flex-1", "space-y-2", "p-2"], ["actions", "", 1, "z-0"], [1, "mb-2", "mt-4", "text-xl", "font-medium"], [1, "my-2", "rounded", "px-2", "py-1", "text-xs", 3, "bg-info", "text-info-content", "bg-warning", "text-warning-content", "bg-error", "text-error-content"], ["details", "", 1, "relative", "!mt-4", "space-y-2", "rounded", "border", "border-base-400", "px-2", "pb-1", "pt-1"], [1, "absolute", "left-2", "top-0", "-translate-y-1/2", "bg-base-100", "px-2", "text-lg", "font-medium"], [1, "flex", "items-center", "space-x-2"], ["facilities", "", 1, "relative", "!mt-4", "space-y-2", "rounded", "border", "border-base-400", "px-2", "pb-1", "pt-1"], ["map", "", 1, "relative", "mx-auto", "!mb-2", "h-64", "w-full", "overflow-hidden", "rounded", "bg-base-200", "sm:h-48"], [1, "my-2", "rounded", "px-2", "py-1", "text-xs"], [1, "flex", "flex-wrap", "items-center"], ["for", "feat", 1, "m-1", "rounded-full", "border", "border-base-300", "px-4", "py-2", "text-sm", "capitalize"], [1, "pointer-events-none", 3, "src", "focus", "features", "options"], [1, "text-center", "opacity-30"]], template: function NewSpaceDetailsComponent_Template(rf, ctx) {
+_NewSpaceDetailsComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewSpaceDetailsComponent, selectors: [["new-space-details"]], inputs: { space: [1, "space"], fav: [1, "fav"], active: [1, "active"], hide_map: [1, "hide_map"], alert: [1, "alert"] }, outputs: { activeChange: "activeChange", close: "close", toggleFav: "toggleFav" }, features: [\u0275\u0275NgOnChangesFeature], decls: 2, vars: 1, consts: [["empty", "", 1, "flex", "h-full", "w-full", "flex-col", "items-center", "justify-center", "space-y-2", "p-16"], ["image", "", 1, "relative", "w-full", "bg-neutral"], [1, "absolute", "inset-0", 3, "images"], ["icon", "", "matRipple", "", "name", "close-space-details", 1, "absolute", "left-2", "top-2", "bg-base-100", "lg:hidden", 3, "click"], ["icon", "", "matRipple", "", "name", "toggle-space-favourite-details", 1, "absolute", "right-2", "top-2", "bg-base-100", 3, "click"], [3, "className"], [1, "h-1/2", "flex-1", "space-y-2", "p-2"], ["actions", "", 1, "z-0"], [1, "mb-2", "mt-4", "text-xl", "font-medium"], [1, "my-2", "rounded-sm", "px-2", "py-1", "text-xs", 3, "bg-info", "text-info-content", "bg-warning", "text-warning-content", "bg-error", "text-error-content"], ["details", "", 1, "relative", "mt-4!", "space-y-2", "rounded-sm", "border", "border-base-400", "px-2", "pb-1", "pt-1"], [1, "absolute", "left-2", "top-0", "-translate-y-1/2", "bg-base-100", "px-2", "text-lg", "font-medium"], [1, "flex", "items-center", "space-x-2"], ["facilities", "", 1, "relative", "mt-4!", "space-y-2", "rounded-sm", "border", "border-base-400", "px-2", "pb-1", "pt-1"], ["map", "", 1, "relative", "mx-auto", "mb-2!", "h-64", "w-full", "overflow-hidden", "rounded-sm", "bg-base-200", "sm:h-48"], [1, "my-2", "rounded-sm", "px-2", "py-1", "text-xs"], [1, "flex", "flex-wrap", "items-center"], ["for", "feat", 1, "m-1", "rounded-full", "border", "border-base-300", "px-4", "py-2", "text-sm", "capitalize"], [1, "pointer-events-none", 3, "src", "focus", "features", "options"], [1, "text-center", "opacity-30"]], template: function NewSpaceDetailsComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275conditionalCreate(0, NewSpaceDetailsComponent_Conditional_0_Template, 35, 29)(1, NewSpaceDetailsComponent_Conditional_1_Template, 4, 3, "div", 0);
   }
@@ -7592,7 +7593,7 @@ var NewSpaceDetailsComponent = _NewSpaceDetailsComponent;
                 [class.h-40]="space().images?.length"
                 [class.sm:h-0]="!space().images?.length"
                 [class.h-12]="!space().images?.length"
-                [class.!bg-transparent]="!space().images?.length"
+                [class.bg-transparent!]="!space().images?.length"
             >
                 @if (space().images?.length) {
                     <image-carousel
@@ -7635,7 +7636,7 @@ var NewSpaceDetailsComponent = _NewSpaceDetailsComponent;
                 </section>
                 @if (alert()) {
                     <div
-                        class="my-2 rounded px-2 py-1 text-xs"
+                        class="my-2 rounded-sm px-2 py-1 text-xs"
                         [class.bg-info]="alert()[0] === 'info'"
                         [class.text-info-content]="alert()[0] === 'info'"
                         [class.bg-warning]="alert()[0] === 'warn'"
@@ -7648,7 +7649,7 @@ var NewSpaceDetailsComponent = _NewSpaceDetailsComponent;
                 }
                 <section
                     details
-                    class="relative !mt-4 space-y-2 rounded border border-base-400 px-2 pb-1 pt-1"
+                    class="relative mt-4! space-y-2 rounded-sm border border-base-400 px-2 pb-1 pt-1"
                 >
                     <h2
                         class="absolute left-2 top-0 -translate-y-1/2 bg-base-100 px-2 text-lg font-medium"
@@ -7684,7 +7685,7 @@ var NewSpaceDetailsComponent = _NewSpaceDetailsComponent;
                 @if (space().features?.length) {
                     <section
                         facilities
-                        class="relative !mt-4 space-y-2 rounded border border-base-400 px-2 pb-1 pt-1"
+                        class="relative mt-4! space-y-2 rounded-sm border border-base-400 px-2 pb-1 pt-1"
                     >
                         <h2
                             class="absolute left-2 top-0 -translate-y-1/2 bg-base-100 px-2 text-lg font-medium"
@@ -7706,7 +7707,7 @@ var NewSpaceDetailsComponent = _NewSpaceDetailsComponent;
                 @if (!hide_map()) {
                     <section
                         map
-                        class="relative mx-auto !mb-2 h-64 w-full overflow-hidden rounded bg-base-200 sm:h-48"
+                        class="relative mx-auto mb-2! h-64 w-full overflow-hidden rounded-sm bg-base-200 sm:h-48"
                     >
                         <interactive-map
                             class="pointer-events-none"
@@ -7863,7 +7864,7 @@ var _NewSpaceFiltersDisplayComponent = class _NewSpaceFiltersDisplayComponent ex
 _NewSpaceFiltersDisplayComponent.\u0275fac = function NewSpaceFiltersDisplayComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _NewSpaceFiltersDisplayComponent)();
 };
-_NewSpaceFiltersDisplayComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewSpaceFiltersDisplayComponent, selectors: [["new-space-filters-display"]], inputs: { view: [1, "view"] }, outputs: { viewChange: "viewChange" }, features: [\u0275\u0275InheritDefinitionFeature], decls: 17, vars: 20, consts: [["filters", "", 1, "sticky", "-top-1", "z-20", "-mx-1", "!mb-4", "flex", "w-[calc(100%+0.5rem)]", "flex-wrap", "items-center", "rounded", "border", "border-base-300", "bg-base-100", "p-1", "!pr-10", "sm:!pr-1"], ["btn", "", "matRipple", "", "name", "clear-space-filters", 1, "mb-2", "mr-2", "min-h-[2rem]"], ["filter-item", "", "zone", ""], ["filter-item", "", "date", ""], ["filter-item", "", "time", ""], ["filter-item", "", "count", ""], ["filter-item", ""], ["btn", "", "matRipple", "", "name", "clear-space-filters", 1, "mb-2", "mr-2", "min-h-[2rem]", 3, "click"], [1, "truncate"], ["icon", "", "matRipple", "", "name", "remove-space-filter", 1, "-mr-4", 3, "click"]], template: function NewSpaceFiltersDisplayComponent_Template(rf, ctx) {
+_NewSpaceFiltersDisplayComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewSpaceFiltersDisplayComponent, selectors: [["new-space-filters-display"]], inputs: { view: [1, "view"] }, outputs: { viewChange: "viewChange" }, features: [\u0275\u0275InheritDefinitionFeature], decls: 17, vars: 20, consts: [["filters", "", 1, "sticky", "-top-1", "z-20", "-mx-1", "mb-4!", "flex", "w-[calc(100%+0.5rem)]", "flex-wrap", "items-center", "rounded-sm", "border", "border-base-300", "bg-base-100", "p-1", "pr-10!", "sm:pr-1!"], ["btn", "", "matRipple", "", "name", "clear-space-filters", 1, "mb-2", "mr-2", "min-h-8"], ["filter-item", "", "zone", ""], ["filter-item", "", "date", ""], ["filter-item", "", "time", ""], ["filter-item", "", "count", ""], ["filter-item", ""], ["btn", "", "matRipple", "", "name", "clear-space-filters", 1, "mb-2", "mr-2", "min-h-8", 3, "click"], [1, "truncate"], ["icon", "", "matRipple", "", "name", "remove-space-filter", 1, "-mr-4", 3, "click"]], template: function NewSpaceFiltersDisplayComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "section", 0);
     \u0275\u0275conditionalCreate(1, NewSpaceFiltersDisplayComponent_Conditional_1_Template, 3, 3, "button", 1);
@@ -7913,14 +7914,14 @@ var NewSpaceFiltersDisplayComponent = _NewSpaceFiltersDisplayComponent;
     args: [{ selector: `new-space-filters-display`, template: `
         <section
             filters
-            class="sticky -top-1 z-20 -mx-1 !mb-4 flex w-[calc(100%+0.5rem)] flex-wrap items-center rounded border border-base-300 bg-base-100 p-1 !pr-10 sm:!pr-1"
+            class="sticky -top-1 z-20 -mx-1 mb-4! flex w-[calc(100%+0.5rem)] flex-wrap items-center rounded-sm border border-base-300 bg-base-100 p-1 pr-10! sm:pr-1!"
         >
             @if ((options | async)?.features?.length > 1) {
                 <button
                     btn
                     matRipple
                     name="clear-space-filters"
-                    class="mb-2 mr-2 min-h-[2rem]"
+                    class="mb-2 mr-2 min-h-8"
                     (click)="removeAllFeatures()"
                 >
                     {{ 'COMMON.FILTERS_CLEAR' | translate }}
@@ -8410,7 +8411,7 @@ var _NewSpaceFiltersComponent = class _NewSpaceFiltersComponent {
 _NewSpaceFiltersComponent.\u0275fac = function NewSpaceFiltersComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _NewSpaceFiltersComponent)();
 };
-_NewSpaceFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewSpaceFiltersComponent, selectors: [["new-space-filters"]], inputs: { multiday: [1, "multiday"], hide_levels: [1, "hide_levels"], viewing_map: [1, "viewing_map"] }, decls: 37, vars: 42, consts: [[1, "sticky", "top-0", "z-10", "flex", "items-center", "border-b", "border-base-300", "bg-base-100", "px-4", "py-4"], [1, "text-xl", "font-medium"], [1, "max-h-[65vh]", "w-full", "max-w-[100vw]", "divide-y", "divide-base-200", "overflow-y-auto", "overflow-x-hidden", "p-2", 3, "formGroup"], ["details", ""], [1, "mb-1", "text-lg", "font-medium"], [1, "flex", "min-w-[8rem]", "flex-1", "flex-col"], ["for", "location"], ["appearance", "outline", 1, "w-full"], [1, "flex", "flex-wrap", "items-center", "sm:space-x-2"], [1, "min-w-[8rem]", "flex-1"], ["for", "date"], ["name", "date", 3, "ngModelChange", "ngModel", "ngModelOptions", "to", "short", "timezone", "range"], [1, "relative", "min-w-[8rem]", "flex-1"], [1, "-mt-2", "mb-2", "flex", "justify-end"], [1, "flex", "items-center", "space-x-2"], ["favs", "", 1, "space-y-2", "pb-4"], ["features", "", 1, "space-y-2"], [1, "w-full", "border-t", "border-base-200", "px-2", "pt-2"], ["name", "region", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [3, "value"], ["name", "building", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], ["name", "location", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder", "multiple"], [1, "flex", "flex-col-reverse"], [1, "text-xs", "opacity-30"], [1, "opacity-0"], ["name", "date", 3, "ngModelChange", "ngModel", "ngModelOptions", "from", "to", "short", "timezone", "range"], ["formControlName", "all_day"], [1, "w-1/3", "flex-1"], ["for", "start-time"], ["name", "start-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "use_24hr", "timezone"], ["for", "end-time"], ["name", "end-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "from", "use_24hr", "timezone"], ["name", "end-time", "formControlName", "duration", 3, "time", "max", "use_24hr", "timezone"], [1, "mt-2", "text-lg", "font-medium"], [1, "flex", "w-full", "items-center"], [1, "w-full", 3, "ngModelChange", "name", "ngModel", "ngModelOptions"], [1, "flex", "items-center"], ["btn", "", "matRipple", "", "name", "apply-space-filters", 1, "w-full", 3, "click"]], template: function NewSpaceFiltersComponent_Template(rf, ctx) {
+_NewSpaceFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewSpaceFiltersComponent, selectors: [["new-space-filters"]], inputs: { multiday: [1, "multiday"], hide_levels: [1, "hide_levels"], viewing_map: [1, "viewing_map"] }, decls: 37, vars: 42, consts: [[1, "sticky", "top-0", "z-10", "flex", "items-center", "border-b", "border-base-300", "bg-base-100", "px-4", "py-4"], [1, "text-xl", "font-medium"], [1, "max-h-[65vh]", "w-full", "max-w-[100vw]", "divide-y", "divide-base-200", "overflow-y-auto", "overflow-x-hidden", "p-2", 3, "formGroup"], ["details", ""], [1, "mb-1", "text-lg", "font-medium"], [1, "flex", "min-w-32", "flex-1", "flex-col"], ["for", "location"], ["appearance", "outline", 1, "w-full"], [1, "flex", "flex-wrap", "items-center", "sm:space-x-2"], [1, "min-w-32", "flex-1"], ["for", "date"], ["name", "date", 3, "ngModelChange", "ngModel", "ngModelOptions", "to", "short", "timezone", "range"], [1, "relative", "min-w-32", "flex-1"], [1, "-mt-2", "mb-2", "flex", "justify-end"], [1, "flex", "items-center", "space-x-2"], ["favs", "", 1, "space-y-2", "pb-4"], ["features", "", 1, "space-y-2"], [1, "w-full", "border-t", "border-base-200", "px-2", "pt-2"], ["name", "region", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [3, "value"], ["name", "building", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], ["name", "location", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder", "multiple"], [1, "flex", "flex-col-reverse"], [1, "text-xs", "opacity-30"], [1, "opacity-0"], ["name", "date", 3, "ngModelChange", "ngModel", "ngModelOptions", "from", "to", "short", "timezone", "range"], ["formControlName", "all_day"], [1, "w-1/3", "flex-1"], ["for", "start-time"], ["name", "start-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "use_24hr", "timezone"], ["for", "end-time"], ["name", "end-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "from", "use_24hr", "timezone"], ["name", "end-time", "formControlName", "duration", 3, "time", "max", "use_24hr", "timezone"], [1, "mt-2", "text-lg", "font-medium"], [1, "flex", "w-full", "items-center"], [1, "w-full", 3, "ngModelChange", "name", "ngModel", "ngModelOptions"], [1, "flex", "items-center"], ["btn", "", "matRipple", "", "name", "apply-space-filters", 1, "w-full", 3, "click"]], template: function NewSpaceFiltersComponent_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "div", 0)(1, "h3", 1);
@@ -8544,7 +8545,7 @@ var NewSpaceFiltersComponent = _NewSpaceFiltersComponent;
                 <h2 class="mb-1 text-lg font-medium">
                     {{ 'CALENDAR_EVENT.DETAILS' | translate }}
                 </h2>
-                <div class="flex min-w-[8rem] flex-1 flex-col">
+                <div class="flex min-w-32 flex-1 flex-col">
                     @if (
                         !hide_levels() &&
                         !(use_region && (regions | async)?.length) &&
@@ -8635,7 +8636,7 @@ var NewSpaceFiltersComponent = _NewSpaceFiltersComponent;
                     }
                 </div>
                 <div class="flex flex-wrap items-center sm:space-x-2">
-                    <div class="min-w-[8rem] flex-1">
+                    <div class="min-w-32 flex-1">
                         <label for="date">
                             {{ 'FORM.DATE' | translate }}<span>*</span>
                         </label>
@@ -8653,7 +8654,7 @@ var NewSpaceFiltersComponent = _NewSpaceFiltersComponent;
                         </a-date-field>
                     </div>
                     @if (multiday()) {
-                        <div class="relative min-w-[8rem] flex-1">
+                        <div class="relative min-w-32 flex-1">
                             <label for="date">
                                 {{ 'FORM.DATE_END' | translate }}<span>*</span>
                             </label>
@@ -8936,7 +8937,7 @@ function NewSpaceListComponent_Conditional_8_Conditional_0_For_2_Template(rf, ct
     let tmp_19_0;
     const space_r2 = ctx.$implicit;
     const ctx_r2 = \u0275\u0275nextContext(3);
-    \u0275\u0275classProp("!border-info", ctx_r2.active() === space_r2.id)("!bg-error-light", \u0275\u0275pipeBind1(1, 16, ctx_r2.room_alerts)[space_r2.id] ? \u0275\u0275pipeBind1(2, 18, ctx_r2.room_alerts)[space_r2.id][0] === "closed" : false);
+    \u0275\u0275classProp("border-info!", ctx_r2.active() === space_r2.id)("bg-error-light!", \u0275\u0275pipeBind1(1, 16, ctx_r2.room_alerts)[space_r2.id] ? \u0275\u0275pipeBind1(2, 18, ctx_r2.room_alerts)[space_r2.id][0] === "closed" : false);
     \u0275\u0275advance(3);
     \u0275\u0275classProp("pointer-events-none", \u0275\u0275pipeBind1(4, 20, ctx_r2.room_alerts)[space_r2.id] ? \u0275\u0275pipeBind1(5, 22, ctx_r2.room_alerts)[space_r2.id][0] === "closed" : false);
     \u0275\u0275advance(4);
@@ -9041,7 +9042,7 @@ var _NewSpaceListComponent = class _NewSpaceListComponent {
 _NewSpaceListComponent.\u0275fac = function NewSpaceListComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _NewSpaceListComponent)();
 };
-_NewSpaceListComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewSpaceListComponent, selectors: [["new-space-list"]], inputs: { active: [1, "active"], selected: [1, "selected"], favorites: [1, "favorites"] }, outputs: { onSelect: "onSelect", toggleFav: "toggleFav" }, decls: 11, vars: 17, consts: [[1, "px-2", "font-bold"], ["count", "", 1, "mb-4", "px-2", "text-sm", "opacity-60"], ["loading", "", 1, "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-16"], [1, "list-style-none", "space-y-2"], ["empty", "", 1, "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-16"], ["space", "", 1, "relative", "w-full", "rounded-lg", "border", "border-base-200", "bg-base-100", "p-2", "shadow", 3, "!border-info", "!bg-error-light"], ["space", "", 1, "relative", "w-full", "rounded-lg", "border", "border-base-200", "bg-base-100", "p-2", "shadow"], ["matRipple", "", "name", "select-space", 1, "flex", "h-full", "w-full", "items-center", "rounded", 3, "click"], [1, "relative", "mr-4", "flex", "h-20", "w-20", "min-w-[5rem]", "items-center", "justify-center", "overflow-hidden", "rounded-xl", "bg-base-200"], [1, "absolute", "left-1", "top-1", "flex", "h-6", "w-6", "items-center", "justify-center", "rounded-full", "border", "border-neutral", "bg-base-200", "text-white"], ["auth", "", 1, "h-full", "object-cover", 3, "source"], ["src", "assets/icons/room-placeholder.svg", 1, "m-auto"], [1, "pointer-events-auto", "absolute", "bottom-1", "left-1", "flex", "h-6", "w-6", "items-center", "justify-center", "rounded-full", 3, "matTooltip", "bg-error", "bg-info", "bg-warning", "text-error-content", "text-info-content", "text-warning-content"], [1, "max-w-48", "space-y-2"], [1, "mr-10", "truncate", "text-left", "font-medium"], [1, "flex", "items-center", "space-x-2", "text-sm"], [1, "text-info"], [1, "truncate"], ["icon", "", "matRipple", "", "name", "toggle-space-favourite", 1, "absolute", "right-1", "top-1", 3, "click"], [3, "className"], [1, "absolute", "bottom-1", "right-1", "w-14", "rounded", "bg-warning", "px-2", "py-1", "text-center", "text-[0.625rem]", "font-medium", "leading-tight", "text-warning-content"], [1, "pointer-events-auto", "absolute", "bottom-1", "left-1", "flex", "h-6", "w-6", "items-center", "justify-center", "rounded-full", 3, "click", "matTooltip"], [1, "text-center", "opacity-30"], [3, "diameter"], [1, "opacity-30"]], template: function NewSpaceListComponent_Template(rf, ctx) {
+_NewSpaceListComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewSpaceListComponent, selectors: [["new-space-list"]], inputs: { active: [1, "active"], selected: [1, "selected"], favorites: [1, "favorites"] }, outputs: { onSelect: "onSelect", toggleFav: "toggleFav" }, decls: 11, vars: 17, consts: [[1, "px-2", "font-bold"], ["count", "", 1, "mb-4", "px-2", "text-sm", "opacity-60"], ["loading", "", 1, "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-16"], [1, "list-style-none", "space-y-2"], ["empty", "", 1, "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-16"], ["space", "", 1, "relative", "w-full", "rounded-lg", "border", "border-base-200", "bg-base-100", "p-2", "shadow-sm", 3, "border-info!", "bg-error-light!"], ["space", "", 1, "relative", "w-full", "rounded-lg", "border", "border-base-200", "bg-base-100", "p-2", "shadow-sm"], ["matRipple", "", "name", "select-space", 1, "flex", "h-full", "w-full", "items-center", "rounded-sm", 3, "click"], [1, "relative", "mr-4", "flex", "h-20", "w-20", "min-w-20", "items-center", "justify-center", "overflow-hidden", "rounded-xl", "bg-base-200"], [1, "absolute", "left-1", "top-1", "flex", "h-6", "w-6", "items-center", "justify-center", "rounded-full", "border", "border-neutral", "bg-base-200", "text-white"], ["auth", "", 1, "h-full", "object-cover", 3, "source"], ["src", "assets/icons/room-placeholder.svg", 1, "m-auto"], [1, "pointer-events-auto", "absolute", "bottom-1", "left-1", "flex", "h-6", "w-6", "items-center", "justify-center", "rounded-full", 3, "matTooltip", "bg-error", "bg-info", "bg-warning", "text-error-content", "text-info-content", "text-warning-content"], [1, "max-w-48", "space-y-2"], [1, "mr-10", "truncate", "text-left", "font-medium"], [1, "flex", "items-center", "space-x-2", "text-sm"], [1, "text-info"], [1, "truncate"], ["icon", "", "matRipple", "", "name", "toggle-space-favourite", 1, "absolute", "right-1", "top-1", 3, "click"], [3, "className"], [1, "absolute", "bottom-1", "right-1", "w-14", "rounded-sm", "bg-warning", "px-2", "py-1", "text-center", "text-[0.625rem]", "font-medium", "leading-tight", "text-warning-content"], [1, "pointer-events-auto", "absolute", "bottom-1", "left-1", "flex", "h-6", "w-6", "items-center", "justify-center", "rounded-full", 3, "click", "matTooltip"], [1, "text-center", "opacity-30"], [3, "diameter"], [1, "opacity-30"]], template: function NewSpaceListComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "h3", 0);
     \u0275\u0275text(1);
@@ -9099,9 +9100,9 @@ var NewSpaceListComponent = _NewSpaceListComponent;
                     @for (space of available_spaces | async; track space) {
                         <li
                             space
-                            [class.!border-info]="active() === space.id"
-                            class="relative w-full rounded-lg border border-base-200 bg-base-100 p-2 shadow"
-                            [class.!bg-error-light]="
+                            [class.border-info!]="active() === space.id"
+                            class="relative w-full rounded-lg border border-base-200 bg-base-100 p-2 shadow-sm"
+                            [class.bg-error-light!]="
                                 (room_alerts | async)[space.id]
                                     ? (room_alerts | async)[space.id][0] ===
                                       'closed'
@@ -9111,7 +9112,7 @@ var NewSpaceListComponent = _NewSpaceListComponent;
                             <button
                                 matRipple
                                 name="select-space"
-                                class="flex h-full w-full items-center rounded"
+                                class="flex h-full w-full items-center rounded-sm"
                                 (click)="selectSpace(space)"
                                 [class.pointer-events-none]="
                                     (room_alerts | async)[space.id]
@@ -9121,7 +9122,7 @@ var NewSpaceListComponent = _NewSpaceListComponent;
                                 "
                             >
                                 <div
-                                    class="relative mr-4 flex h-20 w-20 min-w-[5rem] items-center justify-center overflow-hidden rounded-xl bg-base-200"
+                                    class="relative mr-4 flex h-20 w-20 min-w-20 items-center justify-center overflow-hidden rounded-xl bg-base-200"
                                 >
                                     @if (selected().includes(space.id)) {
                                         <div
@@ -9258,7 +9259,7 @@ var NewSpaceListComponent = _NewSpaceListComponent;
                             </button>
                             @if (space.approval) {
                                 <div
-                                    class="absolute bottom-1 right-1 w-14 rounded bg-warning px-2 py-1 text-center text-[0.625rem] font-medium leading-tight text-warning-content"
+                                    class="absolute bottom-1 right-1 w-14 rounded-sm bg-warning px-2 py-1 text-center text-[0.625rem] font-medium leading-tight text-warning-content"
                                 >
                                     {{ 'COMMON.APPROVAL_REQUIRED' | translate }}
                                 </div>
@@ -9847,7 +9848,7 @@ var _NewSpaceSelectModalComponent = class _NewSpaceSelectModalComponent {
 _NewSpaceSelectModalComponent.\u0275fac = function NewSpaceSelectModalComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _NewSpaceSelectModalComponent)();
 };
-_NewSpaceSelectModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewSpaceSelectModalComponent, selectors: [["new-space-select-modal"]], decls: 43, vars: 63, consts: [[1, "mb-10", "flex", "h-[calc(100vh-2.5rem)]", "max-h-[calc(100vh-2.5rem)]", "w-screen", "flex-col", "space-y-2", "overflow-hidden", "bg-base-100", "p-2", "sm:m-0", "sm:h-auto", "sm:w-auto"], [1, "flex", "h-14", "w-full", "items-center", "space-x-2", "rounded", "border-none", "bg-base-200", "p-2"], [1, "flex-1", "px-2", "text-xl", "font-medium", "capitalize"], [1, "flex", "divide-x", "divide-secondary", "rounded", "border", "border-secondary"], ["icon", "", "matRipple", "", 1, "rounded-l", "rounded-r-none", 3, "click", "matTooltip"], ["icon", "", "matRipple", "", 1, "rounded-l-none", "rounded-r", 3, "click", "matTooltip"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "relative", "flex", "h-1/2", "max-h-[calc(100vh-7rem)]", "flex-1", "sm:h-[65vh]", "sm:flex-none", "sm:space-x-2"], ["filters", "", 1, "h-full", "w-full", "overflow-y-auto", "overflow-x-hidden", "rounded", "border", "border-base-300", "shadow", "sm:block", "sm:w-[20rem]"], [3, "hide_levels"], ["list", "", 1, "h-full", "w-full", "overflow-auto", "rounded", "border", "border-base-300", "bg-base-200", "sm:w-[20rem]", "lg:block"], [3, "view"], ["list", "", 3, "active", "selected", "favorites"], ["map", "", 1, "h-full", "min-h-[60vh]", "w-full", 3, "is_displayed", "active"], [1, "relative", "h-full", "w-full", "overflow-auto", "rounded", "border", "border-base-300", "shadow", "sm:w-[20rem]"], ["icon", "", "matRipple", "", 1, "absolute", "left-2", "top-2", "z-20", "hidden", "border", "border-base-300", "bg-base-100", "md:flex"], ["details", "", 3, "activeChange", "toggleFav", "close", "space", "active", "hide_map", "fav"], ["icon", "", "matRipple", "", 1, "absolute", "right-2", "top-3", "z-20", "border", "border-base-200", "bg-base-100", "sm:hidden"], [1, "flex", "w-full", "items-center", "justify-between", "space-x-2", "rounded", "border-none", "bg-base-200", "p-2"], ["btn", "", "matRipple", "", "name", "space-return", 1, "inverse", "bg-base-100", "text-secondary", 3, "mat-dialog-close"], [1, "flex", "items-center", "space-x-2"], [1, "text-xl"], [1, "pr-2"], ["btn", "", "matRipple", "", "name", "toggle-space", 3, "click", "disabled"], [1, "flex", "items-center"], [1, "mr-1"], [3, "viewChange", "view"], ["list", "", 3, "toggleFav", "onSelect", "active", "selected", "favorites"], ["map", "", 1, "h-full", "min-h-[60vh]", "w-full", 3, "onSelect", "is_displayed", "active"], ["icon", "", "matRipple", "", 1, "absolute", "left-2", "top-2", "z-20", "hidden", "border", "border-base-300", "bg-base-100", "md:flex", 3, "click"], ["icon", "", "matRipple", "", 1, "absolute", "right-2", "top-3", "z-20", "border", "border-base-200", "bg-base-100", "sm:hidden", 3, "click"]], template: function NewSpaceSelectModalComponent_Template(rf, ctx) {
+_NewSpaceSelectModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewSpaceSelectModalComponent, selectors: [["new-space-select-modal"]], decls: 43, vars: 63, consts: [[1, "mb-18", "flex", "h-[calc(100vh-4.5rem)]", "max-h-[calc(100vh-4.5rem)]", "w-screen", "flex-col", "space-y-2", "overflow-hidden", "bg-base-100", "p-2", "sm:m-0", "sm:h-auto", "sm:w-auto"], [1, "flex", "h-14", "w-full", "items-center", "space-x-2", "rounded-sm", "border-none", "bg-base-200", "p-2"], [1, "flex-1", "px-2", "text-xl", "font-medium", "capitalize"], [1, "flex", "divide-x", "divide-secondary", "rounded-sm", "border", "border-secondary"], ["icon", "", "matRipple", "", 1, "rounded-l", "rounded-r-none", 3, "click", "matTooltip"], ["icon", "", "matRipple", "", 1, "rounded-l-none", "rounded-r", 3, "click", "matTooltip"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "relative", "flex", "h-1/2", "max-h-[calc(100vh-7rem)]", "flex-1", "sm:h-[65vh]", "sm:flex-none", "sm:space-x-2"], ["filters", "", 1, "h-full", "w-full", "overflow-y-auto", "overflow-x-hidden", "rounded-sm", "border", "border-base-300", "shadow-sm", "sm:block", "sm:w-[20rem]"], [3, "hide_levels"], ["list", "", 1, "h-full", "w-full", "overflow-auto", "rounded-sm", "border", "border-base-300", "bg-base-200", "sm:w-[20rem]", "lg:block"], [3, "view"], ["list", "", 3, "active", "selected", "favorites"], ["map", "", 1, "h-full", "min-h-[60vh]", "w-full", 3, "is_displayed", "active"], [1, "relative", "h-full", "w-full", "overflow-auto", "rounded-sm", "border", "border-base-300", "shadow-sm", "sm:w-[20rem]"], ["icon", "", "matRipple", "", 1, "absolute", "left-2", "top-2", "z-20", "hidden", "border", "border-base-300", "bg-base-100", "md:flex"], ["details", "", 3, "activeChange", "toggleFav", "close", "space", "active", "hide_map", "fav"], ["icon", "", "matRipple", "", 1, "absolute", "right-2", "top-3", "z-20", "border", "border-base-200", "bg-base-100", "sm:hidden"], [1, "flex", "w-full", "items-center", "justify-between", "space-x-2", "rounded-sm", "border-none", "bg-base-200", "p-2"], ["btn", "", "matRipple", "", "name", "space-return", 1, "inverse", "bg-base-100", "text-secondary", 3, "mat-dialog-close"], [1, "flex", "items-center", "space-x-2"], [1, "text-xl"], [1, "pr-2"], ["btn", "", "matRipple", "", "name", "toggle-space", 3, "click", "disabled"], [1, "flex", "items-center"], [1, "mr-1"], [3, "viewChange", "view"], ["list", "", 3, "toggleFav", "onSelect", "active", "selected", "favorites"], ["map", "", 1, "h-full", "min-h-[60vh]", "w-full", 3, "onSelect", "is_displayed", "active"], ["icon", "", "matRipple", "", 1, "absolute", "left-2", "top-2", "z-20", "hidden", "border", "border-base-300", "bg-base-100", "md:flex", 3, "click"], ["icon", "", "matRipple", "", 1, "absolute", "right-2", "top-3", "z-20", "border", "border-base-200", "bg-base-100", "sm:hidden", 3, "click"]], template: function NewSpaceSelectModalComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "header", 1)(2, "h2", 2);
     \u0275\u0275text(3);
@@ -9979,17 +9980,17 @@ var NewSpaceSelectModalComponent = _NewSpaceSelectModalComponent;
     type: Component,
     args: [{ selector: "new-space-select-modal", template: `
         <div
-            class="mb-10 flex h-[calc(100vh-2.5rem)] max-h-[calc(100vh-2.5rem)] w-screen flex-col space-y-2 overflow-hidden bg-base-100 p-2 sm:m-0 sm:h-auto sm:w-auto"
+            class="mb-18 flex h-[calc(100vh-4.5rem)] max-h-[calc(100vh-4.5rem)] w-screen flex-col space-y-2 overflow-hidden bg-base-100 p-2 sm:m-0 sm:h-auto sm:w-auto"
             [style.height]="is_safari ? 'calc(100vh - 80px)' : ''"
         >
             <header
-                class="flex h-14 w-full items-center space-x-2 rounded border-none bg-base-200 p-2"
+                class="flex h-14 w-full items-center space-x-2 rounded-sm border-none bg-base-200 p-2"
             >
                 <h2 class="flex-1 px-2 text-xl font-medium capitalize">
                     {{ 'CALENDAR_EVENT.SPACE_SELECT_FIND' | translate }}
                 </h2>
                 <div
-                    class="flex divide-x divide-secondary rounded border border-secondary"
+                    class="flex divide-x divide-secondary rounded-sm border border-secondary"
                 >
                     <button
                         icon
@@ -10025,7 +10026,7 @@ var NewSpaceSelectModalComponent = _NewSpaceSelectModalComponent;
             >
                 <div
                     filters
-                    class="h-full w-full overflow-y-auto overflow-x-hidden rounded border border-base-300 shadow sm:block sm:w-[20rem]"
+                    class="h-full w-full overflow-y-auto overflow-x-hidden rounded-sm border border-base-300 shadow-sm sm:block sm:w-[20rem]"
                     [class.hidden]="!show_filters"
                 >
                     <new-space-filters
@@ -10034,7 +10035,7 @@ var NewSpaceSelectModalComponent = _NewSpaceSelectModalComponent;
                 </div>
                 <div
                     list
-                    class="h-full w-full overflow-auto rounded border border-base-300 bg-base-200 sm:w-[20rem] lg:block"
+                    class="h-full w-full overflow-auto rounded-sm border border-base-300 bg-base-200 sm:w-[20rem] lg:block"
                     [class.hidden]="show_filters || displayed()"
                     [class.sm:hidden]="displayed()"
                     [class.md:block]="!displayed()"
@@ -10073,7 +10074,7 @@ var NewSpaceSelectModalComponent = _NewSpaceSelectModalComponent;
                     }
                 </div>
                 <div
-                    class="relative h-full w-full overflow-auto rounded border border-base-300 shadow sm:w-[20rem]"
+                    class="relative h-full w-full overflow-auto rounded-sm border border-base-300 shadow-sm sm:w-[20rem]"
                     [class.hidden]="show_filters || !displayed()"
                     [class.sm:hidden]="!displayed()"
                     [class.md:block]="displayed()"
@@ -10117,7 +10118,7 @@ var NewSpaceSelectModalComponent = _NewSpaceSelectModalComponent;
                 }
             </main>
             <footer
-                class="flex w-full items-center justify-between space-x-2 rounded border-none bg-base-200 p-2"
+                class="flex w-full items-center justify-between space-x-2 rounded-sm border-none bg-base-200 p-2"
             >
                 <button
                     btn
@@ -10359,7 +10360,7 @@ _SpaceListFieldComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent
     useExisting: forwardRef(() => _SpaceListFieldComponent),
     multi: true
   }
-])], decls: 31, vars: 30, consts: [[1, "mb-2", "flex", "flex-wrap", "items-center", "sm:space-x-2"], [1, "min-w-[256px]", "flex-1", "space-y-2"], [1, "flex", "items-center"], [1, "space-x-4", 3, "ngModelChange", "ngModel", "ngModelOptions"], [3, "value"], ["list", "", 1, "space-y-2"], ["space", "", 1, "relative", "flex", "w-full", "items-center", "rounded-lg", "border", "border-base-200", "p-2", "shadow"], ["btn", "", "matRipple", "", "name", "add-space", 1, "inverse", "mt-2", "w-full", 3, "click"], [1, "flex", "items-center", "justify-center", "space-x-2"], [1, "mr-4", "flex", "h-24", "w-24", "items-center", "justify-center", "overflow-hidden", "rounded-xl", "bg-base-200"], ["auth", "", 1, "min-h-full", "object-cover", 3, "source"], ["src", "assets/icons/room-placeholder.svg", 1, "m-auto"], [1, "pb-4", "sm:space-y-2"], [1, "font-medium"], [1, "flex", "items-center", "space-x-2", "text-sm"], [1, "text-blue-500"], [1, "absolute", "bottom-0", "right-0", "flex", "items-center", "justify-end", "text-xs"], ["btn", "", "matRipple", "", "name", "edit-space", 1, "clear", 3, "click"], [1, "flex", "items-center", "space-x-2"], ["btn", "", "matRipple", "", "name", "remove-space", 1, "clear", 3, "click"], ["icon", "", "matRipple", "", "name", "toggle-space-favourite", 1, "absolute", "right-1", "top-1", 3, "click"], [3, "className"]], template: function SpaceListFieldComponent_Template(rf, ctx) {
+])], decls: 31, vars: 30, consts: [[1, "mb-2", "flex", "flex-wrap", "items-center", "sm:space-x-2"], [1, "min-w-[256px]", "flex-1", "space-y-2"], [1, "flex", "items-center"], [1, "space-x-4", 3, "ngModelChange", "ngModel", "ngModelOptions"], [3, "value"], ["list", "", 1, "space-y-2"], ["space", "", 1, "relative", "flex", "w-full", "items-center", "rounded-lg", "border", "border-base-200", "p-2", "shadow-sm"], ["btn", "", "matRipple", "", "name", "add-space", 1, "inverse", "mt-2", "w-full", 3, "click"], [1, "flex", "items-center", "justify-center", "space-x-2"], [1, "mr-4", "flex", "h-24", "w-24", "items-center", "justify-center", "overflow-hidden", "rounded-xl", "bg-base-200"], ["auth", "", 1, "min-h-full", "object-cover", 3, "source"], ["src", "assets/icons/room-placeholder.svg", 1, "m-auto"], [1, "pb-4", "sm:space-y-2"], [1, "font-medium"], [1, "flex", "items-center", "space-x-2", "text-sm"], [1, "text-blue-500"], [1, "absolute", "bottom-0", "right-0", "flex", "items-center", "justify-end", "text-xs"], ["btn", "", "matRipple", "", "name", "edit-space", 1, "clear", 3, "click"], [1, "flex", "items-center", "space-x-2"], ["btn", "", "matRipple", "", "name", "remove-space", 1, "clear", 3, "click"], ["icon", "", "matRipple", "", "name", "toggle-space-favourite", 1, "absolute", "right-1", "top-1", 3, "click"], [3, "className"]], template: function SpaceListFieldComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div")(1, "div", 0)(2, "div", 1)(3, "label");
     \u0275\u0275text(4);
@@ -10489,7 +10490,7 @@ var SpaceListFieldComponent = _SpaceListFieldComponent;
             @for (space of space_list | async; track space) {
                 <div
                     space
-                    class="relative flex w-full items-center rounded-lg border border-base-200 p-2 shadow"
+                    class="relative flex w-full items-center rounded-lg border border-base-200 p-2 shadow-sm"
                 >
                     <div
                         class="mr-4 flex h-24 w-24 items-center justify-center overflow-hidden rounded-xl bg-base-200"
@@ -10623,6 +10624,31 @@ var SpaceListFieldComponent = _SpaceListFieldComponent;
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SpaceListFieldComponent, { className: "SpaceListFieldComponent", filePath: "libs/form-fields/src/lib/space-list-field.component.ts", lineNumber: 204 });
 })();
 
+// node_modules/blob-util/dist/blob-util.es.js
+function createBlob(parts, properties) {
+  parts = parts || [];
+  properties = properties || {};
+  if (typeof properties === "string") {
+    properties = { type: properties };
+  }
+  try {
+    return new Blob(parts, properties);
+  } catch (e) {
+    if (e.name !== "TypeError") {
+      throw e;
+    }
+    var Builder = typeof BlobBuilder !== "undefined" ? BlobBuilder : typeof MSBlobBuilder !== "undefined" ? MSBlobBuilder : typeof MozBlobBuilder !== "undefined" ? MozBlobBuilder : WebKitBlobBuilder;
+    var builder = new Builder();
+    for (var i = 0; i < parts.length; i += 1) {
+      builder.append(parts[i]);
+    }
+    return builder.getBlob(properties.type);
+  }
+}
+function arrayBufferToBlob(buffer, type) {
+  return createBlob([buffer], type);
+}
+
 // libs/form-fields/src/lib/upload-file-field.component.ts
 function UploadFileFieldComponent_Conditional_2_Conditional_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -10671,7 +10697,7 @@ function UploadFileFieldComponent_Conditional_2_Template(rf, ctx) {
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275classProp("!bg-error", ctx_r1.item.progress < 1)("!bg-opacity-20", ctx_r1.item.progress < 1);
+    \u0275\u0275classProp("bg-error!", ctx_r1.item.progress < 1)("!bg-opacity-20", ctx_r1.item.progress < 1);
     \u0275\u0275advance(2);
     \u0275\u0275textInterpolate1(" ", ctx_r1.item.name, " ");
     \u0275\u0275advance();
@@ -10724,7 +10750,7 @@ var _UploadFileFieldComponent = class _UploadFileFieldComponent {
     fileReader.addEventListener("loadend", (e) => {
       const arrayBuffer = e.target.result;
       const blob = arrayBufferToBlob(arrayBuffer, file.type);
-      const upload_list = Vt([blob], { file_name: file.name });
+      const upload_list = We([blob], { file_name: file.name });
       const upload = upload_list[0];
       const upload_details = {
         id: `${randomInt(999999999999)}`,
@@ -10755,8 +10781,12 @@ _UploadFileFieldComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponen
     provide: NG_VALUE_ACCESSOR,
     useExisting: forwardRef(() => _UploadFileFieldComponent),
     multi: true
+  },
+  {
+    provide: UPLOAD_PERMISSIONS_MODAL,
+    useValue: UploadPermissionsModalComponent
   }
-])], decls: 4, vars: 1, consts: [[1, "relative", "w-full", "cursor-pointer", "rounded", "border", "border-base-200", "bg-base-200", "p-2", "hover:bg-base-200"], ["type", "file", 1, "absolute", "inset-0", "z-10", "max-w-full", "opacity-0", 3, "change"], ["item", "", 1, "relative", "z-50", "flex", "w-full", "items-center", "rounded", "border", "border-base-200", "bg-base-100", "hover:bg-base-200", 3, "!bg-error", "!bg-opacity-20"], [1, "z-0", "flex", "h-full", "w-full", "flex-col", "items-center", "justify-center"], ["item", "", 1, "relative", "z-50", "flex", "w-full", "items-center", "rounded", "border", "border-base-200", "bg-base-100", "hover:bg-base-200"], [1, "w-px", "flex-1", "truncate", "px-2", "font-mono", "text-sm"], [1, "relative", "mx-1"], ["icon", "", "matRipple", "", "target", "_blank", "rel", "noopener noreferrer", 3, "href"], ["icon", "", 3, "click"], ["mode", "determinate", 3, "diameter", "value"], [1, "absolute", "left-1/2", "top-1/2", "-translate-x-1/2", "-translate-y-1/2", "text-sm", "font-bold"], [1, "opacity-30"]], template: function UploadFileFieldComponent_Template(rf, ctx) {
+])], decls: 4, vars: 1, consts: [[1, "relative", "w-full", "cursor-pointer", "rounded-sm", "border", "border-base-200", "bg-base-200", "p-2", "hover:bg-base-200"], ["type", "file", 1, "absolute", "inset-0", "z-10", "max-w-full", "opacity-0", 3, "change"], ["item", "", 1, "relative", "z-50", "flex", "w-full", "items-center", "rounded-sm", "border", "border-base-200", "bg-base-100", "hover:bg-base-200", 3, "bg-error!", "!bg-opacity-20"], [1, "z-0", "flex", "h-full", "w-full", "flex-col", "items-center", "justify-center"], ["item", "", 1, "relative", "z-50", "flex", "w-full", "items-center", "rounded-sm", "border", "border-base-200", "bg-base-100", "hover:bg-base-200"], [1, "w-px", "flex-1", "truncate", "px-2", "font-mono", "text-sm"], [1, "relative", "mx-1"], ["icon", "", "matRipple", "", "target", "_blank", "rel", "noopener noreferrer", 3, "href"], ["icon", "", 3, "click"], ["mode", "determinate", 3, "diameter", "value"], [1, "absolute", "left-1/2", "top-1/2", "-translate-x-1/2", "-translate-y-1/2", "text-sm", "font-bold"], [1, "opacity-30"]], template: function UploadFileFieldComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "input", 1);
     \u0275\u0275listener("change", function UploadFileFieldComponent_Template_input_change_1_listener($event) {
@@ -10777,7 +10807,7 @@ var UploadFileFieldComponent = _UploadFileFieldComponent;
     type: Component,
     args: [{ selector: "upload-file", template: `
         <div
-            class="relative w-full cursor-pointer rounded border border-base-200 bg-base-200 p-2 hover:bg-base-200"
+            class="relative w-full cursor-pointer rounded-sm border border-base-200 bg-base-200 p-2 hover:bg-base-200"
         >
             <input
                 type="file"
@@ -10787,8 +10817,8 @@ var UploadFileFieldComponent = _UploadFileFieldComponent;
             @if (item) {
                 <div
                     item
-                    class="relative z-50 flex w-full items-center rounded border border-base-200 bg-base-100 hover:bg-base-200"
-                    [class.!bg-error]="item.progress < 1"
+                    class="relative z-50 flex w-full items-center rounded-sm border border-base-200 bg-base-100 hover:bg-base-200"
+                    [class.bg-error!]="item.progress < 1"
                     [class.!bg-opacity-20]="item.progress < 1"
                 >
                     <div class="w-px flex-1 truncate px-2 font-mono text-sm">
@@ -10836,12 +10866,16 @@ var UploadFileFieldComponent = _UploadFileFieldComponent;
         provide: NG_VALUE_ACCESSOR,
         useExisting: forwardRef(() => UploadFileFieldComponent),
         multi: true
+      },
+      {
+        provide: UPLOAD_PERMISSIONS_MODAL,
+        useValue: UploadPermissionsModalComponent
       }
     ], imports: [MatProgressSpinnerModule, IconComponent] }]
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UploadFileFieldComponent, { className: "UploadFileFieldComponent", filePath: "libs/form-fields/src/lib/upload-file-field.component.ts", lineNumber: 80 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UploadFileFieldComponent, { className: "UploadFileFieldComponent", filePath: "libs/form-fields/src/lib/upload-file-field.component.ts", lineNumber: 89 });
 })();
 
 // libs/form-fields/src/lib/upload-list-field.component.ts
@@ -10892,7 +10926,7 @@ function UploadListFieldComponent_Conditional_12_For_2_Template(rf, ctx) {
   }
   if (rf & 2) {
     const item_r2 = ctx.$implicit;
-    \u0275\u0275classProp("!bg-error", item_r2.progress < 1)("!bg-opacity-20", item_r2.progress < 1);
+    \u0275\u0275classProp("bg-error!", item_r2.progress < 1)("!bg-opacity-20", item_r2.progress < 1);
     \u0275\u0275advance(2);
     \u0275\u0275textInterpolate1(" ", item_r2.name, " ");
     \u0275\u0275advance();
@@ -10967,7 +11001,7 @@ var _UploadListFieldComponent = class _UploadListFieldComponent {
     fileReader.addEventListener("loadend", (e) => {
       const arrayBuffer = e.target.result;
       const blob = arrayBufferToBlob(arrayBuffer, file.type);
-      const upload_list = Vt([blob], { file_name: file.name });
+      const upload_list = We([blob], { file_name: file.name });
       const upload = upload_list[0];
       const upload_details = {
         id: `${randomInt(999999999999)}`,
@@ -10998,8 +11032,12 @@ _UploadListFieldComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponen
     provide: NG_VALUE_ACCESSOR,
     useExisting: forwardRef(() => _UploadListFieldComponent),
     multi: true
+  },
+  {
+    provide: UPLOAD_PERMISSIONS_MODAL,
+    useValue: UploadPermissionsModalComponent
   }
-])], decls: 14, vars: 1, consts: [[1, "flex", "items-center", "space-x-2"], [1, "relative", "flex", "h-48", "w-52", "cursor-pointer", "flex-col", "items-center", "justify-center", "rounded", "border-2", "border-dashed", "border-base-200", "hover:bg-neutral"], [1, "mb-2", "text-3xl"], [1, "text-center"], [1, "my-1", "text-center", "text-xs"], ["btn", "", "matRipple", "", 1, "w-28"], ["multiple", "true", "type", "file", 1, "absolute", "inset-0", "max-w-full", "opacity-0", 3, "change"], [1, "flex", "h-48", "w-1/2", "flex-1", "flex-col", "items-center"], ["list", "", 1, "h-full", "w-full", "space-y-2", "overflow-auto"], [1, "flex", "h-full", "w-full", "flex-col", "items-center", "justify-center"], ["item", "", 1, "flex", "w-full", "items-center", "rounded", "border", "border-base-200", "bg-base-100", "hover:bg-base-200", 3, "!bg-error", "!bg-opacity-20"], ["item", "", 1, "flex", "w-full", "items-center", "rounded", "border", "border-base-200", "bg-base-100", "hover:bg-base-200"], [1, "w-px", "flex-1", "truncate", "px-2", "font-mono", "text-sm"], [1, "relative", "mx-1"], ["icon", "", "matRipple", "", "target", "_blank", "rel", "noopener noreferrer", 3, "href"], ["icon", "", 3, "click"], ["mode", "determinate", 3, "diameter", "value"], [1, "absolute", "left-1/2", "top-1/2", "-translate-x-1/2", "-translate-y-1/2", "text-sm", "font-bold"], [1, "opacity-30"]], template: function UploadListFieldComponent_Template(rf, ctx) {
+])], decls: 14, vars: 1, consts: [[1, "flex", "items-center", "space-x-2"], [1, "relative", "flex", "h-48", "w-52", "cursor-pointer", "flex-col", "items-center", "justify-center", "rounded-sm", "border-2", "border-dashed", "border-base-200", "hover:bg-neutral"], [1, "mb-2", "text-3xl"], [1, "text-center"], [1, "my-1", "text-center", "text-xs"], ["btn", "", "matRipple", "", 1, "w-28"], ["multiple", "true", "type", "file", 1, "absolute", "inset-0", "max-w-full", "opacity-0", 3, "change"], [1, "flex", "h-48", "w-1/2", "flex-1", "flex-col", "items-center"], ["list", "", 1, "h-full", "w-full", "space-y-2", "overflow-auto"], [1, "flex", "h-full", "w-full", "flex-col", "items-center", "justify-center"], ["item", "", 1, "flex", "w-full", "items-center", "rounded-sm", "border", "border-base-200", "bg-base-100", "hover:bg-base-200", 3, "bg-error!", "!bg-opacity-20"], ["item", "", 1, "flex", "w-full", "items-center", "rounded-sm", "border", "border-base-200", "bg-base-100", "hover:bg-base-200"], [1, "w-px", "flex-1", "truncate", "px-2", "font-mono", "text-sm"], [1, "relative", "mx-1"], ["icon", "", "matRipple", "", "target", "_blank", "rel", "noopener noreferrer", 3, "href"], ["icon", "", 3, "click"], ["mode", "determinate", 3, "diameter", "value"], [1, "absolute", "left-1/2", "top-1/2", "-translate-x-1/2", "-translate-y-1/2", "text-sm", "font-bold"], [1, "opacity-30"]], template: function UploadListFieldComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "div", 1)(2, "icon", 2);
     \u0275\u0275text(3, "upload_file");
@@ -11034,7 +11072,7 @@ var UploadListFieldComponent = _UploadListFieldComponent;
     args: [{ selector: "upload-list", template: `
         <div class="flex items-center space-x-2">
             <div
-                class="relative flex h-48 w-52 cursor-pointer flex-col items-center justify-center rounded border-2 border-dashed border-base-200 hover:bg-neutral"
+                class="relative flex h-48 w-52 cursor-pointer flex-col items-center justify-center rounded-sm border-2 border-dashed border-base-200 hover:bg-neutral"
             >
                 <icon class="mb-2 text-3xl">upload_file</icon>
                 <p class="text-center">Drop files</p>
@@ -11053,8 +11091,8 @@ var UploadListFieldComponent = _UploadListFieldComponent;
                         @for (item of list; track item) {
                             <div
                                 item
-                                class="flex w-full items-center rounded border border-base-200 bg-base-100 hover:bg-base-200"
-                                [class.!bg-error]="item.progress < 1"
+                                class="flex w-full items-center rounded-sm border border-base-200 bg-base-100 hover:bg-base-200"
+                                [class.bg-error!]="item.progress < 1"
                                 [class.!bg-opacity-20]="item.progress < 1"
                             >
                                 <div
@@ -11109,12 +11147,16 @@ var UploadListFieldComponent = _UploadListFieldComponent;
         provide: NG_VALUE_ACCESSOR,
         useExisting: forwardRef(() => UploadListFieldComponent),
         multi: true
+      },
+      {
+        provide: UPLOAD_PERMISSIONS_MODAL,
+        useValue: UploadPermissionsModalComponent
       }
     ], imports: [MatProgressSpinnerModule, IconComponent, MatRippleModule] }]
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UploadListFieldComponent, { className: "UploadListFieldComponent", filePath: "libs/form-fields/src/lib/upload-list-field.component.ts", lineNumber: 99 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UploadListFieldComponent, { className: "UploadListFieldComponent", filePath: "libs/form-fields/src/lib/upload-list-field.component.ts", lineNumber: 108 });
 })();
 
 // apps/visitor-kiosk/src/app/visitor-registration.component.ts
@@ -11342,7 +11384,7 @@ var _VisitorRegistrationComponent = class _VisitorRegistrationComponent {
 _VisitorRegistrationComponent.\u0275fac = function VisitorRegistrationComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _VisitorRegistrationComponent)();
 };
-_VisitorRegistrationComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _VisitorRegistrationComponent, selectors: [["visitor-registration"]], decls: 9, vars: 10, consts: [[1, "absolute", "inset-0", "flex", "items-center", "p-8"], [1, "absolute", "left-1/2", "top-1/2", "min-h-[100%]", "min-w-[100%]", "-translate-x-1/2", "-translate-y-1/2", 3, "src"], ["src", "assets/img/building.png", 1, "absolute", "bottom-0", "right-0", "w-[60%]"], [1, "absolute", "left-4", "top-1/2", "max-h-[80vh]", "w-[32rem]", "max-w-[calc(100%-2rem)]", "-translate-y-1/2", "overflow-auto", "rounded", "bg-base-100", "shadow", 3, "formGroup"], [1, "absolute", "left-4", "top-1/2", "flex", "w-[24rem]", "-translate-y-1/2", "flex-col", "items-center", "justify-center", "space-y-4", "rounded", "bg-base-100", "p-16", "shadow"], [1, "absolute", "right-4", "top-4", "text-2xl", "text-white"], [1, "sticky", "top-0", "z-10", "m-2", "flex", "w-[calc(100%-1rem)]", "items-center", "justify-between", "rounded", "border-none", "bg-base-200", "p-2"], [1, "px-2", "text-lg", "font-medium"], ["icon", "", "matRipple", "", 3, "routerLink"], [1, "p-4"], ["for", "name"], ["appearance", "outline", 1, "w-full"], ["matInput", "", "name", "name", "formControlName", "asset_name", 3, "placeholder"], ["for", "email"], ["matInput", "", "name", "email", "formControlName", "asset_id", 3, "placeholder"], ["for", "user"], ["formControlName", "user", 1, "mb-4"], ["form", "phone"], ["matInput", "", "name", "phone", "type", "tel", "formControlName", "phone", 3, "placeholder"], ["form", "org"], ["matInput", "", "name", "org", "formControlName", "company", 3, "placeholder"], ["form", "reason"], ["appearance", "outline", 1, "no-subscript", "w-full"], ["matInput", "", "name", "reason", "formControlName", "title", 3, "placeholder"], [1, "sticky", "bottom-0", "z-10", "m-2", "flex", "w-[calc(100%-1rem)]", "items-center", "justify-end", "rounded", "border-none", "bg-base-200", "p-2"], ["btn", "", "matRipple", "", 1, "w-40", 3, "click"], [1, "h-4"], ["form", "pass"], ["matInput", "", "name", "pass", "formControlName", "pass_number", 3, "placeholder"], ["diameter", "32"]], template: function VisitorRegistrationComponent_Template(rf, ctx) {
+_VisitorRegistrationComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _VisitorRegistrationComponent, selectors: [["visitor-registration"]], decls: 9, vars: 10, consts: [[1, "absolute", "inset-0", "flex", "items-center", "p-8"], [1, "absolute", "left-1/2", "top-1/2", "min-h-full", "min-w-full", "-translate-x-1/2", "-translate-y-1/2", 3, "src"], ["src", "assets/img/building.png", 1, "absolute", "bottom-0", "right-0", "w-[60%]"], [1, "absolute", "left-4", "top-1/2", "max-h-[80vh]", "w-lg", "max-w-[calc(100%-2rem)]", "-translate-y-1/2", "overflow-auto", "rounded-sm", "bg-base-100", "shadow-sm", 3, "formGroup"], [1, "absolute", "left-4", "top-1/2", "flex", "w-[24rem]", "-translate-y-1/2", "flex-col", "items-center", "justify-center", "space-y-4", "rounded-sm", "bg-base-100", "p-16", "shadow-sm"], [1, "absolute", "right-4", "top-4", "text-2xl", "text-white"], [1, "sticky", "top-0", "z-10", "m-2", "flex", "w-[calc(100%-1rem)]", "items-center", "justify-between", "rounded-sm", "border-none", "bg-base-200", "p-2"], [1, "px-2", "text-lg", "font-medium"], ["icon", "", "matRipple", "", 3, "routerLink"], [1, "p-4"], ["for", "name"], ["appearance", "outline", 1, "w-full"], ["matInput", "", "name", "name", "formControlName", "asset_name", 3, "placeholder"], ["for", "email"], ["matInput", "", "name", "email", "formControlName", "asset_id", 3, "placeholder"], ["for", "user"], ["formControlName", "user", 1, "mb-4"], ["form", "phone"], ["matInput", "", "name", "phone", "type", "tel", "formControlName", "phone", 3, "placeholder"], ["form", "org"], ["matInput", "", "name", "org", "formControlName", "company", 3, "placeholder"], ["form", "reason"], ["appearance", "outline", 1, "no-subscript", "w-full"], ["matInput", "", "name", "reason", "formControlName", "title", 3, "placeholder"], [1, "sticky", "bottom-0", "z-10", "m-2", "flex", "w-[calc(100%-1rem)]", "items-center", "justify-end", "rounded-sm", "border-none", "bg-base-200", "p-2"], ["btn", "", "matRipple", "", 1, "w-40", 3, "click"], [1, "h-4"], ["form", "pass"], ["matInput", "", "name", "pass", "formControlName", "pass_number", 3, "placeholder"], ["diameter", "32"]], template: function VisitorRegistrationComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0);
     \u0275\u0275element(1, "img", 1)(2, "img", 2);
@@ -11393,7 +11435,7 @@ var VisitorRegistrationComponent = _VisitorRegistrationComponent;
         <div class="absolute inset-0 flex items-center p-8">
             <img
                 [src]="background"
-                class="absolute left-1/2 top-1/2 min-h-[100%] min-w-[100%] -translate-x-1/2 -translate-y-1/2"
+                class="absolute left-1/2 top-1/2 min-h-full min-w-full -translate-x-1/2 -translate-y-1/2"
             />
             <img
                 src="assets/img/building.png"
@@ -11401,11 +11443,11 @@ var VisitorRegistrationComponent = _VisitorRegistrationComponent;
             />
             @if (!loading) {
                 <div
-                    class="absolute left-4 top-1/2 max-h-[80vh] w-[32rem] max-w-[calc(100%-2rem)] -translate-y-1/2 overflow-auto rounded bg-base-100 shadow"
+                    class="absolute left-4 top-1/2 max-h-[80vh] w-lg max-w-[calc(100%-2rem)] -translate-y-1/2 overflow-auto rounded-sm bg-base-100 shadow-sm"
                     [formGroup]="form"
                 >
                     <div
-                        class="sticky top-0 z-10 m-2 flex w-[calc(100%-1rem)] items-center justify-between rounded border-none bg-base-200 p-2"
+                        class="sticky top-0 z-10 m-2 flex w-[calc(100%-1rem)] items-center justify-between rounded-sm border-none bg-base-200 p-2"
                     >
                         <h3 class="px-2 text-lg font-medium">
                             {{ 'APP.VISITOR_KIOSK.REGISTRATION' | translate }}
@@ -11516,7 +11558,7 @@ var VisitorRegistrationComponent = _VisitorRegistrationComponent;
                         }
                     </div>
                     <div
-                        class="sticky bottom-0 z-10 m-2 flex w-[calc(100%-1rem)] items-center justify-end rounded border-none bg-base-200 p-2"
+                        class="sticky bottom-0 z-10 m-2 flex w-[calc(100%-1rem)] items-center justify-end rounded-sm border-none bg-base-200 p-2"
                     >
                         <button btn matRipple class="w-40" (click)="register()">
                             {{ 'APP.VISITOR_KIOSK.REGISTER' | translate }}
@@ -11525,7 +11567,7 @@ var VisitorRegistrationComponent = _VisitorRegistrationComponent;
                 </div>
             } @else {
                 <div
-                    class="absolute left-4 top-1/2 flex w-[24rem] -translate-y-1/2 flex-col items-center justify-center space-y-4 rounded bg-base-100 p-16 shadow"
+                    class="absolute left-4 top-1/2 flex w-[24rem] -translate-y-1/2 flex-col items-center justify-center space-y-4 rounded-sm bg-base-100 p-16 shadow-sm"
                 >
                     <mat-spinner diameter="32"></mat-spinner>
                     <p>{{ 'APP.VISITOR_KIOSK.REGISTERING' | translate }}</p>
@@ -11724,7 +11766,7 @@ _WelcomeComponent.\u0275fac = /* @__PURE__ */ (() => {
     return (\u0275WelcomeComponent_BaseFactory || (\u0275WelcomeComponent_BaseFactory = \u0275\u0275getInheritedFactory(_WelcomeComponent)))(__ngFactoryType__ || _WelcomeComponent);
   };
 })();
-_WelcomeComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _WelcomeComponent, selectors: [["app-welcome"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 26, vars: 23, consts: [["menu", "matMenu"], [1, "absolute", "inset-0", "flex", "items-center", "p-8"], ["auth", "", 1, "absolute", "left-1/2", "top-1/2", "min-h-[100%]", "min-w-[100%]", "-translate-x-1/2", "-translate-y-1/2", 3, "source"], [1, "z-10", "flex", "w-[60%]", "flex-col", "justify-center", "space-y-8"], [1, "mb-4", "space-y-4", "text-6xl", "text-white", 3, "innerHTML"], [1, "flex", "items-center", "space-x-4", "font-medium"], ["btn", "", "matRipple", "", 1, "w-40", "bg-base-100", "text-base-content", 3, "routerLink"], [1, "flex", "items-center", "space-x-2"], [1, "ml-2"], [1, "text-2xl"], [1, "absolute", "right-4", "top-4", "text-2xl", "text-white"], [1, "absolute", "left-4", "top-4", 3, "matMenuTriggerFor"], ["mat-menu-item", ""], ["src", "assets/img/building.png", 1, "absolute", "bottom-0", "right-0", "w-[60%]"], [1, "flex", "items-center", "justify-between"], [1, "text-2xl", "text-white"], [1, "ml-2", "text-left", "leading-tight", "text-white"], [1, "text-xs", "opacity-30"], [1, "ml-4", "max-w-24", "truncate", "rounded", "bg-base-200", "px-2", "py-1", "text-sm", 3, "matTooltip"], ["mat-menu-item", "", 3, "click"], [1, "flex", "h-14", "min-w-[24rem]", "items-center", "justify-between", "space-x-8"], [1, "leading-tight"]], template: function WelcomeComponent_Template(rf, ctx) {
+_WelcomeComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _WelcomeComponent, selectors: [["app-welcome"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 26, vars: 23, consts: [["menu", "matMenu"], [1, "absolute", "inset-0", "flex", "items-center", "p-8"], ["auth", "", 1, "absolute", "left-1/2", "top-1/2", "min-h-full", "min-w-full", "-translate-x-1/2", "-translate-y-1/2", 3, "source"], [1, "z-10", "flex", "w-[60%]", "flex-col", "justify-center", "space-y-8"], [1, "mb-4", "space-y-4", "text-6xl", "text-white", 3, "innerHTML"], [1, "flex", "items-center", "space-x-4", "font-medium"], ["btn", "", "matRipple", "", 1, "w-40", "bg-base-100", "text-base-content", 3, "routerLink"], [1, "flex", "items-center", "space-x-2"], [1, "ml-2"], [1, "text-2xl"], [1, "absolute", "right-4", "top-4", "text-2xl", "text-white"], [1, "absolute", "left-4", "top-4", 3, "matMenuTriggerFor"], ["mat-menu-item", ""], ["src", "assets/img/building.png", 1, "absolute", "bottom-0", "right-0", "w-[60%]"], [1, "flex", "items-center", "justify-between"], [1, "text-2xl", "text-white"], [1, "ml-2", "text-left", "leading-tight", "text-white"], [1, "text-xs", "opacity-30"], [1, "ml-4", "max-w-24", "truncate", "rounded-sm", "bg-base-200", "px-2", "py-1", "text-sm", 3, "matTooltip"], ["mat-menu-item", "", 3, "click"], [1, "flex", "h-14", "min-w-[24rem]", "items-center", "justify-between", "space-x-8"], [1, "leading-tight"]], template: function WelcomeComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 1);
     \u0275\u0275element(1, "img", 2);
@@ -11799,7 +11841,7 @@ var WelcomeComponent = _WelcomeComponent;
             <img
                 auth
                 [source]="background"
-                class="absolute left-1/2 top-1/2 min-h-[100%] min-w-[100%] -translate-x-1/2 -translate-y-1/2"
+                class="absolute left-1/2 top-1/2 min-h-full min-w-full -translate-x-1/2 -translate-y-1/2"
             />
             <div class="z-10 flex w-[60%] flex-col justify-center space-y-8">
                 <h3
@@ -11879,7 +11921,7 @@ var WelcomeComponent = _WelcomeComponent;
                             }
                         </div>
                         <div
-                            class="ml-4 max-w-24 truncate rounded bg-base-200 px-2 py-1 text-sm"
+                            class="ml-4 max-w-24 truncate rounded-sm bg-base-200 px-2 py-1 text-sm"
                             [matTooltip]="active_locale | translate"
                         >
                             {{ active_locale | translate }}
@@ -11939,11 +11981,11 @@ var routes = [
   { path: "register", component: VisitorRegistrationComponent },
   {
     path: "explore",
-    loadChildren: () => import("./explore.module-SI3TSKME.js").then((m) => m.AppExploreModule)
+    loadChildren: () => import("./explore.module-P5IUBAU7.js").then((m) => m.AppExploreModule)
   },
   {
     path: "checkin",
-    loadChildren: () => import("./checkin.module-Q6A4522E.js").then((m) => m.VisitorCheckinModule)
+    loadChildren: () => import("./checkin.module-XRQ5GPOI.js").then((m) => m.VisitorCheckinModule)
   },
   { path: "**", redirectTo: "bootstrap" }
 ];
@@ -12336,7 +12378,7 @@ var MOCK_ASSETS = Array(150).fill(null).map((_, i) => {
   return {
     id: assetId,
     name: `${product.name} - ${assetId}`,
-    type_id: product.id,
+    asset_type_id: product.id,
     description: product.description || `${product.brand} ${product.name} for office use`,
     model_number: product.model || `${product.brand}-${predictableRandomInt(9999)}`,
     serial_number: `${product.brand?.substring(0, 3).toUpperCase()}${predictableRandomInt(999999999)}`,
@@ -12389,7 +12431,7 @@ var MOCK_PURCHASE_ORDERS = Array(30).fill(null).map((_, i) => {
   const deliveryDate = new Date(orderDate.getTime() + predictableRandomInt(30) * 24 * 60 * 60 * 1e3);
   return {
     id: `PO-${i + 1}`,
-    order_number: `PO-${(/* @__PURE__ */ new Date()).getFullYear()}-${String(i + 1).padStart(4, "0")}`,
+    purchase_order_number: `PO-${(/* @__PURE__ */ new Date()).getFullYear()}-${String(i + 1).padStart(4, "0")}`,
     invoice_number: `INV-${String(predictableRandomInt(99999) + 1e4)}`,
     vendor: [
       "Office Supplies Co",
@@ -12431,7 +12473,7 @@ var update = (dataset) => (id, data) => {
   return new_event;
 };
 function registerMockAssets() {
-  Is({
+  Yo({
     path: `${BASE_PATH}/asset_categories`,
     metadata: {},
     method: "GET",
@@ -12440,7 +12482,7 @@ function registerMockAssets() {
       return events;
     }
   });
-  Is({
+  Yo({
     path: `${BASE_PATH}/asset_categories/:id`,
     metadata: {},
     method: "GET",
@@ -12454,7 +12496,7 @@ function registerMockAssets() {
       return event;
     }
   });
-  Is({
+  Yo({
     path: `${BASE_PATH}/asset_categories`,
     metadata: {},
     method: "POST",
@@ -12466,13 +12508,13 @@ function registerMockAssets() {
       return new_event;
     }
   });
-  Is({
+  Yo({
     path: `${BASE_PATH}/asset_categories/:id`,
     metadata: {},
     method: "PUT",
     callback: (req) => update(MOCK_CATEGORIES)(req.route_params.id, __spreadValues({}, req.body))
   });
-  Is({
+  Yo({
     path: `${BASE_PATH}/asset_categories/:id`,
     metadata: {},
     method: "DELETE",
@@ -12487,7 +12529,7 @@ function registerMockAssets() {
       return;
     }
   });
-  Is({
+  Yo({
     path: `${BASE_PATH}/asset_types`,
     metadata: {},
     method: "GET",
@@ -12496,7 +12538,7 @@ function registerMockAssets() {
       return events;
     }
   });
-  Is({
+  Yo({
     path: `${BASE_PATH}/asset_types/:id`,
     metadata: {},
     method: "GET",
@@ -12510,7 +12552,7 @@ function registerMockAssets() {
       return event;
     }
   });
-  Is({
+  Yo({
     path: `${BASE_PATH}/asset_types`,
     metadata: {},
     method: "POST",
@@ -12522,13 +12564,13 @@ function registerMockAssets() {
       return new_event;
     }
   });
-  Is({
+  Yo({
     path: `${BASE_PATH}/asset_types/:id`,
     metadata: {},
     method: "PUT",
     callback: (req) => update(MOCK_PRODUCTS)(req.route_params.id, __spreadValues({}, req.body))
   });
-  Is({
+  Yo({
     path: `${BASE_PATH}/asset_types/:id`,
     metadata: {},
     method: "DELETE",
@@ -12543,7 +12585,7 @@ function registerMockAssets() {
       return;
     }
   });
-  Is({
+  Yo({
     path: `${BASE_PATH}/asset_purchase_orders`,
     metadata: {},
     method: "GET",
@@ -12552,7 +12594,7 @@ function registerMockAssets() {
       return events;
     }
   });
-  Is({
+  Yo({
     path: `${BASE_PATH}/asset_purchase_orders/:id`,
     metadata: {},
     method: "GET",
@@ -12566,7 +12608,7 @@ function registerMockAssets() {
       return event;
     }
   });
-  Is({
+  Yo({
     path: `${BASE_PATH}/asset_purchase_orders`,
     metadata: {},
     method: "POST",
@@ -12578,13 +12620,13 @@ function registerMockAssets() {
       return new_event;
     }
   });
-  Is({
+  Yo({
     path: `${BASE_PATH}/asset_purchase_orders/:id`,
     metadata: {},
     method: "PUT",
     callback: (req) => update(MOCK_PURCHASE_ORDERS)(req.route_params.id, __spreadValues({}, req.body))
   });
-  Is({
+  Yo({
     path: `${BASE_PATH}/asset_purchase_orders/:id`,
     metadata: {},
     method: "DELETE",
@@ -12599,7 +12641,7 @@ function registerMockAssets() {
       return;
     }
   });
-  Is({
+  Yo({
     path: `${BASE_PATH}/assets`,
     metadata: {},
     method: "GET",
@@ -12608,7 +12650,7 @@ function registerMockAssets() {
       return events;
     }
   });
-  Is({
+  Yo({
     path: `${BASE_PATH}/assets/:id`,
     metadata: {},
     method: "GET",
@@ -12622,7 +12664,7 @@ function registerMockAssets() {
       return event;
     }
   });
-  Is({
+  Yo({
     path: `${BASE_PATH}/assets`,
     metadata: {},
     method: "POST",
@@ -12634,13 +12676,13 @@ function registerMockAssets() {
       return new_event;
     }
   });
-  Is({
+  Yo({
     path: `${BASE_PATH}/assets/:id`,
     metadata: {},
     method: "PUT",
     callback: (req) => update(MOCK_ASSETS)(req.route_params.id, __spreadValues({}, req.body))
   });
-  Is({
+  Yo({
     path: `${BASE_PATH}/assets/:id`,
     metadata: {},
     method: "DELETE",
@@ -14414,7 +14456,7 @@ var MOCK_BOOKINGS = (() => {
 
 // libs/mocks/src/lib/api/bookings.mock.ts
 function registerMockBookings() {
-  Is({
+  Yo({
     path: "/api/staff/v1/bookings",
     metadata: {},
     method: "GET",
@@ -14447,7 +14489,7 @@ function registerMockBookings() {
       return events;
     }
   });
-  Is({
+  Yo({
     path: "/api/debug/bookings/distribution",
     metadata: {},
     method: "GET",
@@ -14482,7 +14524,7 @@ function registerMockBookings() {
       };
     }
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/bookings/:id",
     metadata: {},
     method: "GET",
@@ -14496,7 +14538,7 @@ function registerMockBookings() {
       return event;
     }
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/bookings/:id/guests/:email",
     metadata: {},
     method: "POST",
@@ -14517,7 +14559,7 @@ function registerMockBookings() {
       return user;
     }
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/bookings/:id/guests/:email",
     metadata: {},
     method: "DELETE",
@@ -14540,7 +14582,7 @@ function registerMockBookings() {
       return guest;
     }
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/bookings/:id/guests/:email/checkin",
     metadata: {},
     method: "POST",
@@ -14557,7 +14599,7 @@ function registerMockBookings() {
       return {};
     }
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/bookings",
     metadata: {},
     method: "POST",
@@ -14580,13 +14622,13 @@ function registerMockBookings() {
     MOCK_BOOKINGS.splice(index, 1, new_event);
     return new_event;
   };
-  Is({
+  Yo({
     path: "/api/staff/v1/bookings/:id",
     metadata: {},
     method: "PATCH",
     callback: (req) => updateBooking(req.route_params.id, req.body)
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/bookings/:id/approve",
     metadata: {},
     method: "POST",
@@ -14602,7 +14644,7 @@ function registerMockBookings() {
       return booking;
     }
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/bookings/:id/reject",
     metadata: {},
     method: "POST",
@@ -14618,7 +14660,7 @@ function registerMockBookings() {
       return booking;
     }
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/bookings/:id/checkin",
     metadata: {},
     method: "POST",
@@ -14633,13 +14675,13 @@ function registerMockBookings() {
       return booking;
     }
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/bookings/:id",
     metadata: {},
     method: "PUT",
     callback: (req) => updateBooking(req.route_params.id, req.body)
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/bookings/:id",
     metadata: {},
     method: "DELETE",
@@ -15466,7 +15508,7 @@ var event_spaces = MOCK_SPACES.map((space) => space.id);
 
 // libs/mocks/src/lib/api/calendars.mock.ts
 function registerMockCalendars() {
-  Is({
+  Yo({
     path: "/api/staff/v1/calendars",
     metadata: {},
     method: "GET",
@@ -15521,7 +15563,7 @@ function registerMockCalendars() {
     });
     return spaces;
   };
-  Is({
+  Yo({
     path: "/api/staff/v1/calendars/availability",
     metadata: {},
     method: "GET",
@@ -15529,7 +15571,7 @@ function registerMockCalendars() {
       resource: _
     }))
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/calendars/free_busy",
     metadata: {},
     method: "GET",
@@ -15541,7 +15583,7 @@ function registerMockCalendars() {
 
 // libs/mocks/src/lib/api/events.mock.ts
 function registerMockEvents() {
-  Is({
+  Yo({
     path: "/api/staff/v1/events",
     metadata: {},
     method: "GET",
@@ -15558,7 +15600,7 @@ function registerMockEvents() {
       return events;
     }
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/events",
     metadata: {},
     method: "POST",
@@ -15581,12 +15623,12 @@ function registerMockEvents() {
         ];
       }
       MOCK_EVENTS.push(new_event);
-      const system = is(new_event.system?.id);
+      const system = $o(new_event.system?.id);
       system?.Bookings[0]?.$poll_bookings();
       return new_event;
     }
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/events/:id",
     metadata: {},
     method: "GET",
@@ -15598,7 +15640,7 @@ function registerMockEvents() {
       throw { status: 404, message: "Event not found" };
     }
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/events/:id",
     metadata: {},
     method: "DELETE",
@@ -15616,7 +15658,7 @@ function registerMockEvents() {
       throw { status: 404, message: "Event not found" };
     }
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/events/:id",
     metadata: {},
     method: "PATCH",
@@ -15628,7 +15670,7 @@ function registerMockEvents() {
       throw { status: 404, message: "Event not found" };
     }
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/events/:id/guests/:email/checkin",
     metadata: {},
     method: "POST",
@@ -16261,7 +16303,7 @@ function registerMockSignage() {
       });
     }
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/signage-displays",
     metadata: {},
     method: "GET",
@@ -16287,7 +16329,7 @@ function registerMockSignage() {
       };
     }
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/signage/displays/:id",
     metadata: {},
     method: "GET",
@@ -16298,7 +16340,7 @@ function registerMockSignage() {
       return display;
     }
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/signage/media",
     metadata: {},
     method: "GET",
@@ -16328,7 +16370,7 @@ function registerMockSignage() {
       };
     }
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/signage/playlists",
     metadata: {},
     method: "GET",
@@ -16350,7 +16392,7 @@ function registerMockSignage() {
       };
     }
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/signage/playlists/:id",
     metadata: {},
     method: "GET",
@@ -16366,7 +16408,7 @@ function registerMockSignage() {
       return playlistWithMedia;
     }
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/signage/triggers",
     metadata: {},
     method: "GET",
@@ -16389,7 +16431,7 @@ function registerMockSignage() {
       };
     }
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/signage/displays/:id/content",
     metadata: {},
     method: "GET",
@@ -16416,7 +16458,7 @@ function registerMockSignage() {
       };
     }
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/signage-analytics",
     metadata: {},
     method: "GET",
@@ -16461,7 +16503,7 @@ function registerMockSignage() {
       };
     }
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/signage-displays/:id/control",
     metadata: {},
     method: "POST",
@@ -16953,7 +16995,7 @@ var MOCK_ANSWERS = [
   }
 ];
 function registerMockSurveys() {
-  Is({
+  Yo({
     path: "/api/staff/v1/surveys",
     metadata: {},
     method: "GET",
@@ -16972,7 +17014,7 @@ function registerMockSurveys() {
       return filteredSurveys;
     }
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/surveys/questions",
     metadata: {},
     method: "GET",
@@ -16997,7 +17039,7 @@ function registerMockSurveys() {
       return filteredQuestions;
     }
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/surveys/questions/:id",
     metadata: {},
     method: "GET",
@@ -17010,7 +17052,7 @@ function registerMockSurveys() {
       return question;
     }
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/surveys/answers",
     metadata: {},
     method: "GET",
@@ -17031,7 +17073,7 @@ function registerMockSurveys() {
       return filteredAnswers;
     }
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/surveys/answers/:id",
     metadata: {},
     method: "GET",
@@ -17044,7 +17086,7 @@ function registerMockSurveys() {
       return answer;
     }
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/surveys/:id",
     metadata: {},
     method: "GET",
@@ -17952,7 +17994,7 @@ var createVideoConferenceModule = (space = {}, overrides = {}) => new VideoConfe
 
 // libs/mocks/src/lib/systems-bindings.mock.ts
 function createSystem(space) {
-  za(space.id, {
+  yh(space.id, {
     System: [createSystemModule(space)],
     Bookings: [createBookingsModule(space)],
     ContactTracing: [createContactTracingModule(space)],
@@ -17967,7 +18009,7 @@ function createSystem(space) {
     Payment: [createPaymentsModule(space)],
     LockerLocations: [createLockerLocationsModule()]
   });
-  const system = is(space.id);
+  const system = $o(space.id);
   system.Bookings[0].$poll_bookings();
   setInterval(() => system.Bookings[0].$poll_bookings(), 30 * 1e3);
   system.AreaManagement[0].$update();
@@ -17977,7 +18019,7 @@ function createSystem(space) {
 // libs/mocks/src/lib/api/systems.mock.ts
 function registerMockSystems() {
   MOCK_SPACES.forEach((space, index) => createSystem(space));
-  Is({
+  Yo({
     path: "/api/engine/v2/systems",
     metadata: {},
     method: "GET",
@@ -17985,7 +18027,7 @@ function registerMockSystems() {
       return request.query_params?.zone_id ? MOCK_SPACES.filter((_) => _.zones.includes(request.query_params.zone_id)) : MOCK_SPACES;
     }
   });
-  Is({
+  Yo({
     path: "/api/engine/v2/systems/:id",
     metadata: {},
     method: "GET",
@@ -18000,7 +18042,7 @@ function registerMockSystems() {
 
 // libs/mocks/src/lib/api/users.mock.ts
 function registerMockUsers() {
-  Is({
+  Yo({
     path: "/api/engine/v2/users/:id",
     metadata: {},
     method: "GET",
@@ -18015,7 +18057,7 @@ function registerMockUsers() {
       throw { status: 404, message: "User not found" };
     }
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/people",
     metadata: {},
     method: "GET",
@@ -18029,7 +18071,7 @@ function registerMockUsers() {
       return MOCK_STAFF;
     }
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/people/:id",
     metadata: {},
     method: "GET",
@@ -18044,7 +18086,7 @@ function registerMockUsers() {
       throw { status: 404, message: "User not found" };
     }
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/guests",
     metadata: {},
     method: "GET",
@@ -18056,7 +18098,7 @@ function registerMockUsers() {
       return MOCK_STAFF;
     }
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/guests/:email",
     metadata: {},
     method: "GET",
@@ -18068,7 +18110,7 @@ function registerMockUsers() {
       throw { status: 404, message: "Guest not found" };
     }
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/guests/:email/meetings",
     metadata: {},
     method: "GET",
@@ -18166,7 +18208,7 @@ var MOCK_METADATA = {
 var PARKING_SPACES = {};
 var LOCKERS = {};
 function registerMockZones() {
-  Is({
+  Yo({
     path: "/api/engine/v2/zones",
     metadata: {},
     method: "GET",
@@ -18185,19 +18227,19 @@ function registerMockZones() {
       throw { status: 404, message: "Zones not found" };
     }
   });
-  Is({
+  Yo({
     path: "/api/engine/v2/settings",
     metadata: {},
     method: "GET",
     callback: (request) => []
   });
-  Is({
+  Yo({
     path: "/api/engine/v2/settings/:id",
     metadata: {},
     method: "GET",
     callback: (request) => ({})
   });
-  Is({
+  Yo({
     path: "/api/engine/v2/metadata/:id",
     metadata: {},
     method: "GET",
@@ -18294,7 +18336,7 @@ function registerMockZones() {
       return {};
     }
   });
-  Is({
+  Yo({
     path: "/api/engine/v2/metadata/:id",
     metadata: {},
     method: "PATCH",
@@ -18305,7 +18347,7 @@ function registerMockZones() {
       return request.body;
     }
   });
-  Is({
+  Yo({
     path: "/api/engine/v2/metadata/:id",
     metadata: {},
     method: "PUT",
@@ -18379,7 +18421,7 @@ function registerMockZones() {
     }
     return LOCKERS[id];
   }
-  Is({
+  Yo({
     path: "/api/engine/v2/metadata/:id/children",
     metadata: {},
     method: "GET",
@@ -18486,7 +18528,7 @@ var _TopbarHeaderComponent = class _TopbarHeaderComponent {
 _TopbarHeaderComponent.\u0275fac = function TopbarHeaderComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _TopbarHeaderComponent)();
 };
-_TopbarHeaderComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _TopbarHeaderComponent, selectors: [["a-topbar-header"]], decls: 8, vars: 11, consts: [[1, "flex", "items-center", "justify-between", "bg-[hsl(237,37%,10%)]", "shadow"], ["matRipple", "", 1, "flex", "h-full", "flex-col", "justify-center", "px-4", 3, "routerLink"], ["auth", "", "alt", "Logo", 1, "my-2", "h-10", 3, "source"], [1, "ml-auto", "flex", "h-full", "flex-col", "justify-center", "px-4", "text-white"]], template: function TopbarHeaderComponent_Template(rf, ctx) {
+_TopbarHeaderComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _TopbarHeaderComponent, selectors: [["a-topbar-header"]], decls: 8, vars: 11, consts: [[1, "flex", "items-center", "justify-between", "bg-[hsl(237,37%,10%)]", "shadow-sm"], ["matRipple", "", 1, "flex", "h-full", "flex-col", "justify-center", "px-4", 3, "routerLink"], ["auth", "", "alt", "Logo", 1, "my-2", "h-10", 3, "source"], [1, "ml-auto", "flex", "h-full", "flex-col", "justify-center", "px-4", "text-white"]], template: function TopbarHeaderComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "a", 1);
     \u0275\u0275element(2, "img", 2);
@@ -18514,7 +18556,7 @@ var TopbarHeaderComponent = _TopbarHeaderComponent;
     type: Component,
     args: [{ selector: "a-topbar-header", template: `
         <div
-            class="flex items-center justify-between bg-[hsl(237,37%,10%)] shadow"
+            class="flex items-center justify-between bg-[hsl(237,37%,10%)] shadow-sm"
         >
             <a
                 matRipple

@@ -1,7 +1,7 @@
 {
   "version": 3,
-  "sources": ["angular:styles/component:css;24f101a51156c4881e8f3ec7d9a4da55f6e3c3a951b1bce21fa7949a1a188821;/home/runner/work/user-interfaces/user-interfaces/libs/bookings/src/lib/parking-select-modal/parking-list.component.ts"],
+  "sources": ["parking-list.component.ts"],
   "sourcesContent": ["\n            :host {\n                width: 100%;\n                height: 100%;\n                padding: 0.5rem;\n                overflow: auto;\n            }\n        "],
-  "mappings": ";AACY;AACI,SAAO;AACP,UAAQ;AACR,WAAS;AACT,YAAU;AACd;",
+  "mappings": ";AACY;AACI,SAAA;AACA,UAAA;AACA,WAAA;AACA,YAAA;AACJ;",
   "names": []
 }

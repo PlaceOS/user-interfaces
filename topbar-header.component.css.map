@@ -1,7 +1,7 @@
 {
   "version": 3,
-  "sources": ["angular:styles/component:css;ca56a9c6ccb68d9eb4d7b426a55179b4fd968c7dab74ba6456a7b70739864a22;/home/runner/work/user-interfaces/user-interfaces/apps/visitor-kiosk/src/app/components/topbar-header.component.ts"],
+  "sources": ["topbar-header.component.ts"],
   "sourcesContent": ["\n            :host > div {\n                height: 3.5rem;\n            }\n\n            a {\n                border-radius: 0;\n            }\n\n            img {\n                max-height: 2.5rem;\n                max-width: 50vw;\n            }\n        "],
-  "mappings": ";AACY,MAAM,EAAE;AACJ,UAAQ;AACZ;AAEA;AACI,iBAAe;AACnB;AAEA;AACI,cAAY;AACZ,aAAW;AACf;",
+  "mappings": ";AACY,MAAA,EAAA;AACI,UAAA;AACJ;AAEA;AACI,iBAAA;AACJ;AAEA;AACI,cAAA;AACA,aAAA;AACJ;",
   "names": []
 }

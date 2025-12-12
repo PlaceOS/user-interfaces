@@ -1,7 +1,7 @@
 {
   "version": 3,
-  "sources": ["angular:styles/component:css;8d603d396af10dde7f45bddce919375913a5c5b09729ee8e6482881d125d62c7;/home/runner/work/user-interfaces/user-interfaces/libs/explore/src/lib/explore-icon.component.ts"],
+  "sources": ["explore-icon.component.ts"],
   "sourcesContent": ["\n            :host {\n                display: flex;\n                height: 100%;\n                width: 100%;\n                align-items: end;\n                justify-content: end;\n            }\n        "],
-  "mappings": ";AACY;AACI,WAAS;AACT,UAAQ;AACR,SAAO;AACP,eAAa;AACb,mBAAiB;AACrB;",
+  "mappings": ";AACY;AACI,WAAA;AACA,UAAA;AACA,SAAA;AACA,eAAA;AACA,mBAAA;AACJ;",
   "names": []
 }

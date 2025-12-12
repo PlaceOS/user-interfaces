@@ -5,7 +5,9 @@ import {
   AsyncPipe,
   AuthenticatedImageDirective,
   BehaviorSubject,
+  Booking,
   BookingFormService,
+  CalendarEvent,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   CommonModule,
@@ -32,6 +34,7 @@ import {
   FormGroup,
   FormGroupDirective,
   FormsModule,
+  Gc,
   HostAttributeToken,
   HostListener,
   IconComponent,
@@ -39,7 +42,6 @@ import {
   InjectionToken,
   Input,
   InteractiveMapComponent,
-  Iu,
   LockerGridComponent,
   MAP_FEATURE_DATA,
   MAT_DIALOG_DATA,
@@ -70,6 +72,7 @@ import {
   MatSelectModule,
   MatTooltip,
   MatTooltipModule,
+  N,
   NG_VALIDATORS,
   NG_VALUE_ACCESSOR,
   NgControlStatus,
@@ -80,10 +83,10 @@ import {
   Output,
   ParkingService,
   ReactiveFormsModule,
+  ReplaySubject,
   Router,
   RouterLink,
   RouterModule,
-  Ru,
   SettingsService,
   SlicePipe,
   Space,
@@ -92,11 +95,11 @@ import {
   TimeFieldComponent,
   TranslatePipe,
   UserSearchFieldComponent,
-  Va,
+  Ut,
   ViewChild,
   ViewEncapsulation,
   VirtualKeyboardComponent,
-  Yc,
+  Xu,
   _CdkPrivateStyleLoader,
   _IdGenerator,
   _MatInternalFormField,
@@ -105,9 +108,11 @@ import {
   __spreadValues,
   _animationsDisabled,
   addDays,
+  afterNextRender,
   booleanAttribute,
   catchError,
   combineLatest,
+  computed,
   currentUser,
   debounceTime,
   differenceInMinutes,
@@ -124,7 +129,7 @@ import {
   i18n,
   inject,
   isSameDay,
-  kt,
+  kh,
   lastValueFrom,
   loadLockerBanks,
   loadLockers,
@@ -137,6 +142,7 @@ import {
   numberAttribute,
   of,
   queryBookings,
+  rc,
   rulesForResource,
   searchStaff,
   setClassMetadata,
@@ -150,9 +156,11 @@ import {
   switchMap,
   tap,
   timer,
+  toQueryString,
+  toSignal,
   unique,
   viewChild,
-  xc,
+  xa,
   ɵsetClassDebugInfo,
   ɵɵInheritDefinitionFeature,
   ɵɵNgOnChangesFeature,
@@ -210,7 +218,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-JORPZAQP.js";
+} from "./chunk-WLIO66DZ.js";
 
 // node_modules/@angular/material/fesm2022/slide-toggle.mjs
 var _c0 = ["switch"];
@@ -786,7 +794,7 @@ _AccessibilityControlsComponent.\u0275fac = /* @__PURE__ */ (() => {
     return (\u0275AccessibilityControlsComponent_BaseFactory || (\u0275AccessibilityControlsComponent_BaseFactory = \u0275\u0275getInheritedFactory(_AccessibilityControlsComponent)))(__ngFactoryType__ || _AccessibilityControlsComponent);
   };
 })();
-_AccessibilityControlsComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _AccessibilityControlsComponent, selectors: [["accessibility-controls"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 1, vars: 1, consts: [["matRipple", "", 1, "flex", "w-full", "items-center", "justify-between", "rounded", "p-2", "hover:bg-base-200"], ["matRipple", "", 1, "flex", "w-full", "items-center", "justify-between", "rounded", "p-2", "hover:bg-base-200", 3, "click"], [3, "ngModelChange", "ngModel"]], template: function AccessibilityControlsComponent_Template(rf, ctx) {
+_AccessibilityControlsComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _AccessibilityControlsComponent, selectors: [["accessibility-controls"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 1, vars: 1, consts: [["matRipple", "", 1, "flex", "w-full", "items-center", "justify-between", "rounded-sm", "p-2", "hover:bg-base-200"], ["matRipple", "", 1, "flex", "w-full", "items-center", "justify-between", "rounded-sm", "p-2", "hover:bg-base-200", 3, "click"], [3, "ngModelChange", "ngModel"]], template: function AccessibilityControlsComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275conditionalCreate(0, AccessibilityControlsComponent_Conditional_0_Template, 4, 1, "button", 0);
   }
@@ -802,7 +810,7 @@ var AccessibilityControlsComponent = _AccessibilityControlsComponent;
         @if (can_change_dark_mode) {
             <button
                 matRipple
-                class="flex w-full items-center justify-between rounded p-2 hover:bg-base-200"
+                class="flex w-full items-center justify-between rounded-sm p-2 hover:bg-base-200"
                 (click)="setDarkMode(!dark_mode)"
             >
                 <div>Dark Mode</div>
@@ -814,7 +822,7 @@ var AccessibilityControlsComponent = _AccessibilityControlsComponent;
         }
         <!-- <button
             matRipple
-            class="flex items-center justify-between hover:bg-base-200 w-full p-2 rounded"
+            class="flex items-center justify-between hover:bg-base-200 w-full p-2 rounded-sm"
             (click)="applySetting('accessible', !accessible)"
         >
             <div>Text Size</div>
@@ -840,7 +848,7 @@ var AccessibilityControlsComponent = _AccessibilityControlsComponent;
             </mat-slider>
             <div class="text-2xl">A</div>
             <div
-                class="text-base py-1 px-2 rounded bg-base-300 text-base-content my-2"
+                class="text-base py-1 px-2 rounded-sm bg-base-300 text-base-content my-2"
             >
                 {{ font_size }}px
             </div>
@@ -942,7 +950,7 @@ var _SetDatetimeModalComponent = class _SetDatetimeModalComponent {
 _SetDatetimeModalComponent.\u0275fac = function SetDatetimeModalComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _SetDatetimeModalComponent)();
 };
-_SetDatetimeModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SetDatetimeModalComponent, selectors: [["set-datetime-modal"]], decls: 11, vars: 5, consts: [[1, "m-2", "flex", "h-14", "w-[calc(100%-1rem)]", "items-center", "justify-between", "rounded", "border-none", "bg-base-200", "p-2"], [1, "px-2", "text-xl", "font-medium"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "w-[24rem]", "max-w-[85vw]", 3, "formGroup"], [1, "mx-2", "mb-2", "flex", "w-[calc(100%-1rem)]", "items-center", "justify-end", "rounded", "border-none", "bg-base-200", "p-2"], ["btn", "", "matRipple", "", 1, "w-32", 3, "mat-dialog-close"], [1, "mx-auto", "flex", "w-[640px]", "max-w-[calc(100%-2rem)]", "flex-col", "space-x-0", "sm:flex-row", "sm:space-x-2"], [1, "flex", "w-full", "flex-1", "flex-col", "sm:w-1/4"], ["formControlName", "date", 3, "to"], [1, "flex", "w-full", "flex-1", "flex-col", "sm:w-1/3"], [3, "ngModelChange", "ngModel", "ngModelOptions", "use_24hr"], ["formControlName", "duration", 3, "time", "max", "min", "step", "use_24hr"], [1, "mb-2", "flex", "w-full", "flex-1", "flex-col", "sm:w-1/4"], [1, "mb-4", "w-full", "rounded", "border", "border-base-200", "px-4", "py-3"], ["formControlName", "user", 1, "mb-4"]], template: function SetDatetimeModalComponent_Template(rf, ctx) {
+_SetDatetimeModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SetDatetimeModalComponent, selectors: [["set-datetime-modal"]], decls: 11, vars: 5, consts: [[1, "m-2", "flex", "h-14", "w-[calc(100%-1rem)]", "items-center", "justify-between", "rounded-sm", "border-none", "bg-base-200", "p-2"], [1, "px-2", "text-xl", "font-medium"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "w-[24rem]", "max-w-[85vw]", 3, "formGroup"], [1, "mx-2", "mb-2", "flex", "w-[calc(100%-1rem)]", "items-center", "justify-end", "rounded-sm", "border-none", "bg-base-200", "p-2"], ["btn", "", "matRipple", "", 1, "w-32", 3, "mat-dialog-close"], [1, "mx-auto", "flex", "w-[640px]", "max-w-[calc(100%-2rem)]", "flex-col", "space-x-0", "sm:flex-row", "sm:space-x-2"], [1, "flex", "w-full", "flex-1", "flex-col", "sm:w-1/4"], ["formControlName", "date", 3, "to"], [1, "flex", "w-full", "flex-1", "flex-col", "sm:w-1/3"], [3, "ngModelChange", "ngModel", "ngModelOptions", "use_24hr"], ["formControlName", "duration", 3, "time", "max", "min", "step", "use_24hr"], [1, "mb-2", "flex", "w-full", "flex-1", "flex-col", "sm:w-1/4"], [1, "mb-4", "w-full", "rounded-sm", "border", "border-base-200", "px-4", "py-3"], ["formControlName", "user", 1, "mb-4"]], template: function SetDatetimeModalComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "header", 0)(1, "h2", 1);
     \u0275\u0275text(2, "Set date and time");
@@ -989,7 +997,7 @@ var SetDatetimeModalComponent = _SetDatetimeModalComponent;
     type: Component,
     args: [{ selector: "set-datetime-modal", template: `
         <header
-            class="m-2 flex h-14 w-[calc(100%-1rem)] items-center justify-between rounded border-none bg-base-200 p-2"
+            class="m-2 flex h-14 w-[calc(100%-1rem)] items-center justify-between rounded-sm border-none bg-base-200 p-2"
         >
             <h2 class="px-2 text-xl font-medium">Set date and time</h2>
             <button icon matRipple mat-dialog-close>
@@ -1005,7 +1013,7 @@ var SetDatetimeModalComponent = _SetDatetimeModalComponent;
                         <div class="mb-2 flex w-full flex-1 flex-col sm:w-1/4">
                             <label>Resource:</label>
                             <div
-                                class="mb-4 w-full rounded border border-base-200 px-4 py-3"
+                                class="mb-4 w-full rounded-sm border border-base-200 px-4 py-3"
                             >
                                 {{
                                     resource.name ||
@@ -1067,7 +1075,7 @@ var SetDatetimeModalComponent = _SetDatetimeModalComponent;
             </main>
         }
         <footer
-            class="mx-2 mb-2 flex w-[calc(100%-1rem)] items-center justify-end rounded border-none bg-base-200 p-2"
+            class="mx-2 mb-2 flex w-[calc(100%-1rem)] items-center justify-end rounded-sm border-none bg-base-200 p-2"
         >
             <button btn matRipple [mat-dialog-close]="form.value" class="w-32">
                 {{ 'COMMON.CONTINUE' | translate }}
@@ -1093,24 +1101,16 @@ var SetDatetimeModalComponent = _SetDatetimeModalComponent;
 
 // libs/explore/src/lib/explore-device-info.component.ts
 var _c03 = ["explore-device-info", ""];
-function ExploreDeviceInfoComponent_ng_template_5_Conditional_3_Template(rf, ctx) {
+function ExploreDeviceInfoComponent_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "p", 9)(1, "label");
-    \u0275\u0275text(2);
-    \u0275\u0275pipe(3, "translate");
-    \u0275\u0275elementEnd();
-    \u0275\u0275text(4);
-    \u0275\u0275elementEnd();
+    \u0275\u0275element(0, "div", 6);
   }
   if (rf & 2) {
-    const ctx_r2 = \u0275\u0275nextContext(2);
-    \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1("", \u0275\u0275pipeBind1(3, 2, "EXPLORE.DEVICE_MAC"), ":");
-    \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", ctx_r2.mac, " ");
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275styleMap("height: " + ctx_r1.diameter() + "%; width: " + ctx_r1.diameter() + "%;");
   }
 }
-function ExploreDeviceInfoComponent_ng_template_5_Conditional_14_Template(rf, ctx) {
+function ExploreDeviceInfoComponent_ng_template_5_Conditional_3_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "p", 10)(1, "label");
     \u0275\u0275text(2);
@@ -1120,14 +1120,14 @@ function ExploreDeviceInfoComponent_ng_template_5_Conditional_14_Template(rf, ct
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const ctx_r2 = \u0275\u0275nextContext(2);
+    const ctx_r1 = \u0275\u0275nextContext(2);
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1("", \u0275\u0275pipeBind1(3, 2, "EXPLORE.DEVICE_MANUFACTURER"), ":");
+    \u0275\u0275textInterpolate1("", \u0275\u0275pipeBind1(3, 2, "EXPLORE.DEVICE_MAC"), ":");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", ctx_r2.manufacturer, " ");
+    \u0275\u0275textInterpolate1(" ", ctx_r1.mac, " ");
   }
 }
-function ExploreDeviceInfoComponent_ng_template_5_Conditional_15_Template(rf, ctx) {
+function ExploreDeviceInfoComponent_ng_template_5_Conditional_14_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "p", 11)(1, "label");
     \u0275\u0275text(2);
@@ -1137,14 +1137,14 @@ function ExploreDeviceInfoComponent_ng_template_5_Conditional_15_Template(rf, ct
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const ctx_r2 = \u0275\u0275nextContext(2);
+    const ctx_r1 = \u0275\u0275nextContext(2);
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1("", \u0275\u0275pipeBind1(3, 2, "EXPLORE.DEVICE_OS"), ":");
+    \u0275\u0275textInterpolate1("", \u0275\u0275pipeBind1(3, 2, "EXPLORE.DEVICE_MANUFACTURER"), ":");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", ctx_r2.os, " ");
+    \u0275\u0275textInterpolate1(" ", ctx_r1.manufacturer, " ");
   }
 }
-function ExploreDeviceInfoComponent_ng_template_5_Conditional_16_Template(rf, ctx) {
+function ExploreDeviceInfoComponent_ng_template_5_Conditional_15_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "p", 12)(1, "label");
     \u0275\u0275text(2);
@@ -1154,14 +1154,14 @@ function ExploreDeviceInfoComponent_ng_template_5_Conditional_16_Template(rf, ct
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const ctx_r2 = \u0275\u0275nextContext(2);
+    const ctx_r1 = \u0275\u0275nextContext(2);
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1("", \u0275\u0275pipeBind1(3, 2, "EXPLORE.DEVICE_SSID"), ":");
+    \u0275\u0275textInterpolate1("", \u0275\u0275pipeBind1(3, 2, "EXPLORE.DEVICE_OS"), ":");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", ctx_r2.ssid, " ");
+    \u0275\u0275textInterpolate1(" ", ctx_r1.os, " ");
   }
 }
-function ExploreDeviceInfoComponent_ng_template_5_Conditional_17_Template(rf, ctx) {
+function ExploreDeviceInfoComponent_ng_template_5_Conditional_16_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "p", 13)(1, "label");
     \u0275\u0275text(2);
@@ -1171,14 +1171,14 @@ function ExploreDeviceInfoComponent_ng_template_5_Conditional_17_Template(rf, ct
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const ctx_r2 = \u0275\u0275nextContext(2);
+    const ctx_r1 = \u0275\u0275nextContext(2);
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1("", \u0275\u0275pipeBind1(3, 2, "EXPLORE.DEVICE_USERNAME"), ":");
+    \u0275\u0275textInterpolate1("", \u0275\u0275pipeBind1(3, 2, "EXPLORE.DEVICE_SSID"), ":");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", (ctx_r2.user == null ? null : ctx_r2.user.name) || (ctx_r2.user == null ? null : ctx_r2.user.username) || ctx_r2.username, " ");
+    \u0275\u0275textInterpolate1(" ", ctx_r1.ssid, " ");
   }
 }
-function ExploreDeviceInfoComponent_ng_template_5_Conditional_18_Template(rf, ctx) {
+function ExploreDeviceInfoComponent_ng_template_5_Conditional_17_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "p", 14)(1, "label");
     \u0275\u0275text(2);
@@ -1188,25 +1188,36 @@ function ExploreDeviceInfoComponent_ng_template_5_Conditional_18_Template(rf, ct
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const ctx_r2 = \u0275\u0275nextContext(2);
+    const ctx_r1 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1("", \u0275\u0275pipeBind1(3, 2, "EXPLORE.DEVICE_USERNAME"), ":");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", (ctx_r1.user == null ? null : ctx_r1.user.name) || (ctx_r1.user == null ? null : ctx_r1.user.username) || ctx_r1.username(), " ");
+  }
+}
+function ExploreDeviceInfoComponent_ng_template_5_Conditional_18_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "p", 15)(1, "label");
+    \u0275\u0275text(2);
+    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275text(4);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext(2);
     \u0275\u0275advance(2);
     \u0275\u0275textInterpolate1("", \u0275\u0275pipeBind1(3, 2, "EXPLORE.DEVICE_TYPE"), ":");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", ctx_r2.user.type, " ");
+    \u0275\u0275textInterpolate1(" ", ctx_r1.user.type, " ");
   }
 }
 function ExploreDeviceInfoComponent_ng_template_5_Template(rf, ctx) {
   if (rf & 1) {
-    const _r2 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 6);
-    \u0275\u0275listener("mouseleave", function ExploreDeviceInfoComponent_ng_template_5_Template_div_mouseleave_0_listener() {
-      \u0275\u0275restoreView(_r2);
-      const ctx_r2 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r2.close());
-    });
-    \u0275\u0275element(1, "div", 7);
-    \u0275\u0275elementStart(2, "div", 8);
-    \u0275\u0275conditionalCreate(3, ExploreDeviceInfoComponent_ng_template_5_Conditional_3_Template, 5, 4, "p", 9);
+    \u0275\u0275elementStart(0, "div", 7);
+    \u0275\u0275element(1, "div", 8);
+    \u0275\u0275elementStart(2, "div", 9);
+    \u0275\u0275conditionalCreate(3, ExploreDeviceInfoComponent_ng_template_5_Conditional_3_Template, 5, 4, "p", 10);
     \u0275\u0275elementStart(4, "p")(5, "label");
     \u0275\u0275text(6);
     \u0275\u0275pipe(7, "translate");
@@ -1219,107 +1230,123 @@ function ExploreDeviceInfoComponent_ng_template_5_Template(rf, ctx) {
     \u0275\u0275elementEnd();
     \u0275\u0275text(13);
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(14, ExploreDeviceInfoComponent_ng_template_5_Conditional_14_Template, 5, 4, "p", 10);
-    \u0275\u0275conditionalCreate(15, ExploreDeviceInfoComponent_ng_template_5_Conditional_15_Template, 5, 4, "p", 11);
-    \u0275\u0275conditionalCreate(16, ExploreDeviceInfoComponent_ng_template_5_Conditional_16_Template, 5, 4, "p", 12);
-    \u0275\u0275conditionalCreate(17, ExploreDeviceInfoComponent_ng_template_5_Conditional_17_Template, 5, 4, "p", 13);
-    \u0275\u0275conditionalCreate(18, ExploreDeviceInfoComponent_ng_template_5_Conditional_18_Template, 5, 4, "p", 14);
+    \u0275\u0275conditionalCreate(14, ExploreDeviceInfoComponent_ng_template_5_Conditional_14_Template, 5, 4, "p", 11);
+    \u0275\u0275conditionalCreate(15, ExploreDeviceInfoComponent_ng_template_5_Conditional_15_Template, 5, 4, "p", 12);
+    \u0275\u0275conditionalCreate(16, ExploreDeviceInfoComponent_ng_template_5_Conditional_16_Template, 5, 4, "p", 13);
+    \u0275\u0275conditionalCreate(17, ExploreDeviceInfoComponent_ng_template_5_Conditional_17_Template, 5, 4, "p", 14);
+    \u0275\u0275conditionalCreate(18, ExploreDeviceInfoComponent_ng_template_5_Conditional_18_Template, 5, 4, "p", 15);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    const ctx_r2 = \u0275\u0275nextContext();
+    const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance(3);
-    \u0275\u0275conditional(ctx_r2.mac && !ctx_r2.hide_fields.includes("mac") ? 3 : -1);
+    \u0275\u0275conditional(ctx_r1.mac && !ctx_r1.hide_fields().includes("mac") ? 3 : -1);
     \u0275\u0275advance(3);
     \u0275\u0275textInterpolate1("", \u0275\u0275pipeBind1(7, 10, "EXPLORE.DEVICE_ACCURACY"), ":");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", ctx_r2.variance, "m ");
+    \u0275\u0275textInterpolate1(" ", ctx_r1.variance, "m ");
     \u0275\u0275advance(3);
     \u0275\u0275textInterpolate1("", \u0275\u0275pipeBind1(12, 12, "EXPLORE.DEVICE_LAST_SEEN"), ":");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", ctx_r2.last_seen, " ");
+    \u0275\u0275textInterpolate1(" ", ctx_r1.last_seen(), " ");
     \u0275\u0275advance();
-    \u0275\u0275conditional(ctx_r2.manufacturer && !ctx_r2.hide_fields.includes("manufacturer") ? 14 : -1);
+    \u0275\u0275conditional(ctx_r1.manufacturer && !ctx_r1.hide_fields().includes("manufacturer") ? 14 : -1);
     \u0275\u0275advance();
-    \u0275\u0275conditional(ctx_r2.os && !ctx_r2.hide_fields.includes("os") ? 15 : -1);
+    \u0275\u0275conditional(ctx_r1.os && !ctx_r1.hide_fields().includes("os") ? 15 : -1);
     \u0275\u0275advance();
-    \u0275\u0275conditional(ctx_r2.ssid && !ctx_r2.hide_fields.includes("ssid") ? 16 : -1);
+    \u0275\u0275conditional(ctx_r1.ssid && !ctx_r1.hide_fields().includes("ssid") ? 16 : -1);
     \u0275\u0275advance();
-    \u0275\u0275conditional(ctx_r2.username && !ctx_r2.hide_fields.includes("username") ? 17 : -1);
+    \u0275\u0275conditional(ctx_r1.username() && !ctx_r1.hide_fields().includes("username") ? 17 : -1);
     \u0275\u0275advance();
-    \u0275\u0275conditional(ctx_r2.user && !ctx_r2.hide_fields.includes("user") ? 18 : -1);
+    \u0275\u0275conditional(ctx_r1.user && !ctx_r1.hide_fields().includes("user") ? 18 : -1);
   }
 }
 var EMPTY = [];
-var _ExploreDeviceInfoComponent = class _ExploreDeviceInfoComponent extends AsyncHandler {
-  get hide_fields() {
-    return this._settings.get("app.explore.hide_device_fields") || EMPTY;
-  }
-  /** Time of the last update */
-  get last_seen() {
-    return formatDistanceToNow((this._details.last_seen || 0) * 1e3, {
-      addSuffix: true
-    });
-  }
-  /** Diameter of the radius circle */
-  get diameter() {
-    return this._details.variance * 100 * this.zoom;
-  }
-  get distance() {
+var _ExploreDeviceInfoComponent = class _ExploreDeviceInfoComponent {
+  get _distance() {
     return Math.abs(differenceInMinutes((this._details.last_seen || 0) * 1e3, /* @__PURE__ */ new Date()));
   }
-  get distance_color() {
-    return this.distance < 10 ? "#43a047" : this.distance < 20 ? "#ffb300" : "#e53935";
+  get _distance_color() {
+    return this._distance < 10 ? "#43a047" : this._distance < 20 ? "#ffb300" : "#e53935";
   }
   constructor() {
-    super();
     this._details = inject(MAP_FEATURE_DATA);
     this._settings = inject(SettingsService);
     this._element = inject(ElementRef);
-    this.username = "";
+    this.username = signal("");
+    this.show_radius = signal(false);
     this.user = this._details.user;
     this.mac = this._details.mac;
     this.manufacturer = this._details.manufacturer;
     this.os = this._details.os;
     this.ssid = this._details.ssid;
     this.variance = this._details.variance?.toFixed(2);
-    this.bg_color = this._details.bg_color || this.distance_color;
-    this.zoom = 1;
+    this.bg_color = this._details.bg_color || this._distance_color;
+    this.zoom = toSignal(this._details.zoom$, { initialValue: 1 });
+    this.hide_fields = computed(() => {
+      return this._settings.get("app.explore.hide_device_fields") || EMPTY;
+    });
+    this.last_seen = computed(() => {
+      return formatDistanceToNow((this._details.last_seen || 0) * 1e3, {
+        addSuffix: true
+      });
+    });
+    this.y_pos = signal("top");
+    this.x_pos = signal("start");
+    this.diameter = computed(() => {
+      return this._details.variance * 100 * this.zoom();
+    });
+    afterNextRender(() => this._initPosition());
   }
-  ngOnInit(tries = 0) {
+  _initPosition(tries = 0) {
     if (tries > 10)
       return;
-    setTimeout(() => {
-      const parent = this._element.nativeElement.parentElement?.parentElement;
-      if (!parent)
-        return this.ngOnInit(++tries);
-      const position = {
-        y: parseInt(parent.style.top, 10) / 100,
-        x: parseInt(parent.style.left, 10) / 100
-      };
-      this.y_pos = position.y >= 0.5 ? "bottom" : "top";
-      this.x_pos = position.x >= 0.5 ? "end" : "start";
-      this.subscription("zoom", this._details.zoom$.subscribe((_) => this.zoom = _));
-    }, 200);
+    const parent = this._element.nativeElement.parentElement?.parentElement;
+    if (!parent) {
+      setTimeout(() => this._initPosition(++tries), 200);
+      return;
+    }
+    const position = {
+      y: parseInt(parent.style.top, 10) / 100,
+      x: parseInt(parent.style.left, 10) / 100
+    };
+    this.y_pos.set(position.y >= 0.5 ? "bottom" : "top");
+    this.x_pos.set(position.x >= 0.5 ? "end" : "start");
   }
   async loadUser() {
-    if (this.username)
+    if (this.username())
       return;
-    const mod = Va(this._details.system, "LocationServices");
+    const mod = kh(this._details.system, "LocationServices");
     if (!mod)
       return;
-    this.username = "Loading...";
+    this.username.set("Loading...");
     const details = await mod.execute("check_ownership_of", [this.mac]).catch(() => null);
-    this.username = details && details.assigned_to ? details.assigned_to : "";
+    this.username.set(details && details.assigned_to ? details.assigned_to : "");
   }
 };
 _ExploreDeviceInfoComponent.\u0275fac = function ExploreDeviceInfoComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _ExploreDeviceInfoComponent)();
 };
-_ExploreDeviceInfoComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ExploreDeviceInfoComponent, selectors: [["", "explore-device-info", ""]], features: [\u0275\u0275InheritDefinitionFeature], attrs: _c03, decls: 7, vars: 9, consts: [["dot", ""], ["device_tooltip", ""], ["name", "radius", 1, "radius", "center", "border-blue-600", "absolute", "rounded-full", "border-8", "border-dashed", "bg-info", "opacity-30"], ["shadow", "", 1, "center", "absolute", "h-8", "w-8", "rounded-full", "bg-black", "opacity-30"], ["name", "dot", 1, "center", "absolute", "h-3", "w-3", "rounded-full", "border-2", "border-white", "shadow"], ["customTooltip", "", 1, "pointer-events-auto", "absolute", "inset-0", 3, "mouseenter", "content", "backdrop", "xPosition", "yPosition", "hover"], ["name", "device-info", 1, "pointer-events-none", "left-0", "top-0", "mx-2", "w-64", "rounded", "bg-base-100", "p-4", "shadow", 3, "mouseleave"], [1, "arrow"], [1, "details"], [1, "break-words"], ["type", ""], ["os", ""], ["ssid", ""], ["username", ""], ["user", ""]], template: function ExploreDeviceInfoComponent_Template(rf, ctx) {
+_ExploreDeviceInfoComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ExploreDeviceInfoComponent, selectors: [["", "explore-device-info", ""]], attrs: _c03, decls: 7, vars: 8, consts: [["dot", ""], ["device_tooltip", ""], ["name", "radius", 1, "radius", "center", "border-blue-600", "absolute", "rounded-full", "border-8", "border-dashed", "border-info", "bg-info", "opacity-30", 3, "style"], ["shadow", "", 1, "center", "pointer-events-auto", "absolute", "h-8", "w-8", "rounded-full", "bg-black", "opacity-30", 3, "mouseenter", "click", "mouseleave"], ["name", "dot", 1, "center", "absolute", "h-3", "w-3", "rounded-full", "border-2", "border-white", "shadow-sm"], ["customTooltip", "", 1, "pointer-events-auto", "absolute", "inset-0", 3, "mouseenter", "content", "backdrop", "xPosition", "yPosition", "hover"], ["name", "radius", 1, "radius", "center", "border-blue-600", "absolute", "rounded-full", "border-8", "border-dashed", "border-info", "bg-info", "opacity-30"], ["name", "device-info", 1, "pointer-events-none", "left-0", "top-0", "mx-2", "w-64", "rounded-sm", "bg-base-100", "p-4", "shadow-sm"], [1, "arrow"], [1, "details"], [1, "wrap-break-word"], ["type", ""], ["os", ""], ["ssid", ""], ["username", ""], ["user", ""]], template: function ExploreDeviceInfoComponent_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275element(0, "div", 2)(1, "div", 3)(2, "div", 4, 0);
+    \u0275\u0275conditionalCreate(0, ExploreDeviceInfoComponent_Conditional_0_Template, 1, 2, "div", 2);
+    \u0275\u0275elementStart(1, "div", 3);
+    \u0275\u0275listener("mouseenter", function ExploreDeviceInfoComponent_Template_div_mouseenter_1_listener() {
+      \u0275\u0275restoreView(_r1);
+      return \u0275\u0275resetView(ctx.show_radius.set(true));
+    })("click", function ExploreDeviceInfoComponent_Template_div_click_1_listener() {
+      \u0275\u0275restoreView(_r1);
+      return \u0275\u0275resetView(ctx.show_radius.set(false));
+    }, \u0275\u0275resolveWindow)("click", function ExploreDeviceInfoComponent_Template_div_click_1_listener() {
+      \u0275\u0275restoreView(_r1);
+      return \u0275\u0275resetView(ctx.show_radius.set(true));
+    })("mouseleave", function ExploreDeviceInfoComponent_Template_div_mouseleave_1_listener() {
+      \u0275\u0275restoreView(_r1);
+      return \u0275\u0275resetView(ctx.show_radius.set(false));
+    });
+    \u0275\u0275elementEnd();
+    \u0275\u0275element(2, "div", 4, 0);
     \u0275\u0275elementStart(4, "div", 5);
     \u0275\u0275listener("mouseenter", function ExploreDeviceInfoComponent_Template_div_mouseenter_4_listener() {
       \u0275\u0275restoreView(_r1);
@@ -1329,12 +1356,12 @@ _ExploreDeviceInfoComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineCompon
     \u0275\u0275template(5, ExploreDeviceInfoComponent_ng_template_5_Template, 19, 14, "ng-template", null, 1, \u0275\u0275templateRefExtractor);
   }
   if (rf & 2) {
-    const device_tooltip_r4 = \u0275\u0275reference(6);
-    \u0275\u0275styleMap("height: " + ctx.diameter + "%; width: " + ctx.diameter + "%;");
+    const device_tooltip_r3 = \u0275\u0275reference(6);
+    \u0275\u0275conditional(ctx.show_radius() ? 0 : -1);
     \u0275\u0275advance(2);
     \u0275\u0275styleProp("background-color", ctx.bg_color);
     \u0275\u0275advance(2);
-    \u0275\u0275property("content", device_tooltip_r4)("backdrop", false)("xPosition", ctx.x_pos)("yPosition", ctx.y_pos)("hover", true);
+    \u0275\u0275property("content", device_tooltip_r3)("backdrop", false)("xPosition", ctx.x_pos())("yPosition", ctx.y_pos())("hover", true);
   }
 }, dependencies: [TranslatePipe, CustomTooltipComponent], styles: ["\n\n[_nghost-%COMP%] {\n  pointer-events: auto;\n}\n[_nghost-%COMP%]    > [name=dot][_ngcontent-%COMP%] {\n  background-color: #616161;\n}\n[_nghost-%COMP%]:hover    > [name=radius][_ngcontent-%COMP%] {\n  opacity: 1;\n}\n[name=radius][_ngcontent-%COMP%] {\n  opacity: 0;\n  transition: opacity 200ms;\n  pointer-events: none;\n}\n/*# sourceMappingURL=explore-device-info.component.css.map */"] });
 var ExploreDeviceInfoComponent = _ExploreDeviceInfoComponent;
@@ -1342,27 +1369,35 @@ var ExploreDeviceInfoComponent = _ExploreDeviceInfoComponent;
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(ExploreDeviceInfoComponent, [{
     type: Component,
     args: [{ selector: "[explore-device-info]", template: `
-        <div
-            name="radius"
-            class="radius center border-blue-600 absolute rounded-full border-8 border-dashed bg-info opacity-30"
-            [style]="'height: ' + diameter + '%; width: ' + diameter + '%;'"
-        ></div>
+        @if (show_radius()) {
+            <div
+                name="radius"
+                class="radius center border-blue-600 absolute rounded-full border-8 border-dashed border-info bg-info opacity-30"
+                [style]="
+                    'height: ' + diameter() + '%; width: ' + diameter() + '%;'
+                "
+            ></div>
+        }
         <div
             shadow
-            class="center absolute h-8 w-8 rounded-full bg-black opacity-30"
+            class="center pointer-events-auto absolute h-8 w-8 rounded-full bg-black opacity-30"
+            (mouseenter)="show_radius.set(true)"
+            (window:click)="show_radius.set(false)"
+            (click)="show_radius.set(true)"
+            (mouseleave)="show_radius.set(false)"
         ></div>
         <div
             name="dot"
             #dot
-            class="center absolute h-3 w-3 rounded-full border-2 border-white shadow"
+            class="center absolute h-3 w-3 rounded-full border-2 border-white shadow-sm"
             [style.background-color]="bg_color"
         ></div>
         <div
             customTooltip
             [content]="device_tooltip"
             [backdrop]="false"
-            [xPosition]="x_pos"
-            [yPosition]="y_pos"
+            [xPosition]="x_pos()"
+            [yPosition]="y_pos()"
             [hover]="true"
             (mouseenter)="loadUser()"
             class="pointer-events-auto absolute inset-0"
@@ -1371,13 +1406,12 @@ var ExploreDeviceInfoComponent = _ExploreDeviceInfoComponent;
         <ng-template #device_tooltip>
             <div
                 name="device-info"
-                class="pointer-events-none left-0 top-0 mx-2 w-64 rounded bg-base-100 p-4 shadow"
-                (mouseleave)="close()"
+                class="pointer-events-none left-0 top-0 mx-2 w-64 rounded-sm bg-base-100 p-4 shadow-sm"
             >
                 <div class="arrow"></div>
                 <div class="details">
-                    @if (mac && !hide_fields.includes('mac')) {
-                        <p class="break-words">
+                    @if (mac && !hide_fields().includes('mac')) {
+                        <p class="wrap-break-word">
                             <label
                                 >{{ 'EXPLORE.DEVICE_MAC' | translate }}:</label
                             >
@@ -1396,10 +1430,10 @@ var ExploreDeviceInfoComponent = _ExploreDeviceInfoComponent;
                                 'EXPLORE.DEVICE_LAST_SEEN' | translate
                             }}:</label
                         >
-                        {{ last_seen }}
+                        {{ last_seen() }}
                     </p>
                     @if (
-                        manufacturer && !hide_fields.includes('manufacturer')
+                        manufacturer && !hide_fields().includes('manufacturer')
                     ) {
                         <p type>
                             <label
@@ -1410,7 +1444,7 @@ var ExploreDeviceInfoComponent = _ExploreDeviceInfoComponent;
                             {{ manufacturer }}
                         </p>
                     }
-                    @if (os && !hide_fields.includes('os')) {
+                    @if (os && !hide_fields().includes('os')) {
                         <p os>
                             <label
                                 >{{ 'EXPLORE.DEVICE_OS' | translate }}:</label
@@ -1418,7 +1452,7 @@ var ExploreDeviceInfoComponent = _ExploreDeviceInfoComponent;
                             {{ os }}
                         </p>
                     }
-                    @if (ssid && !hide_fields.includes('ssid')) {
+                    @if (ssid && !hide_fields().includes('ssid')) {
                         <p ssid>
                             <label
                                 >{{ 'EXPLORE.DEVICE_SSID' | translate }}:</label
@@ -1426,17 +1460,17 @@ var ExploreDeviceInfoComponent = _ExploreDeviceInfoComponent;
                             {{ ssid }}
                         </p>
                     }
-                    @if (username && !hide_fields.includes('username')) {
+                    @if (username() && !hide_fields().includes('username')) {
                         <p username>
                             <label
                                 >{{
                                     'EXPLORE.DEVICE_USERNAME' | translate
                                 }}:</label
                             >
-                            {{ user?.name || user?.username || username }}
+                            {{ user?.name || user?.username || username() }}
                         </p>
                     }
-                    @if (user && !hide_fields.includes('user')) {
+                    @if (user && !hide_fields().includes('user')) {
                         <p user>
                             <label
                                 >{{ 'EXPLORE.DEVICE_TYPE' | translate }}:</label
@@ -1451,7 +1485,7 @@ var ExploreDeviceInfoComponent = _ExploreDeviceInfoComponent;
   }], () => [], null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ExploreDeviceInfoComponent, { className: "ExploreDeviceInfoComponent", filePath: "libs/explore/src/lib/explore-device-info.component.ts", lineNumber: 158 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ExploreDeviceInfoComponent, { className: "ExploreDeviceInfoComponent", filePath: "libs/explore/src/lib/explore-device-info.component.ts", lineNumber: 173 });
 })();
 
 // libs/explore/src/lib/explore-desks.service.ts
@@ -1471,8 +1505,8 @@ var _ExploreDesksService = class _ExploreDesksService extends AsyncHandler {
     this._users = {};
     this._departments = {};
     this._checked_in = new BehaviorSubject([]);
-    this.booking_rules = this._org.active_building.pipe(filter((bld) => !!bld), switchMap((bld) => Iu(bld.id, `desk_booking_rules`).pipe(catchError(() => of({ details: [] })))), map((_) => _?.details instanceof Array ? _.details : []), shareReplay(1));
-    this.desk_list = this._state.level.pipe(debounceTime(50), switchMap((lvl) => Iu(lvl.id, "desks").pipe(catchError(() => of({ details: [] })), map((i) => (i?.details instanceof Array ? i.details : []).map((j) => new Desk(__spreadProps(__spreadValues({}, j), { zone: lvl })))))), catchError((e) => []), shareReplay(1));
+    this.booking_rules = this._org.active_building.pipe(filter((bld) => !!bld), switchMap((bld) => Xu(bld.id, `desk_booking_rules`).pipe(catchError(() => of({ details: [] })))), map((_) => _?.details instanceof Array ? _.details : []), shareReplay(1));
+    this.desk_list = this._state.level.pipe(debounceTime(50), switchMap((lvl) => Xu(lvl.id, "desks").pipe(catchError(() => of({ details: [] })), map((i) => (i?.details instanceof Array ? i.details : []).map((j) => new Desk(__spreadProps(__spreadValues({}, j), { zone: lvl })))))), catchError((e) => []), shareReplay(1));
     this._bind = combineLatest([
       this._state.level,
       this._state.options
@@ -1843,7 +1877,7 @@ var _ExploreMapControlComponent = class _ExploreMapControlComponent extends Asyn
 _ExploreMapControlComponent.\u0275fac = function ExploreMapControlComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _ExploreMapControlComponent)();
 };
-_ExploreMapControlComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ExploreMapControlComponent, selectors: [["explore-map-controls"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 5, vars: 6, consts: [[1, "flex", "w-full", "space-x-2"], ["overlay", "", "buildings", "", "has-bld", "true", "appearance", "outline", 1, "no-subscript", "min-w-[10.5rem]", "flex-1"], ["overlay", "", "levels", "", "appearance", "outline", 1, "no-subscript", "min-w-[10.25rem]", "flex-1"], ["placeholder", "Select Building...", 3, "ngModelChange", "ngModel"], [3, "value"], ["placeholder", "Select Level...", 3, "ngModelChange", "ngModel"]], template: function ExploreMapControlComponent_Template(rf, ctx) {
+_ExploreMapControlComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ExploreMapControlComponent, selectors: [["explore-map-controls"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 5, vars: 6, consts: [[1, "flex", "w-full", "space-x-2"], ["overlay", "", "buildings", "", "has-bld", "true", "appearance", "outline", 1, "no-subscript", "min-w-42", "flex-1"], ["overlay", "", "levels", "", "appearance", "outline", 1, "no-subscript", "min-w-41", "flex-1"], ["placeholder", "Select Building...", 3, "ngModelChange", "ngModel"], [3, "value"], ["placeholder", "Select Level...", 3, "ngModelChange", "ngModel"]], template: function ExploreMapControlComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0);
     \u0275\u0275conditionalCreate(1, ExploreMapControlComponent_Conditional_1_Template, 6, 5, "mat-form-field", 1);
@@ -1871,7 +1905,7 @@ var ExploreMapControlComponent = _ExploreMapControlComponent;
                 <mat-form-field
                     overlay
                     buildings
-                    class="no-subscript min-w-[10.5rem] flex-1"
+                    class="no-subscript min-w-42 flex-1"
                     has-bld="true"
                     appearance="outline"
                 >
@@ -1892,7 +1926,7 @@ var ExploreMapControlComponent = _ExploreMapControlComponent;
                 <mat-form-field
                     overlay
                     levels
-                    class="no-subscript min-w-[10.25rem] flex-1"
+                    class="no-subscript min-w-41 flex-1"
                     [attr.has-bld]="(buildings | async)?.length > 1"
                     appearance="outline"
                 >
@@ -1985,7 +2019,7 @@ function ExploreLockerBankInfoComponent_ng_template_2_Template(rf, ctx) {
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275classMap("pointer-events-none absolute left-0 top-0 rounded bg-base-100 p-4 shadow " + ctx_r1.x_pos + " " + ctx_r1.y_pos);
+    \u0275\u0275classMap("pointer-events-none absolute left-0 top-0 rounded-sm bg-base-100 p-4 shadow-sm " + ctx_r1.x_pos + " " + ctx_r1.y_pos);
     \u0275\u0275property("id", ctx_r1.map_id);
     \u0275\u0275advance(2);
     \u0275\u0275textInterpolate(ctx_r1.bank.name);
@@ -2068,7 +2102,7 @@ var ExploreLockerBankInfoComponent = _ExploreLockerBankInfoComponent;
                 name="space-info"
                 [id]="map_id"
                 [class]="
-                    'pointer-events-none absolute left-0 top-0 rounded bg-base-100 p-4 shadow ' +
+                    'pointer-events-none absolute left-0 top-0 rounded-sm bg-base-100 p-4 shadow-sm ' +
                     x_pos +
                     ' ' +
                     y_pos
@@ -2210,7 +2244,7 @@ var _ExploreParkingService = class _ExploreParkingService extends AsyncHandler {
     this.options = this._options.asObservable();
     this.on_book = null;
     this.levels = this._org.active_levels.pipe(map((l) => l.filter((_) => _.tags.includes("parking"))));
-    this.booking_rules = this._org.active_building.pipe(filter((bld) => !!bld), switchMap((bld) => Iu(bld.id, `parking_booking_rules`).pipe(catchError(() => of({ details: [] })))), map((_) => _?.details instanceof Array ? _.details : []), shareReplay(1));
+    this.booking_rules = this._org.active_building.pipe(filter((bld) => !!bld), switchMap((bld) => Xu(bld.id, `parking_booking_rules`).pipe(catchError(() => of({ details: [] })))), map((_) => _?.details instanceof Array ? _.details : []), shareReplay(1));
     this.events = combineLatest([
       this._org.active_building,
       this._state.options,
@@ -2229,7 +2263,7 @@ var _ExploreParkingService = class _ExploreParkingService extends AsyncHandler {
       type: "parking",
       email: _?.user || currentUser()?.email
     })), shareReplay(1));
-    this.spaces = this.levels.pipe(switchMap((_) => forkJoin(_.map((l) => Iu(l.id, "parking-spaces").pipe(map((d) => (d.details instanceof Array ? d.details : []).map((s) => __spreadProps(__spreadValues({}, s), { zone_id: l.id }))))))), map((_) => flatten(_)), shareReplay(1));
+    this.spaces = this.levels.pipe(switchMap((_) => forkJoin(_.map((l) => Xu(l.id, "parking-spaces").pipe(map((d) => (d.details instanceof Array ? d.details : []).map((s) => __spreadProps(__spreadValues({}, s), { zone_id: l.id }))))))), map((_) => flatten(_)), shareReplay(1));
     this.active_spaces = combineLatest([
       this.spaces,
       this._state.level
@@ -2558,7 +2592,7 @@ _ExplorePointOfInterestModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275de
   if (rf & 2) {
     \u0275\u0275queryAdvance();
   }
-}, decls: 12, vars: 5, consts: [["media_el", ""], [1, "h-screen", "w-full", "min-w-[20rem]", "max-w-[28rem]", "overflow-auto", "rounded", "bg-base-100", "sm:h-auto"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "m-4", "flex", "h-[calc(100vh-5.75rem)]", "w-[calc(100%-2rem)]", "items-center", "justify-center", "rounded-lg", "bg-base-200", "p-8", "text-center", "opacity-50", "sm:h-64"], [1, "h-48", "w-full", "bg-base-300", "object-contain", 3, "src", "alt"], [1, "text-sm"], [1, "pointer-events-none", "absolute", "opacity-0"], ["auth", "", "controls", "", 1, "h-full", "w-full", 3, "source"], [1, "flex", "w-full", "flex-col", "items-center", "justify-center", "space-y-2", "border-t", "border-base-200", "p-4"], [1, "relative"], [1, "absolute", "left-2", "top-2", "h-8", "w-8", "animate-ping", "rounded-full", "bg-info"], ["icon", "", "matRipple", "", 1, "relative", "h-12", "w-12", "bg-base-200", 3, "click"], [1, "text-xs", "font-medium"], [1, "flex", "space-x-4", "border-t", "border-base-200", "p-4"], [1, "w-20", "min-w-20", "text-info"]], template: function ExplorePointOfInterestModalComponent_Template(rf, ctx) {
+}, decls: 12, vars: 5, consts: [["media_el", ""], [1, "h-screen", "w-full", "min-w-[20rem]", "max-w-md", "overflow-auto", "rounded-sm", "bg-base-100", "sm:h-auto"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "m-4", "flex", "h-[calc(100vh-5.75rem)]", "w-[calc(100%-2rem)]", "items-center", "justify-center", "rounded-lg", "bg-base-200", "p-8", "text-center", "opacity-50", "sm:h-64"], [1, "h-48", "w-full", "bg-base-300", "object-contain", 3, "src", "alt"], [1, "text-sm"], [1, "pointer-events-none", "absolute", "opacity-0"], ["auth", "", "controls", "", 1, "h-full", "w-full", 3, "source"], [1, "flex", "w-full", "flex-col", "items-center", "justify-center", "space-y-2", "border-t", "border-base-200", "p-4"], [1, "relative"], [1, "absolute", "left-2", "top-2", "h-8", "w-8", "animate-ping", "rounded-full", "bg-info"], ["icon", "", "matRipple", "", 1, "relative", "h-12", "w-12", "bg-base-200", 3, "click"], [1, "text-xs", "font-medium"], [1, "flex", "space-x-4", "border-t", "border-base-200", "p-4"], [1, "w-20", "min-w-20", "text-info"]], template: function ExplorePointOfInterestModalComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 1)(1, "header")(2, "h2");
     \u0275\u0275text(3);
@@ -2600,7 +2634,7 @@ var ExplorePointOfInterestModalComponent = _ExplorePointOfInterestModalComponent
     type: Component,
     args: [{ selector: `explore-poi-modal`, template: `
         <div
-            class="h-screen w-full min-w-[20rem] max-w-[28rem] overflow-auto rounded bg-base-100 sm:h-auto"
+            class="h-screen w-full min-w-[20rem] max-w-md overflow-auto rounded-sm bg-base-100 sm:h-auto"
         >
             <header>
                 <h2>{{ item.name }}</h2>
@@ -2706,7 +2740,7 @@ var _ExplorePointOfInterestService = class _ExplorePointOfInterestService extend
     this._org = inject(OrganisationService);
     this._explore = inject(ExploreStateService);
     this._dialog = inject(MatDialog);
-    this._features = this._org.active_building.pipe(switchMap(() => Iu(this._org.organisation.id, "points-of-interest").pipe(catchError((_) => of({ details: {} })))), map((_) => {
+    this._features = this._org.active_building.pipe(switchMap(() => Xu(this._org.organisation.id, "points-of-interest").pipe(catchError((_) => of({ details: {} })))), map((_) => {
       const mapping = _.details || {};
       const levels = this._org.levelsForBuilding(this._org.building);
       const list = flatten(levels.map((lvl) => (mapping[lvl.id] || []).map((_2) => __spreadProps(__spreadValues({}, _2), {
@@ -2987,7 +3021,7 @@ var _ExploreSensorInfoComponent = class _ExploreSensorInfoComponent extends Asyn
 _ExploreSensorInfoComponent.\u0275fac = function ExploreSensorInfoComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _ExploreSensorInfoComponent)();
 };
-_ExploreSensorInfoComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ExploreSensorInfoComponent, selectors: [["explore-sensor-info"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 5, vars: 1, consts: [["stats", ""], ["icon", "", "matRipple", "", "customTooltip", "", "yPosition", "center", "xPosition", "center", 1, "pointer-events-auto", "absolute", "left-1/2", "top-1/2", "h-7", "w-7", "min-w-0", "-translate-x-1/2", "-translate-y-1/2", "bg-base-100", "shadow", 3, "content"], [1, "absolute", "left-1/2", "top-1/2", "-translate-x-1/2", "-translate-y-1/2", "rounded-lg", "border", "border-base-200", "bg-base-100", "p-2", "text-xl"], [1, "flex", "items-center", "space-x-2", "whitespace-nowrap", "pr-2"], [1, "absolute", "right-0", "top-0", "-translate-y-1/2", "translate-x-1/2", "rounded-full", "border", "border-base-200", "bg-base-100"], [1, ""], [1, "text-xl", "text-error"]], template: function ExploreSensorInfoComponent_Template(rf, ctx) {
+_ExploreSensorInfoComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ExploreSensorInfoComponent, selectors: [["explore-sensor-info"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 5, vars: 1, consts: [["stats", ""], ["icon", "", "matRipple", "", "customTooltip", "", "yPosition", "center", "xPosition", "center", 1, "pointer-events-auto", "absolute", "left-1/2", "top-1/2", "h-7", "w-7", "min-w-0", "-translate-x-1/2", "-translate-y-1/2", "bg-base-100", "shadow-sm", 3, "content"], [1, "absolute", "left-1/2", "top-1/2", "-translate-x-1/2", "-translate-y-1/2", "rounded-lg", "border", "border-base-200", "bg-base-100", "p-2", "text-xl"], [1, "flex", "items-center", "space-x-2", "whitespace-nowrap", "pr-2"], [1, "absolute", "right-0", "top-0", "-translate-y-1/2", "translate-x-1/2", "rounded-full", "border", "border-base-200", "bg-base-100"], [1, ""], [1, "text-xl", "text-error"]], template: function ExploreSensorInfoComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "button", 1)(1, "icon");
     \u0275\u0275text(2, " visibility ");
@@ -3011,7 +3045,7 @@ var ExploreSensorInfoComponent = _ExploreSensorInfoComponent;
             [content]="stats"
             yPosition="center"
             xPosition="center"
-            class="pointer-events-auto absolute left-1/2 top-1/2 h-7 w-7 min-w-0 -translate-x-1/2 -translate-y-1/2 bg-base-100 shadow"
+            class="pointer-events-auto absolute left-1/2 top-1/2 h-7 w-7 min-w-0 -translate-x-1/2 -translate-y-1/2 bg-base-100 shadow-sm"
         >
             <icon> visibility </icon>
         </button>
@@ -3094,7 +3128,7 @@ var _ExploreZonesService = class _ExploreZonesService extends AsyncHandler {
   }
   async init() {
     await firstTruthyValueFrom(this._org.initialised);
-    const zone_metadata = await Promise.all(this._org.levels.map((bld) => Iu(bld.id, "map_regions").toPromise()));
+    const zone_metadata = await Promise.all(this._org.levels.map((bld) => Xu(bld.id, "map_regions").toPromise()));
     this._area_list = [];
     for (const zone of zone_metadata) {
       const areas = zone?.details?.areas;
@@ -3536,7 +3570,7 @@ _ExploreMapViewComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent
   ExploreLockersService,
   ExplorePointOfInterestService,
   SpacePipe
-]), \u0275\u0275InheritDefinitionFeature], decls: 10, vars: 23, consts: [[3, "mapInfo", "src", "styles", "features", "actions", "labels", "focus", "options"], ["controls", "", 1, "absolute", "left-2", "top-2", "max-w-[calc(100vw-1rem)]", "space-y-2", "overflow-hidden", "rounded", "border", "border-base-200", "bg-base-100", "p-2"], ["legend", "", 1, "absolute", "bottom-2", "left-2", "rounded", "border", "border-base-200", "bg-base-100", "p-2"], ["matRipple", "", 1, "absolute", "right-2", "top-2", "h-12", "min-w-32", "rounded-lg", "border", "border-base-300", "bg-base-100", "px-4", "shadow"], [1, "flex", "items-center", "space-x-2"], ["name", "zones", 1, "ml-2", 3, "ngModelChange", "ngModel"], ["for", "zones", 1, "mb-0"], [1, "mb-2", "font-medium"], [1, "h-3", "w-3", "rounded-full", "border", "border-base-200"], [1, "text-sm"], ["matRipple", "", 1, "absolute", "right-2", "top-2", "h-12", "min-w-32", "rounded-lg", "border", "border-base-300", "bg-base-100", "px-4", "shadow", 3, "click"]], template: function ExploreMapViewComponent_Template(rf, ctx) {
+]), \u0275\u0275InheritDefinitionFeature], decls: 10, vars: 23, consts: [[3, "mapInfo", "src", "styles", "features", "actions", "labels", "focus", "options"], ["controls", "", 1, "absolute", "left-2", "top-2", "max-w-[calc(100vw-1rem)]", "space-y-2", "overflow-hidden", "rounded-sm", "border", "border-base-200", "bg-base-100", "p-2"], ["legend", "", 1, "absolute", "bottom-2", "left-2", "rounded-sm", "border", "border-base-200", "bg-base-100", "p-2"], ["matRipple", "", 1, "absolute", "right-2", "top-2", "h-12", "min-w-32", "rounded-lg", "border", "border-base-300", "bg-base-100", "px-4", "shadow-sm"], [1, "flex", "items-center", "space-x-2"], ["name", "zones", 1, "ml-2", 3, "ngModelChange", "ngModel"], ["for", "zones", 1, "mb-0"], [1, "mb-2", "font-medium"], [1, "h-3", "w-3", "rounded-full", "border", "border-base-200"], [1, "text-sm"], ["matRipple", "", 1, "absolute", "right-2", "top-2", "h-12", "min-w-32", "rounded-lg", "border", "border-base-300", "bg-base-100", "px-4", "shadow-sm", 3, "click"]], template: function ExploreMapViewComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "interactive-map", 0);
     \u0275\u0275pipe(1, "async");
@@ -3593,7 +3627,7 @@ var ExploreMapViewComponent = _ExploreMapViewComponent;
         @if (!(use_mapsindoors$ | async)) {
             <div
                 controls
-                class="absolute left-2 top-2 max-w-[calc(100vw-1rem)] space-y-2 overflow-hidden rounded border border-base-200 bg-base-100 p-2"
+                class="absolute left-2 top-2 max-w-[calc(100vw-1rem)] space-y-2 overflow-hidden rounded-sm border border-base-200 bg-base-100 p-2"
             >
                 <explore-map-controls></explore-map-controls>
                 @if (!hide_zones) {
@@ -3616,7 +3650,7 @@ var ExploreMapViewComponent = _ExploreMapViewComponent;
         @if (show_legend && legend.length) {
             <div
                 legend
-                class="absolute bottom-2 left-2 rounded border border-base-200 bg-base-100 p-2"
+                class="absolute bottom-2 left-2 rounded-sm border border-base-200 bg-base-100 p-2"
             >
                 <h3 class="mb-2 font-medium">
                     {{ 'EXPLORE.LEGEND' | translate }}
@@ -3634,7 +3668,7 @@ var ExploreMapViewComponent = _ExploreMapViewComponent;
         }
         @if (locate) {
             <button
-                class="absolute right-2 top-2 h-12 min-w-32 rounded-lg border border-base-300 bg-base-100 px-4 shadow"
+                class="absolute right-2 top-2 h-12 min-w-32 rounded-lg border border-base-300 bg-base-100 px-4 shadow-sm"
                 matRipple
                 (click)="clearLocate()"
             >
@@ -3665,11 +3699,48 @@ var ExploreMapViewComponent = _ExploreMapViewComponent;
 })();
 
 // libs/explore/src/lib/explore-search.service.ts
-var TYPES = ["space", "contact", "feature", "user"];
+var EMERGENCY_CONTACTS_CATEGORY_NAME = "_EMERGENCY_CONTACTS_";
+var BASE_ENDPOINT = "/api/engine/v2";
+function queryAssetCategoriesLocal(query = {}) {
+  const q = toQueryString(query);
+  return N(`${BASE_ENDPOINT}/asset_categories${q ? "?" + q : ""}`).pipe(map((_) => _));
+}
+function queryAssetTypesLocal(query = {}) {
+  const q = toQueryString(query);
+  return N(`${BASE_ENDPOINT}/asset_types${q ? "?" + q : ""}`).pipe(map((_) => _));
+}
+function queryAssetsLocal(query = {}) {
+  const q = toQueryString(query);
+  return N(`${BASE_ENDPOINT}/assets${q ? "?" + q : ""}`).pipe(map((_) => _));
+}
+var TYPES = ["space", "feature", "contact", "user"];
 function typeIndex(item) {
   return TYPES.indexOf(item.is_role ? "contact" : item.type);
 }
 var _ExploreSearchService = class _ExploreSearchService {
+  /** Extract zones from in-progress bookings */
+  _getInProgressZones(bookings) {
+    if (!bookings?.length)
+      return [];
+    const zones = [];
+    for (const booking of bookings) {
+      if (booking instanceof CalendarEvent) {
+        if (booking.system?.zones?.length) {
+          zones.push(...booking.system.zones);
+        }
+        booking.resources?.forEach((r) => {
+          if (r.zones?.length) {
+            zones.push(...r.zones);
+          }
+        });
+      } else if (booking instanceof Booking) {
+        if (booking.zones?.length) {
+          zones.push(...booking.zones);
+        }
+      }
+    }
+    return zones.filter((z) => this._org.levelWithID([z]));
+  }
   hideItem(name) {
     const hide_items = this._settings.get("app.hide_global_search_items") || [];
     return hide_items.includes(name);
@@ -3679,18 +3750,70 @@ var _ExploreSearchService = class _ExploreSearchService {
     this._settings = inject(SettingsService);
     this._maps_people = inject(MapsPeopleService);
     this._state = inject(ExploreStateService);
+    this._in_progress_bookings = new ReplaySubject(1);
     this._emergency_contacts = new BehaviorSubject([]);
     this._filter = new BehaviorSubject("");
     this._loading = new BehaviorSubject(false);
     this.emergency_contacts = this._emergency_contacts.asObservable();
-    this._role_assigned_contacts = this._org.active_building.pipe(filter((bld) => !!bld), switchMap((bld) => Iu(bld.id, "emergency_contacts")), map(({ details }) => details?.contacts || []), shareReplay(1));
+    this._asset_based_contacts = combineLatest([
+      this._org.active_building,
+      this._filter.pipe(debounceTime(400))
+    ]).pipe(filter(([bld]) => !!bld), switchMap(([bld, search]) => (
+      // First get the category
+      queryAssetCategoriesLocal({ zone_id: bld.id }).pipe(
+        catchError(() => of([])),
+        map((categories) => categories.find((c) => c.name === EMERGENCY_CONTACTS_CATEGORY_NAME) || null),
+        // Then get the asset type for that category
+        switchMap((category) => {
+          if (!category)
+            return of(null);
+          return queryAssetTypesLocal({ zone_id: bld.id, q: `"${category.name}"` }).pipe(catchError(() => of([])), map((groups) => groups.find((g) => g.name === EMERGENCY_CONTACTS_CATEGORY_NAME && g.category_id === category.id) || null));
+        }),
+        // Finally get the assets for that type
+        switchMap((assetType) => {
+          if (!assetType)
+            return of([]);
+          const query = {
+            zone_id: bld.id,
+            type_id: assetType.id,
+            limit: 200
+          };
+          return queryAssetsLocal(query).pipe(catchError(() => of([])), map((assets) => assets.filter((a) => a.asset_type_id === assetType.id).map((a) => {
+            const zone = this._org.levelWithID(a.zones) || this._org.buildings.find((_) => a.zones.includes(_.id));
+            return {
+              id: a.id,
+              name: a.identifier || "",
+              email: a.other_data?.email || "",
+              phone: a.other_data?.phone || "",
+              roles: a.other_data?.roles || [],
+              zone: zone.id,
+              zone_name: zone?.display_name || zone?.name
+            };
+          })));
+        })
+      )
+    )), shareReplay(1));
+    this._legacy_metadata_contacts = this._org.active_building.pipe(filter((bld) => !!bld), switchMap((bld) => Xu(bld.id, "emergency_contacts").pipe(catchError(() => of({ details: { contacts: [], migrated: false } })))), map(({ details }) => {
+      const data = details;
+      if (data?.migrated)
+        return [];
+      return data?.contacts || [];
+    }), shareReplay(1));
+    this._role_assigned_contacts = combineLatest([
+      this._asset_based_contacts,
+      this._legacy_metadata_contacts
+    ]).pipe(map(([asset_contacts, legacy_contacts]) => {
+      if (asset_contacts.length > 0)
+        return asset_contacts;
+      return legacy_contacts;
+    }), shareReplay(1));
     this._user_search = this._filter.pipe(debounceTime(400), tap(() => this._loading.next(true)), switchMap((q) => q?.length > 2 ? this.search_fn(q).pipe(catchError(() => of([]))) : of([])), shareReplay(1));
-    this._space_search = this._filter.pipe(debounceTime(400), tap(() => this._loading.next(true)), switchMap((q) => q?.length > 2 ? xc({ q, zone_id: this._org.organisation.id }).pipe(map(({ data }) => data.filter((_) => _.map_id).map((_) => new Space(__spreadProps(__spreadValues({}, _), {
+    this._space_search = this._filter.pipe(debounceTime(400), tap(() => this._loading.next(true)), switchMap((q) => q?.length > 2 ? Gc({ q, zone_id: this._org.organisation.id }).pipe(map(({ data }) => data.filter((_) => _.map_id).map((_) => new Space(__spreadProps(__spreadValues({}, _), {
       level: this._org.levelWithID(_.zones)
     }))))) : of([])), catchError(() => []));
     this._desk_search = combineLatest([
       this._org.active_building
-    ]).pipe(debounceTime(400), tap(() => this._loading.next(true)), switchMap(([bld]) => bld ? Ru(bld.id, { name: "desks" }).pipe(catchError(() => of([])), map((i) => flatten(i.map((j) => (j.metadata.desks?.details || []).map((k) => new Desk(__spreadProps(__spreadValues({}, k), { zone: j.zone }))))))) : of([])), catchError(() => []));
+    ]).pipe(debounceTime(400), tap(() => this._loading.next(true)), switchMap(([bld]) => bld ? rc(bld.id, { name: "desks" }).pipe(catchError(() => of([])), map((i) => flatten(i.map((j) => (j.metadata.desks?.details || []).map((k) => new Desk(__spreadProps(__spreadValues({}, k), { zone: j.zone }))))))) : of([])), catchError(() => []));
     this._maps_people_search = combineLatest([
       this._maps_people.available$,
       this._filter,
@@ -3704,7 +3827,7 @@ var _ExploreSearchService = class _ExploreSearchService {
         description: `${_.properties?.roomId} , Level ${_.properties?.floorName}`
       }));
     }), shareReplay(1));
-    this._map_features = this._org.active_building.pipe(filter((bld) => !!bld), switchMap(() => Ru(this._org.building.id, {
+    this._map_features = this._org.active_building.pipe(filter((bld) => !!bld), switchMap(() => rc(this._org.building.id, {
       name: "map_features"
     }).pipe(catchError(() => of({ details: [] })))), map((data) => {
       const list = [];
@@ -3725,7 +3848,7 @@ var _ExploreSearchService = class _ExploreSearchService {
       }
       return list;
     }));
-    this._poi_metadata = this._org.initialised.pipe(filter((_) => _), switchMap(() => Iu(this._org.organisation.id, "points-of-interest").pipe(catchError((_) => of({ details: {} })))), shareReplay(1));
+    this._poi_metadata = this._org.initialised.pipe(filter((_) => _), switchMap(() => Xu(this._org.organisation.id, "points-of-interest").pipe(catchError((_) => of({ details: {} })))), shareReplay(1));
     this._poi_list = combineLatest([
       this._org.active_building,
       this._poi_metadata
@@ -3753,8 +3876,10 @@ var _ExploreSearchService = class _ExploreSearchService {
       this._role_assigned_contacts,
       this._map_features,
       this._maps_people_search,
-      this._points_of_interest
-    ]).pipe(map(([filter2, spaces, desks, users, contacts, roled_contacts, features, mapspeople_items, points_of_interest]) => {
+      this._points_of_interest,
+      this._state.level,
+      this._in_progress_bookings
+    ]).pipe(map(([filter2, spaces, desks, users, contacts, roled_contacts, features, mapspeople_items, points_of_interest, current_level, in_progress_bookings]) => {
       const search = filter2.toLowerCase();
       let results = [];
       if (!this.hideItem("mapspeople"))
@@ -3765,7 +3890,8 @@ var _ExploreSearchService = class _ExploreSearchService {
           type: "space",
           email: s.email,
           name: s.display_name || s.name,
-          description: `Capacity: ${s.capacity} `
+          description: `Capacity: ${s.capacity} `,
+          zone: s.level?.id || ""
         })));
       }
       if (!this.hideItem("desks")) {
@@ -3785,7 +3911,9 @@ var _ExploreSearchService = class _ExploreSearchService {
           is_role: true,
           name: u.name,
           email: u.email,
-          description: u.email
+          description: u.email,
+          zone: u.zone,
+          zone_name: u.zone_name
         })))));
       }
       if (!this.hideItem("features")) {
@@ -3794,7 +3922,8 @@ var _ExploreSearchService = class _ExploreSearchService {
           type: "feature",
           name: s.name,
           description: "",
-          zone: s.zone?.id
+          zone: s.zone?.id,
+          level_name: s.zone?.display_name || s.zone?.name
         })));
       }
       if (!this.hideItem("points_of_interest"))
@@ -3818,12 +3947,32 @@ var _ExploreSearchService = class _ExploreSearchService {
           description: u.email
         })));
       }
-      results = results.filter((_) => _.name.toLowerCase().includes(search) || _.description.toLowerCase().includes(search) || (_.email || "").toLowerCase().includes(search) || _.type.toLowerCase().includes(search));
-      results.sort((a, b) => typeIndex(a) - typeIndex(b) || a.name.localeCompare(b.name));
+      results = results.filter((_) => _.name.toLowerCase().includes(search) || _.description.toLowerCase().includes(search) || (_.email || "").toLowerCase().includes(search) || _.type.toLowerCase().includes(search) || _.zone_name?.toLowerCase().includes(search));
+      const in_progress_zones = this._getInProgressZones(in_progress_bookings);
+      results.sort((a, b) => {
+        if (current_level?.id) {
+          const a_on_level = a.zone === current_level.id;
+          const b_on_level = b.zone === current_level.id;
+          if (a_on_level && !b_on_level)
+            return -1;
+          if (!a_on_level && b_on_level)
+            return 1;
+        }
+        if (in_progress_zones.length > 0) {
+          const a_near_booking = in_progress_zones.includes(a.zone);
+          const b_near_booking = in_progress_zones.includes(b.zone);
+          if (a_near_booking && !b_near_booking)
+            return -1;
+          if (!a_near_booking && b_near_booking)
+            return 1;
+        }
+        return typeIndex(a) - typeIndex(b) || a.name.localeCompare(b.name);
+      });
       return results;
     }), tap(() => this._loading.next(false)), shareReplay(1));
     this.loading = this._loading.asObservable();
-    this.search_fn = (q) => this._settings.get("app.basic_user_search") ? Yc({ q, authority_id: kt()?.id }).pipe(map((_) => _.data)) : searchStaff(q);
+    this.search_fn = (q) => this._settings.get("app.basic_user_search") ? xa({ q, authority_id: Ut()?.id }).pipe(map((_) => _.data)) : searchStaff(q);
+    this._in_progress_bookings.next([]);
     this.search_results.subscribe();
     this.init();
   }
@@ -3850,6 +3999,13 @@ var _ExploreSearchService = class _ExploreSearchService {
   }
   setFilter(str) {
     this._filter.next(str);
+  }
+  /**
+   * Set in-progress bookings for proximity-based sorting
+   * @param bookings List of bookings/events that are currently in progress
+   */
+  setInProgressBookings(bookings) {
+    this._in_progress_bookings.next(bookings || []);
   }
 };
 _ExploreSearchService.\u0275fac = function ExploreSearchService_Factory(__ngFactoryType__) {
@@ -4017,7 +4173,7 @@ _ExploreSearchComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent(
   if (rf & 2) {
     \u0275\u0275queryAdvance(2);
   }
-}, features: [\u0275\u0275InheritDefinitionFeature], decls: 15, vars: 23, consts: [["button", ""], ["origin", "matAutocompleteOrigin"], ["input", ""], ["auto", "matAutocomplete"], ["icon", "", "matRipple", "", 1, "m-2", "bg-base-200", 3, "resize", "click"], ["role", "search", "tabindex", "0", "matRipple", "", "matAutocompleteOrigin", "", 1, "absolute", "top-1/2", "z-10", "flex", "max-w-[calc(100vw-7rem)]", "-translate-y-1/2", "items-center", "overflow-hidden", "bg-base-100", "px-4", "outline-none", 3, "click"], ["keyboard", "", 1, "flex-1", "border-none", "text-base", "outline-none", 3, "ngModelChange", "focus", "blur", "ngModel", "placeholder", "matAutocomplete", "matAutocompleteConnectedTo"], [1, "mr-2", 3, "diameter"], [1, "pointer-events-none"], [3, "value"], [3, "click", "value"], [1, "flex", "w-[22rem]", "max-w-[calc(100vw-2rem)]", "items-center", "leading-tight"], [1, "w-1/2", "flex-1", "overflow-hidden"], [1, "w-full", "truncate"], [1, "text-xs"], [1, "rounded", "bg-base-300", "p-2", "text-xs", "font-bold", "capitalize", "text-white"]], template: function ExploreSearchComponent_Template(rf, ctx) {
+}, features: [\u0275\u0275InheritDefinitionFeature], decls: 15, vars: 23, consts: [["button", ""], ["origin", "matAutocompleteOrigin"], ["input", ""], ["auto", "matAutocomplete"], ["icon", "", "matRipple", "", 1, "m-2", "bg-base-200", 3, "resize", "click"], ["role", "search", "tabindex", "0", "matRipple", "", "matAutocompleteOrigin", "", 1, "absolute", "top-1/2", "z-10", "flex", "max-w-[calc(100vw-7rem)]", "-translate-y-1/2", "items-center", "overflow-hidden", "bg-base-100", "px-4", "outline-hidden", 3, "click"], ["keyboard", "", 1, "flex-1", "border-none", "text-base", "outline-hidden", 3, "ngModelChange", "focus", "blur", "ngModel", "placeholder", "matAutocomplete", "matAutocompleteConnectedTo"], [1, "mr-2", 3, "diameter"], [1, "pointer-events-none"], [3, "value"], [3, "click", "value"], [1, "flex", "w-88", "max-w-[calc(100vw-2rem)]", "items-center", "leading-tight"], [1, "w-1/2", "flex-1", "overflow-hidden"], [1, "w-full", "truncate"], [1, "text-xs"], [1, "rounded-sm", "bg-base-300", "p-2", "text-xs", "font-bold", "capitalize", "text-white"]], template: function ExploreSearchComponent_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "button", 4, 0);
@@ -4117,7 +4273,7 @@ var ExploreSearchComponent = _ExploreSearchComponent;
             role="search"
             tabindex="0"
             matRipple
-            class="absolute top-1/2 z-10 flex max-w-[calc(100vw-7rem)] -translate-y-1/2 items-center overflow-hidden bg-base-100 px-4 outline-none"
+            class="absolute top-1/2 z-10 flex max-w-[calc(100vw-7rem)] -translate-y-1/2 items-center overflow-hidden bg-base-100 px-4 outline-hidden"
             [class.right-0]="right_size"
             [class.-translate-x-14]="right_size"
             [class.left-0]="!right_size"
@@ -4130,7 +4286,7 @@ var ExploreSearchComponent = _ExploreSearchComponent;
             <input
                 #input
                 keyboard
-                class="flex-1 border-none text-base outline-none"
+                class="flex-1 border-none text-base outline-hidden"
                 [(ngModel)]="search_str"
                 (ngModelChange)="setFilter($event)"
                 [placeholder]="'COMMON.SEARCH' | translate"
@@ -4156,7 +4312,7 @@ var ExploreSearchComponent = _ExploreSearchComponent;
                 ) {
                     <mat-option [value]="option.name" (click)="select(option)">
                         <div
-                            class="flex w-[22rem] max-w-[calc(100vw-2rem)] items-center leading-tight"
+                            class="flex w-88 max-w-[calc(100vw-2rem)] items-center leading-tight"
                         >
                             <div class="w-1/2 flex-1 overflow-hidden">
                                 <div class="w-full truncate">
@@ -4167,7 +4323,7 @@ var ExploreSearchComponent = _ExploreSearchComponent;
                                 </div>
                             </div>
                             <div
-                                class="rounded bg-base-300 p-2 text-xs font-bold capitalize text-white"
+                                class="rounded-sm bg-base-300 p-2 text-xs font-bold capitalize text-white"
                             >
                                 {{ option.type }}
                             </div>
@@ -4376,7 +4532,7 @@ var _ExploreLevelSelectComponent = class _ExploreLevelSelectComponent {
 _ExploreLevelSelectComponent.\u0275fac = function ExploreLevelSelectComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _ExploreLevelSelectComponent)();
 };
-_ExploreLevelSelectComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ExploreLevelSelectComponent, selectors: [["explore-level-select"]], decls: 4, vars: 2, consts: [[1, "m-2", "overflow-hidden", "rounded", "border", "border-solid", "border-base-300", "bg-base-100", "shadow"], ["matRipple", "", 1, "flex", "h-16", "w-16", "flex-col", "items-center", "justify-center", "border-none", "p-2", 3, "active"], ["matRipple", "", 1, "flex", "h-16", "w-16", "flex-col", "items-center", "justify-center", "border-none", "p-2", 3, "click"], [1, "text-2xl"], [1, "m-0", "whitespace-nowrap", "text-sm"]], template: function ExploreLevelSelectComponent_Template(rf, ctx) {
+_ExploreLevelSelectComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ExploreLevelSelectComponent, selectors: [["explore-level-select"]], decls: 4, vars: 2, consts: [[1, "m-2", "overflow-hidden", "rounded-sm", "border", "border-solid", "border-base-300", "bg-base-100", "shadow-sm"], ["matRipple", "", 1, "flex", "h-16", "w-16", "flex-col", "items-center", "justify-center", "border-none", "p-2", 3, "active"], ["matRipple", "", 1, "flex", "h-16", "w-16", "flex-col", "items-center", "justify-center", "border-none", "p-2", 3, "click"], [1, "text-2xl"], [1, "m-0", "whitespace-nowrap", "text-sm"]], template: function ExploreLevelSelectComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0);
     \u0275\u0275repeaterCreate(1, ExploreLevelSelectComponent_For_2_Template, 6, 6, "button", 1, \u0275\u0275repeaterTrackByIdentity);
@@ -4394,7 +4550,7 @@ var ExploreLevelSelectComponent = _ExploreLevelSelectComponent;
     type: Component,
     args: [{ selector: "explore-level-select", template: `
         <div
-            class="m-2 overflow-hidden rounded border border-solid border-base-300 bg-base-100 shadow"
+            class="m-2 overflow-hidden rounded-sm border border-solid border-base-300 bg-base-100 shadow-sm"
         >
             @for (lvl of levels | async; track lvl) {
                 <button
@@ -4803,7 +4959,7 @@ var _ExploreComponent = class _ExploreComponent extends AsyncHandler {
         module: "LocationServices"
       };
     }
-    const mod = Va(locate_details.system_id, locate_details.module);
+    const mod = kh(locate_details.system_id, locate_details.module);
     const locations = (await mod.execute("locate_user", [
       user.email,
       user.username || user.id
@@ -4864,7 +5020,7 @@ _ExploreComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type
   ExploreZonesService,
   ExploreParkingService,
   SpacePipe
-]), \u0275\u0275InheritDefinitionFeature], attrs: _c09, decls: 37, vars: 36, consts: [["accessibility_controls", ""], ["levelMenu", "matMenu"], ["legendMenu", "matMenu"], ["topbar", "", 1, "relative", "flex", "items-center", "justify-between", "border-b", "border-base-300", "bg-base-100", "px-4", "py-2", "text-base-content"], ["matRipple", "", "routerLink", "/", 1, "rounded", "p-2", "text-2xl"], ["auth", "", "alt", "Logo", 1, "h-12", 3, "source"], [1, "absolute", "right-2", "top-1/2", "flex", "-translate-y-1/2", "items-center"], ["icon", "", "matRipple", "", "customTooltip", "", 1, "flex", "bg-base-200", "sm:hidden", 3, "content"], ["options", "", 1, "flex", "items-center", "space-x-2", "bg-base-content", "p-2", "text-base-100", "sm:hidden"], [1, "flex", "h-1/2", "flex-1"], ["sidebar", "", 1, "hidden", "w-[20rem]", "overflow-auto", "border-r", "border-base-300", "bg-base-100", "px-2", "py-4", "text-base-content", "sm:block"], ["btn", "", "matRipple", "", 1, "items", "clear", "flex", "w-full", "space-x-4", "hover:bg-base-200", 3, "click"], [1, "text-2xl"], [1, "flex-1", "text-left", "font-medium"], [1, "px-8"], [1, "space-y-2", "py-4"], [1, "mx-auto", "w-[calc(100%-4rem)]"], [1, "relative", "h-full", "flex-1"], [3, "zoomChange", "centerChange", "src", "zoom", "center", "styles", "features", "actions", "labels", "options", "focus"], [1, "w-[18rem]", "rounded", "bg-base-100", "p-2"], ["btn", "", "matRipple", "", 1, "clear", "text-base-100", 3, "matMenuTriggerFor"], ["mat-menu-item", ""], ["mat-menu-item", "", 3, "click"], [1, "flex", "w-full", "items-center", "space-x-4", "rounded", "px-4", "py-2", "hover:bg-base-200"], [1, "h-3", "w-3", "rounded-full"], [1, "text-left", "opacity-60"], ["btn", "", "matRipple", "", 1, "clear", "w-full", "hover:bg-base-200", "hover:opacity-100", 3, "opacity-30"], ["btn", "", "matRipple", "", 1, "clear", "w-full", "hover:bg-base-200", "hover:opacity-100", 3, "click"], [1, "w-full", "text-left"]], template: function ExploreComponent_Template(rf, ctx) {
+]), \u0275\u0275InheritDefinitionFeature], attrs: _c09, decls: 37, vars: 36, consts: [["accessibility_controls", ""], ["levelMenu", "matMenu"], ["legendMenu", "matMenu"], ["topbar", "", 1, "relative", "flex", "items-center", "justify-between", "border-b", "border-base-300", "bg-base-100", "px-4", "py-2", "text-base-content"], ["matRipple", "", "routerLink", "/", 1, "rounded-sm", "p-2", "text-2xl"], ["auth", "", "alt", "Logo", 1, "h-12", 3, "source"], [1, "absolute", "right-2", "top-1/2", "flex", "-translate-y-1/2", "items-center"], ["icon", "", "matRipple", "", "customTooltip", "", 1, "flex", "bg-base-200", "sm:hidden", 3, "content"], ["options", "", 1, "flex", "items-center", "space-x-2", "bg-base-content", "p-2", "text-base-100", "sm:hidden"], [1, "flex", "h-1/2", "flex-1"], ["sidebar", "", 1, "hidden", "w-[20rem]", "overflow-auto", "border-r", "border-base-300", "bg-base-100", "px-2", "py-4", "text-base-content", "sm:block"], ["btn", "", "matRipple", "", 1, "items", "clear", "flex", "w-full", "space-x-4", "hover:bg-base-200", 3, "click"], [1, "text-2xl"], [1, "flex-1", "text-left", "font-medium"], [1, "px-8"], [1, "space-y-2", "py-4"], [1, "mx-auto", "w-[calc(100%-4rem)]"], [1, "relative", "h-full", "flex-1"], [3, "zoomChange", "centerChange", "src", "zoom", "center", "styles", "features", "actions", "labels", "options", "focus"], [1, "w-[18rem]", "rounded-sm", "bg-base-100", "p-2"], ["btn", "", "matRipple", "", 1, "clear", "text-base-100", 3, "matMenuTriggerFor"], ["mat-menu-item", ""], ["mat-menu-item", "", 3, "click"], [1, "flex", "w-full", "items-center", "space-x-4", "rounded-sm", "px-4", "py-2", "hover:bg-base-200"], [1, "h-3", "w-3", "rounded-full"], [1, "text-left", "opacity-60"], ["btn", "", "matRipple", "", 1, "clear", "w-full", "hover:bg-base-200", "hover:opacity-100", 3, "opacity-30"], ["btn", "", "matRipple", "", 1, "clear", "w-full", "hover:bg-base-200", "hover:opacity-100", 3, "click"], [1, "w-full", "text-left"]], template: function ExploreComponent_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "div", 3)(1, "a", 4);
@@ -4970,7 +5126,7 @@ var ExploreComponent = _ExploreComponent;
             topbar
             class="relative flex items-center justify-between border-b border-base-300 bg-base-100 px-4 py-2 text-base-content"
         >
-            <a matRipple routerLink="/" class="rounded p-2 text-2xl">
+            <a matRipple routerLink="/" class="rounded-sm p-2 text-2xl">
                 <img
                     auth
                     class="h-12"
@@ -4994,7 +5150,7 @@ var ExploreComponent = _ExploreComponent;
                     <icon>accessible</icon>
                 </button>
                 <ng-template #accessibility_controls>
-                    <div class="w-[18rem] rounded bg-base-100 p-2">
+                    <div class="w-[18rem] rounded-sm bg-base-100 p-2">
                         <accessibility-controls></accessibility-controls>
                     </div>
                 </ng-template>
@@ -5036,7 +5192,7 @@ var ExploreComponent = _ExploreComponent;
                     <mat-menu #legendMenu="matMenu">
                         @for (value of legend; track value) {
                             <div
-                                class="flex w-full items-center space-x-4 rounded px-4 py-2 hover:bg-base-200"
+                                class="flex w-full items-center space-x-4 rounded-sm px-4 py-2 hover:bg-base-200"
                             >
                                 <div
                                     class="h-3 w-3 rounded-full"
@@ -5111,7 +5267,7 @@ var ExploreComponent = _ExploreComponent;
                         <div class="space-y-2 py-4">
                             @for (value of legend; track value) {
                                 <div
-                                    class="flex w-full items-center space-x-4 rounded px-4 py-2 hover:bg-base-200"
+                                    class="flex w-full items-center space-x-4 rounded-sm px-4 py-2 hover:bg-base-200"
                                 >
                                     <div
                                         class="h-3 w-3 rounded-full"
@@ -5227,4 +5383,4 @@ var AppExploreModule = _AppExploreModule;
 export {
   AppExploreModule
 };
-//# sourceMappingURL=explore.module-SI3TSKME.js.map
+//# sourceMappingURL=explore.module-P5IUBAU7.js.map

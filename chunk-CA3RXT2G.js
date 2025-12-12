@@ -1,5 +1,6 @@
 import {
   ANIMATION_SHOW_CONTRACT_EXPAND,
+  Aa,
   ActivatedRoute,
   AsyncHandler,
   AsyncPipe,
@@ -29,7 +30,6 @@ import {
   ImageCarouselComponent,
   Injectable,
   InteractiveMapComponent,
-  Jc,
   LevelPipe,
   LockerGridComponent,
   MAT_DIALOG_DATA,
@@ -99,8 +99,8 @@ import {
   UserAvatarComponent,
   UserPipe,
   UserSearchFieldComponent,
+  Ut,
   Validators,
-  Yc,
   __spreadProps,
   __spreadValues,
   addDays,
@@ -133,7 +133,6 @@ import {
   input,
   isMobileSafari,
   isSameDay,
-  kt,
   lastValueFrom,
   loadLockerBanks,
   loadLockers,
@@ -162,6 +161,7 @@ import {
   updateBooking,
   updateBookingInductionStatus,
   viewChild,
+  xa,
   ɵNgNoValidate,
   ɵsetClassDebugInfo,
   ɵɵInheritDefinitionFeature,
@@ -210,7 +210,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-JORPZAQP.js";
+} from "./chunk-WLIO66DZ.js";
 
 // libs/bookings/src/lib/desk-settings-modal.component.ts
 function DeskSettingsModalComponent_Conditional_0_Template(rf, ctx) {
@@ -380,7 +380,7 @@ var _DeskSettingsModalComponent = class _DeskSettingsModalComponent {
 _DeskSettingsModalComponent.\u0275fac = function DeskSettingsModalComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _DeskSettingsModalComponent)();
 };
-_DeskSettingsModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DeskSettingsModalComponent, selectors: [["desk-settings-modal"]], decls: 2, vars: 1, consts: [[1, "relative", "w-[20rem]", "rounded", "bg-base-100", "p-4", "shadow"], [3, "show_close"], [1, "text-lg"], [1, "mb-4", "text-xs", "opacity-60"], [1, "mb-4", "mt-2", "flex", "flex-col"], [1, "flex", "items-center", "space-x-2", "pb-4"], ["appearance", "outline", 1, "no-subscript", "w-1/2", "flex-1"], ["placeholder", "No selected preset", 3, "ngModelChange", "ngModel"], ["value", ""], ["value", "standing"], ["value", "sitting"], ["icon", "", "matRipple", "", 1, "h-12", "w-12", "rounded", "bg-secondary", "text-secondary-content", 3, "click"], [1, "flex", "items-center", "space-x-2"], ["min", "60", "max", "120", "step", "0.5", "discrete", "", 1, "flex-1", 3, "displayWith"], ["matSliderThumb", "", 3, "ngModelChange", "ngModel"], [1, "w-12", "text-right", "text-sm"], ["btn", "", "matRipple", "", 1, "w-full", 3, "click"], ["icon", "", "matRipple", "", "mat-dialog-close", "", 1, "absolute", "right-2", "top-2"], [3, "close", "show_close"]], template: function DeskSettingsModalComponent_Template(rf, ctx) {
+_DeskSettingsModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DeskSettingsModalComponent, selectors: [["desk-settings-modal"]], decls: 2, vars: 1, consts: [[1, "relative", "w-[20rem]", "rounded-sm", "bg-base-100", "p-4", "shadow-sm"], [3, "show_close"], [1, "text-lg"], [1, "mb-4", "text-xs", "opacity-60"], [1, "mb-4", "mt-2", "flex", "flex-col"], [1, "flex", "items-center", "space-x-2", "pb-4"], ["appearance", "outline", 1, "no-subscript", "w-1/2", "flex-1"], ["placeholder", "No selected preset", 3, "ngModelChange", "ngModel"], ["value", ""], ["value", "standing"], ["value", "sitting"], ["icon", "", "matRipple", "", 1, "h-12", "w-12", "rounded-sm", "bg-secondary", "text-secondary-content", 3, "click"], [1, "flex", "items-center", "space-x-2"], ["min", "60", "max", "120", "step", "0.5", "discrete", "", 1, "flex-1", 3, "displayWith"], ["matSliderThumb", "", 3, "ngModelChange", "ngModel"], [1, "w-12", "text-right", "text-sm"], ["btn", "", "matRipple", "", 1, "w-full", 3, "click"], ["icon", "", "matRipple", "", "mat-dialog-close", "", 1, "absolute", "right-2", "top-2"], [3, "close", "show_close"]], template: function DeskSettingsModalComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275conditionalCreate(0, DeskSettingsModalComponent_Conditional_0_Template, 32, 4, "div", 0)(1, DeskSettingsModalComponent_Conditional_1_Template, 1, 1, "desk-height-presets", 1);
   }
@@ -413,7 +413,7 @@ var DeskSettingsModalComponent = _DeskSettingsModalComponent;
     type: Component,
     args: [{ selector: "desk-settings-modal", template: `
         @if (!edit_presets) {
-            <div class="relative w-[20rem] rounded bg-base-100 p-4 shadow">
+            <div class="relative w-[20rem] rounded-sm bg-base-100 p-4 shadow-sm">
                 <div class="text-lg">Desk Height</div>
                 <div class="mb-4 text-xs opacity-60">
                     Set your desk height for the best experience
@@ -441,7 +441,7 @@ var DeskSettingsModalComponent = _DeskSettingsModalComponent;
                             icon
                             matRipple
                             (click)="edit_presets = true"
-                            class="h-12 w-12 rounded bg-secondary text-secondary-content"
+                            class="h-12 w-12 rounded-sm bg-secondary text-secondary-content"
                         >
                             <icon>edit</icon>
                         </button>
@@ -980,7 +980,7 @@ var _BookingDetailsModalComponent = class _BookingDetailsModalComponent {
 _BookingDetailsModalComponent.\u0275fac = function BookingDetailsModalComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _BookingDetailsModalComponent)();
 };
-_BookingDetailsModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _BookingDetailsModalComponent, selectors: [["booking-details-modal"]], decls: 51, vars: 29, consts: [["menu", "matMenu"], [1, "h-[100vh]", "w-[100vw]", "space-y-2", "overflow-auto", "bg-base-100", "pb-2", "sm:relative", "sm:inset-auto", "sm:h-auto", "sm:max-h-[80vh]", "sm:w-[51rem]", "sm:rounded", "sm:bg-base-200"], [1, "max-h-screen", "flex-col", "items-center", "border-base-200", "bg-base-100", "pb-4", "sm:flex", "sm:max-h-[80vh]", "sm:border-b", "sm:px-16"], [1, "block", "h-8", "w-full", "sm:hidden"], [1, "h-64", "w-full", "overflow-hidden", "bg-neutral", "sm:rounded-b"], ["title", "", 1, "mt-2", "w-full", "px-3", "text-xl", "font-medium"], [1, "w-full", "items-center", "justify-between", "sm:flex"], [1, "m-2", "flex", "items-center", "space-x-2"], [3, "status"], [1, "text-2xl", 3, "matTooltip"], ["actions", "", 1, "flex", "items-center", "space-x-2", "px-2"], [1, "flex-wrap", "sm:flex", "sm:px-12"], [1, "min-w-1/3", "flex-grow-[4]", "rounded", "border-base-200", "sm:m-2", "sm:w-[16rem]", "sm:border", "sm:bg-base-100", "sm:p-4"], [1, "mb-2", "mt-2", "px-3", "text-lg", "font-medium"], [1, "flex", "items-center", "space-x-2", "px-2"], ["matTooltip", "Date"], ["matTooltip", "Time"], ["matTooltip", "Level and Resource"], ["matTooltip", "Location"], [1, "min-w-1/3", "mt-4", "flex-grow-[3]", "rounded", "border-base-200", "sm:m-2", "sm:w-[16rem]", "sm:border", "sm:bg-base-100", "sm:p-4"], ["map", "", 1, "min-w-1/3", "relative", "m-2", "mt-4", "h-64", "w-[calc(100%-1rem)]", "flex-grow-[3]", "overflow-hidden", "rounded", "border", "border-base-200", "p-2", "sm:my-2", "sm:h-48", "sm:w-[16rem]", "sm:bg-base-100"], ["icon", "", "matRipple", "", "mat-dialog-close", "", 1, "absolute", "left-2", "top-0", "bg-neutral", "text-white"], ["xPosition", "before"], ["mat-menu-item", "", "mat-dialog-close", ""], ["mat-menu-item", ""], [1, "h-64", "w-full", 3, "images"], ["icon", "", "matRipple", "", 1, "h-12", "w-12", "rounded", "bg-secondary", "text-white", 3, "matMenuTriggerFor"], ["btn", "", "matRipple", "", 1, "h-10", "flex-1", "border-none", 3, "bg-success", "text-success-content", "disabled"], ["btn", "", "matRipple", "", 1, "h-10", "flex-1", "border-none", 3, "click", "disabled"], [1, "flex", "items-center", "justify-center", "space-x-2"], [1, "mx-auto", 3, "diameter"], [1, "mr-4"], ["matTooltip", "Booked By"], [1, "mx-3", "py-2", "text-lg", "font-medium"], [1, "flex", "flex-col", "space-y-2"], ["request", "", 1, "overflow-hidden", "rounded-xl", "border", "border-base-300", "bg-base-100"], ["matRipple", "", 1, "flex", "w-full", "items-center", "space-x-2", "p-3", 3, "click"], [1, "flex-1", "text-left"], [1, "text-sm"], [1, "flex", "h-8", "w-8", "items-center", "justify-center", "rounded-full", 3, "matTooltip"], [1, "flex", "h-8", "w-8", "items-center", "justify-center", "rounded-full"], [1, "text-2xl"], [1, "flex", "flex-col", "divide-y", "divide-base-100", "bg-base-200"], [1, "flex", "items-center", "space-x-2", "px-3", "py-1", "hover:opacity-90"], [1, "flex", "flex-1", "items-center"], [1, "rounded", "bg-success", "px-2", "py-1", "text-xs", "text-success-content"], ["map", "", 1, "min-w-1/3", "relative", "m-2", "mt-4", "h-64", "w-[calc(100%-1rem)]", "flex-grow-[3]", "overflow-hidden", "rounded", "border", "border-base-200", "p-2", "sm:my-2", "sm:h-48", "sm:w-[16rem]", "sm:bg-base-100", 3, "click"], [1, "pointer-events-none", 3, "src", "features", "options"], ["mat-menu-item", "", "mat-dialog-close", "", 3, "click"], [1, "flex", "items-center", "space-x-2", "text-base"], ["mat-menu-item", "", 3, "click"], ["className", "material-symbols-rounded"], [1, "text-error"]], template: function BookingDetailsModalComponent_Template(rf, ctx) {
+_BookingDetailsModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _BookingDetailsModalComponent, selectors: [["booking-details-modal"]], decls: 51, vars: 29, consts: [["menu", "matMenu"], [1, "h-screen", "w-screen", "space-y-2", "overflow-auto", "bg-base-100", "pb-2", "sm:relative", "sm:inset-auto", "sm:h-auto", "sm:max-h-[80vh]", "sm:w-204", "sm:rounded-sm", "sm:bg-base-200"], [1, "max-h-screen", "flex-col", "items-center", "border-base-200", "bg-base-100", "pb-4", "sm:flex", "sm:max-h-[80vh]", "sm:border-b", "sm:px-16"], [1, "block", "h-8", "w-full", "sm:hidden"], [1, "h-64", "w-full", "overflow-hidden", "bg-neutral", "sm:rounded-b"], ["title", "", 1, "mt-2", "w-full", "px-3", "text-xl", "font-medium"], [1, "w-full", "items-center", "justify-between", "sm:flex"], [1, "m-2", "flex", "items-center", "space-x-2"], [3, "status"], [1, "text-2xl", 3, "matTooltip"], ["actions", "", 1, "flex", "items-center", "space-x-2", "px-2"], [1, "flex-wrap", "sm:flex", "sm:px-12"], [1, "min-w-1/3", "grow-4", "rounded-sm", "border-base-200", "sm:m-2", "sm:w-[16rem]", "sm:border", "sm:bg-base-100", "sm:p-4"], [1, "mb-2", "mt-2", "px-3", "text-lg", "font-medium"], [1, "flex", "items-center", "space-x-2", "px-2"], ["matTooltip", "Date"], ["matTooltip", "Time"], ["matTooltip", "Level and Resource"], ["matTooltip", "Location"], [1, "min-w-1/3", "mt-4", "grow-3", "rounded-sm", "border-base-200", "sm:m-2", "sm:w-[16rem]", "sm:border", "sm:bg-base-100", "sm:p-4"], ["map", "", 1, "min-w-1/3", "relative", "m-2", "mt-4", "h-64", "w-[calc(100%-1rem)]", "grow-3", "overflow-hidden", "rounded-sm", "border", "border-base-200", "p-2", "sm:my-2", "sm:h-48", "sm:w-[16rem]", "sm:bg-base-100"], ["icon", "", "matRipple", "", "mat-dialog-close", "", 1, "absolute", "left-2", "top-0", "bg-neutral", "text-white"], ["xPosition", "before"], ["mat-menu-item", "", "mat-dialog-close", ""], ["mat-menu-item", ""], [1, "h-64", "w-full", 3, "images"], ["icon", "", "matRipple", "", 1, "h-12", "w-12", "rounded-sm", "bg-secondary", "text-white", 3, "matMenuTriggerFor"], ["btn", "", "matRipple", "", 1, "h-10", "flex-1", "border-none", 3, "bg-success", "text-success-content", "disabled"], ["btn", "", "matRipple", "", 1, "h-10", "flex-1", "border-none", 3, "click", "disabled"], [1, "flex", "items-center", "justify-center", "space-x-2"], [1, "mx-auto", 3, "diameter"], [1, "mr-4"], ["matTooltip", "Booked By"], [1, "mx-3", "py-2", "text-lg", "font-medium"], [1, "flex", "flex-col", "space-y-2"], ["request", "", 1, "overflow-hidden", "rounded-xl", "border", "border-base-300", "bg-base-100"], ["matRipple", "", 1, "flex", "w-full", "items-center", "space-x-2", "p-3", 3, "click"], [1, "flex-1", "text-left"], [1, "text-sm"], [1, "flex", "h-8", "w-8", "items-center", "justify-center", "rounded-full", 3, "matTooltip"], [1, "flex", "h-8", "w-8", "items-center", "justify-center", "rounded-full"], [1, "text-2xl"], [1, "flex", "flex-col", "divide-y", "divide-base-100", "bg-base-200"], [1, "flex", "items-center", "space-x-2", "px-3", "py-1", "hover:opacity-90"], [1, "flex", "flex-1", "items-center"], [1, "rounded-sm", "bg-success", "px-2", "py-1", "text-xs", "text-success-content"], ["map", "", 1, "min-w-1/3", "relative", "m-2", "mt-4", "h-64", "w-[calc(100%-1rem)]", "grow-3", "overflow-hidden", "rounded-sm", "border", "border-base-200", "p-2", "sm:my-2", "sm:h-48", "sm:w-[16rem]", "sm:bg-base-100", 3, "click"], [1, "pointer-events-none", 3, "src", "features", "options"], ["mat-menu-item", "", "mat-dialog-close", "", 3, "click"], [1, "flex", "items-center", "space-x-2", "text-base"], ["mat-menu-item", "", 3, "click"], ["className", "material-symbols-rounded"], [1, "text-error"]], template: function BookingDetailsModalComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 1)(1, "div", 2);
     \u0275\u0275conditionalCreate(2, BookingDetailsModalComponent_Conditional_2_Template, 1, 0, "div", 3);
@@ -1118,7 +1118,7 @@ var BookingDetailsModalComponent = _BookingDetailsModalComponent;
     type: Component,
     args: [{ selector: "booking-details-modal", template: `
         <div
-            class="h-[100vh] w-[100vw] space-y-2 overflow-auto bg-base-100 pb-2 sm:relative sm:inset-auto sm:h-auto sm:max-h-[80vh] sm:w-[51rem] sm:rounded sm:bg-base-200"
+            class="h-screen w-screen space-y-2 overflow-auto bg-base-100 pb-2 sm:relative sm:inset-auto sm:h-auto sm:max-h-[80vh] sm:w-204 sm:rounded-sm sm:bg-base-200"
         >
             <div
                 class="max-h-screen flex-col items-center border-base-200 bg-base-100 pb-4 sm:flex sm:max-h-[80vh] sm:border-b sm:px-16"
@@ -1210,7 +1210,7 @@ var BookingDetailsModalComponent = _BookingDetailsModalComponent;
                                 icon
                                 matRipple
                                 [matMenuTriggerFor]="menu"
-                                class="h-12 w-12 rounded bg-secondary text-white"
+                                class="h-12 w-12 rounded-sm bg-secondary text-white"
                             >
                                 <icon>more_horiz</icon>
                             </button>
@@ -1220,7 +1220,7 @@ var BookingDetailsModalComponent = _BookingDetailsModalComponent;
             </div>
             <div class="flex-wrap sm:flex sm:px-12">
                 <div
-                    class="min-w-1/3 flex-grow-[4] rounded border-base-200 sm:m-2 sm:w-[16rem] sm:border sm:bg-base-100 sm:p-4"
+                    class="min-w-1/3 grow-4 rounded-sm border-base-200 sm:m-2 sm:w-[16rem] sm:border sm:bg-base-100 sm:p-4"
                 >
                     <h3 class="mb-2 mt-2 px-3 text-lg font-medium">
                         {{ 'BOOKINGS.DETAILS' | translate }}
@@ -1267,7 +1267,7 @@ var BookingDetailsModalComponent = _BookingDetailsModalComponent;
                 </div>
                 @if (has_assets()) {
                     <div
-                        class="min-w-1/3 mt-4 flex-grow-[3] rounded border-base-200 sm:m-2 sm:w-[16rem] sm:border sm:bg-base-100 sm:p-4"
+                        class="min-w-1/3 mt-4 grow-3 rounded-sm border-base-200 sm:m-2 sm:w-[16rem] sm:border sm:bg-base-100 sm:p-4"
                     >
                         <h3 class="mx-3 py-2 text-lg font-medium">
                             {{ 'RESOURCE.ASSETS' | translate }} ({{
@@ -1378,7 +1378,7 @@ var BookingDetailsModalComponent = _BookingDetailsModalComponent;
                                                     }}</span>
                                                 </div>
                                                 <div
-                                                    class="rounded bg-success px-2 py-1 text-xs text-success-content"
+                                                    class="rounded-sm bg-success px-2 py-1 text-xs text-success-content"
                                                 >
                                                     x{{ item.quantity }}
                                                 </div>
@@ -1393,7 +1393,7 @@ var BookingDetailsModalComponent = _BookingDetailsModalComponent;
                 @if (level()?.map_id) {
                     <button
                         map
-                        class="min-w-1/3 relative m-2 mt-4 h-64 w-[calc(100%-1rem)] flex-grow-[3] overflow-hidden rounded border border-base-200 p-2 sm:my-2 sm:h-48 sm:w-[16rem] sm:bg-base-100"
+                        class="min-w-1/3 relative m-2 mt-4 h-64 w-[calc(100%-1rem)] grow-3 overflow-hidden rounded-sm border border-base-200 p-2 sm:my-2 sm:h-48 sm:w-[16rem] sm:bg-base-100"
                         (click)="viewLocation()"
                     >
                         @if (!hide_map()) {
@@ -1803,7 +1803,7 @@ var _BookingCardComponent = class _BookingCardComponent extends AsyncHandler {
 _BookingCardComponent.\u0275fac = function BookingCardComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _BookingCardComponent)();
 };
-_BookingCardComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _BookingCardComponent, selectors: [["booking-card"]], inputs: { booking: [1, "booking"], show_day: [1, "show_day"], edit_fn: [1, "edit_fn"], remove_fn: [1, "remove_fn"], end_fn: [1, "end_fn"] }, features: [\u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature], decls: 2, vars: 2, consts: [[1, "mb-2", "flex", "items-center"], ["name", "view-booking-details", 1, "relative", "w-full", "cursor-pointer", "overflow-hidden", 3, "routerLink", "queryParams"], ["day", ""], [1, "px-2", "text-xs"], ["name", "view-booking-details", 1, "relative", "w-full", "cursor-pointer", "overflow-hidden", 3, "click", "routerLink", "queryParams"], [1, "relative", "w-full", "rounded-xl", "border", "border-base-300", "bg-base-100", "py-4", "shadow"], [1, "px-4", "text-lg"], [1, "mx-4", "my-2", "flex", "items-center", "space-x-2"], [3, "status"], [1, "text-2xl", 3, "matTooltip"], [1, "divide-base-200-500", "flex", "flex-col", "flex-wrap", "space-y-2", "py-2", "sm:flex-row", "sm:space-y-0", "sm:divide-x"], [1, "flex", "max-w-[33%]", "items-center", "px-4"], ["matTooltipPosition", "right", 3, "matTooltip"], [1, "mx-2", "w-1/2", "flex-1", "truncate"], [1, "flex", "items-center", "px-4"], [1, "absolute", "right-1", "top-1/2", "-translate-y-1/2", "text-4xl"], [1, "bg-warning/50", "absolute", "right-2", "top-2", "rounded-xl", "px-2", "py-1", "text-xs"], [1, "mx-2", "truncate"]], template: function BookingCardComponent_Template(rf, ctx) {
+_BookingCardComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _BookingCardComponent, selectors: [["booking-card"]], inputs: { booking: [1, "booking"], show_day: [1, "show_day"], edit_fn: [1, "edit_fn"], remove_fn: [1, "remove_fn"], end_fn: [1, "end_fn"] }, features: [\u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature], decls: 2, vars: 2, consts: [[1, "mb-2", "flex", "items-center"], ["name", "view-booking-details", 1, "relative", "w-full", "cursor-pointer", "overflow-hidden", 3, "routerLink", "queryParams"], ["day", ""], [1, "px-2", "text-xs"], ["name", "view-booking-details", 1, "relative", "w-full", "cursor-pointer", "overflow-hidden", 3, "click", "routerLink", "queryParams"], [1, "relative", "w-full", "rounded-xl", "border", "border-base-300", "bg-base-100", "py-4", "shadow-sm"], [1, "px-4", "text-lg"], [1, "mx-4", "my-2", "flex", "items-center", "space-x-2"], [3, "status"], [1, "text-2xl", 3, "matTooltip"], [1, "divide-base-200-500", "flex", "flex-col", "flex-wrap", "space-y-2", "py-2", "sm:flex-row", "sm:space-y-0", "sm:divide-x"], [1, "flex", "max-w-[33%]", "items-center", "px-4"], ["matTooltipPosition", "right", 3, "matTooltip"], [1, "mx-2", "w-1/2", "flex-1", "truncate"], [1, "flex", "items-center", "px-4"], [1, "absolute", "right-1", "top-1/2", "-translate-y-1/2", "text-4xl"], [1, "bg-warning/50", "absolute", "right-2", "top-2", "rounded-xl", "px-2", "py-1", "text-xs"], [1, "mx-2", "truncate"]], template: function BookingCardComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275conditionalCreate(0, BookingCardComponent_Conditional_0_Template, 7, 9, "h4", 0);
     \u0275\u0275conditionalCreate(1, BookingCardComponent_Conditional_1_Template, 24, 17, "a", 1);
@@ -1850,7 +1850,7 @@ var BookingCardComponent = _BookingCardComponent;
                 (click)="viewDetails()"
             >
                 <div
-                    class="relative w-full rounded-xl border border-base-300 bg-base-100 py-4 shadow"
+                    class="relative w-full rounded-xl border border-base-300 bg-base-100 py-4 shadow-sm"
                 >
                     <h4 class="px-4 text-lg">{{ booking()?.title }}</h4>
                     <div class="mx-4 my-2 flex items-center space-x-2">
@@ -2104,11 +2104,11 @@ function DeskDetailsComponent_Conditional_0_Template(rf, ctx) {
     let tmp_14_0;
     let tmp_15_0;
     const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275classProp("sm:h-64", (tmp_1_0 = ctx_r1.desk().images) == null ? null : tmp_1_0.length)("h-40", (tmp_2_0 = ctx_r1.desk().images) == null ? null : tmp_2_0.length)("sm:h-0", !((tmp_3_0 = ctx_r1.desk().images) == null ? null : tmp_3_0.length))("h-12", !((tmp_4_0 = ctx_r1.desk().images) == null ? null : tmp_4_0.length))("!bg-transparent", !((tmp_5_0 = ctx_r1.desk().images) == null ? null : tmp_5_0.length));
+    \u0275\u0275classProp("sm:h-64", (tmp_1_0 = ctx_r1.desk().images) == null ? null : tmp_1_0.length)("h-40", (tmp_2_0 = ctx_r1.desk().images) == null ? null : tmp_2_0.length)("sm:h-0", !((tmp_3_0 = ctx_r1.desk().images) == null ? null : tmp_3_0.length))("h-12", !((tmp_4_0 = ctx_r1.desk().images) == null ? null : tmp_4_0.length))("bg-transparent!", !((tmp_5_0 = ctx_r1.desk().images) == null ? null : tmp_5_0.length));
     \u0275\u0275advance();
     \u0275\u0275conditional(((tmp_6_0 = ctx_r1.desk().images) == null ? null : tmp_6_0.length) ? 1 : -1);
     \u0275\u0275advance(4);
-    \u0275\u0275classProp("text-info-content", ctx_r1.fav())("!bg-info", ctx_r1.fav());
+    \u0275\u0275classProp("text-info-content", ctx_r1.fav())("bg-info!", ctx_r1.fav());
     \u0275\u0275advance();
     \u0275\u0275property("className", ctx_r1.fav() ? "material-symbols-rounded" : "material-symbols-outlined");
     \u0275\u0275advance(5);
@@ -2176,7 +2176,7 @@ var _DeskDetailsComponent = class _DeskDetailsComponent {
 _DeskDetailsComponent.\u0275fac = function DeskDetailsComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _DeskDetailsComponent)();
 };
-_DeskDetailsComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DeskDetailsComponent, selectors: [["desk-details"]], inputs: { desk: [1, "desk"], fav: [1, "fav"], active: [1, "active"], hide_map: [1, "hide_map"] }, outputs: { close: "close", toggleFav: "toggleFav", activeChange: "activeChange" }, features: [\u0275\u0275NgOnChangesFeature], decls: 2, vars: 1, consts: [["empty", "", 1, "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-16"], ["image", "", 1, "relative", "w-full", "bg-base-300"], [1, "absolute", "inset-0", 3, "images"], ["icon", "", "matRipple", "", "name", "close-desk-details", 1, "absolute", "left-2", "top-2", "bg-base-200", "text-base-content", "sm:hidden", 3, "click"], ["icon", "", "matRipple", "", "name", "toggle-desk-favourite-details", 1, "absolute", "right-2", "top-2", "bg-base-200", 3, "click"], [3, "className"], [1, "h-[calc(100%-19.75rem)]", "flex-1", "space-y-2", "overflow-auto", "p-2"], ["actions", "", 1, "z-0", "border-b", "pb-2"], [1, "mb-2", "mt-4", "text-xl", "font-medium"], ["details", "", 1, "space-y-2", "border-b", "pb-2"], [1, "text-xl", "font-medium"], [1, "flex", "items-center", "space-x-2"], ["facilities", "", 1, "space-y-2", "border-b", "pb-2"], ["map", "", 1, "relative", "mx-auto", "h-64", "w-full", "overflow-hidden", "rounded", "border", "border-base-200", "sm:h-48"], [1, "border-t", "border-base-200", "px-2", "pb-[5.5rem]", "pt-2", "shadow", "sm:hidden"], ["btn", "", "matRipple", "", "name", "toggle-desk-details", 1, "w-full", 3, "click"], [1, "flex", "items-center", "justify-center"], [1, "text-2xl"], [1, "flex", "flex-wrap", "items-center", "space-x-2"], ["for", "feat", 1, "w-1/2", "flex-1"], [1, "pointer-events-none", 3, "src", "focus", "features", "options"], [1, "text-center", "opacity-30"]], template: function DeskDetailsComponent_Template(rf, ctx) {
+_DeskDetailsComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DeskDetailsComponent, selectors: [["desk-details"]], inputs: { desk: [1, "desk"], fav: [1, "fav"], active: [1, "active"], hide_map: [1, "hide_map"] }, outputs: { close: "close", toggleFav: "toggleFav", activeChange: "activeChange" }, features: [\u0275\u0275NgOnChangesFeature], decls: 2, vars: 1, consts: [["empty", "", 1, "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-16"], ["image", "", 1, "relative", "w-full", "bg-base-300"], [1, "absolute", "inset-0", 3, "images"], ["icon", "", "matRipple", "", "name", "close-desk-details", 1, "absolute", "left-2", "top-2", "bg-base-200", "text-base-content", "sm:hidden", 3, "click"], ["icon", "", "matRipple", "", "name", "toggle-desk-favourite-details", 1, "absolute", "right-2", "top-2", "bg-base-200", 3, "click"], [3, "className"], [1, "h-[calc(100%-19.75rem)]", "flex-1", "space-y-2", "overflow-auto", "p-2"], ["actions", "", 1, "z-0", "border-b", "pb-2"], [1, "mb-2", "mt-4", "text-xl", "font-medium"], ["details", "", 1, "space-y-2", "border-b", "pb-2"], [1, "text-xl", "font-medium"], [1, "flex", "items-center", "space-x-2"], ["facilities", "", 1, "space-y-2", "border-b", "pb-2"], ["map", "", 1, "relative", "mx-auto", "h-64", "w-full", "overflow-hidden", "rounded-sm", "border", "border-base-200", "sm:h-48"], [1, "border-t", "border-base-200", "px-2", "pb-22", "pt-2", "shadow-sm", "sm:hidden"], ["btn", "", "matRipple", "", "name", "toggle-desk-details", 1, "w-full", 3, "click"], [1, "flex", "items-center", "justify-center"], [1, "text-2xl"], [1, "flex", "flex-wrap", "items-center", "space-x-2"], ["for", "feat", 1, "w-1/2", "flex-1"], [1, "pointer-events-none", 3, "src", "focus", "features", "options"], [1, "text-center", "opacity-30"]], template: function DeskDetailsComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275conditionalCreate(0, DeskDetailsComponent_Conditional_0_Template, 42, 33)(1, DeskDetailsComponent_Conditional_1_Template, 4, 3, "div", 0);
   }
@@ -2204,7 +2204,7 @@ var DeskDetailsComponent = _DeskDetailsComponent;
                 [class.h-40]="desk().images?.length"
                 [class.sm:h-0]="!desk().images?.length"
                 [class.h-12]="!desk().images?.length"
-                [class.!bg-transparent]="!desk().images?.length"
+                [class.bg-transparent!]="!desk().images?.length"
             >
                 @if (desk().images?.length) {
                     <image-carousel
@@ -2226,7 +2226,7 @@ var DeskDetailsComponent = _DeskDetailsComponent;
                     matRipple
                     name="toggle-desk-favourite-details"
                     [class.text-info-content]="fav()"
-                    [class.!bg-info]="fav()"
+                    [class.bg-info!]="fav()"
                     (click)="toggleFav.emit()"
                     class="absolute right-2 top-2 bg-base-200"
                 >
@@ -2288,7 +2288,7 @@ var DeskDetailsComponent = _DeskDetailsComponent;
                 @if (!hide_map()) {
                     <section
                         map
-                        class="relative mx-auto h-64 w-full overflow-hidden rounded border border-base-200 sm:h-48"
+                        class="relative mx-auto h-64 w-full overflow-hidden rounded-sm border border-base-200 sm:h-48"
                     >
                         <interactive-map
                             class="pointer-events-none"
@@ -2304,7 +2304,7 @@ var DeskDetailsComponent = _DeskDetailsComponent;
                 }
             </div>
             <div
-                class="border-t border-base-200 px-2 pb-[5.5rem] pt-2 shadow sm:hidden"
+                class="border-t border-base-200 px-2 pb-22 pt-2 shadow-sm sm:hidden"
             >
                 <button
                     btn
@@ -2691,7 +2691,7 @@ var _DeskFiltersComponent = class _DeskFiltersComponent {
 _DeskFiltersComponent.\u0275fac = function DeskFiltersComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _DeskFiltersComponent)();
 };
-_DeskFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DeskFiltersComponent, selectors: [["desk-filters"]], inputs: { hide_levels: [1, "hide_levels"] }, decls: 34, vars: 36, consts: [[1, "flex", "items-center", "rounded-t-md", "border-b", "border-base-200", "pb-2", "sm:hidden"], [1, "flex-1", "pl-2"], ["icon", "", "matRipple", "", "name", "close-desk-filters", 1, "sm:hidden"], [1, "flex-2", "text-center", "font-medium"], [1, "flex-1"], [1, "max-h-[65vh]", "w-full", "max-w-[100vw]", "divide-y", "divide-base-200", "overflow-y-auto", "overflow-x-hidden", "p-2", "sm:max-w-[30vw]", 3, "formGroup"], ["details", ""], [1, "mb-1", "text-lg", "font-medium"], [1, "flex", "min-w-[8rem]", "flex-1", "flex-col"], ["for", "location"], ["appearance", "outline", 1, "w-full"], [1, "min-w-[256px]", "flex-1"], ["name", "date", 3, "ngModelChange", "ngModel", "ngModelOptions", "to", "timezone"], [1, "-mt-2", "mb-2", "flex", "justify-end"], [1, "flex", "items-center", "space-x-2"], ["favs", "", 1, "space-y-2", "pb-4"], ["features", "", 1, "space-y-2"], [1, "w-full", "border-t", "border-base-200", "px-2", "py-2"], ["icon", "", "matRipple", "", "name", "close-desk-filters", 1, "sm:hidden", 3, "click"], ["name", "region", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [3, "value"], ["name", "building", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], ["name", "location", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [1, "flex", "flex-col-reverse"], [1, "text-xs", "opacity-30"], [1, "opacity-0"], ["formControlName", "all_day"], [1, "w-1/3", "flex-1"], ["name", "start-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "use_24hr", "timezone"], ["formControlName", "duration", 3, "time", "max", "min", "step", "use_24hr", "timezone"], [1, "mt-2", "text-lg", "font-medium"], [1, "flex", "w-full", "items-center"], [1, "w-full", 3, "ngModelChange", "name", "ngModel", "ngModelOptions"], [1, "flex", "flex-wrap", "items-center", "space-x-2"], [1, "w-full", "capitalize", 3, "ngModelChange", "name", "ngModel", "ngModelOptions"], ["btn", "", "matRipple", "", "name", "apply-desk-filters", 1, "w-full", 3, "click"]], template: function DeskFiltersComponent_Template(rf, ctx) {
+_DeskFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DeskFiltersComponent, selectors: [["desk-filters"]], inputs: { hide_levels: [1, "hide_levels"] }, decls: 34, vars: 36, consts: [[1, "flex", "items-center", "rounded-t-md", "border-b", "border-base-200", "pb-2", "sm:hidden"], [1, "flex-1", "pl-2"], ["icon", "", "matRipple", "", "name", "close-desk-filters", 1, "sm:hidden"], [1, "flex-2", "text-center", "font-medium"], [1, "flex-1"], [1, "max-h-[65vh]", "w-full", "max-w-[100vw]", "divide-y", "divide-base-200", "overflow-y-auto", "overflow-x-hidden", "p-2", "sm:max-w-[30vw]", 3, "formGroup"], ["details", ""], [1, "mb-1", "text-lg", "font-medium"], [1, "flex", "min-w-32", "flex-1", "flex-col"], ["for", "location"], ["appearance", "outline", 1, "w-full"], [1, "min-w-[256px]", "flex-1"], ["name", "date", 3, "ngModelChange", "ngModel", "ngModelOptions", "to", "timezone"], [1, "-mt-2", "mb-2", "flex", "justify-end"], [1, "flex", "items-center", "space-x-2"], ["favs", "", 1, "space-y-2", "pb-4"], ["features", "", 1, "space-y-2"], [1, "w-full", "border-t", "border-base-200", "px-2", "py-2"], ["icon", "", "matRipple", "", "name", "close-desk-filters", 1, "sm:hidden", 3, "click"], ["name", "region", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [3, "value"], ["name", "building", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], ["name", "location", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [1, "flex", "flex-col-reverse"], [1, "text-xs", "opacity-30"], [1, "opacity-0"], ["formControlName", "all_day"], [1, "w-1/3", "flex-1"], ["name", "start-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "use_24hr", "timezone"], ["formControlName", "duration", 3, "time", "max", "min", "step", "use_24hr", "timezone"], [1, "mt-2", "text-lg", "font-medium"], [1, "flex", "w-full", "items-center"], [1, "w-full", 3, "ngModelChange", "name", "ngModel", "ngModelOptions"], [1, "flex", "flex-wrap", "items-center", "space-x-2"], [1, "w-full", "capitalize", 3, "ngModelChange", "name", "ngModel", "ngModelOptions"], ["btn", "", "matRipple", "", "name", "apply-desk-filters", 1, "w-full", 3, "click"]], template: function DeskFiltersComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "div", 1);
     \u0275\u0275conditionalCreate(2, DeskFiltersComponent_Conditional_2_Template, 3, 0, "button", 2);
@@ -2834,7 +2834,7 @@ var DeskFiltersComponent = _DeskFiltersComponent;
                 <h2 class="mb-1 text-lg font-medium">
                     {{ 'BOOKINGS.DETAILS' | translate }}
                 </h2>
-                <div class="flex min-w-[8rem] flex-1 flex-col">
+                <div class="flex min-w-32 flex-1 flex-col">
                     <label for="location">
                         {{ 'BOOKINGS.LOCATION' | translate }}
                     </label>
@@ -3140,7 +3140,7 @@ var _DeskFiltersDisplayComponent = class _DeskFiltersDisplayComponent extends As
 _DeskFiltersDisplayComponent.\u0275fac = function DeskFiltersDisplayComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _DeskFiltersDisplayComponent)();
 };
-_DeskFiltersDisplayComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DeskFiltersDisplayComponent, selectors: [["desk-filters-display"]], inputs: { view: [1, "view"] }, outputs: { view: "viewChange", viewChange: "viewChange" }, features: [\u0275\u0275InheritDefinitionFeature], decls: 23, vars: 25, consts: [["actions", "", 1, "flex", "flex-row", "items-center", "space-x-2", "p-2", "sm:hidden"], ["btn", "", "matRipple", "", "name", "edit-desk-filters", 1, "w-1/2", "flex-1", 3, "click"], [1, "flex", "items-center"], ["btn", "", "matRipple", "", "name", "view-desk-map", 1, "rounded-l", "rounded-r-none", 3, "click"], ["btn", "", "matRipple", "", "name", "view-desk-list", 1, "rounded-l-none", "rounded-r", 3, "click"], ["filters", "", 1, "flex", "w-[35rem]", "max-w-full", "flex-wrap", "items-center", "p-2", "sm:max-w-[35rem]"], ["filter-item", "", "date", ""], ["filter-item", "", "time", ""], ["filter-item", "", "features", ""], ["filter-item", ""], ["icon", "", "matRipple", "", "name", "remove-desk-filter", 1, "-mr-4", 3, "click"], ["icon", "", "matRipple", "", "name", "remove-desk-favs-filter", 1, "-mr-4", 3, "click"]], template: function DeskFiltersDisplayComponent_Template(rf, ctx) {
+_DeskFiltersDisplayComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DeskFiltersDisplayComponent, selectors: [["desk-filters-display"]], inputs: { view: [1, "view"] }, outputs: { view: "viewChange", viewChange: "viewChange" }, features: [\u0275\u0275InheritDefinitionFeature], decls: 23, vars: 25, consts: [["actions", "", 1, "flex", "flex-row", "items-center", "space-x-2", "p-2", "sm:hidden"], ["btn", "", "matRipple", "", "name", "edit-desk-filters", 1, "w-1/2", "flex-1", 3, "click"], [1, "flex", "items-center"], ["btn", "", "matRipple", "", "name", "view-desk-map", 1, "rounded-l", "rounded-r-none", 3, "click"], ["btn", "", "matRipple", "", "name", "view-desk-list", 1, "rounded-l-none", "rounded-r", 3, "click"], ["filters", "", 1, "flex", "w-140", "max-w-full", "flex-wrap", "items-center", "p-2", "sm:max-w-140"], ["filter-item", "", "date", ""], ["filter-item", "", "time", ""], ["filter-item", "", "features", ""], ["filter-item", ""], ["icon", "", "matRipple", "", "name", "remove-desk-filter", 1, "-mr-4", 3, "click"], ["icon", "", "matRipple", "", "name", "remove-desk-favs-filter", 1, "-mr-4", 3, "click"]], template: function DeskFiltersDisplayComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "section", 0)(1, "button", 1);
     \u0275\u0275listener("click", function DeskFiltersDisplayComponent_Template_button_click_1_listener() {
@@ -3247,7 +3247,7 @@ var DeskFiltersDisplayComponent = _DeskFiltersDisplayComponent;
         </section>
         <section
             filters
-            class="flex w-[35rem] max-w-full flex-wrap items-center p-2 sm:max-w-[35rem]"
+            class="flex w-140 max-w-full flex-wrap items-center p-2 sm:max-w-140"
         >
             <!-- TODO: filter chips -->
             <div filter-item date>{{ start | date: 'mediumDate' }}</div>
@@ -3355,7 +3355,7 @@ function DeskListComponent_Conditional_7_Conditional_0_For_2_Template(rf, ctx) {
   if (rf & 2) {
     const desk_r2 = ctx.$implicit;
     const ctx_r2 = \u0275\u0275nextContext(3);
-    \u0275\u0275classProp("!border-info", ctx_r2.active() === desk_r2.id);
+    \u0275\u0275classProp("border-info!", ctx_r2.active() === desk_r2.id);
     \u0275\u0275advance(3);
     \u0275\u0275conditional(ctx_r2.selected().includes(desk_r2.id) ? 3 : -1);
     \u0275\u0275advance();
@@ -3451,7 +3451,7 @@ var _DeskListComponent = class _DeskListComponent {
 _DeskListComponent.\u0275fac = function DeskListComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _DeskListComponent)();
 };
-_DeskListComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DeskListComponent, selectors: [["desk-list"]], inputs: { active: [1, "active"], selected: [1, "selected"], favorites: [1, "favorites"] }, outputs: { onSelect: "onSelect", toggleFav: "toggleFav" }, decls: 10, vars: 14, consts: [[1, "font-bold"], ["count", "", 1, "mb-4", "text-sm", "opacity-60"], ["loading", "", 1, "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-16"], [1, "list-style-none", "space-y-2"], ["empty", "", 1, "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-16"], ["desk", "", 1, "relative", "w-full", "overflow-hidden", "rounded-lg", "border", "border-base-200", "bg-base-100", "shadow", 3, "!border-info"], ["desk", "", 1, "relative", "w-full", "overflow-hidden", "rounded-lg", "border", "border-base-200", "bg-base-100", "shadow"], ["name", "select-desk", "matRipple", "", 1, "flex", "h-full", "w-full", "p-2", 3, "click"], [1, "relative", "mr-4", "flex", "h-20", "w-20", "items-center", "justify-center", "rounded-xl", "bg-base-200"], [1, "absolute", "left-1", "top-1", "flex", "h-6", "w-6", "items-center", "justify-center", "rounded-full", "border", "border-neutral", "bg-base-200", "text-white"], ["auth", "", 1, "h-full", "object-cover", 3, "source"], ["src", "assets/icons/desk-placeholder.svg", 1, "m-auto"], [1, "flex-1", "space-y-2", "pt-2", "text-left"], [1, "font-medium"], [1, "flex", "items-center", "space-x-2", "text-sm"], [1, "text-info"], [1, "text-xs"], ["icon", "", "matRipple", "", "name", "toggle-desk-favourite", 1, "absolute", "right-1", "top-1", 3, "click"], [3, "className"], [1, "text-center", "opacity-30"], [3, "diameter"], [1, "opacity-30"]], template: function DeskListComponent_Template(rf, ctx) {
+_DeskListComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DeskListComponent, selectors: [["desk-list"]], inputs: { active: [1, "active"], selected: [1, "selected"], favorites: [1, "favorites"] }, outputs: { onSelect: "onSelect", toggleFav: "toggleFav" }, decls: 10, vars: 14, consts: [[1, "font-bold"], ["count", "", 1, "mb-4", "text-sm", "opacity-60"], ["loading", "", 1, "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-16"], [1, "list-style-none", "space-y-2"], ["empty", "", 1, "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-16"], ["desk", "", 1, "relative", "w-full", "overflow-hidden", "rounded-lg", "border", "border-base-200", "bg-base-100", "shadow-sm", 3, "border-info!"], ["desk", "", 1, "relative", "w-full", "overflow-hidden", "rounded-lg", "border", "border-base-200", "bg-base-100", "shadow-sm"], ["name", "select-desk", "matRipple", "", 1, "flex", "h-full", "w-full", "p-2", 3, "click"], [1, "relative", "mr-4", "flex", "h-20", "w-20", "items-center", "justify-center", "rounded-xl", "bg-base-200"], [1, "absolute", "left-1", "top-1", "flex", "h-6", "w-6", "items-center", "justify-center", "rounded-full", "border", "border-neutral", "bg-base-200", "text-white"], ["auth", "", 1, "h-full", "object-cover", 3, "source"], ["src", "assets/icons/desk-placeholder.svg", 1, "m-auto"], [1, "flex-1", "space-y-2", "pt-2", "text-left"], [1, "font-medium"], [1, "flex", "items-center", "space-x-2", "text-sm"], [1, "text-info"], [1, "text-xs"], ["icon", "", "matRipple", "", "name", "toggle-desk-favourite", 1, "absolute", "right-1", "top-1", 3, "click"], [3, "className"], [1, "text-center", "opacity-30"], [3, "diameter"], [1, "opacity-30"]], template: function DeskListComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "h3", 0);
     \u0275\u0275text(1);
@@ -3505,8 +3505,8 @@ var DeskListComponent = _DeskListComponent;
                     @for (desk of desks | async; track desk.id) {
                         <li
                             desk
-                            class="relative w-full overflow-hidden rounded-lg border border-base-200 bg-base-100 shadow"
-                            [class.!border-info]="active() === desk.id"
+                            class="relative w-full overflow-hidden rounded-lg border border-base-200 bg-base-100 shadow-sm"
+                            [class.border-info!]="active() === desk.id"
                         >
                             <button
                                 name="select-desk"
@@ -3992,7 +3992,7 @@ var _DeskSelectModalComponent = class _DeskSelectModalComponent {
 _DeskSelectModalComponent.\u0275fac = function DeskSelectModalComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _DeskSelectModalComponent)();
 };
-_DeskSelectModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DeskSelectModalComponent, selectors: [["desk-select-modal"]], decls: 45, vars: 48, consts: [[1, "flex", "h-[100vh]", "w-[100vw]", "flex-col", "bg-base-100", "sm:relative", "sm:h-auto", "sm:w-auto"], [1, "flex", "w-full", "items-center", "space-x-4"], ["icon", "", "mat-dialog-close", "", 1, "bg-base-200"], [1, "hidden", "flex-1", "items-center", "justify-end", "sm:flex"], ["btn", "", "matRipple", "", "name", "view-desk-map", 1, "rounded-l", "rounded-r-none", 3, "click"], ["btn", "", "matRipple", "", "name", "view-desk-list", 1, "rounded-l-none", "rounded-r", 3, "click"], [1, "flex", "h-[65vh]", "w-[calc(100vw-4rem)]", "items-center", "divide-x", "divide-base-200", "overflow-hidden"], [1, "hidden", "h-full", "max-w-[20rem]", "sm:flex", "sm:h-[65vh]", "sm:max-h-full", 3, "hide_levels"], [1, "flex", "h-full", "w-1/2", "flex-1", "flex-col", "items-center", "sm:h-[65vh]"], [1, "w-full", "border-b", "border-base-200", 3, "viewChange", "view"], [1, "h-1/2", "flex-1", "bg-base-200", 3, "active", "selected", "favorites"], [1, "h-1/2", "w-full", "flex-1", 3, "is_displayed", "active"], [1, "absolute", "z-20", "block", "h-full", "w-full", "bg-base-100", "sm:relative", "sm:flex", "sm:h-[65vh]", "sm:max-w-[20rem]", 3, "activeChange", "toggleFav", "close", "desk", "active", "hide_map", "fav"], [1, "flex", "w-full", "flex-col-reverse", "items-center", "justify-end", "border-t", "border-base-200", "px-2", "pb-[5.5rem]", "pt-2", "sm:hidden"], ["btn", "", "matRipple", "", "name", "desk-return", 1, "inverse", "w-full", "sm:hidden"], ["btn", "", "matRipple", "", "name", "save-desks", 1, "w-full", "sm:mb-0", "sm:w-32", 3, "mat-dialog-close"], [1, "hidden", "w-full", "items-center", "justify-between", "border-t", "border-base-200", "p-2", "sm:flex"], ["btn", "", "matRipple", "", "name", "desk-return", 1, "clear", "text-secondary", 3, "mat-dialog-close"], [1, "flex", "items-center"], [1, "text-xl"], [1, "mr-1", "underline"], [1, "text-sm", "opacity-60"], ["btn", "", "matRipple", "", "name", "toggle-desk", 3, "click", "disabled"], [1, "mr-1"], [1, "h-1/2", "flex-1", "bg-base-200", 3, "toggleFav", "onSelect", "active", "selected", "favorites"], [1, "h-1/2", "w-full", "flex-1", 3, "onSelect", "is_displayed", "active"], ["btn", "", "matRipple", "", "name", "desk-return", 1, "inverse", "w-full", "sm:hidden", 3, "click"]], template: function DeskSelectModalComponent_Template(rf, ctx) {
+_DeskSelectModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DeskSelectModalComponent, selectors: [["desk-select-modal"]], decls: 45, vars: 48, consts: [[1, "flex", "h-screen", "w-screen", "flex-col", "bg-base-100", "sm:relative", "sm:h-auto", "sm:w-auto"], [1, "flex", "w-full", "items-center", "space-x-4"], ["icon", "", "mat-dialog-close", "", 1, "bg-base-200"], [1, "hidden", "flex-1", "items-center", "justify-end", "sm:flex"], ["btn", "", "matRipple", "", "name", "view-desk-map", 1, "rounded-l", "rounded-r-none", 3, "click"], ["btn", "", "matRipple", "", "name", "view-desk-list", 1, "rounded-l-none", "rounded-r", 3, "click"], [1, "flex", "h-[65vh]", "w-[calc(100vw-4rem)]", "items-center", "divide-x", "divide-base-200", "overflow-hidden"], [1, "hidden", "h-full", "max-w-[20rem]", "sm:flex", "sm:h-[65vh]", "sm:max-h-full", 3, "hide_levels"], [1, "flex", "h-full", "w-1/2", "flex-1", "flex-col", "items-center", "sm:h-[65vh]"], [1, "w-full", "border-b", "border-base-200", 3, "viewChange", "view"], [1, "h-1/2", "flex-1", "bg-base-200", 3, "active", "selected", "favorites"], [1, "h-1/2", "w-full", "flex-1", 3, "is_displayed", "active"], [1, "absolute", "z-20", "block", "h-full", "w-full", "bg-base-100", "sm:relative", "sm:flex", "sm:h-[65vh]", "sm:max-w-[20rem]", 3, "activeChange", "toggleFav", "close", "desk", "active", "hide_map", "fav"], [1, "flex", "w-full", "flex-col-reverse", "items-center", "justify-end", "border-t", "border-base-200", "px-2", "pb-22", "pt-2", "sm:hidden"], ["btn", "", "matRipple", "", "name", "desk-return", 1, "inverse", "w-full", "sm:hidden"], ["btn", "", "matRipple", "", "name", "save-desks", 1, "w-full", "sm:mb-0", "sm:w-32", 3, "mat-dialog-close"], [1, "hidden", "w-full", "items-center", "justify-between", "border-t", "border-base-200", "p-2", "sm:flex"], ["btn", "", "matRipple", "", "name", "desk-return", 1, "clear", "text-secondary", 3, "mat-dialog-close"], [1, "flex", "items-center"], [1, "text-xl"], [1, "mr-1", "underline"], [1, "text-sm", "opacity-60"], ["btn", "", "matRipple", "", "name", "toggle-desk", 3, "click", "disabled"], [1, "mr-1"], [1, "h-1/2", "flex-1", "bg-base-200", 3, "toggleFav", "onSelect", "active", "selected", "favorites"], [1, "h-1/2", "w-full", "flex-1", 3, "onSelect", "is_displayed", "active"], ["btn", "", "matRipple", "", "name", "desk-return", 1, "inverse", "w-full", "sm:hidden", 3, "click"]], template: function DeskSelectModalComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "header", 1)(2, "button", 2)(3, "icon");
     \u0275\u0275text(4, "close");
@@ -4123,7 +4123,7 @@ var DeskSelectModalComponent = _DeskSelectModalComponent;
     type: Component,
     args: [{ selector: "desk-select-modal", template: `
         <div
-            class="flex h-[100vh] w-[100vw] flex-col bg-base-100 sm:relative sm:h-auto sm:w-auto"
+            class="flex h-screen w-screen flex-col bg-base-100 sm:relative sm:h-auto sm:w-auto"
         >
             <header class="flex w-full items-center space-x-4">
                 <button icon mat-dialog-close class="bg-base-200">
@@ -4200,7 +4200,7 @@ var DeskSelectModalComponent = _DeskSelectModalComponent;
                 ></desk-details>
             </main>
             <footer
-                class="flex w-full flex-col-reverse items-center justify-end border-t border-base-200 px-2 pb-[5.5rem] pt-2 sm:hidden"
+                class="flex w-full flex-col-reverse items-center justify-end border-t border-base-200 px-2 pb-22 pt-2 sm:hidden"
             >
                 @if (displayed) {
                     <button
@@ -4426,7 +4426,7 @@ function NewDeskDetailsComponent_Conditional_0_Template(rf, ctx) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275conditional(((tmp_1_0 = ctx_r1.desk().images) == null ? null : tmp_1_0.length) ? 0 : 1);
     \u0275\u0275advance(5);
-    \u0275\u0275classProp("text-info-content", ctx_r1.fav())("!bg-info", ctx_r1.fav());
+    \u0275\u0275classProp("text-info-content", ctx_r1.fav())("bg-info!", ctx_r1.fav());
     \u0275\u0275advance();
     \u0275\u0275property("className", ctx_r1.fav() ? "material-symbols-rounded" : "material-symbols-outlined");
     \u0275\u0275advance(3);
@@ -4490,7 +4490,7 @@ var _NewDeskDetailsComponent = class _NewDeskDetailsComponent {
 _NewDeskDetailsComponent.\u0275fac = function NewDeskDetailsComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _NewDeskDetailsComponent)();
 };
-_NewDeskDetailsComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewDeskDetailsComponent, selectors: [["new-desk-details"]], inputs: { desk: [1, "desk"], fav: [1, "fav"], active: [1, "active"], hide_map: [1, "hide_map"] }, outputs: { close: "close", toggleFav: "toggleFav", activeChange: "activeChange" }, features: [\u0275\u0275NgOnChangesFeature], decls: 2, vars: 1, consts: [["empty", "", 1, "flex", "h-full", "w-full", "flex-col", "items-center", "justify-center", "space-y-2"], [1, "relative", "h-40", "w-full"], [1, "h-10", "w-full", "lg:hidden"], ["icon", "", "matRipple", "", "name", "close-desk-details", 1, "absolute", "left-2", "top-2", "z-20", "bg-base-200", "text-base-content", "lg:hidden", 3, "click"], ["icon", "", "matRipple", "", "name", "toggle-desk-favourite-details", 1, "absolute", "right-2", "top-2", "z-20", "bg-base-200", 3, "click"], [3, "className"], [1, "space-y-2", "px-2", "pb-2", "pt-0"], [1, "h-8", "w-full"], ["actions", "", 1, "z-0", "p-2"], [1, "mb-2", "mt-4", "text-2xl", "font-medium"], ["details", "", 1, "relative", "space-y-2", "rounded", "border", "border-base-400", "px-3", "pb-2", "pt-4"], [1, "absolute", "left-2", "top-0", "-translate-y-1/2", "bg-base-100", "px-2", "text-lg", "font-medium"], [1, "flex", "items-center", "space-x-2"], ["facilities", "", 1, "relative", "!mt-4", "space-y-2", "rounded", "border", "border-base-400", "px-2", "pb-1", "pt-1"], ["map", "", 1, "relative", "mx-auto", "h-64", "w-full", "overflow-hidden", "rounded", "bg-base-200", "sm:h-48"], [1, "absolute", "inset-0", 3, "images"], [1, "flex", "flex-wrap", "items-center"], ["for", "feat", 1, "m-1", "rounded-full", "border", "border-base-300", "px-4", "py-2", "text-sm", "capitalize"], [1, "pointer-events-none", 3, "src", "focus", "features", "options"], [1, "text-center", "opacity-30"]], template: function NewDeskDetailsComponent_Template(rf, ctx) {
+_NewDeskDetailsComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewDeskDetailsComponent, selectors: [["new-desk-details"]], inputs: { desk: [1, "desk"], fav: [1, "fav"], active: [1, "active"], hide_map: [1, "hide_map"] }, outputs: { close: "close", toggleFav: "toggleFav", activeChange: "activeChange" }, features: [\u0275\u0275NgOnChangesFeature], decls: 2, vars: 1, consts: [["empty", "", 1, "flex", "h-full", "w-full", "flex-col", "items-center", "justify-center", "space-y-2"], [1, "relative", "h-40", "w-full"], [1, "h-10", "w-full", "lg:hidden"], ["icon", "", "matRipple", "", "name", "close-desk-details", 1, "absolute", "left-2", "top-2", "z-20", "bg-base-200", "text-base-content", "lg:hidden", 3, "click"], ["icon", "", "matRipple", "", "name", "toggle-desk-favourite-details", 1, "absolute", "right-2", "top-2", "z-20", "bg-base-200", 3, "click"], [3, "className"], [1, "space-y-2", "px-2", "pb-2", "pt-0"], [1, "h-8", "w-full"], ["actions", "", 1, "z-0", "p-2"], [1, "mb-2", "mt-4", "text-2xl", "font-medium"], ["details", "", 1, "relative", "space-y-2", "rounded-sm", "border", "border-base-400", "px-3", "pb-2", "pt-4"], [1, "absolute", "left-2", "top-0", "-translate-y-1/2", "bg-base-100", "px-2", "text-lg", "font-medium"], [1, "flex", "items-center", "space-x-2"], ["facilities", "", 1, "relative", "mt-4!", "space-y-2", "rounded-sm", "border", "border-base-400", "px-2", "pb-1", "pt-1"], ["map", "", 1, "relative", "mx-auto", "h-64", "w-full", "overflow-hidden", "rounded-sm", "bg-base-200", "sm:h-48"], [1, "absolute", "inset-0", 3, "images"], [1, "flex", "flex-wrap", "items-center"], ["for", "feat", 1, "m-1", "rounded-full", "border", "border-base-300", "px-4", "py-2", "text-sm", "capitalize"], [1, "pointer-events-none", 3, "src", "focus", "features", "options"], [1, "text-center", "opacity-30"]], template: function NewDeskDetailsComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275conditionalCreate(0, NewDeskDetailsComponent_Conditional_0_Template, 35, 18)(1, NewDeskDetailsComponent_Conditional_1_Template, 4, 3, "div", 0);
   }
@@ -4538,7 +4538,7 @@ var NewDeskDetailsComponent = _NewDeskDetailsComponent;
                 name="toggle-desk-favourite-details"
                 class="absolute right-2 top-2 z-20 bg-base-200"
                 [class.text-info-content]="fav()"
-                [class.!bg-info]="fav()"
+                [class.bg-info!]="fav()"
                 (click)="toggleFav.emit()"
             >
                 <icon
@@ -4561,7 +4561,7 @@ var NewDeskDetailsComponent = _NewDeskDetailsComponent;
                 </section>
                 <section
                     details
-                    class="relative space-y-2 rounded border border-base-400 px-3 pb-2 pt-4"
+                    class="relative space-y-2 rounded-sm border border-base-400 px-3 pb-2 pt-4"
                 >
                     <h2
                         class="absolute left-2 top-0 -translate-y-1/2 bg-base-100 px-2 text-lg font-medium"
@@ -4590,7 +4590,7 @@ var NewDeskDetailsComponent = _NewDeskDetailsComponent;
                 @if (desk().features?.length) {
                     <section
                         facilities
-                        class="relative !mt-4 space-y-2 rounded border border-base-400 px-2 pb-1 pt-1"
+                        class="relative mt-4! space-y-2 rounded-sm border border-base-400 px-2 pb-1 pt-1"
                     >
                         <h2
                             class="absolute left-2 top-0 -translate-y-1/2 bg-base-100 px-2 text-lg font-medium"
@@ -4612,7 +4612,7 @@ var NewDeskDetailsComponent = _NewDeskDetailsComponent;
                 @if (!hide_map()) {
                     <section
                         map
-                        class="relative mx-auto h-64 w-full overflow-hidden rounded bg-base-200 sm:h-48"
+                        class="relative mx-auto h-64 w-full overflow-hidden rounded-sm bg-base-200 sm:h-48"
                     >
                         <interactive-map
                             class="pointer-events-none"
@@ -4746,7 +4746,7 @@ var _NewDeskFiltersDisplayComponent = class _NewDeskFiltersDisplayComponent exte
 _NewDeskFiltersDisplayComponent.\u0275fac = function NewDeskFiltersDisplayComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _NewDeskFiltersDisplayComponent)();
 };
-_NewDeskFiltersDisplayComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewDeskFiltersDisplayComponent, selectors: [["new-desk-filters-display"]], inputs: { view: [1, "view"] }, outputs: { viewChange: "viewChange" }, features: [\u0275\u0275InheritDefinitionFeature], decls: 12, vars: 12, consts: [["filters", "", 1, "sticky", "-top-1", "z-20", "-mx-1", "!mb-4", "flex", "w-[calc(100%+0.5rem)]", "flex-wrap", "items-center", "rounded", "border", "border-base-300", "bg-base-100", "p-1", "!pr-10", "sm:!pr-1"], ["filter-item", "", "date", ""], ["filter-item", "", "time", ""], ["filter-item", "", "features", ""], ["filter-item", ""], ["icon", "", "matRipple", "", "name", "remove-desk-filter", 1, "-mr-4", 3, "click"], [1, "text-base"], ["icon", "", "matRipple", "", "name", "remove-desk-favs-filter", 1, "-mr-4", 3, "click"]], template: function NewDeskFiltersDisplayComponent_Template(rf, ctx) {
+_NewDeskFiltersDisplayComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewDeskFiltersDisplayComponent, selectors: [["new-desk-filters-display"]], inputs: { view: [1, "view"] }, outputs: { viewChange: "viewChange" }, features: [\u0275\u0275InheritDefinitionFeature], decls: 12, vars: 12, consts: [["filters", "", 1, "sticky", "-top-1", "z-20", "-mx-1", "mb-4!", "flex", "w-[calc(100%+0.5rem)]", "flex-wrap", "items-center", "rounded-sm", "border", "border-base-300", "bg-base-100", "p-1", "pr-10!", "sm:pr-1!"], ["filter-item", "", "date", ""], ["filter-item", "", "time", ""], ["filter-item", "", "features", ""], ["filter-item", ""], ["icon", "", "matRipple", "", "name", "remove-desk-filter", 1, "-mr-4", 3, "click"], [1, "text-base"], ["icon", "", "matRipple", "", "name", "remove-desk-favs-filter", 1, "-mr-4", 3, "click"]], template: function NewDeskFiltersDisplayComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "section", 0)(1, "div", 1);
     \u0275\u0275text(2);
@@ -4784,7 +4784,7 @@ var NewDeskFiltersDisplayComponent = _NewDeskFiltersDisplayComponent;
     args: [{ selector: "new-desk-filters-display", template: `
         <section
             filters
-            class="sticky -top-1 z-20 -mx-1 !mb-4 flex w-[calc(100%+0.5rem)] flex-wrap items-center rounded border border-base-300 bg-base-100 p-1 !pr-10 sm:!pr-1"
+            class="sticky -top-1 z-20 -mx-1 mb-4! flex w-[calc(100%+0.5rem)] flex-wrap items-center rounded-sm border border-base-300 bg-base-100 p-1 pr-10! sm:pr-1!"
         >
             <!-- TODO: filter chips -->
             <div filter-item date>{{ start | date: 'mediumDate' }}</div>
@@ -5149,7 +5149,7 @@ var _NewDeskFiltersComponent = class _NewDeskFiltersComponent {
 _NewDeskFiltersComponent.\u0275fac = function NewDeskFiltersComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _NewDeskFiltersComponent)();
 };
-_NewDeskFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewDeskFiltersComponent, selectors: [["new-desk-filters"]], inputs: { hide_levels: [1, "hide_levels"] }, decls: 30, vars: 36, consts: [[1, "sticky", "top-0", "z-10", "flex", "items-center", "border-b", "border-base-300", "bg-base-100", "px-4", "py-4"], [1, "text-xl", "font-medium"], [1, "relative", "z-0", "w-full", "divide-y", "divide-base-200", "p-2", 3, "formGroup"], ["details", ""], [1, "mb-1", "text-lg", "font-medium"], [1, "flex", "min-w-[8rem]", "flex-1", "flex-col"], ["for", "location"], ["appearance", "outline", 1, "w-full"], [1, "flex-1"], ["name", "date", 3, "ngModelChange", "ngModel", "ngModelOptions", "to", "timezone"], [1, "-mt-2", "mb-2", "flex", "justify-end"], [1, "flex", "items-center", "space-x-2"], ["favs", "", 1, "space-y-2", "pb-4"], ["features", "", 1, "space-y-2"], ["name", "region", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [3, "value"], ["name", "building", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], ["name", "location", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [1, "flex", "flex-col-reverse"], [1, "text-xs", "opacity-30"], [1, "opacity-0"], ["formControlName", "all_day"], [1, "w-1/3", "flex-1"], ["name", "start-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "use_24hr", "timezone"], ["formControlName", "duration", 3, "time", "max", "min", "step", "use_24hr", "timezone"], [1, "mt-2", "text-lg", "font-medium"], [1, "flex", "w-full", "items-center"], [1, "w-full", 3, "ngModelChange", "name", "ngModel", "ngModelOptions"], [1, "flex", "flex-wrap", "items-center", "space-x-2"], [1, "w-full", "capitalize", 3, "ngModelChange", "name", "ngModel", "ngModelOptions"]], template: function NewDeskFiltersComponent_Template(rf, ctx) {
+_NewDeskFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewDeskFiltersComponent, selectors: [["new-desk-filters"]], inputs: { hide_levels: [1, "hide_levels"] }, decls: 30, vars: 36, consts: [[1, "sticky", "top-0", "z-10", "flex", "items-center", "border-b", "border-base-300", "bg-base-100", "px-4", "py-4"], [1, "text-xl", "font-medium"], [1, "relative", "z-0", "w-full", "divide-y", "divide-base-200", "p-2", 3, "formGroup"], ["details", ""], [1, "mb-1", "text-lg", "font-medium"], [1, "flex", "min-w-32", "flex-1", "flex-col"], ["for", "location"], ["appearance", "outline", 1, "w-full"], [1, "flex-1"], ["name", "date", 3, "ngModelChange", "ngModel", "ngModelOptions", "to", "timezone"], [1, "-mt-2", "mb-2", "flex", "justify-end"], [1, "flex", "items-center", "space-x-2"], ["favs", "", 1, "space-y-2", "pb-4"], ["features", "", 1, "space-y-2"], ["name", "region", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [3, "value"], ["name", "building", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], ["name", "location", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [1, "flex", "flex-col-reverse"], [1, "text-xs", "opacity-30"], [1, "opacity-0"], ["formControlName", "all_day"], [1, "w-1/3", "flex-1"], ["name", "start-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "use_24hr", "timezone"], ["formControlName", "duration", 3, "time", "max", "min", "step", "use_24hr", "timezone"], [1, "mt-2", "text-lg", "font-medium"], [1, "flex", "w-full", "items-center"], [1, "w-full", 3, "ngModelChange", "name", "ngModel", "ngModelOptions"], [1, "flex", "flex-wrap", "items-center", "space-x-2"], [1, "w-full", "capitalize", 3, "ngModelChange", "name", "ngModel", "ngModelOptions"]], template: function NewDeskFiltersComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "h3", 1);
     \u0275\u0275text(2);
@@ -5267,7 +5267,7 @@ var NewDeskFiltersComponent = _NewDeskFiltersComponent;
                 <h2 class="mb-1 text-lg font-medium">
                     {{ 'BOOKINGS.DETAILS' | translate }}
                 </h2>
-                <div class="flex min-w-[8rem] flex-1 flex-col">
+                <div class="flex min-w-32 flex-1 flex-col">
                     @if (
                         !hide_levels() &&
                         !(use_region && (regions | async)?.length) &&
@@ -5525,7 +5525,7 @@ function NewDeskListComponent_Conditional_8_Conditional_0_For_2_Template(rf, ctx
   if (rf & 2) {
     const desk_r2 = ctx.$implicit;
     const ctx_r2 = \u0275\u0275nextContext(3);
-    \u0275\u0275classProp("!border-info", ctx_r2.active() === desk_r2.id);
+    \u0275\u0275classProp("border-info!", ctx_r2.active() === desk_r2.id);
     \u0275\u0275advance(3);
     \u0275\u0275conditional(ctx_r2.selected().includes(desk_r2.id) ? 3 : -1);
     \u0275\u0275advance();
@@ -5626,7 +5626,7 @@ var _NewDeskListComponent = class _NewDeskListComponent {
 _NewDeskListComponent.\u0275fac = function NewDeskListComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _NewDeskListComponent)();
 };
-_NewDeskListComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewDeskListComponent, selectors: [["new-desk-list"]], inputs: { active: [1, "active"], selected: [1, "selected"], favorites: [1, "favorites"] }, outputs: { onSelect: "onSelect", toggleFav: "toggleFav" }, decls: 11, vars: 17, consts: [[1, "px-2", "font-bold"], ["count", "", 1, "mb-4", "px-2", "text-sm", "opacity-60"], ["loading", "", 1, "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-16"], [1, "list-style-none", "space-y-2"], ["empty", "", 1, "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-16"], ["desk", "", 1, "relative", "w-full", "overflow-hidden", "rounded-lg", "border", "border-base-200", "bg-base-100", "shadow", 3, "!border-info"], [1, "rounded", "bg-base-400", "p-2", "text-center", "text-sm", "opacity-30"], ["desk", "", 1, "relative", "w-full", "overflow-hidden", "rounded-lg", "border", "border-base-200", "bg-base-100", "shadow"], ["name", "select-desk", "matRipple", "", 1, "flex", "h-full", "w-full", "p-2", 3, "click"], [1, "relative", "mr-4", "flex", "h-20", "w-20", "items-center", "justify-center", "rounded-xl", "bg-base-200"], [1, "absolute", "left-1", "top-1", "flex", "h-6", "w-6", "items-center", "justify-center", "rounded-full", "border", "border-neutral", "bg-base-200", "text-white"], ["auth", "", 1, "h-full", "object-cover", 3, "source"], ["src", "assets/icons/desk-placeholder.svg", 1, "m-auto"], [1, "flex-1", "space-y-2", "pt-2", "text-left"], [1, "w-[calc(100%-2rem)]", "truncate", "font-medium"], [1, "flex", "items-center", "space-x-2", "text-sm"], [1, "text-info"], [1, "text-xs"], ["icon", "", "matRipple", "", "name", "toggle-desk-favourite", 1, "absolute", "right-1", "top-1", 3, "click"], [3, "className"], [1, "text-center", "opacity-30"], [3, "diameter"], [1, "opacity-30"]], template: function NewDeskListComponent_Template(rf, ctx) {
+_NewDeskListComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewDeskListComponent, selectors: [["new-desk-list"]], inputs: { active: [1, "active"], selected: [1, "selected"], favorites: [1, "favorites"] }, outputs: { onSelect: "onSelect", toggleFav: "toggleFav" }, decls: 11, vars: 17, consts: [[1, "px-2", "font-bold"], ["count", "", 1, "mb-4", "px-2", "text-sm", "opacity-60"], ["loading", "", 1, "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-16"], [1, "list-style-none", "space-y-2"], ["empty", "", 1, "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-16"], ["desk", "", 1, "relative", "w-full", "overflow-hidden", "rounded-lg", "border", "border-base-200", "bg-base-100", "shadow-sm", 3, "border-info!"], [1, "rounded-sm", "bg-base-400", "p-2", "text-center", "text-sm", "opacity-30"], ["desk", "", 1, "relative", "w-full", "overflow-hidden", "rounded-lg", "border", "border-base-200", "bg-base-100", "shadow-sm"], ["name", "select-desk", "matRipple", "", 1, "flex", "h-full", "w-full", "p-2", 3, "click"], [1, "relative", "mr-4", "flex", "h-20", "w-20", "items-center", "justify-center", "rounded-xl", "bg-base-200"], [1, "absolute", "left-1", "top-1", "flex", "h-6", "w-6", "items-center", "justify-center", "rounded-full", "border", "border-neutral", "bg-base-200", "text-white"], ["auth", "", 1, "h-full", "object-cover", 3, "source"], ["src", "assets/icons/desk-placeholder.svg", 1, "m-auto"], [1, "flex-1", "space-y-2", "pt-2", "text-left"], [1, "w-[calc(100%-2rem)]", "truncate", "font-medium"], [1, "flex", "items-center", "space-x-2", "text-sm"], [1, "text-info"], [1, "text-xs"], ["icon", "", "matRipple", "", "name", "toggle-desk-favourite", 1, "absolute", "right-1", "top-1", 3, "click"], [3, "className"], [1, "text-center", "opacity-30"], [3, "diameter"], [1, "opacity-30"]], template: function NewDeskListComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "h3", 0);
     \u0275\u0275text(1);
@@ -5683,8 +5683,8 @@ var NewDeskListComponent = _NewDeskListComponent;
                     @for (desk of desks | async; track desk) {
                         <li
                             desk
-                            class="relative w-full overflow-hidden rounded-lg border border-base-200 bg-base-100 shadow"
-                            [class.!border-info]="active() === desk.id"
+                            class="relative w-full overflow-hidden rounded-lg border border-base-200 bg-base-100 shadow-sm"
+                            [class.border-info!]="active() === desk.id"
                         >
                             <button
                                 name="select-desk"
@@ -5755,7 +5755,7 @@ var NewDeskListComponent = _NewDeskListComponent;
                         </li>
                     }
                     <li
-                        class="rounded bg-base-400 p-2 text-center text-sm opacity-30"
+                        class="rounded-sm bg-base-400 p-2 text-center text-sm opacity-30"
                     >
                         {{ 'COMMON.END_OF_LIST' | translate }}
                     </li>
@@ -6218,7 +6218,7 @@ var _NewDeskSelectModalComponent = class _NewDeskSelectModalComponent {
 _NewDeskSelectModalComponent.\u0275fac = function NewDeskSelectModalComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _NewDeskSelectModalComponent)();
 };
-_NewDeskSelectModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewDeskSelectModalComponent, selectors: [["new-desk-select-modal"]], decls: 43, vars: 63, consts: [[1, "mb-10", "flex", "h-[calc(100vh-2.5rem)]", "max-h-[calc(100vh-2.5rem)]", "w-screen", "flex-col", "space-y-2", "overflow-hidden", "bg-base-100", "p-2", "sm:m-0", "sm:h-auto", "sm:w-auto"], [1, "flex", "h-14", "w-full", "items-center", "space-x-2", "rounded", "border-none", "bg-base-200", "p-2"], [1, "flex-1", "px-2", "text-xl", "font-medium", "capitalize"], [1, "flex", "divide-x", "divide-secondary", "rounded", "border", "border-secondary"], ["icon", "", "matRipple", "", 1, "rounded-l", "rounded-r-none", 3, "click", "matTooltip"], ["icon", "", "matRipple", "", 1, "rounded-l-none", "rounded-r", 3, "click", "matTooltip"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "relative", "flex", "h-1/2", "max-h-[calc(100vh-7rem)]", "flex-1", "sm:h-[65vh]", "sm:flex-none", "sm:space-x-2"], [1, "h-full", "w-full", "overflow-y-auto", "overflow-x-hidden", "rounded", "border", "border-base-300", "shadow", "sm:block", "sm:w-[20rem]"], [3, "hide_levels"], ["list", "", 1, "h-full", "w-full", "min-w-[20rem]", "overflow-auto", "rounded", "border", "border-base-300", "bg-base-200", "sm:w-[20rem]", "lg:block"], [3, "view"], [3, "active", "selected", "favorites"], [1, "h-full", "min-h-[60vh]", "w-full", 3, "is_displayed()", "active"], [1, "relative", "h-full", "w-full", "overflow-auto", "rounded", "border", "border-base-300", "shadow", "sm:w-[20rem]"], ["icon", "", "matRipple", "", 1, "absolute", "left-2", "top-2", "z-20", "hidden", "border", "border-base-300", "bg-base-100", "md:flex"], [3, "activeChange", "toggleFav", "close", "desk", "active", "hide_map", "fav"], ["icon", "", "matRipple", "", 1, "absolute", "right-2", "top-3", "z-20", "border", "border-base-200", "bg-base-100", "sm:hidden"], [1, "flex", "w-full", "items-center", "justify-between", "space-x-2", "rounded", "border-none", "bg-base-200", "p-2"], ["btn", "", "matRipple", "", "name", "desk-return", 1, "inverse", "bg-base-100", "text-secondary", 3, "mat-dialog-close"], [1, "flex", "items-center", "space-x-2"], [1, "text-xl"], [1, "pr-2"], ["btn", "", "matRipple", "", "name", "toggle-desk", 3, "click", "disabled"], [1, "flex", "items-center"], [1, "mr-1"], [3, "viewChange", "view"], [3, "toggleFav", "onSelect", "active", "selected", "favorites"], [1, "h-full", "min-h-[60vh]", "w-full", 3, "onSelect", "is_displayed()", "active"], ["icon", "", "matRipple", "", 1, "absolute", "left-2", "top-2", "z-20", "hidden", "border", "border-base-300", "bg-base-100", "md:flex", 3, "click"], ["icon", "", "matRipple", "", 1, "absolute", "right-2", "top-3", "z-20", "border", "border-base-200", "bg-base-100", "sm:hidden", 3, "click"]], template: function NewDeskSelectModalComponent_Template(rf, ctx) {
+_NewDeskSelectModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewDeskSelectModalComponent, selectors: [["new-desk-select-modal"]], decls: 43, vars: 63, consts: [[1, "mb-18", "flex", "h-[calc(100vh-4.5rem)]", "max-h-[calc(100vh-4.5rem)]", "w-screen", "flex-col", "space-y-2", "overflow-hidden", "bg-base-100", "p-2", "sm:m-0", "sm:h-auto", "sm:w-auto"], [1, "flex", "h-14", "w-full", "items-center", "space-x-2", "rounded-sm", "border-none", "bg-base-200", "p-2"], [1, "flex-1", "px-2", "text-xl", "font-medium", "capitalize"], [1, "flex", "divide-x", "divide-secondary", "rounded-sm", "border", "border-secondary"], ["icon", "", "matRipple", "", 1, "rounded-l", "rounded-r-none", 3, "click", "matTooltip"], ["icon", "", "matRipple", "", 1, "rounded-l-none", "rounded-r", 3, "click", "matTooltip"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "relative", "flex", "h-1/2", "max-h-[calc(100vh-7rem)]", "flex-1", "sm:h-[65vh]", "sm:flex-none", "sm:space-x-2"], [1, "h-full", "w-full", "overflow-y-auto", "overflow-x-hidden", "rounded-sm", "border", "border-base-300", "shadow-sm", "sm:block", "sm:w-[20rem]"], [3, "hide_levels"], ["list", "", 1, "h-full", "w-full", "min-w-[20rem]", "overflow-auto", "rounded-sm", "border", "border-base-300", "bg-base-200", "sm:w-[20rem]", "lg:block"], [3, "view"], [3, "active", "selected", "favorites"], [1, "h-full", "min-h-[60vh]", "w-full", 3, "is_displayed()", "active"], [1, "relative", "h-full", "w-full", "overflow-auto", "rounded-sm", "border", "border-base-300", "shadow-sm", "sm:w-[20rem]"], ["icon", "", "matRipple", "", 1, "absolute", "left-2", "top-2", "z-20", "hidden", "border", "border-base-300", "bg-base-100", "md:flex"], [3, "activeChange", "toggleFav", "close", "desk", "active", "hide_map", "fav"], ["icon", "", "matRipple", "", 1, "absolute", "right-2", "top-3", "z-20", "border", "border-base-200", "bg-base-100", "sm:hidden"], [1, "flex", "w-full", "items-center", "justify-between", "space-x-2", "rounded-sm", "border-none", "bg-base-200", "p-2"], ["btn", "", "matRipple", "", "name", "desk-return", 1, "inverse", "bg-base-100", "text-secondary", 3, "mat-dialog-close"], [1, "flex", "items-center", "space-x-2"], [1, "text-xl"], [1, "pr-2"], ["btn", "", "matRipple", "", "name", "toggle-desk", 3, "click", "disabled"], [1, "flex", "items-center"], [1, "mr-1"], [3, "viewChange", "view"], [3, "toggleFav", "onSelect", "active", "selected", "favorites"], [1, "h-full", "min-h-[60vh]", "w-full", 3, "onSelect", "is_displayed()", "active"], ["icon", "", "matRipple", "", 1, "absolute", "left-2", "top-2", "z-20", "hidden", "border", "border-base-300", "bg-base-100", "md:flex", 3, "click"], ["icon", "", "matRipple", "", 1, "absolute", "right-2", "top-3", "z-20", "border", "border-base-200", "bg-base-100", "sm:hidden", 3, "click"]], template: function NewDeskSelectModalComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "header", 1)(2, "h2", 2);
     \u0275\u0275text(3);
@@ -6350,17 +6350,17 @@ var NewDeskSelectModalComponent = _NewDeskSelectModalComponent;
     type: Component,
     args: [{ selector: "new-desk-select-modal", template: `
         <div
-            class="mb-10 flex h-[calc(100vh-2.5rem)] max-h-[calc(100vh-2.5rem)] w-screen flex-col space-y-2 overflow-hidden bg-base-100 p-2 sm:m-0 sm:h-auto sm:w-auto"
+            class="mb-18 flex h-[calc(100vh-4.5rem)] max-h-[calc(100vh-4.5rem)] w-screen flex-col space-y-2 overflow-hidden bg-base-100 p-2 sm:m-0 sm:h-auto sm:w-auto"
             [style.height]="is_safari ? 'calc(100vh - 80px)' : ''"
         >
             <header
-                class="flex h-14 w-full items-center space-x-2 rounded border-none bg-base-200 p-2"
+                class="flex h-14 w-full items-center space-x-2 rounded-sm border-none bg-base-200 p-2"
             >
                 <h2 class="flex-1 px-2 text-xl font-medium capitalize">
                     {{ 'BOOKINGS.DESK_FIND' | translate }}
                 </h2>
                 <div
-                    class="flex divide-x divide-secondary rounded border border-secondary"
+                    class="flex divide-x divide-secondary rounded-sm border border-secondary"
                 >
                     <button
                         icon
@@ -6395,7 +6395,7 @@ var NewDeskSelectModalComponent = _NewDeskSelectModalComponent;
                 class="relative flex h-1/2 max-h-[calc(100vh-7rem)] flex-1 sm:h-[65vh] sm:flex-none sm:space-x-2"
             >
                 <div
-                    class="h-full w-full overflow-y-auto overflow-x-hidden rounded border border-base-300 shadow sm:block sm:w-[20rem]"
+                    class="h-full w-full overflow-y-auto overflow-x-hidden rounded-sm border border-base-300 shadow-sm sm:block sm:w-[20rem]"
                     [class.hidden]="!show_filters()"
                 >
                     <new-desk-filters
@@ -6404,7 +6404,7 @@ var NewDeskSelectModalComponent = _NewDeskSelectModalComponent;
                 </div>
                 <div
                     list
-                    class="h-full w-full min-w-[20rem] overflow-auto rounded border border-base-300 bg-base-200 sm:w-[20rem] lg:block"
+                    class="h-full w-full min-w-[20rem] overflow-auto rounded-sm border border-base-300 bg-base-200 sm:w-[20rem] lg:block"
                     [class.hidden]="show_filters() || displayed()"
                     [class.sm:hidden]="displayed()"
                     [class.md:block]="!displayed()"
@@ -6441,7 +6441,7 @@ var NewDeskSelectModalComponent = _NewDeskSelectModalComponent;
                     }
                 </div>
                 <div
-                    class="relative h-full w-full overflow-auto rounded border border-base-300 shadow sm:w-[20rem]"
+                    class="relative h-full w-full overflow-auto rounded-sm border border-base-300 shadow-sm sm:w-[20rem]"
                     [class.hidden]="show_filters() || !displayed()"
                     [class.sm:hidden]="!displayed()"
                     [class.md:block]="displayed()"
@@ -6484,7 +6484,7 @@ var NewDeskSelectModalComponent = _NewDeskSelectModalComponent;
                 }
             </main>
             <footer
-                class="flex w-full items-center justify-between space-x-2 rounded border-none bg-base-200 p-2"
+                class="flex w-full items-center justify-between space-x-2 rounded-sm border-none bg-base-200 p-2"
             >
                 <button
                     btn
@@ -6745,7 +6745,7 @@ _DeskListFieldComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent(
     useExisting: forwardRef(() => _DeskListFieldComponent),
     multi: true
   }
-])], decls: 12, vars: 3, consts: [["list", "", 1, "space-y-2"], ["desk", "", 1, "relative", "flex", "w-full", "items-center", "rounded-lg", "border", "border-base-200", "p-2", "shadow"], ["btn", "", "matRipple", "", "name", "add-desk", 1, "inverse", "mt-2", "w-full", 3, "click"], [1, "flex", "items-center", "justify-center", "space-x-2"], [1, "mb-2", "flex", "flex-wrap", "items-center", "sm:space-x-2"], [1, "min-w-[256px]", "flex-1", "space-y-2"], [1, "flex", "flex-col"], [1, "mr-4", "flex", "h-20", "w-20", "items-center", "justify-center", "overflow-hidden", "rounded-xl", "bg-base-200"], ["auth", "", 1, "min-h-full", "object-cover", 3, "source"], ["src", "assets/icons/desk-placeholder.svg", 1, "m-auto"], [1, "space-y-2", "pb-4"], [1, "font-medium"], [1, "flex", "items-center", "space-x-2", "text-sm"], [1, "text-blue-500"], [1, "absolute", "bottom-0", "right-0", "flex", "items-center", "justify-end", "text-xs"], ["btn", "", "matRipple", "", "name", "edit-desk", 1, "clear", 3, "click"], [1, "flex", "items-center", "space-x-2"], ["btn", "", "matRipple", "", "name", "remove-desk", 1, "clear", 3, "click"], ["icon", "", "matRipple", "", "name", "toggle-desk-favourite", 1, "absolute", "right-1", "top-1", 3, "click"], [3, "className"], ["for", "title"], ["features", "", 1, "flex", "flex-wrap", "items-center", "space-x-2"], [3, "ngModel", "ngModelOptions"], [3, "ngModelChange", "ngModel", "ngModelOptions"]], template: function DeskListFieldComponent_Template(rf, ctx) {
+])], decls: 12, vars: 3, consts: [["list", "", 1, "space-y-2"], ["desk", "", 1, "relative", "flex", "w-full", "items-center", "rounded-lg", "border", "border-base-200", "p-2", "shadow-sm"], ["btn", "", "matRipple", "", "name", "add-desk", 1, "inverse", "mt-2", "w-full", 3, "click"], [1, "flex", "items-center", "justify-center", "space-x-2"], [1, "mb-2", "flex", "flex-wrap", "items-center", "sm:space-x-2"], [1, "min-w-[256px]", "flex-1", "space-y-2"], [1, "flex", "flex-col"], [1, "mr-4", "flex", "h-20", "w-20", "items-center", "justify-center", "overflow-hidden", "rounded-xl", "bg-base-200"], ["auth", "", 1, "min-h-full", "object-cover", 3, "source"], ["src", "assets/icons/desk-placeholder.svg", 1, "m-auto"], [1, "space-y-2", "pb-4"], [1, "font-medium"], [1, "flex", "items-center", "space-x-2", "text-sm"], [1, "text-blue-500"], [1, "absolute", "bottom-0", "right-0", "flex", "items-center", "justify-end", "text-xs"], ["btn", "", "matRipple", "", "name", "edit-desk", 1, "clear", 3, "click"], [1, "flex", "items-center", "space-x-2"], ["btn", "", "matRipple", "", "name", "remove-desk", 1, "clear", 3, "click"], ["icon", "", "matRipple", "", "name", "toggle-desk-favourite", 1, "absolute", "right-1", "top-1", 3, "click"], [3, "className"], ["for", "title"], ["features", "", 1, "flex", "flex-wrap", "items-center", "space-x-2"], [3, "ngModel", "ngModelOptions"], [3, "ngModelChange", "ngModel", "ngModelOptions"]], template: function DeskListFieldComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0);
     \u0275\u0275repeaterCreate(1, DeskListFieldComponent_For_2_Template, 29, 13, "div", 1, \u0275\u0275repeaterTrackByIdentity);
@@ -6781,7 +6781,7 @@ var DeskListFieldComponent = _DeskListFieldComponent;
             @for (item of items(); track item) {
                 <div
                     desk
-                    class="relative flex w-full items-center rounded-lg border border-base-200 p-2 shadow"
+                    class="relative flex w-full items-center rounded-lg border border-base-200 p-2 shadow-sm"
                 >
                     @if (features()?.length) {
                         <div class="flex flex-col">
@@ -7316,7 +7316,7 @@ var _PlaceUserPipe = class _PlaceUserPipe {
     let user = USER_LIST.find(({ id, email }) => id === user_id || email === user_id);
     if (user)
       return user;
-    user = await Jc(user_id).toPromise().catch(() => null);
+    user = await Aa(user_id).toPromise().catch(() => null);
     if (user) {
       user = new StaffUser(user);
       USER_LIST.push(user);
@@ -7538,7 +7538,7 @@ var DENIED_FILE_TYPES = [
 ];
 var _UserListFieldComponent = class _UserListFieldComponent extends AsyncHandler {
   searchStaff(q) {
-    return this._settings.get("app.basic_user_search") ? Yc({ q, authority_id: kt()?.id }).pipe(map((_) => _.data.map((u) => new User(u)))) : searchStaff(q);
+    return this._settings.get("app.basic_user_search") ? xa({ q, authority_id: Ut()?.id }).pipe(map((_) => _.data.map((u) => new User(u)))) : searchStaff(q);
   }
   get search_valid_email() {
     return validateEmail(this.search$.getValue());
@@ -8669,7 +8669,7 @@ var _InviteVisitorFormComponent = class _InviteVisitorFormComponent extends Asyn
 _InviteVisitorFormComponent.\u0275fac = function InviteVisitorFormComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _InviteVisitorFormComponent)();
 };
-_InviteVisitorFormComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _InviteVisitorFormComponent, selectors: [["invite-visitor-form"]], inputs: { date: [1, "date"] }, outputs: { done: "done" }, features: [\u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature], decls: 2, vars: 1, consts: [["name_auto", "matAutocomplete"], ["email_auto", "matAutocomplete"], ["sent", "", 1, "absolute", "inset-0", "flex", "flex-col", "items-center", "justify-center", "bg-base-100", "text-center"], [1, "relative", "flex", "max-h-full", "flex-col", "overflow-auto", "bg-base-100"], ["loading", "", 1, "relative", "flex", "h-full", "min-h-[18rem]", "w-full", "flex-col", "items-center", "justify-center", "overflow-hidden", "rounded"], [1, "w-full", "border-b", "border-base-200", "px-4", "py-4", "sm:px-16"], [1, "text-2xl", "font-medium"], [1, "px-4", "py-4", "sm:px-16", 3, "formGroup"], [1, "sticky", "bottom-0", "border-t", "border-base-200", "bg-base-100", "px-4", "py-4", "sm:px-16"], ["btn", "", "matRipple", "", "send", "", 1, "w-full", "sm:w-auto", 3, "click"], [1, "flex", "flex-col"], ["for", "date"], ["name", "date", "formControlName", "date"], [1, "flex", "items-center", "space-x-2"], [1, "flex", "w-1/3", "flex-1", "flex-col"], ["for", "start-time"], ["name", "start-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "disabled", "use_24hr"], ["for", "end-time"], ["name", "end-time", "formControlName", "duration", 3, "time", "max", "use_24hr"], [1, "flex", "w-full", "flex-col"], [1, "flex", "flex-col", 3, "formGroup"], ["for", "reason"], ["appearance", "outline"], ["name", "reason", "matInput", "", "formControlName", "title", 3, "placeholder"], ["for", "building"], ["name", "building", "placeholder", "Select building", 3, "ngModelChange", "ngModel", "ngModelOptions"], [3, "value"], ["for", "host"], ["name", "host", "formControlName", "user", 1, "mb-4"], ["for", "visitor-name"], ["matInput", "", "name", "visitor-name", "formControlName", "asset_name", 3, "focus", "placeholder", "matAutocomplete"], ["for", "visitor-email"], ["matInput", "", "name", "visitor-email", "type", "email", "formControlName", "asset_id", 3, "focus", "placeholder", "matAutocomplete"], ["matInput", "", "name", "company", "formControlName", "company", 3, "placeholder"], [3, "click", "value"], [1, "flex", "flex-col", "leading-tight"], [1, "text-xs", "opacity-60"], ["formControlName", "assets", 3, "guests_only"], ["for", "pass"], ["name", "pass", "matInput", "", "formControlName", "pass_number", 3, "placeholder"], [3, "diameter"], [1, "z-0", "m-8", "h-1/2", "w-full", "max-w-[32rem]", "flex-1", "space-y-2", "overflow-auto"], [1, "text-3xl"], ["src", "assets/icons/sent.svg", 1, "mx-auto"], [1, "relative", "flex", "flex-col", "items-center", "space-y-4", "p-4"], [1, "z-10", "w-full", "border-t", "border-base-200", "bg-base-100", "p-2"], [1, "mx-auto", "flex", "w-full", "max-w-[32rem]", "items-center", "space-x-2"], ["btn", "", "matRipple", "", 1, "flex-1", 3, "click"], ["btn", "", "matRipple", "", "name", "desk-outlook-link", "target", "_blank", "rel", "noopener noreferer", 1, "inverse", "flex", "w-64", "items-center", "space-x-2", "rounded", "p-2", "pr-4", 3, "href"], ["src", "assets/icons/outlook.svg", 1, "w-6"], ["btn", "", "matRipple", "", "name", "desk-google-link", "target", "_blank", "rel", "noopener noreferer", 1, "inverse", "flex", "w-64", "items-center", "space-x-2", "rounded", "p-2", "pr-4", 3, "href"], ["src", "assets/icons/gcal.svg", 1, "w-6"], ["btn", "", "matRipple", "", "name", "desk-ical-link", "target", "_blank", "rel", "noopener noreferer", 1, "inverse", "flex", "w-64", "items-center", "space-x-2", "rounded", "p-2", "pr-4", 3, "href"], [1, "text-xl"]], template: function InviteVisitorFormComponent_Template(rf, ctx) {
+_InviteVisitorFormComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _InviteVisitorFormComponent, selectors: [["invite-visitor-form"]], inputs: { date: [1, "date"] }, outputs: { done: "done" }, features: [\u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature], decls: 2, vars: 1, consts: [["name_auto", "matAutocomplete"], ["email_auto", "matAutocomplete"], ["sent", "", 1, "absolute", "inset-0", "flex", "flex-col", "items-center", "justify-center", "bg-base-100", "text-center"], [1, "relative", "flex", "max-h-full", "flex-col", "overflow-auto", "bg-base-100"], ["loading", "", 1, "relative", "flex", "h-full", "min-h-72", "w-full", "flex-col", "items-center", "justify-center", "overflow-hidden", "rounded-sm"], [1, "w-full", "border-b", "border-base-200", "px-4", "py-4", "sm:px-16"], [1, "text-2xl", "font-medium"], [1, "px-4", "py-4", "sm:px-16", 3, "formGroup"], [1, "sticky", "bottom-0", "border-t", "border-base-200", "bg-base-100", "px-4", "py-4", "sm:px-16"], ["btn", "", "matRipple", "", "send", "", 1, "w-full", "sm:w-auto", 3, "click"], [1, "flex", "flex-col"], ["for", "date"], ["name", "date", "formControlName", "date"], [1, "flex", "items-center", "space-x-2"], [1, "flex", "w-1/3", "flex-1", "flex-col"], ["for", "start-time"], ["name", "start-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "disabled", "use_24hr"], ["for", "end-time"], ["name", "end-time", "formControlName", "duration", 3, "time", "max", "use_24hr"], [1, "flex", "w-full", "flex-col"], [1, "flex", "flex-col", 3, "formGroup"], ["for", "reason"], ["appearance", "outline"], ["name", "reason", "matInput", "", "formControlName", "title", 3, "placeholder"], ["for", "building"], ["name", "building", "placeholder", "Select building", 3, "ngModelChange", "ngModel", "ngModelOptions"], [3, "value"], ["for", "host"], ["name", "host", "formControlName", "user", 1, "mb-4"], ["for", "visitor-name"], ["matInput", "", "name", "visitor-name", "formControlName", "asset_name", 3, "focus", "placeholder", "matAutocomplete"], ["for", "visitor-email"], ["matInput", "", "name", "visitor-email", "type", "email", "formControlName", "asset_id", 3, "focus", "placeholder", "matAutocomplete"], ["matInput", "", "name", "company", "formControlName", "company", 3, "placeholder"], [3, "click", "value"], [1, "flex", "flex-col", "leading-tight"], [1, "text-xs", "opacity-60"], ["formControlName", "assets", 3, "guests_only"], ["for", "pass"], ["name", "pass", "matInput", "", "formControlName", "pass_number", 3, "placeholder"], [3, "diameter"], [1, "z-0", "m-8", "h-1/2", "w-full", "max-w-lg", "flex-1", "space-y-2", "overflow-auto"], [1, "text-3xl"], ["src", "assets/icons/sent.svg", 1, "mx-auto"], [1, "relative", "flex", "flex-col", "items-center", "space-y-4", "p-4"], [1, "z-10", "w-full", "border-t", "border-base-200", "bg-base-100", "p-2"], [1, "mx-auto", "flex", "w-full", "max-w-lg", "items-center", "space-x-2"], ["btn", "", "matRipple", "", 1, "flex-1", 3, "click"], ["btn", "", "matRipple", "", "name", "desk-outlook-link", "target", "_blank", "rel", "noopener noreferer", 1, "inverse", "flex", "w-64", "items-center", "space-x-2", "rounded-sm", "p-2", "pr-4", 3, "href"], ["src", "assets/icons/outlook.svg", 1, "w-6"], ["btn", "", "matRipple", "", "name", "desk-google-link", "target", "_blank", "rel", "noopener noreferer", 1, "inverse", "flex", "w-64", "items-center", "space-x-2", "rounded-sm", "p-2", "pr-4", 3, "href"], ["src", "assets/icons/gcal.svg", 1, "w-6"], ["btn", "", "matRipple", "", "name", "desk-ical-link", "target", "_blank", "rel", "noopener noreferer", 1, "inverse", "flex", "w-64", "items-center", "space-x-2", "rounded-sm", "p-2", "pr-4", 3, "href"], [1, "text-xl"]], template: function InviteVisitorFormComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275conditionalCreate(0, InviteVisitorFormComponent_Conditional_0_Template, 3, 3)(1, InviteVisitorFormComponent_Conditional_1_Template, 20, 28, "div", 2);
   }
@@ -9022,7 +9022,7 @@ var InviteVisitorFormComponent = _InviteVisitorFormComponent;
             } @else {
                 <div
                     loading
-                    class="relative flex h-full min-h-[18rem] w-full flex-col items-center justify-center overflow-hidden rounded"
+                    class="relative flex h-full min-h-72 w-full flex-col items-center justify-center overflow-hidden rounded-sm"
                 >
                     <mat-spinner [diameter]="32"></mat-spinner>
                     <p>{{ 'BOOKINGS.VISITOR_SENDING' | translate }}</p>
@@ -9034,7 +9034,7 @@ var InviteVisitorFormComponent = _InviteVisitorFormComponent;
                 class="absolute inset-0 flex flex-col items-center justify-center bg-base-100 text-center"
             >
                 <div
-                    class="z-0 m-8 h-1/2 w-full max-w-[32rem] flex-1 space-y-2 overflow-auto"
+                    class="z-0 m-8 h-1/2 w-full max-w-lg flex-1 space-y-2 overflow-auto"
                 >
                     <h2 class="text-3xl">
                         {{
@@ -9077,7 +9077,7 @@ var InviteVisitorFormComponent = _InviteVisitorFormComponent;
                                 btn
                                 matRipple
                                 name="desk-outlook-link"
-                                class="inverse flex w-64 items-center space-x-2 rounded p-2 pr-4"
+                                class="inverse flex w-64 items-center space-x-2 rounded-sm p-2 pr-4"
                                 [href]="outlook_link | sanitize: 'url'"
                                 target="_blank"
                                 rel="noopener noreferer"
@@ -9094,7 +9094,7 @@ var InviteVisitorFormComponent = _InviteVisitorFormComponent;
                                 btn
                                 matRipple
                                 name="desk-google-link"
-                                class="inverse flex w-64 items-center space-x-2 rounded p-2 pr-4"
+                                class="inverse flex w-64 items-center space-x-2 rounded-sm p-2 pr-4"
                                 [href]="google_link | sanitize: 'url'"
                                 target="_blank"
                                 rel="noopener noreferer"
@@ -9108,7 +9108,7 @@ var InviteVisitorFormComponent = _InviteVisitorFormComponent;
                                 btn
                                 matRipple
                                 name="desk-ical-link"
-                                class="inverse flex w-64 items-center space-x-2 rounded p-2 pr-4"
+                                class="inverse flex w-64 items-center space-x-2 rounded-sm p-2 pr-4"
                                 [href]="ical_link | safe: 'url'"
                                 target="_blank"
                                 rel="noopener noreferer"
@@ -9125,7 +9125,7 @@ var InviteVisitorFormComponent = _InviteVisitorFormComponent;
                     class="z-10 w-full border-t border-base-200 bg-base-100 p-2"
                 >
                     <div
-                        class="mx-auto flex w-full max-w-[32rem] items-center space-x-2"
+                        class="mx-auto flex w-full max-w-lg items-center space-x-2"
                     >
                         <button btn matRipple class="flex-1" (click)="onDone()">
                             {{ 'APP.WORKPLACE.BOOKING_FINISHED' | translate }}
@@ -9354,7 +9354,7 @@ var _LockerBankListComponent = class _LockerBankListComponent {
 _LockerBankListComponent.\u0275fac = function LockerBankListComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _LockerBankListComponent)();
 };
-_LockerBankListComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _LockerBankListComponent, selectors: [["locker-bank-list"]], inputs: { active: [1, "active"], selected: [1, "selected"], favorites: [1, "favorites"] }, outputs: { onSelect: "onSelect", toggleFav: "toggleFav" }, decls: 10, vars: 14, consts: [[1, "font-bold"], ["count", "", 1, "mb-4", "text-sm", "opacity-60"], ["loading", "", 1, "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-16"], [1, "list-style-none", "space-y-2", "overflow-hidden"], ["empty", "", 1, "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-16"], ["locker_bank", "", 1, "relative", "w-full", "overflow-hidden", "rounded-lg", "border", "border-base-200", "bg-base-100", "shadow", 3, "!border-blue-400"], ["locker_bank", "", 1, "relative", "w-full", "overflow-hidden", "rounded-lg", "border", "border-base-200", "bg-base-100", "shadow"], ["name", "select-locker_bank", "matRipple", "", 1, "flex", "h-full", "w-full", "p-2", 3, "click"], [1, "relative", "mr-4", "flex", "h-20", "w-20", "items-center", "justify-center", "rounded-xl", "bg-base-200"], [1, "absolute", "left-1", "top-1", "flex", "h-6", "w-6", "items-center", "justify-center", "rounded-full", "border", "border-neutral", "bg-base-200", "text-white"], ["auth", "", 1, "h-full", "object-cover", 3, "source"], ["src", "assets/icons/locker-placeholder.svg", 1, "m-auto"], [1, "flex-1", "space-y-2", "pt-2", "text-left"], [1, "font-medium"], [1, "flex", "items-center", "space-x-2", "text-sm"], [1, "text-blue-500"], [1, "text-xs"], [1, "absolute", "bottom-2", "right-2", "rounded", "bg-base-200", "px-2", "py-1", "font-mono", "text-xs"], [1, "text-center", "opacity-30"], [3, "diameter"], [1, "opacity-30"]], template: function LockerBankListComponent_Template(rf, ctx) {
+_LockerBankListComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _LockerBankListComponent, selectors: [["locker-bank-list"]], inputs: { active: [1, "active"], selected: [1, "selected"], favorites: [1, "favorites"] }, outputs: { onSelect: "onSelect", toggleFav: "toggleFav" }, decls: 10, vars: 14, consts: [[1, "font-bold"], ["count", "", 1, "mb-4", "text-sm", "opacity-60"], ["loading", "", 1, "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-16"], [1, "list-style-none", "space-y-2", "overflow-hidden"], ["empty", "", 1, "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-16"], ["locker_bank", "", 1, "relative", "w-full", "overflow-hidden", "rounded-lg", "border", "border-base-200", "bg-base-100", "shadow-sm", 3, "!border-blue-400"], ["locker_bank", "", 1, "relative", "w-full", "overflow-hidden", "rounded-lg", "border", "border-base-200", "bg-base-100", "shadow-sm"], ["name", "select-locker_bank", "matRipple", "", 1, "flex", "h-full", "w-full", "p-2", 3, "click"], [1, "relative", "mr-4", "flex", "h-20", "w-20", "items-center", "justify-center", "rounded-xl", "bg-base-200"], [1, "absolute", "left-1", "top-1", "flex", "h-6", "w-6", "items-center", "justify-center", "rounded-full", "border", "border-neutral", "bg-base-200", "text-white"], ["auth", "", 1, "h-full", "object-cover", 3, "source"], ["src", "assets/icons/locker-placeholder.svg", 1, "m-auto"], [1, "flex-1", "space-y-2", "pt-2", "text-left"], [1, "font-medium"], [1, "flex", "items-center", "space-x-2", "text-sm"], [1, "text-blue-500"], [1, "text-xs"], [1, "absolute", "bottom-2", "right-2", "rounded-sm", "bg-base-200", "px-2", "py-1", "font-mono", "text-xs"], [1, "text-center", "opacity-30"], [3, "diameter"], [1, "opacity-30"]], template: function LockerBankListComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "h3", 0);
     \u0275\u0275text(1);
@@ -9412,7 +9412,7 @@ var LockerBankListComponent = _LockerBankListComponent;
                     ) {
                         <li
                             locker_bank
-                            class="relative w-full overflow-hidden rounded-lg border border-base-200 bg-base-100 shadow"
+                            class="relative w-full overflow-hidden rounded-lg border border-base-200 bg-base-100 shadow-sm"
                             [class.!border-blue-400]="
                                 active() === locker_bank.id
                             "
@@ -9515,7 +9515,7 @@ var LockerBankListComponent = _LockerBankListComponent;
               </button> -->
                             @if (locker_bank.tags?.length) {
                                 <div
-                                    class="absolute bottom-2 right-2 rounded bg-base-200 px-2 py-1 font-mono text-xs"
+                                    class="absolute bottom-2 right-2 rounded-sm bg-base-200 px-2 py-1 font-mono text-xs"
                                 >
                                     {{ locker_bank.tags[0] }}
                                 </div>
@@ -9958,7 +9958,7 @@ var _LockerFiltersComponent = class _LockerFiltersComponent extends AsyncHandler
 _LockerFiltersComponent.\u0275fac = function LockerFiltersComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _LockerFiltersComponent)();
 };
-_LockerFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _LockerFiltersComponent, selectors: [["locker-filters"]], inputs: { hide_levels: [1, "hide_levels"] }, features: [\u0275\u0275InheritDefinitionFeature], decls: 28, vars: 27, consts: [[1, "flex", "items-center", "rounded-t-md", "border-b", "border-base-200", "pb-2", "sm:hidden"], [1, "flex-1", "pl-2"], ["icon", "", "matRipple", "", "name", "close-locker-filters", 1, "sm:hidden"], [1, "flex-2", "text-center", "font-medium"], [1, "flex-1"], [1, "max-h-[65vh]", "w-full", "divide-y", "divide-base-200", "overflow-y-auto", "overflow-x-hidden", "p-2", 3, "formGroup"], ["details", ""], [1, "mb-1", "text-lg", "font-medium"], [1, "flex", "min-w-[8rem]", "flex-1", "flex-col"], [1, "min-w-[256px]", "flex-1"], ["name", "date", "formControlName", "date", 3, "to"], [1, "-mt-2", "mb-2", "flex", "justify-end"], [1, "flex", "items-center", "space-x-2"], ["favs", "", 1, "space-y-4", "pb-4"], ["features", "", 1, "space-y-2"], [1, "w-full", "border-t", "border-base-200", "px-2", "py-2"], ["icon", "", "matRipple", "", "name", "close-locker-filters", 1, "sm:hidden", 3, "click"], ["for", "location"], ["appearance", "outline", 1, "w-full"], ["name", "region", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [3, "value"], ["name", "building", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], ["name", "location", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [1, "flex", "flex-col-reverse"], [1, "text-xs", "opacity-30"], [1, "opacity-0"], ["formControlName", "all_day"], [1, "w-1/3", "flex-1"], ["name", "start-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "use_24hr", "disabled"], [3, "ngModelChange", "ngModel", "ngModelOptions", "time", "max", "min", "step", "use_24hr"], [3, "ngModelChange", "name", "ngModel", "ngModelOptions"], [1, "mt-2", "text-lg", "font-medium"], [1, "flex", "flex-wrap", "items-center", "space-x-2"], [1, "w-full", "capitalize", 3, "ngModelChange", "name", "ngModel", "ngModelOptions"], ["btn", "", "matRipple", "", "name", "apply-locker-filters", 1, "w-full", 3, "click"]], template: function LockerFiltersComponent_Template(rf, ctx) {
+_LockerFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _LockerFiltersComponent, selectors: [["locker-filters"]], inputs: { hide_levels: [1, "hide_levels"] }, features: [\u0275\u0275InheritDefinitionFeature], decls: 28, vars: 27, consts: [[1, "flex", "items-center", "rounded-t-md", "border-b", "border-base-200", "pb-2", "sm:hidden"], [1, "flex-1", "pl-2"], ["icon", "", "matRipple", "", "name", "close-locker-filters", 1, "sm:hidden"], [1, "flex-2", "text-center", "font-medium"], [1, "flex-1"], [1, "max-h-[65vh]", "w-full", "divide-y", "divide-base-200", "overflow-y-auto", "overflow-x-hidden", "p-2", 3, "formGroup"], ["details", ""], [1, "mb-1", "text-lg", "font-medium"], [1, "flex", "min-w-32", "flex-1", "flex-col"], [1, "min-w-[256px]", "flex-1"], ["name", "date", "formControlName", "date", 3, "to"], [1, "-mt-2", "mb-2", "flex", "justify-end"], [1, "flex", "items-center", "space-x-2"], ["favs", "", 1, "space-y-4", "pb-4"], ["features", "", 1, "space-y-2"], [1, "w-full", "border-t", "border-base-200", "px-2", "py-2"], ["icon", "", "matRipple", "", "name", "close-locker-filters", 1, "sm:hidden", 3, "click"], ["for", "location"], ["appearance", "outline", 1, "w-full"], ["name", "region", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [3, "value"], ["name", "building", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], ["name", "location", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [1, "flex", "flex-col-reverse"], [1, "text-xs", "opacity-30"], [1, "opacity-0"], ["formControlName", "all_day"], [1, "w-1/3", "flex-1"], ["name", "start-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "use_24hr", "disabled"], [3, "ngModelChange", "ngModel", "ngModelOptions", "time", "max", "min", "step", "use_24hr"], [3, "ngModelChange", "name", "ngModel", "ngModelOptions"], [1, "mt-2", "text-lg", "font-medium"], [1, "flex", "flex-wrap", "items-center", "space-x-2"], [1, "w-full", "capitalize", 3, "ngModelChange", "name", "ngModel", "ngModelOptions"], ["btn", "", "matRipple", "", "name", "apply-locker-filters", 1, "w-full", 3, "click"]], template: function LockerFiltersComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "div", 1);
     \u0275\u0275conditionalCreate(2, LockerFiltersComponent_Conditional_2_Template, 3, 0, "button", 2);
@@ -10089,7 +10089,7 @@ var LockerFiltersComponent = _LockerFiltersComponent;
                     (!(use_region && (regions | async)?.length) ||
                         !(!use_region && (buildings | async)?.length > 1))
                 ) {
-                    <div class="flex min-w-[8rem] flex-1 flex-col">
+                    <div class="flex min-w-32 flex-1 flex-col">
                         <label for="location">
                             {{ 'BOOKINGS.LOCATION' | translate }}
                         </label>
@@ -10406,7 +10406,7 @@ var _LockerFiltersDisplayComponent = class _LockerFiltersDisplayComponent extend
 _LockerFiltersDisplayComponent.\u0275fac = function LockerFiltersDisplayComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _LockerFiltersDisplayComponent)();
 };
-_LockerFiltersDisplayComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _LockerFiltersDisplayComponent, selectors: [["locker-filters-display"]], inputs: { view: [1, "view"] }, outputs: { view: "viewChange", viewChange: "viewChange" }, features: [\u0275\u0275InheritDefinitionFeature], decls: 26, vars: 34, consts: [["actions", "", 1, "flex", "flex-row", "items-center", "space-x-2", "p-2", "sm:hidden"], ["btn", "", "matRipple", "", "name", "edit-locker-filters", 1, "w-1/2", "flex-1", 3, "click"], [1, "flex", "items-center"], ["btn", "", "matRipple", "", "name", "view-locker-map", 1, "rounded-l", "rounded-r-none", 3, "click"], ["btn", "", "matRipple", "", "name", "view-locker-list", 1, "rounded-l-none", "rounded-r", 3, "click"], ["filters", "", 1, "flex", "w-[35rem]", "max-w-full", "flex-wrap", "items-center", "p-2", "sm:max-w-[35rem]"], ["filter-item", "", "date", ""], ["filter-item", "", "time", ""], ["filter-item", "", "features", ""], ["filter-item", ""], ["icon", "", "matRipple", "", "name", "remove-locker-filter", 1, "-mr-4", 3, "click"], ["icon", "", "matRipple", "", "name", "remove-locker-favs-filter", 1, "-mr-4", 3, "click"], ["icon", "", "matRipple", "", "name", "remove-locker-accessible-filter", 1, "-mr-4", 3, "click"]], template: function LockerFiltersDisplayComponent_Template(rf, ctx) {
+_LockerFiltersDisplayComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _LockerFiltersDisplayComponent, selectors: [["locker-filters-display"]], inputs: { view: [1, "view"] }, outputs: { view: "viewChange", viewChange: "viewChange" }, features: [\u0275\u0275InheritDefinitionFeature], decls: 26, vars: 34, consts: [["actions", "", 1, "flex", "flex-row", "items-center", "space-x-2", "p-2", "sm:hidden"], ["btn", "", "matRipple", "", "name", "edit-locker-filters", 1, "w-1/2", "flex-1", 3, "click"], [1, "flex", "items-center"], ["btn", "", "matRipple", "", "name", "view-locker-map", 1, "rounded-l", "rounded-r-none", 3, "click"], ["btn", "", "matRipple", "", "name", "view-locker-list", 1, "rounded-l-none", "rounded-r", 3, "click"], ["filters", "", 1, "flex", "w-140", "max-w-full", "flex-wrap", "items-center", "p-2", "sm:max-w-140"], ["filter-item", "", "date", ""], ["filter-item", "", "time", ""], ["filter-item", "", "features", ""], ["filter-item", ""], ["icon", "", "matRipple", "", "name", "remove-locker-filter", 1, "-mr-4", 3, "click"], ["icon", "", "matRipple", "", "name", "remove-locker-favs-filter", 1, "-mr-4", 3, "click"], ["icon", "", "matRipple", "", "name", "remove-locker-accessible-filter", 1, "-mr-4", 3, "click"]], template: function LockerFiltersDisplayComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "section", 0)(1, "button", 1);
     \u0275\u0275listener("click", function LockerFiltersDisplayComponent_Template_button_click_1_listener() {
@@ -10517,7 +10517,7 @@ var LockerFiltersDisplayComponent = _LockerFiltersDisplayComponent;
         </section>
         <section
             filters
-            class="flex w-[35rem] max-w-full flex-wrap items-center p-2 sm:max-w-[35rem]"
+            class="flex w-140 max-w-full flex-wrap items-center p-2 sm:max-w-140"
         >
             <!-- TODO: filter chips -->
             <div filter-item date>{{ start | date: 'mediumDate' }}</div>
@@ -10735,7 +10735,7 @@ var _LockerSelectModalComponent = class _LockerSelectModalComponent extends Asyn
 _LockerSelectModalComponent.\u0275fac = function LockerSelectModalComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _LockerSelectModalComponent)();
 };
-_LockerSelectModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _LockerSelectModalComponent, selectors: [["locker-select-modal"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 39, vars: 31, consts: [[1, "flex", "h-[100vh]", "w-[100vw]", "flex-col", "bg-base-100", "sm:relative", "sm:h-auto", "sm:w-auto"], [1, "flex", "w-full", "items-center", "space-x-4"], ["icon", "", "mat-dialog-close", "", 1, "bg-base-200"], [1, "flex", "h-[65vh]", "min-h-[65vh]", "w-full", "flex-1", "items-center", "divide-x", "divide-base-200", "overflow-hidden", "sm:max-h-[65vh]", "sm:max-w-[95vw]"], [1, "hidden", "h-full", "max-w-[20rem]", "sm:flex", "sm:h-[65vh]", "sm:max-h-full", 3, "hide_levels"], [1, "flex", "h-full", "w-1/2", "flex-1", "flex-col", "items-center", "sm:h-[65vh]"], [1, "w-full", "border-b", "border-base-200", 3, "viewChange", "view"], [1, "flex", "h-full", "w-full", "flex-col", "overflow-auto", "bg-base-200"], [1, "flex", "w-full", "flex-col-reverse", "items-center", "justify-end", "border-t", "border-base-200", "px-2", "pb-[5.5rem]", "pt-2", "sm:hidden"], ["btn", "", "matRipple", "", "name", "locker-return", 1, "inverse", "w-full", "sm:hidden"], ["btn", "", "matRipple", "", "name", "save-lockers", 1, "w-full", "sm:mb-0", "sm:w-32", 3, "mat-dialog-close"], [1, "hidden", "w-full", "items-center", "justify-between", "border-t", "border-base-200", "p-2", "sm:flex"], ["btn", "", "matRipple", "", "name", "locker-return", 1, "clear", "text-secondary", 3, "mat-dialog-close"], [1, "flex", "items-center"], [1, "text-xl"], [1, "mr-1", "underline"], [1, "text-center", "text-sm", "opacity-60"], ["btn", "", "matRipple", "", "name", "clear-bank", 1, "inverse", "mr-2", "w-32"], ["btn", "", "matRipple", "", "name", "toggle-locker", 3, "click", "disabled"], [1, "mr-1"], [1, "h-1/2", "flex-1", "bg-base-200", 3, "active", "selected", "favorites"], [1, "h-1/2", "w-full", "flex-1", 3, "is_displayed"], [1, "h-1/2", "flex-1", "bg-base-200", 3, "toggleFav", "onSelect", "active", "selected", "favorites"], [1, "h-1/2", "w-full", "flex-1", 3, "onSelect", "is_displayed"], [1, "sticky", "left-0", "w-full", "px-2", "py-2", "font-medium"], [1, "h-1/2", "w-full", "flex-1", 3, "clicked", "bank", "selected"], ["btn", "", "matRipple", "", "name", "locker-return", 1, "inverse", "w-full", "sm:hidden", 3, "click"], ["btn", "", "matRipple", "", "name", "clear-bank", 1, "inverse", "mr-2", "w-32", 3, "click"]], template: function LockerSelectModalComponent_Template(rf, ctx) {
+_LockerSelectModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _LockerSelectModalComponent, selectors: [["locker-select-modal"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 39, vars: 31, consts: [[1, "flex", "h-screen", "w-screen", "flex-col", "bg-base-100", "sm:relative", "sm:h-auto", "sm:w-auto"], [1, "flex", "w-full", "items-center", "space-x-4"], ["icon", "", "mat-dialog-close", "", 1, "bg-base-200"], [1, "flex", "h-[65vh]", "min-h-[65vh]", "w-full", "flex-1", "items-center", "divide-x", "divide-base-200", "overflow-hidden", "sm:max-h-[65vh]", "sm:max-w-[95vw]"], [1, "hidden", "h-full", "max-w-[20rem]", "sm:flex", "sm:h-[65vh]", "sm:max-h-full", 3, "hide_levels"], [1, "flex", "h-full", "w-1/2", "flex-1", "flex-col", "items-center", "sm:h-[65vh]"], [1, "w-full", "border-b", "border-base-200", 3, "viewChange", "view"], [1, "flex", "h-full", "w-full", "flex-col", "overflow-auto", "bg-base-200"], [1, "flex", "w-full", "flex-col-reverse", "items-center", "justify-end", "border-t", "border-base-200", "px-2", "pb-22", "pt-2", "sm:hidden"], ["btn", "", "matRipple", "", "name", "locker-return", 1, "inverse", "w-full", "sm:hidden"], ["btn", "", "matRipple", "", "name", "save-lockers", 1, "w-full", "sm:mb-0", "sm:w-32", 3, "mat-dialog-close"], [1, "hidden", "w-full", "items-center", "justify-between", "border-t", "border-base-200", "p-2", "sm:flex"], ["btn", "", "matRipple", "", "name", "locker-return", 1, "clear", "text-secondary", 3, "mat-dialog-close"], [1, "flex", "items-center"], [1, "text-xl"], [1, "mr-1", "underline"], [1, "text-center", "text-sm", "opacity-60"], ["btn", "", "matRipple", "", "name", "clear-bank", 1, "inverse", "mr-2", "w-32"], ["btn", "", "matRipple", "", "name", "toggle-locker", 3, "click", "disabled"], [1, "mr-1"], [1, "h-1/2", "flex-1", "bg-base-200", 3, "active", "selected", "favorites"], [1, "h-1/2", "w-full", "flex-1", 3, "is_displayed"], [1, "h-1/2", "flex-1", "bg-base-200", 3, "toggleFav", "onSelect", "active", "selected", "favorites"], [1, "h-1/2", "w-full", "flex-1", 3, "onSelect", "is_displayed"], [1, "sticky", "left-0", "w-full", "px-2", "py-2", "font-medium"], [1, "h-1/2", "w-full", "flex-1", 3, "clicked", "bank", "selected"], ["btn", "", "matRipple", "", "name", "locker-return", 1, "inverse", "w-full", "sm:hidden", 3, "click"], ["btn", "", "matRipple", "", "name", "clear-bank", 1, "inverse", "mr-2", "w-32", 3, "click"]], template: function LockerSelectModalComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "header", 1)(2, "button", 2)(3, "icon");
     \u0275\u0275text(4, "close");
@@ -10835,7 +10835,7 @@ var LockerSelectModalComponent = _LockerSelectModalComponent;
     type: Component,
     args: [{ selector: "locker-select-modal", template: `
         <div
-            class="flex h-[100vh] w-[100vw] flex-col bg-base-100 sm:relative sm:h-auto sm:w-auto"
+            class="flex h-screen w-screen flex-col bg-base-100 sm:relative sm:h-auto sm:w-auto"
         >
             <header class="flex w-full items-center space-x-4">
                 <button icon mat-dialog-close class="bg-base-200">
@@ -10918,7 +10918,7 @@ var LockerSelectModalComponent = _LockerSelectModalComponent;
                 </div>
             </main>
             <footer
-                class="flex w-full flex-col-reverse items-center justify-end border-t border-base-200 px-2 pb-[5.5rem] pt-2 sm:hidden"
+                class="flex w-full flex-col-reverse items-center justify-end border-t border-base-200 px-2 pb-22 pt-2 sm:hidden"
             >
                 @if (displayed) {
                     <button
@@ -11206,7 +11206,7 @@ var _NewLockerBankListComponent = class _NewLockerBankListComponent {
 _NewLockerBankListComponent.\u0275fac = function NewLockerBankListComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _NewLockerBankListComponent)();
 };
-_NewLockerBankListComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewLockerBankListComponent, selectors: [["new-locker-bank-list"]], inputs: { active: [1, "active"], selected: [1, "selected"], favorites: [1, "favorites"] }, outputs: { onSelect: "onSelect", toggleFav: "toggleFav" }, decls: 10, vars: 14, consts: [[1, "font-bold"], ["count", "", 1, "mb-4", "text-sm", "opacity-60"], ["loading", "", 1, "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-16"], [1, "list-style-none", "space-y-2", "overflow-hidden"], ["empty", "", 1, "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-16"], ["locker_bank", "", 1, "relative", "w-full", "overflow-hidden", "rounded-lg", "border", "border-base-200", "bg-base-100", "shadow", 3, "!border-blue-400"], ["locker_bank", "", 1, "relative", "w-full", "overflow-hidden", "rounded-lg", "border", "border-base-200", "bg-base-100", "shadow"], ["name", "select-locker_bank", "matRipple", "", 1, "flex", "h-full", "w-full", "p-2", 3, "click"], [1, "relative", "mr-4", "flex", "h-20", "w-20", "items-center", "justify-center", "rounded-xl", "bg-base-200"], [1, "absolute", "left-1", "top-1", "flex", "h-6", "w-6", "items-center", "justify-center", "rounded-full", "border", "border-neutral", "bg-base-200", "text-white"], ["auth", "", 1, "h-full", "object-cover", 3, "source"], ["src", "assets/icons/locker-placeholder.svg", 1, "m-auto"], [1, "flex-1pt-2", "text-left"], [1, "mb-2", "font-medium"], [1, "mb-1", "flex", "items-center", "space-x-2", "text-sm"], [1, "text-blue-500"], [1, "text-xs"], [1, "flex", "items-center", "space-x-2", "text-sm"], [1, "absolute", "bottom-2", "right-2", "rounded", "bg-base-200", "px-2", "py-1", "font-mono", "text-xs"], [1, "text-center", "opacity-30"], [3, "diameter"], [1, "opacity-30"]], template: function NewLockerBankListComponent_Template(rf, ctx) {
+_NewLockerBankListComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewLockerBankListComponent, selectors: [["new-locker-bank-list"]], inputs: { active: [1, "active"], selected: [1, "selected"], favorites: [1, "favorites"] }, outputs: { onSelect: "onSelect", toggleFav: "toggleFav" }, decls: 10, vars: 14, consts: [[1, "font-bold"], ["count", "", 1, "mb-4", "text-sm", "opacity-60"], ["loading", "", 1, "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-16"], [1, "list-style-none", "space-y-2", "overflow-hidden"], ["empty", "", 1, "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-16"], ["locker_bank", "", 1, "relative", "w-full", "overflow-hidden", "rounded-lg", "border", "border-base-200", "bg-base-100", "shadow-sm", 3, "!border-blue-400"], ["locker_bank", "", 1, "relative", "w-full", "overflow-hidden", "rounded-lg", "border", "border-base-200", "bg-base-100", "shadow-sm"], ["name", "select-locker_bank", "matRipple", "", 1, "flex", "h-full", "w-full", "p-2", 3, "click"], [1, "relative", "mr-4", "flex", "h-20", "w-20", "items-center", "justify-center", "rounded-xl", "bg-base-200"], [1, "absolute", "left-1", "top-1", "flex", "h-6", "w-6", "items-center", "justify-center", "rounded-full", "border", "border-neutral", "bg-base-200", "text-white"], ["auth", "", 1, "h-full", "object-cover", 3, "source"], ["src", "assets/icons/locker-placeholder.svg", 1, "m-auto"], [1, "flex-1pt-2", "text-left"], [1, "mb-2", "font-medium"], [1, "mb-1", "flex", "items-center", "space-x-2", "text-sm"], [1, "text-blue-500"], [1, "text-xs"], [1, "flex", "items-center", "space-x-2", "text-sm"], [1, "absolute", "bottom-2", "right-2", "rounded-sm", "bg-base-200", "px-2", "py-1", "font-mono", "text-xs"], [1, "text-center", "opacity-30"], [3, "diameter"], [1, "opacity-30"]], template: function NewLockerBankListComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "h3", 0);
     \u0275\u0275text(1);
@@ -11264,7 +11264,7 @@ var NewLockerBankListComponent = _NewLockerBankListComponent;
                     ) {
                         <li
                             locker_bank
-                            class="relative w-full overflow-hidden rounded-lg border border-base-200 bg-base-100 shadow"
+                            class="relative w-full overflow-hidden rounded-lg border border-base-200 bg-base-100 shadow-sm"
                             [class.!border-blue-400]="
                                 active() === locker_bank.id
                             "
@@ -11367,7 +11367,7 @@ var NewLockerBankListComponent = _NewLockerBankListComponent;
               </button> -->
                             @if (locker_bank.tags?.length) {
                                 <div
-                                    class="absolute bottom-2 right-2 rounded bg-base-200 px-2 py-1 font-mono text-xs"
+                                    class="absolute bottom-2 right-2 rounded-sm bg-base-200 px-2 py-1 font-mono text-xs"
                                 >
                                     {{ locker_bank.tags[0] }}
                                 </div>
@@ -11506,7 +11506,7 @@ var _NewLockerFiltersDisplayComponent = class _NewLockerFiltersDisplayComponent 
 _NewLockerFiltersDisplayComponent.\u0275fac = function NewLockerFiltersDisplayComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _NewLockerFiltersDisplayComponent)();
 };
-_NewLockerFiltersDisplayComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewLockerFiltersDisplayComponent, selectors: [["new-locker-filters-display"]], inputs: { view: [1, "view"] }, outputs: { viewChange: "viewChange" }, features: [\u0275\u0275InheritDefinitionFeature], decls: 15, vars: 21, consts: [["filters", "", 1, "sticky", "-top-1", "z-20", "-mx-1", "!mb-4", "flex", "w-[calc(100%+0.5rem)]", "flex-wrap", "items-center", "rounded", "border", "border-base-300", "bg-base-100", "p-1", "!pr-10", "sm:!pr-1"], ["filter-item", "", "date", ""], ["filter-item", "", "time", ""], ["filter-item", "", "features", ""], ["filter-item", ""], ["icon", "", "matRipple", "", "name", "remove-locker-filter", 1, "-mr-4", 3, "click"], ["icon", "", "matRipple", "", "name", "remove-locker-favs-filter", 1, "-mr-4", 3, "click"], ["icon", "", "matRipple", "", "name", "remove-locker-accessible-filter", 1, "-mr-4", 3, "click"]], template: function NewLockerFiltersDisplayComponent_Template(rf, ctx) {
+_NewLockerFiltersDisplayComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewLockerFiltersDisplayComponent, selectors: [["new-locker-filters-display"]], inputs: { view: [1, "view"] }, outputs: { viewChange: "viewChange" }, features: [\u0275\u0275InheritDefinitionFeature], decls: 15, vars: 21, consts: [["filters", "", 1, "sticky", "-top-1", "z-20", "-mx-1", "mb-4!", "flex", "w-[calc(100%+0.5rem)]", "flex-wrap", "items-center", "rounded-sm", "border", "border-base-300", "bg-base-100", "p-1", "pr-10!", "sm:pr-1!"], ["filter-item", "", "date", ""], ["filter-item", "", "time", ""], ["filter-item", "", "features", ""], ["filter-item", ""], ["icon", "", "matRipple", "", "name", "remove-locker-filter", 1, "-mr-4", 3, "click"], ["icon", "", "matRipple", "", "name", "remove-locker-favs-filter", 1, "-mr-4", 3, "click"], ["icon", "", "matRipple", "", "name", "remove-locker-accessible-filter", 1, "-mr-4", 3, "click"]], template: function NewLockerFiltersDisplayComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "section", 0)(1, "div", 1);
     \u0275\u0275text(2);
@@ -11548,7 +11548,7 @@ var NewLockerFiltersDisplayComponent = _NewLockerFiltersDisplayComponent;
     args: [{ selector: "new-locker-filters-display", template: `
         <section
             filters
-            class="sticky -top-1 z-20 -mx-1 !mb-4 flex w-[calc(100%+0.5rem)] flex-wrap items-center rounded border border-base-300 bg-base-100 p-1 !pr-10 sm:!pr-1"
+            class="sticky -top-1 z-20 -mx-1 mb-4! flex w-[calc(100%+0.5rem)] flex-wrap items-center rounded-sm border border-base-300 bg-base-100 p-1 pr-10! sm:pr-1!"
         >
             <!-- TODO: filter chips -->
             <div filter-item date>{{ start | date: 'mediumDate' }}</div>
@@ -11988,7 +11988,7 @@ var _NewLockerFiltersComponent = class _NewLockerFiltersComponent extends AsyncH
 _NewLockerFiltersComponent.\u0275fac = function NewLockerFiltersComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _NewLockerFiltersComponent)();
 };
-_NewLockerFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewLockerFiltersComponent, selectors: [["new-locker-filters"]], inputs: { hide_levels: [1, "hide_levels"] }, features: [\u0275\u0275InheritDefinitionFeature], decls: 25, vars: 26, consts: [[1, "sticky", "top-0", "z-10", "flex", "items-center", "border-b", "border-base-300", "bg-base-100", "px-4", "py-4"], [1, "text-xl", "font-medium"], [1, "relative", "z-0", "w-full", "divide-y", "divide-base-200", "p-2", 3, "formGroup"], ["details", ""], [1, "mb-1", "text-lg", "font-medium"], [1, "flex", "min-w-[8rem]", "flex-1", "flex-col"], [1, "min-w-[256px]", "flex-1"], ["name", "date", "formControlName", "date", 3, "to"], [1, "-mt-2", "mb-2", "flex", "justify-end"], [1, "flex", "items-center", "space-x-2"], ["favs", "", 1, "space-y-4", "pb-4"], ["features", "", 1, "space-y-2"], [1, "w-full", "border-t", "border-base-200", "px-2", "py-2"], ["for", "location"], ["appearance", "outline", 1, "w-full"], ["name", "region", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [3, "value"], ["name", "building", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], ["name", "location", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [1, "flex", "flex-col-reverse"], [1, "text-xs", "opacity-30"], [1, "opacity-0"], ["formControlName", "all_day"], [1, "w-1/3", "flex-1"], ["name", "start-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "use_24hr", "disabled"], [3, "ngModelChange", "ngModel", "ngModelOptions", "time", "max", "min", "step", "use_24hr"], [3, "ngModelChange", "name", "ngModel", "ngModelOptions"], [1, "mt-2", "text-lg", "font-medium"], [1, "flex", "flex-wrap", "items-center", "space-x-2"], [1, "w-full", "capitalize", 3, "ngModelChange", "name", "ngModel", "ngModelOptions"], ["btn", "", "matRipple", "", "name", "apply-locker-filters", 1, "w-full", 3, "click"]], template: function NewLockerFiltersComponent_Template(rf, ctx) {
+_NewLockerFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewLockerFiltersComponent, selectors: [["new-locker-filters"]], inputs: { hide_levels: [1, "hide_levels"] }, features: [\u0275\u0275InheritDefinitionFeature], decls: 25, vars: 26, consts: [[1, "sticky", "top-0", "z-10", "flex", "items-center", "border-b", "border-base-300", "bg-base-100", "px-4", "py-4"], [1, "text-xl", "font-medium"], [1, "relative", "z-0", "w-full", "divide-y", "divide-base-200", "p-2", 3, "formGroup"], ["details", ""], [1, "mb-1", "text-lg", "font-medium"], [1, "flex", "min-w-32", "flex-1", "flex-col"], [1, "min-w-[256px]", "flex-1"], ["name", "date", "formControlName", "date", 3, "to"], [1, "-mt-2", "mb-2", "flex", "justify-end"], [1, "flex", "items-center", "space-x-2"], ["favs", "", 1, "space-y-4", "pb-4"], ["features", "", 1, "space-y-2"], [1, "w-full", "border-t", "border-base-200", "px-2", "py-2"], ["for", "location"], ["appearance", "outline", 1, "w-full"], ["name", "region", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [3, "value"], ["name", "building", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], ["name", "location", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [1, "flex", "flex-col-reverse"], [1, "text-xs", "opacity-30"], [1, "opacity-0"], ["formControlName", "all_day"], [1, "w-1/3", "flex-1"], ["name", "start-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "use_24hr", "disabled"], [3, "ngModelChange", "ngModel", "ngModelOptions", "time", "max", "min", "step", "use_24hr"], [3, "ngModelChange", "name", "ngModel", "ngModelOptions"], [1, "mt-2", "text-lg", "font-medium"], [1, "flex", "flex-wrap", "items-center", "space-x-2"], [1, "w-full", "capitalize", 3, "ngModelChange", "name", "ngModel", "ngModelOptions"], ["btn", "", "matRipple", "", "name", "apply-locker-filters", 1, "w-full", 3, "click"]], template: function NewLockerFiltersComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "h3", 1);
     \u0275\u0275text(2);
@@ -12097,7 +12097,7 @@ var NewLockerFiltersComponent = _NewLockerFiltersComponent;
                     (!(use_region && (regions | async)?.length) ||
                         !(!use_region && (buildings | async)?.length > 1))
                 ) {
-                    <div class="flex min-w-[8rem] flex-1 flex-col">
+                    <div class="flex min-w-32 flex-1 flex-col">
                         <label for="location">
                             {{ 'BOOKINGS.LOCATION' | translate }}
                         </label>
@@ -12779,7 +12779,7 @@ var _NewLockerSelectModalComponent = class _NewLockerSelectModalComponent extend
 _NewLockerSelectModalComponent.\u0275fac = function NewLockerSelectModalComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _NewLockerSelectModalComponent)();
 };
-_NewLockerSelectModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewLockerSelectModalComponent, selectors: [["new-locker-select-modal"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 39, vars: 43, consts: [[1, "mb-10", "flex", "h-[calc(100vh-2.5rem)]", "max-h-[calc(100vh-2.5rem)]", "w-screen", "flex-col", "space-y-2", "overflow-hidden", "bg-base-100", "p-2", "sm:m-0", "sm:h-auto", "sm:w-auto"], [1, "flex", "h-14", "w-full", "items-center", "space-x-2", "rounded", "border-none", "bg-base-200", "p-2"], [1, "flex-1", "px-2", "text-xl", "font-medium", "capitalize"], [1, "flex", "divide-x", "divide-secondary", "rounded", "border", "border-secondary"], ["icon", "", "matRipple", "", 1, "rounded-l", "rounded-r-none", 3, "click", "matTooltip"], ["icon", "", "matRipple", "", 1, "rounded-l-none", "rounded-r", 3, "click", "matTooltip"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "relative", "flex", "h-1/2", "max-h-[calc(100vh-7rem)]", "flex-1", "sm:h-[65vh]", "sm:flex-none", "sm:space-x-2"], [1, "h-full", "w-full", "overflow-y-auto", "overflow-x-hidden", "rounded", "border", "border-base-300", "shadow", "sm:block", "sm:w-[20rem]"], [3, "hide_levels"], [1, "h-full", "w-full", "overflow-auto", "rounded", "border", "border-base-300", "bg-base-200", "sm:w-[20rem]", "md:w-[40rem]", "lg:block"], [1, "flex", "h-full", "w-full", "flex-col", "overflow-auto", "bg-base-200"], ["icon", "", "matRipple", "", 1, "absolute", "right-2", "top-3", "z-20", "border", "border-base-200", "bg-base-100", "sm:hidden"], [1, "flex", "w-full", "items-center", "justify-between", "space-x-2", "rounded", "border-none", "bg-base-200", "p-2"], ["btn", "", "matRipple", "", "name", "locker-return", 1, "inverse", "bg-base-100", "text-secondary", 3, "mat-dialog-close"], [1, "flex", "items-center", "space-x-2"], [1, "text-xl"], [1, "pr-2"], ["btn", "", "matRipple", "", "name", "toggle-locker", 3, "click", "disabled"], [1, "flex", "items-center"], [1, "mr-1"], [3, "view"], [3, "active", "selected", "favorites"], [1, "h-full", "min-h-[60vh]", "w-full", 3, "is_displayed", "active"], [3, "viewChange", "view"], [3, "toggleFav", "onSelect", "active", "selected", "favorites"], [1, "h-full", "min-h-[60vh]", "w-full", 3, "onSelect", "is_displayed", "active"], [1, "sticky", "left-0", "flex", "w-full", "items-center", "space-x-2"], ["icon", "", "matRipple", "", 1, "border", "border-base-300", "bg-base-100", 3, "click"], [1, "px-2", "py-2", "font-medium"], [1, "h-1/2", "w-full", "flex-1", 3, "clicked", "bank", "selected"], ["icon", "", "matRipple", "", 1, "absolute", "right-2", "top-3", "z-20", "border", "border-base-200", "bg-base-100", "sm:hidden", 3, "click"]], template: function NewLockerSelectModalComponent_Template(rf, ctx) {
+_NewLockerSelectModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewLockerSelectModalComponent, selectors: [["new-locker-select-modal"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 39, vars: 43, consts: [[1, "mb-10", "flex", "h-[calc(100vh-2.5rem)]", "max-h-[calc(100vh-2.5rem)]", "w-screen", "flex-col", "space-y-2", "overflow-hidden", "bg-base-100", "p-2", "sm:m-0", "sm:h-auto", "sm:w-auto"], [1, "flex", "h-14", "w-full", "items-center", "space-x-2", "rounded-sm", "border-none", "bg-base-200", "p-2"], [1, "flex-1", "px-2", "text-xl", "font-medium", "capitalize"], [1, "flex", "divide-x", "divide-secondary", "rounded-sm", "border", "border-secondary"], ["icon", "", "matRipple", "", 1, "rounded-l", "rounded-r-none", 3, "click", "matTooltip"], ["icon", "", "matRipple", "", 1, "rounded-l-none", "rounded-r", 3, "click", "matTooltip"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "relative", "flex", "h-1/2", "max-h-[calc(100vh-7rem)]", "flex-1", "sm:h-[65vh]", "sm:flex-none", "sm:space-x-2"], [1, "h-full", "w-full", "overflow-y-auto", "overflow-x-hidden", "rounded-sm", "border", "border-base-300", "shadow-sm", "sm:block", "sm:w-[20rem]"], [3, "hide_levels"], [1, "h-full", "w-full", "overflow-auto", "rounded-sm", "border", "border-base-300", "bg-base-200", "sm:w-[20rem]", "md:w-160", "lg:block"], [1, "flex", "h-full", "w-full", "flex-col", "overflow-auto", "bg-base-200"], ["icon", "", "matRipple", "", 1, "absolute", "right-2", "top-3", "z-20", "border", "border-base-200", "bg-base-100", "sm:hidden"], [1, "flex", "w-full", "items-center", "justify-between", "space-x-2", "rounded-sm", "border-none", "bg-base-200", "p-2"], ["btn", "", "matRipple", "", "name", "locker-return", 1, "inverse", "bg-base-100", "text-secondary", 3, "mat-dialog-close"], [1, "flex", "items-center", "space-x-2"], [1, "text-xl"], [1, "pr-2"], ["btn", "", "matRipple", "", "name", "toggle-locker", 3, "click", "disabled"], [1, "flex", "items-center"], [1, "mr-1"], [3, "view"], [3, "active", "selected", "favorites"], [1, "h-full", "min-h-[60vh]", "w-full", 3, "is_displayed", "active"], [3, "viewChange", "view"], [3, "toggleFav", "onSelect", "active", "selected", "favorites"], [1, "h-full", "min-h-[60vh]", "w-full", 3, "onSelect", "is_displayed", "active"], [1, "sticky", "left-0", "flex", "w-full", "items-center", "space-x-2"], ["icon", "", "matRipple", "", 1, "border", "border-base-300", "bg-base-100", 3, "click"], [1, "px-2", "py-2", "font-medium"], [1, "h-1/2", "w-full", "flex-1", 3, "clicked", "bank", "selected"], ["icon", "", "matRipple", "", 1, "absolute", "right-2", "top-3", "z-20", "border", "border-base-200", "bg-base-100", "sm:hidden", 3, "click"]], template: function NewLockerSelectModalComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "header", 1)(2, "h2", 2);
     \u0275\u0275text(3);
@@ -12888,13 +12888,13 @@ var NewLockerSelectModalComponent = _NewLockerSelectModalComponent;
             [style.height]="is_safari ? 'calc(100vh - 80px)' : ''"
         >
             <header
-                class="flex h-14 w-full items-center space-x-2 rounded border-none bg-base-200 p-2"
+                class="flex h-14 w-full items-center space-x-2 rounded-sm border-none bg-base-200 p-2"
             >
                 <h2 class="flex-1 px-2 text-xl font-medium capitalize">
                     {{ 'BOOKINGS.DESK_FIND' | translate }}
                 </h2>
                 <div
-                    class="flex divide-x divide-secondary rounded border border-secondary"
+                    class="flex divide-x divide-secondary rounded-sm border border-secondary"
                 >
                     <button
                         icon
@@ -12929,7 +12929,7 @@ var NewLockerSelectModalComponent = _NewLockerSelectModalComponent;
                 class="relative flex h-1/2 max-h-[calc(100vh-7rem)] flex-1 sm:h-[65vh] sm:flex-none sm:space-x-2"
             >
                 <div
-                    class="h-full w-full overflow-y-auto overflow-x-hidden rounded border border-base-300 shadow sm:block sm:w-[20rem]"
+                    class="h-full w-full overflow-y-auto overflow-x-hidden rounded-sm border border-base-300 shadow-sm sm:block sm:w-[20rem]"
                     [class.hidden]="!show_filters"
                 >
                     <new-locker-filters
@@ -12937,7 +12937,7 @@ var NewLockerSelectModalComponent = _NewLockerSelectModalComponent;
                     ></new-locker-filters>
                 </div>
                 <div
-                    class="h-full w-full overflow-auto rounded border border-base-300 bg-base-200 sm:w-[20rem] md:w-[40rem] lg:block"
+                    class="h-full w-full overflow-auto rounded-sm border border-base-300 bg-base-200 sm:w-[20rem] md:w-160 lg:block"
                     [class.hidden]="show_filters"
                     [class.p-2]="view === 'list'"
                 >
@@ -13007,7 +13007,7 @@ var NewLockerSelectModalComponent = _NewLockerSelectModalComponent;
                 }
             </main>
             <footer
-                class="flex w-full items-center justify-between space-x-2 rounded border-none bg-base-200 p-2"
+                class="flex w-full items-center justify-between space-x-2 rounded-sm border-none bg-base-200 p-2"
             >
                 <button
                     btn
@@ -13276,7 +13276,7 @@ _LockerListFieldComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponen
     useExisting: forwardRef(() => _LockerListFieldComponent),
     multi: true
   }
-])], decls: 12, vars: 3, consts: [["list", "", 1, "space-y-2"], ["locker", "", 1, "relative", "flex", "w-full", "items-center", "rounded-lg", "border", "border-base-200", "p-2", "shadow"], ["btn", "", "matRipple", "", "name", "add-locker", 1, "inverse", "mt-2", "w-full", 3, "click"], [1, "flex", "items-center", "justify-center", "space-x-2"], [1, "mb-2", "flex", "flex-wrap", "items-center", "sm:space-x-2"], [1, "min-w-[256px]", "flex-1", "space-y-2"], [1, "flex", "flex-col"], [1, "mr-4", "flex", "h-20", "w-20", "items-center", "justify-center", "overflow-hidden", "rounded-xl", "bg-base-200"], ["auth", "", 1, "min-h-full", "object-cover", 3, "source"], ["src", "assets/icons/locker-placeholder.svg", 1, "m-auto"], [1, "space-y-2", "pb-4"], [1, "font-medium"], [1, "flex", "items-center", "space-x-2", "text-sm"], [1, "text-blue-500", "text-base"], [1, "absolute", "bottom-0", "right-0", "flex", "items-center", "justify-end", "text-xs"], ["btn", "", "matRipple", "", "name", "edit-locker", 1, "clear", 3, "click"], [1, "flex", "items-center", "space-x-2"], ["btn", "", "matRipple", "", "name", "remove-locker", 1, "clear", 3, "click"], ["for", "title"], ["features", "", 1, "flex", "flex-wrap", "items-center", "space-x-2"], [3, "ngModel", "ngModelOptions"], [3, "ngModelChange", "ngModel", "ngModelOptions"], [1, "text-base", "text-info"]], template: function LockerListFieldComponent_Template(rf, ctx) {
+])], decls: 12, vars: 3, consts: [["list", "", 1, "space-y-2"], ["locker", "", 1, "relative", "flex", "w-full", "items-center", "rounded-lg", "border", "border-base-200", "p-2", "shadow-sm"], ["btn", "", "matRipple", "", "name", "add-locker", 1, "inverse", "mt-2", "w-full", 3, "click"], [1, "flex", "items-center", "justify-center", "space-x-2"], [1, "mb-2", "flex", "flex-wrap", "items-center", "sm:space-x-2"], [1, "min-w-[256px]", "flex-1", "space-y-2"], [1, "flex", "flex-col"], [1, "mr-4", "flex", "h-20", "w-20", "items-center", "justify-center", "overflow-hidden", "rounded-xl", "bg-base-200"], ["auth", "", 1, "min-h-full", "object-cover", 3, "source"], ["src", "assets/icons/locker-placeholder.svg", 1, "m-auto"], [1, "space-y-2", "pb-4"], [1, "font-medium"], [1, "flex", "items-center", "space-x-2", "text-sm"], [1, "text-blue-500", "text-base"], [1, "absolute", "bottom-0", "right-0", "flex", "items-center", "justify-end", "text-xs"], ["btn", "", "matRipple", "", "name", "edit-locker", 1, "clear", 3, "click"], [1, "flex", "items-center", "space-x-2"], ["btn", "", "matRipple", "", "name", "remove-locker", 1, "clear", 3, "click"], ["for", "title"], ["features", "", 1, "flex", "flex-wrap", "items-center", "space-x-2"], [3, "ngModel", "ngModelOptions"], [3, "ngModelChange", "ngModel", "ngModelOptions"], [1, "text-base", "text-info"]], template: function LockerListFieldComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0);
     \u0275\u0275repeaterCreate(1, LockerListFieldComponent_For_2_Template, 29, 15, "div", 1, \u0275\u0275repeaterTrackByIdentity);
@@ -13321,7 +13321,7 @@ var LockerListFieldComponent = _LockerListFieldComponent;
             @for (item of items; track item) {
                 <div
                     locker
-                    class="relative flex w-full items-center rounded-lg border border-base-200 p-2 shadow"
+                    class="relative flex w-full items-center rounded-lg border border-base-200 p-2 shadow-sm"
                 >
                     @if (features()?.length) {
                         <div class="flex flex-col">
@@ -13550,11 +13550,11 @@ function ParkingSpaceDetailsComponent_Conditional_0_Template(rf, ctx) {
     let tmp_5_0;
     let tmp_6_0;
     const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275classProp("sm:h-40", (tmp_1_0 = ctx_r1.space().images) == null ? null : tmp_1_0.length)("h-64", (tmp_2_0 = ctx_r1.space().images) == null ? null : tmp_2_0.length)("sm:h-0", !((tmp_3_0 = ctx_r1.space().images) == null ? null : tmp_3_0.length))("h-12", !((tmp_4_0 = ctx_r1.space().images) == null ? null : tmp_4_0.length))("!bg-transparent", !((tmp_5_0 = ctx_r1.space().images) == null ? null : tmp_5_0.length));
+    \u0275\u0275classProp("sm:h-40", (tmp_1_0 = ctx_r1.space().images) == null ? null : tmp_1_0.length)("h-64", (tmp_2_0 = ctx_r1.space().images) == null ? null : tmp_2_0.length)("sm:h-0", !((tmp_3_0 = ctx_r1.space().images) == null ? null : tmp_3_0.length))("h-12", !((tmp_4_0 = ctx_r1.space().images) == null ? null : tmp_4_0.length))("bg-transparent!", !((tmp_5_0 = ctx_r1.space().images) == null ? null : tmp_5_0.length));
     \u0275\u0275advance();
     \u0275\u0275conditional(((tmp_6_0 = ctx_r1.space().images) == null ? null : tmp_6_0.length) ? 1 : -1);
     \u0275\u0275advance(4);
-    \u0275\u0275classProp("text-info-content", ctx_r1.fav())("!bg-info", ctx_r1.fav());
+    \u0275\u0275classProp("text-info-content", ctx_r1.fav())("bg-info!", ctx_r1.fav());
     \u0275\u0275advance(2);
     \u0275\u0275textInterpolate(ctx_r1.fav() ? "favorite" : "favorite_border");
     \u0275\u0275advance(4);
@@ -13626,7 +13626,7 @@ var _ParkingSpaceDetailsComponent = class _ParkingSpaceDetailsComponent {
 _ParkingSpaceDetailsComponent.\u0275fac = function ParkingSpaceDetailsComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _ParkingSpaceDetailsComponent)();
 };
-_ParkingSpaceDetailsComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ParkingSpaceDetailsComponent, selectors: [["parking-space-details"]], inputs: { map_open: [1, "map_open"], space: [1, "space"], fav: [1, "fav"], active: [1, "active"] }, outputs: { activeChange: "activeChange", close: "close", toggleFav: "toggleFav" }, features: [\u0275\u0275NgOnChangesFeature], decls: 2, vars: 1, consts: [["empty", "", 1, "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-16"], ["image", "", 1, "relative", "w-full", "bg-base-200"], [1, "absolute", "inset-0", 3, "images"], ["icon", "", "matRipple", "", "close", "", 1, "absolute", "left-2", "top-2", "bg-base-200", "sm:hidden", 3, "click"], ["icon", "", "matRipple", "", "fav", "", 1, "absolute", "right-2", "top-2", "bg-base-200", 3, "click"], [1, "h-1/2", "flex-1", "space-y-2", "overflow-auto", "p-2"], ["actions", "", 1, "z-0"], [1, "mb-2", "mt-4", "text-xl", "font-medium"], ["details", "", 1, "space-y-2"], [1, "text-xl", "font-medium"], [1, "flex", "items-center", "space-x-2"], ["map", "", 1, "relative", "mx-auto", "h-64", "w-full", "overflow-hidden", "rounded", "border", "border-base-200", "sm:h-48"], [1, "border-t", "border-base-200", "p-2", "shadow", "sm:hidden"], ["btn", "", "matRipple", "", 1, "w-full", 3, "click"], [1, "flex", "items-center", "justify-center"], [1, "text-2xl"], [1, "pointer-events-none", 3, "src", "focus", "features", "options"], [1, "text-center", "opacity-30"]], template: function ParkingSpaceDetailsComponent_Template(rf, ctx) {
+_ParkingSpaceDetailsComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ParkingSpaceDetailsComponent, selectors: [["parking-space-details"]], inputs: { map_open: [1, "map_open"], space: [1, "space"], fav: [1, "fav"], active: [1, "active"] }, outputs: { activeChange: "activeChange", close: "close", toggleFav: "toggleFav" }, features: [\u0275\u0275NgOnChangesFeature], decls: 2, vars: 1, consts: [["empty", "", 1, "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-16"], ["image", "", 1, "relative", "w-full", "bg-base-200"], [1, "absolute", "inset-0", 3, "images"], ["icon", "", "matRipple", "", "close", "", 1, "absolute", "left-2", "top-2", "bg-base-200", "sm:hidden", 3, "click"], ["icon", "", "matRipple", "", "fav", "", 1, "absolute", "right-2", "top-2", "bg-base-200", 3, "click"], [1, "h-1/2", "flex-1", "space-y-2", "overflow-auto", "p-2"], ["actions", "", 1, "z-0"], [1, "mb-2", "mt-4", "text-xl", "font-medium"], ["details", "", 1, "space-y-2"], [1, "text-xl", "font-medium"], [1, "flex", "items-center", "space-x-2"], ["map", "", 1, "relative", "mx-auto", "h-64", "w-full", "overflow-hidden", "rounded-sm", "border", "border-base-200", "sm:h-48"], [1, "border-t", "border-base-200", "p-2", "shadow-sm", "sm:hidden"], ["btn", "", "matRipple", "", 1, "w-full", 3, "click"], [1, "flex", "items-center", "justify-center"], [1, "text-2xl"], [1, "pointer-events-none", 3, "src", "focus", "features", "options"], [1, "text-center", "opacity-30"]], template: function ParkingSpaceDetailsComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275conditionalCreate(0, ParkingSpaceDetailsComponent_Conditional_0_Template, 37, 29)(1, ParkingSpaceDetailsComponent_Conditional_1_Template, 4, 3, "div", 0);
   }
@@ -13654,7 +13654,7 @@ var ParkingSpaceDetailsComponent = _ParkingSpaceDetailsComponent;
                 [class.h-64]="space().images?.length"
                 [class.sm:h-0]="!space().images?.length"
                 [class.h-12]="!space().images?.length"
-                [class.!bg-transparent]="!space().images?.length"
+                [class.bg-transparent!]="!space().images?.length"
             >
                 @if (space().images?.length) {
                     <image-carousel
@@ -13676,7 +13676,7 @@ var ParkingSpaceDetailsComponent = _ParkingSpaceDetailsComponent;
                     matRipple
                     fav
                     [class.text-info-content]="fav()"
-                    [class.!bg-info]="fav()"
+                    [class.bg-info!]="fav()"
                     (click)="toggleFav.emit()"
                     class="absolute right-2 top-2 bg-base-200"
                 >
@@ -13715,7 +13715,7 @@ var ParkingSpaceDetailsComponent = _ParkingSpaceDetailsComponent;
                 @if (!map_open()) {
                     <section
                         map
-                        class="relative mx-auto h-64 w-full overflow-hidden rounded border border-base-200 sm:h-48"
+                        class="relative mx-auto h-64 w-full overflow-hidden rounded-sm border border-base-200 sm:h-48"
                     >
                         <interactive-map
                             class="pointer-events-none"
@@ -13730,7 +13730,7 @@ var ParkingSpaceDetailsComponent = _ParkingSpaceDetailsComponent;
                     </section>
                 }
             </div>
-            <div class="border-t border-base-200 p-2 shadow sm:hidden">
+            <div class="border-t border-base-200 p-2 shadow-sm sm:hidden">
                 <button
                     btn
                     matRipple
@@ -14131,7 +14131,7 @@ var _ParkingSpaceFiltersComponent = class _ParkingSpaceFiltersComponent {
 _ParkingSpaceFiltersComponent.\u0275fac = function ParkingSpaceFiltersComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _ParkingSpaceFiltersComponent)();
 };
-_ParkingSpaceFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ParkingSpaceFiltersComponent, selectors: [["parking-space-filters"]], inputs: { hide_levels: [1, "hide_levels"] }, decls: 34, vars: 37, consts: [[1, "flex", "items-center", "rounded-t-md", "border-b", "border-base-200", "pb-2", "sm:hidden"], [1, "flex-1", "pl-2"], ["icon", "", "matRipple", "", "name", "close-parking-filters", 1, "sm:hidden"], [1, "flex-2", "text-center", "font-medium"], [1, "flex-1"], [1, "max-h-[65vh]", "w-full", "max-w-[100vw]", "divide-y", "divide-base-200", "overflow-y-auto", "overflow-x-hidden", "p-2", "sm:max-w-[30vw]", 3, "formGroup"], ["details", ""], [1, "mb-1", "text-lg", "font-medium"], [1, "flex", "min-w-[8rem]", "flex-1", "flex-col"], ["for", "location"], ["appearance", "outline", 1, "w-full"], [1, "min-w-[256px]", "flex-1"], ["name", "date", 3, "ngModelChange", "ngModel", "ngModelOptions", "disabled", "to", "timezone"], [1, "-mt-2", "mb-2", "flex", "justify-end"], [1, "flex", "items-center", "space-x-2"], ["favs", "", 1, "space-y-2", "pb-4"], ["features", "", 1, "space-y-2"], [1, "w-full", "border-t", "border-base-200", "px-2", "py-2"], ["icon", "", "matRipple", "", "name", "close-parking-filters", 1, "sm:hidden", 3, "click"], ["name", "region", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [3, "value"], ["name", "building", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], ["name", "location", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [1, "flex", "flex-col-reverse"], [1, "text-xs", "opacity-30"], [1, "opacity-0"], [3, "ngModelChange", "ngModel", "ngModelOptions"], [1, "w-1/3", "flex-1"], ["name", "start-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "use_24hr", "timezone"], [3, "ngModelChange", "ngModel", "ngModelOptions", "time", "max", "min", "step", "use_24hr", "timezone"], [1, "text-lg", "font-medium"], [1, "flex", "w-full", "items-center"], [1, "w-full", 3, "ngModelChange", "name", "ngModel", "ngModelOptions"], [1, "flex", "flex-wrap", "items-center", "space-x-2"], ["for", "feat", 1, "w-1/2", "flex-1"], ["btn", "", "matRipple", "", "name", "apply-parking-filters", 1, "w-full", 3, "click"]], template: function ParkingSpaceFiltersComponent_Template(rf, ctx) {
+_ParkingSpaceFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ParkingSpaceFiltersComponent, selectors: [["parking-space-filters"]], inputs: { hide_levels: [1, "hide_levels"] }, decls: 34, vars: 37, consts: [[1, "flex", "items-center", "rounded-t-md", "border-b", "border-base-200", "pb-2", "sm:hidden"], [1, "flex-1", "pl-2"], ["icon", "", "matRipple", "", "name", "close-parking-filters", 1, "sm:hidden"], [1, "flex-2", "text-center", "font-medium"], [1, "flex-1"], [1, "max-h-[65vh]", "w-full", "max-w-[100vw]", "divide-y", "divide-base-200", "overflow-y-auto", "overflow-x-hidden", "p-2", "sm:max-w-[30vw]", 3, "formGroup"], ["details", ""], [1, "mb-1", "text-lg", "font-medium"], [1, "flex", "min-w-32", "flex-1", "flex-col"], ["for", "location"], ["appearance", "outline", 1, "w-full"], [1, "min-w-[256px]", "flex-1"], ["name", "date", 3, "ngModelChange", "ngModel", "ngModelOptions", "disabled", "to", "timezone"], [1, "-mt-2", "mb-2", "flex", "justify-end"], [1, "flex", "items-center", "space-x-2"], ["favs", "", 1, "space-y-2", "pb-4"], ["features", "", 1, "space-y-2"], [1, "w-full", "border-t", "border-base-200", "px-2", "py-2"], ["icon", "", "matRipple", "", "name", "close-parking-filters", 1, "sm:hidden", 3, "click"], ["name", "region", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [3, "value"], ["name", "building", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], ["name", "location", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [1, "flex", "flex-col-reverse"], [1, "text-xs", "opacity-30"], [1, "opacity-0"], [3, "ngModelChange", "ngModel", "ngModelOptions"], [1, "w-1/3", "flex-1"], ["name", "start-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "use_24hr", "timezone"], [3, "ngModelChange", "ngModel", "ngModelOptions", "time", "max", "min", "step", "use_24hr", "timezone"], [1, "text-lg", "font-medium"], [1, "flex", "w-full", "items-center"], [1, "w-full", 3, "ngModelChange", "name", "ngModel", "ngModelOptions"], [1, "flex", "flex-wrap", "items-center", "space-x-2"], ["for", "feat", 1, "w-1/2", "flex-1"], ["btn", "", "matRipple", "", "name", "apply-parking-filters", 1, "w-full", 3, "click"]], template: function ParkingSpaceFiltersComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "div", 1);
     \u0275\u0275conditionalCreate(2, ParkingSpaceFiltersComponent_Conditional_2_Template, 3, 0, "button", 2);
@@ -14272,7 +14272,7 @@ var ParkingSpaceFiltersComponent = _ParkingSpaceFiltersComponent;
                 <h2 class="mb-1 text-lg font-medium">
                     {{ 'BOOKINGS.DETAILS' | translate }}
                 </h2>
-                <div class="flex min-w-[8rem] flex-1 flex-col">
+                <div class="flex min-w-32 flex-1 flex-col">
                     <label for="location">
                         {{ 'BOOKINGS.LOCATION' | translate }}
                     </label>
@@ -14568,7 +14568,7 @@ var _ParkingSpaceFiltersDisplayComponent = class _ParkingSpaceFiltersDisplayComp
 _ParkingSpaceFiltersDisplayComponent.\u0275fac = function ParkingSpaceFiltersDisplayComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _ParkingSpaceFiltersDisplayComponent)();
 };
-_ParkingSpaceFiltersDisplayComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ParkingSpaceFiltersDisplayComponent, selectors: [["parking-space-filters-display"]], inputs: { view: [1, "view"] }, outputs: { view: "viewChange", viewChange: "viewChange" }, features: [\u0275\u0275InheritDefinitionFeature], decls: 27, vars: 36, consts: [["actions", "", 1, "flex", "items-center", "space-x-2", "p-2", "sm:hidden"], ["matRipple", "", "filters", "", 1, "w-1/2", "flex-1", 3, "click"], [1, "flex", "items-center"], ["matRipple", "", "map", "", 1, "rounded-l", "rounded-r-none", 3, "click"], ["matRipple", "", "list", "", 1, "rounded-l-none", "rounded-r", 3, "click"], ["filters", "", 1, "flex", "w-[35rem]", "max-w-full", "flex-wrap", "items-center", "p-2", "sm:max-w-[35rem]"], ["filter-item", "", "zone", ""], ["filter-item", "", "date", ""], ["filter-item", "", "time", ""], ["filter-item", "", "count", ""], ["filter-item", ""], ["icon", "", "matRipple", "", 1, "-mr-4", 3, "click"]], template: function ParkingSpaceFiltersDisplayComponent_Template(rf, ctx) {
+_ParkingSpaceFiltersDisplayComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ParkingSpaceFiltersDisplayComponent, selectors: [["parking-space-filters-display"]], inputs: { view: [1, "view"] }, outputs: { view: "viewChange", viewChange: "viewChange" }, features: [\u0275\u0275InheritDefinitionFeature], decls: 27, vars: 36, consts: [["actions", "", 1, "flex", "items-center", "space-x-2", "p-2", "sm:hidden"], ["matRipple", "", "filters", "", 1, "w-1/2", "flex-1", 3, "click"], [1, "flex", "items-center"], ["matRipple", "", "map", "", 1, "rounded-l", "rounded-r-none", 3, "click"], ["matRipple", "", "list", "", 1, "rounded-l-none", "rounded-r", 3, "click"], ["filters", "", 1, "flex", "w-140", "max-w-full", "flex-wrap", "items-center", "p-2", "sm:max-w-140"], ["filter-item", "", "zone", ""], ["filter-item", "", "date", ""], ["filter-item", "", "time", ""], ["filter-item", "", "count", ""], ["filter-item", ""], ["icon", "", "matRipple", "", 1, "-mr-4", 3, "click"]], template: function ParkingSpaceFiltersDisplayComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "section", 0)(1, "button", 1);
     \u0275\u0275listener("click", function ParkingSpaceFiltersDisplayComponent_Template_button_click_1_listener() {
@@ -14675,7 +14675,7 @@ var ParkingSpaceFiltersDisplayComponent = _ParkingSpaceFiltersDisplayComponent;
         </section>
         <section
             filters
-            class="flex w-[35rem] max-w-full flex-wrap items-center p-2 sm:max-w-[35rem]"
+            class="flex w-140 max-w-full flex-wrap items-center p-2 sm:max-w-140"
         >
             @if (location) {
                 <div filter-item zone>
@@ -14774,7 +14774,7 @@ function ParkingSpaceListComponent_Conditional_7_Conditional_0_For_2_Template(rf
   if (rf & 2) {
     const space_r2 = ctx.$implicit;
     const ctx_r2 = \u0275\u0275nextContext(3);
-    \u0275\u0275classProp("!border-info", ctx_r2.active() === space_r2.id);
+    \u0275\u0275classProp("border-info!", ctx_r2.active() === space_r2.id);
     \u0275\u0275advance(3);
     \u0275\u0275conditional(ctx_r2.selected().includes(space_r2.id) ? 3 : -1);
     \u0275\u0275advance();
@@ -14870,7 +14870,7 @@ var _ParkingSpaceListComponent = class _ParkingSpaceListComponent {
 _ParkingSpaceListComponent.\u0275fac = function ParkingSpaceListComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _ParkingSpaceListComponent)();
 };
-_ParkingSpaceListComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ParkingSpaceListComponent, selectors: [["parking-space-list"]], inputs: { active: [1, "active"], selected: [1, "selected"], favorites: [1, "favorites"] }, outputs: { onSelect: "onSelect", toggleFav: "toggleFav" }, decls: 10, vars: 14, consts: [[1, "font-bold"], ["count", "", 1, "mb-4", "text-sm", "opacity-60"], ["loading", "", 1, "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-16"], [1, "list-style-none", "space-y-2"], ["empty", "", 1, "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-16"], ["space", "", 1, "relative", "w-full", "rounded-lg", "border", "border-base-200", "bg-base-100", "p-2", "shadow", 3, "!border-info"], ["space", "", 1, "relative", "w-full", "rounded-lg", "border", "border-base-200", "bg-base-100", "p-2", "shadow"], ["matRipple", "", "select", "", 1, "flex", "h-full", "w-full", "items-center", 3, "click"], [1, "relative", "mr-4", "flex", "h-20", "w-20", "items-center", "justify-center", "overflow-hidden", "rounded-xl", "bg-base-200"], [1, "absolute", "left-1", "top-1", "flex", "h-6", "w-6", "items-center", "justify-center", "rounded-full", "border", "border-neutral", "bg-base-200", "text-white"], ["auth", "", 1, "h-full", "object-cover", 3, "source"], ["src", "assets/icons/car-placeholder.svg", 1, "m-auto"], [1, "space-y-2"], [1, "mr-10", "truncate", "font-medium"], [1, "flex", "items-center", "space-x-2", "text-sm"], [1, "text-info"], ["icon", "", "matRipple", "", "fav", "", 1, "absolute", "right-1", "top-1", 3, "click"], [3, "className"], [1, "text-center", "opacity-30"], [3, "diameter"], [1, "opacity-30"]], template: function ParkingSpaceListComponent_Template(rf, ctx) {
+_ParkingSpaceListComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ParkingSpaceListComponent, selectors: [["parking-space-list"]], inputs: { active: [1, "active"], selected: [1, "selected"], favorites: [1, "favorites"] }, outputs: { onSelect: "onSelect", toggleFav: "toggleFav" }, decls: 10, vars: 14, consts: [[1, "font-bold"], ["count", "", 1, "mb-4", "text-sm", "opacity-60"], ["loading", "", 1, "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-16"], [1, "list-style-none", "space-y-2"], ["empty", "", 1, "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-16"], ["space", "", 1, "relative", "w-full", "rounded-lg", "border", "border-base-200", "bg-base-100", "p-2", "shadow-sm", 3, "border-info!"], ["space", "", 1, "relative", "w-full", "rounded-lg", "border", "border-base-200", "bg-base-100", "p-2", "shadow-sm"], ["matRipple", "", "select", "", 1, "flex", "h-full", "w-full", "items-center", 3, "click"], [1, "relative", "mr-4", "flex", "h-20", "w-20", "items-center", "justify-center", "overflow-hidden", "rounded-xl", "bg-base-200"], [1, "absolute", "left-1", "top-1", "flex", "h-6", "w-6", "items-center", "justify-center", "rounded-full", "border", "border-neutral", "bg-base-200", "text-white"], ["auth", "", 1, "h-full", "object-cover", 3, "source"], ["src", "assets/icons/car-placeholder.svg", 1, "m-auto"], [1, "space-y-2"], [1, "mr-10", "truncate", "font-medium"], [1, "flex", "items-center", "space-x-2", "text-sm"], [1, "text-info"], ["icon", "", "matRipple", "", "fav", "", 1, "absolute", "right-1", "top-1", 3, "click"], [3, "className"], [1, "text-center", "opacity-30"], [3, "diameter"], [1, "opacity-30"]], template: function ParkingSpaceListComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "h3", 0);
     \u0275\u0275text(1);
@@ -14923,8 +14923,8 @@ var ParkingSpaceListComponent = _ParkingSpaceListComponent;
                     @for (space of assets | async; track space) {
                         <li
                             space
-                            [class.!border-info]="active() === space.id"
-                            class="relative w-full rounded-lg border border-base-200 bg-base-100 p-2 shadow"
+                            [class.border-info!]="active() === space.id"
+                            class="relative w-full rounded-lg border border-base-200 bg-base-100 p-2 shadow-sm"
                         >
                             <button
                                 matRipple
@@ -15407,7 +15407,7 @@ var _ParkingSpaceSelectModalComponent = class _ParkingSpaceSelectModalComponent 
 _ParkingSpaceSelectModalComponent.\u0275fac = function ParkingSpaceSelectModalComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _ParkingSpaceSelectModalComponent)();
 };
-_ParkingSpaceSelectModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ParkingSpaceSelectModalComponent, selectors: [["parking-space-select-modal"]], decls: 45, vars: 48, consts: [[1, "flex", "h-[100vh]", "w-[100vw]", "flex-col", "bg-base-100", "sm:relative", "sm:h-auto", "sm:w-auto"], [1, "flex", "w-full", "items-center", "space-x-4"], ["icon", "", "matRipple", "", "mat-dialog-close", "", 1, "bg-base-200"], [1, "hidden", "flex-1", "items-center", "justify-end", "sm:flex"], ["btn", "", "matRipple", "", "name", "view-desk-map", 1, "rounded-l", "rounded-r-none", 3, "click"], ["btn", "", "matRipple", "", "name", "view-desk-list", 1, "rounded-l-none", "rounded-r", 3, "click"], [1, "flex", "h-[65vh]", "min-h-[65vh]", "w-full", "flex-1", "items-center", "divide-x", "divide-base-200", "overflow-hidden", "sm:max-h-[65vh]", "sm:max-w-[95vw]"], [1, "hidden", "h-full", "max-w-[20rem]", "sm:flex", "sm:h-[65vh]", "sm:max-h-full", 3, "hide_levels"], [1, "flex", "h-full", "w-1/2", "flex-1", "flex-col", "items-center", "sm:h-[65vh]"], [1, "w-full", "border-b", "border-base-200", 3, "viewChange", "view"], [1, "h-1/2", "flex-1", "bg-base-200", 3, "active", "selected", "favorites"], [1, "h-1/2", "w-full", "flex-1", 3, "selected", "is_displayed"], [1, "absolute", "z-20", "block", "h-full", "w-full", "bg-base-100", "sm:relative", "sm:flex", "sm:h-[65vh]", "sm:max-w-[20rem]", 3, "activeChange", "toggleFav", "close", "space", "active", "fav", "map_open"], [1, "flex", "w-full", "flex-col-reverse", "items-center", "justify-end", "border-t", "border-base-200", "p-2", "sm:hidden"], ["btn", "", "matRipple", "", "return", "", 1, "inverse", "w-full", "sm:hidden"], ["btn", "", "matRipple", "", "save", "", 1, "w-full", "sm:mb-0", "sm:w-32", 3, "mat-dialog-close"], [1, "hidden", "w-full", "items-center", "justify-between", "border-t", "border-base-200", "p-2", "sm:flex"], ["btn", "", "matRipple", "", 1, "clear", "text-secondary", 3, "mat-dialog-close"], [1, "flex", "items-center"], [1, "text-xl"], [1, "mr-1", "underline"], [1, "text-sm", "opacity-60"], ["btn", "", "matRipple", "", 3, "click", "disabled"], [1, "mr-1"], [1, "h-1/2", "flex-1", "bg-base-200", 3, "toggleFav", "onSelect", "active", "selected", "favorites"], [1, "h-1/2", "w-full", "flex-1", 3, "onSelect", "selected", "is_displayed"], ["btn", "", "matRipple", "", "return", "", 1, "inverse", "w-full", "sm:hidden", 3, "click"]], template: function ParkingSpaceSelectModalComponent_Template(rf, ctx) {
+_ParkingSpaceSelectModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ParkingSpaceSelectModalComponent, selectors: [["parking-space-select-modal"]], decls: 45, vars: 48, consts: [[1, "flex", "h-screen", "w-screen", "flex-col", "bg-base-100", "sm:relative", "sm:h-auto", "sm:w-auto"], [1, "flex", "w-full", "items-center", "space-x-4"], ["icon", "", "matRipple", "", "mat-dialog-close", "", 1, "bg-base-200"], [1, "hidden", "flex-1", "items-center", "justify-end", "sm:flex"], ["btn", "", "matRipple", "", "name", "view-desk-map", 1, "rounded-l", "rounded-r-none", 3, "click"], ["btn", "", "matRipple", "", "name", "view-desk-list", 1, "rounded-l-none", "rounded-r", 3, "click"], [1, "flex", "h-[65vh]", "min-h-[65vh]", "w-full", "flex-1", "items-center", "divide-x", "divide-base-200", "overflow-hidden", "sm:max-h-[65vh]", "sm:max-w-[95vw]"], [1, "hidden", "h-full", "max-w-[20rem]", "sm:flex", "sm:h-[65vh]", "sm:max-h-full", 3, "hide_levels"], [1, "flex", "h-full", "w-1/2", "flex-1", "flex-col", "items-center", "sm:h-[65vh]"], [1, "w-full", "border-b", "border-base-200", 3, "viewChange", "view"], [1, "h-1/2", "flex-1", "bg-base-200", 3, "active", "selected", "favorites"], [1, "h-1/2", "w-full", "flex-1", 3, "selected", "is_displayed"], [1, "absolute", "z-20", "block", "h-full", "w-full", "bg-base-100", "sm:relative", "sm:flex", "sm:h-[65vh]", "sm:max-w-[20rem]", 3, "activeChange", "toggleFav", "close", "space", "active", "fav", "map_open"], [1, "flex", "w-full", "flex-col-reverse", "items-center", "justify-end", "border-t", "border-base-200", "p-2", "sm:hidden"], ["btn", "", "matRipple", "", "return", "", 1, "inverse", "w-full", "sm:hidden"], ["btn", "", "matRipple", "", "save", "", 1, "w-full", "sm:mb-0", "sm:w-32", 3, "mat-dialog-close"], [1, "hidden", "w-full", "items-center", "justify-between", "border-t", "border-base-200", "p-2", "sm:flex"], ["btn", "", "matRipple", "", 1, "clear", "text-secondary", 3, "mat-dialog-close"], [1, "flex", "items-center"], [1, "text-xl"], [1, "mr-1", "underline"], [1, "text-sm", "opacity-60"], ["btn", "", "matRipple", "", 3, "click", "disabled"], [1, "mr-1"], [1, "h-1/2", "flex-1", "bg-base-200", 3, "toggleFav", "onSelect", "active", "selected", "favorites"], [1, "h-1/2", "w-full", "flex-1", 3, "onSelect", "selected", "is_displayed"], ["btn", "", "matRipple", "", "return", "", 1, "inverse", "w-full", "sm:hidden", 3, "click"]], template: function ParkingSpaceSelectModalComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "header", 1)(2, "button", 2)(3, "icon");
     \u0275\u0275text(4, "close");
@@ -15538,7 +15538,7 @@ var ParkingSpaceSelectModalComponent = _ParkingSpaceSelectModalComponent;
     type: Component,
     args: [{ selector: "parking-space-select-modal", template: `
         <div
-            class="flex h-[100vh] w-[100vw] flex-col bg-base-100 sm:relative sm:h-auto sm:w-auto"
+            class="flex h-screen w-screen flex-col bg-base-100 sm:relative sm:h-auto sm:w-auto"
         >
             <header class="flex w-full items-center space-x-4">
                 <button icon matRipple mat-dialog-close class="bg-base-200">
@@ -15779,11 +15779,11 @@ function NewParkingDetailsComponent_Conditional_0_Template(rf, ctx) {
     let tmp_5_0;
     let tmp_6_0;
     const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275classProp("sm:h-40", (tmp_1_0 = ctx_r1.space().images) == null ? null : tmp_1_0.length)("h-64", (tmp_2_0 = ctx_r1.space().images) == null ? null : tmp_2_0.length)("sm:h-0", !((tmp_3_0 = ctx_r1.space().images) == null ? null : tmp_3_0.length))("h-12", !((tmp_4_0 = ctx_r1.space().images) == null ? null : tmp_4_0.length))("!bg-transparent", !((tmp_5_0 = ctx_r1.space().images) == null ? null : tmp_5_0.length));
+    \u0275\u0275classProp("sm:h-40", (tmp_1_0 = ctx_r1.space().images) == null ? null : tmp_1_0.length)("h-64", (tmp_2_0 = ctx_r1.space().images) == null ? null : tmp_2_0.length)("sm:h-0", !((tmp_3_0 = ctx_r1.space().images) == null ? null : tmp_3_0.length))("h-12", !((tmp_4_0 = ctx_r1.space().images) == null ? null : tmp_4_0.length))("bg-transparent!", !((tmp_5_0 = ctx_r1.space().images) == null ? null : tmp_5_0.length));
     \u0275\u0275advance();
     \u0275\u0275conditional(((tmp_6_0 = ctx_r1.space().images) == null ? null : tmp_6_0.length) ? 1 : -1);
     \u0275\u0275advance(4);
-    \u0275\u0275classProp("text-info-content", ctx_r1.fav())("!bg-info", ctx_r1.fav());
+    \u0275\u0275classProp("text-info-content", ctx_r1.fav())("bg-info!", ctx_r1.fav());
     \u0275\u0275advance(2);
     \u0275\u0275textInterpolate(ctx_r1.fav() ? "favorite" : "favorite_border");
     \u0275\u0275advance(4);
@@ -15849,7 +15849,7 @@ var _NewParkingDetailsComponent = class _NewParkingDetailsComponent {
 _NewParkingDetailsComponent.\u0275fac = function NewParkingDetailsComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _NewParkingDetailsComponent)();
 };
-_NewParkingDetailsComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewParkingDetailsComponent, selectors: [["new-parking-space-details"]], inputs: { hide_map: [1, "hide_map"], space: [1, "space"], fav: [1, "fav"], active: [1, "active"] }, outputs: { activeChange: "activeChange", close: "close", toggleFav: "toggleFav" }, features: [\u0275\u0275NgOnChangesFeature], decls: 2, vars: 1, consts: [["empty", "", 1, "flex", "h-full", "w-full", "flex-col", "items-center", "justify-center", "space-y-2", "p-16"], ["image", "", 1, "relative", "w-full", "bg-base-200"], [1, "absolute", "inset-0", 3, "images"], ["icon", "", "matRipple", "", "close", "", 1, "absolute", "left-2", "top-2", "bg-base-200", "sm:hidden", 3, "click"], ["icon", "", "matRipple", "", "fav", "", 1, "absolute", "right-2", "top-2", "bg-base-200", 3, "click"], [1, "h-1/2", "flex-1", "space-y-2", "p-2"], ["actions", "", 1, "z-0"], [1, "mb-2", "mt-4", "text-xl", "font-medium"], ["details", "", 1, "space-y-2"], [1, "text-xl", "font-medium"], [1, "flex", "items-center", "space-x-2"], ["map", "", 1, "relative", "mx-auto", "h-64", "w-full", "overflow-hidden", "rounded", "border", "border-base-200", "sm:h-48"], [1, "pointer-events-none", 3, "src", "focus", "features", "options"], [1, "text-center", "opacity-30"]], template: function NewParkingDetailsComponent_Template(rf, ctx) {
+_NewParkingDetailsComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewParkingDetailsComponent, selectors: [["new-parking-space-details"]], inputs: { hide_map: [1, "hide_map"], space: [1, "space"], fav: [1, "fav"], active: [1, "active"] }, outputs: { activeChange: "activeChange", close: "close", toggleFav: "toggleFav" }, features: [\u0275\u0275NgOnChangesFeature], decls: 2, vars: 1, consts: [["empty", "", 1, "flex", "h-full", "w-full", "flex-col", "items-center", "justify-center", "space-y-2", "p-16"], ["image", "", 1, "relative", "w-full", "bg-base-200"], [1, "absolute", "inset-0", 3, "images"], ["icon", "", "matRipple", "", "close", "", 1, "absolute", "left-2", "top-2", "bg-base-200", "sm:hidden", 3, "click"], ["icon", "", "matRipple", "", "fav", "", 1, "absolute", "right-2", "top-2", "bg-base-200", 3, "click"], [1, "h-1/2", "flex-1", "space-y-2", "p-2"], ["actions", "", 1, "z-0"], [1, "mb-2", "mt-4", "text-xl", "font-medium"], ["details", "", 1, "space-y-2"], [1, "text-xl", "font-medium"], [1, "flex", "items-center", "space-x-2"], ["map", "", 1, "relative", "mx-auto", "h-64", "w-full", "overflow-hidden", "rounded-sm", "border", "border-base-200", "sm:h-48"], [1, "pointer-events-none", 3, "src", "focus", "features", "options"], [1, "text-center", "opacity-30"]], template: function NewParkingDetailsComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275conditionalCreate(0, NewParkingDetailsComponent_Conditional_0_Template, 29, 23)(1, NewParkingDetailsComponent_Conditional_1_Template, 4, 3, "div", 0);
   }
@@ -15877,7 +15877,7 @@ var NewParkingDetailsComponent = _NewParkingDetailsComponent;
                 [class.h-64]="space().images?.length"
                 [class.sm:h-0]="!space().images?.length"
                 [class.h-12]="!space().images?.length"
-                [class.!bg-transparent]="!space().images?.length"
+                [class.bg-transparent!]="!space().images?.length"
             >
                 @if (space().images?.length) {
                     <image-carousel
@@ -15899,7 +15899,7 @@ var NewParkingDetailsComponent = _NewParkingDetailsComponent;
                     matRipple
                     fav
                     [class.text-info-content]="fav()"
-                    [class.!bg-info]="fav()"
+                    [class.bg-info!]="fav()"
                     (click)="toggleFav.emit()"
                     class="absolute right-2 top-2 bg-base-200"
                 >
@@ -15938,7 +15938,7 @@ var NewParkingDetailsComponent = _NewParkingDetailsComponent;
                 @if (!hide_map()) {
                     <section
                         map
-                        class="relative mx-auto h-64 w-full overflow-hidden rounded border border-base-200 sm:h-48"
+                        class="relative mx-auto h-64 w-full overflow-hidden rounded-sm border border-base-200 sm:h-48"
                     >
                         <interactive-map
                             class="pointer-events-none"
@@ -16051,7 +16051,7 @@ var _NewParkingFiltersDisplayComponent = class _NewParkingFiltersDisplayComponen
 _NewParkingFiltersDisplayComponent.\u0275fac = function NewParkingFiltersDisplayComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _NewParkingFiltersDisplayComponent)();
 };
-_NewParkingFiltersDisplayComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewParkingFiltersDisplayComponent, selectors: [["new-parking-space-filters-display"]], inputs: { view: [1, "view"] }, outputs: { viewChange: "viewChange" }, features: [\u0275\u0275InheritDefinitionFeature], decls: 16, vars: 23, consts: [["filters", "", 1, "sticky", "-top-1", "z-20", "-mx-1", "!mb-4", "flex", "w-[calc(100%+0.5rem)]", "flex-wrap", "items-center", "rounded", "border", "border-base-300", "bg-base-100", "p-1", "!pr-10", "sm:!pr-1"], ["filter-item", "", "zone", ""], ["filter-item", "", "date", ""], ["filter-item", "", "time", ""], ["filter-item", "", "count", ""], ["filter-item", ""], ["icon", "", "matRipple", "", 1, "-mr-4", 3, "click"]], template: function NewParkingFiltersDisplayComponent_Template(rf, ctx) {
+_NewParkingFiltersDisplayComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewParkingFiltersDisplayComponent, selectors: [["new-parking-space-filters-display"]], inputs: { view: [1, "view"] }, outputs: { viewChange: "viewChange" }, features: [\u0275\u0275InheritDefinitionFeature], decls: 16, vars: 23, consts: [["filters", "", 1, "sticky", "-top-1", "z-20", "-mx-1", "mb-4!", "flex", "w-[calc(100%+0.5rem)]", "flex-wrap", "items-center", "rounded-sm", "border", "border-base-300", "bg-base-100", "p-1", "pr-10!", "sm:pr-1!"], ["filter-item", "", "zone", ""], ["filter-item", "", "date", ""], ["filter-item", "", "time", ""], ["filter-item", "", "count", ""], ["filter-item", ""], ["icon", "", "matRipple", "", 1, "-mr-4", 3, "click"]], template: function NewParkingFiltersDisplayComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "section", 0);
     \u0275\u0275conditionalCreate(1, NewParkingFiltersDisplayComponent_Conditional_1_Template, 2, 1, "div", 1);
@@ -16095,7 +16095,7 @@ var NewParkingFiltersDisplayComponent = _NewParkingFiltersDisplayComponent;
     args: [{ selector: `new-parking-space-filters-display`, template: `
         <section
             filters
-            class="sticky -top-1 z-20 -mx-1 !mb-4 flex w-[calc(100%+0.5rem)] flex-wrap items-center rounded border border-base-300 bg-base-100 p-1 !pr-10 sm:!pr-1"
+            class="sticky -top-1 z-20 -mx-1 mb-4! flex w-[calc(100%+0.5rem)] flex-wrap items-center rounded-sm border border-base-300 bg-base-100 p-1 pr-10! sm:pr-1!"
         >
             @if (location) {
                 <div filter-item zone>
@@ -16474,7 +16474,7 @@ var _NewParkingFiltersComponent = class _NewParkingFiltersComponent {
 _NewParkingFiltersComponent.\u0275fac = function NewParkingFiltersComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _NewParkingFiltersComponent)();
 };
-_NewParkingFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewParkingFiltersComponent, selectors: [["new-parking-space-filters"]], inputs: { hide_levels: [1, "hide_levels"] }, decls: 31, vars: 36, consts: [[1, "sticky", "top-0", "z-10", "flex", "items-center", "border-b", "border-base-300", "bg-base-100", "px-4", "py-4"], [1, "text-xl", "font-medium"], [1, "relative", "z-0", "w-full", "divide-y", "divide-base-200", "p-2", 3, "formGroup"], ["details", ""], [1, "mb-1", "text-lg", "font-medium"], [1, "flex", "min-w-[8rem]", "flex-1", "flex-col"], ["for", "location"], ["appearance", "outline", 1, "w-full"], [1, "min-w-[256px]", "flex-1"], ["name", "date", 3, "ngModelChange", "ngModel", "ngModelOptions", "disabled", "to", "timezone"], [1, "-mt-2", "mb-2", "flex", "justify-end"], [1, "flex", "items-center", "space-x-2"], ["favs", "", 1, "space-y-2", "pb-4"], ["features", "", 1, "space-y-2"], [1, "w-full", "border-t", "border-base-200", "px-2", "py-2"], ["name", "region", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [3, "value"], ["name", "building", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], ["name", "location", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [1, "flex", "flex-col-reverse"], [1, "text-xs", "opacity-30"], [1, "opacity-0"], [3, "ngModelChange", "ngModel", "ngModelOptions"], [1, "w-1/3", "flex-1"], ["name", "start-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "use_24hr", "timezone"], [3, "ngModelChange", "ngModel", "ngModelOptions", "time", "max", "min", "step", "use_24hr", "timezone"], [1, "text-lg", "font-medium"], [1, "flex", "w-full", "items-center"], [1, "w-full", 3, "ngModelChange", "name", "ngModel", "ngModelOptions"], [1, "flex", "flex-wrap", "items-center", "space-x-2"], ["for", "feat", 1, "w-1/2", "flex-1"], ["btn", "", "matRipple", "", "name", "apply-parking-filters", 1, "w-full", 3, "click"]], template: function NewParkingFiltersComponent_Template(rf, ctx) {
+_NewParkingFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewParkingFiltersComponent, selectors: [["new-parking-space-filters"]], inputs: { hide_levels: [1, "hide_levels"] }, decls: 31, vars: 36, consts: [[1, "sticky", "top-0", "z-10", "flex", "items-center", "border-b", "border-base-300", "bg-base-100", "px-4", "py-4"], [1, "text-xl", "font-medium"], [1, "relative", "z-0", "w-full", "divide-y", "divide-base-200", "p-2", 3, "formGroup"], ["details", ""], [1, "mb-1", "text-lg", "font-medium"], [1, "flex", "min-w-32", "flex-1", "flex-col"], ["for", "location"], ["appearance", "outline", 1, "w-full"], [1, "min-w-[256px]", "flex-1"], ["name", "date", 3, "ngModelChange", "ngModel", "ngModelOptions", "disabled", "to", "timezone"], [1, "-mt-2", "mb-2", "flex", "justify-end"], [1, "flex", "items-center", "space-x-2"], ["favs", "", 1, "space-y-2", "pb-4"], ["features", "", 1, "space-y-2"], [1, "w-full", "border-t", "border-base-200", "px-2", "py-2"], ["name", "region", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [3, "value"], ["name", "building", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], ["name", "location", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [1, "flex", "flex-col-reverse"], [1, "text-xs", "opacity-30"], [1, "opacity-0"], [3, "ngModelChange", "ngModel", "ngModelOptions"], [1, "w-1/3", "flex-1"], ["name", "start-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "use_24hr", "timezone"], [3, "ngModelChange", "ngModel", "ngModelOptions", "time", "max", "min", "step", "use_24hr", "timezone"], [1, "text-lg", "font-medium"], [1, "flex", "w-full", "items-center"], [1, "w-full", 3, "ngModelChange", "name", "ngModel", "ngModelOptions"], [1, "flex", "flex-wrap", "items-center", "space-x-2"], ["for", "feat", 1, "w-1/2", "flex-1"], ["btn", "", "matRipple", "", "name", "apply-parking-filters", 1, "w-full", 3, "click"]], template: function NewParkingFiltersComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "h3", 1);
     \u0275\u0275text(2);
@@ -16594,7 +16594,7 @@ var NewParkingFiltersComponent = _NewParkingFiltersComponent;
                 <h2 class="mb-1 text-lg font-medium">
                     {{ 'BOOKINGS.DETAILS' | translate }}
                 </h2>
-                <div class="flex min-w-[8rem] flex-1 flex-col">
+                <div class="flex min-w-32 flex-1 flex-col">
                     <label for="location">
                         {{ 'BOOKINGS.LOCATION' | translate }}
                     </label>
@@ -16871,7 +16871,7 @@ function NewParkingListComponent_Conditional_8_Conditional_0_For_2_Template(rf, 
   if (rf & 2) {
     const space_r2 = ctx.$implicit;
     const ctx_r2 = \u0275\u0275nextContext(3);
-    \u0275\u0275classProp("!border-info", ctx_r2.active() === space_r2.id);
+    \u0275\u0275classProp("border-info!", ctx_r2.active() === space_r2.id);
     \u0275\u0275advance(3);
     \u0275\u0275conditional(ctx_r2.selected().includes(space_r2.id) ? 3 : -1);
     \u0275\u0275advance();
@@ -16967,7 +16967,7 @@ var _NewParkingListComponent = class _NewParkingListComponent {
 _NewParkingListComponent.\u0275fac = function NewParkingListComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _NewParkingListComponent)();
 };
-_NewParkingListComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewParkingListComponent, selectors: [["new-parking-space-list"]], inputs: { active: [1, "active"], selected: [1, "selected"], favorites: [1, "favorites"] }, outputs: { onSelect: "onSelect", toggleFav: "toggleFav" }, decls: 11, vars: 17, consts: [[1, "px-2", "font-bold"], ["count", "", 1, "mb-4", "px-2", "text-sm", "opacity-60"], ["loading", "", 1, "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-16"], [1, "list-style-none", "space-y-2"], ["empty", "", 1, "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-16"], ["space", "", 1, "relative", "w-full", "rounded-lg", "border", "border-base-200", "bg-base-100", "p-2", "shadow", 3, "!border-info"], ["space", "", 1, "relative", "w-full", "rounded-lg", "border", "border-base-200", "bg-base-100", "p-2", "shadow"], ["matRipple", "", "select", "", 1, "flex", "h-full", "w-full", "items-center", 3, "click"], [1, "relative", "mr-4", "flex", "h-20", "w-20", "items-center", "justify-center", "overflow-hidden", "rounded-xl", "bg-base-200"], [1, "absolute", "left-1", "top-1", "flex", "h-6", "w-6", "items-center", "justify-center", "rounded-full", "border", "border-neutral", "bg-base-200", "text-white"], ["auth", "", 1, "h-full", "object-cover", 3, "source"], ["src", "assets/icons/car-placeholder.svg", 1, "m-auto"], [1, "space-y-2"], [1, "mr-10", "truncate", "font-medium"], [1, "flex", "items-center", "space-x-2", "text-sm"], [1, "text-info"], ["icon", "", "matRipple", "", "fav", "", 1, "absolute", "right-1", "top-1", 3, "click"], [3, "className"], [1, "text-center", "opacity-30"], [3, "diameter"], [1, "opacity-30"]], template: function NewParkingListComponent_Template(rf, ctx) {
+_NewParkingListComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewParkingListComponent, selectors: [["new-parking-space-list"]], inputs: { active: [1, "active"], selected: [1, "selected"], favorites: [1, "favorites"] }, outputs: { onSelect: "onSelect", toggleFav: "toggleFav" }, decls: 11, vars: 17, consts: [[1, "px-2", "font-bold"], ["count", "", 1, "mb-4", "px-2", "text-sm", "opacity-60"], ["loading", "", 1, "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-16"], [1, "list-style-none", "space-y-2"], ["empty", "", 1, "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-16"], ["space", "", 1, "relative", "w-full", "rounded-lg", "border", "border-base-200", "bg-base-100", "p-2", "shadow-sm", 3, "border-info!"], ["space", "", 1, "relative", "w-full", "rounded-lg", "border", "border-base-200", "bg-base-100", "p-2", "shadow-sm"], ["matRipple", "", "select", "", 1, "flex", "h-full", "w-full", "items-center", 3, "click"], [1, "relative", "mr-4", "flex", "h-20", "w-20", "items-center", "justify-center", "overflow-hidden", "rounded-xl", "bg-base-200"], [1, "absolute", "left-1", "top-1", "flex", "h-6", "w-6", "items-center", "justify-center", "rounded-full", "border", "border-neutral", "bg-base-200", "text-white"], ["auth", "", 1, "h-full", "object-cover", 3, "source"], ["src", "assets/icons/car-placeholder.svg", 1, "m-auto"], [1, "space-y-2"], [1, "mr-10", "truncate", "font-medium"], [1, "flex", "items-center", "space-x-2", "text-sm"], [1, "text-info"], ["icon", "", "matRipple", "", "fav", "", 1, "absolute", "right-1", "top-1", 3, "click"], [3, "className"], [1, "text-center", "opacity-30"], [3, "diameter"], [1, "opacity-30"]], template: function NewParkingListComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "h3", 0);
     \u0275\u0275text(1);
@@ -17023,8 +17023,8 @@ var NewParkingListComponent = _NewParkingListComponent;
                     @for (space of assets | async; track space) {
                         <li
                             space
-                            [class.!border-info]="active() === space.id"
-                            class="relative w-full rounded-lg border border-base-200 bg-base-100 p-2 shadow"
+                            [class.border-info!]="active() === space.id"
+                            class="relative w-full rounded-lg border border-base-200 bg-base-100 p-2 shadow-sm"
                         >
                             <button
                                 matRipple
@@ -17534,7 +17534,7 @@ var _NewParkingSelectModalComponent = class _NewParkingSelectModalComponent {
 _NewParkingSelectModalComponent.\u0275fac = function NewParkingSelectModalComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _NewParkingSelectModalComponent)();
 };
-_NewParkingSelectModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewParkingSelectModalComponent, selectors: [["new-parking-select-modal"]], decls: 42, vars: 58, consts: [[1, "mb-10", "flex", "h-[calc(100vh-2.5rem)]", "max-h-[calc(100vh-2.5rem)]", "w-screen", "flex-col", "space-y-2", "overflow-hidden", "bg-base-100", "p-2", "sm:m-0", "sm:h-auto", "sm:w-auto"], [1, "flex", "h-14", "w-full", "items-center", "space-x-2", "rounded", "border-none", "bg-base-200", "p-2"], [1, "flex-1", "px-2", "text-xl", "font-medium", "capitalize"], [1, "flex", "divide-x", "divide-secondary", "rounded", "border", "border-secondary"], ["icon", "", "matRipple", "", 1, "rounded-l", "rounded-r-none", 3, "click", "matTooltip"], ["icon", "", "matRipple", "", 1, "rounded-l-none", "rounded-r", 3, "click", "matTooltip"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "relative", "flex", "h-1/2", "max-h-[calc(100vh-7rem)]", "flex-1", "sm:h-[65vh]", "sm:flex-none", "sm:space-x-2"], [1, "h-full", "w-full", "overflow-y-auto", "overflow-x-hidden", "rounded", "border", "border-base-300", "shadow", "sm:block", "sm:w-[20rem]"], [3, "hide_levels"], [1, "h-full", "w-full", "overflow-auto", "rounded", "border", "border-base-300", "bg-base-200", "sm:w-[20rem]", "lg:block"], [3, "view"], [3, "active", "selected", "favorites"], [1, "h-full", "min-h-[60vh]", "w-full", 3, "is_displayed", "active"], [1, "h-full", "w-full", "overflow-auto", "rounded", "border", "border-base-300", "shadow", "sm:w-[20rem]", "lg:block"], [3, "activeChange", "toggleFav", "close", "space", "active", "hide_map", "fav"], ["icon", "", "matRipple", "", 1, "absolute", "right-2", "top-3", "z-20", "border", "border-base-200", "bg-base-100", "sm:hidden"], [1, "flex", "w-full", "items-center", "justify-between", "space-x-2", "rounded", "border-none", "bg-base-200", "p-2"], ["btn", "", "matRipple", "", "name", "parking-return", 1, "inverse", "bg-base-100", "text-secondary", 3, "mat-dialog-close"], [1, "flex", "items-center", "space-x-2"], [1, "text-xl"], [1, "pr-2"], ["btn", "", "matRipple", "", "name", "toggle-parking", 3, "click", "disabled"], [1, "flex", "items-center"], [1, "mr-1"], [3, "viewChange", "view"], [3, "toggleFav", "onSelect", "active", "selected", "favorites"], [1, "h-full", "min-h-[60vh]", "w-full", 3, "onSelect", "is_displayed", "active"], ["icon", "", "matRipple", "", 1, "absolute", "right-2", "top-3", "z-20", "border", "border-base-200", "bg-base-100", "sm:hidden", 3, "click"]], template: function NewParkingSelectModalComponent_Template(rf, ctx) {
+_NewParkingSelectModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewParkingSelectModalComponent, selectors: [["new-parking-select-modal"]], decls: 42, vars: 58, consts: [[1, "mb-10", "flex", "h-[calc(100vh-2.5rem)]", "max-h-[calc(100vh-2.5rem)]", "w-screen", "flex-col", "space-y-2", "overflow-hidden", "bg-base-100", "p-2", "sm:m-0", "sm:h-auto", "sm:w-auto"], [1, "flex", "h-14", "w-full", "items-center", "space-x-2", "rounded-sm", "border-none", "bg-base-200", "p-2"], [1, "flex-1", "px-2", "text-xl", "font-medium", "capitalize"], [1, "flex", "divide-x", "divide-secondary", "rounded-sm", "border", "border-secondary"], ["icon", "", "matRipple", "", 1, "rounded-l", "rounded-r-none", 3, "click", "matTooltip"], ["icon", "", "matRipple", "", 1, "rounded-l-none", "rounded-r", 3, "click", "matTooltip"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "relative", "flex", "h-1/2", "max-h-[calc(100vh-7rem)]", "flex-1", "sm:h-[65vh]", "sm:flex-none", "sm:space-x-2"], [1, "h-full", "w-full", "overflow-y-auto", "overflow-x-hidden", "rounded-sm", "border", "border-base-300", "shadow-sm", "sm:block", "sm:w-[20rem]"], [3, "hide_levels"], [1, "h-full", "w-full", "overflow-auto", "rounded-sm", "border", "border-base-300", "bg-base-200", "sm:w-[20rem]", "lg:block"], [3, "view"], [3, "active", "selected", "favorites"], [1, "h-full", "min-h-[60vh]", "w-full", 3, "is_displayed", "active"], [1, "h-full", "w-full", "overflow-auto", "rounded-sm", "border", "border-base-300", "shadow-sm", "sm:w-[20rem]", "lg:block"], [3, "activeChange", "toggleFav", "close", "space", "active", "hide_map", "fav"], ["icon", "", "matRipple", "", 1, "absolute", "right-2", "top-3", "z-20", "border", "border-base-200", "bg-base-100", "sm:hidden"], [1, "flex", "w-full", "items-center", "justify-between", "space-x-2", "rounded-sm", "border-none", "bg-base-200", "p-2"], ["btn", "", "matRipple", "", "name", "parking-return", 1, "inverse", "bg-base-100", "text-secondary", 3, "mat-dialog-close"], [1, "flex", "items-center", "space-x-2"], [1, "text-xl"], [1, "pr-2"], ["btn", "", "matRipple", "", "name", "toggle-parking", 3, "click", "disabled"], [1, "flex", "items-center"], [1, "mr-1"], [3, "viewChange", "view"], [3, "toggleFav", "onSelect", "active", "selected", "favorites"], [1, "h-full", "min-h-[60vh]", "w-full", 3, "onSelect", "is_displayed", "active"], ["icon", "", "matRipple", "", 1, "absolute", "right-2", "top-3", "z-20", "border", "border-base-200", "bg-base-100", "sm:hidden", 3, "click"]], template: function NewParkingSelectModalComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "header", 1)(2, "h2", 2);
     \u0275\u0275text(3);
@@ -17659,13 +17659,13 @@ var NewParkingSelectModalComponent = _NewParkingSelectModalComponent;
             [style.height]="is_safari ? 'calc(100vh - 80px)' : ''"
         >
             <header
-                class="flex h-14 w-full items-center space-x-2 rounded border-none bg-base-200 p-2"
+                class="flex h-14 w-full items-center space-x-2 rounded-sm border-none bg-base-200 p-2"
             >
                 <h2 class="flex-1 px-2 text-xl font-medium capitalize">
                     {{ 'BOOKINGS.PARKING_FIND' | translate }}
                 </h2>
                 <div
-                    class="flex divide-x divide-secondary rounded border border-secondary"
+                    class="flex divide-x divide-secondary rounded-sm border border-secondary"
                 >
                     <button
                         icon
@@ -17700,7 +17700,7 @@ var NewParkingSelectModalComponent = _NewParkingSelectModalComponent;
                 class="relative flex h-1/2 max-h-[calc(100vh-7rem)] flex-1 sm:h-[65vh] sm:flex-none sm:space-x-2"
             >
                 <div
-                    class="h-full w-full overflow-y-auto overflow-x-hidden rounded border border-base-300 shadow sm:block sm:w-[20rem]"
+                    class="h-full w-full overflow-y-auto overflow-x-hidden rounded-sm border border-base-300 shadow-sm sm:block sm:w-[20rem]"
                     [class.hidden]="!show_filters"
                 >
                     <new-parking-space-filters
@@ -17708,7 +17708,7 @@ var NewParkingSelectModalComponent = _NewParkingSelectModalComponent;
                     ></new-parking-space-filters>
                 </div>
                 <div
-                    class="h-full w-full overflow-auto rounded border border-base-300 bg-base-200 sm:w-[20rem] lg:block"
+                    class="h-full w-full overflow-auto rounded-sm border border-base-300 bg-base-200 sm:w-[20rem] lg:block"
                     [class.hidden]="show_filters || displayed"
                     [class.sm:hidden]="displayed"
                     [class.md:block]="!displayed"
@@ -17738,7 +17738,7 @@ var NewParkingSelectModalComponent = _NewParkingSelectModalComponent;
                     }
                 </div>
                 <div
-                    class="h-full w-full overflow-auto rounded border border-base-300 shadow sm:w-[20rem] lg:block"
+                    class="h-full w-full overflow-auto rounded-sm border border-base-300 shadow-sm sm:w-[20rem] lg:block"
                     [class.hidden]="show_filters || !displayed"
                     [class.sm:hidden]="!displayed"
                     [class.md:block]="displayed"
@@ -17769,7 +17769,7 @@ var NewParkingSelectModalComponent = _NewParkingSelectModalComponent;
                 }
             </main>
             <footer
-                class="flex w-full items-center justify-between space-x-2 rounded border-none bg-base-200 p-2"
+                class="flex w-full items-center justify-between space-x-2 rounded-sm border-none bg-base-200 p-2"
             >
                 <button
                     btn
@@ -17988,7 +17988,7 @@ _ParkingSpaceListFieldComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineCo
     useExisting: forwardRef(() => _ParkingSpaceListFieldComponent),
     multi: true
   }
-])], decls: 12, vars: 3, consts: [["list", "", 1, "space-y-2"], ["space", "", 1, "relative", "flex", "w-full", "items-center", "rounded-lg", "border", "border-base-200", "p-2", "shadow"], ["btn", "", "matRipple", "", "add-space", "", 1, "inverse", "mt-2", "w-full", 3, "click"], [1, "flex", "items-center", "justify-center", "space-x-2"], [1, "text-2xl"], [1, "mb-2", "flex", "flex-wrap", "items-center", "sm:space-x-2"], [1, "min-w-[256px]", "flex-1", "space-y-2"], [1, "mr-4", "flex", "h-24", "w-24", "items-center", "justify-center", "overflow-hidden", "rounded-xl", "bg-base-200"], ["auth", "", 1, "h-full", "object-cover", 3, "source"], ["src", "assets/icons/car-placeholder.svg", 1, "m-auto"], [1, "space-y-2", "pb-4"], [1, "font-medium"], [1, "flex", "items-center", "space-x-2", "text-sm"], [1, "text-blue-500"], [1, "absolute", "bottom-0", "right-0", "flex", "items-center", "justify-end", "text-xs"], ["btn", "", "matRipple", "", "edit-space", "", 1, "clear", 3, "click"], [1, "flex", "items-center", "space-x-2"], ["btn", "", "matRipple", "", "remove-space", "", 1, "clear", 3, "click"], ["icon", "", "matRipple", "", "fav", "", 1, "absolute", "right-1", "top-1", 3, "click"], [3, "className"]], template: function ParkingSpaceListFieldComponent_Template(rf, ctx) {
+])], decls: 12, vars: 3, consts: [["list", "", 1, "space-y-2"], ["space", "", 1, "relative", "flex", "w-full", "items-center", "rounded-lg", "border", "border-base-200", "p-2", "shadow-sm"], ["btn", "", "matRipple", "", "add-space", "", 1, "inverse", "mt-2", "w-full", 3, "click"], [1, "flex", "items-center", "justify-center", "space-x-2"], [1, "text-2xl"], [1, "mb-2", "flex", "flex-wrap", "items-center", "sm:space-x-2"], [1, "min-w-[256px]", "flex-1", "space-y-2"], [1, "mr-4", "flex", "h-24", "w-24", "items-center", "justify-center", "overflow-hidden", "rounded-xl", "bg-base-200"], ["auth", "", 1, "h-full", "object-cover", 3, "source"], ["src", "assets/icons/car-placeholder.svg", 1, "m-auto"], [1, "space-y-2", "pb-4"], [1, "font-medium"], [1, "flex", "items-center", "space-x-2", "text-sm"], [1, "text-blue-500"], [1, "absolute", "bottom-0", "right-0", "flex", "items-center", "justify-end", "text-xs"], ["btn", "", "matRipple", "", "edit-space", "", 1, "clear", 3, "click"], [1, "flex", "items-center", "space-x-2"], ["btn", "", "matRipple", "", "remove-space", "", 1, "clear", 3, "click"], ["icon", "", "matRipple", "", "fav", "", 1, "absolute", "right-1", "top-1", 3, "click"], [3, "className"]], template: function ParkingSpaceListFieldComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0);
     \u0275\u0275repeaterCreate(1, ParkingSpaceListFieldComponent_For_2_Template, 30, 12, "div", 1, \u0275\u0275repeaterTrackByIdentity);
@@ -18030,7 +18030,7 @@ var ParkingSpaceListFieldComponent = _ParkingSpaceListFieldComponent;
             @for (space of spaces; track space) {
                 <div
                     space
-                    class="relative flex w-full items-center rounded-lg border border-base-200 p-2 shadow"
+                    class="relative flex w-full items-center rounded-lg border border-base-200 p-2 shadow-sm"
                 >
                     <div
                         class="mr-4 flex h-24 w-24 items-center justify-center overflow-hidden rounded-xl bg-base-200"
@@ -18971,7 +18971,7 @@ var _VisitorInviteSuccessComponent = class _VisitorInviteSuccessComponent {
 _VisitorInviteSuccessComponent.\u0275fac = function VisitorInviteSuccessComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _VisitorInviteSuccessComponent)();
 };
-_VisitorInviteSuccessComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _VisitorInviteSuccessComponent, selectors: [["visitor-invite-success"]], inputs: { last_count: [1, "last_count"] }, outputs: { done: "done", another: "another" }, decls: 20, vars: 28, consts: [["sent", "", 1, "flex", "h-full", "w-full", "flex-col", "items-center", "justify-center", "bg-base-100", "text-center"], [1, "z-0", "m-8", "h-1/2", "w-full", "max-w-[32rem]", "flex-1", "space-y-2", "overflow-auto"], [1, "text-3xl"], ["src", "assets/icons/sent.svg", 1, "mx-auto"], [1, "relative", "flex", "flex-col", "items-center", "space-y-4", "p-4"], [1, "z-10", "w-full", "border-t", "border-base-200", "bg-base-100", "p-2"], [1, "mx-auto", "flex", "w-full", "max-w-[32rem]", "items-center", "space-x-2"], ["btn", "", "matRipple", "", 1, "flex-1", 3, "click"], ["btn", "", "matRipple", "", "name", "desk-outlook-link", "target", "_blank", "rel", "noopener noreferer", 1, "inverse", "flex", "w-64", "items-center", "space-x-2", "rounded", "p-2", "pr-4", 3, "href"], ["src", "assets/icons/outlook.svg", 1, "w-6"], ["btn", "", "matRipple", "", "name", "desk-google-link", "target", "_blank", "rel", "noopener noreferer", 1, "inverse", "flex", "w-64", "items-center", "space-x-2", "rounded", "p-2", "pr-4", 3, "href"], ["src", "assets/icons/gcal.svg", 1, "w-6"], ["btn", "", "matRipple", "", "name", "desk-ical-link", "target", "_blank", "rel", "noopener noreferer", 1, "inverse", "flex", "w-64", "items-center", "space-x-2", "rounded", "p-2", "pr-4", 3, "href"], [1, "text-xl"]], template: function VisitorInviteSuccessComponent_Template(rf, ctx) {
+_VisitorInviteSuccessComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _VisitorInviteSuccessComponent, selectors: [["visitor-invite-success"]], inputs: { last_count: [1, "last_count"] }, outputs: { done: "done", another: "another" }, decls: 20, vars: 28, consts: [["sent", "", 1, "flex", "h-full", "w-full", "flex-col", "items-center", "justify-center", "bg-base-100", "text-center"], [1, "z-0", "m-8", "h-1/2", "w-full", "max-w-lg", "flex-1", "space-y-2", "overflow-auto"], [1, "text-3xl"], ["src", "assets/icons/sent.svg", 1, "mx-auto"], [1, "relative", "flex", "flex-col", "items-center", "space-y-4", "p-4"], [1, "z-10", "w-full", "border-t", "border-base-200", "bg-base-100", "p-2"], [1, "mx-auto", "flex", "w-full", "max-w-lg", "items-center", "space-x-2"], ["btn", "", "matRipple", "", 1, "flex-1", 3, "click"], ["btn", "", "matRipple", "", "name", "desk-outlook-link", "target", "_blank", "rel", "noopener noreferer", 1, "inverse", "flex", "w-64", "items-center", "space-x-2", "rounded-sm", "p-2", "pr-4", 3, "href"], ["src", "assets/icons/outlook.svg", 1, "w-6"], ["btn", "", "matRipple", "", "name", "desk-google-link", "target", "_blank", "rel", "noopener noreferer", 1, "inverse", "flex", "w-64", "items-center", "space-x-2", "rounded-sm", "p-2", "pr-4", 3, "href"], ["src", "assets/icons/gcal.svg", 1, "w-6"], ["btn", "", "matRipple", "", "name", "desk-ical-link", "target", "_blank", "rel", "noopener noreferer", 1, "inverse", "flex", "w-64", "items-center", "space-x-2", "rounded-sm", "p-2", "pr-4", 3, "href"], [1, "text-xl"]], template: function VisitorInviteSuccessComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "div", 1)(2, "h2", 2);
     \u0275\u0275text(3);
@@ -19033,7 +19033,7 @@ var VisitorInviteSuccessComponent = _VisitorInviteSuccessComponent;
             class="flex h-full w-full flex-col items-center justify-center bg-base-100 text-center"
         >
             <div
-                class="z-0 m-8 h-1/2 w-full max-w-[32rem] flex-1 space-y-2 overflow-auto"
+                class="z-0 m-8 h-1/2 w-full max-w-lg flex-1 space-y-2 overflow-auto"
             >
                 <h2 class="text-3xl">
                     {{
@@ -19076,7 +19076,7 @@ var VisitorInviteSuccessComponent = _VisitorInviteSuccessComponent;
                             btn
                             matRipple
                             name="desk-outlook-link"
-                            class="inverse flex w-64 items-center space-x-2 rounded p-2 pr-4"
+                            class="inverse flex w-64 items-center space-x-2 rounded-sm p-2 pr-4"
                             [href]="outlook_link() | sanitize: 'url'"
                             target="_blank"
                             rel="noopener noreferer"
@@ -19090,7 +19090,7 @@ var VisitorInviteSuccessComponent = _VisitorInviteSuccessComponent;
                             btn
                             matRipple
                             name="desk-google-link"
-                            class="inverse flex w-64 items-center space-x-2 rounded p-2 pr-4"
+                            class="inverse flex w-64 items-center space-x-2 rounded-sm p-2 pr-4"
                             [href]="google_link() | sanitize: 'url'"
                             target="_blank"
                             rel="noopener noreferer"
@@ -19104,7 +19104,7 @@ var VisitorInviteSuccessComponent = _VisitorInviteSuccessComponent;
                             btn
                             matRipple
                             name="desk-ical-link"
-                            class="inverse flex w-64 items-center space-x-2 rounded p-2 pr-4"
+                            class="inverse flex w-64 items-center space-x-2 rounded-sm p-2 pr-4"
                             [href]="ical_link() | safe: 'url'"
                             target="_blank"
                             rel="noopener noreferer"
@@ -19117,7 +19117,7 @@ var VisitorInviteSuccessComponent = _VisitorInviteSuccessComponent;
             </div>
             <div class="z-10 w-full border-t border-base-200 bg-base-100 p-2">
                 <div
-                    class="mx-auto flex w-full max-w-[32rem] items-center space-x-2"
+                    class="mx-auto flex w-full max-w-lg items-center space-x-2"
                 >
                     <button btn matRipple class="flex-1" (click)="done.emit()">
                         {{ 'APP.WORKPLACE.BOOKING_FINISHED' | translate }}
@@ -19295,4 +19295,4 @@ var CheckinStateService = _CheckinStateService;
 export {
   CheckinStateService
 };
-//# sourceMappingURL=chunk-UMPME6HK.js.map
+//# sourceMappingURL=chunk-CA3RXT2G.js.map
