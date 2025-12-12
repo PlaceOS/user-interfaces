@@ -2,146 +2,128 @@
 
 :root {
     /* Brand */
-    --brand-100: hsl(336, 57%, 48%); /* #C52B67 */
-    --brand-200: hsla(217, 91%, 60%, 1); /* #C52B67 */
-    --brand-300: rgb(236, 239, 241); /* #C52B67 */
-    --brand-400: hsl(336, 57%, 48%); /* #C52B67 */
-    --brand-500: hsl(336, 57%, 48%); /* #C52B67 */
-    --brand-600: hsl(336, 57%, 48%); /* #C52B67 */
-    --brand-content: hsl(0, 0%, 100%); /* White content for contrast */
+    --brand-100: hsl(336, 57%, 48%);
+    --brand-200: hsl(217, 91%, 60%);
+    --brand-300: hsl(200, 15%, 94%);
+    --brand-400: hsl(336, 57%, 48%);
+    --brand-500: hsl(336, 57%, 48%);
+    --brand-600: hsl(336, 57%, 48%);
+    --brand-content: hsl(0, 0%, 100%);
 
     /* Primary */
-    --primary: hsl(336, 57%, 48%); /* #C52B67 */
-    --primary-focus: hsl(336, 57%, 38%); /* Darker shade */
-    --primary-content: hsl(0, 0%, 100%); /* White content for contrast */
+    --primary: hsl(336, 57%, 48%);
+    --primary-focus: hsl(336, 57%, 38%);
+    --primary-content: hsl(0, 0%, 100%);
 
     /* Secondary */
-    --secondary: hsl(237, 37%, 20%); /* #292F5B */
-    --secondary-focus: hsl(237, 37%, 10%); /* Darker shade */
-    --secondary-content: hsl(0, 0%, 100%); /* White content for contrast */
+    --secondary: hsl(237, 37%, 20%);
+    --secondary-focus: hsl(237, 37%, 10%);
+    --secondary-content: hsl(0, 0%, 100%);
 
     /* Ternary */
-    --ternary: hsl(237, 37%, 20%); /* #292F5B */
-    --ternary-focus: hsl(237, 37%, 10%); /* Darker shade (Hover etc.) */
-    --ternary-content: hsl(0, 0%, 100%); /* White content(text) for contrast */
+    --ternary: hsl(237, 37%, 20%);
+    --ternary-focus: hsl(237, 37%, 10%);
+    --ternary-content: hsl(0, 0%, 100%);
 
-    /* Accent (Complementary color to Primary) */
-    --accent: hsl(156, 57%, 48%); /* A contrasting greenish tone */
-    --accent-focus: hsl(156, 57%, 38%); /* Darker shade of the a */
-    --accent-content: hsl(0, 0%, 0%); /* Black content for contrast */
+    /* Accent */
+    --accent: hsl(156, 57%, 48%);
+    --accent-focus: hsl(156, 57%, 38%);
+    --accent-content: hsl(0, 0%, 0%);
 
     /* Neutral */
-    --neutral: hsl(0, 0%, 50%); /* Grey */
-    --neutral-focus: hsl(0, 0%, 40%); /* Darker Grey */
-    --neutral-content: hsl(0, 0%, 100%); /* White content on grey background */
+    --neutral: hsl(0, 0%, 50%);
+    --neutral-focus: hsl(0, 0%, 40%);
+    --neutral-content: hsl(0, 0%, 100%);
 
     /* Base */
-    --base-100: hsl(0, 0%, 98.5%); /* Near White */
-    --base-200: hsl(49, 2%, 92%); /* Light Grey */
-    --base-300: hsl(56, 5%, 71%); /* Mid Grey */
-    --base-400: hsl(58, 7%, 55%); /* Mid Grey */
-    --base-content: hsl(0, 0%, 0%); /* Black content on white background */
+    --base-100: hsl(0, 0%, 98.5%);
+    --base-200: hsl(49, 2%, 92%);
+    --base-300: hsl(56, 5%, 71%);
+    --base-400: hsl(58, 7%, 55%);
+    --base-content: hsl(0, 0%, 0%);
 
     /* Info */
-    --info: hsla(217, 91%, 60%, 1); /* Light Blue */
-    --info-light: rgb(227, 242, 253); /* Light Blue */
-    --info-content: hsla(
-        214,
-        100%,
-        97%,
-        1
-    ); /* White content on light blue background */
+    --info: hsl(217, 91%, 60%);
+    --info-light: hsl(207, 89%, 94%);
+    --info-content: hsl(214, 100%, 97%);
 
     /* Warning */
-    --warn: hsla(45, 100%, 64%, 1); /* Yellow */
-    --warn-light: rgb(255, 253, 231); /* Yellow */
-    --warn-content: hsl(0, 0%, 0%); /* Black content on yellow background */
+    --warn: hsl(45, 100%, 64%);
+    --warn-light: hsl(60, 100%, 95%);
+    --warn-content: hsl(0, 0%, 0%);
 
     /* Success */
-    --success: hsla(118, 50%, 43%, 1); /* Light Green */
-    --success-light: rgb(232, 245, 233); /* Light Green */
-    --success-content: hsla(
-        152,
-        81%,
-        96%,
-        1
-    ); /* White content on light green background */
+    --success: hsl(118, 50%, 43%);
+    --success-light: hsl(120, 39%, 94%);
+    --success-content: hsl(152, 81%, 96%);
 
     /* Error */
-    --error: hsla(354, 75%, 53%, 1); /* Red */
-    --error-light: rgb(255, 235, 238); /* Red */
-    --error-content: hsl(0, 0%, 100%); /* White content on red background */
+    --error: hsl(354, 75%, 53%);
+    --error-light: hsl(350, 100%, 96%);
+    --error-content: hsl(0, 0%, 100%);
 }
 
 .theme-dark {
     /* Brand */
-    --brand-100: hsl(336, 57%, 48%); /* #C52B67 */
-    --brand-200: hsla(217, 91%, 60%, 1); /* #C52B67 */
-    --brand-300: rgb(63, 81, 181); /* #C52B67 */
-    --brand-400: hsl(336, 57%, 48%); /* #C52B67 */
-    --brand-500: hsl(336, 57%, 48%); /* #C52B67 */
-    --brand-600: hsl(336, 57%, 48%); /* #C52B67 */
-    --brand-content: hsl(0, 0%, 100%); /* White content for contrast */
+    --brand-100: hsl(336, 57%, 48%);
+    --brand-200: hsl(217, 91%, 60%);
+    --brand-300: hsl(232, 50%, 48%);
+    --brand-400: hsl(336, 57%, 48%);
+    --brand-500: hsl(336, 57%, 48%);
+    --brand-600: hsl(336, 57%, 48%);
+    --brand-content: hsl(0, 0%, 100%);
 
     /* Primary */
-    --primary: hsl(336, 57%, 48%); /* #C52B67 */
-    --primary-focus: hsl(336, 57%, 38%); /* Darker shade */
-    --primary-content: hsl(0, 0%, 100%); /* White content for contrast */
+    --primary: hsl(336, 57%, 48%);
+    --primary-focus: hsl(336, 57%, 38%);
+    --primary-content: hsl(0, 0%, 100%);
 
     /* Secondary */
-    --secondary: hsl(336, 57%, 48%); /* #C52B67 */
-    --secondary-focus: hsl(336, 57%, 38%); /* Darker shade */
-    --secondary-content: hsl(0, 0%, 100%); /* White content for contrast */
+    --secondary: hsl(336, 57%, 48%);
+    --secondary-focus: hsl(336, 57%, 38%);
+    --secondary-content: hsl(0, 0%, 100%);
 
     /* Ternary */
-    --ternary: hsl(206, 23%, 30%); /* #E5E5EA */
-    --ternary-focus: hsl(206, 23%, 24%); /* Darker shade */
-    --ternary-content: hsl(0, 0%, 80%); /* Black content for contrast */
+    --ternary: hsl(206, 23%, 30%);
+    --ternary-focus: hsl(206, 23%, 24%);
+    --ternary-content: hsl(0, 0%, 80%);
 
     /* Accent */
-    --accent: hsl(156, 57%, 28%); /* Darker shade of complementary color */
-    --accent-focus: hsl(158, 17%, 9%); /* Even darker shade */
-    --accent-content: hsl(0, 0%, 80%); /* Lighter text for contrast */
+    --accent: hsl(156, 57%, 28%);
+    --accent-focus: hsl(158, 17%, 9%);
+    --accent-content: hsl(0, 0%, 80%);
 
     /* Neutral */
-    --neutral: hsl(0, 0%, 20%); /* Dark Grey */
-    --neutral-focus: hsl(0, 0%, 15%); /* Even darker Grey */
-    --neutral-content: hsl(0, 0%, 80%); /* Light grey text for contrast */
+    --neutral: hsl(0, 0%, 20%);
+    --neutral-focus: hsl(0, 0%, 15%);
+    --neutral-content: hsl(0, 0%, 80%);
 
     /* Base */
-    --base-100: hsl(0, 0%, 10%); /* Near Black */
-    --base-200: hsl(0, 0%, 15%); /* Dark Grey */
-    --base-300: hsl(0, 0%, 20%); /* Mid-Dark Grey */
-    --base-400: hsl(0, 0%, 30%); /* Mid Grey */
-    --base-content: hsl(0, 0%, 80%); /* Light grey text for contrast */
+    --base-100: hsl(0, 0%, 10%);
+    --base-200: hsl(0, 0%, 15%);
+    --base-300: hsl(0, 0%, 20%);
+    --base-400: hsl(0, 0%, 30%);
+    --base-content: hsl(0, 0%, 80%);
 
     /* Info */
-    --info: rgb(21, 101, 192); /* Light Blue */
-    --info-light: rgb(66, 165, 245); /* Light Blue */
-    --info-content: hsl(
-        0,
-        0%,
-        100%
-    ); /* White content on light blue background */
+    --info: hsl(211, 80%, 42%);
+    --info-light: hsl(206, 90%, 61%);
+    --info-content: hsl(0, 0%, 100%);
 
     /* Warning */
-    --warn: rgb(255, 143, 0); /* Yellow */
-    --warn-light: rgb(255, 213, 79);
-    --warn-content: hsl(0, 0%, 0%); /* Black content on yellow background */
+    --warn: hsl(34, 100%, 50%);
+    --warn-light: hsl(44, 100%, 65%);
+    --warn-content: hsl(0, 0%, 0%);
 
     /* Success */
-    --success: rgb(46, 125, 50); /* Light Green */
-    --success-light: rgb(102, 187, 106); /* Light Green */
-    --success-content: hsl(
-        0,
-        0%,
-        100%
-    ); /* White content on light green background */
+    --success: hsl(122, 46%, 34%);
+    --success-light: hsl(122, 39%, 57%);
+    --success-content: hsl(0, 0%, 100%);
 
     /* Error */
-    --error: rgb(198, 40, 40); /* Red */
-    --error-light: rgb(239, 83, 80);
-    --error-content: hsl(0, 0%, 100%); /* White content on red background */
+    --error: hsl(0, 66%, 47%);
+    --error-light: hsl(4, 83%, 63%);
+    --error-content: hsl(0, 0%, 100%);
 }
 
 @media screen {
@@ -270,9 +252,7 @@ i[binding] {
     display: none;
 }
 
-/*/////////////////////////////////////////////////////////////
-//////////////////////   Custom Classes   /////////////////////
-/////////////////////////////////////////////////////////////*/
+/* Custom Classes */
 
 .spinner {
     svg {
@@ -292,10 +272,6 @@ code {
     border-radius: 0.25rem;
     padding: 0.25rem 0.5rem;
     margin: 0 0.25rem;
-}
-
-.line-through {
-    text-decoration-line: line-through;
 }
 
 .panel {
@@ -577,16 +553,6 @@ mat-form-field {
     }
 }
 
-.mdc-form-field {
-    &[overlay],
-    &[overlay]:hover {
-        .mdc-form-field-outline {
-            background-color: var(--neutral);
-            border-radius: 4px;
-        }
-    }
-}
-
 mat-slider {
     &[white] {
         &.mdc-slider-min-value:not(.mdc-slider-thumb-label-showing)
@@ -605,14 +571,6 @@ mat-slider {
 
     .mdc-slider-track-fill {
         background-color: var(--primary);
-    }
-}
-
-mat-form-field {
-    &.mdc-form-field-appearance-outline.mdc-focused {
-        .mdc-form-field-outline-thick {
-            color: var(--primary);
-        }
     }
 }
 
@@ -963,6 +921,7 @@ a[icon] {
 
     .mat-mdc-menu-item-text {
         color: var(--base-content);
+        width: 100%;
     }
 
     .mat-mdc-menu-item {
@@ -970,10 +929,6 @@ a[icon] {
         &:hover {
             background-color: var(--base-200);
         }
-    }
-
-    .mat-mdc-menu-item-text {
-        width: 100%;
     }
 
     .mdc-text-field--outlined {
@@ -1015,10 +970,6 @@ a[icon] {
             margin-top: -1rem;
             top: 0.25rem;
         }
-    }
-
-    .mat-mdc-select-value {
-        overflow: visible;
     }
 
     mat-slide-toggle {
@@ -1094,10 +1045,6 @@ a[icon] {
 
     .mdc-button__label {
         color: inherit;
-    }
-
-    .mdc-ink-bar {
-        background-color: var(--primary);
     }
 
     mat-chip {
@@ -1527,9 +1474,7 @@ survey-widget *::-webkit-scrollbar-thumb {
     }
 }
 
-/*/////////////////////////////////////////////////////////////
-//////////////////////   Native Classes   /////////////////////
-/////////////////////////////////////////////////////////////*/
+/* Native Classes */
 
 input,
 textarea {
@@ -1608,9 +1553,7 @@ a[link] {
     }
 }
 
-/*/////////////////////////////////////////////////////////////
-/////////////////////   Utility Classes   /////////////////////
-/////////////////////////////////////////////////////////////*/
+/* Utility Classes */
 
 .bg-darken {
     background-color: rgba(#000, 0.1);
