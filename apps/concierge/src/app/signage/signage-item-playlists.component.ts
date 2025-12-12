@@ -88,7 +88,7 @@ const PLAYLIST_ITEM_MEDIA = signal<Record<string, SignageMedia[]>>({});
                         <button
                             matRipple
                             cdkDragHandle
-                            class="!m-0 flex h-full w-6 items-center justify-center rounded hover:bg-base-200"
+                            class="m-0! flex h-full w-6 items-center justify-center rounded-sm hover:bg-base-200"
                             [matTooltip]="
                                 'APP.CONCIERGE.SIGNAGE_MEDIA_REORDER'
                                     | translate
@@ -101,7 +101,7 @@ const PLAYLIST_ITEM_MEDIA = signal<Record<string, SignageMedia[]>>({});
                             matRipple
                             [routerLink]="['/signage', 'media']"
                             [queryParams]="{ playlist: item.id }"
-                            class="h-14 w-14 overflow-hidden rounded border border-base-200 bg-base-200"
+                            class="h-14 w-14 overflow-hidden rounded-sm border border-base-200 bg-base-200"
                         >
                             @for (
                                 media of playlist_thumbnail_media()[item.id] ||
@@ -112,7 +112,7 @@ const PLAYLIST_ITEM_MEDIA = signal<Record<string, SignageMedia[]>>({});
                                 <img
                                     auth
                                     [source]="media"
-                                    class="absolute h-full w-full rounded object-cover shadow-lg"
+                                    class="absolute h-full w-full rounded-sm object-cover shadow-lg"
                                     [style.top]="0.5 + i * 1 + 'rem'"
                                     [style.left]="0.5 + i * 1 + 'rem'"
                                 />
@@ -138,7 +138,7 @@ const PLAYLIST_ITEM_MEDIA = signal<Record<string, SignageMedia[]>>({});
                         </div>
                         @if (isScheduled(item)) {
                             <div
-                                class="rounded border border-info bg-info-light p-1 text-lg"
+                                class="rounded-sm border border-info bg-info-light p-1 text-lg"
                                 [matTooltip]="'COMMON.SCHEDULED' | translate"
                             >
                                 <icon>event</icon>

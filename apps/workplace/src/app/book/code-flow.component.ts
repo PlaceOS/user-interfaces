@@ -102,7 +102,7 @@ import { lastValueFrom } from 'rxjs';
                         </div>
                     </div>
                     <div
-                        class="m-4 flex items-center space-x-2 rounded bg-base-100 bg-opacity-50 p-2"
+                        class="m-4 flex items-center space-x-2 rounded-sm bg-base-100 bg-opacity-50 p-2"
                     >
                         <button
                             matRipple

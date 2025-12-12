@@ -11,7 +11,7 @@ import { CheckinStateService } from './checkin-state.service';
     template: `
         @if (!loading) {
             <div
-                class="relative flex w-[24rem] flex-col items-center overflow-hidden rounded bg-base-100 p-4 shadow"
+                class="relative flex w-[24rem] flex-col items-center overflow-hidden rounded-sm bg-base-100 p-4 shadow-sm"
             >
                 <h3 class="mb-4 text-xl">
                     {{ 'APP.VISITOR_KIOSK.TAKE_PHOTO' | translate }}

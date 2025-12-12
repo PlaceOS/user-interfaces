@@ -16,11 +16,11 @@ import { TranslatePipe } from '@placeos/components';
             @if (features().includes('spaces')) {
                 <a
                     matRipple
-                    class="flex w-64 min-w-64 snap-start items-center space-x-4 rounded border border-base-200 bg-base-100 p-2 shadow"
+                    class="flex w-64 min-w-64 snap-start items-center space-x-4 rounded-sm border border-base-200 bg-base-100 p-2 shadow-sm"
                     [routerLink]="['/book', 'meeting']"
                 >
                     <div
-                        class="flex h-16 min-w-[4rem] items-center justify-center rounded bg-base-200"
+                        class="flex h-16 min-w-16 items-center justify-center rounded-sm bg-base-200"
                     >
                         <img
                             class="h-1/2 w-1/2 object-contain object-center"
@@ -35,11 +35,11 @@ import { TranslatePipe } from '@placeos/components';
             @if (features().includes('desks')) {
                 <a
                     matRipple
-                    class="flex w-64 min-w-64 snap-start items-center space-x-4 rounded border border-base-200 bg-base-100 p-2 shadow"
+                    class="flex w-64 min-w-64 snap-start items-center space-x-4 rounded-sm border border-base-200 bg-base-100 p-2 shadow-sm"
                     [routerLink]="['/book', 'desk']"
                 >
                     <div
-                        class="flex h-16 min-w-[4rem] items-center justify-center rounded bg-base-200"
+                        class="flex h-16 min-w-16 items-center justify-center rounded-sm bg-base-200"
                     >
                         <img
                             class="h-1/2 w-1/2 object-contain object-center"
@@ -54,11 +54,11 @@ import { TranslatePipe } from '@placeos/components';
             @if (features().includes('parking')) {
                 <a
                     matRipple
-                    class="flex w-64 min-w-64 snap-start items-center space-x-4 rounded border border-base-200 bg-base-100 p-2 shadow"
+                    class="flex w-64 min-w-64 snap-start items-center space-x-4 rounded-sm border border-base-200 bg-base-100 p-2 shadow-sm"
                     [routerLink]="['/book', 'parking']"
                 >
                     <div
-                        class="flex h-16 min-w-[4rem] items-center justify-center rounded bg-base-200"
+                        class="flex h-16 min-w-16 items-center justify-center rounded-sm bg-base-200"
                     >
                         <img
                             class="h-1/2 w-1/2 object-contain object-center"
@@ -73,11 +73,11 @@ import { TranslatePipe } from '@placeos/components';
             @if (features().includes('lockers')) {
                 <a
                     matRipple
-                    class="flex w-64 min-w-64 snap-start items-center space-x-4 rounded border border-base-200 bg-base-100 p-2 shadow"
+                    class="flex w-64 min-w-64 snap-start items-center space-x-4 rounded-sm border border-base-200 bg-base-100 p-2 shadow-sm"
                     [routerLink]="['/book', 'locker']"
                 >
                     <div
-                        class="flex h-16 min-w-[4rem] items-center justify-center rounded bg-base-200"
+                        class="flex h-16 min-w-16 items-center justify-center rounded-sm bg-base-200"
                     >
                         <img
                             class="h-1/2 w-1/2 object-contain object-center"

@@ -18,7 +18,7 @@ import { TranslatePipe } from '@placeos/components';
     template: `
         <div
             name="camera"
-            class="relative flex h-[22rem] w-[22rem] flex-col items-center justify-center overflow-hidden rounded-full border-2 border-base-300 bg-base-200"
+            class="relative flex h-88 w-88 flex-col items-center justify-center overflow-hidden rounded-full border-2 border-base-300 bg-base-200"
         >
             <video
                 id="video"

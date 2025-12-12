@@ -28,7 +28,7 @@ interface ImportItem {
     selector: 'catering-import-menu-modal',
     template: `
         <header
-            class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded border-none bg-base-200 p-2"
+            class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none bg-base-200 p-2"
         >
             <h2 class="px-2 text-xl font-medium">
                 {{ 'CATERING.MENU_IMPORT' | translate }}
@@ -42,7 +42,7 @@ interface ImportItem {
         @if (!loading) {
             <main>
                 <div
-                    class="relative mx-2 flex h-[24rem] w-[24rem] cursor-pointer flex-col items-center justify-center space-y-4 rounded-xl border-4 border-dashed border-base-300 p-4 hover:bg-base-200"
+                    class="relative mx-2 flex h-96 w-[24rem] cursor-pointer flex-col items-center justify-center space-y-4 rounded-xl border-4 border-dashed border-base-300 p-4 hover:bg-base-200"
                 >
                     <icon class="text-8xl opacity-30">cloud_upload</icon>
                     <p class="px-4 text-center opacity-30">
@@ -67,7 +67,7 @@ interface ImportItem {
             </main>
         } @else {
             <main
-                class="flex h-[24rem] w-[24rem] flex-col items-center justify-center space-y-2 p-8"
+                class="flex h-96 w-[24rem] flex-col items-center justify-center space-y-2 p-8"
             >
                 <mat-spinner diameter="32"></mat-spinner>
                 <p>{{ loading }}</p>

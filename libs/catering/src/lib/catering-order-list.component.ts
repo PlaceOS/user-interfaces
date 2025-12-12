@@ -23,7 +23,7 @@ import { statusList } from './catering.vars';
                 mode="indeterminate"
             ></mat-progress-bar>
             <simple-table
-                class="block w-full min-w-[72rem] text-sm"
+                class="block w-full min-w-6xl text-sm"
                 [data]="order_list"
                 [columns]="[
                     {
@@ -190,12 +190,12 @@ import { statusList } from './catering.vars';
                     </button>
                     <ng-template #notes_template>
                         <div
-                            class="min-w-[8rem] max-w-[32rem] rounded-lg border border-base-200 bg-base-100 p-2 text-base-content shadow"
+                            class="min-w-32 max-w-lg rounded-lg border border-base-200 bg-base-100 p-2 text-base-content shadow-sm"
                         >
                             <div class="mb-2">
                                 {{ 'FORM.NOTES' | translate }}
                             </div>
-                            <p class="rounded bg-base-200 px-4 py-2 text-sm">
+                            <p class="rounded-sm bg-base-200 px-4 py-2 text-sm">
                                 {{ row.notes }}
                             </p>
                         </div>

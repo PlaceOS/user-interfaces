@@ -135,7 +135,7 @@ interface CateringOptionGroup {
                                                     [value]="opt.id"
                                                 >
                                                     <div
-                                                        class="flex max-w-[calc(100vw-4rem)] items-center justify-center sm:max-w-[15rem]"
+                                                        class="flex max-w-[calc(100vw-4rem)] items-center justify-center sm:max-w-60"
                                                     >
                                                         <div
                                                             class="w-1/2 flex-1 whitespace-normal p-2 font-medium capitalize"
@@ -206,7 +206,7 @@ interface CateringOptionGroup {
                 </section>
             </div>
             <div
-                class="border-t border-base-200 px-2 pb-[5.5rem] pt-2 shadow sm:hidden"
+                class="border-t border-base-200 px-2 pb-22 pt-2 shadow-sm sm:hidden"
             >
                 <button
                     btn

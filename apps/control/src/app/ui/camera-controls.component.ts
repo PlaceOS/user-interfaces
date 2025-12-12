@@ -58,13 +58,13 @@ export enum ZoomDirection {
                         ></joystick>
                         <div
                             zoom
-                            class="flex flex-col items-center rounded border border-base-200"
+                            class="flex flex-col items-center rounded-sm border border-base-200"
                         >
                             <button
                                 zoom-in
                                 icon
                                 matRipple
-                                class="rounded"
+                                class="rounded-sm"
                                 (mousedown)="startZoom('in', $event)"
                                 (touchstart)="startZoom('in', $event)"
                                 (contextmenu)="$event.preventDefault()"
@@ -80,7 +80,7 @@ export enum ZoomDirection {
                                 zoom-out
                                 icon
                                 matRipple
-                                class="rounded"
+                                class="rounded-sm"
                                 (mousedown)="startZoom('out', $event)"
                                 (touchstart)="startZoom('out', $event)"
                                 (contextmenu)="$event.preventDefault()"

@@ -50,7 +50,7 @@ import {
         <div class="relative h-1/2 w-full flex-1 overflow-y-auto px-8">
             <div class="min-h-full w-full overflow-x-auto">
                 <simple-table
-                    class="block w-full min-w-[56rem] text-sm"
+                    class="block w-full min-w-4xl text-sm"
                     [data]="templates"
                     empty_message="No group events for selected period"
                     [columns]="[

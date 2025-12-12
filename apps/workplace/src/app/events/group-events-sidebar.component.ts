@@ -80,7 +80,7 @@ import { GroupEventsStateService } from './group-events-state.service';
                             @for (tag of tags | async; track tag) {
                                 <button
                                     matRipple
-                                    class="flex w-full items-center rounded text-left"
+                                    class="flex w-full items-center rounded-sm text-left"
                                     (click)="toggleTag(tag)"
                                 >
                                     <mat-checkbox

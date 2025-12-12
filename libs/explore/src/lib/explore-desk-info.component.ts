@@ -48,7 +48,7 @@ export interface DeskInfoData {
                 name="space-info"
                 [id]="map_id()"
                 [class]="
-                    'pointer-events-none absolute left-0 top-0 w-64 bg-base-100 p-1 shadow ' +
+                    'pointer-events-none absolute left-0 top-0 w-64 bg-base-100 p-1 shadow-sm ' +
                     x_pos() +
                     ' ' +
                     y_pos()
@@ -83,7 +83,7 @@ export interface DeskInfoData {
                                 <div
                                     status
                                     [class]="
-                                        'text-light rounded border border-base-100 p-1 px-2 capitalize shadow ' +
+                                        'text-light rounded-sm border border-base-100 p-1 px-2 capitalize shadow-sm ' +
                                         status()
                                     "
                                 >

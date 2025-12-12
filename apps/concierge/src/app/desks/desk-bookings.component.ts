@@ -18,7 +18,7 @@ import { DesksStateService } from './desks-state.service';
     template: `
         <div class="h-full w-full overflow-auto pb-16">
             <simple-table
-                class="block min-w-[92rem] text-sm"
+                class="block min-w-368 text-sm"
                 [data]="bookings()"
                 [filter]="filters().search"
                 [filter_on]="[
@@ -167,15 +167,15 @@ import { DesksStateService } from './desks-state.service';
                 <div class="px-2">
                     <button
                         matRipple
-                        class="h-10 w-[7.5rem] rounded-3xl border-none bg-warning text-warning-content"
-                        [class.!text-success-content]="
+                        class="h-10 w-30 rounded-3xl border-none bg-warning text-warning-content"
+                        [class.text-success-content!]="
                             row?.status === 'approved'
                         "
-                        [class.!bg-success]="row?.status === 'approved'"
-                        [class.!text-error-content]="row?.status === 'declined'"
-                        [class.!bg-error]="row?.status === 'declined'"
-                        [class.!text-neutral-content]="row?.status === 'ended'"
-                        [class.!bg-neutral]="row?.status === 'ended'"
+                        [class.bg-success!]="row?.status === 'approved'"
+                        [class.text-error-content!]="row?.status === 'declined'"
+                        [class.bg-error!]="row?.status === 'declined'"
+                        [class.text-neutral-content!]="row?.status === 'ended'"
+                        [class.bg-neutral!]="row?.status === 'ended'"
                         [class.opacity-30]="row?.status === 'ended'"
                         [matMenuTriggerFor]="menu"
                         [disabled]="row?.status === 'ended'"
@@ -226,12 +226,12 @@ import { DesksStateService } from './desks-state.service';
                 <div class="px-2">
                     <button
                         matRipple
-                        class="h-10 w-[4.5rem] rounded-3xl border-none bg-warning text-warning-content"
+                        class="h-10 w-18 rounded-3xl border-none bg-warning text-warning-content"
                         [matMenuTriggerFor]="checkinMenu"
-                        [class.!bg-neutral]="!data"
-                        [class.!text-neutral-content]="!data"
-                        [class.!bg-success]="data"
-                        [class.!text-success-content]="data"
+                        [class.bg-neutral!]="!data"
+                        [class.text-neutral-content!]="!data"
+                        [class.bg-success!]="data"
+                        [class.text-success-content!]="data"
                         [class.opacity-30]="row.status === 'ended'"
                         [disabled]="row.status === 'ended'"
                         [matTooltip]="
@@ -271,7 +271,7 @@ import { DesksStateService } from './desks-state.service';
                     <button
                         icon
                         matRipple
-                        class="h-12 w-12 rounded"
+                        class="h-12 w-12 rounded-sm"
                         [matMenuTriggerFor]="actionMenu"
                     >
                         <icon class="text-2xl">more_vert</icon>

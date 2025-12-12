@@ -16,7 +16,7 @@ import { SpaceEventDetailsComponent } from './space-event-details.component';
                 (modelChange)="bookings.set($event)"
             ></i>
             <div
-                class="flex min-h-[3rem] w-full items-center justify-center border-b border-base-300 bg-base-100 text-xl font-medium"
+                class="flex min-h-12 w-full items-center justify-center border-b border-base-300 bg-base-100 text-xl font-medium"
             >
                 {{ space().display_name || space().name }}
             </div>

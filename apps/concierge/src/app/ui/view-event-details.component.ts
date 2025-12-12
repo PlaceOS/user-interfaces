@@ -25,7 +25,7 @@ import { EventsStateService } from '../day-view/events-state.service';
         ></div>
         <div
             name="panel"
-            class="absolute flex flex-col rounded bg-base-100 shadow"
+            class="absolute flex flex-col rounded-sm bg-base-100 shadow-sm"
             (click)="$event.stopPropagation()"
         >
             <div class="flex-1 overflow-auto p-4">
@@ -54,7 +54,7 @@ import { EventsStateService } from '../day-view/events-state.service';
                 <div class="mb-2 flex flex-col">
                     @for (user of event().attendees; track user) {
                         <div
-                            class="mb-1 flex items-center rounded pl-6 hover:bg-base-200"
+                            class="mb-1 flex items-center rounded-sm pl-6 hover:bg-base-200"
                         >
                             <a-user-avatar
                                 class="pr-2 text-sm"

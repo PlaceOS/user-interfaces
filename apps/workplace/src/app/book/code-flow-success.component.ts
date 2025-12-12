@@ -14,7 +14,7 @@ import { TranslatePipe } from '@placeos/components';
                     {{ 'APP.WORKPLACE.RESOURCE_CHECKED_IN' | translate }}
                 </h2>
                 <img src="assets/icons/success.svg" />
-                <p class="max-w-[32rem] text-center">
+                <p class="max-w-lg text-center">
                     {{
                         'APP.WORKPLACE.RESOURCE_CHECKED_IN_MESSAGE' | translate
                     }}
@@ -26,7 +26,7 @@ import { TranslatePipe } from '@placeos/components';
                 <a
                     btn
                     matRipple
-                    class="w-full max-w-[32rem]"
+                    class="w-full max-w-lg"
                     [routerLink]="['/']"
                 >
                     {{ 'COMMON.CONTINUE' | translate }}

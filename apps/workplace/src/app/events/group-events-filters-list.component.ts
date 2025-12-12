@@ -11,7 +11,7 @@ import { GroupEventsStateService } from './group-events-state.service';
     selector: 'group-events-filters-list',
     template: `
         <div
-            class="mx-auto my-2 w-[63rem] max-w-full rounded border border-base-300 bg-base-100 p-4"
+            class="mx-auto my-2 w-252 max-w-full rounded-sm border border-base-300 bg-base-100 p-4"
         >
             <div class="mb-4 flex items-center justify-between space-x-2">
                 <div>

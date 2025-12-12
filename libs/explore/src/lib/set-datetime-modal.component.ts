@@ -21,7 +21,7 @@ import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-f
     selector: 'set-datetime-modal',
     template: `
         <header
-            class="m-2 flex h-14 w-[calc(100%-1rem)] items-center justify-between rounded border-none bg-base-200 p-2"
+            class="m-2 flex h-14 w-[calc(100%-1rem)] items-center justify-between rounded-sm border-none bg-base-200 p-2"
         >
             <h2 class="px-2 text-xl font-medium">Set date and time</h2>
             <button icon matRipple mat-dialog-close>
@@ -37,7 +37,7 @@ import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-f
                         <div class="mb-2 flex w-full flex-1 flex-col sm:w-1/4">
                             <label>Resource:</label>
                             <div
-                                class="mb-4 w-full rounded border border-base-200 px-4 py-3"
+                                class="mb-4 w-full rounded-sm border border-base-200 px-4 py-3"
                             >
                                 {{
                                     resource.name ||
@@ -99,7 +99,7 @@ import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-f
             </main>
         }
         <footer
-            class="mx-2 mb-2 flex w-[calc(100%-1rem)] items-center justify-end rounded border-none bg-base-200 p-2"
+            class="mx-2 mb-2 flex w-[calc(100%-1rem)] items-center justify-end rounded-sm border-none bg-base-200 p-2"
         >
             <button btn matRipple [mat-dialog-close]="form.value" class="w-32">
                 {{ 'COMMON.CONTINUE' | translate }}

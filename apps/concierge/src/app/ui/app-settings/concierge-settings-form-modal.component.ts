@@ -48,7 +48,7 @@ import { UploadButtonComponent } from './upload-button.component';
             (confirm)="save()"
         >
             <form [formGroup]="form" class="flex flex-col space-y-8 pb-4">
-                <section general class="space-y-2 rounded bg-base-100">
+                <section general class="space-y-2 rounded-sm bg-base-100">
                     <div>
                         <label for="logo_light">Light Mode Logo</label>
                         <div class="mb-4 flex items-center space-x-2">
@@ -183,10 +183,10 @@ import { UploadButtonComponent } from './upload-button.component';
                         </mat-form-field>
                     </div>
                     <div
-                        class="relative rounded border border-base-300 px-4 pb-2 pt-4"
+                        class="relative rounded-sm border border-base-300 px-4 pb-2 pt-4"
                     >
                         <h3
-                            class="absolute left-4 top-0 -translate-y-1/2 rounded bg-base-100 px-2 py-1 font-medium"
+                            class="absolute left-4 top-0 -translate-y-1/2 rounded-sm bg-base-100 px-2 py-1 font-medium"
                         >
                             Banner
                         </h3>
@@ -341,11 +341,11 @@ import { UploadButtonComponent } from './upload-button.component';
                     <section
                         spaces
                         id="feature-spaces"
-                        class="relative rounded border border-base-300"
+                        class="relative rounded-sm border border-base-300"
                         formGroupName="events"
                     >
                         <h3
-                            class="absolute left-4 top-0 -translate-y-1/2 rounded bg-base-100 px-2 py-1 font-medium"
+                            class="absolute left-4 top-0 -translate-y-1/2 rounded-sm bg-base-100 px-2 py-1 font-medium"
                         >
                             Room Bookings
                         </h3>
@@ -691,11 +691,11 @@ import { UploadButtonComponent } from './upload-button.component';
                     <section
                         visitors
                         id="feature-visitors"
-                        class="relative rounded border border-base-300"
+                        class="relative rounded-sm border border-base-300"
                         formGroupName="visitors"
                     >
                         <h3
-                            class="absolute left-4 top-0 -translate-y-1/2 rounded bg-base-100 px-2 py-1 font-medium"
+                            class="absolute left-4 top-0 -translate-y-1/2 rounded-sm bg-base-100 px-2 py-1 font-medium"
                         >
                             Visitors
                         </h3>
@@ -787,11 +787,11 @@ import { UploadButtonComponent } from './upload-button.component';
                     <section
                         bookings
                         id="feature-bookings"
-                        class="relative rounded border border-base-300"
+                        class="relative rounded-sm border border-base-300"
                         formGroupName="bookings"
                     >
                         <h3
-                            class="absolute left-4 top-0 -translate-y-1/2 rounded bg-base-100 px-2 py-1 font-medium"
+                            class="absolute left-4 top-0 -translate-y-1/2 rounded-sm bg-base-100 px-2 py-1 font-medium"
                         >
                             PlaceOS Bookings
                         </h3>
@@ -1000,11 +1000,11 @@ import { UploadButtonComponent } from './upload-button.component';
                     <section
                         parking
                         id="feature-parking"
-                        class="relative rounded border border-base-300"
+                        class="relative rounded-sm border border-base-300"
                         formGroupName="parking"
                     >
                         <h3
-                            class="absolute left-4 top-0 -translate-y-1/2 rounded bg-base-100 px-2 py-1 font-medium"
+                            class="absolute left-4 top-0 -translate-y-1/2 rounded-sm bg-base-100 px-2 py-1 font-medium"
                         >
                             Parking
                         </h3>
@@ -1206,11 +1206,11 @@ import { UploadButtonComponent } from './upload-button.component';
                     <section
                         lockers
                         id="feature-lockers"
-                        class="relative rounded border border-base-300"
+                        class="relative rounded-sm border border-base-300"
                         formGroupName="lockers"
                     >
                         <h3
-                            class="absolute left-4 top-0 -translate-y-1/2 rounded bg-base-100 px-2 py-1 font-medium"
+                            class="absolute left-4 top-0 -translate-y-1/2 rounded-sm bg-base-100 px-2 py-1 font-medium"
                         >
                             Locker Bookings
                         </h3>

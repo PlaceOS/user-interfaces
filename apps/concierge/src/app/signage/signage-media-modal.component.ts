@@ -58,7 +58,7 @@ import { lastValueFrom } from 'rxjs';
                     >
                         @if (media_type === 'webpage') {
                             <iframe
-                                class="h-[100vh] w-full object-contain object-center"
+                                class="h-screen w-full object-contain object-center"
                                 [src]="url | safe: 'resource'"
                             ></iframe>
                         } @else {
@@ -69,7 +69,7 @@ import { lastValueFrom } from 'rxjs';
                             />
                         }
                         <div
-                            class="absolute left-2 top-2 rounded bg-base-400 px-2 py-1 text-xs capitalize"
+                            class="absolute left-2 top-2 rounded-sm bg-base-400 px-2 py-1 text-xs capitalize"
                         >
                             {{ media_type }}
                         </div>

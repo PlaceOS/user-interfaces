@@ -30,7 +30,7 @@ import { AssetStateService } from '../asset-state.service';
                         <li
                             asset
                             matRipple
-                            class="relative w-full rounded-lg border border-base-200 bg-base-100 p-2 shadow"
+                            class="relative w-full rounded-lg border border-base-200 bg-base-100 p-2 shadow-sm"
                         >
                             <button
                                 select

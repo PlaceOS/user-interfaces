@@ -19,7 +19,7 @@ import { debounceTime, map } from 'rxjs/operators';
     selector: 'help-modal',
     template: `
         <div
-            class="flex h-screen w-screen flex-col items-center overflow-hidden rounded bg-base-100 sm:h-[80vh] sm:w-[80vw] sm:flex-row"
+            class="flex h-screen w-screen flex-col items-center overflow-hidden rounded-sm bg-base-100 sm:h-[80vh] sm:w-[80vw] sm:flex-row"
         >
             <div sidebar class="w-full bg-base-300 sm:h-full sm:w-64">
                 <img
@@ -36,7 +36,7 @@ import { debounceTime, map } from 'rxjs/operators';
                         >
                             @if (item.id === active_item().id) {
                                 <div
-                                    class="absolute right-0 top-1/2 h-[5.5rem] w-6 -translate-y-1/2 overflow-hidden bg-base-100"
+                                    class="absolute right-0 top-1/2 h-22 w-6 -translate-y-1/2 overflow-hidden bg-base-100"
                                 >
                                     <div
                                         class="absolute right-0 top-0 h-12 w-12 -translate-y-1/2 rounded-full bg-base-300"

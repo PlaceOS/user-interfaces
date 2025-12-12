@@ -95,7 +95,7 @@ interface CateringOptionGroup {
                         @for (group of groups; track group) {
                             <div
                                 [attr.group]="group.name"
-                                class="relative space-y-2 rounded border border-base-400 px-3 pb-2 pt-4"
+                                class="relative space-y-2 rounded-sm border border-base-400 px-3 pb-2 pt-4"
                             >
                                 <h3
                                     class="text-md absolute left-2 top-0 -translate-y-1/2 bg-base-100 px-2 font-medium"
@@ -137,7 +137,7 @@ interface CateringOptionGroup {
                                                     [value]="opt.id"
                                                 >
                                                     <div
-                                                        class="flex max-w-[calc(100vw-4rem)] items-center justify-center sm:max-w-[15rem]"
+                                                        class="flex max-w-[calc(100vw-4rem)] items-center justify-center sm:max-w-60"
                                                     >
                                                         <div
                                                             class="w-1/2 flex-1 whitespace-normal p-2 font-medium capitalize"

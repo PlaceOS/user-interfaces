@@ -19,7 +19,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
             <h2>
                 {{ 'APP.CONCIERGE.VISITORS_NOTES_HEADERS' | translate }}
                 <span
-                    class="ml-2 rounded bg-base-200 px-2 py-1 text-sm font-medium"
+                    class="ml-2 rounded-sm bg-base-200 px-2 py-1 text-sm font-medium"
                 >
                     {{ item?.asset_name }}
                 </span>
@@ -31,7 +31,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
             }
         </header>
         @if (!loading) {
-            <main class="max-h-[65vh] w-[36rem] overflow-auto p-4">
+            <main class="max-h-[65vh] w-xl overflow-auto p-4">
                 <mat-form-field
                     appearance="outline"
                     class="no-subscript w-full"
@@ -39,7 +39,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                     <textarea
                         matInput
                         [(ngModel)]="notes"
-                        class="h-[60vh] max-h-[64rem] resize-none"
+                        class="h-[60vh] max-h-256 resize-none"
                         [placeholder]="
                             'APP.CONCIERGE.VISITORS_NOTES_HEADERS' | translate
                         "

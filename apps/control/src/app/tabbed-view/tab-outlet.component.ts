@@ -46,9 +46,9 @@ import { TVControlsComponent } from './tv-controls.component';
                 @for (tab of tabs | async; track tab) {
                     <a
                         matRipple
-                        class="mx-1 flex h-24 w-32 flex-col items-center justify-center overflow-hidden rounded-b-none rounded-t bg-base-100 leading-tight text-base-content opacity-60 shadow"
+                        class="mx-1 flex h-24 w-32 flex-col items-center justify-center overflow-hidden rounded-b-none rounded-t bg-base-100 leading-tight text-base-content opacity-60 shadow-sm"
                         [routerLink]="['/tabbed', id, tab.id || tab.name]"
-                        routerLinkActive="!opacity-100 !text-secondary"
+                        routerLinkActive="opacity-100! text-secondary!"
                         queryParamsHandling="merge"
                         (click)="onAction()"
                     >
@@ -68,10 +68,10 @@ import { TVControlsComponent } from './tv-controls.component';
                     @if (join_code) {
                         <div class="max-h-full w-16">
                             <div
-                                class="space-y-1 rounded bg-base-100 p-2 shadow"
+                                class="space-y-1 rounded-sm bg-base-100 p-2 shadow-sm"
                             >
                                 <img
-                                    class="w-16 overflow-hidden rounded border border-[hsl(217,62%,38%)]"
+                                    class="w-16 overflow-hidden rounded-sm border border-[hsl(217,62%,38%)]"
                                     [src]="
                                         hearing_tloop
                                             ? 'assets/loop_t.png'
@@ -89,7 +89,7 @@ import { TVControlsComponent } from './tv-controls.component';
                 </div>
             </div>
             <div
-                class="mb-1 flex h-1/2 w-[calc(100%-1rem)] flex-1 items-center divide-x divide-base-200 overflow-auto rounded bg-base-100 text-base-content shadow"
+                class="mb-1 flex h-1/2 w-[calc(100%-1rem)] flex-1 items-center divide-x divide-base-200 overflow-auto rounded-sm bg-base-100 text-base-content shadow-sm"
             >
                 @if ((inputs | async)?.length > 1) {
                     <div

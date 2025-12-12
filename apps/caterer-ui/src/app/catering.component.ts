@@ -19,7 +19,7 @@ import { CateringTopbarComponent } from './catering-topbar.component';
             }
             @if (page === 'menu') {
                 <div
-                    class="mx-8 mb-4 flex items-center justify-center rounded bg-info p-2 text-sm text-white"
+                    class="mx-8 mb-4 flex items-center justify-center rounded-sm bg-info p-2 text-sm text-white"
                 >
                     {{ 'CATERING.MENU_EDIT_INFO' | translate }}
                 </div>
@@ -40,7 +40,7 @@ import { CateringTopbarComponent } from './catering-topbar.component';
                         >
                             <a
                                 matRipple
-                                class="m-2 flex h-64 w-[28rem] flex-col items-center overflow-hidden rounded border border-base-300 bg-base-100 text-base-content"
+                                class="m-2 flex h-64 w-md flex-col items-center overflow-hidden rounded-sm border border-base-300 bg-base-100 text-base-content"
                                 [routerLink]="['/menu']"
                             >
                                 <div
@@ -66,7 +66,7 @@ import { CateringTopbarComponent } from './catering-topbar.component';
                             </a>
                             <a
                                 matRipple
-                                class="m-2 flex h-64 w-[28rem] flex-col items-center overflow-hidden rounded border border-base-300 bg-base-100 text-base-content"
+                                class="m-2 flex h-64 w-md flex-col items-center overflow-hidden rounded-sm border border-base-300 bg-base-100 text-base-content"
                                 [routerLink]="['/orders']"
                             >
                                 <div

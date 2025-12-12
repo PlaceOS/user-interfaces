@@ -33,7 +33,7 @@ import { ReportDesksOverallListComponent } from './report-desks-overall-list.com
             class="relative h-1/2 w-full flex-1 overflow-auto print:h-auto print:overflow-visible"
         >
             <div class="w-full">
-                <div class="m-4 flex items-center rounded bg-base-200 p-4">
+                <div class="m-4 flex items-center rounded-sm bg-base-200 p-4">
                     <img
                         auth
                         class="h-12"
@@ -48,7 +48,7 @@ import { ReportDesksOverallListComponent } from './report-desks-overall-list.com
             @if (!(loading | async)) {
                 @if (total_count | async) {
                     <div
-                        class="m-4 flex items-center justify-center space-x-2 rounded border border-base-200 bg-base-100 p-4"
+                        class="m-4 flex items-center justify-center space-x-2 rounded-sm border border-base-200 bg-base-100 p-4"
                     >
                         <div class="flex flex-1 flex-col items-center">
                             <h3>

@@ -22,7 +22,7 @@ import { DateFieldComponent, TimeFieldComponent } from '@placeos/form-fields';
             customTooltip
             [content]="time_template"
             (click)="edited_time.set(time())"
-            class="flex items-center space-x-2 rounded-full border border-base-300 bg-base-100 px-4 py-2 shadow"
+            class="flex items-center space-x-2 rounded-full border border-base-300 bg-base-100 px-4 py-2 shadow-sm"
         >
             <div class="pl-2">{{ time() | date: 'dd MMM, HH:mm' }}</div>
             <icon class="text-2xl">event</icon>
@@ -30,10 +30,10 @@ import { DateFieldComponent, TimeFieldComponent } from '@placeos/form-fields';
         <ng-template #time_template>
             <div class="p-2">
                 <div
-                    class="rounded border border-base-300 bg-base-100 p-2 shadow"
+                    class="rounded-sm border border-base-300 bg-base-100 p-2 shadow-sm"
                 >
                     <div
-                        class="mb-2 flex h-12 items-center rounded bg-base-200 p-2"
+                        class="mb-2 flex h-12 items-center rounded-sm bg-base-200 p-2"
                     >
                         <h3 class="flex-1 px-2 text-lg font-medium">
                             Set Time

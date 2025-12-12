@@ -20,7 +20,7 @@ import { DashboardsService } from './dashboards.service';
                 [class.opacity-0]="loading.length <= 0"
             />
             <simple-table
-                class="block min-w-[48rem] bg-base-100"
+                class="block min-w-3xl bg-base-100"
                 [data]="dashboards()"
                 [filter]="search_term()"
                 [columns]="[
@@ -58,7 +58,7 @@ import { DashboardsService } from './dashboards.service';
                     class="absolute inset-0 z-0 bg-info-light opacity-30"
                 ></div>
                 <simple-table
-                    class="block min-w-[48rem]"
+                    class="block min-w-3xl"
                     [data]="alert_map()?.[dash.id] || []"
                     [filter]="search_term()"
                     [columns]="[
@@ -103,7 +103,7 @@ import { DashboardsService } from './dashboards.service';
                                 'manage',
                                 alert.id,
                             ]"
-                            class="rounded"
+                            class="rounded-sm"
                             [matTooltip]="
                                 'APP.STAGEHAND.DASHBOARD_ALERTS_EDIT'
                                     | translate
@@ -114,7 +114,7 @@ import { DashboardsService } from './dashboards.service';
                         <button
                             icon
                             matRipple
-                            class="rounded"
+                            class="rounded-sm"
                             (click)="removeAlert(alert)"
                             [matTooltip]="
                                 'APP.STAGEHAND.DASHBOARD_ALERTS_REMOVE'
@@ -130,7 +130,7 @@ import { DashboardsService } from './dashboards.service';
             <ng-template #status_template let-enabled="data">
                 @if (enabled) {
                     <div
-                        class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-success text-2xl text-success-content"
+                        class="mx-auto flex h-8 w-8 items-center justify-center rounded-sm bg-success text-2xl text-success-content"
                     >
                         <icon>done</icon>
                     </div>
@@ -150,7 +150,7 @@ import { DashboardsService } from './dashboards.service';
                             'alerts',
                             'manage',
                         ]"
-                        class="rounded"
+                        class="rounded-sm"
                         [matTooltip]="
                             'APP.STAGEHAND.DASHBOARD_ALERTS_ADD' | translate
                         "
@@ -161,7 +161,7 @@ import { DashboardsService } from './dashboards.service';
                         icon
                         matRipple
                         [routerLink]="['/dashboards', 'manage', dashboard.id]"
-                        class="rounded"
+                        class="rounded-sm"
                         [matTooltip]="
                             'APP.STAGEHAND.DASHBOARD_EDIT' | translate
                         "
@@ -171,7 +171,7 @@ import { DashboardsService } from './dashboards.service';
                     <button
                         icon
                         matRipple
-                        class="rounded"
+                        class="rounded-sm"
                         (click)="remove(dashboard)"
                         [matTooltip]="
                             'APP.STAGEHAND.DASHBOARD_REMOVE' | translate
@@ -182,7 +182,7 @@ import { DashboardsService } from './dashboards.service';
                     <button
                         icon
                         matRipple
-                        class="rounded"
+                        class="rounded-sm"
                         (click)="toggleChildren(dashboard)"
                         [matTooltip]="
                             (show_children()?.[dashboard.id]

@@ -20,7 +20,7 @@ import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-
     template: `
         <div class="flex items-center space-x-2">
             <div
-                class="relative flex h-48 w-52 cursor-pointer flex-col items-center justify-center rounded border-2 border-dashed border-base-200 hover:bg-neutral"
+                class="relative flex h-48 w-52 cursor-pointer flex-col items-center justify-center rounded-sm border-2 border-dashed border-base-200 hover:bg-neutral"
             >
                 <icon class="mb-2 text-3xl">upload_file</icon>
                 <p class="text-center">Drop files</p>
@@ -39,8 +39,8 @@ import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-
                         @for (item of list; track item) {
                             <div
                                 item
-                                class="flex w-full items-center rounded border border-base-200 bg-base-100 hover:bg-base-200"
-                                [class.!bg-error]="item.progress < 1"
+                                class="flex w-full items-center rounded-sm border border-base-200 bg-base-100 hover:bg-base-200"
+                                [class.bg-error!]="item.progress < 1"
                                 [class.!bg-opacity-20]="item.progress < 1"
                             >
                                 <div

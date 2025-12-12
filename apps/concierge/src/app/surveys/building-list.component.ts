@@ -31,7 +31,7 @@ import { SurveyService } from './survey.service';
                     @let stats = bld_stats()?.[building.id];
                     <a
                         matRipple
-                        class="relative flex space-x-4 overflow-hidden rounded-xl border border-base-300 bg-base-100 shadow hover:border-info"
+                        class="relative flex space-x-4 overflow-hidden rounded-xl border border-base-300 bg-base-100 shadow-sm hover:border-info"
                         [routerLink]="['/surveys', 'list', building.id]"
                     >
                         <div

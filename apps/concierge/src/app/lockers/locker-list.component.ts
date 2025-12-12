@@ -23,7 +23,7 @@ import { LockerStateService } from './locker-state.service';
             class="w-full"
         />
         <simple-table
-            class="block min-w-[52rem] text-sm"
+            class="block min-w-208 text-sm"
             [data]="locker_banks"
             [columns]="[
                 {
@@ -213,7 +213,7 @@ import { LockerStateService } from './locker-state.service';
                             {{ 'COMMON.COLUMN' | translate }}
                         </div>
                         <div
-                            class="w-12 rounded bg-base-200 px-2 py-1 text-center"
+                            class="w-12 rounded-sm bg-base-200 px-2 py-1 text-center"
                         >
                             {{ data[0] + 1 }}u
                         </div>
@@ -223,7 +223,7 @@ import { LockerStateService } from './locker-state.service';
                             {{ 'COMMON.ROW' | translate }}
                         </div>
                         <div
-                            class="w-12 rounded bg-base-200 px-2 py-1 text-center"
+                            class="w-12 rounded-sm bg-base-200 px-2 py-1 text-center"
                         >
                             {{ data[1] + 1 }}u
                         </div>
@@ -237,7 +237,7 @@ import { LockerStateService } from './locker-state.service';
                             {{ 'COMMON.WIDTH' | translate }}
                         </div>
                         <div
-                            class="w-12 rounded bg-base-200 px-2 py-1 text-center"
+                            class="w-12 rounded-sm bg-base-200 px-2 py-1 text-center"
                         >
                             {{ data[0] }}u
                         </div>
@@ -247,7 +247,7 @@ import { LockerStateService } from './locker-state.service';
                             {{ 'COMMON.HEIGHT' | translate }}
                         </div>
                         <div
-                            class="w-12 rounded bg-base-200 px-2 py-1 text-center"
+                            class="w-12 rounded-sm bg-base-200 px-2 py-1 text-center"
                         >
                             {{ data[1] }}u
                         </div>
@@ -258,7 +258,7 @@ import { LockerStateService } from './locker-state.service';
                 <div class="flex w-full items-center justify-center p-2">
                     @if (data) {
                         <div
-                            class="flex h-8 w-8 items-center justify-center rounded bg-info text-info-content"
+                            class="flex h-8 w-8 items-center justify-center rounded-sm bg-info text-info-content"
                             [matTooltip]="
                                 'APP.CONCIERGE.LOCKERS_ACCESSIBLE_INFO'
                                     | translate
@@ -272,7 +272,7 @@ import { LockerStateService } from './locker-state.service';
             <ng-template #bool_template let-data="data">
                 @if (data) {
                     <div
-                        class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-success text-2xl text-success-content"
+                        class="mx-auto flex h-8 w-8 items-center justify-center rounded-sm bg-success text-2xl text-success-content"
                         [matTooltip]="'COMMON.BOOKABLE' | translate"
                     >
                         <icon>done</icon>

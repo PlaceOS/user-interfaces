@@ -85,7 +85,7 @@ let _initialized = false;
         @if (options()?.controls) {
             <div
                 zoom
-                class="absolute bottom-16 right-1 flex flex-col divide-y divide-base-200 overflow-hidden rounded border border-base-200 bg-base-100 text-base-content shadow"
+                class="absolute bottom-16 right-1 flex flex-col divide-y divide-base-200 overflow-hidden rounded-sm border border-base-200 bg-base-100 text-base-content shadow-sm"
             >
                 <button
                     icon

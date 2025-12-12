@@ -169,7 +169,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
         }
         @if (features().length > 1) {
             <div
-                class="relative z-40 flex h-16 w-full items-center justify-center border-t border-base-200 bg-base-100 shadow sm:hidden"
+                class="relative z-40 flex h-16 w-full items-center justify-center border-t border-base-200 bg-base-100 shadow-sm sm:hidden"
                 [attr.dark]="dark_mode"
             >
                 <a
@@ -183,7 +183,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                     <icon
                         outline
                         className="material-symbols-outlined"
-                        class="!m-0 text-2xl"
+                        class="m-0! text-2xl"
                         >home</icon
                     >
                     <span class="text-sm">{{
@@ -214,7 +214,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                     <icon
                         outline
                         className="material-symbols-outlined"
-                        class="!m-0 text-2xl"
+                        class="m-0! text-2xl"
                         >place</icon
                     >
                     <span class="text-sm">{{
@@ -225,7 +225,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                     class="absolute left-1/2 top-0 h-2 w-24 -translate-x-1/2 -translate-y-full overflow-hidden"
                 >
                     <div
-                        class="mx-auto h-16 w-16 rounded-full border-t border-base-200 bg-base-100 shadow"
+                        class="mx-auto h-16 w-16 rounded-full border-t border-base-200 bg-base-100 shadow-sm"
                     ></div>
                 </div>
             </div>

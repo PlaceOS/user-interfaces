@@ -33,7 +33,7 @@ import { CateringReportOverallComponent } from './catering-report-overall.compon
         >
             <div class="w-full">
                 <div
-                    class="m-4 flex items-center overflow-hidden rounded bg-base-200 p-4"
+                    class="m-4 flex items-center overflow-hidden rounded-sm bg-base-200 p-4"
                 >
                     <img
                         auth

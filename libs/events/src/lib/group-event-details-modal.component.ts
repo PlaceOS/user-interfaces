@@ -48,7 +48,7 @@ import {
     selector: `group-event-details-modal`,
     template: `
         <div
-            class="relative max-h-[80vh] w-[48rem] max-w-[calc(100vw-1rem)] overflow-hidden"
+            class="relative max-h-[80vh] w-3xl max-w-[calc(100vw-1rem)] overflow-hidden"
         >
             <div
                 class="relative flex h-52 w-full items-center justify-between overflow-hidden bg-base-200"
@@ -94,7 +94,7 @@ import {
                     @if (!concierge()) {
                         <div
                             btn
-                            class="flex h-10 items-center space-x-2 rounded px-4"
+                            class="flex h-10 items-center space-x-2 rounded-sm px-4"
                             [class.bg-base-200]="!is_interested()"
                             [class.text-base-content]="!is_interested()"
                             [class.opacity-30]="!is_interested()"
@@ -114,7 +114,7 @@ import {
                         </div>
                         <div
                             btn
-                            class="flex h-10 items-center space-x-2 rounded px-4"
+                            class="flex h-10 items-center space-x-2 rounded-sm px-4"
                             [class.bg-base-200]="!is_going()"
                             [class.text-base-content]="!is_going()"
                             [class.opacity-30]="!is_going()"
@@ -136,7 +136,7 @@ import {
                     <button
                         btn
                         matRipple
-                        class="clear w-[2.75rem] bg-base-200 text-base-content"
+                        class="clear w-11 bg-base-200 text-base-content"
                         [disabled]="event().state === 'done'"
                         [matMenuTriggerFor]="
                             concierge() ? concierge_menu : menu
@@ -320,7 +320,7 @@ import {
                     <button
                         matRipple
                         (click)="show_attendees.set(!is_limited() && true)"
-                        class="flex min-h-12 items-center space-x-4 rounded"
+                        class="flex min-h-12 items-center space-x-4 rounded-sm"
                     >
                         <div
                             class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200"
@@ -387,7 +387,7 @@ import {
                                             }}
                                         </div>
                                     }
-                                    <div class="!mt-0 text-sm opacity-30">
+                                    <div class="mt-0! text-sm opacity-30">
                                         @if (building() && level()) {
                                             <span>
                                                 {{
@@ -441,7 +441,7 @@ import {
                     (click)="show_attendees.set(false)"
                 ></button>
                 <div
-                    class="absolute inset-y-8 left-1/2 w-[24rem] -translate-x-1/2 overflow-hidden rounded shadow"
+                    class="absolute inset-y-8 left-1/2 w-[24rem] -translate-x-1/2 overflow-hidden rounded-sm shadow-sm"
                 >
                     <attendee-list
                         [show_host]="false"

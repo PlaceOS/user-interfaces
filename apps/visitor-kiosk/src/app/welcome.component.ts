@@ -25,7 +25,7 @@ import {
             <img
                 auth
                 [source]="background"
-                class="absolute left-1/2 top-1/2 min-h-[100%] min-w-[100%] -translate-x-1/2 -translate-y-1/2"
+                class="absolute left-1/2 top-1/2 min-h-full min-w-full -translate-x-1/2 -translate-y-1/2"
             />
             <div class="z-10 flex w-[60%] flex-col justify-center space-y-8">
                 <h3
@@ -105,7 +105,7 @@ import {
                             }
                         </div>
                         <div
-                            class="ml-4 max-w-24 truncate rounded bg-base-200 px-2 py-1 text-sm"
+                            class="ml-4 max-w-24 truncate rounded-sm bg-base-200 px-2 py-1 text-sm"
                             [matTooltip]="active_locale | translate"
                         >
                             {{ active_locale | translate }}

@@ -84,7 +84,7 @@ import { SanitizePipe } from 'libs/components/src/lib/sanitise.pipe';
                             <button
                                 matRipple
                                 (click)="search$.next(option); setValue(option)"
-                                class="w-full rounded px-4 py-2 text-left hover:bg-base-200"
+                                class="w-full rounded-sm px-4 py-2 text-left hover:bg-base-200"
                             >
                                 <div class="leading-tight">
                                     <ng-container
@@ -138,7 +138,7 @@ import { SanitizePipe } from 'libs/components/src/lib/sanitise.pipe';
                         [innerHTML]="item_name[option.id] | sanitize"
                     ></div>
                     @if (option.notes) {
-                        <code class="truncate !text-xs">{{
+                        <code class="truncate text-xs!">{{
                             option.notes
                         }}</code>
                     }

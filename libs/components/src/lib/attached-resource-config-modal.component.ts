@@ -51,7 +51,7 @@ export interface AttachedResourceConfigModalData {
     selector: 'attached-resource-config-modal',
     template: `
         <header
-            class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded border-none bg-base-200 p-2"
+            class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none bg-base-200 p-2"
         >
             <h2 class="px-2 text-xl font-medium">
                 {{
@@ -66,7 +66,7 @@ export interface AttachedResourceConfigModalData {
             }
         </header>
         <main
-            class="min-w-[36rem] max-w-lg space-y-4 overflow-auto px-4 pb-4 pt-2 text-center"
+            class="min-w-xl max-w-lg space-y-4 overflow-auto px-4 pb-4 pt-2 text-center"
         >
             @if (can_save_notes) {
                 <settings-toggle
@@ -104,7 +104,7 @@ export interface AttachedResourceConfigModalData {
                         <button
                             icon
                             matRipple
-                            class="h-12 w-12 rounded"
+                            class="h-12 w-12 rounded-sm"
                             [matMenuTriggerFor]="menu"
                         >
                             <icon>more_vert</icon>
@@ -219,7 +219,7 @@ export interface AttachedResourceConfigModalData {
                                 <button
                                     icon
                                     matRipple
-                                    class="h-12 w-12 rounded border border-error text-error"
+                                    class="h-12 w-12 rounded-sm border border-error text-error"
                                     (click)="set.rules.splice(i, 1)"
                                 >
                                     <icon>delete</icon>

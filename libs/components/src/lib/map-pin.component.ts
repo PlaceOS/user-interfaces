@@ -18,7 +18,7 @@ export interface MapPinData {
             @if (message && show_message()) {
                 <div
                     name="message"
-                    class="text-gray-700 m-2 rounded bg-base-100 p-2 shadow"
+                    class="text-gray-700 m-2 rounded-sm bg-base-100 p-2 shadow-sm"
                 >
                     {{ message }}
                 </div>

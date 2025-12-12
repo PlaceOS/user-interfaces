@@ -31,7 +31,7 @@ const EMPTY = [];
     selector: 'landing-favourites',
     template: `
         <div
-            class="mx-2 flex items-center justify-between rounded bg-base-200 p-2 text-sm"
+            class="mx-2 flex items-center justify-between rounded-sm bg-base-200 p-2 text-sm"
         >
             <h2>
                 {{
@@ -60,7 +60,7 @@ const EMPTY = [];
                                 class="relative flex w-full items-center space-x-2"
                             >
                                 <div
-                                    class="relative flex h-16 w-16 items-center justify-center overflow-hidden rounded bg-base-300"
+                                    class="relative flex h-16 w-16 items-center justify-center overflow-hidden rounded-sm bg-base-300"
                                 >
                                     @if (space.images.length) {
                                         <img
@@ -123,7 +123,7 @@ const EMPTY = [];
                                 icon
                                 name="favourite-more"
                                 [matMenuTriggerFor]="menu"
-                                class="absolute right-0 top-2 !m-0 !rounded bg-base-200"
+                                class="absolute right-0 top-2 m-0! rounded-sm! bg-base-200"
                             >
                                 <icon>more_horiz</icon>
                             </button>
@@ -165,7 +165,7 @@ const EMPTY = [];
                             class="relative flex w-full items-center space-x-2"
                         >
                             <div
-                                class="relative flex h-16 w-16 items-center justify-center overflow-hidden rounded bg-base-300"
+                                class="relative flex h-16 w-16 items-center justify-center overflow-hidden rounded-sm bg-base-300"
                             >
                                 @if (item?.images?.length) {
                                     <img
@@ -219,7 +219,7 @@ const EMPTY = [];
                             icon
                             name="favourite-more"
                             [matMenuTriggerFor]="menu"
-                            class="top-22 absolute right-0 !m-0 !rounded bg-base-200"
+                            class="top-22 absolute right-0 m-0! rounded-sm! bg-base-200"
                         >
                             <icon>more_horiz</icon>
                         </button>

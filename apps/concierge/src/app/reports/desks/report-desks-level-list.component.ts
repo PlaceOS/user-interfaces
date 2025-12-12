@@ -24,7 +24,7 @@ import { ReportsStateService } from '../reports-state.service';
     template: `
         <div class="w-full px-4 pb-2">
             <div
-                class="w-full overflow-hidden rounded border border-base-200 bg-base-100"
+                class="w-full overflow-hidden rounded-sm border border-base-200 bg-base-100"
             >
                 <div class="flex items-center border-b border-base-200 p-4">
                     <h3 class="flex-1 text-xl font-bold">

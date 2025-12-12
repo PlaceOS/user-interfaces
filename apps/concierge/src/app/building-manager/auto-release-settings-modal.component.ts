@@ -52,7 +52,7 @@ import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
     selector: 'auto-release-modal',
     template: `
         <header
-            class="m-2 flex h-14 w-[calc(100%-1rem)] items-center justify-between rounded border-none bg-base-200 px-4 py-2"
+            class="m-2 flex h-14 w-[calc(100%-1rem)] items-center justify-between rounded-sm border-none bg-base-200 px-4 py-2"
         >
             <h3 class="text-xl font-medium">
                 {{ 'APP.CONCIERGE.AUTO_RELEASE_HEADER' | translate }}
@@ -64,7 +64,7 @@ import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
             }
         </header>
         @if (!loading()) {
-            <main class="max-h-[65vh] w-[32rem] overflow-auto px-4">
+            <main class="max-h-[65vh] w-lg overflow-auto px-4">
                 <div class="flex space-x-2">
                     <div class="flex-1">
                         <label>
@@ -118,7 +118,7 @@ import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
                 <div class="my-2 grid grid-cols-2 gap-2">
                     @if (!settings.default_work_preferences?.length) {
                         <div
-                            class="col-span-2 mb-2 flex w-full items-center justify-center rounded bg-base-200 py-4 opacity-30"
+                            class="col-span-2 mb-2 flex w-full items-center justify-center rounded-sm bg-base-200 py-4 opacity-30"
                         >
                             {{
                                 'APP.CONCIERGE.AUTO_RELEASE_DEFAULT_HOURS_EMPTY'
@@ -132,10 +132,10 @@ import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
                         ) {
                             @if (pref.blocks.length) {
                                 <div
-                                    class="relative rounded border border-base-300 px-2 pb-2 pt-4"
+                                    class="relative rounded-sm border border-base-300 px-2 pb-2 pt-4"
                                 >
                                     <div
-                                        class="absolute -top-2 left-2 rounded bg-base-100 px-2 text-sm"
+                                        class="absolute -top-2 left-2 rounded-sm bg-base-100 px-2 text-sm"
                                     >
                                         <span class="relative -top-0.5">{{
                                             pref.date | date: 'EEEE'

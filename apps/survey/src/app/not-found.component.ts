@@ -8,7 +8,7 @@ import { AuthenticatedImageDirective } from '@placeos/components';
             class="absolute inset-0 flex flex-col items-center bg-base-200 p-4"
         >
             <div
-                class="flex w-[32rem] max-w-full flex-col items-center justify-center space-y-8 rounded-xl border border-base-300 bg-base-100 p-8 text-center shadow"
+                class="flex w-lg max-w-full flex-col items-center justify-center space-y-8 rounded-xl border border-base-300 bg-base-100 p-8 text-center shadow-sm"
             >
                 <h1 class="text-4xl font-bold">Survey not found</h1>
                 <img

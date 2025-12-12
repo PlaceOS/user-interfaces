@@ -24,7 +24,7 @@ import { PointsTopbarComponent } from './points-topbar.component';
                     }
                 </points-topbar>
                 <div class="mb-4 px-8">
-                    <div class="overflow-hidden rounded bg-base-200">
+                    <div class="overflow-hidden rounded-sm bg-base-200">
                         <nav mat-tab-nav-bar [tabPanel]="tabPanel">
                             <a
                                 mat-tab-link

@@ -26,7 +26,7 @@ import {
             <a
                 btn
                 matRipple
-                class="inverse flex w-64 items-center space-x-2 rounded p-2 pr-4"
+                class="inverse flex w-64 items-center space-x-2 rounded-sm p-2 pr-4"
                 [href]="outlook_link | sanitize: 'url'"
                 target="_blank"
                 rel="noopener noreferer"
@@ -38,7 +38,7 @@ import {
             <a
                 btn
                 matRipple
-                class="inverse flex w-64 items-center space-x-2 rounded p-2 pr-4"
+                class="inverse flex w-64 items-center space-x-2 rounded-sm p-2 pr-4"
                 [href]="google_link | sanitize: 'url'"
                 target="_blank"
                 rel="noopener noreferer"
@@ -50,7 +50,7 @@ import {
             <a
                 btn
                 matRipple
-                class="inverse flex w-64 items-center space-x-2 rounded p-2 pr-4"
+                class="inverse flex w-64 items-center space-x-2 rounded-sm p-2 pr-4"
                 [href]="ical_link | safe: 'url'"
                 target="_blank"
                 rel="noopener noreferer"

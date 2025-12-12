@@ -174,7 +174,7 @@ import { MeetingFormDetailsComponent } from 'apps/workplace/src/app/book/meeting
                             total_capacity <= form.value.attendees?.length
                         ) {
                             <div
-                                class="mx-auto my-2 inline-flex rounded bg-warning p-2 text-xs text-warning-content shadow"
+                                class="mx-auto my-2 inline-flex rounded-sm bg-warning p-2 text-xs text-warning-content shadow-sm"
                             >
                                 {{
                                     'CALENDAR_EVENT.CAPACITY_WARNING'

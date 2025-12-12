@@ -72,7 +72,7 @@ enum TOOLTIP {
                             matRipple
                             class="bg-base-200 text-base-content"
                             [attr.type]="item.id"
-                            [class.!bg-success]="item.enabled"
+                            [class.bg-success!]="item.enabled"
                             (click)="item.action ? item.action() : ''"
                         >
                             <icon>{{ item.icon }}</icon>

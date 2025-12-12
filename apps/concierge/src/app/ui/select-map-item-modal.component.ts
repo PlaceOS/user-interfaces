@@ -33,7 +33,7 @@ declare let mapsindoors: any;
     selector: 'select-map-item-modal',
     template: `
         <header
-            class="sticky top-0 z-10 mx-auto mt-2 flex h-14 w-[calc(100%-1rem)] items-center justify-between rounded border-none bg-base-200 px-4 py-2"
+            class="sticky top-0 z-10 mx-auto mt-2 flex h-14 w-[calc(100%-1rem)] items-center justify-between rounded-sm border-none bg-base-200 px-4 py-2"
         >
             <h2 class="text-xl font-medium capitalize">
                 {{ 'APP.CONCIERGE.POI_MAP_SELECT_HEADER' | translate }}
@@ -43,7 +43,7 @@ declare let mapsindoors: any;
             </button>
         </header>
         <main
-            class="flex h-[75vh] max-h-[75vh] min-w-[80vw] max-w-[calc(100vw-2rem)] space-x-2 overflow-hidden p-2 sm:max-w-[64rem]"
+            class="flex h-[75vh] max-h-[75vh] min-w-[80vw] max-w-[calc(100vw-2rem)] space-x-2 overflow-hidden p-2 sm:max-w-5xl"
         >
             <div
                 map
@@ -133,9 +133,9 @@ declare let mapsindoors: any;
                             <button
                                 btn
                                 matRipple
-                                class="clear flex w-full items-center rounded text-left hover:bg-base-200"
-                                [class.!bg-primary]="poi.id === selected.value"
-                                [class.!text-primary-content]="
+                                class="clear flex w-full items-center rounded-sm text-left hover:bg-base-200"
+                                [class.bg-primary!]="poi.id === selected.value"
+                                [class.text-primary-content!]="
                                     poi.id === selected.value
                                 "
                                 (click)="selected.next(poi.id)"
@@ -177,7 +177,7 @@ declare let mapsindoors: any;
                             <button
                                 icon
                                 matRipple
-                                class="rounded border border-base-200"
+                                class="rounded-sm border border-base-200"
                                 [disabled]="page === 0"
                                 (click)="page = page - 1"
                             >
@@ -186,9 +186,9 @@ declare let mapsindoors: any;
                             <button
                                 icon
                                 matRipple
-                                [class.!bg-secondary]="page === 0"
+                                [class.bg-secondary!]="page === 0"
                                 [class.text-secondary-content]="page === 0"
-                                [class.!rounded-full]="page === 0"
+                                [class.rounded-full!]="page === 0"
                                 (click)="page = 0"
                             >
                                 1
@@ -199,7 +199,7 @@ declare let mapsindoors: any;
                             <button
                                 icon
                                 matRipple
-                                class="!bg-secondary text-secondary-content"
+                                class="bg-secondary! text-secondary-content"
                                 [class.opacity-0]="
                                     page == 0 || page == last_page
                                 "
@@ -215,12 +215,12 @@ declare let mapsindoors: any;
                             <button
                                 icon
                                 matRipple
-                                class="rounded border border-base-200"
-                                [class.!bg-secondary]="page === last_page"
+                                class="rounded-sm border border-base-200"
+                                [class.bg-secondary!]="page === last_page"
                                 [class.text-secondary-content]="
                                     page === last_page
                                 "
-                                [class.!rounded-full]="page === last_page"
+                                [class.rounded-full!]="page === last_page"
                                 (click)="page = last_page"
                             >
                                 {{ last_page + 1 }}
@@ -228,7 +228,7 @@ declare let mapsindoors: any;
                             <button
                                 icon
                                 matRipple
-                                class="rounded border border-base-200"
+                                class="rounded-sm border border-base-200"
                                 [disabled]="page === last_page"
                                 (click)="page = page + 1"
                             >

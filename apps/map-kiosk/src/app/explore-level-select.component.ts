@@ -9,7 +9,7 @@ import { first } from 'rxjs/operators';
     selector: 'explore-level-select',
     template: `
         <div
-            class="m-2 overflow-hidden rounded border border-solid border-base-300 bg-base-100 shadow"
+            class="m-2 overflow-hidden rounded-sm border border-solid border-base-300 bg-base-100 shadow-sm"
         >
             @for (lvl of levels | async; track lvl) {
                 <button

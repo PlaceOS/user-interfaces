@@ -151,11 +151,11 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
             </div>
             <div
                 view-select
-                class="flex w-full items-center space-x-2 rounded bg-base-200 p-2"
+                class="flex w-full items-center space-x-2 rounded-sm bg-base-200 p-2"
             >
                 <button
                     matRipple
-                    class="flex h-10 flex-1 items-center justify-center rounded hover:bg-base-300"
+                    class="flex h-10 flex-1 items-center justify-center rounded-sm hover:bg-base-300"
                     [class.bg-secondary]="view() === 'builder'"
                     [class.text-secondary-content]="view() === 'builder'"
                     (click)="view.set('builder')"
@@ -164,7 +164,7 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                 </button>
                 <button
                     matRipple
-                    class="flex h-10 flex-1 items-center justify-center rounded hover:bg-base-300"
+                    class="flex h-10 flex-1 items-center justify-center rounded-sm hover:bg-base-300"
                     [class.bg-secondary]="view() === 'preview'"
                     [class.text-secondary-content]="view() === 'preview'"
                     (click)="view.set('preview')"
@@ -185,7 +185,7 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                 >
                     <div class="flex items-center space-x-2">
                         <div
-                            class="relative h-[calc(3rem+2px)] flex-1 overflow-hidden rounded border border-base-300 bg-base-100"
+                            class="relative h-[calc(3rem+2px)] flex-1 overflow-hidden rounded-sm border border-base-300 bg-base-100"
                         >
                             <mat-tab-group
                                 [selectedIndex]="active_page()"
@@ -208,7 +208,7 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                         <button
                             icon
                             matRipple
-                            class="h-12 w-12 rounded border border-base-300 bg-base-100"
+                            class="h-12 w-12 rounded-sm border border-base-300 bg-base-100"
                             matTooltip="Add Page"
                             (click)="addPage()"
                         >
@@ -218,7 +218,7 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                     <div class="flex items-center space-x-2">
                         <mat-form-field
                             appearance="outline"
-                            class="no-subscript w-1/2 flex-1 rounded bg-base-100"
+                            class="no-subscript w-1/2 flex-1 rounded-sm bg-base-100"
                         >
                             <input
                                 matInput
@@ -230,7 +230,7 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                             <button
                                 icon
                                 matRipple
-                                class="h-12 w-12 rounded border border-base-300 bg-base-100 text-error"
+                                class="h-12 w-12 rounded-sm border border-base-300 bg-base-100 text-error"
                                 matTooltip="Remove Page"
                                 (click)="removePage()"
                             >
@@ -318,7 +318,7 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                 </div>
                 <div
                     questions
-                    class="h-full w-[20rem] space-y-2 overflow-auto rounded border border-base-300 bg-base-100 pb-2 shadow"
+                    class="h-full w-[20rem] space-y-2 overflow-auto rounded-sm border border-base-300 bg-base-100 pb-2 shadow-sm"
                 >
                     <div class="sticky top-0 z-10 bg-base-100">
                         <div
@@ -397,7 +397,7 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                             track question.id
                         ) {
                             <div
-                                class="relative flex w-full items-center rounded border border-base-200 bg-base-200"
+                                class="relative flex w-full items-center rounded-sm border border-base-200 bg-base-200"
                                 cdkDrag
                             >
                                 <div
@@ -406,7 +406,7 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                                 ></div>
                                 <button
                                     cdkDragHandle
-                                    class="flex h-20 h-full flex-col justify-center rounded bg-base-200 p-1 hover:cursor-move"
+                                    class="flex h-20 h-full flex-col justify-center rounded-sm bg-base-200 p-1 hover:cursor-move"
                                     matRipple
                                     matTooltip="Drag Question onto page"
                                 >

@@ -40,17 +40,17 @@ export async function openRecurringClashModal(
     template: `
         <div class="relative">
             <header
-                class="sticky top-0 z-10 m-2 h-14 w-[calc(100%-1rem)] min-w-[20rem] rounded border-none bg-base-200 p-2"
+                class="sticky top-0 z-10 m-2 h-14 w-[calc(100%-1rem)] min-w-[20rem] rounded-sm border-none bg-base-200 p-2"
             >
                 <h2 class="px-2 text-xl font-medium">
                     {{ 'BOOKINGS.RECURRING_CLASHES_TITLE' | translate }}
                 </h2>
             </header>
             <main
-                class="flex max-h-[60vh] w-full max-w-[calc(100vw-2rem)] flex-col items-center space-y-4 overflow-auto px-4 py-2 sm:max-w-[28rem]"
+                class="flex max-h-[60vh] w-full max-w-[calc(100vw-2rem)] flex-col items-center space-y-4 overflow-auto px-4 py-2 sm:max-w-md"
             >
                 <div
-                    class="flex items-center space-x-2 rounded-xl border border-base-200 bg-warning p-2 text-warning-content shadow"
+                    class="flex items-center space-x-2 rounded-xl border border-base-200 bg-warning p-2 text-warning-content shadow-sm"
                 >
                     <icon class="text-5xl">warning</icon>
                     <p>
@@ -58,7 +58,7 @@ export async function openRecurringClashModal(
                     </p>
                 </div>
                 <div
-                    class="max-h-48 w-full overflow-auto rounded border border-base-300 bg-base-100"
+                    class="max-h-48 w-full overflow-auto rounded-sm border border-base-300 bg-base-100"
                 >
                     <table class="w-full text-sm">
                         <thead class="sticky top-0 bg-base-200">
@@ -101,7 +101,7 @@ export async function openRecurringClashModal(
                 </p>
             </main>
             <footer
-                class="sticky bottom-0 m-2 flex items-center justify-center space-x-2 rounded border-none bg-base-200 p-2"
+                class="sticky bottom-0 m-2 flex items-center justify-center space-x-2 rounded-sm border-none bg-base-200 p-2"
             >
                 <button
                     btn

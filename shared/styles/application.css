@@ -1,3 +1,279 @@
+@use 'chartist/dist/index.css';
+
+:root {
+    /* Brand */
+    --brand-100: hsl(336, 57%, 48%); /* #C52B67 */
+    --brand-200: hsla(217, 91%, 60%, 1); /* #C52B67 */
+    --brand-300: rgb(236, 239, 241); /* #C52B67 */
+    --brand-400: hsl(336, 57%, 48%); /* #C52B67 */
+    --brand-500: hsl(336, 57%, 48%); /* #C52B67 */
+    --brand-600: hsl(336, 57%, 48%); /* #C52B67 */
+    --brand-content: hsl(0, 0%, 100%); /* White content for contrast */
+
+    /* Primary */
+    --primary: hsl(336, 57%, 48%); /* #C52B67 */
+    --primary-focus: hsl(336, 57%, 38%); /* Darker shade */
+    --primary-content: hsl(0, 0%, 100%); /* White content for contrast */
+
+    /* Secondary */
+    --secondary: hsl(237, 37%, 20%); /* #292F5B */
+    --secondary-focus: hsl(237, 37%, 10%); /* Darker shade */
+    --secondary-content: hsl(0, 0%, 100%); /* White content for contrast */
+
+    /* Ternary */
+    --ternary: hsl(237, 37%, 20%); /* #292F5B */
+    --ternary-focus: hsl(237, 37%, 10%); /* Darker shade (Hover etc.) */
+    --ternary-content: hsl(0, 0%, 100%); /* White content(text) for contrast */
+
+    /* Accent (Complementary color to Primary) */
+    --accent: hsl(156, 57%, 48%); /* A contrasting greenish tone */
+    --accent-focus: hsl(156, 57%, 38%); /* Darker shade of the a */
+    --accent-content: hsl(0, 0%, 0%); /* Black content for contrast */
+
+    /* Neutral */
+    --neutral: hsl(0, 0%, 50%); /* Grey */
+    --neutral-focus: hsl(0, 0%, 40%); /* Darker Grey */
+    --neutral-content: hsl(0, 0%, 100%); /* White content on grey background */
+
+    /* Base */
+    --base-100: hsl(0, 0%, 98.5%); /* Near White */
+    --base-200: hsl(49, 2%, 92%); /* Light Grey */
+    --base-300: hsl(56, 5%, 71%); /* Mid Grey */
+    --base-400: hsl(58, 7%, 55%); /* Mid Grey */
+    --base-content: hsl(0, 0%, 0%); /* Black content on white background */
+
+    /* Info */
+    --info: hsla(217, 91%, 60%, 1); /* Light Blue */
+    --info-light: rgb(227, 242, 253); /* Light Blue */
+    --info-content: hsla(
+        214,
+        100%,
+        97%,
+        1
+    ); /* White content on light blue background */
+
+    /* Warning */
+    --warn: hsla(45, 100%, 64%, 1); /* Yellow */
+    --warn-light: rgb(255, 253, 231); /* Yellow */
+    --warn-content: hsl(0, 0%, 0%); /* Black content on yellow background */
+
+    /* Success */
+    --success: hsla(118, 50%, 43%, 1); /* Light Green */
+    --success-light: rgb(232, 245, 233); /* Light Green */
+    --success-content: hsla(
+        152,
+        81%,
+        96%,
+        1
+    ); /* White content on light green background */
+
+    /* Error */
+    --error: hsla(354, 75%, 53%, 1); /* Red */
+    --error-light: rgb(255, 235, 238); /* Red */
+    --error-content: hsl(0, 0%, 100%); /* White content on red background */
+}
+
+.theme-dark {
+    /* Brand */
+    --brand-100: hsl(336, 57%, 48%); /* #C52B67 */
+    --brand-200: hsla(217, 91%, 60%, 1); /* #C52B67 */
+    --brand-300: rgb(63, 81, 181); /* #C52B67 */
+    --brand-400: hsl(336, 57%, 48%); /* #C52B67 */
+    --brand-500: hsl(336, 57%, 48%); /* #C52B67 */
+    --brand-600: hsl(336, 57%, 48%); /* #C52B67 */
+    --brand-content: hsl(0, 0%, 100%); /* White content for contrast */
+
+    /* Primary */
+    --primary: hsl(336, 57%, 48%); /* #C52B67 */
+    --primary-focus: hsl(336, 57%, 38%); /* Darker shade */
+    --primary-content: hsl(0, 0%, 100%); /* White content for contrast */
+
+    /* Secondary */
+    --secondary: hsl(336, 57%, 48%); /* #C52B67 */
+    --secondary-focus: hsl(336, 57%, 38%); /* Darker shade */
+    --secondary-content: hsl(0, 0%, 100%); /* White content for contrast */
+
+    /* Ternary */
+    --ternary: hsl(206, 23%, 30%); /* #E5E5EA */
+    --ternary-focus: hsl(206, 23%, 24%); /* Darker shade */
+    --ternary-content: hsl(0, 0%, 80%); /* Black content for contrast */
+
+    /* Accent */
+    --accent: hsl(156, 57%, 28%); /* Darker shade of complementary color */
+    --accent-focus: hsl(158, 17%, 9%); /* Even darker shade */
+    --accent-content: hsl(0, 0%, 80%); /* Lighter text for contrast */
+
+    /* Neutral */
+    --neutral: hsl(0, 0%, 20%); /* Dark Grey */
+    --neutral-focus: hsl(0, 0%, 15%); /* Even darker Grey */
+    --neutral-content: hsl(0, 0%, 80%); /* Light grey text for contrast */
+
+    /* Base */
+    --base-100: hsl(0, 0%, 10%); /* Near Black */
+    --base-200: hsl(0, 0%, 15%); /* Dark Grey */
+    --base-300: hsl(0, 0%, 20%); /* Mid-Dark Grey */
+    --base-400: hsl(0, 0%, 30%); /* Mid Grey */
+    --base-content: hsl(0, 0%, 80%); /* Light grey text for contrast */
+
+    /* Info */
+    --info: rgb(21, 101, 192); /* Light Blue */
+    --info-light: rgb(66, 165, 245); /* Light Blue */
+    --info-content: hsl(
+        0,
+        0%,
+        100%
+    ); /* White content on light blue background */
+
+    /* Warning */
+    --warn: rgb(255, 143, 0); /* Yellow */
+    --warn-light: rgb(255, 213, 79);
+    --warn-content: hsl(0, 0%, 0%); /* Black content on yellow background */
+
+    /* Success */
+    --success: rgb(46, 125, 50); /* Light Green */
+    --success-light: rgb(102, 187, 106); /* Light Green */
+    --success-content: hsl(
+        0,
+        0%,
+        100%
+    ); /* White content on light green background */
+
+    /* Error */
+    --error: rgb(198, 40, 40); /* Red */
+    --error-light: rgb(239, 83, 80);
+    --error-content: hsl(0, 0%, 100%); /* White content on red background */
+}
+
+@media screen {
+    .print-only {
+        display: none !important;
+    }
+}
+
+@media print {
+    .screen-only {
+        display: none !important;
+    }
+    html,
+    body {
+        position: relative;
+        width: 21cm;
+        min-height: 29.7cm;
+    }
+}
+
+html,
+body {
+    height: 100%;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    font-size: var(--font-size);
+}
+
+@media screen {
+    html,
+    body {
+        background-image: url("data:image/svg+xml,%3Csvg width='36' height='36' viewBox='0 0 36 36' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M36 0H0v36h36V0zM15.126 2H2v13.126c.367.094.714.24 1.032.428L15.554 3.032c-.188-.318-.334-.665-.428-1.032zM18 4.874V18H4.874c-.094-.367-.24-.714-.428-1.032L16.968 4.446c.318.188.665.334 1.032.428zM22.874 2h11.712L20 16.586V4.874c1.406-.362 2.512-1.468 2.874-2.874zm10.252 18H20v13.126c.367.094.714.24 1.032.428l12.522-12.522c-.188-.318-.334-.665-.428-1.032zM36 22.874V36H22.874c-.094-.367-.24-.714-.428-1.032l12.522-12.522c.318.188.665.334 1.032.428zm0-7.748V3.414L21.414 18h11.712c.362-1.406 1.468-2.512 2.874-2.874zm-18 18V21.414L3.414 36h11.712c.362-1.406 1.468-2.512 2.874-2.874zM4.874 20h11.712L2 34.586V22.874c1.406-.362 2.512-1.468 2.874-2.874z' fill='%23000000' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
+    }
+}
+
+body {
+    touch-action: pan-x pan-y;
+    background-color: var(--base-100);
+    color: var(--base-content);
+}
+
+* {
+    user-select: none;
+    font-family: var(--font);
+    box-sizing: border-box;
+}
+
+.material-symbols,
+.material-symbols-outlined {
+    font-size: 1em;
+}
+.material-symbols-rounded {
+    font-size: 1em;
+    font-variation-settings:
+        'FILL' 1,
+        'wght' 400,
+        'GRAD' 0,
+        'opsz' 24;
+}
+
+span.highlight {
+    color: var(--primary);
+}
+
+@keyframes crossfade {
+    0% {
+        background-color: #d32f2f;
+    }
+    20% {
+        background-color: #7b1fa2;
+    }
+    40% {
+        background-color: #1976d2;
+    }
+    60% {
+        background-color: #00796b;
+    }
+    80% {
+        background-color: #ff8f00;
+    }
+    100% {
+        background-color: #d32f2f;
+    }
+}
+
+#placeos .mat-radio-labelc {
+    font-weight: normal;
+}
+
+#placeos .markdown {
+    ol {
+        list-style-type: decimal;
+        margin-left: 1.5rem;
+    }
+    ul {
+        list-style-type: disc;
+        margin-left: 1.5rem;
+    }
+
+    li {
+        margin-bottom: 0.25rem;
+    }
+
+    p:not(:last-child) {
+        margin-bottom: 0.75rem;
+    }
+}
+
+#placeos .selectable {
+    user-select: auto;
+    p,
+    li,
+    code,
+    pre,
+    div {
+        user-select: text;
+    }
+}
+
+.text-mono {
+    font-family: monospace;
+}
+
+i[binding] {
+    display: none;
+}
+
+/*/////////////////////////////////////////////////////////////
+//////////////////////   Custom Classes   /////////////////////
+/////////////////////////////////////////////////////////////*/
+
 .spinner {
     svg {
         width: 100%;
@@ -105,7 +381,9 @@ code {
         align-items: center;
         padding: 0.5em 1em;
         width: 100%;
-        @apply border-b border-base-200;
+        border-color: var(--base-200);
+        border-bottom-width: 1px;
+        border-bottom-style: solid;
 
         h1,
         h2,
@@ -869,10 +1147,10 @@ a[icon] {
 
     mat-tab-group {
         .mdc-tab-label-container {
-            @apply bg-neutral;
+            background-color: var(--neutral);
         }
         .mdc-tab-label-content {
-            @apply text-base-content;
+            color: var(--base-content);
         }
     }
 
@@ -1077,28 +1355,28 @@ a[icon] {
 
     .mdc-menu-panel,
     .mdc-select-panel {
-        @apply bg-neutral;
+        background-color: var(--neutral);
     }
 
     .mdc-option-text {
-        @apply text-base-content;
+        color: var(--base-content);
     }
 
     mat-option.mdc-active {
-        @apply bg-base-100;
+        background-color: var(--base-100);
     }
 
     .mdc-active .mdc-option-text {
-        @apply text-secondary;
+        color: var(--secondary);
     }
 
     .mdc-option:hover {
-        @apply bg-secondary-content;
+        background-color: var(--secondary-content);
     }
 
     bootstrap,
     [app-bootstrap] {
-        @apply bg-neutral;
+        background-color: var(--neutral);
     }
 
     mat-snack-bar-container {
@@ -1139,18 +1417,28 @@ a[icon] {
 
 .markdown {
     h1 {
-        @apply mb-4 mt-2 text-2xl font-medium;
+        margin-top: 0.5rem;
+        margin-bottom: 1rem;
+        font-size: 1.5rem;
+        font-weight: medium;
     }
     h2,
     h3 {
-        @apply mb-2 text-xl font-medium;
+        margin-bottom: 0.5rem;
+        font-size: 1.25rem;
+        font-weight: medium;
     }
     h4 {
-        @apply mb-2 ml-2 text-lg font-medium uppercase;
+        margin-bottom: 0.5rem;
+        margin-left: 0.5rem;
+        font-size: 1.125rem;
+        font-weight: medium;
+        text-transform: uppercase;
     }
     ul {
         list-style: initial;
-        @apply mb-2 pl-4;
+        margin-bottom: 0.5rem;
+        padding-left: 1rem;
     }
 }
 
@@ -1237,4 +1525,165 @@ survey-widget *::-webkit-scrollbar-thumb {
     &.open .content {
         visibility: visible;
     }
+}
+
+/*/////////////////////////////////////////////////////////////
+//////////////////////   Native Classes   /////////////////////
+/////////////////////////////////////////////////////////////*/
+
+input,
+textarea {
+    user-select: text;
+    background: none;
+    caret-color: var(--secondary) !important;
+
+    span[required] {
+        color: var(--warn);
+    }
+
+    &::placeholder {
+        color: var(--base-300);
+    }
+}
+
+label {
+    span[required] {
+        color: var(--warn);
+    }
+}
+
+.theme-dark {
+    input {
+        color-scheme: dark;
+    }
+    input::placeholder {
+        color: inherit;
+        opacity: 0.6;
+    }
+}
+
+a[link] {
+    color: var(--info);
+    text-decoration: underline;
+    cursor: pointer;
+
+    &:hover {
+        color: var(--info-focus);
+    }
+
+    &:active {
+        color: var(--primary);
+    }
+}
+
+:not(.mat-form-field-label-wrapper, .mdc-form-field) > label {
+    width: 100%;
+    font-size: 0.875rem;
+    margin-bottom: 0.25rem;
+    min-width: 100%;
+    font-weight: bold;
+
+    > span:first-child {
+        color: var(--warn);
+    }
+
+    &.error {
+        color: var(--error);
+    }
+}
+
+#placeos {
+    .svg-viewer__label {
+        min-width: 12rem;
+    }
+
+    ::placeholder,
+    .mat-form-field-label,
+    .mat-mdc-select-placeholder {
+        color: var(--neutral);
+    }
+
+    input {
+        caret-color: var(--primary);
+    }
+}
+
+/*/////////////////////////////////////////////////////////////
+/////////////////////   Utility Classes   /////////////////////
+/////////////////////////////////////////////////////////////*/
+
+.bg-darken {
+    background-color: rgba(#000, 0.1);
+}
+
+.text-light {
+    color: rgba(#fff, 0.85);
+}
+
+.text-light-fade {
+    color: rgba(#fff, 0.6);
+}
+
+.text-light-disabled {
+    color: rgba(#fff, 0.35);
+}
+
+.text-dark {
+    color: rgba(#000, 0.85);
+}
+
+.text-dark-fade {
+    color: rgba(#000, 0.6);
+}
+
+.h-half {
+    height: 50%;
+}
+
+.min-w-24 {
+    min-width: 6em;
+}
+
+.min-w-32 {
+    min-width: 8em !important;
+}
+
+.min-w-48 {
+    min-width: 12em;
+}
+
+.min-w-64 {
+    min-width: 16em;
+}
+
+.width-tablet {
+    width: 48rem;
+    max-width: calc(100vw - 2em);
+}
+
+.top {
+    top: 0 !important;
+    bottom: auto !important;
+}
+
+.bottom {
+    top: auto !important;
+    bottom: 0 !important;
+}
+
+.left {
+    left: 0 !important;
+    right: auto !important;
+}
+
+.right {
+    left: auto !important;
+    right: 0 !important;
+}
+
+.center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }

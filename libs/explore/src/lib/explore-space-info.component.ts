@@ -54,7 +54,7 @@ export interface SpaceInfoData {
             <div
                 name="space-info"
                 [id]="space?.id"
-                class="pointer-events-none absolute left-0 top-0 w-64 transform overflow-hidden rounded border border-base-300 bg-base-100 shadow"
+                class="pointer-events-none absolute left-0 top-0 w-64 transform overflow-hidden rounded-sm border border-base-300 bg-base-100 shadow-sm"
                 [class.-translate-x-full]="x_pos === 'end'"
                 [class.-translate-y-full]="y_pos === 'bottom'"
             >
@@ -82,7 +82,7 @@ export interface SpaceInfoData {
                         <div
                             status
                             [class]="
-                                'text-light rounded border border-white p-1 px-2 capitalize shadow ' +
+                                'text-light rounded-sm border border-white p-1 px-2 capitalize shadow-sm ' +
                                 status
                             "
                         >
@@ -135,7 +135,7 @@ export interface SpaceInfoData {
                         }
                         @if (show_event_details() && next()) {
                             @let host = next().host | user;
-                            <div class="rounded px-2 pb-1 text-xs opacity-30">
+                            <div class="rounded-sm px-2 pb-1 text-xs opacity-30">
                                 {{ current() ? 'Current' : 'Upcoming' }}
                                 booking
                             </div>

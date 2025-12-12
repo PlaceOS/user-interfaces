@@ -88,7 +88,7 @@ import { DurationPipe } from './ui/duration.pipe';
                 </div>
                 <div class="flex h-12 w-32 flex-col p-2">
                     <div
-                        class="rounded p-2 text-center uppercase"
+                        class="rounded-sm p-2 text-center uppercase"
                         [class.bg-error]="rec_status === 'playing'"
                         [class.bg-warning]="rec_status === 'paused'"
                         [class.bg-base-300]="rec_status === 'stopped'"
@@ -118,7 +118,7 @@ import { DurationPipe } from './ui/duration.pipe';
         <div class="flex-1"></div>
         @if (has_master_audio() !== false) {
             <div
-                class="flex w-[32rem] max-w-[50%] items-center space-x-2 px-4 py-2 text-base-content"
+                class="flex w-lg max-w-[50%] items-center space-x-2 px-4 py-2 text-base-content"
             >
                 <button icon matRipple (click)="toggleMute()">
                     <icon>{{ volume_icon() }}</icon>

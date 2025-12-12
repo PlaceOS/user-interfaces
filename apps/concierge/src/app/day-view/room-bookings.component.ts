@@ -97,7 +97,7 @@ const EMPTY = [];
                 }
                 <div class="flex flex-1 justify-end pr-2">
                     <div
-                        class="flex max-w-[32rem] flex-1 items-center rounded-full border border-base-300"
+                        class="flex max-w-lg flex-1 items-center rounded-full border border-base-300"
                     >
                         <div
                             class="flex w-px flex-1 items-center space-x-1 overflow-x-auto rounded-l-full px-1"

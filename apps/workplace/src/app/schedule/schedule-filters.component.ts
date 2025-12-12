@@ -11,7 +11,7 @@ import { ScheduleStateService } from './schedule-state.service';
     selector: 'schedule-filters',
     template: `
         <div
-            class="hidden rounded border border-base-200 bg-base-100 p-2 sm:block"
+            class="hidden rounded-sm border border-base-200 bg-base-100 p-2 sm:block"
         >
             <h3 class="mb-2 font-medium">
                 {{

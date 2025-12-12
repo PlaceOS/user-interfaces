@@ -14,7 +14,7 @@ import { TranslatePipe } from './translate.pipe';
     template: `
         <div>
             <header
-                class="sticky top-0 z-10 m-2 h-14 w-[calc(100%-1rem)] rounded border-none bg-base-200 p-2"
+                class="sticky top-0 z-10 m-2 h-14 w-[calc(100%-1rem)] rounded-sm border-none bg-base-200 p-2"
             >
                 <h2 class="px-2 text-xl font-medium">
                     {{
@@ -29,8 +29,8 @@ import { TranslatePipe } from './translate.pipe';
                 }
             </header>
             @if (!loading()) {
-                <main class="max-h-[65vh] w-[32rem] overflow-auto">
-                    <table class="min-w-[32rem]">
+                <main class="max-h-[65vh] w-lg overflow-auto">
+                    <table class="min-w-lg">
                         <thead class="border-b border-base-200">
                             <tr>
                                 <td class="w-12 py-1" (click)="toggleRoom('*')">

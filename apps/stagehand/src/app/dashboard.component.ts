@@ -9,7 +9,7 @@ import { SidebarComponent } from './ui/sidebar.component';
             <sidebar />
             <div class="flex flex-1 flex-col">
                 <header
-                    class="flex h-[4.5rem] w-full items-center justify-between border-base-400 bg-base-100 p-4"
+                    class="flex h-18 w-full items-center justify-between border-base-400 bg-base-100 p-4"
                 >
                     <h1 class="text-2xl font-bold">AV Systems Monitor</h1>
                     <button btn matRipple>Generate report</button>

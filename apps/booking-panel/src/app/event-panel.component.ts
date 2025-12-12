@@ -126,7 +126,7 @@ import { PanelStateService } from './panel-state.service';
                     </button>
                     <div
                         qr-code-out
-                        class="z-10 overflow-hidden rounded-l-lg border border-base-300 bg-base-100 shadow"
+                        class="z-10 overflow-hidden rounded-l-lg border border-base-300 bg-base-100 shadow-sm"
                         [class.w-0]="!show_qr"
                         [class.w-56]="show_qr"
                     >

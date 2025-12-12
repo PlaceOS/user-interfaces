@@ -125,10 +125,10 @@ export class VirtualKeyboardComponent
     @HostListener('focus') public onFocus = () => {
         if (!VirtualKeyboardComponent.enabled) return;
         this.open();
-        this.clearTimeout('blur');
+        this.clearTimeout('blur-sm');
     };
-    @HostListener('blur') public onBlur = () =>
-        this.timeout('blur', () => this.close());
+    @HostListener('blur-sm') public onBlur = () =>
+        this.timeout('blur-sm', () => this.close());
 
     constructor() {
         super();

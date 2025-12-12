@@ -26,7 +26,7 @@ import { lastValueFrom } from 'rxjs';
             @if (!loading()) {
                 @if (event()) {
                     <div
-                        class="overflow-hidden rounded border border-base-300 bg-base-100"
+                        class="overflow-hidden rounded-sm border border-base-300 bg-base-100"
                     >
                         <group-event-details-modal [event]="event()" />
                     </div>

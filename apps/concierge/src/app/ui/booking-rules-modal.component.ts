@@ -57,7 +57,7 @@ import {
         >
             <div>
                 <div
-                    class="-mx-2 mb-2 w-[calc(100%+1rem)] rounded bg-info p-4 text-center text-xs text-info-content"
+                    class="-mx-2 mb-2 w-[calc(100%+1rem)] rounded-sm bg-info p-4 text-center text-xs text-info-content"
                 >
                     {{ 'APP.CONCIERGE.BOOKING_RULES_NOTE' | translate }}
                 </div>
@@ -70,7 +70,7 @@ import {
                     />
                     <div class="-mx-2 w-[calc(100%+1rem)] overflow-auto">
                         <simple-table
-                            class="block w-full min-w-[48rem] text-sm"
+                            class="block w-full min-w-3xl text-sm"
                             *ngSwitchCase="'list'"
                             [data]="booking_rules"
                             [columns]="[
@@ -155,7 +155,7 @@ import {
                         <div
                             [class.bg-error]="!row.rules[key]"
                             [class.bg-success]="row.rules[key]"
-                            class="mx-auto flex h-8 w-8 items-center justify-center rounded text-2xl text-white"
+                            class="mx-auto flex h-8 w-8 items-center justify-center rounded-sm text-2xl text-white"
                         >
                             <icon>{{ row.rules[key] ? 'done' : 'close' }}</icon>
                         </div>
@@ -168,7 +168,7 @@ import {
                                 <button
                                     icon
                                     matRipple
-                                    class="rounded"
+                                    class="rounded-sm"
                                     (click)="editRuleset(row)"
                                     [matTooltip]="
                                         'APP.CONCIERGE.BOOKING_RULESET_EDIT'
@@ -180,7 +180,7 @@ import {
                                 <button
                                     icon
                                     matRipple
-                                    class="rounded"
+                                    class="rounded-sm"
                                     (click)="updateRulesetPriority(row, -1)"
                                     [matTooltip]="
                                         'APP.CONCIERGE.BOOKING_RULESET_PRIORITY_UP'
@@ -194,7 +194,7 @@ import {
                                 <button
                                     icon
                                     matRipple
-                                    class="rounded"
+                                    class="rounded-sm"
                                     (click)="removeRuleset(row)"
                                     [matTooltip]="
                                         'APP.CONCIERGE.BOOKING_RULESET_REMOVE'
@@ -206,7 +206,7 @@ import {
                                 <button
                                     icon
                                     matRipple
-                                    class="rounded"
+                                    class="rounded-sm"
                                     (click)="updateRulesetPriority(row, 1)"
                                     [matTooltip]="
                                         'APP.CONCIERGE.BOOKING_RULESET_PRIORITY_DOWN'
@@ -220,8 +220,8 @@ import {
                     </ng-template>
                 </ng-container>
                 <footer
-                    class="fixed bottom-0 left-1/2 z-10 mx-auto my-2 flex w-[calc(100%-1rem)] -translate-x-1/2 items-center justify-end space-x-4 rounded border-none bg-base-200 px-4 py-2"
-                    [class.max-w-[39rem]]="view === 'form'"
+                    class="fixed bottom-0 left-1/2 z-10 mx-auto my-2 flex w-[calc(100%-1rem)] -translate-x-1/2 items-center justify-end space-x-4 rounded-sm border-none bg-base-200 px-4 py-2"
+                    [class.max-w-156]="view === 'form'"
                     *ngIf="!loading"
                 >
                     <button

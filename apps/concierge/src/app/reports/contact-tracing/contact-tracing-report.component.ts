@@ -29,7 +29,7 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
         >
             <div class="w-full">
                 <div
-                    class="m-4 flex items-center overflow-hidden rounded bg-base-200 p-4"
+                    class="m-4 flex items-center overflow-hidden rounded-sm bg-base-200 p-4"
                 >
                     <img
                         auth
@@ -47,7 +47,7 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
             @if (!(loading | async)) {
                 @if ((options | async)?.user) {
                     <div
-                        class="mx-auto my-2 w-[64rem] max-w-[calc(100%-2rem)] rounded-lg border border-base-200"
+                        class="mx-auto my-2 w-5xl max-w-[calc(100%-2rem)] rounded-lg border border-base-200"
                     >
                         <div
                             class="flex items-center justify-between border-b border-base-200 px-4"

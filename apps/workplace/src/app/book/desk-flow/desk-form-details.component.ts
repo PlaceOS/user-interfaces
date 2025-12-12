@@ -38,7 +38,7 @@ import { addDays, endOfDay, set } from 'date-fns';
     selector: 'desk-form-details',
     styles: [],
     template: `
-        <!-- <div class="m-2 bg-warning p-2 text-center rounded shadow text-sm">
+        <!-- <div class="m-2 bg-warning p-2 text-center rounded-sm shadow-sm text-sm">
         The selected desk hasn't been booked. Please book the desk to be
         able to check-in.
         </div> -->
@@ -60,7 +60,7 @@ import { addDays, endOfDay, set } from 'date-fns';
                                 {{ 'BOOKINGS.DESK_LONE' | translate }}
                             </div>
                             <div
-                                class="absolute inset-x-0 bottom-0 !m-0 h-1"
+                                class="absolute inset-x-0 bottom-0 m-0! h-1"
                                 [class.bg-base-200]="(options | async)?.group"
                                 [class.bg-secondary]="!(options | async)?.group"
                             ></div>
@@ -76,14 +76,14 @@ import { addDays, endOfDay, set } from 'date-fns';
                                 {{ 'BOOKINGS.DESK_GROUP' | translate }}
                             </div>
                             <div
-                                class="absolute inset-x-0 bottom-0 !m-0 h-1"
+                                class="absolute inset-x-0 bottom-0 m-0! h-1"
                                 [class.bg-base-200]="!(options | async)?.group"
                                 [class.bg-secondary]="(options | async)?.group"
                             ></div>
                         </button>
                     </section>
                 }
-                <section class="p-2" [class.!border-none]="allow_groups">
+                <section class="p-2" [class.border-none!]="allow_groups">
                     <h3 class="mb-4 flex items-center space-x-2">
                         <div
                             class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
@@ -273,7 +273,7 @@ import { addDays, endOfDay, set } from 'date-fns';
                         ></desk-list-field>
                         @if ((options | async)?.group) {
                             <p
-                                class="rounded bg-warning px-2 py-1 text-center text-xs shadow"
+                                class="rounded-sm bg-warning px-2 py-1 text-center text-xs shadow-sm"
                             >
                                 {{ 'BOOKINGS.DESK_GROUP_INFO' | translate }}
                             </p>

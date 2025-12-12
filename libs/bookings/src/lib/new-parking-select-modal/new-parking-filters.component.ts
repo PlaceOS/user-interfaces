@@ -46,7 +46,7 @@ import { BookingFormService } from '../booking-form.service';
                 <h2 class="mb-1 text-lg font-medium">
                     {{ 'BOOKINGS.DETAILS' | translate }}
                 </h2>
-                <div class="flex min-w-[8rem] flex-1 flex-col">
+                <div class="flex min-w-32 flex-1 flex-col">
                     <label for="location">
                         {{ 'BOOKINGS.LOCATION' | translate }}
                     </label>

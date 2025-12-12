@@ -38,7 +38,7 @@ import { DesksStateService } from './desks-state.service';
             </div>
             <div
                 info
-                class="absolute bottom-0 m-2 rounded bg-base-100 p-2 text-center shadow"
+                class="absolute bottom-0 m-2 rounded-sm bg-base-100 p-2 text-center shadow-sm"
             >
                 Click or Tap an available desk to book it.
             </div>

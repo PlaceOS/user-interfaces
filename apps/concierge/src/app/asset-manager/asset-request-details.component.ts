@@ -89,7 +89,7 @@ import { SplitJoinPipe } from './split-join.pipe';
                                 <div>
                                     {{ item.name }}
                                     <span
-                                        class="rounded bg-success px-2 py-1 text-xs text-success-content"
+                                        class="rounded-sm bg-success px-2 py-1 text-xs text-success-content"
                                     >
                                         x{{ item.quantity }}
                                     </span>

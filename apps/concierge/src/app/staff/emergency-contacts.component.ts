@@ -102,7 +102,7 @@ export { EmergencyContact } from './emergency-contacts.service';
                             <button
                                 icon
                                 matRipple
-                                class="h-12 w-12 rounded bg-secondary text-secondary-content"
+                                class="h-12 w-12 rounded-sm bg-secondary text-secondary-content"
                                 [matTooltip]="
                                     'APP.CONCIERGE.CONTACTS_ROLES_MANAGE'
                                         | translate
@@ -116,7 +116,7 @@ export { EmergencyContact } from './emergency-contacts.service';
                 </section>
                 <section class="h-1/2 w-full flex-1 overflow-auto px-8">
                     <simple-table
-                        class="block min-w-[52rem] text-sm"
+                        class="block min-w-208 text-sm"
                         [data]="filtered_contacts"
                         [filter]="search"
                         [empty_message]="

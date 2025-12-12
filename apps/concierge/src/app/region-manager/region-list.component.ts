@@ -21,7 +21,7 @@ import { WorkplaceSettingsFormModalComponent } from '../ui/app-settings/workplac
     template: `
         <div class="absolute inset-0 overflow-auto px-8">
             <simple-table
-                class="block min-w-[32rem] text-sm"
+                class="block min-w-lg text-sm"
                 [data]="regions"
                 [empty_message]="'APP.CONCIERGE.REGIONS_EMPTY' | translate"
                 [columns]="[
@@ -63,7 +63,7 @@ import { WorkplaceSettingsFormModalComponent } from '../ui/app-settings/workplac
                 <button
                     icon
                     matRipple
-                    class="h-12 w-12 rounded"
+                    class="h-12 w-12 rounded-sm"
                     [matMenuTriggerFor]="menu"
                 >
                     <icon>more_vert</icon>

@@ -12,7 +12,7 @@ import { CheckinStateService } from './checkin-state.service';
     template: `
         @if (!loading) {
             <div
-                class="relative flex w-[28rem] flex-col items-center overflow-hidden rounded bg-base-100 p-4 shadow"
+                class="relative flex w-md flex-col items-center overflow-hidden rounded-sm bg-base-100 p-4 shadow-sm"
             >
                 <h3 class="mb-2 w-full text-xl">
                     {{ 'APP.VISITOR_KIOSK.CHECKOUT' | translate }}
@@ -36,7 +36,7 @@ import { CheckinStateService } from './checkin-state.service';
             </div>
         } @else {
             <div
-                class="relative flex h-[20rem] w-[28rem] flex-col items-center justify-center space-y-2 overflow-hidden rounded bg-base-100 p-8 shadow"
+                class="relative flex h-80 w-md flex-col items-center justify-center space-y-2 overflow-hidden rounded-sm bg-base-100 p-8 shadow-sm"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <div>

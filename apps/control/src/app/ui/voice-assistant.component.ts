@@ -32,7 +32,7 @@ import { VoiceAssistantService } from './voice-assistant.service';
             </div>
             @if ((active | async) && (progress | async)) {
                 <div
-                    class="absolute left-2 top-1/2 max-w-[30vw] -translate-x-full -translate-y-1/2 rounded-xl bg-info p-2 text-xs text-info-content shadow"
+                    class="absolute left-2 top-1/2 max-w-[30vw] -translate-x-full -translate-y-1/2 rounded-xl bg-info p-2 text-xs text-info-content shadow-sm"
                 >
                     <div class="flex items-center space-x-2">
                         <icon class="text-2xl">{{

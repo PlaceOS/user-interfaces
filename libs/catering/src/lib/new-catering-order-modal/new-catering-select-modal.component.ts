@@ -25,7 +25,7 @@ const FAV_KEY = 'favourite_menu_items';
             class="flex h-screen w-screen flex-col space-y-2 overflow-hidden bg-base-100 p-2 sm:h-auto sm:w-auto"
         >
             <header
-                class="flex h-14 w-full items-center space-x-2 rounded border-none bg-base-200 p-2"
+                class="flex h-14 w-full items-center space-x-2 rounded-sm border-none bg-base-200 p-2"
             >
                 <h2 class="flex-1 px-2 text-xl font-medium capitalize">
                     {{ 'CATERING.ORDER' | translate }}
@@ -38,13 +38,13 @@ const FAV_KEY = 'favourite_menu_items';
                 class="relative flex h-1/2 flex-1 sm:h-[65vh] sm:flex-none sm:space-x-2"
             >
                 <div
-                    class="h-full w-full overflow-y-auto overflow-x-hidden rounded border border-base-300 shadow sm:block sm:w-[20rem]"
+                    class="h-full w-full overflow-y-auto overflow-x-hidden rounded-sm border border-base-300 shadow-sm sm:block sm:w-[20rem]"
                     [class.hidden]="!show_filters"
                 >
                     <new-catering-item-filters></new-catering-item-filters>
                 </div>
                 <div
-                    class="h-full w-full overflow-auto rounded border border-base-300 bg-base-200 sm:w-[20rem] lg:block"
+                    class="h-full w-full overflow-auto rounded-sm border border-base-300 bg-base-200 sm:w-[20rem] lg:block"
                     [class.hidden]="show_filters || displayed"
                     [class.sm:hidden]="displayed"
                     [class.md:block]="!displayed"
@@ -59,7 +59,7 @@ const FAV_KEY = 'favourite_menu_items';
                     ></new-catering-item-list>
                 </div>
                 <div
-                    class="h-full w-full overflow-auto rounded border border-base-300 shadow sm:w-[20rem] lg:block"
+                    class="h-full w-full overflow-auto rounded-sm border border-base-300 shadow-sm sm:w-[20rem] lg:block"
                     [class.hidden]="show_filters || !displayed"
                     [class.sm:hidden]="!displayed"
                     [class.md:block]="displayed"
@@ -93,7 +93,7 @@ const FAV_KEY = 'favourite_menu_items';
                 }
             </main>
             <footer
-                class="flex w-full items-center justify-between space-x-2 rounded border-none bg-base-200 p-2"
+                class="flex w-full items-center justify-between space-x-2 rounded-sm border-none bg-base-200 p-2"
             >
                 <button
                     btn

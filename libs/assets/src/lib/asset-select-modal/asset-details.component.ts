@@ -29,7 +29,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                     matRipple
                     fav
                     [class.text-info-content]="fav()"
-                    [class.!bg-info]="fav()"
+                    [class.bg-info!]="fav()"
                     (click)="toggleFav.emit()"
                     class="absolute right-2 top-2 bg-base-200"
                 >
@@ -77,7 +77,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                     </div>
                 </section>
             </div>
-            <div class="border-t border-base-200 p-2 shadow sm:hidden">
+            <div class="border-t border-base-200 p-2 shadow-sm sm:hidden">
                 <button
                     btn
                     matRipple

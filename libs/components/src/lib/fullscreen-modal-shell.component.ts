@@ -14,12 +14,12 @@ import { TranslatePipe } from './translate.pipe';
         >
             <div
                 class="fixed top-0 mx-auto h-screen max-w-full border-x border-base-300 bg-base-100"
-                [class.w-[40rem]]="!full_width()"
+                [class.w-160]="!full_width()"
                 [class.w-full]="full_width()"
             ></div>
             <header
-                class="sticky top-0 z-10 mx-auto my-2 flex h-14 w-full items-center justify-between rounded border-none bg-base-200 px-4 py-2"
-                [class.max-w-[39rem]]="!full_width()"
+                class="sticky top-0 z-10 mx-auto my-2 flex h-14 w-full items-center justify-between rounded-sm border-none bg-base-200 px-4 py-2"
+                [class.max-w-156]="!full_width()"
             >
                 <h2 class="text-xl font-medium capitalize">
                     {{ heading() }}
@@ -40,7 +40,7 @@ import { TranslatePipe } from './translate.pipe';
             </header>
             <main
                 class="z-0 mx-auto h-1/2 w-full flex-1 space-y-8 p-2"
-                [class.max-w-[39rem]]="!full_width()"
+                [class.max-w-156]="!full_width()"
             >
                 @if (!loading()) {
                     <ng-content></ng-content>
@@ -56,8 +56,8 @@ import { TranslatePipe } from './translate.pipe';
             </main>
             @if (!loading() && !hide_confirm()) {
                 <footer
-                    class="fixed bottom-0 left-1/2 z-10 mx-auto my-2 flex w-full -translate-x-1/2 items-center justify-end rounded border-none bg-base-200 px-4 py-2"
-                    [class.max-w-[39rem]]="!full_width()"
+                    class="fixed bottom-0 left-1/2 z-10 mx-auto my-2 flex w-full -translate-x-1/2 items-center justify-end rounded-sm border-none bg-base-200 px-4 py-2"
+                    [class.max-w-156]="!full_width()"
                 >
                     <button
                         btn

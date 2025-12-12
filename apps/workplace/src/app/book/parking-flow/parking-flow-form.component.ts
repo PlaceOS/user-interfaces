@@ -28,7 +28,7 @@ import { ParkingFormDetailsComponent } from './parking-form-details.component';
     template: `
         <div class="h-full w-full overflow-auto bg-base-200">
             <div
-                class="mx-auto w-[48rem] max-w-full border border-base-200 bg-base-100 sm:my-4"
+                class="mx-auto w-3xl max-w-full border border-base-200 bg-base-100 sm:my-4"
             >
                 <h2
                     class="w-full border-b border-base-200 p-4 text-2xl font-medium sm:px-16 sm:py-4"

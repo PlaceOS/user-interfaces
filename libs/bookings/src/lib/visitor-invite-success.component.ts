@@ -36,7 +36,7 @@ import { BookingFormService } from './booking-form.service';
             class="flex h-full w-full flex-col items-center justify-center bg-base-100 text-center"
         >
             <div
-                class="z-0 m-8 h-1/2 w-full max-w-[32rem] flex-1 space-y-2 overflow-auto"
+                class="z-0 m-8 h-1/2 w-full max-w-lg flex-1 space-y-2 overflow-auto"
             >
                 <h2 class="text-3xl">
                     {{
@@ -79,7 +79,7 @@ import { BookingFormService } from './booking-form.service';
                             btn
                             matRipple
                             name="desk-outlook-link"
-                            class="inverse flex w-64 items-center space-x-2 rounded p-2 pr-4"
+                            class="inverse flex w-64 items-center space-x-2 rounded-sm p-2 pr-4"
                             [href]="outlook_link() | sanitize: 'url'"
                             target="_blank"
                             rel="noopener noreferer"
@@ -93,7 +93,7 @@ import { BookingFormService } from './booking-form.service';
                             btn
                             matRipple
                             name="desk-google-link"
-                            class="inverse flex w-64 items-center space-x-2 rounded p-2 pr-4"
+                            class="inverse flex w-64 items-center space-x-2 rounded-sm p-2 pr-4"
                             [href]="google_link() | sanitize: 'url'"
                             target="_blank"
                             rel="noopener noreferer"
@@ -107,7 +107,7 @@ import { BookingFormService } from './booking-form.service';
                             btn
                             matRipple
                             name="desk-ical-link"
-                            class="inverse flex w-64 items-center space-x-2 rounded p-2 pr-4"
+                            class="inverse flex w-64 items-center space-x-2 rounded-sm p-2 pr-4"
                             [href]="ical_link() | safe: 'url'"
                             target="_blank"
                             rel="noopener noreferer"
@@ -120,7 +120,7 @@ import { BookingFormService } from './booking-form.service';
             </div>
             <div class="z-10 w-full border-t border-base-200 bg-base-100 p-2">
                 <div
-                    class="mx-auto flex w-full max-w-[32rem] items-center space-x-2"
+                    class="mx-auto flex w-full max-w-lg items-center space-x-2"
                 >
                     <button btn matRipple class="flex-1" (click)="done.emit()">
                         {{ 'APP.WORKPLACE.BOOKING_FINISHED' | translate }}

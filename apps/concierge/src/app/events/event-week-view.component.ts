@@ -38,7 +38,7 @@ import { EventStateService } from './event-state.service';
                     </div>
                 }
             </div>
-            <div class="relative z-10 min-h-full min-w-[84rem]">
+            <div class="relative z-10 min-h-full min-w-336">
                 <div
                     header
                     class="sticky top-0 z-10 flex h-16 min-h-16 border-b border-base-200 bg-base-100"
@@ -57,13 +57,13 @@ import { EventStateService } from './event-state.service';
                 </div>
                 @for (hour of hours; track i; let i = $index) {
                     <div
-                        class="pointer-events-none relative flex min-h-10 min-w-[84rem] flex-1 border-x border-b border-base-200"
+                        class="pointer-events-none relative flex min-h-10 min-w-336 flex-1 border-x border-b border-base-200"
                     ></div>
                 }
                 @for (date of days; track date + '' + i; let i = $index) {
                     <div
                         date
-                        class="pointer-events-none absolute left-0 top-16 h-[60rem] w-[calc(100%/7)] flex-1 border-r border-base-200"
+                        class="pointer-events-none absolute left-0 top-16 h-240 w-[calc(100%/7)] flex-1 border-r border-base-200"
                         [style.transform]="'translateX(' + i * 100 + '%)'"
                     >
                         @for (
@@ -74,7 +74,7 @@ import { EventStateService } from './event-state.service';
                         ) {
                             <button
                                 matRipple
-                                class="pointer-events-auto absolute inset-x-1 overflow-hidden rounded border border-base-200 bg-base-100 py-1 pl-3 pr-2 shadow hover:border-info"
+                                class="pointer-events-auto absolute inset-x-1 overflow-hidden rounded-sm border border-base-200 bg-base-100 py-1 pl-3 pr-2 shadow-sm hover:border-info"
                                 [style.top]="event.offset * 100 + '%'"
                                 [style.height]="event.length * 100 + '%'"
                                 (click)="viewEvent(event)"

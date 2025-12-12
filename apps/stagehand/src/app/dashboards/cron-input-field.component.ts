@@ -39,36 +39,36 @@ function listPattern(fieldPattern) {
     selector: 'cron-input-field',
     template: `
         <div
-            class="mb-1 flex w-full items-center space-x-2 rounded border border-base-300 focus-within:border-base-content focus-within:outline-4 focus-within:outline-base-content"
+            class="mb-1 flex w-full items-center space-x-2 rounded-sm border border-base-300 focus-within:border-base-content focus-within:outline-4 focus-within:outline-base-content"
             [formGroup]="form"
         >
             <input
-                class="w-px flex-1 border-none bg-none p-2 text-base outline-none"
+                class="w-px flex-1 border-none bg-none p-2 text-base outline-hidden"
                 placeholder="*"
                 name="minute"
                 formControlName="minute"
                 (keydown)="preventInvalidCharacters($event)"
             />
             <input
-                class="w-px flex-1 border-none bg-none p-2 text-base outline-none"
+                class="w-px flex-1 border-none bg-none p-2 text-base outline-hidden"
                 placeholder="*"
                 name="hour"
                 formControlName="hour"
             />
             <input
-                class="w-px flex-1 border-none bg-none p-2 text-base outline-none"
+                class="w-px flex-1 border-none bg-none p-2 text-base outline-hidden"
                 placeholder="*"
                 name="day"
                 formControlName="day"
             />
             <input
-                class="w-px flex-1 border-none bg-none p-2 text-base outline-none"
+                class="w-px flex-1 border-none bg-none p-2 text-base outline-hidden"
                 placeholder="*"
                 name="month"
                 formControlName="month"
             />
             <input
-                class="w-px flex-1 border-none bg-none p-2 text-base outline-none"
+                class="w-px flex-1 border-none bg-none p-2 text-base outline-hidden"
                 placeholder="*"
                 name="day_of_week"
                 formControlName="day_of_week"

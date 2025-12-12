@@ -34,7 +34,7 @@ import { SpacePipe } from './space.pipe';
             <button
                 matRipple
                 (click)="viewDetails()"
-                class="flex h-[20rem] w-60 flex-col overflow-hidden rounded-xl border border-base-300 bg-base-100 shadow hover:border-info hover:shadow-2xl"
+                class="flex h-80 w-60 flex-col overflow-hidden rounded-xl border border-base-300 bg-base-100 shadow-sm hover:border-info hover:shadow-2xl"
             >
                 <div
                     class="relative flex h-28 min-h-28 w-full items-center justify-between overflow-hidden border-b border-base-200 bg-base-200"
@@ -59,7 +59,7 @@ import { SpacePipe } from './space.pipe';
                         {{ event().title }}
                     </h2>
                     <div
-                        class="mb-2 h-[4.5rem] flex-1 overflow-hidden text-left text-xs opacity-60"
+                        class="mb-2 h-18 flex-1 overflow-hidden text-left text-xs opacity-60"
                     >
                         <p class="line-clamp-4">{{ raw_description() }}</p>
                         @if (!raw_description().trim()) {
@@ -112,7 +112,7 @@ import { SpacePipe } from './space.pipe';
             <button
                 matRipple
                 (click)="viewDetails()"
-                class="mx-auto flex h-56 w-[63rem] max-w-full overflow-hidden rounded-xl border border-base-300 bg-base-100 shadow hover:border-info hover:shadow-2xl"
+                class="mx-auto flex h-56 w-252 max-w-full overflow-hidden rounded-xl border border-base-300 bg-base-100 shadow-sm hover:border-info hover:shadow-2xl"
             >
                 <div
                     class="relative flex h-full w-1/2 max-w-[18rem] items-center justify-between overflow-hidden border-r border-base-200 bg-base-200"
@@ -210,7 +210,7 @@ import { SpacePipe } from './space.pipe';
                     </div>
                 </div>
                 <div
-                    class="absolute right-4 top-4 w-32 truncate rounded bg-secondary px-4 py-2 text-center text-secondary-content"
+                    class="absolute right-4 top-4 w-32 truncate rounded-sm bg-secondary px-4 py-2 text-center text-secondary-content"
                 >
                     {{ 'COMMON.VIEW_DETAILS' | translate }}
                 </div>

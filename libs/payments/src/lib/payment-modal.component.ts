@@ -29,7 +29,7 @@ export interface PaymentData {
     selector: 'payment-modal',
     template: `
         @if (!(loading | async)) {
-            <div class="relative max-h-[100vh] overflow-auto">
+            <div class="relative max-h-screen overflow-auto">
                 @if (!success) {
                     <main
                         class="relative flex w-[24rem] flex-col items-center space-y-2 px-4 pt-8"

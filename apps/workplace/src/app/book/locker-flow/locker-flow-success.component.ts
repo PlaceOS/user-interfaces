@@ -62,7 +62,7 @@ import {
                             btn
                             matRipple
                             name="locker-outlook-link"
-                            class="inverse flex w-64 items-center space-x-2 rounded p-2 pr-4"
+                            class="inverse flex w-64 items-center space-x-2 rounded-sm p-2 pr-4"
                             [href]="outlook_link | sanitize: 'url'"
                             target="_blank"
                             rel="noopener noreferer"
@@ -76,7 +76,7 @@ import {
                             btn
                             matRipple
                             name="locker-google-link"
-                            class="inverse flex w-64 items-center space-x-2 rounded p-2 pr-4"
+                            class="inverse flex w-64 items-center space-x-2 rounded-sm p-2 pr-4"
                             [href]="google_link | sanitize: 'url'"
                             target="_blank"
                             rel="noopener noreferer"
@@ -90,7 +90,7 @@ import {
                             btn
                             matRipple
                             name="locker-ical-link"
-                            class="inverse flex w-64 items-center space-x-2 rounded p-2 pr-4"
+                            class="inverse flex w-64 items-center space-x-2 rounded-sm p-2 pr-4"
                             [href]="ical_link | safe: 'url'"
                             target="_blank"
                             rel="noopener noreferer"
@@ -108,7 +108,7 @@ import {
                     btn
                     name="locker-confirm-continue"
                     matRipple
-                    class="mx-auto w-full max-w-[32rem]"
+                    class="mx-auto w-full max-w-lg"
                     [routerLink]="['/']"
                 >
                     {{ 'APP.WORKPLACE.BOOKING_FINISHED' | translate }}

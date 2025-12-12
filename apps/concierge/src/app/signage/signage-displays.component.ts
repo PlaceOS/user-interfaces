@@ -59,7 +59,7 @@ import { ZoneSelectModalComponent } from './zone-select-modal.component';
                             <a
                                 matRipple
                                 class="relative z-10 flex h-12 min-h-12 w-full items-center truncate rounded-3xl border border-base-100 px-6 even:border-base-200 even:bg-base-200 hover:border-info"
-                                [class.!bg-secondary]="
+                                [class.bg-secondary!]="
                                     selected() === display.id
                                 "
                                 [class.text-secondary-content]="
@@ -86,7 +86,7 @@ import { ZoneSelectModalComponent } from './zone-select-modal.component';
                                         <a
                                             matRipple
                                             class="relative z-10 flex min-h-12 w-1/2 flex-1 items-center truncate rounded-3xl px-6 hover:bg-base-200"
-                                            [class.!bg-secondary]="
+                                            [class.bg-secondary!]="
                                                 selected_trigger() ===
                                                 trigger?.id
                                             "
@@ -128,7 +128,7 @@ import { ZoneSelectModalComponent } from './zone-select-modal.component';
                 }
             </div>
             <div
-                class="relative flex h-full w-1/2 flex-1 flex-col space-y-2 overflow-auto rounded-lg border border-base-300 bg-base-200 p-2 shadow"
+                class="relative flex h-full w-1/2 flex-1 flex-col space-y-2 overflow-auto rounded-lg border border-base-300 bg-base-200 p-2 shadow-sm"
             >
                 @if (active_display()) {
                     @let display = active_display();
@@ -156,7 +156,7 @@ import { ZoneSelectModalComponent } from './zone-select-modal.component';
                             >
                                 @for (zone of display?.zones; track zone) {
                                     <a
-                                        class="m-1 whitespace-nowrap rounded bg-base-200 px-2 py-1 font-mono text-xs"
+                                        class="m-1 whitespace-nowrap rounded-sm bg-base-200 px-2 py-1 font-mono text-xs"
                                         matRipple
                                         [routerLink]="['/signage', 'zones']"
                                         [queryParams]="{ zone: zone }"
@@ -169,7 +169,7 @@ import { ZoneSelectModalComponent } from './zone-select-modal.component';
                                     </a>
                                 }
                                 <button
-                                    class="m-1 rounded px-2 py-1 font-mono text-xs underline"
+                                    class="m-1 rounded-sm px-2 py-1 font-mono text-xs underline"
                                     matRipple
                                     (click)="addZone()"
                                 >
@@ -184,7 +184,7 @@ import { ZoneSelectModalComponent } from './zone-select-modal.component';
                             icon
                             matRipple
                             [matMenuTriggerFor]="menu"
-                            class="absolute right-2 top-2 !m-0"
+                            class="absolute right-2 top-2 m-0!"
                         >
                             <icon>more_vert</icon>
                         </button>

@@ -84,7 +84,7 @@ import { combineLatest } from 'rxjs';
             <button
                 icon
                 matRipple
-                class="h-12 w-12 rounded bg-secondary text-secondary-content"
+                class="h-12 w-12 rounded-sm bg-secondary text-secondary-content"
                 [disabled]="!has_data()"
                 [matTooltip]="'APP.CONCIERGE.REPORTS_DOWNLOAD' | translate"
                 (click)="download.emit()"
@@ -94,7 +94,7 @@ import { combineLatest } from 'rxjs';
             <button
                 icon
                 matRipple
-                class="h-12 w-12 rounded bg-secondary text-secondary-content"
+                class="h-12 w-12 rounded-sm bg-secondary text-secondary-content"
                 [disabled]="!has_data()"
                 [matTooltip]="'APP.CONCIERGE.REPORTS_PRINT' | translate"
                 (click)="print()"

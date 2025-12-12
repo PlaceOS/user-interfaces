@@ -21,7 +21,7 @@ import { WorkplaceSettingsFormModalComponent } from '../ui/app-settings/workplac
     template: `
         <div class="absolute inset-0 overflow-auto px-8">
             <simple-table
-                class="block w-full min-w-[62rem] text-sm"
+                class="block w-full min-w-248 text-sm"
                 [data]="buildings"
                 [empty_message]="'APP.CONCIERGE.BUILDINGS_EMPTY' | translate"
                 [columns]="[
@@ -86,7 +86,7 @@ import { WorkplaceSettingsFormModalComponent } from '../ui/app-settings/workplac
                 <img
                     auth
                     [source]="data[0]"
-                    class="max-h-[3rem] max-w-[8rem]"
+                    class="max-h-12 max-w-32"
                 />
             }
             @if (!data.length) {
@@ -100,7 +100,7 @@ import { WorkplaceSettingsFormModalComponent } from '../ui/app-settings/workplac
                 <button
                     icon
                     matRipple
-                    class="h-12 w-12 rounded"
+                    class="h-12 w-12 rounded-sm"
                     [matMenuTriggerFor]="menu"
                 >
                     <icon>more_vert</icon>

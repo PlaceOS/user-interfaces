@@ -60,7 +60,7 @@ import { MeetingFormDetailsComponent } from './meeting-form-details.component';
     template: `
         <div class="h-full w-full overflow-auto bg-base-200">
             <div
-                class="mx-auto w-[48rem] max-w-full border border-base-300 bg-base-100 sm:my-4"
+                class="mx-auto w-3xl max-w-full border border-base-300 bg-base-100 sm:my-4"
             >
                 <h2
                     class="w-full border-b border-base-300 p-4 text-2xl font-medium sm:px-16 sm:py-4"
@@ -205,7 +205,7 @@ import { MeetingFormDetailsComponent } from './meeting-form-details.component';
                                         form.value.attendees?.length
                                 ) {
                                     <div
-                                        class="mx-auto my-2 inline-flex rounded bg-warning p-2 text-xs text-warning-content shadow"
+                                        class="mx-auto my-2 inline-flex rounded-sm bg-warning p-2 text-xs text-warning-content shadow-sm"
                                     >
                                         {{
                                             'CALENDAR_EVENT.CAPACITY_WARNING'

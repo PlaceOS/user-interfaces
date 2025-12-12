@@ -15,7 +15,7 @@ import { EnrolmentStateService } from './enrolment-state.service';
     selector: 'enrolment-guest-confirm',
     template: `
         <div
-            class="mx-auto my-4 w-[480px] max-w-[calc(100vw-2rem)] rounded border border-base-200 bg-base-100 p-4 shadow"
+            class="mx-auto my-4 w-[480px] max-w-[calc(100vw-2rem)] rounded-sm border border-base-200 bg-base-100 p-4 shadow-sm"
             [formGroup]="form"
         >
             <h3 class="mb-4 text-center text-xl font-medium">

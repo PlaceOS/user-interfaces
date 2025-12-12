@@ -1,0 +1,8 @@
+{
+    "plugins": {
+        "postcss-import": {},
+        "postcss-nested": {},
+        "@tailwindcss/postcss": {},
+        "postcss-preset-env": { "stage": 1 }
+    }
+}
