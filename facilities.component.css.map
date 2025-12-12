@@ -1,7 +1,7 @@
 {
   "version": 3,
-  "sources": ["angular:styles/component:css;93502018f9d701276c621ec3fe097044336b49f8d88fa18ae5c0d83bba285ac8;/home/runner/work/user-interfaces/user-interfaces/apps/concierge/src/app/facilities/facilities.component.ts"],
+  "sources": ["facilities.component.ts"],
   "sourcesContent": ["\n            :host {\n                display: flex;\n                flex-direction: column;\n                height: 100%;\n                width: 100%;\n                background-color: var(--base-100);\n            }\n\n            facilities-map {\n                min-width: 50%;\n            }\n        "],
-  "mappings": ";AACY;AACI,WAAS;AACT,kBAAgB;AAChB,UAAQ;AACR,SAAO;AACP,oBAAkB,IAAI;AAC1B;AAEA;AACI,aAAW;AACf;",
+  "mappings": ";AACY;AACI,WAAA;AACA,kBAAA;AACA,UAAA;AACA,SAAA;AACA,oBAAA,IAAA;AACJ;AAEA;AACI,aAAA;AACJ;",
   "names": []
 }

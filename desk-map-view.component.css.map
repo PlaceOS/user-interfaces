@@ -1,7 +1,7 @@
 {
   "version": 3,
-  "sources": ["angular:styles/component:css;dd93bc8719393a35a70acaea5bd7405d99fe2e9b226de04eba8ae5416d008453;/home/runner/work/user-interfaces/user-interfaces/apps/concierge/src/app/desks/desk-map-view.component.ts"],
+  "sources": ["desk-map-view.component.ts"],
   "sourcesContent": ["\n            :host {\n                display: flex;\n                flex-direction: column;\n                position: relative;\n                height: 100%;\n                width: 100%;\n            }\n\n            [info] {\n                left: 50%;\n                transform: translateX(-50%);\n            }\n        "],
-  "mappings": ";AACY;AACI,WAAS;AACT,kBAAgB;AAChB,YAAU;AACV,UAAQ;AACR,SAAO;AACX;AAEA,CAAC;AACG,QAAM;AACN,aAAW,WAAW;AAC1B;",
+  "mappings": ";AACY;AACI,WAAA;AACA,kBAAA;AACA,YAAA;AACA,UAAA;AACA,SAAA;AACJ;AAEA,CAAA;AACI,QAAA;AACA,aAAA,WAAA;AACJ;",
   "names": []
 }

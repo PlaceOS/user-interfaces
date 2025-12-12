@@ -1,7 +1,7 @@
 {
   "version": 3,
-  "sources": ["angular:styles/component:css;5abc8ee09e0d36f5d60b2d76883f59bf6f99a5316bb94318311e1579b21e749b;/home/runner/work/user-interfaces/user-interfaces/apps/concierge/src/app/reports/desks/report-desks-charts.component.ts"],
+  "sources": ["report-desks-charts.component.ts"],
   "sourcesContent": ["\n            :host {\n                display: block;\n            }\n\n            .is-print .ct-chart {\n                width: 8cm !important;\n            }\n        "],
-  "mappings": ";AACY;AACI,WAAS;AACb;AAEA,CAAC,SAAS,CAAC;AACP,SAAO;AACX;",
+  "mappings": ";AACY;AACI,WAAA;AACJ;AAEA,CAAA,SAAA,CAAA;AACI,SAAA;AACJ;",
   "names": []
 }

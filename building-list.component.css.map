@@ -1,7 +1,7 @@
 {
   "version": 3,
-  "sources": ["angular:styles/component:css;eafa7008104b1bace8030c703b24a8393ec49bc9a1df770cdee11f1d731327d8;/home/runner/work/user-interfaces/user-interfaces/apps/concierge/src/app/surveys/building-list.component.ts"],
+  "sources": ["building-list.component.ts"],
   "sourcesContent": ["\n            :host {\n                display: flex;\n                flex-direction: column;\n                height: 100%;\n                width: 100%;\n                overflow: auto;\n                background-color: var(--base-100);\n            }\n        "],
-  "mappings": ";AACY;AACI,WAAS;AACT,kBAAgB;AAChB,UAAQ;AACR,SAAO;AACP,YAAU;AACV,oBAAkB,IAAI;AAC1B;",
+  "mappings": ";AACY;AACI,WAAA;AACA,kBAAA;AACA,UAAA;AACA,SAAA;AACA,YAAA;AACA,oBAAA,IAAA;AACJ;",
   "names": []
 }

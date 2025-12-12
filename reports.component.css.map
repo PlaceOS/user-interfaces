@@ -1,7 +1,7 @@
 {
   "version": 3,
-  "sources": ["angular:styles/component:css;44e11ff46627a3b2bfefe3a1edd6f5469f436fdf5d9b15ce617acb04266d4e63;/home/runner/work/user-interfaces/user-interfaces/apps/concierge/src/app/reports/reports.component.ts"],
+  "sources": ["reports.component.ts"],
   "sourcesContent": ["\n            :host {\n                display: flex;\n                flex-direction: column;\n                height: 100%;\n                width: 100%;\n                background-color: var(--base-100);\n            }\n\n            main > *:not(router-outlet) {\n                display: flex;\n                flex-direction: column;\n                width: 100%;\n                height: 100%;\n            }\n        "],
-  "mappings": ";AACY;AACI,WAAS;AACT,kBAAgB;AAChB,UAAQ;AACR,SAAO;AACP,oBAAkB,IAAI;AAC1B;AAEA,KAAK,EAAE,CAAC,KAAK;AACT,WAAS;AACT,kBAAgB;AAChB,SAAO;AACP,UAAQ;AACZ;",
+  "mappings": ";AACY;AACI,WAAA;AACA,kBAAA;AACA,UAAA;AACA,SAAA;AACA,oBAAA,IAAA;AACJ;AAEA,KAAA,EAAA,CAAA,KAAA;AACI,WAAA;AACA,kBAAA;AACA,SAAA;AACA,UAAA;AACJ;",
   "names": []
 }

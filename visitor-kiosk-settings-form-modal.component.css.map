@@ -1,7 +1,7 @@
 {
   "version": 3,
-  "sources": ["angular:styles/component:css;ca7581e3f527e8cafa49f5d3654b7182593f8c4b756e7d34512a16bfc4e4e137;/home/runner/work/user-interfaces/user-interfaces/apps/concierge/src/app/ui/app-settings/visitor-kiosk-settings-form-modal.component.ts"],
+  "sources": ["visitor-kiosk-settings-form-modal.component.ts"],
   "sourcesContent": ["\n            settings-toggle {\n                width: calc(50% - 1rem);\n                margin: 0.5rem;\n            }\n        "],
-  "mappings": ";AACY;AACI,SAAO,KAAK,IAAI,EAAE;AAClB,UAAQ;AACZ;",
+  "mappings": ";AACY;AACI,SAAA,KAAA,IAAA,EAAA;AACA,UAAA;AACJ;",
   "names": []
 }

@@ -1,7 +1,7 @@
 {
   "version": 3,
-  "sources": ["angular:styles/component:css;c3c4e43489fa049a08c22bf31fd7fb879b1769192f7684fb69867d5e4ca38a37;/home/runner/work/user-interfaces/user-interfaces/apps/concierge/src/app/parking/parking.component.ts"],
+  "sources": ["parking.component.ts"],
   "sourcesContent": ["\n            :host {\n                display: flex;\n                flex-direction: column;\n                height: 100%;\n                width: 100%;\n                background-color: var(--base-100);\n            }\n\n            sidebar {\n                height: 100%;\n            }\n\n            main {\n                display: flex;\n                flex-direction: column;\n                flex: 1;\n                min-width: 50%;\n                height: 100%;\n            }\n        "],
-  "mappings": ";AACY;AACI,WAAS;AACT,kBAAgB;AAChB,UAAQ;AACR,SAAO;AACP,oBAAkB,IAAI;AAC1B;AAEA;AACI,UAAQ;AACZ;AAEA;AACI,WAAS;AACT,kBAAgB;AAChB,QAAM;AACN,aAAW;AACX,UAAQ;AACZ;",
+  "mappings": ";AACY;AACI,WAAA;AACA,kBAAA;AACA,UAAA;AACA,SAAA;AACA,oBAAA,IAAA;AACJ;AAEA;AACI,UAAA;AACJ;AAEA;AACI,WAAA;AACA,kBAAA;AACA,QAAA;AACA,aAAA;AACA,UAAA;AACJ;",
   "names": []
 }

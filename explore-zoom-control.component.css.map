@@ -1,7 +1,7 @@
 {
   "version": 3,
-  "sources": ["angular:styles/component:css;3d42ea289b866ee23d2075663b931fa5501aa5a1e18f8af721ddfffbd945ad48;/home/runner/work/user-interfaces/user-interfaces/libs/explore/src/lib/explore-zoom-control.component.ts"],
+  "sources": ["explore-zoom-control.component.ts"],
   "sourcesContent": ["\n            :host {\n                display: flex;\n                flex-direction: column;\n            }\n\n            button {\n                border: 1px solid #9998;\n                border-radius: 0;\n            }\n\n            button:first-child {\n                border-radius: 0.25rem 0.25rem 0 0;\n                border-bottom: none;\n            }\n\n            button:last-child {\n                border-radius: 0 0 0.25rem 0.25rem;\n                border-top: none;\n            }\n        "],
-  "mappings": ";AACY;AACI,WAAS;AACT,kBAAgB;AACpB;AAEA;AACI,UAAQ,IAAI,MAAM;AAClB,iBAAe;AACnB;AAEA,MAAM;AACF,iBAAe,QAAQ,QAAQ,EAAE;AACjC,iBAAe;AACnB;AAEA,MAAM;AACF,iBAAe,EAAE,EAAE,QAAQ;AAC3B,cAAY;AAChB;",
+  "mappings": ";AACY;AACI,WAAA;AACA,kBAAA;AACJ;AAEA;AACI,UAAA,IAAA,MAAA;AACA,iBAAA;AACJ;AAEA,MAAA;AACI,iBAAA,QAAA,QAAA,EAAA;AACA,iBAAA;AACJ;AAEA,MAAA;AACI,iBAAA,EAAA,EAAA,QAAA;AACA,cAAA;AACJ;",
   "names": []
 }

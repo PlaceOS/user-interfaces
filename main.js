@@ -1,13 +1,14 @@
 import {
   subMonths
-} from "./chunk-KZSHCOU6.js";
+} from "./chunk-2AFOSRHZ.js";
 import {
   subMinutes
-} from "./chunk-7CI2VXNF.js";
+} from "./chunk-JF23LPCO.js";
 import {
   subDays
-} from "./chunk-WNTCVLQI.js";
+} from "./chunk-XUCZMKRG.js";
 import {
+  $o,
   ANIMATION_MODULE_TYPE,
   AUTO_STYLE,
   AnimationGroupPlayer,
@@ -22,10 +23,8 @@ import {
   ErrorHandler,
   GlobalBannerComponent,
   GlobalLoadingComponent,
-  Ha,
   Inject,
   Injectable,
-  Is,
   LOCALE_ID,
   LocaleService,
   MAT_CHIPS_DEFAULT_OPTIONS,
@@ -44,6 +43,7 @@ import {
   TraceService,
   UnauthorisedComponent,
   UploadsService,
+  Yo,
   __objRest,
   __spreadProps,
   __spreadValues,
@@ -56,7 +56,6 @@ import {
   generateMockSpace,
   getUnixTime,
   inject,
-  is,
   isBefore,
   padString,
   performanceMarkFeature,
@@ -77,6 +76,7 @@ import {
   timePeriodsIntersect,
   unique,
   withInterceptorsFromDi,
+  yh,
   ɵPRE_STYLE,
   ɵsetClassDebugInfo,
   ɵɵadvance,
@@ -90,7 +90,7 @@ import {
   ɵɵelementEnd,
   ɵɵelementStart,
   ɵɵinject
-} from "./chunk-I4HSLPYT.js";
+} from "./chunk-B2WI2KLR.js";
 
 // node_modules/@angular/animations/fesm2022/util-CPU6TNml.mjs
 var LINE_START = "\n - ";
@@ -4441,85 +4441,85 @@ var routes = [
   { path: "unauthorised", component: UnauthorisedComponent },
   {
     path: "book/rooms",
-    loadChildren: () => import("./day-view.module-JKCHTSVW.js").then((m) => m.DayViewModule),
+    loadChildren: () => import("./day-view.module-XZ5RN6SE.js").then((m) => m.DayViewModule),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "facilities",
-    loadChildren: () => import("./facilities.module-O5SDF7B5.js").then((m) => m.FacilitiesModule),
+    loadChildren: () => import("./facilities.module-VXN36B7A.js").then((m) => m.FacilitiesModule),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "book/visitors",
-    loadChildren: () => import("./visitors.module-GAO2FYAT.js").then((m) => m.VisitorsModule),
+    loadChildren: () => import("./visitors.module-YHIZAIY6.js").then((m) => m.VisitorsModule),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "book/assets",
-    loadChildren: () => import("./asset-manager.module-POEZLWOS.js").then((m) => m.AppAssetManangerModule),
+    loadChildren: () => import("./asset-manager.module-3ZQJD26K.js").then((m) => m.AppAssetManangerModule),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "bookings",
-    loadChildren: () => import("./booking-manager.module-FSL3MMPP.js").then((m) => m.BookingManagerModule),
+    loadChildren: () => import("./booking-manager.module-N3Q6MVRQ.js").then((m) => m.BookingManagerModule),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "book/desks",
-    loadChildren: () => import("./desks.module-7VOSB4VL.js").then((m) => m.DesksModule),
+    loadChildren: () => import("./desks.module-3HZ7VBL4.js").then((m) => m.DesksModule),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "book/lockers",
-    loadChildren: () => import("./lockers.module-UBTQZMX3.js").then((m) => m.LockersModule),
+    loadChildren: () => import("./lockers.module-CTX3WF6V.js").then((m) => m.LockersModule),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "reports",
-    loadChildren: () => import("./reports.module-EZZ5ZGDD.js").then((m) => m.ReportsModule),
+    loadChildren: () => import("./reports.module-JKIVXDY2.js").then((m) => m.ReportsModule),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "entertainment/events",
-    loadChildren: () => import("./events.module-ZDAXARSV.js").then((m) => m.EventsModule),
+    loadChildren: () => import("./events.module-GCTG245E.js").then((m) => m.EventsModule),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "users/staff",
-    loadChildren: () => import("./staff.module-BZ5J52O3.js").then((m) => m.StaffModule),
+    loadChildren: () => import("./staff.module-VR3XDMZG.js").then((m) => m.StaffModule),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "book/catering",
-    loadChildren: () => import("./catering.module-4HNJOVJW.js").then((m) => m.CateringModule),
+    loadChildren: () => import("./catering.module-KTWLUFNN.js").then((m) => m.CateringModule),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "points-management",
-    loadChildren: () => import("./points.module-OA24VAGA.js").then((m) => m.PointsModule),
+    loadChildren: () => import("./points.module-JAMA6LKZ.js").then((m) => m.PointsModule),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "book/parking",
-    loadChildren: () => import("./parking.module-3S4DJ5WD.js").then((m) => m.AppParkingModule),
+    loadChildren: () => import("./parking.module-JTD3Y2H4.js").then((m) => m.AppParkingModule),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "surveys",
-    loadChildren: () => import("./surveys.module-CYQO66PQ.js").then((m) => m.SurveysModule),
+    loadChildren: () => import("./surveys.module-KZOCJP2E.js").then((m) => m.SurveysModule),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
@@ -4529,13 +4529,13 @@ var routes = [
   },
   {
     path: "resource-management",
-    loadChildren: () => import("./resource-manager.module-NQUIB6B2.js").then((m) => m.ResourceManagerModule),
+    loadChildren: () => import("./resource-manager.module-3USYBZ6C.js").then((m) => m.ResourceManagerModule),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "zone-management",
-    loadChildren: () => import("./zone-manager.module-KTOFSSYZ.js").then((m) => m.ZoneManagerModule),
+    loadChildren: () => import("./zone-manager.module-YGFVYWEZ.js").then((m) => m.ZoneManagerModule),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
@@ -4553,11 +4553,11 @@ var routes = [
   },
   {
     path: "email-templates",
-    loadChildren: () => import("./email-templates.module-PKJR3ZFW.js").then((m) => m.EmailTemplatesModule)
+    loadChildren: () => import("./email-templates.module-5VPYZ3EQ.js").then((m) => m.EmailTemplatesModule)
   },
   {
     path: "deals-n-offers",
-    loadChildren: () => import("./deals.module-76IHMOO4.js").then((m) => m.DealsModule)
+    loadChildren: () => import("./deals.module-DRGMBV3U.js").then((m) => m.DealsModule)
   },
   {
     path: "points-of-interest",
@@ -4569,13 +4569,13 @@ var routes = [
   },
   {
     path: "settings-management",
-    loadChildren: () => import("./settings-manager.module-JKPJWP3K.js").then((m) => m.SettingsManagerModule),
+    loadChildren: () => import("./settings-manager.module-ZTW4CDCJ.js").then((m) => m.SettingsManagerModule),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "signage",
-    loadChildren: () => import("./signage.module-UFLTJXVG.js").then((m) => m.SignageModule),
+    loadChildren: () => import("./signage.module-YDMNH2MT.js").then((m) => m.SignageModule),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
@@ -5040,7 +5040,7 @@ var MOCK_ASSETS = Array(150).fill(null).map((_, i) => {
   return {
     id: assetId,
     name: `${product.name} - ${assetId}`,
-    type_id: product.id,
+    asset_type_id: product.id,
     description: product.description || `${product.brand} ${product.name} for office use`,
     model_number: product.model || `${product.brand}-${predictableRandomInt(9999)}`,
     serial_number: `${product.brand?.substring(0, 3).toUpperCase()}${predictableRandomInt(999999999)}`,
@@ -5093,7 +5093,7 @@ var MOCK_PURCHASE_ORDERS = Array(30).fill(null).map((_, i) => {
   const deliveryDate = new Date(orderDate.getTime() + predictableRandomInt(30) * 24 * 60 * 60 * 1e3);
   return {
     id: `PO-${i + 1}`,
-    order_number: `PO-${(/* @__PURE__ */ new Date()).getFullYear()}-${String(i + 1).padStart(4, "0")}`,
+    purchase_order_number: `PO-${(/* @__PURE__ */ new Date()).getFullYear()}-${String(i + 1).padStart(4, "0")}`,
     invoice_number: `INV-${String(predictableRandomInt(99999) + 1e4)}`,
     vendor: [
       "Office Supplies Co",
@@ -5135,7 +5135,7 @@ var update = (dataset) => (id, data) => {
   return new_event;
 };
 function registerMockAssets() {
-  Is({
+  Yo({
     path: `${BASE_PATH}/asset_categories`,
     metadata: {},
     method: "GET",
@@ -5144,7 +5144,7 @@ function registerMockAssets() {
       return events;
     }
   });
-  Is({
+  Yo({
     path: `${BASE_PATH}/asset_categories/:id`,
     metadata: {},
     method: "GET",
@@ -5158,7 +5158,7 @@ function registerMockAssets() {
       return event;
     }
   });
-  Is({
+  Yo({
     path: `${BASE_PATH}/asset_categories`,
     metadata: {},
     method: "POST",
@@ -5170,13 +5170,13 @@ function registerMockAssets() {
       return new_event;
     }
   });
-  Is({
+  Yo({
     path: `${BASE_PATH}/asset_categories/:id`,
     metadata: {},
     method: "PUT",
     callback: (req) => update(MOCK_CATEGORIES)(req.route_params.id, __spreadValues({}, req.body))
   });
-  Is({
+  Yo({
     path: `${BASE_PATH}/asset_categories/:id`,
     metadata: {},
     method: "DELETE",
@@ -5191,7 +5191,7 @@ function registerMockAssets() {
       return;
     }
   });
-  Is({
+  Yo({
     path: `${BASE_PATH}/asset_types`,
     metadata: {},
     method: "GET",
@@ -5200,7 +5200,7 @@ function registerMockAssets() {
       return events;
     }
   });
-  Is({
+  Yo({
     path: `${BASE_PATH}/asset_types/:id`,
     metadata: {},
     method: "GET",
@@ -5214,7 +5214,7 @@ function registerMockAssets() {
       return event;
     }
   });
-  Is({
+  Yo({
     path: `${BASE_PATH}/asset_types`,
     metadata: {},
     method: "POST",
@@ -5226,13 +5226,13 @@ function registerMockAssets() {
       return new_event;
     }
   });
-  Is({
+  Yo({
     path: `${BASE_PATH}/asset_types/:id`,
     metadata: {},
     method: "PUT",
     callback: (req) => update(MOCK_PRODUCTS)(req.route_params.id, __spreadValues({}, req.body))
   });
-  Is({
+  Yo({
     path: `${BASE_PATH}/asset_types/:id`,
     metadata: {},
     method: "DELETE",
@@ -5247,7 +5247,7 @@ function registerMockAssets() {
       return;
     }
   });
-  Is({
+  Yo({
     path: `${BASE_PATH}/asset_purchase_orders`,
     metadata: {},
     method: "GET",
@@ -5256,7 +5256,7 @@ function registerMockAssets() {
       return events;
     }
   });
-  Is({
+  Yo({
     path: `${BASE_PATH}/asset_purchase_orders/:id`,
     metadata: {},
     method: "GET",
@@ -5270,7 +5270,7 @@ function registerMockAssets() {
       return event;
     }
   });
-  Is({
+  Yo({
     path: `${BASE_PATH}/asset_purchase_orders`,
     metadata: {},
     method: "POST",
@@ -5282,13 +5282,13 @@ function registerMockAssets() {
       return new_event;
     }
   });
-  Is({
+  Yo({
     path: `${BASE_PATH}/asset_purchase_orders/:id`,
     metadata: {},
     method: "PUT",
     callback: (req) => update(MOCK_PURCHASE_ORDERS)(req.route_params.id, __spreadValues({}, req.body))
   });
-  Is({
+  Yo({
     path: `${BASE_PATH}/asset_purchase_orders/:id`,
     metadata: {},
     method: "DELETE",
@@ -5303,7 +5303,7 @@ function registerMockAssets() {
       return;
     }
   });
-  Is({
+  Yo({
     path: `${BASE_PATH}/assets`,
     metadata: {},
     method: "GET",
@@ -5312,7 +5312,7 @@ function registerMockAssets() {
       return events;
     }
   });
-  Is({
+  Yo({
     path: `${BASE_PATH}/assets/:id`,
     metadata: {},
     method: "GET",
@@ -5326,7 +5326,7 @@ function registerMockAssets() {
       return event;
     }
   });
-  Is({
+  Yo({
     path: `${BASE_PATH}/assets`,
     metadata: {},
     method: "POST",
@@ -5338,13 +5338,13 @@ function registerMockAssets() {
       return new_event;
     }
   });
-  Is({
+  Yo({
     path: `${BASE_PATH}/assets/:id`,
     metadata: {},
     method: "PUT",
     callback: (req) => update(MOCK_ASSETS)(req.route_params.id, __spreadValues({}, req.body))
   });
-  Is({
+  Yo({
     path: `${BASE_PATH}/assets/:id`,
     metadata: {},
     method: "DELETE",
@@ -7118,7 +7118,7 @@ var MOCK_BOOKINGS = (() => {
 
 // libs/mocks/src/lib/api/bookings.mock.ts
 function registerMockBookings() {
-  Is({
+  Yo({
     path: "/api/staff/v1/bookings",
     metadata: {},
     method: "GET",
@@ -7151,7 +7151,7 @@ function registerMockBookings() {
       return events;
     }
   });
-  Is({
+  Yo({
     path: "/api/debug/bookings/distribution",
     metadata: {},
     method: "GET",
@@ -7186,7 +7186,7 @@ function registerMockBookings() {
       };
     }
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/bookings/:id",
     metadata: {},
     method: "GET",
@@ -7200,7 +7200,7 @@ function registerMockBookings() {
       return event;
     }
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/bookings/:id/guests/:email",
     metadata: {},
     method: "POST",
@@ -7221,7 +7221,7 @@ function registerMockBookings() {
       return user;
     }
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/bookings/:id/guests/:email",
     metadata: {},
     method: "DELETE",
@@ -7244,7 +7244,7 @@ function registerMockBookings() {
       return guest;
     }
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/bookings/:id/guests/:email/checkin",
     metadata: {},
     method: "POST",
@@ -7261,7 +7261,7 @@ function registerMockBookings() {
       return {};
     }
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/bookings",
     metadata: {},
     method: "POST",
@@ -7284,13 +7284,13 @@ function registerMockBookings() {
     MOCK_BOOKINGS.splice(index, 1, new_event);
     return new_event;
   };
-  Is({
+  Yo({
     path: "/api/staff/v1/bookings/:id",
     metadata: {},
     method: "PATCH",
     callback: (req) => updateBooking(req.route_params.id, req.body)
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/bookings/:id/approve",
     metadata: {},
     method: "POST",
@@ -7306,7 +7306,7 @@ function registerMockBookings() {
       return booking;
     }
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/bookings/:id/reject",
     metadata: {},
     method: "POST",
@@ -7322,7 +7322,7 @@ function registerMockBookings() {
       return booking;
     }
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/bookings/:id/checkin",
     metadata: {},
     method: "POST",
@@ -7337,13 +7337,13 @@ function registerMockBookings() {
       return booking;
     }
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/bookings/:id",
     metadata: {},
     method: "PUT",
     callback: (req) => updateBooking(req.route_params.id, req.body)
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/bookings/:id",
     metadata: {},
     method: "DELETE",
@@ -8170,7 +8170,7 @@ var event_spaces = MOCK_SPACES.map((space) => space.id);
 
 // libs/mocks/src/lib/api/calendars.mock.ts
 function registerMockCalendars() {
-  Is({
+  Yo({
     path: "/api/staff/v1/calendars",
     metadata: {},
     method: "GET",
@@ -8225,7 +8225,7 @@ function registerMockCalendars() {
     });
     return spaces;
   };
-  Is({
+  Yo({
     path: "/api/staff/v1/calendars/availability",
     metadata: {},
     method: "GET",
@@ -8233,7 +8233,7 @@ function registerMockCalendars() {
       resource: _
     }))
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/calendars/free_busy",
     metadata: {},
     method: "GET",
@@ -8245,7 +8245,7 @@ function registerMockCalendars() {
 
 // libs/mocks/src/lib/api/events.mock.ts
 function registerMockEvents() {
-  Is({
+  Yo({
     path: "/api/staff/v1/events",
     metadata: {},
     method: "GET",
@@ -8262,7 +8262,7 @@ function registerMockEvents() {
       return events;
     }
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/events",
     metadata: {},
     method: "POST",
@@ -8285,12 +8285,12 @@ function registerMockEvents() {
         ];
       }
       MOCK_EVENTS.push(new_event);
-      const system = is(new_event.system?.id);
+      const system = $o(new_event.system?.id);
       system?.Bookings[0]?.$poll_bookings();
       return new_event;
     }
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/events/:id",
     metadata: {},
     method: "GET",
@@ -8302,7 +8302,7 @@ function registerMockEvents() {
       throw { status: 404, message: "Event not found" };
     }
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/events/:id",
     metadata: {},
     method: "DELETE",
@@ -8320,7 +8320,7 @@ function registerMockEvents() {
       throw { status: 404, message: "Event not found" };
     }
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/events/:id",
     metadata: {},
     method: "PATCH",
@@ -8332,7 +8332,7 @@ function registerMockEvents() {
       throw { status: 404, message: "Event not found" };
     }
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/events/:id/guests/:email/checkin",
     metadata: {},
     method: "POST",
@@ -8965,7 +8965,7 @@ function registerMockSignage() {
       });
     }
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/signage-displays",
     metadata: {},
     method: "GET",
@@ -8991,7 +8991,7 @@ function registerMockSignage() {
       };
     }
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/signage/displays/:id",
     metadata: {},
     method: "GET",
@@ -9002,7 +9002,7 @@ function registerMockSignage() {
       return display;
     }
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/signage/media",
     metadata: {},
     method: "GET",
@@ -9032,7 +9032,7 @@ function registerMockSignage() {
       };
     }
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/signage/playlists",
     metadata: {},
     method: "GET",
@@ -9054,7 +9054,7 @@ function registerMockSignage() {
       };
     }
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/signage/playlists/:id",
     metadata: {},
     method: "GET",
@@ -9070,7 +9070,7 @@ function registerMockSignage() {
       return playlistWithMedia;
     }
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/signage/triggers",
     metadata: {},
     method: "GET",
@@ -9093,7 +9093,7 @@ function registerMockSignage() {
       };
     }
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/signage/displays/:id/content",
     metadata: {},
     method: "GET",
@@ -9120,7 +9120,7 @@ function registerMockSignage() {
       };
     }
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/signage-analytics",
     metadata: {},
     method: "GET",
@@ -9165,7 +9165,7 @@ function registerMockSignage() {
       };
     }
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/signage-displays/:id/control",
     metadata: {},
     method: "POST",
@@ -9657,7 +9657,7 @@ var MOCK_ANSWERS = [
   }
 ];
 function registerMockSurveys() {
-  Is({
+  Yo({
     path: "/api/staff/v1/surveys",
     metadata: {},
     method: "GET",
@@ -9676,7 +9676,7 @@ function registerMockSurveys() {
       return filteredSurveys;
     }
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/surveys/questions",
     metadata: {},
     method: "GET",
@@ -9701,7 +9701,7 @@ function registerMockSurveys() {
       return filteredQuestions;
     }
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/surveys/questions/:id",
     metadata: {},
     method: "GET",
@@ -9714,7 +9714,7 @@ function registerMockSurveys() {
       return question;
     }
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/surveys/answers",
     metadata: {},
     method: "GET",
@@ -9735,7 +9735,7 @@ function registerMockSurveys() {
       return filteredAnswers;
     }
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/surveys/answers/:id",
     metadata: {},
     method: "GET",
@@ -9748,7 +9748,7 @@ function registerMockSurveys() {
       return answer;
     }
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/surveys/:id",
     metadata: {},
     method: "GET",
@@ -10656,7 +10656,7 @@ var createVideoConferenceModule = (space = {}, overrides = {}) => new VideoConfe
 
 // libs/mocks/src/lib/systems-bindings.mock.ts
 function createSystem(space) {
-  Ha(space.id, {
+  yh(space.id, {
     System: [createSystemModule(space)],
     Bookings: [createBookingsModule(space)],
     ContactTracing: [createContactTracingModule(space)],
@@ -10671,7 +10671,7 @@ function createSystem(space) {
     Payment: [createPaymentsModule(space)],
     LockerLocations: [createLockerLocationsModule()]
   });
-  const system = is(space.id);
+  const system = $o(space.id);
   system.Bookings[0].$poll_bookings();
   setInterval(() => system.Bookings[0].$poll_bookings(), 30 * 1e3);
   system.AreaManagement[0].$update();
@@ -10681,7 +10681,7 @@ function createSystem(space) {
 // libs/mocks/src/lib/api/systems.mock.ts
 function registerMockSystems() {
   MOCK_SPACES.forEach((space, index) => createSystem(space));
-  Is({
+  Yo({
     path: "/api/engine/v2/systems",
     metadata: {},
     method: "GET",
@@ -10689,7 +10689,7 @@ function registerMockSystems() {
       return request.query_params?.zone_id ? MOCK_SPACES.filter((_) => _.zones.includes(request.query_params.zone_id)) : MOCK_SPACES;
     }
   });
-  Is({
+  Yo({
     path: "/api/engine/v2/systems/:id",
     metadata: {},
     method: "GET",
@@ -10704,7 +10704,7 @@ function registerMockSystems() {
 
 // libs/mocks/src/lib/api/users.mock.ts
 function registerMockUsers() {
-  Is({
+  Yo({
     path: "/api/engine/v2/users/:id",
     metadata: {},
     method: "GET",
@@ -10719,7 +10719,7 @@ function registerMockUsers() {
       throw { status: 404, message: "User not found" };
     }
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/people",
     metadata: {},
     method: "GET",
@@ -10733,7 +10733,7 @@ function registerMockUsers() {
       return MOCK_STAFF;
     }
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/people/:id",
     metadata: {},
     method: "GET",
@@ -10748,7 +10748,7 @@ function registerMockUsers() {
       throw { status: 404, message: "User not found" };
     }
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/guests",
     metadata: {},
     method: "GET",
@@ -10760,7 +10760,7 @@ function registerMockUsers() {
       return MOCK_STAFF;
     }
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/guests/:email",
     metadata: {},
     method: "GET",
@@ -10772,7 +10772,7 @@ function registerMockUsers() {
       throw { status: 404, message: "Guest not found" };
     }
   });
-  Is({
+  Yo({
     path: "/api/staff/v1/guests/:email/meetings",
     metadata: {},
     method: "GET",
@@ -10870,7 +10870,7 @@ var MOCK_METADATA = {
 var PARKING_SPACES = {};
 var LOCKERS = {};
 function registerMockZones() {
-  Is({
+  Yo({
     path: "/api/engine/v2/zones",
     metadata: {},
     method: "GET",
@@ -10889,19 +10889,19 @@ function registerMockZones() {
       throw { status: 404, message: "Zones not found" };
     }
   });
-  Is({
+  Yo({
     path: "/api/engine/v2/settings",
     metadata: {},
     method: "GET",
     callback: (request) => []
   });
-  Is({
+  Yo({
     path: "/api/engine/v2/settings/:id",
     metadata: {},
     method: "GET",
     callback: (request) => ({})
   });
-  Is({
+  Yo({
     path: "/api/engine/v2/metadata/:id",
     metadata: {},
     method: "GET",
@@ -10998,7 +10998,7 @@ function registerMockZones() {
       return {};
     }
   });
-  Is({
+  Yo({
     path: "/api/engine/v2/metadata/:id",
     metadata: {},
     method: "PATCH",
@@ -11009,7 +11009,7 @@ function registerMockZones() {
       return request.body;
     }
   });
-  Is({
+  Yo({
     path: "/api/engine/v2/metadata/:id",
     metadata: {},
     method: "PUT",
@@ -11083,7 +11083,7 @@ function registerMockZones() {
     }
     return LOCKERS[id];
   }
-  Is({
+  Yo({
     path: "/api/engine/v2/metadata/:id/children",
     metadata: {},
     method: "GET",

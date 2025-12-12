@@ -1,7 +1,7 @@
 {
   "version": 3,
-  "sources": ["angular:styles/component:css;8f1598eabb5851faa0aa50753a7849bdec2ea83af5dd5d861f90aba4becc5d8c;/home/runner/work/user-interfaces/user-interfaces/apps/concierge/src/app/ui/app-topbar.component.ts"],
+  "sources": ["app-topbar.component.ts"],
   "sourcesContent": ["\n            :host {\n                width: 100%;\n            }\n        "],
-  "mappings": ";AACY;AACI,SAAO;AACX;",
+  "mappings": ";AACY;AACI,SAAA;AACJ;",
   "names": []
 }

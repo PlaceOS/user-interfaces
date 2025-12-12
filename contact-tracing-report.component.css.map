@@ -1,7 +1,7 @@
 {
   "version": 3,
-  "sources": ["angular:styles/component:css;b5ddbd83b4b573db467eee0aab1ad053104c11d8d0d5679573f22afeb56e112e;/home/runner/work/user-interfaces/user-interfaces/apps/concierge/src/app/reports/contact-tracing/contact-tracing-report.component.ts"],
+  "sources": ["contact-tracing-report.component.ts"],
   "sourcesContent": ["\n            :host {\n                width: 100%;\n                height: 100%;\n                display: flex;\n                flex-direction: column;\n            }\n        "],
-  "mappings": ";AACY;AACI,SAAO;AACP,UAAQ;AACR,WAAS;AACT,kBAAgB;AACpB;",
+  "mappings": ";AACY;AACI,SAAA;AACA,UAAA;AACA,WAAA;AACA,kBAAA;AACJ;",
   "names": []
 }

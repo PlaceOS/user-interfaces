@@ -1,7 +1,7 @@
 {
   "version": 3,
-  "sources": ["angular:styles/component:css;92dc203883c2e157fe6d9f315fef4a02ef7ca3572d438813349331b81da507b4;/home/runner/work/user-interfaces/user-interfaces/libs/explore/src/lib/explore-booking-modal.component.ts"],
+  "sources": ["explore-booking-modal.component.ts"],
   "sourcesContent": ["\n            header {\n                max-width: calc(100vw + 100%);\n            }\n\n            [load] {\n                width: 32rem;\n                max-width: calc(100vw - 2rem);\n            }\n        "],
-  "mappings": ";AACY;AACI,aAAW,KAAK,MAAM,EAAE;AAC5B;AAEA,CAAC;AACG,SAAO;AACP,aAAW,KAAK,MAAM,EAAE;AAC5B;",
+  "mappings": ";AACY;AACI,aAAA,KAAA,MAAA,EAAA;AACJ;AAEA,CAAA;AACI,SAAA;AACA,aAAA,KAAA,MAAA,EAAA;AACJ;",
   "names": []
 }

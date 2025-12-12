@@ -1,7 +1,7 @@
 {
   "version": 3,
-  "sources": ["angular:styles/component:css;f0dd04a674d5d39d9f19b967c64f941cbd15e6ed17e75f4055e915dd830afa8d;/home/runner/work/user-interfaces/user-interfaces/libs/explore/src/lib/explore-map-view.component.ts"],
+  "sources": ["explore-map-view.component.ts"],
   "sourcesContent": ["\n            :host {\n                height: 100%;\n                width: 100%;\n            }\n\n            [zones] {\n                top: 3.5rem;\n            }\n        "],
-  "mappings": ";AACY;AACI,UAAQ;AACR,SAAO;AACX;AAEA,CAAC;AACG,OAAK;AACT;",
+  "mappings": ";AACY;AACI,UAAA;AACA,SAAA;AACJ;AAEA,CAAA;AACI,OAAA;AACJ;",
   "names": []
 }
