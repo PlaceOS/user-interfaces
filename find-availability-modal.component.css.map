@@ -1,7 +1,7 @@
 {
   "version": 3,
-  "sources": ["angular:styles/component:css;2646a244d0fa7ec069ba0433790c5f048dfd8d83f511e0223ed56c1e20b3274e;/home/runner/work/user-interfaces/user-interfaces/libs/users/src/lib/find-availability-modal/find-availability-modal.component.ts"],
-  "sourcesContent": ["\n            .grid {\n                grid-template-columns: 6rem 1fr;\n                grid-template-rows: 2.5rem minmax(0, 1fr);\n            }\n            [disabled='true'],\n            [disabled='true'] [header] {\n                background: var(--base-300) !important;\n                pointer-events: none;\n            }\n            [disabled='true'] > * {\n                opacity: 0.3;\n            }\n        "],
-  "mappings": ";AACY,CAAC;AACG,yBAAuB,KAAK;AAC5B,sBAAoB,OAAO,OAAO,CAAC,EAAE;AACzC;AACA,CAAC;AACD,CAAC,eAAiB,CAAC;AACf,cAAY,IAAI;AAChB,kBAAgB;AACpB;AACA,CAAC,eAAiB,EAAE;AAChB,WAAS;AACb;",
+  "sources": ["find-availability-modal.component.ts"],
+  "sourcesContent": ["\n            .grid {\n                grid-template-columns: 6rem 1fr;\n                grid-template-rows: 2.5rem minmax(0, 1fr);\n            }\n            [disabled='true'],\n            [disabled='true'] [header] {\n                background: var(--base-200) !important;\n                pointer-events: none;\n            }\n            [disabled='true'] > * {\n                opacity: 0.3;\n            }\n        "],
+  "mappings": ";AACY,CAAA;AACI,yBAAA,KAAA;AACA,sBAAA,OAAA,OAAA,CAAA,EAAA;AACJ;AACA,CAAA;;AAEI,cAAA,IAAA;AACA,kBAAA;AACJ;AACA,CAAA,eAAA,EAAA;AACI,WAAA;AACJ;",
   "names": []
 }

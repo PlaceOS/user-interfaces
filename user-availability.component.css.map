@@ -1,7 +1,7 @@
 {
   "version": 3,
-  "sources": ["angular:styles/component:css;aca37b045377af9e61ae87ec9ceba230614f528def48741d3190431076d12a3b;/home/runner/work/user-interfaces/user-interfaces/libs/users/src/lib/find-availability-modal/user-availability.component.ts"],
+  "sources": ["user-availability.component.ts"],
   "sourcesContent": ["\n            :host {\n                display: block;\n            }\n        "],
-  "mappings": ";AACY;AACI,WAAS;AACb;",
+  "mappings": ";AACY;AACI,WAAA;AACJ;",
   "names": []
 }

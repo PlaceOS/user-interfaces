@@ -1,7 +1,7 @@
 {
   "version": 3,
-  "sources": ["angular:styles/component:css;e42970bb9b1cb2f175261260cd89c08d4c8b2fb74f6c959cde75a7e627b2b6e7;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/attached-resource-config-modal.component.ts"],
+  "sources": ["attached-resource-config-modal.component.ts"],
   "sourcesContent": ["\n            [name='rules'] {\n                transition: height 200ms;\n            }\n        "],
-  "mappings": ";AACY,CAAC;AACG,cAAY,OAAO;AACvB;",
+  "mappings": ";AACY,CAAA;AACI,cAAA,OAAA;AACJ;",
   "names": []
 }
