@@ -1,7 +1,7 @@
 {
   "version": 3,
-  "sources": ["angular:styles/component:css;725153a99cf1545964099fddfcea602bed4f1c33b32c3fcd6d11ef23d4316b5e;/home/runner/work/user-interfaces/user-interfaces/libs/users/src/lib/user-label.component.ts"],
+  "sources": ["user-label.component.ts"],
   "sourcesContent": ["\n            :host {\n                font-size: 1rem;\n            }\n        "],
-  "mappings": ";AACY;AACI,aAAW;AACf;",
+  "mappings": ";AACY;AACI,aAAA;AACJ;",
   "names": []
 }
