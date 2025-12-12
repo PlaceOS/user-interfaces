@@ -1,7 +1,7 @@
 {
   "version": 3,
-  "sources": ["angular:styles/component:css;c125b019a42c86072f81c38c877ef73ee4fce28bcc15e373ef5f87041f54052c;/home/runner/work/user-interfaces/user-interfaces/apps/signage/src/app/signage.component.ts"],
+  "sources": ["signage.component.ts"],
   "sourcesContent": ["\n        :host {\n            display: block;\n            height: 100%;\n            width: 100%;\n        }\n    "],
-  "mappings": ";AACQ;AACI,WAAS;AACT,UAAQ;AACR,SAAO;AACX;",
+  "mappings": ";AACQ;AACI,WAAA;AACA,UAAA;AACA,SAAA;AACJ;",
   "names": []
 }

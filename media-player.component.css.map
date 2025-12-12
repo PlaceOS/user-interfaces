@@ -1,7 +1,7 @@
 {
   "version": 3,
-  "sources": ["angular:styles/component:css;bdf6948218468dfdb3a4c7f5f2797a67209c64d43490e240c37e8c0de6193927;/home/runner/work/user-interfaces/user-interfaces/apps/signage/src/app/media-player.component.ts"],
+  "sources": ["media-player.component.ts"],
   "sourcesContent": ["\n            :host {\n                display: block;\n                position: relative;\n                height: 100%;\n                width: 100%;\n                background: var(--bg);\n            }\n        "],
-  "mappings": ";AACY;AACI,WAAS;AACT,YAAU;AACV,UAAQ;AACR,SAAO;AACP,cAAY,IAAI;AACpB;",
+  "mappings": ";AACY;AACI,WAAA;AACA,YAAA;AACA,UAAA;AACA,SAAA;AACA,cAAA,IAAA;AACJ;",
   "names": []
 }

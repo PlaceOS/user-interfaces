@@ -1,7 +1,7 @@
 {
   "version": 3,
-  "sources": ["angular:styles/component:css;8d7ebb4af65d658f572d4c64ececfd821bd4e611d847fcf4fb27590ce7974604;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/chat/chat.component.ts"],
+  "sources": ["chat.component.ts"],
   "sourcesContent": ["\n            .anim-delay-1 {\n                animation-delay: 0.25s;\n            }\n            .anim-delay-2 {\n                animation-delay: 0.5s;\n            }\n\n            .waiting-margin:last-child {\n                padding-bottom: 2rem;\n            }\n        "],
-  "mappings": ";AACY,CAAC;AACG,mBAAiB;AACrB;AACA,CAAC;AACG,mBAAiB;AACrB;AAEA,CAAC,cAAc;AACX,kBAAgB;AACpB;",
+  "mappings": ";AACY,CAAA;AACI,mBAAA;AACJ;AACA,CAAA;AACI,mBAAA;AACJ;AAEA,CAAA,cAAA;AACI,kBAAA;AACJ;",
   "names": []
 }

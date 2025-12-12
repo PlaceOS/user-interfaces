@@ -1,7 +1,7 @@
 {
   "version": 3,
-  "sources": ["angular:styles/component:css;b8b598f3214339d05c91670c4bd62467b437021489d75867c3253d6846a37dde;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/action-icon.component.ts"],
+  "sources": ["action-icon.component.ts"],
   "sourcesContent": ["\n            .action-icon.fade > icon {\n                opacity: 0.35;\n            }\n\n            .success {\n                pointer-events: none;\n            }\n\n            .success icon[root] {\n                opacity: 0.2;\n            }\n\n            .state.success {\n                color: #388e3c;\n            }\n\n            .state.error {\n                color: #e53935;\n            }\n        "],
-  "mappings": ";AACY,CAAC,WAAW,CAAC,KAAK,EAAE;AAChB,WAAS;AACb;AAEA,CAAC;AACG,kBAAgB;AACpB;AAEA,CAJC,QAIQ,IAAI,CAAC;AACV,WAAS;AACb;AAEA,CAAC,KAAK,CARL;AASG,SAAO;AACX;AAEA,CAJC,KAIK,CAAC;AACH,SAAO;AACX;",
+  "mappings": ";AACY,CAAA,WAAA,CAAA,KAAA,EAAA;AACI,WAAA;AACJ;AAEA,CAAA;AACI,kBAAA;AACJ;AAEA,CAJA,QAIA,IAAA,CAAA;AACI,WAAA;AACJ;AAEA,CAAA,KAAA,CARA;AASI,SAAA;AACJ;AAEA,CAJA,KAIA,CAAA;AACI,SAAA;AACJ;",
   "names": []
 }

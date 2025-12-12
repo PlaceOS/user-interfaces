@@ -1,7 +1,7 @@
 {
   "version": 3,
-  "sources": ["angular:styles/component:css;8c74ff6cf8408fff8ffe57cc48d0258398d7d0d3ddd3849e71b02b24c0576926;/home/runner/work/user-interfaces/user-interfaces/libs/events/src/lib/group-event-card.component.ts"],
+  "sources": ["group-event-card.component.ts"],
   "sourcesContent": ["\n            button {\n                transition:\n                    box-shadow 300ms,\n                    border 200ms;\n            }\n        "],
-  "mappings": ";AACY;AACI,cACI,WAAW,KAAK,EAChB,OAAO;AACf;",
+  "mappings": ";AACY;AACI;AAGJ;",
   "names": []
 }
