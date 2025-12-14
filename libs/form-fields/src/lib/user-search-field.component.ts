@@ -90,9 +90,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                                 class="pointer-events-auto absolute inset-0 px-4"
                                 (mousedown)="stopEvent($event)"
                                 (touchstart)="stopEvent($event)"
-                                (click)="
-                                    setValue(term); stopEvent($event)
-                                "
+                                (click)="setValue(term); stopEvent($event)"
                             >
                                 <div class="pointer-events-none">
                                     {{
@@ -122,7 +120,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                 <button
                     icon
                     matRipple
-                    class="h-12 w-12 rounded-sm border border-secondary text-secondary"
+                    class="border-secondary text-secondary h-12 w-12 rounded-sm border"
                     (click)="clearUser()"
                 >
                     <icon>person_cancel</icon>

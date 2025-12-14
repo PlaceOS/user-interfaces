@@ -5,6 +5,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     AsyncHandler,
     i18n,
@@ -20,7 +21,6 @@ import {
 } from 'date-fns';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
 import { CateringOrderStateService } from '../catering-order-modal/catering-order-state.service';
@@ -79,13 +79,13 @@ const ICONS = {
     selector: 'new-catering-item-filters',
     template: `
         <div
-            class="sticky top-0 z-10 flex items-center border-b border-base-300 bg-base-100 px-4 py-4"
+            class="border-base-300 bg-base-100 sticky top-0 z-10 flex items-center border-b px-4 py-4"
         >
             <h3 class="text-xl font-medium">
                 {{ 'COMMON.FILTERS' | translate }}
             </h3>
         </div>
-        <div class="mb-2 mt-2 px-2">
+        <div class="mt-2 mb-2 px-2">
             <mat-form-field appearance="outline" class="h-14 w-full">
                 <icon matPrefix class="text-xl">search</icon>
                 <input

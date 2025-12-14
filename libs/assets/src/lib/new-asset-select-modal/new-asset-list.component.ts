@@ -30,7 +30,7 @@ import { AssetStateService } from '../asset-state.service';
                         <li
                             asset
                             matRipple
-                            class="relative w-full rounded-lg border border-base-200 bg-base-100 p-2 shadow-sm"
+                            class="border-base-200 bg-base-100 relative w-full rounded-lg border p-2 shadow-sm"
                         >
                             <button
                                 select
@@ -38,11 +38,11 @@ import { AssetStateService } from '../asset-state.service';
                                 (click)="selectAsset(asset)"
                             >
                                 <div
-                                    class="relative mr-4 flex h-16 w-16 items-center justify-center overflow-hidden rounded-xl border border-base-200 bg-base-200"
+                                    class="border-base-200 bg-base-200 relative mr-4 flex h-16 w-16 items-center justify-center overflow-hidden rounded-xl border"
                                 >
                                     @if (selected().includes(asset.id)) {
                                         <div
-                                            class="absolute left-1 top-1 flex h-6 w-6 items-center justify-center rounded-full border border-base-300 bg-base-200"
+                                            class="border-base-300 bg-base-200 absolute top-1 left-1 flex h-6 w-6 items-center justify-center rounded-full border"
                                         >
                                             <span class="text-xs">
                                                 {{ asset.quantity || 1 }}
@@ -94,7 +94,7 @@ import { AssetStateService } from '../asset-state.service';
                                 icon
                                 matRipple
                                 fav
-                                class="absolute right-1 top-1"
+                                class="absolute top-1 right-1"
                                 [class.text-info]="isFavourite(asset.id)"
                                 (click)="toggleFav.emit(asset)"
                             >

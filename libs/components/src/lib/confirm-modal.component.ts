@@ -66,7 +66,7 @@ export async function openConfirmModal(
     selector: 'confirm-modal',
     template: `
         <header
-            class="sticky top-0 z-10 m-2 h-14 w-[calc(100%-1rem)] min-w-[20rem] rounded-sm border-none bg-base-200 p-2"
+            class="bg-base-200 sticky top-0 z-10 m-2 h-14 w-[calc(100%-1rem)] min-w-[20rem] rounded-sm border-none p-2"
         >
             <h2 class="px-2 text-xl font-medium">{{ title }}</h2>
         </header>
@@ -89,12 +89,12 @@ export async function openConfirmModal(
         }
         @if (!loading) {
             <footer
-                class="sticky bottom-0 m-2 flex items-center justify-center space-x-2 rounded-sm border-none bg-base-200 p-2"
+                class="bg-base-200 sticky bottom-0 m-2 flex items-center justify-center space-x-2 rounded-sm border-none p-2"
             >
                 <button
                     btn
                     matRipple
-                    class="inverse flex-1 bg-base-100"
+                    class="inverse bg-base-100 flex-1"
                     mat-dialog-close
                 >
                     {{ cancel_text | translate }}

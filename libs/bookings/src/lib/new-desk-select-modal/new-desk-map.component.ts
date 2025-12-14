@@ -21,8 +21,8 @@ import {
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
 import { BuildingPipe } from 'libs/components/src/lib/building.pipe';
+import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { ExploreDeskInfoComponent } from 'libs/explore/src/lib/explore-desk-info.component';
 import { DEFAULT_COLOURS } from 'libs/explore/src/lib/explore-spaces.service';
@@ -31,7 +31,7 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
 @Component({
     selector: 'new-desk-map',
     template: `
-        <div class="w-full border-b border-base-200 bg-base-100 p-2">
+        <div class="border-base-200 bg-base-100 w-full border-b p-2">
             @if ((levels | async)?.length) {
                 <mat-form-field
                     levels

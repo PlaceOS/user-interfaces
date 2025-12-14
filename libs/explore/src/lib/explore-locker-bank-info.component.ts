@@ -38,14 +38,14 @@ export interface LockerBankInfoData {
                 name="space-info"
                 [id]="bank?.map_id || bank?.id"
                 [class]="
-                    'pointer-events-none absolute left-0 top-0 rounded-sm bg-base-100 p-4 shadow-sm ' +
+                    'bg-base-100 pointer-events-none absolute top-0 left-0 rounded-sm p-4 shadow-sm ' +
                     x_pos +
                     ' ' +
                     y_pos
                 "
             >
                 <h3 class="font-medium">{{ bank.name }}</h3>
-                <p class="whitespace-nowrap text-sm">
+                <p class="text-sm whitespace-nowrap">
                     {{
                         'EXPLORE.LOCKERS_USE'
                             | translate

@@ -27,40 +27,40 @@ import { MediaPlayerItem, MediaPlayerState } from './types';
         <div class="absolute inset-0 bg-[#212121]">
             <div
                 #previous_container
-                class="pointer-events-none absolute left-0 top-0 h-full w-full"
+                class="pointer-events-none absolute top-0 left-0 h-full w-full"
             >
                 <img
                     #previous_image_el
-                    class="absolute left-0 top-0 hidden h-full w-full object-contain object-center"
+                    class="absolute top-0 left-0 hidden h-full w-full object-contain object-center"
                 />
                 <video
                     #previous_video_el
-                    class="absolute left-0 top-0 hidden h-full w-full object-contain object-center"
+                    class="absolute top-0 left-0 hidden h-full w-full object-contain object-center"
                 ></video>
                 <iframe
                     #previous_web_el
-                    class="absolute left-0 top-0 h-full w-full border-0"
+                    class="absolute top-0 left-0 h-full w-full border-0"
                 ></iframe>
             </div>
             <div
                 #media_container
-                class="pointer-events-none absolute left-0 top-0 h-full w-full"
+                class="pointer-events-none absolute top-0 left-0 h-full w-full"
             >
                 <img
                     #img_el
-                    class="absolute left-0 top-0 h-full w-full object-contain object-center"
+                    class="absolute top-0 left-0 h-full w-full object-contain object-center"
                 />
                 <video
                     #video_el
-                    class="absolute left-0 top-0 h-full w-full object-contain object-center"
+                    class="absolute top-0 left-0 h-full w-full object-contain object-center"
                 ></video>
                 <iframe
                     #web_el
-                    class="absolute left-0 top-0 h-full w-full border-0"
+                    class="absolute top-0 left-0 h-full w-full border-0"
                 ></iframe>
             </div>
             @if (controls()) {
-                <div class="absolute left-0 top-0 p-4">
+                <div class="absolute top-0 left-0 p-4">
                     <time-controls />
                 </div>
                 <div class="absolute bottom-0 left-1/2 -translate-x-1/2">
@@ -76,9 +76,9 @@ import { MediaPlayerItem, MediaPlayerState } from './types';
                     />
                 </div>
                 @if (can_close()) {
-                    <div class="absolute left-1/2 top-0 -translate-x-1/2 p-2">
+                    <div class="absolute top-0 left-1/2 -translate-x-1/2 p-2">
                         <div
-                            class="flex items-center space-x-4 rounded-full border border-base-200 bg-base-100 p-2"
+                            class="border-base-200 bg-base-100 flex items-center space-x-4 rounded-full border p-2"
                         >
                             <h2 class="max-w-[30vw] truncate py-2 pl-4">
                                 {{
@@ -87,14 +87,14 @@ import { MediaPlayerItem, MediaPlayerState } from './types';
                                 }}
                             </h2>
                             <div
-                                class="rounded-sm bg-base-200 px-2 py-1 font-mono text-[0.625rem]"
+                                class="bg-base-200 rounded-sm px-2 py-1 font-mono text-[0.625rem]"
                             >
                                 Override
                             </div>
                             <button
                                 icon
                                 matRipple
-                                class="border border-base-300"
+                                class="border-base-300 border"
                                 (click)="closed.emit()"
                             >
                                 <icon>close</icon>
@@ -103,7 +103,7 @@ import { MediaPlayerItem, MediaPlayerState } from './types';
                     </div>
                 }
                 @if (show_playlist()) {
-                    <div class="absolute right-0 top-0 p-4">
+                    <div class="absolute top-0 right-0 p-4">
                         <playlist-display
                             [index]="index()"
                             [playlist]="playlist_items"
@@ -114,7 +114,7 @@ import { MediaPlayerItem, MediaPlayerState } from './types';
                 <button
                     icon
                     matRipple
-                    class="absolute right-6 top-6 border border-base-200 bg-base-100 shadow-sm"
+                    class="border-base-200 bg-base-100 absolute top-6 right-6 border shadow-sm"
                     (click)="show_playlist.set(!show_playlist())"
                 >
                     <icon>{{ show_playlist() ? 'close' : 'queue_music' }}</icon>

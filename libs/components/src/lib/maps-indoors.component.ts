@@ -11,7 +11,6 @@ import {
 } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { IconComponent } from './icon.component';
 import {
     AsyncHandler,
     BuildingLevel,
@@ -26,6 +25,7 @@ import {
     notifyWarn,
     randomString,
 } from '@placeos/common';
+import { IconComponent } from './icon.component';
 import { MapMetadata } from './interactive-map.component';
 
 declare let mapsindoors: any;
@@ -52,7 +52,7 @@ const RESOURCE_MAP: Record<string, any> = {};
             <button
                 btn
                 matRipple
-                class="absolute bottom-2 left-2 z-10 space-x-2 border-base-200 bg-base-100 text-base-content shadow-sm"
+                class="border-base-200 bg-base-100 text-base-content absolute bottom-2 left-2 z-10 space-x-2 shadow-sm"
                 (click)="toggleDirections()"
             >
                 <icon>place</icon>

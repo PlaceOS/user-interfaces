@@ -25,17 +25,17 @@ import { DealsService } from './deals.service';
         <div class="absolute inset-0 flex flex-col overflow-auto">
             <topbar />
             <main
-                class="min-h-1/2 flex h-1/2 flex-1 flex-col overflow-auto bg-base-200 px-4"
+                class="bg-base-200 flex h-1/2 min-h-1/2 flex-1 flex-col overflow-auto px-4"
             >
                 @let deal_list = filtered_deals$ | async;
                 <div
-                    class="sticky top-0 z-20 mx-auto mb-2 w-160 max-w-full bg-base-200 px-2 pt-2"
+                    class="bg-base-200 sticky top-0 z-20 mx-auto mb-2 w-160 max-w-full px-2 pt-2"
                 >
                     <div class="-mx-2 flex flex-wrap py-2">
                         @let type_list = types | async;
                         <button
                             matRipple
-                            class="m-1 rounded-full border border-base-300 px-4 py-1"
+                            class="border-base-300 m-1 rounded-full border px-4 py-1"
                             [class.bg-base-100]="type.value === ''"
                             (click)="type.next('')"
                         >
@@ -44,7 +44,7 @@ import { DealsService } from './deals.service';
                         @for (t of type_list; track t) {
                             <button
                                 matRipple
-                                class="m-1 rounded-full border border-base-300 px-4 py-1"
+                                class="border-base-300 m-1 rounded-full border px-4 py-1"
                                 [class.bg-base-100]="type.value === t"
                                 (click)="type.next(t)"
                             >
@@ -108,11 +108,11 @@ import { DealsService } from './deals.service';
                     @for (deal of deal_list; track deal.id) {
                         <div>
                             <button
-                                class="flex w-full flex-col items-center overflow-hidden rounded-lg border border-base-300 bg-base-100 shadow-sm"
+                                class="border-base-300 bg-base-100 flex w-full flex-col items-center overflow-hidden rounded-lg border shadow-sm"
                                 (click)="view(deal)"
                             >
                                 <div
-                                    class="relative h-48 w-full max-w-full overflow-hidden rounded-b-lg bg-base-300"
+                                    class="bg-base-300 relative h-48 w-full max-w-full overflow-hidden rounded-b-lg"
                                 >
                                     @if (deal.image) {
                                         <img
@@ -124,7 +124,7 @@ import { DealsService } from './deals.service';
                                     }
                                     @if (deal.details) {
                                         <div
-                                            class="absolute bottom-2 left-2 max-w-full truncate rounded-sm bg-info px-2 py-1 text-xs text-info-content shadow-sm"
+                                            class="bg-info text-info-content absolute bottom-2 left-2 max-w-full truncate rounded-sm px-2 py-1 text-xs shadow-sm"
                                         >
                                             {{ deal.details }}
                                         </div>
@@ -152,7 +152,7 @@ import { DealsService } from './deals.service';
                     }
                     @if (deal_list?.length <= 0) {
                         <div
-                            class="col-span-6 flex w-full flex-col items-center justify-center rounded-lg bg-base-200 p-16"
+                            class="bg-base-200 col-span-6 flex w-full flex-col items-center justify-center rounded-lg p-16"
                         >
                             <img
                                 src="assets/icons/no-deals.svg"

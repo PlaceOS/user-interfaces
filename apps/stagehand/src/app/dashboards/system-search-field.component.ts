@@ -83,8 +83,10 @@ import { SanitizePipe } from 'libs/components/src/lib/sanitise.pipe';
                         @for (option of item_list(); track option) {
                             <button
                                 matRipple
-                                (click)="search$.next(option.name); setValue(option)"
-                                class="w-full rounded-sm px-4 py-2 text-left hover:bg-base-200"
+                                (click)="
+                                    search$.next(option.name); setValue(option)
+                                "
+                                class="hover:bg-base-200 w-full rounded-sm px-4 py-2 text-left"
                             >
                                 <div class="leading-tight">
                                     <ng-container

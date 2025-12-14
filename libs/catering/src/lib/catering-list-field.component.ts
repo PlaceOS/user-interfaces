@@ -36,7 +36,7 @@ const EMPTY_FAVS = [];
             @for (order of orders; track order.id) {
                 <div
                     order
-                    class="overflow-hidden rounded-xl border bg-base-100 shadow-sm"
+                    class="bg-base-100 overflow-hidden rounded-xl border shadow-sm"
                     [class.border-error]="end_time < order.deliver_at"
                     [class.border-base-300]="end_time >= order.deliver_at"
                 >
@@ -59,7 +59,7 @@ const EMPTY_FAVS = [];
                                 </div>
                                 @if (end_time < order.deliver_at) {
                                     <div
-                                        class="flex h-6 w-6 items-center justify-center rounded-full bg-error text-error-content"
+                                        class="bg-error text-error-content flex h-6 w-6 items-center justify-center rounded-full"
                                         [matTooltip]="err_tooltip"
                                     >
                                         <icon>priority_high</icon>
@@ -139,7 +139,7 @@ const EMPTY_FAVS = [];
                         </button>
                     </div>
                     <div
-                        class="flex flex-col divide-y divide-base-100 bg-base-200"
+                        class="divide-base-100 bg-base-200 flex flex-col divide-y"
                         [@show]="show_order[order.id] ? 'show' : 'hide'"
                     >
                         @for (item of order.items; track item.custom_id) {
@@ -168,12 +168,12 @@ const EMPTY_FAVS = [];
                                     }
                                 </div>
                                 <div
-                                    class="rounded-sm bg-success px-2 py-1 text-xs text-success-content"
+                                    class="bg-success text-success-content rounded-sm px-2 py-1 text-xs"
                                 >
                                     x{{ item.quantity }}
                                 </div>
                                 <div
-                                    class="rounded-sm bg-info px-2 py-1 text-xs text-info-content"
+                                    class="bg-info text-info-content rounded-sm px-2 py-1 text-xs"
                                 >
                                     {{
                                         item.unit_price_with_options / 100

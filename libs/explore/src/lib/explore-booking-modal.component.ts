@@ -37,7 +37,7 @@ export interface ExploreBookingModalData {
     selector: 'explore-booking-modal',
     template: `
         <header
-            class="sticky top-0 z-10 m-2 h-14 w-[calc(100%-1rem)] rounded-sm border-none bg-base-200 p-2"
+            class="bg-base-200 sticky top-0 z-10 m-2 h-14 w-[calc(100%-1rem)] rounded-sm border-none p-2"
         >
             <h2 class="px-2 text-xl font-medium">
                 {{ 'EXPLORE.BOOKING_HEADER' | translate }}
@@ -85,7 +85,7 @@ export interface ExploreBookingModalData {
                         >
                         <div
                             name="space"
-                            class="mb-4 w-full rounded-sm border border-base-200 px-4 py-3"
+                            class="border-base-200 mb-4 w-full rounded-sm border px-4 py-3"
                         >
                             {{
                                 form.controls.resources?.value[0]
@@ -118,7 +118,7 @@ export interface ExploreBookingModalData {
                             <div class="flex w-full flex-1 flex-col sm:w-auto">
                                 <label>{{ 'FORM.DATE' | translate }}:</label>
                                 <div
-                                    class="mb-4 w-full rounded-sm border border-base-200 px-4 py-3"
+                                    class="border-base-200 mb-4 w-full rounded-sm border px-4 py-3"
                                 >
                                     {{ form.value.date | date: 'mediumDate' }}
                                     at
@@ -143,7 +143,7 @@ export interface ExploreBookingModalData {
                     </div>
                 </main>
             }
-            <footer class="flex justify-end border-t border-base-300 p-2">
+            <footer class="border-base-300 flex justify-end border-t p-2">
                 <button btn matRipple class="mx-2 w-32" (click)="save()">
                     {{ 'COMMON.SAVE' | translate }}
                 </button>

@@ -42,7 +42,7 @@ import { CheckinStateService } from './checkin-state.service';
     template: `
         @if (!loading()) {
             <div
-                class="relative flex w-xl flex-col items-center overflow-hidden rounded-sm bg-base-100 p-4 shadow-sm"
+                class="bg-base-100 relative flex w-xl flex-col items-center overflow-hidden rounded-sm p-4 shadow-sm"
             >
                 @let has_beverage = !!(event | async)?.extension_data.beverage;
                 <h3 class="mb-2 w-full text-xl">
@@ -66,7 +66,7 @@ import { CheckinStateService } from './checkin-state.service';
                 </div>
                 @if (has_beverage) {
                     <div
-                        class="rounded-sm bg-warning px-2 py-1 text-warning-content"
+                        class="bg-warning text-warning-content rounded-sm px-2 py-1"
                     >
                         You have already selected a beverage.
                     </div>
@@ -90,7 +90,7 @@ import { CheckinStateService } from './checkin-state.service';
                 <a
                     icon
                     matRipple
-                    class="absolute right-2 top-2"
+                    class="absolute top-2 right-2"
                     [routerLink]="['/welcome']"
                 >
                     <icon>close</icon>
@@ -98,7 +98,7 @@ import { CheckinStateService } from './checkin-state.service';
             </div>
         } @else {
             <div
-                class="relative flex h-80 w-md flex-col items-center justify-center space-y-2 overflow-hidden rounded-sm bg-base-100 p-8 shadow-sm"
+                class="bg-base-100 relative flex h-80 w-md flex-col items-center justify-center space-y-2 overflow-hidden rounded-sm p-8 shadow-sm"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <div>

@@ -18,21 +18,21 @@ import { TranslatePipe } from '@placeos/components';
     template: `
         <div
             name="camera"
-            class="relative flex h-88 w-88 flex-col items-center justify-center overflow-hidden rounded-full border-2 border-base-300 bg-base-200"
+            class="border-base-300 bg-base-200 relative flex h-88 w-88 flex-col items-center justify-center overflow-hidden rounded-full border-2"
         >
             <video
                 id="video"
                 #video
                 autoplay
                 [class.opacity-0]="has_photo()"
-                class="absolute left-1/2 top-1/2 mx-auto min-h-full min-w-full -translate-x-1/2 -translate-y-1/2 object-cover"
+                class="absolute top-1/2 left-1/2 mx-auto min-h-full min-w-full -translate-x-1/2 -translate-y-1/2 object-cover"
             ></video>
             <canvas
                 id="canvas"
                 #canvas
                 width="400"
                 height="400"
-                class="absolute left-1/2 top-1/2 mx-auto h-full w-full -translate-x-1/2 -translate-y-1/2 object-cover"
+                class="absolute top-1/2 left-1/2 mx-auto h-full w-full -translate-x-1/2 -translate-y-1/2 object-cover"
                 [class.opacity-0]="!has_photo()"
             ></canvas>
             @if (loading()) {

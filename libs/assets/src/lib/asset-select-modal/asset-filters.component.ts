@@ -21,7 +21,7 @@ import { AssetStateService } from '../asset-state.service';
 @Component({
     selector: 'asset-filters',
     template: `
-        <div class="mb-2 mt-3 px-4" [class.sm:hidden]="!search()">
+        <div class="mt-3 mb-2 px-4" [class.sm:hidden]="!search()">
             <mat-form-field appearance="outline" class="h-14 w-full">
                 <icon matPrefix class="text-xl">search</icon>
                 <input

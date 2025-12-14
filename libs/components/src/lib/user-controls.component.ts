@@ -43,7 +43,7 @@ export interface AppLocale {
     selector: 'user-controls',
     template: `
         <div
-            class="relative mt-1 flex max-h-[90vh] flex-col divide-y divide-base-200 overflow-auto rounded-sm border border-base-300 bg-base-100 shadow-sm"
+            class="divide-base-200 border-base-300 bg-base-100 relative mt-1 flex max-h-[90vh] flex-col divide-y overflow-auto rounded-sm border shadow-sm"
         >
             <div avatar class="flex w-[18rem] flex-col items-center p-2">
                 <a-user-avatar
@@ -55,14 +55,14 @@ export interface AppLocale {
                 <div class="truncate text-xs opacity-60">{{ user?.email }}</div>
             </div>
             @if (features.includes('wfh') && active_block) {
-                <div class="w-full rounded-sm border border-base-200 py-2">
+                <div class="border-base-200 w-full rounded-sm border py-2">
                     <h3 class="w-full px-4 pb-2 text-sm font-medium">
                         Today's Work Location
                     </h3>
                     <div class="w-full">
                         <div class="relative flex items-center px-4 py-2">
                             <div
-                                class="z-20 flex h-10 w-10 items-center justify-center rounded-full bg-info text-info-content"
+                                class="bg-info text-info-content z-20 flex h-10 w-10 items-center justify-center rounded-full"
                             >
                                 <icon class="text-2xl">{{
                                     location_icon(
@@ -73,7 +73,7 @@ export interface AppLocale {
                             <div class="ml-2 flex-1">
                                 <button
                                     matRipple
-                                    class="flex items-center space-x-2 rounded-sm px-2 py-1 font-medium hover:bg-base-200"
+                                    class="hover:bg-base-200 flex items-center space-x-2 rounded-sm px-2 py-1 font-medium"
                                     [matMenuTriggerFor]="work_menu"
                                 >
                                     <div>
@@ -129,14 +129,10 @@ export interface AppLocale {
             }
             @if ((regions | async).length) {
                 <div customTooltip [content]="region_select" class="relative">
-                    <button
-                        btn
-                        matRipple
-                        class="clear h-14 w-full text-left"
-                    >
+                    <button btn matRipple class="clear h-14 w-full text-left">
                         <div class="flex w-full items-center space-x-2">
                             <div
-                                class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
+                                class="bg-base-200 flex h-8 w-8 items-center justify-center rounded-full"
                             >
                                 <icon>layers</icon>
                             </div>
@@ -155,14 +151,10 @@ export interface AppLocale {
             }
             @if (!disable_building_select && !use_region) {
                 <div customTooltip [content]="building_select" class="relative">
-                    <button
-                        btn
-                        matRipple
-                        class="clear h-14 w-full text-left"
-                    >
+                    <button btn matRipple class="clear h-14 w-full text-left">
                         <div class="flex w-full items-center space-x-2">
                             <div
-                                class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
+                                class="bg-base-200 flex h-8 w-8 items-center justify-center rounded-full"
                             >
                                 <icon>business</icon>
                             </div>
@@ -181,14 +173,10 @@ export interface AppLocale {
             }
             @if (features.includes('help')) {
                 <div customTooltip [content]="help_tooltip">
-                    <button
-                        btn
-                        matRipple
-                        class="clear h-14 w-full text-left"
-                    >
+                    <button btn matRipple class="clear h-14 w-full text-left">
                         <div class="flex w-full items-center space-x-2">
                             <div
-                                class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
+                                class="bg-base-200 flex h-8 w-8 items-center justify-center rounded-full"
                             >
                                 <icon>help</icon>
                             </div>
@@ -204,14 +192,10 @@ export interface AppLocale {
             }
             @if (features.includes('wfh')) {
                 <div customTooltip [content]="work_location_tooltip">
-                    <button
-                        btn
-                        matRipple
-                        class="clear h-14 w-full text-left"
-                    >
+                    <button btn matRipple class="clear h-14 w-full text-left">
                         <div class="flex w-full items-center space-x-2">
                             <div
-                                class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
+                                class="bg-base-200 flex h-8 w-8 items-center justify-center rounded-full"
                             >
                                 <icon>share_location</icon>
                             </div>
@@ -235,7 +219,7 @@ export interface AppLocale {
                 <button btn matRipple class="clear h-14 w-full text-left">
                     <div class="flex w-full items-center space-x-2">
                         <div
-                            class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
+                            class="bg-base-200 flex h-8 w-8 items-center justify-center rounded-full"
                         >
                             <icon>mode_night</icon>
                         </div>
@@ -252,14 +236,10 @@ export interface AppLocale {
                     [content]="desk_height_tooltip"
                     [class.border-b!]="!locales?.length"
                 >
-                    <button
-                        btn
-                        matRipple
-                        class="clear h-14 w-full text-left"
-                    >
+                    <button btn matRipple class="clear h-14 w-full text-left">
                         <div class="flex w-full items-center space-x-2">
                             <div
-                                class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
+                                class="bg-base-200 flex h-8 w-8 items-center justify-center rounded-full"
                             >
                                 <icon>desk</icon>
                             </div>
@@ -283,14 +263,10 @@ export interface AppLocale {
                     [content]="parking_tooltip"
                     [class.border-b!]="!locales?.length"
                 >
-                    <button
-                        btn
-                        matRipple
-                        class="clear h-14 w-full text-left"
-                    >
+                    <button btn matRipple class="clear h-14 w-full text-left">
                         <div class="flex w-full items-center space-x-2">
                             <div
-                                class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
+                                class="bg-base-200 flex h-8 w-8 items-center justify-center rounded-full"
                             >
                                 <icon>parking_sign</icon>
                             </div>
@@ -310,14 +286,10 @@ export interface AppLocale {
                     [content]="language_tooltip"
                     class="border-b!"
                 >
-                    <button
-                        btn
-                        matRipple
-                        class="clear h-14 w-full text-left"
-                    >
+                    <button btn matRipple class="clear h-14 w-full text-left">
                         <div class="flex w-full items-center space-x-2">
                             <div
-                                class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
+                                class="bg-base-200 flex h-8 w-8 items-center justify-center rounded-full"
                             >
                                 <icon>language</icon>
                             </div>
@@ -338,7 +310,7 @@ export interface AppLocale {
                                     }
                                 </div>
                                 <div
-                                    class="max-w-24 truncate rounded-sm bg-base-200 px-2 py-1 text-sm"
+                                    class="bg-base-200 max-w-24 truncate rounded-sm px-2 py-1 text-sm"
                                     [matTooltip]="active_locale | translate"
                                 >
                                     {{ active_locale | translate }}
@@ -361,7 +333,7 @@ export interface AppLocale {
                 >
                     <div class="flex w-full items-center space-x-2">
                         <div
-                            class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
+                            class="bg-base-200 flex h-8 w-8 items-center justify-center rounded-full"
                         >
                             <icon>support_agent</icon>
                         </div>

@@ -17,7 +17,7 @@ import { Locker, LockerBank } from './locker.class';
             @for (locker of bank()?.lockers || []; track locker) {
                 <button
                     matRipple
-                    class="relative overflow-hidden rounded-sm border border-base-200"
+                    class="border-base-200 relative overflow-hidden rounded-sm border"
                     [class.opacity-60]="selected() && selected() !== locker.id"
                     [style.grid-column-start]="locker.position[0] + 1"
                     [style.grid-row-start]="locker.position[1] + 1"
@@ -36,27 +36,27 @@ import { Locker, LockerBank } from './locker.class';
                 >
                     <div
                         handle
-                        class="absolute left-2 top-1/2 h-6 w-1 -translate-y-1/2 rounded-sm bg-base-400 opacity-60"
+                        class="bg-base-400 absolute top-1/2 left-2 h-6 w-1 -translate-y-1/2 rounded-sm opacity-60"
                     ></div>
                     <div
                         vent
-                        class="absolute left-1/2 top-2 h-1 w-12 -translate-x-1/2 rounded-t bg-base-400 opacity-60"
+                        class="bg-base-400 absolute top-2 left-1/2 h-1 w-12 -translate-x-1/2 rounded-t opacity-60"
                     ></div>
                     <div
                         vent
-                        class="absolute left-1/2 top-4 h-1 w-12 -translate-x-1/2 rounded-t bg-base-400 opacity-60"
+                        class="bg-base-400 absolute top-4 left-1/2 h-1 w-12 -translate-x-1/2 rounded-t opacity-60"
                     ></div>
                     <div
                         vent
-                        class="absolute left-1/2 top-6 h-1 w-12 -translate-x-1/2 rounded-t bg-base-400 opacity-60"
+                        class="bg-base-400 absolute top-6 left-1/2 h-1 w-12 -translate-x-1/2 rounded-t opacity-60"
                     ></div>
                     <div
-                        class="absolute left-1/2 top-8 -translate-x-1/2 text-[0.6rem] font-medium text-base-content opacity-60"
+                        class="text-base-content absolute top-8 left-1/2 -translate-x-1/2 text-[0.6rem] font-medium opacity-60"
                     >
                         {{ locker.name }}
                     </div>
                     <div
-                        class="absolute inset-0 opacity-10 hover:bg-base-content"
+                        class="hover:bg-base-content absolute inset-0 opacity-10"
                     ></div>
                 </button>
             }

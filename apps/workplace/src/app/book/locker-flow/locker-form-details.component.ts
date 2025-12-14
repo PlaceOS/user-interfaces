@@ -38,13 +38,13 @@ import { first } from 'rxjs/operators';
     template: `
         @if (form()) {
             <div
-                class="space-y-2 divide-y divide-base-200 p-0 sm:px-16 sm:py-4"
+                class="divide-base-200 space-y-2 divide-y p-0 sm:px-16 sm:py-4"
                 [formGroup]="form()"
             >
                 <section class="p-2">
                     <h3 class="mb-4 flex items-center space-x-2">
                         <div
-                            class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
+                            class="bg-base-200 flex h-6 w-6 items-center justify-center rounded-full"
                         >
                             1
                         </div>
@@ -143,7 +143,7 @@ import { first } from 'rxjs/operators';
                     <section class="p-2">
                         <h3 class="mb-4 flex items-center space-x-2">
                             <div
-                                class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
+                                class="bg-base-200 flex h-6 w-6 items-center justify-center rounded-full"
                             >
                                 {{ (options | async)?.group ? '3' : '2' }}
                             </div>

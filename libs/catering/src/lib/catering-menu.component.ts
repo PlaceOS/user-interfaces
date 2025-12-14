@@ -67,7 +67,7 @@ import { CateringStateService } from './catering-state.service';
         </ng-template>
         <ng-template #price_template let-data="data">
             <div
-                class="mx-auto flex items-center rounded-sm bg-secondary px-2 py-1 font-mono text-xs text-secondary-content"
+                class="bg-secondary text-secondary-content mx-auto flex items-center rounded-sm px-2 py-1 font-mono text-xs"
             >
                 {{ data / 100 | currency: currency_code }}
             </div>
@@ -144,12 +144,12 @@ import { CateringStateService } from './catering-state.service';
         <ng-template #child_template let-row="row">
             @for (option of row.options; track option) {
                 <div
-                    class="relative flex items-center space-x-2 border-b border-solid border-base-200 p-2"
+                    class="border-base-200 relative flex items-center space-x-2 border-b border-solid p-2"
                 >
                     <div
                         class="absolute inset-y-0 left-0 w-2 bg-black opacity-10"
                     ></div>
-                    <div class="flex-1 pl-4 pr-2">
+                    <div class="flex-1 pr-2 pl-4">
                         <div class="text">{{ option.name }}</div>
                         <div class="text-xs opacity-60">
                             {{ option.group }}

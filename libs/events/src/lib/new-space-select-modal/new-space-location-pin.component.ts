@@ -63,11 +63,11 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
                 </defs>
             </svg>
             <div
-                class="absolute left-0 top-0 flex h-3/4 w-full items-center justify-center"
+                class="absolute top-0 left-0 flex h-3/4 w-full items-center justify-center"
             >
                 @if (!selected) {
                     <div
-                        class="relative z-10 h-4 w-4 rounded-full border-2 border-[#0B421D] bg-base-100"
+                        class="bg-base-100 relative z-10 h-4 w-4 rounded-full border-2 border-[#0B421D]"
                     ></div>
                 }
                 @if (selected) {

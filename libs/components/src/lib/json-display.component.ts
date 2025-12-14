@@ -5,10 +5,10 @@ import { CustomTooltipData } from './custom-tooltip.component';
     selector: 'json-display',
     template: `
         <div
-            class="max-h-[80vh] max-w-[80vw] overflow-auto rounded-sm border border-base-300 bg-base-100 p-2 shadow-sm"
+            class="border-base-300 bg-base-100 max-h-[80vh] max-w-[80vw] overflow-auto rounded-sm border p-2 shadow-sm"
         >
             <pre
-                class="w-full break-all rounded-sm bg-base-200 p-2 font-mono text-sm"
+                class="bg-base-200 w-full rounded-sm p-2 font-mono text-sm break-all"
                 >{{ formatted_json }}</pre
             >
         </div>

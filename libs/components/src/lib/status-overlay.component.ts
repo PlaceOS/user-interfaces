@@ -9,11 +9,11 @@ import { IconComponent } from './icon.component';
     template: `
         <div
             status-overlay
-            class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-secondary text-white"
+            class="bg-secondary fixed inset-0 z-50 flex flex-col items-center justify-center text-white"
         >
             @if (!loading()) {
                 <div
-                    class="mb-4 rounded-full bg-base-100 text-4xl"
+                    class="bg-base-100 mb-4 rounded-full text-4xl"
                     [class.text-success]="!error()"
                     [class.text-error]="error()"
                 >

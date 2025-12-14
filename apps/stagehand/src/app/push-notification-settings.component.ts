@@ -22,7 +22,7 @@ interface SeverityOption {
     template: `
         <div class="w-md max-w-full">
             <header
-                class="sticky top-0 z-10 mx-2 mt-2 h-14 w-[calc(100%-1rem)] rounded-sm border-none bg-base-200 p-2"
+                class="bg-base-200 sticky top-0 z-10 mx-2 mt-2 h-14 w-[calc(100%-1rem)] rounded-sm border-none p-2"
             >
                 <h2 class="px-2 text-xl font-medium">Push Notifications</h2>
                 <button icon matRipple mat-dialog-close class="rounded-sm">
@@ -33,7 +33,7 @@ interface SeverityOption {
             <main class="p-4">
                 @if (!push.supported()) {
                     <div
-                        class="flex items-center space-x-2 rounded-sm bg-warning-light p-3 text-warning"
+                        class="bg-warning-light text-warning flex items-center space-x-2 rounded-sm p-3"
                     >
                         <icon>warning</icon>
                         <span class="text-sm"
@@ -43,7 +43,7 @@ interface SeverityOption {
                     </div>
                 } @else if (push.permission() === 'denied') {
                     <div
-                        class="flex items-center space-x-2 rounded-sm bg-error-light p-3 text-error"
+                        class="bg-error-light text-error flex items-center space-x-2 rounded-sm p-3"
                     >
                         <icon>block</icon>
                         <span class="text-sm"
@@ -53,7 +53,7 @@ interface SeverityOption {
                     </div>
                 } @else if (!push.enabled()) {
                     <div class="flex flex-col items-center space-y-4 py-4">
-                        <icon class="text-6xl text-base-400"
+                        <icon class="text-base-400 text-6xl"
                             >notifications_off</icon
                         >
                         <p class="text-center text-sm opacity-60">
@@ -79,7 +79,7 @@ interface SeverityOption {
                     <div class="space-y-3">
                         @for (option of severity_options; track option.key) {
                             <div
-                                class="flex items-center justify-between rounded-sm border border-base-300 p-3"
+                                class="border-base-300 flex items-center justify-between rounded-sm border p-3"
                             >
                                 <div class="flex items-center space-x-3">
                                     <icon
@@ -110,9 +110,9 @@ interface SeverityOption {
                         }
                     </div>
 
-                    <div class="mt-4 rounded-sm bg-info-light p-3">
+                    <div class="bg-info-light mt-4 rounded-sm p-3">
                         <div class="flex items-center space-x-2">
-                            <icon class="text-2xl text-info">info</icon>
+                            <icon class="text-info text-2xl">info</icon>
                             <span class="text-xs opacity-60"
                                 >Notifications will be sent when new alerts
                                 matching these severities are detected.</span
@@ -122,7 +122,7 @@ interface SeverityOption {
                 }
             </main>
 
-            <footer class="flex justify-end border-t border-base-300 p-2">
+            <footer class="border-base-300 flex justify-end border-t p-2">
                 <button btn matRipple class="inverse w-40" mat-dialog-close>
                     Close
                 </button>

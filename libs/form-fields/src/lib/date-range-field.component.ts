@@ -13,7 +13,7 @@ import { DateRangeCalendarComponent } from './date-range-calendar.component';
     template: `
         <button
             matRipple
-            class="flex min-w-max items-center space-x-2 rounded-sm border border-neutral px-4 py-2 outline-base-content hover:border-base-content focus:outline-2"
+            class="border-neutral outline-base-content hover:border-base-content flex min-w-max items-center space-x-2 rounded-sm border px-4 py-2 focus:outline-2"
             type="button"
             role="date-picker"
             customTooltip
@@ -36,7 +36,7 @@ import { DateRangeCalendarComponent } from './date-range-calendar.component';
             <ng-content select="input[endDate]"></ng-content>
         </div>
         <ng-template #calendar_picker>
-            <div class="relative w-73 rounded-sm bg-base-100 px-2 py-4">
+            <div class="bg-base-100 relative w-73 rounded-sm px-2 py-4">
                 <date-range-calendar
                     [month]="start_date()?.control?.value || now"
                     [from]="from"

@@ -11,11 +11,11 @@ import { DashboardsService } from './dashboards.service';
 @Component({
     selector: `stagehand-dashboards`,
     template: `
-        <div class="absolute inset-0 flex bg-base-200">
+        <div class="bg-base-200 absolute inset-0 flex">
             <sidebar />
             <div class="flex w-1/2 flex-1 flex-col">
                 <header
-                    class="flex h-18 w-full items-center space-x-2 border-base-400 bg-base-100 p-4"
+                    class="border-base-400 bg-base-100 flex h-18 w-full items-center space-x-2 p-4"
                 >
                     @if (page() === 'alerts' || page() === 'view') {
                         <a
@@ -42,7 +42,7 @@ import { DashboardsService } from './dashboards.service';
                     </h1>
                     @if (page() === 'alerts') {
                         <div
-                            class="rounded-sm bg-base-200 px-2 py-1 text-sm font-medium"
+                            class="bg-base-200 rounded-sm px-2 py-1 text-sm font-medium"
                         >
                             {{ dashboard()?.name }}
                         </div>

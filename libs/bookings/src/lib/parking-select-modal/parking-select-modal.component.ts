@@ -25,7 +25,7 @@ export const FAV_PARKING_KEY = 'favourite_parking_spaces';
     selector: 'parking-space-select-modal',
     template: `
         <div
-            class="flex h-screen w-screen flex-col bg-base-100 sm:relative sm:h-auto sm:w-auto"
+            class="bg-base-100 flex h-screen w-screen flex-col sm:relative sm:h-auto sm:w-auto"
         >
             <header class="flex w-full items-center space-x-4">
                 <button icon matRipple mat-dialog-close class="bg-base-200">
@@ -56,7 +56,7 @@ export const FAV_PARKING_KEY = 'favourite_parking_spaces';
                 </div>
             </header>
             <main
-                class="flex h-[65vh] min-h-[65vh] w-full flex-1 items-center divide-x divide-base-200 overflow-hidden sm:max-h-[65vh] sm:max-w-[95vw]"
+                class="divide-base-200 flex h-[65vh] min-h-[65vh] w-full flex-1 items-center divide-x overflow-hidden sm:max-h-[65vh] sm:max-w-[95vw]"
             >
                 <parking-space-filters
                     class="hidden h-full max-w-[20rem] sm:flex sm:h-[65vh] sm:max-h-full"
@@ -66,7 +66,7 @@ export const FAV_PARKING_KEY = 'favourite_parking_spaces';
                     class="flex h-full w-1/2 flex-1 flex-col items-center sm:h-[65vh]"
                 >
                     <parking-space-filters-display
-                        class="w-full border-b border-base-200"
+                        class="border-base-200 w-full border-b"
                         [(view)]="view"
                     ></parking-space-filters-display>
                     @if (view === 'list') {
@@ -76,7 +76,7 @@ export const FAV_PARKING_KEY = 'favourite_parking_spaces';
                             [favorites]="favorites"
                             (toggleFav)="toggleFavourite($event)"
                             (onSelect)="displayed = $event"
-                            class="h-1/2 flex-1 bg-base-200"
+                            class="bg-base-200 h-1/2 flex-1"
                         ></parking-space-list>
                     } @else {
                         <parking-space-map
@@ -89,7 +89,7 @@ export const FAV_PARKING_KEY = 'favourite_parking_spaces';
                 </div>
                 <parking-space-details
                     [space]="displayed"
-                    class="absolute z-20 block h-full w-full bg-base-100 sm:relative sm:flex sm:h-[65vh] sm:max-w-[20rem]"
+                    class="bg-base-100 absolute z-20 block h-full w-full sm:relative sm:flex sm:h-[65vh] sm:max-w-[20rem]"
                     [class.hidden]="!displayed"
                     [class.inset-0]="displayed"
                     [active]="selected_ids.includes(displayed?.id)"
@@ -101,7 +101,7 @@ export const FAV_PARKING_KEY = 'favourite_parking_spaces';
                 ></parking-space-details>
             </main>
             <footer
-                class="flex w-full flex-col-reverse items-center justify-end border-t border-base-200 p-2 sm:hidden"
+                class="border-base-200 flex w-full flex-col-reverse items-center justify-end border-t p-2 sm:hidden"
             >
                 @if (displayed) {
                     <button
@@ -126,7 +126,7 @@ export const FAV_PARKING_KEY = 'favourite_parking_spaces';
                 </button>
             </footer>
             <footer
-                class="hidden w-full items-center justify-between border-t border-base-200 p-2 sm:flex"
+                class="border-base-200 hidden w-full items-center justify-between border-t p-2 sm:flex"
             >
                 <button
                     btn

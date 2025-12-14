@@ -9,7 +9,7 @@ import { getHours, getMinutes } from 'date-fns';
         @if (event()) {
             <div
                 event
-                class="absolute inset-x-1 overflow-hidden rounded-sm border bg-base-100 px-2 py-1"
+                class="bg-base-100 absolute inset-x-1 overflow-hidden rounded-sm border px-2 py-1"
                 [style.top]="top() + '%'"
                 [style.height]="height() + '%'"
                 [class.border-base-300]="event().state !== 'in_progress'"

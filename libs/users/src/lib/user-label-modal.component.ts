@@ -20,17 +20,17 @@ interface UserLabelSettings {
     selector: `user-label-modal`,
     template: `
         <div
-            class="relative flex h-screen w-screen flex-col items-center space-y-4 overflow-auto bg-base-200 print:hidden"
+            class="bg-base-200 relative flex h-screen w-screen flex-col items-center space-y-4 overflow-auto print:hidden"
         >
             <button
                 icon
                 matRipple
                 mat-dialog-close
-                class="absolute right-2 top-2 border border-base-300 bg-base-100"
+                class="border-base-300 bg-base-100 absolute top-2 right-2 border"
             >
                 <icon>close</icon>
             </button>
-            <div class="rounded-lg border border-base-300 bg-base-100 p-2">
+            <div class="border-base-300 bg-base-100 rounded-lg border p-2">
                 <user-label
                     [user]="details"
                     [width]="width()"
@@ -48,7 +48,7 @@ interface UserLabelSettings {
                     </ng-template>
                 </div>
             </div>
-            <div class="rounded-lg border border-base-300 bg-base-100">
+            <div class="border-base-300 bg-base-100 rounded-lg border">
                 <div class="space-y-4 p-4">
                     <h3 class="text-xl font-medium">Label Properties</h3>
                     <div class="">
@@ -95,7 +95,7 @@ interface UserLabelSettings {
                     </div>
                 </div>
                 <div
-                    class="flex justify-end border-t border-base-300 px-4 py-2"
+                    class="border-base-300 flex justify-end border-t px-4 py-2"
                 >
                     <button btn matRipple class="w-32" (click)="print()">
                         Print

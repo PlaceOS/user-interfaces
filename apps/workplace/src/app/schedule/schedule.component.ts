@@ -52,12 +52,12 @@ import {
             <topbar />
         }
         <div
-            class="relative flex h-1/2 flex-1 flex-col bg-base-200 sm:flex-row"
+            class="bg-base-200 relative flex h-1/2 flex-1 flex-col sm:flex-row"
         >
             <schedule-sidebar
-                class="hidden bg-base-100 sm:block"
+                class="bg-base-100 hidden sm:block"
             ></schedule-sidebar>
-            <div class="w-full border-b border-neutral bg-base-100 sm:hidden">
+            <div class="border-neutral bg-base-100 w-full border-b sm:hidden">
                 <div class="flex items-center space-x-2 px-2 pt-2">
                     <button
                         btn
@@ -106,7 +106,7 @@ import {
                                         {{ option.name }}
                                         @if (option.this_week) {
                                             <span
-                                                class="px-1 text-xs text-info"
+                                                class="text-info px-1 text-xs"
                                                 [matTooltip]="
                                                     'COMMON.WEEK_THIS'
                                                         | translate

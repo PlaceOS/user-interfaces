@@ -8,11 +8,11 @@ import {
 } from '@angular/material/dialog';
 import { CalendarEvent, notifyError, notifySuccess } from '@placeos/common';
 
+import { ReactiveFormsModule } from '@angular/forms';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { ReactiveFormsModule } from '@angular/forms';
 import { saveEvent, updateEventMetadata } from './events.fn';
 
 @Component({
@@ -62,7 +62,7 @@ import { saveEvent, updateEventMetadata } from './events.fn';
             </div>
         }
         @if (!loading) {
-            <footer class="flex justify-end border-t border-base-200 px-4 py-2">
+            <footer class="border-base-200 flex justify-end border-t px-4 py-2">
                 <button btn matRipple (click)="save()">
                     {{ 'COMMON.SAVE' | translate }}
                 </button>
@@ -70,7 +70,15 @@ import { saveEvent, updateEventMetadata } from './events.fn';
         }
     `,
     styles: [``],
-    imports: [MatRippleModule, TranslatePipe, IconComponent, MatDialogModule, DurationFieldComponent, MatProgressSpinnerModule, ReactiveFormsModule],
+    imports: [
+        MatRippleModule,
+        TranslatePipe,
+        IconComponent,
+        MatDialogModule,
+        DurationFieldComponent,
+        MatProgressSpinnerModule,
+        ReactiveFormsModule,
+    ],
 })
 export class SetupBreakdownModalComponent {
     private _event = inject<CalendarEvent>(MAT_DIALOG_DATA);

@@ -51,14 +51,14 @@ export interface Locatable {
                         <mat-spinner diameter="64"></mat-spinner
                     ></interactive-map>
                     <div
-                        class="absolute right-2 top-2 rounded-3xl border border-base-200 bg-base-100 px-4 py-2 shadow-sm"
+                        class="border-base-200 bg-base-100 absolute top-2 right-2 rounded-3xl border px-4 py-2 shadow-sm"
                     >
                         {{ level?.display_name || level?.name }}
                     </div>
                 </div>
             }
             <footer
-                class="flex w-full items-center justify-center border-t border-base-200 p-2"
+                class="border-base-200 flex w-full items-center justify-center border-t p-2"
             >
                 <button btn matRipple class="inverse w-32" mat-dialog-close>
                     {{ 'COMMON.BACK' | translate }}

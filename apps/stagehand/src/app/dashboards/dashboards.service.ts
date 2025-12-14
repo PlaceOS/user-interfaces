@@ -209,7 +209,8 @@ export class DashboardsService extends AsyncHandler {
         // Parse query params from hash (for hash routing) or search
         const hash = location.hash;
         const queryIndex = hash.indexOf('?');
-        const queryString = queryIndex >= 0 ? hash.substring(queryIndex + 1) : '';
+        const queryString =
+            queryIndex >= 0 ? hash.substring(queryIndex + 1) : '';
         const params = new URLSearchParams(queryString);
 
         const region_param = params.get('region');
@@ -220,7 +221,9 @@ export class DashboardsService extends AsyncHandler {
             // 'all' means empty string (all regions/buildings)
             this.region_id.set(region_param === 'all' ? '' : region_param);
             if (building_param) {
-                this.building_id.set(building_param === 'all' ? '' : building_param);
+                this.building_id.set(
+                    building_param === 'all' ? '' : building_param,
+                );
             }
         }
     }
@@ -478,7 +481,10 @@ export class DashboardsService extends AsyncHandler {
 
     /** Send push notifications for new alerts that haven't been notified yet */
     private _sendPushNotifications(alerts: Alert[]): void {
-        log('ALERTS', `_sendPushNotifications called with ${alerts.length} alerts`);
+        log(
+            'ALERTS',
+            `_sendPushNotifications called with ${alerts.length} alerts`,
+        );
         for (const alert of alerts) {
             // Skip if already notified
             if (this._notified_alert_ids.has(alert.id)) {
@@ -486,7 +492,10 @@ export class DashboardsService extends AsyncHandler {
                 continue;
             }
 
-            log('ALERTS', `Sending notification for new alert: ${alert.id}, severity: ${alert.severity}`);
+            log(
+                'ALERTS',
+                `Sending notification for new alert: ${alert.id}, severity: ${alert.severity}`,
+            );
             // Mark as notified before sending to prevent duplicates
             this._notified_alert_ids.add(alert.id);
 

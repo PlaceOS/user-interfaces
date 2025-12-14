@@ -10,10 +10,10 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { OrganisationService } from '@placeos/common';
+import { BuildingPipe } from 'libs/components/src/lib/building.pipe';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { BuildingPipe } from 'libs/components/src/lib/building.pipe';
 import { DateFieldComponent } from 'libs/form-fields/src/lib/date-field.component';
 import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
 import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.component';
@@ -35,7 +35,7 @@ import { BookingFormService } from '../booking-form.service';
     ],
     template: `
         <div
-            class="flex items-center rounded-t-md border-b border-base-200 pb-2 sm:hidden"
+            class="border-base-200 flex items-center rounded-t-md border-b pb-2 sm:hidden"
         >
             <div class="flex-1 pl-2">
                 @if (can_close) {
@@ -56,7 +56,7 @@ import { BookingFormService } from '../booking-form.service';
             <div class="flex-1"></div>
         </div>
         <form
-            class="max-h-[65vh] w-full max-w-[100vw] divide-y divide-base-200 overflow-y-auto overflow-x-hidden p-2 sm:max-w-[30vw]"
+            class="divide-base-200 max-h-[65vh] w-full max-w-[100vw] divide-y overflow-x-hidden overflow-y-auto p-2 sm:max-w-[30vw]"
             [formGroup]="form"
         >
             <section details>
@@ -92,8 +92,7 @@ import { BookingFormService } from '../booking-form.service';
                                 (ngModelChange)="building = $event"
                                 [ngModelOptions]="{ standalone: true }"
                                 [placeholder]="
-                                    building?.display_name ||
-                                    building?.name
+                                    building?.display_name || building?.name
                                 "
                             >
                                 @for (bld of buildings | async; track bld) {
@@ -250,7 +249,7 @@ import { BookingFormService } from '../booking-form.service';
             }
         </form>
         @if (can_close) {
-            <div class="w-full border-t border-base-200 px-2 py-2">
+            <div class="border-base-200 w-full border-t px-2 py-2">
                 <button
                     btn
                     matRipple

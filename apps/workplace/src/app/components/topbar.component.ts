@@ -22,7 +22,7 @@ const EMPTY = [];
     template: `
         <div
             topbar
-            class="relative z-50 flex h-14 items-center justify-between border-b border-base-200 bg-base-100 shadow-sm"
+            class="border-base-200 bg-base-100 relative z-50 flex h-14 items-center justify-between border-b shadow-sm"
         >
             <a
                 name="nav-logo"
@@ -54,7 +54,7 @@ const EMPTY = [];
                     matRipple
                     avatar
                     name="user-controls"
-                    class="mr-2 flex h-10 w-10 items-center justify-center rounded-full bg-base-200"
+                    class="bg-base-200 mr-2 flex h-10 w-10 items-center justify-center rounded-full"
                     customTooltip
                     [content]="user_controls"
                 >

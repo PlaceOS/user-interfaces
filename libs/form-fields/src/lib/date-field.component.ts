@@ -34,7 +34,7 @@ export enum TimezoneDiffRange {
     selector: 'a-date-field,date-field',
     template: `
         <button
-            class="flex h-12 w-full items-center justify-between rounded-sm border border-neutral"
+            class="border-neutral flex h-12 w-full items-center justify-between rounded-sm border"
             customTooltip
             [content]="calendar_picker"
             yPosition="top"
@@ -72,13 +72,13 @@ export enum TimezoneDiffRange {
                 <icon>today</icon>
             </div>
         </button>
-        <div class="error h-5 p-1 text-xs text-error">
+        <div class="error text-error h-5 p-1 text-xs">
             @if (has_error) {
                 <span><ng-content></ng-content></span>
             }
         </div>
         <ng-template #calendar_picker>
-            <div class="relative w-[18rem] rounded-sm bg-base-100 px-2 py-4">
+            <div class="bg-base-100 relative w-[18rem] rounded-sm px-2 py-4">
                 <date-calendar
                     [ngModel]="date() || now"
                     [from]="from.valueOf()"

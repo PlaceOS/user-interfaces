@@ -45,7 +45,7 @@ import { lastValueFrom } from 'rxjs';
     template: `
         @if (!loading()) {
             <div
-                class="relative flex flex-1 items-center justify-center overflow-hidden bg-neutral"
+                class="bg-neutral relative flex flex-1 items-center justify-center overflow-hidden"
             >
                 <video
                     class="min-h-full min-w-full object-cover"
@@ -102,7 +102,7 @@ import { lastValueFrom } from 'rxjs';
                         </div>
                     </div>
                     <div
-                        class="m-4 flex items-center space-x-2 rounded-sm bg-base-100 bg-opacity-50 p-2"
+                        class="bg-base-100 bg-opacity-50 m-4 flex items-center space-x-2 rounded-sm p-2"
                     >
                         <button
                             matRipple
@@ -110,7 +110,7 @@ import { lastValueFrom } from 'rxjs';
                                 'w-40 flex-1 border-none text-black ' +
                                 (is_scanning()
                                     ? 'bg-base-100'
-                                    : 'bg-transparent bg-opacity-50 hover:bg-base-100')
+                                    : 'bg-opacity-50 hover:bg-base-100 bg-transparent')
                             "
                             (click)="is_scanning.set(true)"
                         >
@@ -122,7 +122,7 @@ import { lastValueFrom } from 'rxjs';
                                 'w-40 flex-1 border-none text-black ' +
                                 (!is_scanning()
                                     ? 'bg-base-100'
-                                    : 'bg-transparent bg-opacity-50 hover:bg-base-100')
+                                    : 'bg-opacity-50 hover:bg-base-100 bg-transparent')
                             "
                             (click)="is_scanning.set(false)"
                         >

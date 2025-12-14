@@ -12,11 +12,11 @@ import { TranslatePipe } from './translate.pipe';
     selector: 'accessibility-tooltip',
     template: `
         <div
-            class="relative -right-1 -top-12 flex max-h-[65vh] w-[20rem] flex-col overflow-auto rounded-sm bg-base-100 pb-3 shadow-sm"
+            class="bg-base-100 relative -top-12 -right-1 flex max-h-[65vh] w-[20rem] flex-col overflow-auto rounded-sm pb-3 shadow-sm"
         >
             <div
                 matRipple
-                class="flex items-center space-x-2 border-b border-base-300 px-2 py-3"
+                class="border-base-300 flex items-center space-x-2 border-b px-2 py-3"
                 (click)="close()"
             >
                 <icon class="text-2xl">arrow_back</icon>
@@ -79,7 +79,7 @@ import { TranslatePipe } from './translate.pipe';
                     </mat-slider>
                     <span class="text-2xl">A</span>
                     <span
-                        class="my-2 rounded-sm bg-base-300 px-2 py-1 text-base text-white"
+                        class="bg-base-300 my-2 rounded-sm px-2 py-1 text-base text-white"
                     >
                         {{ font_size }}px
                     </span>

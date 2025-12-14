@@ -26,7 +26,7 @@ export interface DurationOption {
     template: `
         <button
             duration-field
-            class="flex h-12 w-full items-center justify-between rounded-sm border border-neutral px-2"
+            class="border-neutral flex h-12 w-full items-center justify-between rounded-sm border px-2"
             [disabled]="disabled()"
             [class.opacity-30]="disabled()"
             matRipple

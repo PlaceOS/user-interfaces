@@ -24,7 +24,7 @@ import {
     selector: 'schedule-sidebar',
     template: `
         <div
-            class="bg-base-100[#1F2021] flex h-full w-[18rem] flex-col overflow-hidden border-r border-base-200"
+            class="bg-base-100[#1F2021] border-base-200 flex h-full w-[18rem] flex-col overflow-hidden border-r"
         >
             <div class="flex items-center space-x-2 p-2">
                 <button
@@ -60,7 +60,7 @@ import {
             }
             @if (period === 'day') {
                 <date-calendar
-                    class="border-b border-base-200"
+                    class="border-base-200 border-b"
                     [ngModel]="date | async"
                     (ngModelChange)="setDate($event)"
                     [offset_weekday]="offset_weekday"
@@ -88,7 +88,7 @@ import {
                                     {{ option.name }}
                                     @if (option.this_week) {
                                         <span
-                                            class="px-1 text-xs text-info"
+                                            class="text-info px-1 text-xs"
                                             [matTooltip]="
                                                 'COMMON.WEEK_THIS' | translate
                                             "
@@ -113,7 +113,7 @@ import {
                         (click)="toggleType('event')"
                     >
                         <div
-                            class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200 text-2xl"
+                            class="bg-base-200 flex h-10 w-10 items-center justify-center rounded-full text-2xl"
                         >
                             <icon>place</icon>
                         </div>
@@ -145,7 +145,7 @@ import {
                         (click)="toggleType('desk')"
                     >
                         <div
-                            class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200 text-2xl"
+                            class="bg-base-200 flex h-10 w-10 items-center justify-center rounded-full text-2xl"
                         >
                             <img
                                 src="assets/icons/desk-outline.svg"
@@ -178,7 +178,7 @@ import {
                         (click)="toggleType('parking')"
                     >
                         <div
-                            class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200 text-2xl"
+                            class="bg-base-200 flex h-10 w-10 items-center justify-center rounded-full text-2xl"
                         >
                             <icon>drive_eta</icon>
                         </div>
@@ -210,7 +210,7 @@ import {
                         (click)="toggleType('visitor')"
                     >
                         <div
-                            class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200 text-2xl"
+                            class="bg-base-200 flex h-10 w-10 items-center justify-center rounded-full text-2xl"
                         >
                             <icon>people</icon>
                         </div>
@@ -242,7 +242,7 @@ import {
                         (click)="toggleType('locker')"
                     >
                         <div
-                            class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200 text-2xl"
+                            class="bg-base-200 flex h-10 w-10 items-center justify-center rounded-full text-2xl"
                         >
                             <icon>lock</icon>
                         </div>
@@ -274,7 +274,7 @@ import {
                         (click)="toggleType('group-event')"
                     >
                         <div
-                            class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200 text-2xl"
+                            class="bg-base-200 flex h-10 w-10 items-center justify-center rounded-full text-2xl"
                         >
                             <icon>event_available</icon>
                         </div>

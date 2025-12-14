@@ -19,7 +19,7 @@ import { statusList } from './catering.vars';
         <div class="flex h-full w-full flex-col overflow-auto">
             <mat-progress-bar
                 [class.opacity-0]="!(loading | async)"
-                class="sticky left-0 top-0 w-full"
+                class="sticky top-0 left-0 w-full"
                 mode="indeterminate"
             ></mat-progress-bar>
             <simple-table
@@ -88,7 +88,7 @@ import { statusList } from './catering.vars';
             <ng-template #state_template let-data="data">
                 <div class="p-2">
                     <div
-                        class="flex items-center justify-center rounded-full bg-base-200 p-2 text-2xl"
+                        class="bg-base-200 flex items-center justify-center rounded-full p-2 text-2xl"
                     >
                         <icon>room_service</icon>
                     </div>
@@ -190,12 +190,12 @@ import { statusList } from './catering.vars';
                     </button>
                     <ng-template #notes_template>
                         <div
-                            class="min-w-32 max-w-lg rounded-lg border border-base-200 bg-base-100 p-2 text-base-content shadow-sm"
+                            class="border-base-200 bg-base-100 text-base-content max-w-lg min-w-32 rounded-lg border p-2 shadow-sm"
                         >
                             <div class="mb-2">
                                 {{ 'FORM.NOTES' | translate }}
                             </div>
-                            <p class="rounded-sm bg-base-200 px-4 py-2 text-sm">
+                            <p class="bg-base-200 rounded-sm px-4 py-2 text-sm">
                                 {{ row.notes }}
                             </p>
                         </div>

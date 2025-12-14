@@ -12,7 +12,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
             item
             [class.border-base-200!]="active()"
             matRipple
-            class="relative w-full rounded-lg border border-base-200 bg-base-100 p-2 shadow-sm sm:w-[20rem]"
+            class="border-base-200 bg-base-100 relative w-full rounded-lg border p-2 shadow-sm sm:w-[20rem]"
         >
             <button
                 name="select-catering-item"
@@ -20,11 +20,11 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
                 (click)="select.emit()"
             >
                 <div
-                    class="relative mr-4 flex h-16 w-16 items-center justify-center overflow-hidden rounded-xl border border-base-200 bg-neutral"
+                    class="border-base-200 bg-neutral relative mr-4 flex h-16 w-16 items-center justify-center overflow-hidden rounded-xl border"
                 >
                     @if (item().quantity && selected()) {
                         <div
-                            class="absolute left-1 top-1 flex h-6 w-6 items-center justify-center rounded-full border border-white bg-neutral text-xs text-white"
+                            class="bg-neutral absolute top-1 left-1 flex h-6 w-6 items-center justify-center rounded-full border border-white text-xs text-white"
                         >
                             {{ item().quantity || '1' }}
                         </div>
@@ -51,48 +51,48 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
                     </div>
                     <div class="flex items-center space-x-1 text-sm">
                         @if (item().unit_price) {
-                            <p class="w-px flex-1 rounded-sm bg-base-100">
+                            <p class="bg-base-100 w-px flex-1 rounded-sm">
                                 {{ item().unit_price / 100 | currency: code() }}
                             </p>
                         }
                         @if (item().option_list?.length) {
                             <div
-                                class="rounded-2xl border border-base-200 px-2 py-1 text-xs shadow-sm"
+                                class="border-base-200 rounded-2xl border px-2 py-1 text-xs shadow-sm"
                             >
                                 {{ options }}
                             </div>
                         }
                         @if (item().tags?.includes('Gluten Free')) {
                             <div
-                                class="flex h-5 w-7 items-center justify-center rounded-xl bg-success text-xs shadow-sm"
+                                class="bg-success flex h-5 w-7 items-center justify-center rounded-xl text-xs shadow-sm"
                             >
                                 GF
                             </div>
                         }
                         @if (item().tags?.includes('Vegan')) {
                             <div
-                                class="flex h-5 w-7 items-center justify-center rounded-xl bg-info text-xs shadow-sm"
+                                class="bg-info flex h-5 w-7 items-center justify-center rounded-xl text-xs shadow-sm"
                             >
                                 VG
                             </div>
                         }
                         @if (item().tags?.includes('Vegetarian')) {
                             <div
-                                class="flex h-5 w-7 items-center justify-center rounded-xl bg-info text-xs shadow-sm"
+                                class="bg-info flex h-5 w-7 items-center justify-center rounded-xl text-xs shadow-sm"
                             >
                                 V
                             </div>
                         }
                         @if (item().tags?.includes('Contains Dairy')) {
                             <div
-                                class="flex h-5 w-7 items-center justify-center rounded-xl bg-warning text-xs shadow-sm"
+                                class="bg-warning flex h-5 w-7 items-center justify-center rounded-xl text-xs shadow-sm"
                             >
                                 D
                             </div>
                         }
                         @if (item().tags?.includes('Contains Nuts')) {
                             <div
-                                class="bg-orange-600 flex h-5 w-7 items-center justify-center rounded-xl text-xs shadow-sm"
+                                class="flex h-5 w-7 items-center justify-center rounded-xl bg-orange-600 text-xs shadow-sm"
                             >
                                 N
                             </div>
@@ -104,7 +104,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
                 icon
                 matRipple
                 name="toggle-catering-item-favourite"
-                class="absolute right-1 top-1"
+                class="absolute top-1 right-1"
                 [class.text-info]="favourite()"
                 (click)="toggleFav.emit()"
             >

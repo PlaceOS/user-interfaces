@@ -69,10 +69,10 @@ const EMPTY_FAVS: string[] = [];
             @for (space of space_list | async; track space) {
                 <div
                     space
-                    class="relative flex w-full items-center rounded-lg border border-base-200 p-2 shadow-sm"
+                    class="border-base-200 relative flex w-full items-center rounded-lg border p-2 shadow-sm"
                 >
                     <div
-                        class="mr-4 flex h-24 w-24 items-center justify-center overflow-hidden rounded-xl bg-base-200"
+                        class="bg-base-200 mr-4 flex h-24 w-24 items-center justify-center overflow-hidden rounded-xl"
                     >
                         @if (space.images?.length) {
                             <img
@@ -120,7 +120,7 @@ const EMPTY_FAVS: string[] = [];
                             </p>
                         </div>
                         <div
-                            class="absolute bottom-0 right-0 flex items-center justify-end text-xs"
+                            class="absolute right-0 bottom-0 flex items-center justify-end text-xs"
                         >
                             <button
                                 btn
@@ -152,7 +152,7 @@ const EMPTY_FAVS: string[] = [];
                         icon
                         matRipple
                         name="toggle-space-favourite"
-                        class="absolute right-1 top-1"
+                        class="absolute top-1 right-1"
                         [class.text-info]="favorites.includes(space?.id)"
                         (click)="toggleFavourite(space)"
                     >
