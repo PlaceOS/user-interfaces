@@ -16,9 +16,9 @@ import {
 @Component({
     selector: 'app-deal-modal',
     template: `
-        <div class="relative w-lg max-w-[80vw] bg-base-100">
+        <div class="bg-base-100 relative w-lg max-w-[80vw]">
             <div
-                class="relative h-48 w-lg max-w-full overflow-hidden rounded-b-lg bg-base-300"
+                class="bg-base-300 relative h-48 w-lg max-w-full overflow-hidden rounded-b-lg"
             >
                 @if (deal.image) {
                     <img
@@ -30,7 +30,7 @@ import {
                 }
                 @if (deal.details) {
                     <div
-                        class="absolute bottom-2 left-2 max-w-full truncate rounded-sm bg-info px-2 py-1 text-xs text-info-content shadow-sm"
+                        class="bg-info text-info-content absolute bottom-2 left-2 max-w-full truncate rounded-sm px-2 py-1 text-xs shadow-sm"
                     >
                         {{ deal.details }}
                     </div>
@@ -55,7 +55,7 @@ import {
                     class="inverse error space-x-2"
                     (click)="remove.emit()"
                 >
-                    <icon class="text-2xl text-error">delete</icon>
+                    <icon class="text-error text-2xl">delete</icon>
                     <div class="pr-2">{{ 'COMMON.REMOVE' | translate }}</div>
                 </button>
             </header>
@@ -75,7 +75,7 @@ import {
                 icon
                 matRipple
                 mat-dialog-close
-                class="absolute right-2 top-2 bg-base-100"
+                class="bg-base-100 absolute top-2 right-2"
             >
                 <icon>close</icon>
             </button>

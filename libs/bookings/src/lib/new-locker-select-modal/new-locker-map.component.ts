@@ -17,6 +17,7 @@ import { map } from 'rxjs/operators';
 
 import { OrganisationService } from '@placeos/common';
 import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
+import { BuildingPipe } from 'libs/components/src/lib/building.pipe';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { ExploreDeskInfoComponent } from 'libs/explore/src/lib/explore-desk-info.component';
 import { DEFAULT_COLOURS } from 'libs/explore/src/lib/explore-spaces.service';
@@ -91,6 +92,7 @@ import { loadLockerBanks, loadLockers } from '../booking.utilities';
         MatSelectModule,
         FormsModule,
         TranslatePipe,
+        BuildingPipe,
     ],
 })
 export class NewLockerMapComponent

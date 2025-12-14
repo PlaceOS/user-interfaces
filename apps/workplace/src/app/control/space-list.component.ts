@@ -49,7 +49,7 @@ import { ControlSpaceListItemComponent } from './list-item.component';
                 <icon class="text-6xl">no_meeting_room</icon>
                 <p>
                     {{
-                        search_str
+                        search.getValue()
                             ? ' No matches for "' + search.getValue() + '"'
                             : 'No controllable spaces'
                     }}

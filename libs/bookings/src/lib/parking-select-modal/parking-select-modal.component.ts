@@ -81,7 +81,6 @@ export const FAV_PARKING_KEY = 'favourite_parking_spaces';
                     } @else {
                         <parking-space-map
                             class="h-1/2 w-full flex-1"
-                            [selected]="selected_ids"
                             [is_displayed]="!!displayed"
                             (onSelect)="displayed = $event"
                         >
@@ -197,7 +196,7 @@ export class ParkingSpaceSelectModalComponent {
 
     public displayed?: BookingAsset;
     public selected: BookingAsset[] = [];
-    public view = 'list';
+    public view: 'map' | 'list' = 'list';
 
     public get selected_ids() {
         return this.selected.map((_) => _.id).join(',');

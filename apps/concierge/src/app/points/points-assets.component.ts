@@ -66,7 +66,9 @@ export interface PointAsset {
         />
         <ng-template #type_template let-data="data">
             <div class="p-2">
-                <span class="rounded-sm bg-base-200 px-2 py-1 text-sm capitalize">
+                <span
+                    class="bg-base-200 rounded-sm px-2 py-1 text-sm capitalize"
+                >
                     {{ data }}
                 </span>
             </div>

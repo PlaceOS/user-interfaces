@@ -53,7 +53,7 @@ const DEFAULT_TEMPLATE = `
                     <div printable class="print-only" [content]="print_content">
                         <ng-template #print_content>
                             <user-label
-                                [user]="{
+                                [user]="$any({
                                     name: ev?.asset_name || ev?.description,
                                     email: ev?.asset_id,
                                     photo: photo | async,
@@ -66,7 +66,7 @@ const DEFAULT_TEMPLATE = `
                                     pass_number:
                                         ev?.extension_data?.pass_number,
                                     qr_code: qr_code,
-                                }"
+                                })"
                                 [width]="label_size().width"
                                 [height]="label_size().height"
                                 [style.font-size]="label_size().scale + 'mm'"

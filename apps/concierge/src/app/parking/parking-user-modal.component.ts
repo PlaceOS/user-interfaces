@@ -54,14 +54,13 @@ import { ParkingUser } from './parking-state.service';
                         <button
                             icon
                             matRipple
-                            class="h-12 w-12 min-w-12 rounded-sm bg-secondary text-secondary-content"
+                            class="bg-secondary text-secondary-content h-12 w-12 min-w-12 rounded-sm"
                             matTooltip="Clear Selected User"
                             (click)="
                                 form.patchValue({
                                     user: null,
                                     email: null,
                                     name: null,
-                                    phone: null,
                                 })
                             "
                         >
@@ -159,7 +158,7 @@ import { ParkingUser } from './parking-state.service';
             }
             @if (!loading) {
                 <footer
-                    class="flex items-center justify-end space-x-2 border-t border-base-200 p-2"
+                    class="border-base-200 flex items-center justify-end space-x-2 border-t p-2"
                 >
                     <button btn matRipple class="w-32" (click)="postForm()">
                         {{ 'COMMON.SAVE' | translate }}

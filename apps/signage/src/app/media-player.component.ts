@@ -380,7 +380,7 @@ export class MediaPlayerComponent
         }
     }
 
-    private setPlaylistItem(index: number) {
+    public setPlaylistItem(index: number) {
         if (!this._hasValidPlaylistItem()) {
             return this.timeout(
                 'retry_set_item',

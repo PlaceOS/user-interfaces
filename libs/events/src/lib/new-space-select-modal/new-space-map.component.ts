@@ -15,6 +15,7 @@ import { debounceTime, map, tap } from 'rxjs/operators';
 import { OrganisationService } from '@placeos/common';
 import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { BuildingPipe } from 'libs/components/src/lib/building.pipe';
 import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
 import { DEFAULT_COLOURS } from 'libs/explore/src/lib/explore-spaces.service';
 import { NewSpaceLocationPinComponent } from './new-space-location-pin.component';
@@ -88,6 +89,7 @@ import { NewSpaceLocationPinComponent } from './new-space-location-pin.component
         MatSelectModule,
         FormsModule,
         TranslatePipe,
+        BuildingPipe,
     ],
 })
 export class NewSpaceMapComponent extends AsyncHandler implements OnInit {

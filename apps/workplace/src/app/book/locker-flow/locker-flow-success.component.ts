@@ -4,7 +4,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { RouterModule } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
 import { OrganisationService, SettingsService } from '@placeos/common';
-import { IconComponent, TranslatePipe } from '@placeos/components';
+import { IconComponent, SafePipe, SanitizePipe, TranslatePipe } from '@placeos/components';
 import {
     generateCalendarFileLink,
     generateGoogleCalendarLink,
@@ -122,6 +122,8 @@ import {
         IconComponent,
         RouterModule,
         MatRippleModule,
+        SanitizePipe,
+        SafePipe,
     ],
 })
 export class BookLockerFlowSuccessComponent {

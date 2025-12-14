@@ -36,7 +36,7 @@ export interface LockerBankInfoData {
         <ng-template #desk_tooltip>
             <div
                 name="space-info"
-                [id]="map_id"
+                [id]="bank?.map_id || bank?.id"
                 [class]="
                     'pointer-events-none absolute left-0 top-0 rounded-sm bg-base-100 p-4 shadow-sm ' +
                     x_pos +

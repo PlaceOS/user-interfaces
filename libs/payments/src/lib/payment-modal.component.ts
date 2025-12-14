@@ -6,6 +6,8 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatDialogModule } from '@angular/material/dialog';
 import { OrganisationService } from '@placeos/common';
 import {
     CardInputFieldComponent,
@@ -117,9 +119,11 @@ export interface PaymentData {
     styles: [``],
     imports: [
         CommonModule,
+        FormsModule,
         CardInputFieldComponent,
         MatProgressSpinnerModule,
         MatRippleModule,
+        MatDialogModule,
     ],
 })
 export class PaymentModalComponent {

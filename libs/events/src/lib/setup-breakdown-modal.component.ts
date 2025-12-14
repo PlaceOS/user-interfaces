@@ -10,6 +10,9 @@ import { CalendarEvent, notifyError, notifySuccess } from '@placeos/common';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { ReactiveFormsModule } from '@angular/forms';
 import { saveEvent, updateEventMetadata } from './events.fn';
 
 @Component({
@@ -67,7 +70,7 @@ import { saveEvent, updateEventMetadata } from './events.fn';
         }
     `,
     styles: [``],
-    imports: [MatRippleModule, TranslatePipe, IconComponent, MatDialogModule],
+    imports: [MatRippleModule, TranslatePipe, IconComponent, MatDialogModule, DurationFieldComponent, MatProgressSpinnerModule, ReactiveFormsModule],
 })
 export class SetupBreakdownModalComponent {
     private _event = inject<CalendarEvent>(MAT_DIALOG_DATA);

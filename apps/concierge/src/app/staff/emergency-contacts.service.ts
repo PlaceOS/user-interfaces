@@ -107,7 +107,11 @@ export class EmergencyContactsService {
         filter(([bld]) => !!bld),
         switchMap(([bld, assetType]) => {
             if (!assetType) return of([] as EmergencyContact[]);
-            return queryAssets({ zone_id: bld.id, type_id: assetType.id, limit: 200 }).pipe(
+            return queryAssets({
+                zone_id: bld.id,
+                type_id: assetType.id,
+                limit: 200,
+            }).pipe(
                 catchError(() => of([] as Asset[])),
                 map((assets) =>
                     assets

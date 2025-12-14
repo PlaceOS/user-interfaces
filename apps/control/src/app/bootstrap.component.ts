@@ -20,9 +20,9 @@ const STORE_KEY = 'PLACEOS.CONTROL.system';
     selector: '[app-bootstrap]',
     template: `
         <div
-            class="m-4 mx-auto flex flex-col items-center overflow-hidden rounded-sm border border-base-200 bg-base-100 text-center shadow-sm"
+            class="border-base-200 bg-base-100 m-4 mx-auto flex flex-col items-center overflow-hidden rounded-sm border text-center shadow-sm"
         >
-            <h2 class="m-0 w-full bg-error px-4 py-2 text-2xl text-white">
+            <h2 class="bg-error m-0 w-full px-4 py-2 text-2xl text-white">
                 {{ 'APP.CONTROL.BOOTSTRAP_TITLE' | translate }}
             </h2>
             @if (!loading() || loading() === 'search') {
@@ -64,7 +64,7 @@ const STORE_KEY = 'PLACEOS.CONTROL.system';
                                     }
                                 </div>
                                 <div
-                                    class="rounded-sm bg-base-200 px-2 py-1 font-mono text-[0.625rem]"
+                                    class="bg-base-200 rounded-sm px-2 py-1 font-mono text-[0.625rem]"
                                 >
                                     {{ option.id }}
                                 </div>

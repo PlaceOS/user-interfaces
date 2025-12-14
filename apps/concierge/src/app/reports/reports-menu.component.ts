@@ -10,14 +10,14 @@ const DEFAULT_FEATURES = ['desks', 'spaces', 'catering', 'contact-tracing'];
     selector: 'reports-menu,[reports-menu]',
     template: `
         <div
-            class="absolute inset-0 flex items-center justify-center overflow-auto bg-base-200"
+            class="bg-base-200 absolute inset-0 flex items-center justify-center overflow-auto"
         >
             <div class="grid w-full justify-items-center">
                 @if (features.includes('desks')) {
                     <a
                         [routerLink]="['/reports', 'desks']"
                         matRipple
-                        class="flex h-64 w-64 flex-col items-center justify-center rounded-sm border border-base-200 bg-base-100 p-4 shadow-sm hover:opacity-80"
+                        class="border-base-200 bg-base-100 flex h-64 w-64 flex-col items-center justify-center rounded-sm border p-4 shadow-sm hover:opacity-80"
                     >
                         <icon class="text-8xl">room</icon>
                         <h3 class="mb-4 text-xl font-bold">Desks</h3>
@@ -31,7 +31,7 @@ const DEFAULT_FEATURES = ['desks', 'spaces', 'catering', 'contact-tracing'];
                     <a
                         [routerLink]="['/reports', 'bookings']"
                         matRipple
-                        class="flex h-64 w-64 flex-col items-center justify-center rounded-sm border border-base-200 bg-base-100 p-4 shadow-sm hover:opacity-80"
+                        class="border-base-200 bg-base-100 flex h-64 w-64 flex-col items-center justify-center rounded-sm border p-4 shadow-sm hover:opacity-80"
                     >
                         <icon class="text-8xl">meeting_room</icon>
                         <h3 class="mb-4 text-xl font-bold">Rooms</h3>
@@ -45,7 +45,7 @@ const DEFAULT_FEATURES = ['desks', 'spaces', 'catering', 'contact-tracing'];
                     <a
                         [routerLink]="['/reports', 'catering']"
                         matRipple
-                        class="flex h-64 w-64 flex-col items-center justify-center rounded-sm border border-base-200 bg-base-100 p-4 shadow-sm hover:opacity-80"
+                        class="border-base-200 bg-base-100 flex h-64 w-64 flex-col items-center justify-center rounded-sm border p-4 shadow-sm hover:opacity-80"
                     >
                         <icon class="text-8xl">room_service</icon>
                         <h3 class="mb-4 text-xl font-bold">Catering</h3>
@@ -59,7 +59,7 @@ const DEFAULT_FEATURES = ['desks', 'spaces', 'catering', 'contact-tracing'];
                     <a
                         [routerLink]="['/reports', 'contact-tracing']"
                         matRipple
-                        class="flex h-64 w-64 flex-col items-center justify-center rounded-sm border border-base-200 bg-base-100 p-4 shadow-sm hover:opacity-80"
+                        class="border-base-200 bg-base-100 flex h-64 w-64 flex-col items-center justify-center rounded-sm border p-4 shadow-sm hover:opacity-80"
                     >
                         <icon class="text-8xl">connect_without_contact</icon>
                         <h3 class="mb-4 text-xl font-bold">Contact Tracing</h3>
@@ -73,7 +73,7 @@ const DEFAULT_FEATURES = ['desks', 'spaces', 'catering', 'contact-tracing'];
                     <a
                         [routerLink]="['/reports', report.id]"
                         matRipple
-                        class="flex h-64 w-64 flex-col items-center justify-center rounded-sm border border-base-200 bg-base-100 p-4 shadow-sm hover:opacity-80"
+                        class="border-base-200 bg-base-100 flex h-64 w-64 flex-col items-center justify-center rounded-sm border p-4 shadow-sm hover:opacity-80"
                     >
                         <icon class="text-8xl">{{ report.icon }}</icon>
                         <h3 class="mb-4 text-xl font-bold">

@@ -6,6 +6,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
 import {
     BookingCardComponent,
@@ -192,6 +193,7 @@ import {
         MatProgressBarModule,
         MatFormFieldModule,
         MatSelectModule,
+        MatTooltipModule,
         TranslatePipe,
         FooterMenuComponent,
         BookingCardComponent,

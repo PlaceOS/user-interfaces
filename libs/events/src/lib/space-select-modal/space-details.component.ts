@@ -148,7 +148,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                     name="toggle-space-details"
                     [class.inverse]="active()"
                     class="w-full"
-                    (click)="active = !active(); activeChange.emit(active())"
+                    (click)="activeChange.emit(!active())"
                 >
                     <div class="flex items-center justify-center">
                         <icon class="text-2xl">{{

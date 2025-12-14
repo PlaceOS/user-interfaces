@@ -1,4 +1,5 @@
 import { Component, inject } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { AsyncHandler, SettingsService } from '@placeos/common';
@@ -9,7 +10,7 @@ import { AsyncHandler, SettingsService } from '@placeos/common';
         @if (can_change_dark_mode) {
             <button
                 matRipple
-                class="flex w-full items-center justify-between rounded-sm p-2 hover:bg-base-200"
+                class="hover:bg-base-200 flex w-full items-center justify-between rounded-sm p-2"
                 (click)="setDarkMode(!dark_mode)"
             >
                 <div>Dark Mode</div>
@@ -54,7 +55,7 @@ import { AsyncHandler, SettingsService } from '@placeos/common';
         </div> -->
     `,
     styles: [``],
-    imports: [MatRippleModule, MatSlideToggleModule],
+    imports: [MatRippleModule, MatSlideToggleModule, FormsModule],
 })
 export class AccessibilityControlsComponent extends AsyncHandler {
     private _settings = inject(SettingsService);

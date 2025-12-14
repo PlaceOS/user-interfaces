@@ -75,6 +75,15 @@ export class DateRangeFieldComponent extends AsyncHandler {
     public readonly start_date = contentChild('startDate', { read: NgControl });
     public readonly end_date = contentChild('endDate', { read: NgControl });
 
+    /** First allowed date on the calendar */
+    public get from(): number {
+        return this.from_date() || startOfDay(new Date()).valueOf();
+    }
+    /** Current date value */
+    public get until(): number {
+        return this.to_date();
+    }
+
     private readonly _tooltip = viewChild(CustomTooltipComponent);
 
     public setStartDate(date: number) {

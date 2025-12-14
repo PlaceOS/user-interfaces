@@ -20,6 +20,7 @@ import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
+import { BuildingPipe } from 'libs/components/src/lib/building.pipe';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { ExploreDeskInfoComponent } from 'libs/explore/src/lib/explore-desk-info.component';
 import { DEFAULT_COLOURS } from 'libs/explore/src/lib/explore-spaces.service';
@@ -97,6 +98,7 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
         MatSelectModule,
         TranslatePipe,
         FormsModule,
+        BuildingPipe,
     ],
 })
 export class DeskMapComponent extends AsyncHandler implements OnInit {

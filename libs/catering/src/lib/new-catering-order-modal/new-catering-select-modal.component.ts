@@ -54,7 +54,7 @@ const FAV_KEY = 'favourite_menu_items';
                         [selected]="selected_ids"
                         [selected_items]="selected"
                         [favorites]="favorites"
-                        (toggleFav)="toggleFavourite($event)"
+                        (toggleFav)="toggleFavourite($event.id)"
                         (onSelect)="displayed = $event"
                     ></new-catering-item-list>
                 </div>

@@ -28,7 +28,7 @@ import { lastValueFrom } from 'rxjs';
     selector: 'induction-settings-modal',
     template: `
         <header
-            class="m-2 flex h-14 w-[calc(100%-1rem)] items-center justify-between rounded-sm border-none bg-base-200 px-4 py-2"
+            class="bg-base-200 m-2 flex h-14 w-[calc(100%-1rem)] items-center justify-between rounded-sm border-none px-4 py-2"
         >
             <h3 class="text-xl font-medium">
                 {{ 'APP.CONCIERGE.INDUCTION_HEADER' | translate }}
@@ -69,7 +69,7 @@ import { lastValueFrom } from 'rxjs';
         }
         @if (!loading()) {
             <footer
-                class="mt-2 flex justify-end border-t border-base-200 px-4 py-2"
+                class="border-base-200 mt-2 flex justify-end border-t px-4 py-2"
             >
                 <button btn matRipple class="w-32" (click)="save()">
                     Save

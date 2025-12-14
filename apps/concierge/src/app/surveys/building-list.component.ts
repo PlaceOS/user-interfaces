@@ -13,7 +13,7 @@ import { SurveyService } from './survey.service';
     selector: 'building-list',
     template: `
         <div class="flex h-full w-full flex-col">
-            <header class="flex items-center justify-between px-8 pb-2 pt-8">
+            <header class="flex items-center justify-between px-8 pt-8 pb-2">
                 <h2 class="text-2xl font-medium">
                     {{ 'APP.CONCIERGE.SURVEY_HEADER' | translate }}
                 </h2>
@@ -31,11 +31,11 @@ import { SurveyService } from './survey.service';
                     @let stats = bld_stats()?.[building.id];
                     <a
                         matRipple
-                        class="relative flex space-x-4 overflow-hidden rounded-xl border border-base-300 bg-base-100 shadow-sm hover:border-info"
+                        class="border-base-300 bg-base-100 hover:border-info relative flex space-x-4 overflow-hidden rounded-xl border shadow-sm"
                         [routerLink]="['/surveys', 'list', building.id]"
                     >
                         <div
-                            class="flex h-40 w-32 items-center justify-center bg-base-300"
+                            class="bg-base-300 flex h-40 w-32 items-center justify-center"
                         >
                             @if (building.images?.length) {
                                 <img
@@ -45,7 +45,7 @@ import { SurveyService } from './survey.service';
                                 />
                             }
                             @if (!building.images?.length) {
-                                <icon class="text-6xl text-base-100"
+                                <icon class="text-base-100 text-6xl"
                                     >domain</icon
                                 >
                             }
@@ -56,7 +56,7 @@ import { SurveyService } from './survey.service';
                             </h3>
                             <div class="flex items-center space-x-4">
                                 <div
-                                    class="flex h-20 w-24 flex-col items-center justify-center space-y-2 rounded-xl border border-base-200"
+                                    class="border-base-200 flex h-20 w-24 flex-col items-center justify-center space-y-2 rounded-xl border"
                                 >
                                     <div class="text-4xl">
                                         {{ stats?.live || 0 }}
@@ -69,7 +69,7 @@ import { SurveyService } from './survey.service';
                                     </div>
                                 </div>
                                 <div
-                                    class="flex h-20 w-24 flex-col items-center justify-center space-y-2 rounded-xl border border-base-200"
+                                    class="border-base-200 flex h-20 w-24 flex-col items-center justify-center space-y-2 rounded-xl border"
                                 >
                                     <div class="text-4xl">
                                         {{ stats?.drafts || 0 }}
@@ -82,7 +82,7 @@ import { SurveyService } from './survey.service';
                                     </div>
                                 </div>
                                 <div
-                                    class="flex h-20 w-24 flex-col items-center justify-center space-y-2 rounded-xl border border-base-200"
+                                    class="border-base-200 flex h-20 w-24 flex-col items-center justify-center space-y-2 rounded-xl border"
                                 >
                                     <div class="text-4xl">
                                         {{ stats?.answers || 0 }}
@@ -97,7 +97,7 @@ import { SurveyService } from './survey.service';
                             </div>
                         </div>
                         <icon
-                            class="absolute right-2 top-1/2 -translate-y-1/2 text-4xl"
+                            class="absolute top-1/2 right-2 -translate-y-1/2 text-4xl"
                         >
                             chevron_right
                         </icon>
@@ -105,7 +105,7 @@ import { SurveyService } from './survey.service';
                 }
                 @if (buildings().length <= 0) {
                     <div
-                        class="flex h-[calc(100%-2rem)] w-full flex-col items-center justify-center rounded-xl bg-base-200"
+                        class="bg-base-200 flex h-[calc(100%-2rem)] w-full flex-col items-center justify-center rounded-xl"
                     >
                         <div class="opacity-30">
                             {{ 'APP.CONCIERGE.SURVEY_NO_BLD' | translate }}

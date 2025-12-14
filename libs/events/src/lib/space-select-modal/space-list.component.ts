@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, input, output } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { Space } from '@placeos/common';
 
 import { OrganisationService } from '@placeos/common';
@@ -228,6 +229,7 @@ import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
         IconComponent,
         MatProgressSpinnerModule,
         AuthenticatedImageDirective,
+        MatTooltipModule,
     ],
 })
 export class SpaceListComponent {

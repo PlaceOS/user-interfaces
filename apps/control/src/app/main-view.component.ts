@@ -18,7 +18,7 @@ import { TopbarHeaderComponent } from './topbar-header.component';
     template: `
         @if (system()?.connected) {
             @if (system()?.active) {
-                <div class="absolute inset-0 flex flex-col bg-base-200">
+                <div class="bg-base-200 absolute inset-0 flex flex-col">
                     <topbar-header></topbar-header>
                     <div control-page-view></div>
                     <control-status-bar></control-status-bar>
@@ -56,7 +56,7 @@ import { TopbarHeaderComponent } from './topbar-header.component';
         } @else {
             <div
                 name="loader"
-                class="absolute inset-0 flex flex-col items-center justify-center bg-base-100 text-base-content"
+                class="bg-base-100 text-base-content absolute inset-0 flex flex-col items-center justify-center"
             >
                 <mat-spinner class="mb-4" [diameter]="64"></mat-spinner>
                 <div class="my-4 text-2xl">

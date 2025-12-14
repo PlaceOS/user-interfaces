@@ -3,6 +3,7 @@ import { Component, inject, model } from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { BookingFormService } from '@placeos/bookings';
 import {
     AssetRequest,
@@ -224,6 +225,7 @@ import { map } from 'rxjs/operators';
         IconComponent,
         MatRippleModule,
         MatProgressSpinnerModule,
+        MatTooltipModule,
     ],
 })
 export class NewDeskFlowConfirmComponent extends AsyncHandler {

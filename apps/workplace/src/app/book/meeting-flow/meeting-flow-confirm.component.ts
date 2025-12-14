@@ -85,7 +85,7 @@ import { SpacePipe } from '@placeos/events';
                         }}
                     </h3>
                     <div attendee-list>
-                        <mat-chip-list #chipList aria-label="User selection">
+                        <mat-chip-set aria-label="User selection">
                             @for (user of event.attendees; track user) {
                                 <mat-chip>
                                     <div class="flex items-center">
@@ -96,7 +96,7 @@ import { SpacePipe } from '@placeos/events';
                                     </div>
                                 </mat-chip>
                             }
-                        </mat-chip-list>
+                        </mat-chip-set>
                     </div>
                 </div>
             </section>

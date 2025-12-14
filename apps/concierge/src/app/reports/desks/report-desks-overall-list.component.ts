@@ -17,9 +17,9 @@ import { ReportsStateService } from '../reports-state.service';
     template: `
         <div class="w-full pb-2">
             <div
-                class="m-4 overflow-hidden rounded-sm border border-base-200 bg-base-100"
+                class="border-base-200 bg-base-100 m-4 overflow-hidden rounded-sm border"
             >
-                <div class="flex items-center border-b border-base-200 p-4">
+                <div class="border-base-200 flex items-center border-b p-4">
                     <h3 class="flex-1 text-xl font-bold">
                         {{ 'APP.CONCIERGE.REPORTS_DAILY_HEADER' | translate }}
                     </h3>

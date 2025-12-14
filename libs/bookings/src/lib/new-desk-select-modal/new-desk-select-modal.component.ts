@@ -107,7 +107,7 @@ export const FAV_DESK_KEY = 'favourite_desks';
                     } @else {
                         <new-desk-map
                             class="h-full min-h-[60vh] w-full"
-                            [is_displayed()]="!!displayed()"
+                            [is_displayed]="!!displayed()"
                             [active]="displayed()?.id"
                             (onSelect)="displayed.set($event)"
                         >
@@ -135,7 +135,7 @@ export const FAV_DESK_KEY = 'favourite_desks';
                         [desk]="displayed()"
                         [active]="selected_ids.includes(displayed()?.id)"
                         [hide_map]="view() === 'map'"
-                        (activeChange)="setSelected(displayed(), $event)"
+                        (activeChange)="setSelected(displayed(), !isSelected(displayed()?.id))"
                         [fav]="
                             displayed() &&
                             this.favorites.includes(displayed()?.id)

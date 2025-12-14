@@ -43,7 +43,7 @@ import { BookingAsset } from '../booking-form.service';
                 matRipple
                 name="close-desk-details"
                 (click)="close.emit()"
-                class="absolute left-2 top-2 z-20 bg-base-200 text-base-content lg:hidden"
+                class="bg-base-200 text-base-content absolute top-2 left-2 z-20 lg:hidden"
             >
                 <icon>arrow_back</icon>
             </button>
@@ -51,7 +51,7 @@ import { BookingAsset } from '../booking-form.service';
                 icon
                 matRipple
                 name="toggle-desk-favourite-details"
-                class="absolute right-2 top-2 z-20 bg-base-200"
+                class="bg-base-200 absolute top-2 right-2 z-20"
                 [class.text-info-content]="fav()"
                 [class.bg-info!]="fav()"
                 (click)="toggleFav.emit()"
@@ -65,21 +65,21 @@ import { BookingAsset } from '../booking-form.service';
                     >favorite</icon
                 >
             </button>
-            <div class="space-y-2 px-2 pb-2 pt-0">
+            <div class="space-y-2 px-2 pt-0 pb-2">
                 @if (!desk().images?.length) {
                     <div class="h-8 w-full"></div>
                 }
                 <section actions class="z-0 p-2">
-                    <h2 class="mb-2 mt-4 text-2xl font-medium">
+                    <h2 class="mt-4 mb-2 text-2xl font-medium">
                         {{ desk().display_name || desk().name || desk().id }}
                     </h2>
                 </section>
                 <section
                     details
-                    class="relative space-y-2 rounded-sm border border-base-400 px-3 pb-2 pt-4"
+                    class="border-base-400 relative space-y-2 rounded-sm border px-3 pt-4 pb-2"
                 >
                     <h2
-                        class="absolute left-2 top-0 -translate-y-1/2 bg-base-100 px-2 text-lg font-medium"
+                        class="bg-base-100 absolute top-0 left-2 -translate-y-1/2 px-2 text-lg font-medium"
                     >
                         {{ 'BOOKINGS.DETAILS' | translate }}
                     </h2>
@@ -105,10 +105,10 @@ import { BookingAsset } from '../booking-form.service';
                 @if (desk().features?.length) {
                     <section
                         facilities
-                        class="relative mt-4! space-y-2 rounded-sm border border-base-400 px-2 pb-1 pt-1"
+                        class="border-base-400 relative mt-4! space-y-2 rounded-sm border px-2 pt-1 pb-1"
                     >
                         <h2
-                            class="absolute left-2 top-0 -translate-y-1/2 bg-base-100 px-2 text-lg font-medium"
+                            class="bg-base-100 absolute top-0 left-2 -translate-y-1/2 px-2 text-lg font-medium"
                         >
                             {{ 'COMMON.FEATURES' | translate }}
                         </h2>
@@ -116,7 +116,7 @@ import { BookingAsset } from '../booking-form.service';
                             <div class="flex flex-wrap items-center">
                                 <div
                                     for="feat"
-                                    class="m-1 rounded-full border border-base-300 px-4 py-2 text-sm capitalize"
+                                    class="border-base-300 m-1 rounded-full border px-4 py-2 text-sm capitalize"
                                 >
                                     {{ feat }}
                                 </div>
@@ -127,7 +127,7 @@ import { BookingAsset } from '../booking-form.service';
                 @if (!hide_map()) {
                     <section
                         map
-                        class="relative mx-auto h-64 w-full overflow-hidden rounded-sm bg-base-200 sm:h-48"
+                        class="bg-base-200 relative mx-auto h-64 w-full overflow-hidden rounded-sm sm:h-48"
                     >
                         <interactive-map
                             class="pointer-events-none"

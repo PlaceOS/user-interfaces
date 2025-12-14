@@ -11,6 +11,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { OrganisationService } from '@placeos/common';
+import { IconComponent } from '@placeos/components';
 import { EventFormService } from '@placeos/events';
 import {
     DateFieldComponent,
@@ -27,7 +28,7 @@ import { FeaturesFilterService } from './features-filter.service';
             @if (form) {
                 <form [formGroup]="form">
                     <section
-                        class="flex flex-col items-center border-b border-base-200 py-5"
+                        class="border-base-200 flex flex-col items-center border-b py-5"
                     >
                         <div
                             class="flex w-[calc(100%-2rem)] max-w-90 flex-col self-center"
@@ -35,7 +36,7 @@ import { FeaturesFilterService } from './features-filter.service';
                             <div class="flex flex-row items-center">
                                 <button icon matRipple (click)="closeModal()">
                                     <icon
-                                        class="text-gray-700 flex items-center justify-center text-3xl"
+                                        class="flex items-center justify-center text-3xl text-gray-700"
                                         >close</icon
                                     >
                                 </button>
@@ -48,7 +49,7 @@ import { FeaturesFilterService } from './features-filter.service';
                         </div>
                     </section>
                     <section
-                        class="flex flex-col items-center border-b border-base-200"
+                        class="border-base-200 flex flex-col items-center border-b"
                     >
                         <div
                             class="flex w-[calc(100%-2rem)] max-w-90 flex-col self-center"
@@ -57,7 +58,7 @@ import { FeaturesFilterService } from './features-filter.service';
                             <div class="flex flex-col">
                                 @if ((buildings | async)?.length > 1) {
                                     <label
-                                        class="text-gray-700 mb-1 text-sm font-bold"
+                                        class="mb-1 text-sm font-bold text-gray-700"
                                     >
                                         Location
                                     </label>
@@ -95,7 +96,7 @@ import { FeaturesFilterService } from './features-filter.service';
                                 }
                                 <div class="flex flex-col">
                                     <label
-                                        class="text-gray-700 mb-1 text-sm font-bold"
+                                        class="mb-1 text-sm font-bold text-gray-700"
                                     >
                                         Date
                                     </label>
@@ -106,7 +107,7 @@ import { FeaturesFilterService } from './features-filter.service';
                                     <div class="flex w-full flex-row space-x-2">
                                         <div class="flex w-1/3 flex-1 flex-col">
                                             <label
-                                                class="text-gray-700 mb-1 text-sm font-bold"
+                                                class="mb-1 text-sm font-bold text-gray-700"
                                             >
                                                 Start Time*
                                             </label>
@@ -126,7 +127,7 @@ import { FeaturesFilterService } from './features-filter.service';
                                             class="ml-auto flex w-1/3 flex-1 flex-col"
                                         >
                                             <label
-                                                class="text-gray-700 mb-1 text-sm font-bold"
+                                                class="mb-1 text-sm font-bold text-gray-700"
                                             >
                                                 End Time*
                                             </label>
@@ -144,7 +145,7 @@ import { FeaturesFilterService } from './features-filter.service';
                         </div>
                     </section>
                     <section
-                        class="flex flex-col items-center border-b border-base-200"
+                        class="border-base-200 flex flex-col items-center border-b"
                     >
                         <div
                             class="flex w-[calc(100%-2rem)] max-w-90 flex-col self-center"
@@ -156,10 +157,8 @@ import { FeaturesFilterService } from './features-filter.service';
                             </div>
                         </div>
                     </section>
-                    <section class="flex flex-col border-base-200">
-                        <div
-                            class="mx-auto w-[calc(100%-2rem)] max-w-90"
-                        >
+                    <section class="border-base-200 flex flex-col">
+                        <div class="mx-auto w-[calc(100%-2rem)] max-w-90">
                             <div class="my-2 text-lg">Facilities</div>
                             @for (feature of features$ | async; track feature) {
                                 <div>
@@ -179,14 +178,14 @@ import { FeaturesFilterService } from './features-filter.service';
                         </div>
                     </section>
                     <section
-                        class="top-box-shadow mt-5 flex flex-col items-center justify-center border-t border-base-200 py-3"
+                        class="top-box-shadow border-base-200 mt-5 flex flex-col items-center justify-center border-t py-3"
                     >
                         <button
                             btn
                             matRipple
                             type="submit"
                             (click)="applyFilters()"
-                            class="filter-button max-w-[calc(100% - 2rem)] mx-auto min-w-[300px] border-secondary bg-secondary text-center text-sm"
+                            class="filter-button max-w-[calc(100% - 2rem)] border-secondary bg-secondary mx-auto min-w-[300px] text-center text-sm"
                         >
                             <span class="">Apply Filters</span>
                         </button>
@@ -207,6 +206,7 @@ import { FeaturesFilterService } from './features-filter.service';
         DurationFieldComponent,
         MatFormFieldModule,
         MatSelectModule,
+        IconComponent,
     ],
 })
 export class FilterSpaceComponent implements OnInit {
@@ -220,8 +220,8 @@ export class FilterSpaceComponent implements OnInit {
 
     readonly buildings = this._org.building_list;
     readonly building = this._org.active_building;
-    minDate: Date = new Date();
-    features$: Observable<Array<{}>>;
+    minDate = Date.now();
+    features$: Observable<{ name: string; value: boolean }[]>;
 
     public readonly setBuilding = (b) => (this._org.building = b);
 

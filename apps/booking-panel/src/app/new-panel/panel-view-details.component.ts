@@ -18,14 +18,14 @@ import { PanelStateService } from '../panel-state.service';
                 ></div>
             }
             <div class="absolute inset-0 bg-black opacity-50"></div>
-            <div name class="absolute left-4 top-4 text-4xl font-medium">
+            <div name class="absolute top-4 left-4 text-4xl font-medium">
                 @let sys = system | async;
                 {{ sys?.display_name || sys?.name || '' }}
             </div>
             @if (checkin) {
                 <div
                     qr-checkin
-                    class="absolute right-4 top-4 z-50 w-40 space-y-4 text-xl"
+                    class="absolute top-4 right-4 z-50 w-40 space-y-4 text-xl"
                 >
                     <img class="w-full" [src]="qr_code()" />
                     @if (!hide_qr_text) {
@@ -43,7 +43,7 @@ import { PanelStateService } from '../panel-state.service';
                 <div
                     class="absolute inset-x-0 bottom-0 p-4 text-center text-3xl text-white"
                 >
-                    <div class="absolute inset-0 bg-neutral opacity-30"></div>
+                    <div class="bg-neutral absolute inset-0 opacity-30"></div>
                     <div class="relative">
                         {{ (current | async)?.title }}
                         <span class="font-light">{{
@@ -53,7 +53,7 @@ import { PanelStateService } from '../panel-state.service';
                 </div>
             }
             <div
-                class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 space-y-4 text-center font-normal"
+                class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 space-y-4 text-center font-normal"
                 [class.pb-8]="
                     (current | async) &&
                     !hide_meeting_details &&

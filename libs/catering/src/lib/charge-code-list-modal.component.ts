@@ -5,6 +5,7 @@ import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     csvToJson,
     downloadFile,
@@ -123,6 +124,7 @@ import { CateringStateService } from './catering-state.service';
         MatFormFieldModule,
         MatInputModule,
         FormsModule,
+        MatTooltipModule,
     ],
 })
 export class ChargeCodeListModalComponent implements OnInit {

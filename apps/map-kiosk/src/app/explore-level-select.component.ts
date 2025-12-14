@@ -9,7 +9,7 @@ import { first } from 'rxjs/operators';
     selector: 'explore-level-select',
     template: `
         <div
-            class="m-2 overflow-hidden rounded-sm border border-solid border-base-300 bg-base-100 shadow-sm"
+            class="border-base-300 bg-base-100 m-2 overflow-hidden rounded-sm border border-solid shadow-sm"
         >
             @for (lvl of levels | async; track lvl) {
                 <button
@@ -19,7 +19,7 @@ import { first } from 'rxjs/operators';
                     matRipple
                 >
                     <div class="text-2xl">{{ lvl.number }}</div>
-                    <p class="m-0 whitespace-nowrap text-sm">
+                    <p class="m-0 text-sm whitespace-nowrap">
                         {{ lvl.display_name || lvl.name }}
                     </p>
                 </button>

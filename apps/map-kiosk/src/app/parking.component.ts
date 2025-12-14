@@ -24,18 +24,18 @@ import { combineLatest, map } from 'rxjs';
 @Component({
     selector: 'parking-kiosk-view',
     template: `
-        <div class="absolute inset-0 flex flex-col overflow-hidden bg-base-200">
+        <div class="bg-base-200 absolute inset-0 flex flex-col overflow-hidden">
             <header
-                class="flex w-full items-center justify-center space-x-2 bg-base-100 p-4 text-2xl"
+                class="bg-base-100 flex w-full items-center justify-center space-x-2 p-4 text-2xl"
             >
-                <div class="rounded-sm border-2 border-info text-info">
+                <div class="border-info text-info rounded-sm border-2">
                     <icon>local_parking</icon>
                 </div>
                 <div class="pl-2">Parking Available</div>
-                <icon class="text-2xl text-info">arrow_forward</icon>
+                <icon class="text-info text-2xl">arrow_forward</icon>
             </header>
             <main
-                class="pointer-events-none relative w-full flex-1 border-y border-base-300"
+                class="border-base-300 pointer-events-none relative w-full flex-1 border-y"
             >
                 <interactive-map
                     [src]="url | async"
@@ -50,16 +50,16 @@ import { combineLatest, map } from 'rxjs';
                 ></interactive-map>
             </main>
             <footer
-                class="flex w-full flex-col items-center bg-base-100 p-2 leading-tight"
+                class="bg-base-100 flex w-full flex-col items-center p-2 leading-tight"
             >
                 @let status = counts | async;
                 <div class="text-3xl">Free Spaces: {{ status?.free }}</div>
                 <div class="mb-2 opacity-30">
                     Total Capacity: {{ status?.total }} spaces
                 </div>
-                <div class="h-4 w-[50vw] rounded-full bg-base-300">
+                <div class="bg-base-300 h-4 w-[50vw] rounded-full">
                     <div
-                        class="h-full rounded-full bg-success"
+                        class="bg-success h-full rounded-full"
                         [style.width]="status?.percent + '%'"
                     ></div>
                 </div>

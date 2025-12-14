@@ -3,6 +3,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { AsyncHandler, DialogEvent, User } from '@placeos/common';
 
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { UserFormComponent } from './user-form.component';
@@ -67,6 +68,7 @@ import { generateUserForm } from './user.utilities';
         UserFormComponent,
         MatDialogModule,
         IconComponent,
+        MatProgressSpinnerModule,
     ],
 })
 export class NewUserModalComponent extends AsyncHandler implements OnInit {

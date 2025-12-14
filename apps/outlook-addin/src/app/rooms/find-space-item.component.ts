@@ -11,7 +11,7 @@ import { BuildingPipe, IconComponent, LevelPipe } from '@placeos/components';
 
         <button
             mat-ripple
-            class="mx-auto flex w-full flex-col space-y-2 rounded-lg border border-base-300 bg-base-100 p-4 hover:border-info"
+            class="border-base-300 bg-base-100 hover:border-info mx-auto flex w-full flex-col space-y-2 rounded-lg border p-4"
             [class.bg-base-200]="selected()"
             (click)="toggleSelected()"
         >

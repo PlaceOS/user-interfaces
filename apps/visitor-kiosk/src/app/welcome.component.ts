@@ -201,7 +201,7 @@ export class WelcomeComponent
         return 'LANGUAGE.ENGLISH';
     }
 
-    public get locales(): { id: string; name: string }[] {
+    public get locales(): { id: string; name: string; local?: string }[] {
         return this._settings.get('app.locales') || [];
     }
 

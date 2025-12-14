@@ -11,6 +11,7 @@ import {
     SimpleChanges,
 } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     setCustomHeaders,
     ViewAction,
@@ -52,7 +53,7 @@ let _initialized = false;
     template: `
         @if (use_mapsindoors$ | async) {
             <maps-indoors
-                [zone]="location"
+                [zone]="location()"
                 (zoneChange)="onLevelChange($event)"
                 [zoom]="zoom()"
                 (zoomChange)="zoom.set($event)"
@@ -126,6 +127,7 @@ let _initialized = false;
         IconComponent,
         TranslatePipe,
         MatRippleModule,
+        MatTooltipModule,
         MapsIndoorsComponent,
         MapRendererComponent,
         CiscoMapComponent,

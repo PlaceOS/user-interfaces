@@ -11,6 +11,7 @@ import {
 } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { IconComponent } from './icon.component';
 import {
     AsyncHandler,
     BuildingLevel,
@@ -65,7 +66,7 @@ const RESOURCE_MAP: Record<string, any> = {};
         }
     `,
     styles: [``],
-    imports: [MatRippleModule, MatProgressSpinnerModule],
+    imports: [MatRippleModule, MatProgressSpinnerModule, IconComponent],
 })
 export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
     private _maps_people = inject(MapsPeopleService);

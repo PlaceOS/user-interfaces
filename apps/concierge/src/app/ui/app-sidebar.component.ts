@@ -18,13 +18,13 @@ import { debounceTime, filter } from 'rxjs/operators';
     selector: 'app-sidebar',
     template: `
         <div
-            class="h-full w-64 overflow-auto border-r border-base-200 py-2 pr-3"
+            class="border-base-200 h-full w-64 overflow-auto border-r py-2 pr-3"
         >
             @for (link of filtered_links(); track link.id + '' + $index) {
                 @if (!link.children) {
                     <a
                         matRipple
-                        class="my-1 flex w-full items-center space-x-2 rounded-r-full p-1 hover:bg-base-200"
+                        class="hover:bg-base-200 my-1 flex w-full items-center space-x-2 rounded-r-full p-1"
                         [routerLink]="link.route"
                         routerLinkActive="active"
                     >
@@ -35,7 +35,7 @@ import { debounceTime, filter } from 'rxjs/operators';
                     @if (link.children?.length) {
                         <button
                             matRipple
-                            class="my-1 flex w-full items-center space-x-2 rounded-r-full p-1 hover:bg-base-200"
+                            class="hover:bg-base-200 my-1 flex w-full items-center space-x-2 rounded-r-full p-1"
                             (click)="
                                 show_block[link.id || link._id] =
                                     !show_block[link.id || link._id]
@@ -61,7 +61,7 @@ import { debounceTime, filter } from 'rxjs/operators';
                         >
                             @for (child of link.children; track child) {
                                 <a
-                                    class="my-1 flex w-full items-center space-x-2 rounded-r-full p-1 hover:bg-base-200"
+                                    class="hover:bg-base-200 my-1 flex w-full items-center space-x-2 rounded-r-full p-1"
                                     [routerLink]="child.route"
                                     routerLinkActive="active"
                                 >

@@ -1,5 +1,6 @@
 import { Component, inject, input, output } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { SettingsService } from '@placeos/common';
 import { DEFAULT_COLOURS } from 'libs/explore/src/lib/explore-spaces.service';
 import { Locker, LockerBank } from './locker.class';
@@ -73,7 +74,7 @@ import { Locker, LockerBank } from './locker.class';
             }
         `,
     ],
-    imports: [MatRippleModule],
+    imports: [MatRippleModule, MatTooltipModule],
 })
 export class LockerGridComponent {
     private _settings = inject(SettingsService);

@@ -52,12 +52,12 @@ import { SpaceFiltersComponent } from './space-filters.component';
             filters
             class="flex w-140 max-w-full flex-wrap items-center p-2 sm:max-w-140"
         >
-            @if ((options | async)?.features?.length > 1) {
+            @if ((filters | async)?.features?.length > 1) {
                 <button
                     btn
                     matRipple
                     name="clear-space-filters"
-                    class="mb-2 mr-2 min-h-8"
+                    class="mr-2 mb-2 min-h-8"
                     (click)="removeAllFeatures()"
                 >
                     {{ 'COMMON.FILTERS_CLEAR' | translate }}
@@ -83,10 +83,10 @@ import { SpaceFiltersComponent } from './space-filters.component';
             <div filter-item count>
                 {{
                     'CALENDAR_EVENT.SPACE_SELECT_SIZE_X'
-                        | translate: { count: (options | async)?.capacity || 2 }
+                        | translate: { count: (filters | async)?.capacity || 2 }
                 }}
             </div>
-            @for (feat of (options | async)?.features; track feat) {
+            @for (feat of (filters | async)?.features; track feat) {
                 <div filter-item>
                     <p class="truncate">{{ feat }}</p>
                     <button
@@ -141,6 +141,7 @@ export class SpaceFiltersDisplayComponent
     public readonly view = model<'map' | 'list'>('list');
     public readonly viewChange = output<'map' | 'list'>();
     public readonly options = this._event_form.options$;
+    public readonly filters = this._event_form.filters$;
     public location = '';
 
     public get all_day() {

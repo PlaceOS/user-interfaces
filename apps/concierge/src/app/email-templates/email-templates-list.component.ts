@@ -153,7 +153,7 @@ import {
                         </a>
                         <button mat-menu-item (click)="removeTemplate(row)">
                             <div class="flex items-center space-x-2">
-                                <icon class="text-2xl text-error">
+                                <icon class="text-error text-2xl">
                                     delete
                                 </icon>
                                 <div>

@@ -20,7 +20,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
     selector: 'asset-category-form',
     template: `
         <header
-            class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none bg-base-200 p-2"
+            class="bg-base-200 sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none p-2"
         >
             <h2 class="px-2 text-xl font-medium">
                 {{
@@ -92,7 +92,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
         }
         @if (!loading) {
             <footer
-                class="flex justify-end space-x-2 border-t border-base-200 p-2"
+                class="border-base-200 flex justify-end space-x-2 border-t p-2"
             >
                 <button btn matRipple class="w-32" (click)="save()">
                     {{ 'COMMON.SAVE' | translate }}

@@ -156,8 +156,8 @@ import { SpacePipe } from './space.pipe';
                             }}
                         </div>
                         <div class="h-20 overflow-hidden text-left">
-                            <p class="line-clamp-3">{{ raw_description }}</p>
-                            @if (!raw_description.trim()) {
+                            <p class="line-clamp-3">{{ raw_description() }}</p>
+                            @if (!raw_description().trim()) {
                                 <p class="opacity-30">
                                     {{
                                         'CALENDAR_EVENT.GROUP_NO_DESCRIPTION'

@@ -170,7 +170,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
         @if (features().length > 1) {
             <div
                 class="relative z-40 flex h-16 w-full items-center justify-center border-t border-base-200 bg-base-100 shadow-sm sm:hidden"
-                [attr.dark]="dark_mode"
+                [attr.dark]="dark_mode()"
             >
                 <a
                     matRipple

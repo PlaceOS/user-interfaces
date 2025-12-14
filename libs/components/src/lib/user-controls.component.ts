@@ -71,7 +71,6 @@ export interface AppLocale {
                                 }}</icon>
                             </div>
                             <div class="ml-2 flex-1">
-                                {{ locations | json }}
                                 <button
                                     matRipple
                                     class="flex items-center space-x-2 rounded-sm px-2 py-1 font-medium hover:bg-base-200"
@@ -93,8 +92,8 @@ export interface AppLocale {
                                         <button
                                             mat-menu-item
                                             (click)="
-                                                setLocation(
-                                                    active_index,
+                                                saveSetting(
+                                                    'work_location',
                                                     loc.id
                                                 )
                                             "
@@ -124,11 +123,6 @@ export interface AppLocale {
                                     }}
                                 </div>
                             </div>
-                            @if (i > 0) {
-                                <div
-                                    class="absolute -top-2 left-7 h-4 w-0 -translate-x-px border-l-2 border-dashed border-base-200"
-                                ></div>
-                            }
                         </div>
                     </div>
                 </div>

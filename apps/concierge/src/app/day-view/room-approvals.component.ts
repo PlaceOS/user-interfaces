@@ -27,17 +27,17 @@ import { EventsStateService } from './events-state.service';
     selector: 'room-bookings-approvals',
     template: `
         <div
-            class="flex h-full w-[20rem] flex-col overflow-hidden border-l border-base-300"
+            class="border-base-300 flex h-full w-[20rem] flex-col overflow-hidden border-l"
             [style.width]="show() ? '' : '0px'"
         >
             <div
-                class="relative flex items-center justify-center space-x-2 border-b border-base-200 p-2"
+                class="border-base-200 relative flex items-center justify-center space-x-2 border-b p-2"
             >
                 <button
                     btn
                     icon
                     matRipple
-                    class="absolute left-2 top-3 bg-base-200"
+                    class="bg-base-200 absolute top-3 left-2"
                     [matTooltip]="
                         'APP.CONCIERGE.ROOMS_PENDING_HIDE' | translate
                     "
@@ -59,21 +59,21 @@ import { EventsStateService } from './events-state.service';
                     }}
                 </h3>
             </div>
-            <div class="relative -mt-px border-b border-base-300">
+            <div class="border-base-300 relative -mt-px border-b">
                 <input
                     type="text"
                     [placeholder]="'COMMON.SEARCH' | translate"
-                    class="w-full py-4 pl-10 pr-4"
+                    class="w-full py-4 pr-4 pl-10"
                     [ngModel]="search | async"
                     (ngModelChange)="search.next($event)"
                 />
                 <icon
-                    class="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-2xl"
+                    class="pointer-events-none absolute top-1/2 left-2 -translate-y-1/2 text-2xl"
                 >
                     search
                 </icon>
             </div>
-            <div class="flex-1 space-y-1 overflow-auto bg-base-200 p-1">
+            <div class="bg-base-200 flex-1 space-y-1 overflow-auto p-1">
                 @if (!(filtered_pending | async)?.length) {
                     <div
                         class="flex h-full w-full flex-col items-center justify-center space-y-2"
@@ -88,11 +88,11 @@ import { EventsStateService } from './events-state.service';
                 }
                 @for (event of filtered_pending | async; track event) {
                     <div
-                        class="relative w-full rounded-lg border border-base-300 bg-base-100 p-2"
+                        class="border-base-300 bg-base-100 relative w-full rounded-lg border p-2"
                     >
                         @if (event.recurring_event_id) {
                             <div
-                                class="absolute right-2 top-3 text-2xl"
+                                class="absolute top-3 right-2 text-2xl"
                                 matTooltip="Recurring Series"
                                 matTooltipPosition="left"
                             >
@@ -117,7 +117,7 @@ import { EventsStateService } from './events-state.service';
                         </p>
                         @if (space?.images?.length) {
                             <div
-                                class="mb-2 h-32 w-full overflow-hidden rounded-sm bg-base-200"
+                                class="bg-base-200 mb-2 h-32 w-full overflow-hidden rounded-sm"
                             >
                                 <img
                                     auth
@@ -126,16 +126,16 @@ import { EventsStateService } from './events-state.service';
                                 />
                             </div>
                         } @else {
-                            <hr class="mb-2 border-base-300 bg-base-200" />
+                            <hr class="border-base-300 bg-base-200 mb-2" />
                         }
                         <div class="mb-2 flex items-center space-x-2">
                             <div
-                                class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
+                                class="bg-base-200 flex h-8 w-8 items-center justify-center rounded-full"
                             >
                                 <icon class="text-xl">place</icon>
                             </div>
-                            @let bld = space?.zones | building;
-                            @let lvl = space?.zones | level;
+                            @let bld = $any(space?.zones) | building;
+                            @let lvl = $any(space?.zones) | level;
                             <div class="flex-1">
                                 <div class="text-sm">
                                     {{
@@ -152,7 +152,7 @@ import { EventsStateService } from './events-state.service';
                         </div>
                         <div class="mb-2 flex items-center space-x-2">
                             <div
-                                class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
+                                class="bg-base-200 flex h-8 w-8 items-center justify-center rounded-full"
                             >
                                 <icon class="text-xl">person</icon>
                             </div>
@@ -164,7 +164,7 @@ import { EventsStateService } from './events-state.service';
                             <button
                                 btn
                                 matRipple
-                                class="flex min-w-0 flex-1 items-center space-x-1 border-success bg-success-light text-black"
+                                class="border-success bg-success-light flex min-w-0 flex-1 items-center space-x-1 text-black"
                                 [disabled]="status()[event.id] === 'accept'"
                                 (click)="approve(event)"
                             >
@@ -176,12 +176,12 @@ import { EventsStateService } from './events-state.service';
                                         ) | translate
                                     }}
                                 </div>
-                                <icon class="text-2xl text-success">done</icon>
+                                <icon class="text-success text-2xl">done</icon>
                             </button>
                             <button
                                 btn
                                 matRipple
-                                class="flex min-w-0 flex-1 items-center space-x-1 border-error bg-error-light text-black"
+                                class="border-error bg-error-light flex min-w-0 flex-1 items-center space-x-1 text-black"
                                 [disabled]="status()[event.id] === 'decline'"
                                 (click)="reject(event)"
                             >
@@ -193,13 +193,13 @@ import { EventsStateService } from './events-state.service';
                                         ) | translate
                                     }}
                                 </div>
-                                <icon class="text-2xl text-error">close</icon>
+                                <icon class="text-error text-2xl">close</icon>
                             </button>
                             @if (event.recurring_event_id) {
                                 <button
                                     icon
                                     matRipple
-                                    class="h-12 w-12 rounded-md border border-base-300 bg-base-200"
+                                    class="border-base-300 bg-base-200 h-12 w-12 rounded-md border"
                                     [matMenuTriggerFor]="menu"
                                 >
                                     <icon>more_vert</icon>
@@ -212,7 +212,7 @@ import { EventsStateService } from './events-state.service';
                                         <div
                                             class="flex items-center space-x-2 pr-4"
                                         >
-                                            <icon class="text-2xl text-success"
+                                            <icon class="text-success text-2xl"
                                                 >done</icon
                                             >
                                             <div>
@@ -230,7 +230,7 @@ import { EventsStateService } from './events-state.service';
                                         <div
                                             class="flex items-center space-x-2 pr-4"
                                         >
-                                            <icon class="text-2xl text-error"
+                                            <icon class="text-error text-2xl"
                                                 >close</icon
                                             >
                                             <div>
@@ -249,10 +249,10 @@ import { EventsStateService } from './events-state.service';
             </div>
             @if (loading()) {
                 <div
-                    class="absolute bottom-0 left-0 right-0 top-14 flex flex-col items-center justify-center space-y-2 p-2"
+                    class="absolute top-14 right-0 bottom-0 left-0 flex flex-col items-center justify-center space-y-2 p-2"
                 >
                     <div
-                        class="absolute inset-0 z-0 bg-base-100 opacity-80"
+                        class="bg-base-100 absolute inset-0 z-0 opacity-80"
                     ></div>
                     <mat-spinner diameter="32"></mat-spinner>
                     <p class="relative z-10">
@@ -266,7 +266,7 @@ import { EventsStateService } from './events-state.service';
                 btn
                 icon
                 matRipple
-                class="absolute -left-8 top-3 bg-warning text-warning-content shadow-sm"
+                class="bg-warning text-warning-content absolute top-3 -left-8 shadow-sm"
                 (click)="setShow(!show())"
                 [matTooltip]="'APP.CONCIERGE.ROOMS_PENDING_SHOW' | translate"
                 matTooltipPosition="left"

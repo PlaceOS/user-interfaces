@@ -16,6 +16,7 @@ import {
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     AsyncHandler,
     Building,
@@ -149,7 +150,7 @@ import { PointOfInterest } from './poi-management.service';
                             <button
                                 icon
                                 matRipple
-                                class="h-12 w-12 rounded-sm border border-secondary text-secondary"
+                                class="border-secondary text-secondary h-12 w-12 rounded-sm border"
                                 [matTooltip]="
                                     'APP.CONCIERGE.POI_MAP_SELECT' | translate
                                 "
@@ -169,8 +170,8 @@ import { PointOfInterest } from './poi-management.service';
                                     (ngModelChange)="
                                         form.patchValue({
                                             location: [
-                                                $event,
-                                                form.value.location[1],
+                                                +$event,
+                                                +form.value.location[1],
                                             ],
                                         })
                                     "
@@ -185,8 +186,8 @@ import { PointOfInterest } from './poi-management.service';
                                     (ngModelChange)="
                                         form.patchValue({
                                             location: [
-                                                form.value.location[0],
-                                                $event,
+                                                +form.value.location[0],
+                                                +$event,
                                             ],
                                         })
                                     "
@@ -262,7 +263,7 @@ import { PointOfInterest } from './poi-management.service';
                     <button
                         btn
                         matRipple
-                        class="mb-4 mt-2 w-full"
+                        class="mt-2 mb-4 w-full"
                         (click)="extra_details.push(['', ''])"
                     >
                         Add Details Item
@@ -286,6 +287,7 @@ import { PointOfInterest } from './poi-management.service';
         SettingsToggleComponent,
         MatSelectModule,
         UploadButtonComponent,
+        MatTooltipModule,
     ],
 })
 export class POIModalComponent extends AsyncHandler implements OnInit {

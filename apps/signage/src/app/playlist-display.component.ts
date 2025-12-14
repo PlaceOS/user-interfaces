@@ -126,4 +126,8 @@ export class PlaylistDisplayComponent {
     public isValidMedia(item: MediaPlayerItem): boolean {
         return validateMedia(item) === '';
     }
+
+    public setPlaylistItem(index: number) {
+        this.selected.emit(index);
+    }
 }

@@ -88,7 +88,7 @@ export class CateringImportMenuModalComponent {
     public loading: string;
 
     /** Upload the image to the cloud */
-    public handleFileEvent(event: DragEvent) {
+    public handleFileEvent(event: Event) {
         this.loading = 'Processing menu data...';
         const element: HTMLInputElement = event.target as any;
         if (!element?.files) return (this.loading = '');

@@ -12,12 +12,12 @@ import { startOfMinute } from 'date-fns';
 @Component({
     selector: 'placeos-upcoming-bookings',
     template: `
-        <div class="absolute inset-0 overflow-auto bg-base-200">
+        <div class="bg-base-200 absolute inset-0 overflow-auto">
             <div
-                class="mx-auto min-h-full w-160 max-w-full border-x border-base-300 bg-base-100 pt-2"
+                class="border-base-300 bg-base-100 mx-auto min-h-full w-160 max-w-full border-x pt-2"
             >
                 <header
-                    class="sticky top-0 z-10 mx-auto mb-2 flex h-14 w-full max-w-[calc(100%-1rem)] items-center justify-between rounded-sm border-none bg-base-200 px-4 py-2"
+                    class="bg-base-200 sticky top-0 z-10 mx-auto mb-2 flex h-14 w-full max-w-[calc(100%-1rem)] items-center justify-between rounded-sm border-none px-4 py-2"
                 >
                     <h2 class="text-xl font-medium capitalize">
                         {{ 'APP.WORKPLACE.UPCOMING' | translate }}

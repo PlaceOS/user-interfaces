@@ -13,8 +13,8 @@ import {
     selector: 'explore-map-stack',
     template: `
         <div
-            class="absolute inset-0 overflow-hidden bg-base-200"
-            [class.hide-levels]="(options | async)?.show_levels"
+            class="bg-base-200 absolute inset-0 overflow-hidden"
+            [class.hide-levels]="$any(options | async)?.show_levels"
         >
             @for (lvl of levels | async; track lvl; let i = $index) {
                 <interactive-map

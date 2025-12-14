@@ -115,6 +115,8 @@ export class LoginComponent implements OnInit {
 
     /** Whether the user credentials are being checked */
     public loading: boolean;
+    /** Current focused field */
+    public focus: string = '';
 
     public readonly form = new FormGroup({
         username: new FormControl('', [Validators.required]),

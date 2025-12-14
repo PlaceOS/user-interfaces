@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -25,8 +26,8 @@ describe('PointsAssetModalComponent', () => {
             MockProvider(SpacesService, { list: new BehaviorSubject([]) }),
             MockProvider(DesksStateService, {
                 setFilters: jest.fn(),
-                desks: new BehaviorSubject([]),
-            }),
+                desks: signal([]),
+            } as any),
             MockProvider(MAT_DIALOG_DATA, {}),
         ],
         declarations: [

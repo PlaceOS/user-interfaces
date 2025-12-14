@@ -29,6 +29,7 @@ import { WelcomeComponent } from './welcome.component';
 import * as Sentry from '@sentry/angular';
 
 import {
+    ChatComponent,
     GlobalBannerComponent,
     GlobalLoadingComponent,
 } from '@placeos/components';
@@ -36,6 +37,7 @@ import { AppComponent } from './app.component';
 import { TopbarHeaderComponent } from './components/topbar-header.component';
 
 const STANDALONE_COMPONENTS = [
+    ChatComponent,
     GlobalLoadingComponent,
     GlobalBannerComponent,
     BootstrapComponent,

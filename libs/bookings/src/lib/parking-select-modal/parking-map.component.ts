@@ -23,6 +23,8 @@ import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { BuildingPipe } from 'libs/components/src/lib/building.pipe';
 import { ExploreParkingInfoComponent } from 'libs/explore/src/lib/explore-parking-info.component';
 import { DEFAULT_COLOURS } from 'libs/explore/src/lib/explore-spaces.service';
 import { BookingAsset, BookingFormService } from '../booking-form.service';
@@ -94,6 +96,8 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
         MatFormFieldModule,
         MatSelectModule,
         FormsModule,
+        TranslatePipe,
+        BuildingPipe,
     ],
 })
 export class ParkingSpaceMapComponent

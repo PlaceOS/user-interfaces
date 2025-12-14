@@ -127,7 +127,7 @@ export class VirtualKeyboardComponent
         this.open();
         this.clearTimeout('blur-sm');
     };
-    @HostListener('blur-sm') public onBlur = () =>
+    @HostListener('blur') public onBlur = () =>
         this.timeout('blur-sm', () => this.close());
 
     constructor() {

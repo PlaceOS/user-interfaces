@@ -162,7 +162,7 @@ import { currentPeriod, nextPeriod } from './helpers';
                 }
             </div>
             <div
-                class="flex h-full flex-1 flex-col items-center justify-center space-y-4 bg-base-100 text-base-content"
+                class="bg-base-100 text-base-content flex h-full flex-1 flex-col items-center justify-center space-y-4"
             >
                 <div
                     [innerHTML]="

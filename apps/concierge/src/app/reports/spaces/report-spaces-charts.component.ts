@@ -28,9 +28,9 @@ import { combineLatest } from 'rxjs';
             (window:resize)="updateCharts()"
         >
             <div
-                class="h-72 flex-1 rounded-sm border border-base-200 bg-base-100"
+                class="border-base-200 bg-base-100 h-72 flex-1 rounded-sm border"
             >
-                <div class="border-b border-base-200 p-4 text-xl font-bold">
+                <div class="border-base-200 border-b p-4 text-xl font-bold">
                     {{ 'APP.CONCIERGE.REPORTS_DAILY_HEADER' | translate }}
                 </div>
                 <div
@@ -39,9 +39,9 @@ import { combineLatest } from 'rxjs';
                 ></div>
             </div>
             <div
-                class="h-72 flex-1 rounded-sm border border-base-200 bg-base-100"
+                class="border-base-200 bg-base-100 h-72 flex-1 rounded-sm border"
             >
-                <div class="border-b border-base-200 p-4 text-xl font-bold">
+                <div class="border-base-200 border-b p-4 text-xl font-bold">
                     {{ 'APP.CONCIERGE.REPORTS_LEVEL_UTIL_HEADER' | translate }}
                 </div>
                 <div

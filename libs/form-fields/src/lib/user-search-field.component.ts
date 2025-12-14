@@ -91,7 +91,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                                 (mousedown)="stopEvent($event)"
                                 (touchstart)="stopEvent($event)"
                                 (click)="
-                                    setValue(search_str); stopEvent($event)
+                                    setValue(term); stopEvent($event)
                                 "
                             >
                                 <div class="pointer-events-none">

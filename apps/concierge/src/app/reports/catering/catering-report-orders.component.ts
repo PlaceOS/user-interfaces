@@ -14,10 +14,10 @@ import { CateringReportStateService } from './catering-report-state.service';
     selector: 'catering-report-orders',
     template: `
         <div
-            class="mx-auto my-2 w-5xl max-w-[calc(100%-2rem)] overflow-hidden rounded-sm border border-base-200 bg-base-100"
+            class="border-base-200 bg-base-100 mx-auto my-2 w-5xl max-w-[calc(100%-2rem)] overflow-hidden rounded-sm border"
         >
             <div
-                class="flex items-center justify-between border-b border-base-200 px-4"
+                class="border-base-200 flex items-center justify-between border-b px-4"
             >
                 <h2 class="py-2 text-xl font-medium">
                     {{

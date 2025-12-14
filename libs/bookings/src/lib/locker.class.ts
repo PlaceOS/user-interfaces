@@ -10,6 +10,7 @@ export interface LockerBank {
     zone?: PlaceZone;
     zones: string[];
     tags: string[];
+    images?: string[];
 }
 
 export interface Locker {

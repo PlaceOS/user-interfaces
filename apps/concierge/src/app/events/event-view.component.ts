@@ -21,12 +21,12 @@ import { lastValueFrom } from 'rxjs';
     selector: 'group-event-view',
     template: `
         <div
-            class="absolute inset-0 flex flex-col items-center bg-base-200 p-4"
+            class="bg-base-200 absolute inset-0 flex flex-col items-center p-4"
         >
             @if (!loading()) {
                 @if (event()) {
                     <div
-                        class="overflow-hidden rounded-sm border border-base-300 bg-base-100"
+                        class="border-base-300 bg-base-100 overflow-hidden rounded-sm border"
                     >
                         <group-event-details-modal [event]="event()" />
                     </div>

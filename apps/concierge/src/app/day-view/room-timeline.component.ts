@@ -39,13 +39,13 @@ import { RoomBookingSearchComponent } from './room-booking-search.component';
     template: `
         @if (timezone && tz) {
             <div
-                class="mx-2 mt-2 w-[calc(100%-1rem)] rounded-lg bg-info p-2 text-center text-xs text-info-content"
+                class="bg-info text-info-content mx-2 mt-2 w-[calc(100%-1rem)] rounded-lg p-2 text-center text-xs"
             >
                 {{ 'APP.CONCIERGE.TIMEZONE_DIFF' | translate }}
             </div>
         }
         <div
-            class="relative z-20 flex items-center justify-center space-x-2 border-b border-base-200 p-2"
+            class="border-base-200 relative z-20 flex items-center justify-center space-x-2 border-b p-2"
         >
             <date-options
                 [date]="date | async"
@@ -55,12 +55,12 @@ import { RoomBookingSearchComponent } from './room-booking-search.component';
             ></date-options>
             @if (is_today | async) {
                 <div
-                    class="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-info"
+                    class="text-info absolute top-1/2 left-4 -translate-y-1/2 text-sm"
                 >
                     {{ 'COMMON.TODAY' | translate }}
                 </div>
             }
-            <div class="absolute right-8 top-1/2 -translate-y-1/2">
+            <div class="absolute top-1/2 right-8 -translate-y-1/2">
                 <room-booking-search
                     (selected)="viewEvent($event, $event.system?.id, true)"
                 ></room-booking-search>
@@ -69,21 +69,21 @@ import { RoomBookingSearchComponent } from './room-booking-search.component';
         <div timeline class="z-0 grid h-1/2 w-full flex-1 overflow-auto">
             <div
                 timezone
-                class="sticky left-0 top-0 z-30 flex items-center justify-center bg-base-100"
+                class="bg-base-100 sticky top-0 left-0 z-30 flex items-center justify-center"
             >
                 <div class="text-xs opacity-30">
                     {{ date | async | date: 'zzzz' : tz }}
                 </div>
                 <div
-                    class="absolute bottom-0 right-0 h-2 w-px bg-base-300"
+                    class="bg-base-300 absolute right-0 bottom-0 h-2 w-px"
                 ></div>
                 <div
-                    class="absolute bottom-0 right-0 h-px w-2 bg-base-300"
+                    class="bg-base-300 absolute right-0 bottom-0 h-px w-2"
                 ></div>
             </div>
             <div
                 space-headers
-                class="sticky top-0 z-20 flex items-center border-b border-base-300 bg-base-100"
+                class="border-base-300 bg-base-100 sticky top-0 z-20 flex items-center border-b"
                 [style.width]="(spaces | async)?.length * block_width + 'rem'"
             >
                 @for (space of spaces | async; track space) {
@@ -94,14 +94,14 @@ import { RoomBookingSearchComponent } from './room-booking-search.component';
                             {{ space.display_name || space.name }}
                         </div>
                         <div
-                            class="absolute -left-px bottom-0 h-2 w-px bg-base-300"
+                            class="bg-base-300 absolute bottom-0 -left-px h-2 w-px"
                         ></div>
                     </div>
                 }
             </div>
             <div
                 hour-blocks
-                class="sticky left-0 z-10 overflow-visible border-r border-base-300 bg-base-100"
+                class="border-base-300 bg-base-100 sticky left-0 z-10 overflow-visible border-r"
                 [style.height]="block_range * block_height + 'rem'"
             >
                 @for (hour of hours; track hour; let i = $index) {
@@ -110,7 +110,7 @@ import { RoomBookingSearchComponent } from './room-booking-search.component';
                         [style.height]="block_height + 'rem'"
                     >
                         <div
-                            class="absolute -top-px right-0 h-px w-2 bg-base-300"
+                            class="bg-base-300 absolute -top-px right-0 h-px w-2"
                         ></div>
                         @if (i !== 0) {
                             <div
@@ -123,7 +123,7 @@ import { RoomBookingSearchComponent } from './room-booking-search.component';
                 }
                 @if ((show_time | async) && timeToOffset(now) < 100) {
                     <div
-                        class="absolute right-0 h-2 w-2 -translate-y-1/2 translate-x-1/2 rounded-full bg-secondary"
+                        class="bg-secondary absolute right-0 h-2 w-2 translate-x-1/2 -translate-y-1/2 rounded-full"
                         [style.top]="'calc(' + timeToOffset(now) + '% + 1px)'"
                     ></div>
                 }
@@ -131,13 +131,13 @@ import { RoomBookingSearchComponent } from './room-booking-search.component';
             <div space-blocks class="relative overflow-hidden">
                 @for (hour of hours; track hour; let i = $index) {
                     <div
-                        class="relative w-full border-b border-base-200"
+                        class="border-base-200 relative w-full border-b"
                         [style.height]="block_height + 'rem'"
                     ></div>
                 }
                 @for (space of spaces | async; track space; let i = $index) {
                     <div
-                        class="absolute top-0 h-full w-px bg-base-200"
+                        class="bg-base-200 absolute top-0 h-full w-px"
                         [style.left]="'calc(' + i * block_width + 'rem - 1px)'"
                     ></div>
                 }
@@ -164,7 +164,7 @@ import { RoomBookingSearchComponent } from './room-booking-search.component';
                                 [matTooltip]="eventTooltip(event)"
                             >
                                 <div
-                                    class="relative h-full w-full overflow-hidden rounded-lg border border-base-200 bg-base-100 px-3 py-1 text-xs shadow-sm hover:bg-base-200"
+                                    class="border-base-200 bg-base-100 hover:bg-base-200 relative h-full w-full overflow-hidden rounded-lg border px-3 py-1 text-xs shadow-sm"
                                     [class.opacity-60]="event.state === 'done'"
                                     [class.rounded-none!]="
                                         event.is_system_event
@@ -175,7 +175,7 @@ import { RoomBookingSearchComponent } from './room-booking-search.component';
                                 >
                                     @if (event.is_system_event) {
                                         <div
-                                            class="absolute -inset-px bg-secondary opacity-30"
+                                            class="bg-secondary absolute -inset-px opacity-30"
                                         ></div>
                                     }
                                     @if (!event.is_system_event) {
@@ -222,7 +222,7 @@ import { RoomBookingSearchComponent } from './room-booking-search.component';
                 }
                 @if (show_time | async) {
                     <div
-                        class="absolute inset-x-0 h-[2px] bg-secondary"
+                        class="bg-secondary absolute inset-x-0 h-[2px]"
                         [style.top]="timeToOffset(now) + '%'"
                     ></div>
                 }

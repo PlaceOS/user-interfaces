@@ -26,7 +26,7 @@ export const FAV_LOCKER_KEY = 'favourite_lockers';
     styles: [],
     template: `
         <div
-            class="flex h-screen w-screen flex-col bg-base-100 sm:relative sm:h-auto sm:w-auto"
+            class="bg-base-100 flex h-screen w-screen flex-col sm:relative sm:h-auto sm:w-auto"
         >
             <header class="flex w-full items-center space-x-4">
                 <button icon mat-dialog-close class="bg-base-200">
@@ -57,7 +57,7 @@ export const FAV_LOCKER_KEY = 'favourite_lockers';
           </div> -->
             </header>
             <main
-                class="flex h-[65vh] min-h-[65vh] w-full flex-1 items-center divide-x divide-base-200 overflow-hidden sm:max-h-[65vh] sm:max-w-[95vw]"
+                class="divide-base-200 flex h-[65vh] min-h-[65vh] w-full flex-1 items-center divide-x overflow-hidden sm:max-h-[65vh] sm:max-w-[95vw]"
             >
                 <locker-filters
                     class="hidden h-full max-w-[20rem] sm:flex sm:h-[65vh] sm:max-h-full"
@@ -67,7 +67,7 @@ export const FAV_LOCKER_KEY = 'favourite_lockers';
                     class="flex h-full w-1/2 flex-1 flex-col items-center sm:h-[65vh]"
                 >
                     <locker-filters-display
-                        class="w-full border-b border-base-200"
+                        class="border-base-200 w-full border-b"
                         [(view)]="view"
                     ></locker-filters-display>
                     @if (!bank) {
@@ -77,20 +77,13 @@ export const FAV_LOCKER_KEY = 'favourite_lockers';
                                 [selected]="selected_ids"
                                 [favorites]="favorites"
                                 (toggleFav)="toggleFavourite($event)"
-                                (onSelect)="bank = $event"
-                                class="h-1/2 flex-1 bg-base-200"
+                                (onSelect)="bank = $any($event)"
+                                class="bg-base-200 h-1/2 flex-1"
                             ></locker-bank-list>
-                        } @else {
-                            <locker-map
-                                class="h-1/2 w-full flex-1"
-                                [is_displayed]="!!displayed"
-                                (onSelect)="bank = $event"
-                            >
-                            </locker-map>
                         }
                     } @else {
                         <div
-                            class="flex h-full w-full flex-col overflow-auto bg-base-200"
+                            class="bg-base-200 flex h-full w-full flex-col overflow-auto"
                         >
                             <div
                                 class="sticky left-0 w-full px-2 py-2 font-medium"
@@ -109,7 +102,7 @@ export const FAV_LOCKER_KEY = 'favourite_lockers';
                 </div>
             </main>
             <footer
-                class="flex w-full flex-col-reverse items-center justify-end border-t border-base-200 px-2 pb-22 pt-2 sm:hidden"
+                class="border-base-200 flex w-full flex-col-reverse items-center justify-end border-t px-2 pt-2 pb-22 sm:hidden"
             >
                 @if (displayed) {
                     <button
@@ -134,7 +127,7 @@ export const FAV_LOCKER_KEY = 'favourite_lockers';
                 </button>
             </footer>
             <footer
-                class="hidden w-full items-center justify-between border-t border-base-200 p-2 sm:flex"
+                class="border-base-200 hidden w-full items-center justify-between border-t p-2 sm:flex"
             >
                 <button
                     btn
@@ -219,7 +212,7 @@ export class LockerSelectModalComponent extends AsyncHandler implements OnInit {
 
     public displayed?: BookingAsset;
     public selected: BookingAsset[] = [];
-    public view = 'list';
+    public view: 'map' | 'list' = 'list';
     public bank?: LockerBank = null;
 
     public get selected_ids() {

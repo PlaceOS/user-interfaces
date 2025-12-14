@@ -96,7 +96,7 @@ export const FAV_DESK_KEY = 'favourite_desks';
                     [class.inset-0]="displayed"
                     [active]="selected_ids.includes(displayed?.id)"
                     [hide_map]="view === 'map'"
-                    (activeChange)="setSelected(displayed, $event)"
+                    (activeChange)="setSelected(displayed, !isSelected(displayed?.id))"
                     [fav]="displayed && this.favorites.includes(displayed?.id)"
                     (toggleFav)="toggleFavourite(displayed)"
                     (close)="displayed = null"
@@ -199,7 +199,7 @@ export class DeskSelectModalComponent {
 
     public displayed?: BookingAsset;
     public selected: BookingAsset[] = [];
-    public view = 'list';
+    public view: 'map' | 'list' = 'list';
 
     public get selected_ids() {
         return this.selected.map((_) => _.id).join(',');

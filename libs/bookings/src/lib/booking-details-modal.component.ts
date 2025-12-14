@@ -180,7 +180,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                             <icon matTooltip="Booked By">person</icon>
                             <div>
                                 {{
-                                    (booking().booked_by_email | user)?.name ||
+                                    (booking().booked_by_email | user | async)?.name ||
                                         booking().booked_by_name
                                 }}
                             </div>

@@ -16,6 +16,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import { Router } from '@angular/router';
 import { AssetListFieldComponent, AssetStateService } from '@placeos/assets';
 import {
@@ -497,6 +498,7 @@ import { MeetingFormDetailsComponent } from './meeting-form-details.component';
         CateringListFieldComponent,
         MatFormFieldModule,
         MatInputModule,
+        MatSelectModule,
         FormsModule,
         ReactiveFormsModule,
         SpaceListFieldComponent,

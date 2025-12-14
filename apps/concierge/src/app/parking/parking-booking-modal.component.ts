@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -172,6 +172,7 @@ import { addDays, endOfDay } from 'date-fns';
     imports: [
         FullscreenModalShellComponent,
         ReactiveFormsModule,
+        FormsModule,
         MatFormFieldModule,
         MatInputModule,
         DurationFieldComponent,

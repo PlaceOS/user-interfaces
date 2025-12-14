@@ -5,7 +5,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { CateringItem, unique } from '@placeos/common';
+import { CateringItem, OrganisationService, unique } from '@placeos/common';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -69,7 +69,7 @@ import { CateringStateService } from './catering-state.service';
             <div
                 class="mx-auto flex items-center rounded-sm bg-secondary px-2 py-1 font-mono text-xs text-secondary-content"
             >
-                {{ data / 100 | currency: (symbol | async) }}
+                {{ data / 100 | currency: currency_code }}
             </div>
         </ng-template>
         <ng-template #actions_template let-row="row">
@@ -209,6 +209,11 @@ import { CateringStateService } from './catering-state.service';
 export class CateringMenuComponent {
     private _catering = inject(CateringStateService);
     private _orders = inject(CateringOrdersService);
+    private _org = inject(OrganisationService);
+
+    public get currency_code() {
+        return this._org.building?.currency || 'USD';
+    }
 
     public show_children: Record<string, boolean> = {};
     /** Observable for the currently active menu */

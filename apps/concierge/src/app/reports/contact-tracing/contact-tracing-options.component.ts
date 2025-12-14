@@ -14,7 +14,9 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
 @Component({
     selector: 'contact-tracing-options',
     template: `
-        <div class="flex w-full items-center space-x-2 bg-base-100 p-4 shadow-sm">
+        <div
+            class="bg-base-100 flex w-full items-center space-x-2 p-4 shadow-sm"
+        >
             <date-range-field [week_start]="week_start">
                 <input
                     #startDate
@@ -42,7 +44,7 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
                 icon
                 matRipple
                 matTooltip="Download Report"
-                class="h-12 w-12 rounded-sm bg-secondary text-secondary-content"
+                class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
                 [disabled]="!(options | async)?.user"
                 (click)="download.emit()"
             >
@@ -51,7 +53,7 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
             <button
                 icon
                 matRipple
-                class="h-12 w-12 rounded-sm bg-secondary text-secondary-content"
+                class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
                 [disabled]="!(options | async)?.user"
                 matTooltip="Print Report"
                 (click)="print()"

@@ -26,10 +26,10 @@ import { SignageStateService } from './signage-state.service';
         <div class="relative flex h-full w-full space-x-2 overflow-visible">
             <div
                 sidebar
-                class="flex h-full w-64 flex-col space-y-2 overflow-auto rounded-xl border border-base-300 p-2"
+                class="border-base-300 flex h-full w-64 flex-col space-y-2 overflow-auto rounded-xl border p-2"
             >
                 <h3
-                    class="rounded-lg bg-base-200 p-2 text-center text-xl font-medium"
+                    class="bg-base-200 rounded-lg p-2 text-center text-xl font-medium"
                 >
                     {{ 'APP.CONCIERGE.SIGNAGE_ZONES' | translate }}
                 </h3>
@@ -49,7 +49,7 @@ import { SignageStateService } from './signage-state.service';
                         @for (zone of zones(); track zone.id) {
                             <a
                                 matRipple
-                                class="z-10 flex h-12 min-h-12 w-full items-center truncate rounded-3xl border border-base-100 px-6 even:border-base-200 even:bg-base-200 hover:border-info"
+                                class="border-base-100 even:border-base-200 even:bg-base-200 hover:border-info z-10 flex h-12 min-h-12 w-full items-center truncate rounded-3xl border px-6"
                                 [class.bg-secondary!]="selected() === zone.id"
                                 [class.text-secondary-content]="
                                     selected() === zone.id
@@ -68,12 +68,12 @@ import { SignageStateService } from './signage-state.service';
                                     >
                                         <div class="w-6">
                                             <div
-                                                class="absolute left-6 top-1/2 h-16 w-4 -translate-y-full border-b-2 border-l-2 border-base-300"
+                                                class="border-base-300 absolute top-1/2 left-6 h-16 w-4 -translate-y-full border-b-2 border-l-2"
                                             ></div>
                                         </div>
                                         <a
                                             matRipple
-                                            class="flex min-h-12 w-full items-center truncate rounded-3xl px-6 hover:bg-base-200"
+                                            class="hover:bg-base-200 flex min-h-12 w-full items-center truncate rounded-3xl px-6"
                                             [class.bg-secondary!]="
                                                 selected_trigger() ===
                                                 trigger?.id
@@ -116,7 +116,7 @@ import { SignageStateService } from './signage-state.service';
                 }
             </div>
             <div
-                class="relative flex h-full w-1/2 flex-1 flex-col space-y-2 overflow-auto rounded-lg border border-base-300 bg-base-200 p-2 shadow-sm"
+                class="border-base-300 bg-base-200 relative flex h-full w-1/2 flex-1 flex-col space-y-2 overflow-auto rounded-lg border p-2 shadow-sm"
             >
                 @if (active_zone()) {
                     <signage-item-playlists

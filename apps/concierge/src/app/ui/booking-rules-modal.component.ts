@@ -57,7 +57,7 @@ import {
         >
             <div>
                 <div
-                    class="-mx-2 mb-2 w-[calc(100%+1rem)] rounded-sm bg-info p-4 text-center text-xs text-info-content"
+                    class="bg-info text-info-content -mx-2 mb-2 w-[calc(100%+1rem)] rounded-sm p-4 text-center text-xs"
                 >
                     {{ 'APP.CONCIERGE.BOOKING_RULES_NOTE' | translate }}
                 </div>
@@ -220,7 +220,7 @@ import {
                     </ng-template>
                 </ng-container>
                 <footer
-                    class="fixed bottom-0 left-1/2 z-10 mx-auto my-2 flex w-[calc(100%-1rem)] -translate-x-1/2 items-center justify-end space-x-4 rounded-sm border-none bg-base-200 px-4 py-2"
+                    class="bg-base-200 fixed bottom-0 left-1/2 z-10 mx-auto my-2 flex w-[calc(100%-1rem)] -translate-x-1/2 items-center justify-end space-x-4 rounded-sm border-none px-4 py-2"
                     [class.max-w-156]="view === 'form'"
                     *ngIf="!loading"
                 >

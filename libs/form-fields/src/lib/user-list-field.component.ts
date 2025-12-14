@@ -84,25 +84,6 @@ const DENIED_FILE_TYPES = [
                             >
                                 <div class="flex items-center space-x-2">
                                     <div>{{ item.name || item.email }}</div>
-                                    @if (!item.is_external) {
-                                        <icon
-                                            [matTooltip]="
-                                                (
-                                                    item?.email
-                                                    | placeuser
-                                                    | async
-                                                )?.location_name_time(time())
-                                            "
-                                        >
-                                            {{
-                                                (
-                                                    item?.email
-                                                    | placeuser
-                                                    | async
-                                                )?.location_icon(time())
-                                            }}
-                                        </icon>
-                                    }
                                 </div>
                                 <button
                                     matChipRemove

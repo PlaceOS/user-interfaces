@@ -10,6 +10,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { OrganisationService } from '@placeos/common';
 import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
+import { BuildingPipe } from 'libs/components/src/lib/building.pipe';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { DateFieldComponent } from 'libs/form-fields/src/lib/date-field.component';
 import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
@@ -68,12 +69,12 @@ import { BookingFormService } from '../booking-form.service';
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
                                 name="building"
-                                [ngModel]="building | async"
-                                (ngModelChange)="setBuilding($event)"
+                                [ngModel]="building"
+                                (ngModelChange)="building = $event"
                                 [ngModelOptions]="{ standalone: true }"
                                 [placeholder]="
-                                    (building | async)?.display_name ||
-                                    (building | async)?.name
+                                    building?.display_name ||
+                                    building?.name
                                 "
                             >
                                 @for (bld of buildings | async; track bld) {
@@ -231,6 +232,7 @@ import { BookingFormService } from '../booking-form.service';
         MatCheckboxModule,
         FormsModule,
         ReactiveFormsModule,
+        BuildingPipe,
     ],
 })
 export class NewDeskFiltersComponent {
@@ -302,6 +304,7 @@ export class NewDeskFiltersComponent {
                 Date.now(),
                 this._settings.get('app.desks.available_period') || 90,
             ),
+        ).valueOf(
         );
     }
 

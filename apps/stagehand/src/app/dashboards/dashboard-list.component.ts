@@ -222,6 +222,7 @@ export class DashboardListComponent implements OnInit {
     public readonly loading = this._service.loading;
 
     public readonly remove = (d) => this._service.removeDashboard(d);
+    public readonly removeAlert = (a) => this._service.removeDashboardAlert(a);
 
     public ngOnInit() {
         this._service.loadDashboards();

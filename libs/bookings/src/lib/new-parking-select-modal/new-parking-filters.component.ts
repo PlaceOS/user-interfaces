@@ -11,6 +11,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { OrganisationService } from '@placeos/common';
 import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { BuildingPipe } from 'libs/components/src/lib/building.pipe';
 import { DateFieldComponent } from 'libs/form-fields/src/lib/date-field.component';
 import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
 import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.component';
@@ -71,12 +72,12 @@ import { BookingFormService } from '../booking-form.service';
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
                                 name="building"
-                                [ngModel]="building | async"
-                                (ngModelChange)="setBuilding($event)"
+                                [ngModel]="building"
+                                (ngModelChange)="building = $event"
                                 [ngModelOptions]="{ standalone: true }"
                                 [placeholder]="
-                                    (building | async)?.display_name ||
-                                    (building | async)?.name
+                                    building?.display_name ||
+                                    building?.name
                                 "
                             >
                                 @for (bld of buildings | async; track bld) {
@@ -259,6 +260,7 @@ import { BookingFormService } from '../booking-form.service';
         MatSelectModule,
         ReactiveFormsModule,
         FormsModule,
+        BuildingPipe,
     ],
 })
 export class NewParkingFiltersComponent {
@@ -327,7 +329,11 @@ export class NewParkingFiltersComponent {
                 Date.now(),
                 this._settings.get('app.parking.available_period') || 90,
             ),
-        );
+        ).valueOf();
+    }
+
+    public close() {
+        // No-op for inline filters
     }
 
     public get use_24hr() {

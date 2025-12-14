@@ -108,7 +108,7 @@ import { BookingFormService } from './booking-form.service';
                             matRipple
                             name="desk-ical-link"
                             class="inverse flex w-64 items-center space-x-2 rounded-sm p-2 pr-4"
-                            [href]="ical_link() | safe: 'url'"
+                            [href]="ical_link() | sanitize: 'url'"
                             target="_blank"
                             rel="noopener noreferer"
                         >

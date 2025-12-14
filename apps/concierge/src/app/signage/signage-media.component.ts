@@ -21,10 +21,10 @@ import { SignageStateService } from './signage-state.service';
         <div class="relative flex h-full w-full space-x-2 overflow-visible">
             <div
                 sidebar
-                class="flex h-full w-64 flex-col space-y-2 overflow-auto rounded-xl border border-base-300 p-2"
+                class="border-base-300 flex h-full w-64 flex-col space-y-2 overflow-auto rounded-xl border p-2"
             >
                 <h3
-                    class="rounded-lg bg-base-200 p-2 text-center text-xl font-medium"
+                    class="bg-base-200 rounded-lg p-2 text-center text-xl font-medium"
                 >
                     {{ 'APP.CONCIERGE.SIGNAGE_PLAYLISTS' | translate }}
                 </h3>
@@ -41,7 +41,7 @@ import { SignageStateService } from './signage-state.service';
                 </mat-form-field>
                 <a
                     matRipple
-                    class="flex min-h-12 w-full items-center rounded-xl px-6 hover:bg-base-200"
+                    class="hover:bg-base-200 flex min-h-12 w-full items-center rounded-xl px-6"
                     [class.bg-secondary!]="!selected_playlist()"
                     [class.text-secondary-content]="!selected_playlist()"
                     [routerLink]="[]"
@@ -50,13 +50,13 @@ import { SignageStateService } from './signage-state.service';
                     {{ 'APP.CONCIERGE.SIGNAGE_MEDIA_ALL' | translate }}
                 </a>
                 <hr
-                    class="-mx-2 w-[calc(100%+1rem)] border-base-300 bg-base-300"
+                    class="border-base-300 bg-base-300 -mx-2 w-[calc(100%+1rem)]"
                 />
                 @if (playlists()?.length > 0) {
                     @for (playlist of playlists(); track playlist.id) {
                         <a
                             matRipple
-                            class="flex h-12 min-h-12 w-full items-center rounded-3xl border border-base-100 px-6 even:border-base-200 even:bg-base-200 hover:border-info"
+                            class="border-base-100 even:border-base-200 even:bg-base-200 hover:border-info flex h-12 min-h-12 w-full items-center rounded-3xl border px-6"
                             [class.bg-secondary!]="
                                 selected_playlist() === playlist.id
                             "
@@ -110,7 +110,7 @@ import { SignageStateService } from './signage-state.service';
                                 class="flex w-full items-center justify-center"
                             >
                                 <icon class="text-2xl">add</icon>
-                                <span class="ml-2 mr-4">{{
+                                <span class="mr-4 ml-2">{{
                                     'APP.CONCIERGE.SIGNAGE_PLAYLISTS_ADD'
                                         | translate
                                 }}</span>
@@ -120,7 +120,7 @@ import { SignageStateService } from './signage-state.service';
                 }
             </div>
             <div
-                class="relative h-full w-1/2 flex-1 overflow-hidden rounded-lg border border-base-300 bg-base-200 shadow-sm"
+                class="border-base-300 bg-base-200 relative h-full w-1/2 flex-1 overflow-hidden rounded-lg border shadow-sm"
                 (dragover)="onEnter($event)"
                 (dragenter)="onEnter($event)"
                 (window:drop)="hideOverlay($event)"
@@ -145,10 +145,10 @@ import { SignageStateService } from './signage-state.service';
                         (drop)="previewFile($event)"
                     >
                         <div
-                            class="absolute inset-0 bg-base-content opacity-60"
+                            class="bg-base-content absolute inset-0 opacity-60"
                         ></div>
                         <div
-                            class="absolute inset-4 flex flex-col items-center justify-center space-y-4 rounded-2xl border-4 border-dashed border-base-300 text-base-100"
+                            class="border-base-300 text-base-100 absolute inset-4 flex flex-col items-center justify-center space-y-4 rounded-2xl border-4 border-dashed"
                         >
                             <icon class="text-6xl">cloud_upload</icon>
                             <p>

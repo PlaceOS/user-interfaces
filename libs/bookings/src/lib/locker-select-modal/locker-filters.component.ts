@@ -12,6 +12,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { OrganisationService } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
+import { BuildingPipe } from 'libs/components/src/lib/building.pipe';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { DateFieldComponent } from 'libs/form-fields/src/lib/date-field.component';
 import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
@@ -76,7 +77,7 @@ import { BookingFormService } from '../booking-form.service';
                                 <mat-select
                                     name="region"
                                     [ngModel]="region"
-                                    (ngModelChange)="setRegion($event)"
+                                    (ngModelChange)="region = $event"
                                     [ngModelOptions]="{ standalone: true }"
                                     [placeholder]="
                                         'COMMON.REGION_ANY' | translate
@@ -94,12 +95,12 @@ import { BookingFormService } from '../booking-form.service';
                             <mat-form-field appearance="outline" class="w-full">
                                 <mat-select
                                     name="building"
-                                    [ngModel]="building | async"
-                                    (ngModelChange)="setBuilding($event)"
+                                    [ngModel]="building"
+                                    (ngModelChange)="building = $event"
                                     [ngModelOptions]="{ standalone: true }"
                                     [placeholder]="
-                                        (building | async)?.display_name ||
-                                        (building | async)?.name
+                                        building?.display_name ||
+                                        building?.name
                                     "
                                 >
                                     @for (bld of buildings | async; track bld) {
@@ -281,6 +282,7 @@ import { BookingFormService } from '../booking-form.service';
         ReactiveFormsModule,
         FormsModule,
         MatCheckboxModule,
+        BuildingPipe,
     ],
 })
 export class LockerFiltersComponent extends AsyncHandler implements OnInit {
@@ -365,7 +367,7 @@ export class LockerFiltersComponent extends AsyncHandler implements OnInit {
                 Date.now(),
                 this._settings.get('app.lockers.available_period') || 90,
             ),
-        );
+        ).valueOf();
     }
 
     public get use_24hr() {

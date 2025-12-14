@@ -35,12 +35,17 @@ import { map } from 'rxjs/operators';
 
 import { WFHSettingsModalComponent } from '@placeos/users';
 
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
-import { SettingsToggleComponent, TranslatePipe } from '@placeos/components';
+import {
+    IconComponent,
+    SettingsToggleComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import {
     DurationFieldComponent,
     TimeFieldComponent,
@@ -52,7 +57,7 @@ import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
     selector: 'auto-release-modal',
     template: `
         <header
-            class="m-2 flex h-14 w-[calc(100%-1rem)] items-center justify-between rounded-sm border-none bg-base-200 px-4 py-2"
+            class="bg-base-200 m-2 flex h-14 w-[calc(100%-1rem)] items-center justify-between rounded-sm border-none px-4 py-2"
         >
             <h3 class="text-xl font-medium">
                 {{ 'APP.CONCIERGE.AUTO_RELEASE_HEADER' | translate }}
@@ -118,7 +123,7 @@ import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
                 <div class="my-2 grid grid-cols-2 gap-2">
                     @if (!settings.default_work_preferences?.length) {
                         <div
-                            class="col-span-2 mb-2 flex w-full items-center justify-center rounded-sm bg-base-200 py-4 opacity-30"
+                            class="bg-base-200 col-span-2 mb-2 flex w-full items-center justify-center rounded-sm py-4 opacity-30"
                         >
                             {{
                                 'APP.CONCIERGE.AUTO_RELEASE_DEFAULT_HOURS_EMPTY'
@@ -132,10 +137,10 @@ import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
                         ) {
                             @if (pref.blocks.length) {
                                 <div
-                                    class="relative rounded-sm border border-base-300 px-2 pb-2 pt-4"
+                                    class="border-base-300 relative rounded-sm border px-2 pt-4 pb-2"
                                 >
                                     <div
-                                        class="absolute -top-2 left-2 rounded-sm bg-base-100 px-2 text-sm"
+                                        class="bg-base-100 absolute -top-2 left-2 rounded-sm px-2 text-sm"
                                     >
                                         <span class="relative -top-0.5">{{
                                             pref.date | date: 'EEEE'
@@ -199,7 +204,7 @@ import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
                 @for (name of types; track name) {
                     @if (settings.resources?.includes(name)) {
                         <div
-                            class="mb-4 space-y-4 rounded-lg border border-base-200"
+                            class="border-base-200 mb-4 space-y-4 rounded-lg border"
                         >
                             <settings-toggle
                                 [name]="
@@ -242,7 +247,7 @@ import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
             </main>
         }
         @if (!loading()) {
-            <footer class="flex justify-end border-t border-base-200 px-4 py-2">
+            <footer class="border-base-200 flex justify-end border-t px-4 py-2">
                 <button btn matRipple class="w-32" (click)="save()">
                     {{ 'COMMON.SAVE' | translate }}
                 </button>
@@ -251,6 +256,7 @@ import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
     `,
     styles: [``],
     imports: [
+        CommonModule,
         DurationFieldComponent,
         MatProgressSpinnerModule,
         MatRippleModule,
@@ -261,6 +267,7 @@ import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
         FormsModule,
         MatDialogModule,
         TranslatePipe,
+        IconComponent,
     ],
 })
 export class AutoReleaseSettingsModalComponent implements OnInit {

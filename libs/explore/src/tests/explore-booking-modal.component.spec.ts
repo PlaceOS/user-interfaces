@@ -30,7 +30,7 @@ describe('ExploreBookingModalComponent', () => {
                 form: generateEventForm(),
                 newForm: jest.fn(),
                 postForm: jest.fn(async () => ({})),
-                loading: of(''),
+                loading$: of(''),
             } as any),
             MockProvider(SettingsService, {
                 get: jest.fn(),

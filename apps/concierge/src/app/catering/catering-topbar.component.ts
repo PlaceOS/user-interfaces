@@ -23,6 +23,7 @@ import {
 } from '@placeos/common';
 import {
     AvailableRoomsStateModalComponent,
+    BuildingPipe,
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
@@ -33,7 +34,7 @@ import { SearchbarComponent } from '../ui/searchbar.component';
 @Component({
     selector: 'catering-topbar',
     template: `
-        <div class="flex w-full items-center space-x-2 px-8 pb-2 pt-4">
+        <div class="flex w-full items-center space-x-2 px-8 pt-4 pb-2">
             <h2 class="text-2xl font-medium">
                 {{
                     (page === 'menu' ? 'CATERING.MENU' : 'CATERING.ORDER_LIST')
@@ -47,7 +48,7 @@ import { SearchbarComponent } from '../ui/searchbar.component';
                 (modelChange)="setSearch($event)"
             ></searchbar>
         </div>
-        <div class="flex h-20 items-center space-x-2 bg-base-100 px-8">
+        <div class="bg-base-100 flex h-20 items-center space-x-2 px-8">
             <mat-form-field appearance="outline" class="no-subscript w-60">
                 <mat-select
                     [ngModel]="filters?.zones"
@@ -107,7 +108,7 @@ import { SearchbarComponent } from '../ui/searchbar.component';
                     icon
                     matRipple
                     [matTooltip]="'CATERING.MENU_ADD' | translate"
-                    class="h-12 w-12 rounded-sm bg-secondary text-secondary-content"
+                    class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
                     (click)="addItem()"
                 >
                     <icon class="text-2xl">add</icon>
@@ -118,7 +119,7 @@ import { SearchbarComponent } from '../ui/searchbar.component';
                     icon
                     matRipple
                     [matTooltip]="'CATERING.BOOKING_RULES' | translate"
-                    class="h-12 w-12 rounded-sm bg-secondary text-secondary-content"
+                    class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
                     (click)="editConfig()"
                 >
                     <icon class="text-2xl">menu_book</icon>
@@ -129,7 +130,7 @@ import { SearchbarComponent } from '../ui/searchbar.component';
                     icon
                     matRipple
                     [matTooltip]="'CATERING.MENU_IMPORT' | translate"
-                    class="h-12 w-12 rounded-sm bg-secondary text-secondary-content"
+                    class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
                     (click)="importMenu()"
                 >
                     <icon class="text-2xl">cloud_upload</icon>
@@ -140,7 +141,7 @@ import { SearchbarComponent } from '../ui/searchbar.component';
                     icon
                     matRipple
                     [matTooltip]="'CATERING.ROOM_AVAILABILITY' | translate"
-                    class="h-12 w-12 rounded-sm bg-secondary text-secondary-content"
+                    class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
                     (click)="setRoomAvailability()"
                 >
                     <icon class="text-2xl">event_available</icon>
@@ -151,7 +152,7 @@ import { SearchbarComponent } from '../ui/searchbar.component';
                     icon
                     matRipple
                     [matTooltip]="'CATERING.CHARGE_CODES' | translate"
-                    class="h-12 w-12 rounded-sm bg-secondary text-secondary-content"
+                    class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
                     (click)="setChargeCodes()"
                 >
                     <icon class="text-2xl">payments</icon>
@@ -185,6 +186,7 @@ import { SearchbarComponent } from '../ui/searchbar.component';
         FormsModule,
         SearchbarComponent,
         TranslatePipe,
+        BuildingPipe,
     ],
 })
 export class CateringTopbarComponent extends AsyncHandler implements OnInit {

@@ -13,7 +13,7 @@ import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.c
 import { MAP_FEATURE_DATA } from 'libs/common/src/lib/types';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 
-type DeskStatus = 'free' | 'busy' | 'pending' | 'reserved' | 'unknown' | '';
+type DeskStatus = 'free' | 'busy' | 'pending' | 'reserved' | 'not-bookable' | 'unknown' | '';
 
 export interface DeskInfoData {
     id: string;

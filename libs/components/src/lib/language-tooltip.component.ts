@@ -66,7 +66,7 @@ export class LanguageSelectComponent {
         return this._locale.locale;
     }
 
-    public get locales(): { id: string; name: string }[] {
+    public get locales(): { id: string; name: string; local?: string }[] {
         return this._settings.get('app.locales') || [];
     }
 

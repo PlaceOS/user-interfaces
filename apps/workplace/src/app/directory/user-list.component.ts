@@ -23,6 +23,7 @@ import {
     UserAvatarComponent,
 } from '@placeos/components';
 import { searchStaff } from '@placeos/users';
+import { RouterModule } from '@angular/router';
 import { FooterMenuComponent } from '../components/footer-menu.component';
 import { TopbarComponent } from '../components/topbar.component';
 
@@ -179,6 +180,7 @@ const LETTERS = `ABCDEFGHIJKLMNOPQRSTUVWXYZ`.split('');
         MatProgressSpinnerModule,
         MatInputModule,
         FormsModule,
+        RouterModule,
     ],
 })
 export class DirectoryUserListComponent extends AsyncHandler {

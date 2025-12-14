@@ -4,6 +4,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterModule } from '@angular/router';
 import { settingSignal, Space } from '@placeos/common';
 import {
+    AuthenticatedImageDirective,
     BuildingPipe,
     IconComponent,
     LevelPipe,
@@ -189,6 +190,7 @@ import { LandingStateService } from './landing-state.service';
         MatProgressSpinnerModule,
         RouterModule,
         IconComponent,
+        AuthenticatedImageDirective,
     ],
 })
 export class LandingAvailabilityComponent {

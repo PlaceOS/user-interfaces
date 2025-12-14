@@ -35,13 +35,13 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
     template: `
         @if (form) {
             <div
-                class="z-0 space-y-2 divide-y divide-base-200"
+                class="divide-base-200 z-0 space-y-2 divide-y"
                 [formGroup]="form"
             >
                 <section class="p-4">
                     <h3 class="flex items-center space-x-2">
                         <div
-                            class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
+                            class="bg-base-200 flex h-6 w-6 items-center justify-center rounded-full"
                         >
                             1
                         </div>
@@ -175,7 +175,7 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                     <section class="p-4">
                         <h3 class="flex items-center space-x-2">
                             <div
-                                class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
+                                class="bg-base-200 flex h-6 w-6 items-center justify-center rounded-full"
                             >
                                 2
                             </div>
@@ -183,7 +183,7 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                             <div class="w-px flex-1"></div>
                             <button
                                 matRipple
-                                class="text-blue-500 bg-none text-xs underline"
+                                class="bg-none text-xs text-blue-500 underline"
                                 (click)="findAvailableTime()"
                             >
                                 Availability
@@ -216,7 +216,7 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                 <section class="p-4">
                     <h3 class="flex items-center space-x-2">
                         <div
-                            class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
+                            class="bg-base-200 flex h-6 w-6 items-center justify-center rounded-full"
                         >
                             3
                         </div>
@@ -250,7 +250,7 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                     <section class="p-4">
                         <h3 class="flex items-center space-x-2">
                             <div
-                                class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
+                                class="bg-base-200 flex h-6 w-6 items-center justify-center rounded-full"
                             >
                                 4
                             </div>
@@ -290,7 +290,7 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                 <section class="p-4">
                     <h3 class="flex items-center space-x-2">
                         <div
-                            class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
+                            class="bg-base-200 flex h-6 w-6 items-center justify-center rounded-full"
                         >
                             {{ !has_catering ? '4' : '5' }}
                         </div>
@@ -313,8 +313,10 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                         [@show]="hide_block.assets ? 'hide' : 'show'"
                     >
                         <asset-list-field
-                            [date]="form.value.date"
-                            [duration]="form.value.duration"
+                            [options]="{
+                                date: form.value.date,
+                                duration: form.value.duration,
+                            }"
                             formControlName="assets"
                         ></asset-list-field>
                     </div>
@@ -323,7 +325,7 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                     <section class="p-4">
                         <h3 class="mb-4 flex items-center space-x-2">
                             <div
-                                class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
+                                class="bg-base-200 flex h-6 w-6 items-center justify-center rounded-full"
                             >
                                 {{ !has_catering ? '5' : '6' }}
                             </div>

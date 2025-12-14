@@ -20,6 +20,7 @@ import { CommonModule } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     AsyncHandler,
     nextValueFrom,
@@ -229,6 +230,7 @@ export interface UploadDetails {
         MatFormFieldModule,
         MatChipsModule,
         MatProgressSpinnerModule,
+        MatTooltipModule,
         IconComponent,
         CommonModule,
         TranslatePipe,

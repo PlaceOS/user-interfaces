@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -6,7 +7,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { MockComponent, MockProvider } from 'ng-mocks';
-import { BehaviorSubject, of } from 'rxjs';
+import { of } from 'rxjs';
 
 import { ItemListFieldComponent } from '@placeos/form-fields';
 import { DesksManageComponent } from '../../app/desks/desks-manage.component';
@@ -26,10 +27,12 @@ describe('DesksManageComponent', () => {
             MockProvider(SettingsService, { get: jest.fn() }),
             MockProvider(DesksStateService, {
                 setFilters: jest.fn(),
-                desks: new BehaviorSubject([{ id: '1' }]),
-                new_desks: new BehaviorSubject([]),
-                filters: new BehaviorSubject({}),
+                desks: signal([{ id: '1' }]),
+                new_desks: signal([]),
+                filters: signal({}),
+                loading: signal(false),
                 clearNewDesks: jest.fn(),
+                editDesk: jest.fn(),
             } as any),
             MockProvider(OrganisationService, {
                 active_levels: of([]),

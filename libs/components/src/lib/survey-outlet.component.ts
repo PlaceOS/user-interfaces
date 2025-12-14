@@ -126,7 +126,7 @@ import { catchError, forkJoin, lastValueFrom, Observable, of } from 'rxjs';
                                                                 "
                                                                 (click)="
                                                                     setRating(
-                                                                        question.id,
+                                                                        '' + question.id,
                                                                         idx
                                                                     )
                                                                 "
@@ -245,9 +245,9 @@ import { catchError, forkJoin, lastValueFrom, Observable, of } from 'rxjs';
                                                                 [ngModelOptions]="{
                                                                     standalone: true,
                                                                 }"
-                                                                (ngModelChanges)="
+                                                                (ngModelChange)="
                                                                     toggleOption(
-                                                                        question.id,
+                                                                        '' + question.id,
                                                                         choice.text,
                                                                         $event
                                                                     )

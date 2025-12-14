@@ -134,7 +134,7 @@ import { DesksStateService } from './desks-state.service';
                         row.status === 'ended'
                     ) {
                         <div
-                            class="rounded-3xl bg-error px-4 py-2 text-xs text-white"
+                            class="bg-error rounded-3xl px-4 py-2 text-xs text-white"
                         >
                             {{
                                 (row.deleted
@@ -156,7 +156,7 @@ import { DesksStateService } from './desks-state.service';
                     </div>
                     @if (user?.name) {
                         <div
-                            class="max-w-48 select-all truncate text-xs opacity-30"
+                            class="max-w-48 truncate text-xs opacity-30 select-all"
                         >
                             {{ email }}
                         </div>
@@ -167,7 +167,7 @@ import { DesksStateService } from './desks-state.service';
                 <div class="px-2">
                     <button
                         matRipple
-                        class="h-10 w-30 rounded-3xl border-none bg-warning text-warning-content"
+                        class="bg-warning text-warning-content h-10 w-30 rounded-3xl border-none"
                         [class.text-success-content!]="
                             row?.status === 'approved'
                         "
@@ -180,7 +180,7 @@ import { DesksStateService } from './desks-state.service';
                         [matMenuTriggerFor]="menu"
                         [disabled]="row?.status === 'ended'"
                     >
-                        <div class="flex items-center space-x-2 pl-4 pr-2">
+                        <div class="flex items-center space-x-2 pr-2 pl-4">
                             <div class="flex-1 text-left">
                                 {{
                                     (row?.status === 'ended'
@@ -226,7 +226,7 @@ import { DesksStateService } from './desks-state.service';
                 <div class="px-2">
                     <button
                         matRipple
-                        class="h-10 w-18 rounded-3xl border-none bg-warning text-warning-content"
+                        class="bg-warning text-warning-content h-10 w-18 rounded-3xl border-none"
                         [matMenuTriggerFor]="checkinMenu"
                         [class.bg-neutral!]="!data"
                         [class.text-neutral-content!]="!data"
@@ -240,7 +240,7 @@ import { DesksStateService } from './desks-state.service';
                                 : 'Check-in or check-out desk'
                         "
                     >
-                        <div class="flex items-center space-x-2 pl-4 pr-2">
+                        <div class="flex items-center space-x-2 pr-2 pl-4">
                             <div class="flex-1 text-left">
                                 {{
                                     (data ? 'COMMON.TRUE' : 'COMMON.FALSE')

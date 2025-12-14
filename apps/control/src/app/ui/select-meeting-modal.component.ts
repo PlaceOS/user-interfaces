@@ -19,12 +19,12 @@ import { ControlStateService } from '../control-state.service';
 @Component({
     selector: 'select-meeting-modal',
     template: `
-        <div class="fixed inset-0 bg-base-100">
+        <div class="bg-base-100 fixed inset-0">
             <button
                 icon
                 matRipple
                 mat-dialog-close
-                class="absolute right-2 top-2"
+                class="absolute top-2 right-2"
             >
                 <icon>close</icon>
             </button>
@@ -63,7 +63,7 @@ import { ControlStateService } from '../control-state.service';
                                 <button
                                     btn
                                     matRipple
-                                    class="flex w-full items-center rounded-sm border border-base-200 p-4"
+                                    class="border-base-200 flex w-full items-center rounded-sm border p-4"
                                     (click)="select(event)"
                                 >
                                     <div

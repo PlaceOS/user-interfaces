@@ -5,6 +5,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     AsyncHandler,
     OrganisationService,
@@ -316,6 +317,7 @@ import {
         FormsModule,
         MatFormFieldModule,
         MatSelectModule,
+        MatTooltipModule,
         DateCalendarComponent,
     ],
 })

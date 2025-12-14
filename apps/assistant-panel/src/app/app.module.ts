@@ -15,6 +15,7 @@ import { ServiceWorkerModule } from '@angular/service-worker';
 import * as Sentry from '@sentry/angular';
 
 import {
+    ChatComponent,
     GlobalBannerComponent,
     GlobalLoadingComponent,
 } from '@placeos/components';
@@ -32,6 +33,7 @@ import { PanelViewComponent } from './panel-view.component';
         BrowserModule,
         BrowserAnimationsModule,
         RouterModule.forRoot(routes, { useHash: true }),
+        ChatComponent,
         GlobalLoadingComponent,
         GlobalBannerComponent,
         BootstrapComponent,

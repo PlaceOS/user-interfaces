@@ -46,7 +46,7 @@ import { TVControlsComponent } from './tv-controls.component';
                 @for (tab of tabs | async; track tab) {
                     <a
                         matRipple
-                        class="mx-1 flex h-24 w-32 flex-col items-center justify-center overflow-hidden rounded-b-none rounded-t bg-base-100 leading-tight text-base-content opacity-60 shadow-sm"
+                        class="bg-base-100 text-base-content mx-1 flex h-24 w-32 flex-col items-center justify-center overflow-hidden rounded-t rounded-b-none leading-tight opacity-60 shadow-sm"
                         [routerLink]="['/tabbed', id, tab.id || tab.name]"
                         routerLinkActive="opacity-100! text-secondary!"
                         queryParamsHandling="merge"
@@ -60,7 +60,7 @@ import { TVControlsComponent } from './tv-controls.component';
                         <p>{{ tab.name }}</p>
                     </a>
                 }
-                <div class="absolute bottom-2 right-0 top-0 flex space-x-2">
+                <div class="absolute top-0 right-0 bottom-2 flex space-x-2">
                     <voice-assistant
                         [system_id]="id"
                         [enabled]="(system$ | async)?.voice_control"
@@ -68,7 +68,7 @@ import { TVControlsComponent } from './tv-controls.component';
                     @if (join_code) {
                         <div class="max-h-full w-16">
                             <div
-                                class="space-y-1 rounded-sm bg-base-100 p-2 shadow-sm"
+                                class="bg-base-100 space-y-1 rounded-sm p-2 shadow-sm"
                             >
                                 <img
                                     class="w-16 overflow-hidden rounded-sm border border-[hsl(217,62%,38%)]"
@@ -79,7 +79,7 @@ import { TVControlsComponent } from './tv-controls.component';
                                     "
                                 />
                                 <p
-                                    class="text-center font-mono text-xs text-base-content"
+                                    class="text-base-content text-center font-mono text-xs"
                                 >
                                     {{ join_code || '=CODE=' }}
                                 </p>
@@ -89,11 +89,11 @@ import { TVControlsComponent } from './tv-controls.component';
                 </div>
             </div>
             <div
-                class="mb-1 flex h-1/2 w-[calc(100%-1rem)] flex-1 items-center divide-x divide-base-200 overflow-auto rounded-sm bg-base-100 text-base-content shadow-sm"
+                class="divide-base-200 bg-base-100 text-base-content mb-1 flex h-1/2 w-[calc(100%-1rem)] flex-1 items-center divide-x overflow-auto rounded-sm shadow-sm"
             >
                 @if ((inputs | async)?.length > 1) {
                     <div
-                        class="h-full w-64 min-w-64 space-y-2 overflow-auto px-4 pb-4 pt-2 sm:min-w-0"
+                        class="h-full w-64 min-w-64 space-y-2 overflow-auto px-4 pt-2 pb-4 sm:min-w-0"
                     >
                         <h3 class="p-2 text-center text-lg font-medium">
                             {{ 'APP.CONTROL.INPUTS_AVAILABLE' | translate }}
@@ -183,7 +183,7 @@ import { TVControlsComponent } from './tv-controls.component';
                         <button
                             btn
                             matRipple
-                            class="inverse black absolute right-4 top-4 w-32"
+                            class="inverse black absolute top-4 right-4 w-32"
                             (click)="viewHelp()"
                         >
                             <div class="mr-2 flex items-center justify-center">

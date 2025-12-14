@@ -20,12 +20,12 @@ import { EventsStateService } from '../day-view/events-state.service';
     selector: 'view-event-details',
     template: `
         <div
-            class="fixed inset-0 bg-neutral bg-opacity-30"
+            class="bg-neutral bg-opacity-30 fixed inset-0"
             (click)="close()"
         ></div>
         <div
             name="panel"
-            class="absolute flex flex-col rounded-sm bg-base-100 shadow-sm"
+            class="bg-base-100 absolute flex flex-col rounded-sm shadow-sm"
             (click)="$event.stopPropagation()"
         >
             <div class="flex-1 overflow-auto p-4">
@@ -54,7 +54,7 @@ import { EventsStateService } from '../day-view/events-state.service';
                 <div class="mb-2 flex flex-col">
                     @for (user of event().attendees; track user) {
                         <div
-                            class="mb-1 flex items-center rounded-sm pl-6 hover:bg-base-200"
+                            class="hover:bg-base-200 mb-1 flex items-center rounded-sm pl-6"
                         >
                             <a-user-avatar
                                 class="pr-2 text-sm"

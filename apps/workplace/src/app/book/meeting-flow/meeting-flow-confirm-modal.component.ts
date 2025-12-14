@@ -22,6 +22,7 @@ import {
 } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
 
+import { MatChipsModule } from '@angular/material/chips';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -38,7 +39,7 @@ import { SpacePipe } from '@placeos/events';
     selector: 'meeting-flow-confirm-modal',
     template: `
         <header
-            class="sticky top-0 z-10 m-2 flex h-14 w-160 max-w-full items-center justify-between rounded-sm border-none bg-base-200 px-4 py-2"
+            class="bg-base-200 sticky top-0 z-10 m-2 flex h-14 w-160 max-w-full items-center justify-between rounded-sm border-none px-4 py-2"
         >
             <h2 class="text-xl font-medium capitalize">
                 {{ 'APP.WORKPLACE.MEETING_CONFIRM' | translate }}
@@ -51,17 +52,17 @@ import { SpacePipe } from '@placeos/events';
             @if (loading | async) {
                 <mat-spinner
                     diameter="32"
-                    class="absolute right-2 top-1/2 -translate-y-1/2"
+                    class="absolute top-1/2 right-2 -translate-y-1/2"
                 ></mat-spinner>
             }
         </header>
         <main
-            class="max-w-screen grid max-h-[65vh] w-full flex-1 grid-cols-2 gap-4 overflow-auto px-4 pb-4 pt-2"
+            class="grid max-h-[65vh] w-full max-w-screen flex-1 grid-cols-2 gap-4 overflow-auto px-4 pt-2 pb-4"
         >
             <div>
                 <div class="mb-2 flex items-center space-x-4">
                     <div
-                        class="flex items-center justify-center rounded-full border border-success text-success"
+                        class="border-success text-success flex items-center justify-center rounded-full border"
                     >
                         <icon class="text-2xl">done</icon>
                     </div>
@@ -97,7 +98,7 @@ import { SpacePipe } from '@placeos/events';
                 <div>
                     <div class="mb-2 flex items-center space-x-4">
                         <div
-                            class="flex items-center justify-center rounded-full border border-success text-success"
+                            class="border-success text-success flex items-center justify-center rounded-full border"
                         >
                             <icon class="text-2xl">done</icon>
                         </div>
@@ -132,7 +133,7 @@ import { SpacePipe } from '@placeos/events';
                 <div>
                     <div class="mb-2 flex items-center space-x-4">
                         <div
-                            class="flex items-center justify-center rounded-full border border-success text-success"
+                            class="border-success text-success flex items-center justify-center rounded-full border"
                         >
                             <icon class="text-2xl">done</icon>
                         </div>
@@ -145,7 +146,7 @@ import { SpacePipe } from '@placeos/events';
                         </h3>
                     </div>
                     <div class="pl-10" attendee-list>
-                        <mat-chip-list #chipList aria-label="User selection">
+                        <mat-chip-set aria-label="User selection">
                             @for (user of event.attendees; track user) {
                                 <mat-chip>
                                     <div class="flex items-center">
@@ -154,7 +155,7 @@ import { SpacePipe } from '@placeos/events';
                                     </div>
                                 </mat-chip>
                             }
-                        </mat-chip-list>
+                        </mat-chip-set>
                     </div>
                 </div>
             }
@@ -164,7 +165,7 @@ import { SpacePipe } from '@placeos/events';
                         <div class="w-full">
                             <div class="mb-2 flex items-center space-x-4">
                                 <div
-                                    class="flex items-center justify-center rounded-full border border-success text-success"
+                                    class="border-success text-success flex items-center justify-center rounded-full border"
                                 >
                                     <icon class="text-2xl">done</icon>
                                 </div>
@@ -176,7 +177,7 @@ import { SpacePipe } from '@placeos/events';
                                 @for (order of catering_orders; track order) {
                                     <div
                                         order
-                                        class="overflow-hidden rounded-xl border bg-base-100"
+                                        class="bg-base-100 overflow-hidden rounded-xl border"
                                         [class.border-error]="
                                             end_time < order.deliver_at
                                         "
@@ -207,9 +208,10 @@ import { SpacePipe } from '@placeos/events';
                                                     end_time < order.deliver_at
                                                 ) {
                                                     <div
-                                                        class="flex h-6 w-6 items-center justify-center rounded-full bg-error text-error-content"
+                                                        class="bg-error text-error-content flex h-6 w-6 items-center justify-center rounded-full"
                                                         [matTooltip]="
-                                                            err_tooltip
+                                                            'CALENDAR_EVENT.CATERING_ORDER_TIME_ERROR'
+                                                                | translate
                                                         "
                                                     >
                                                         <icon
@@ -219,7 +221,7 @@ import { SpacePipe } from '@placeos/events';
                                                 }
                                                 <div class="flex-1"></div>
                                                 <div
-                                                    class="rounded-sm bg-success px-2 py-1 text-xs text-success-content"
+                                                    class="bg-success text-success-content rounded-sm px-2 py-1 text-xs"
                                                 >
                                                     {{
                                                         'COMMON.ITEM_COUNT'
@@ -230,19 +232,18 @@ import { SpacePipe } from '@placeos/events';
                                                     }}
                                                 </div>
                                                 <div
-                                                    class="rounded-sm bg-info px-2 py-1 text-xs text-info-content"
+                                                    class="bg-info text-info-content rounded-sm px-2 py-1 text-xs"
                                                 >
                                                     Total:
                                                     {{
                                                         order.total_cost / 100
-                                                            | currency
-                                                                : currency_code
+                                                            | currency: code
                                                     }}
                                                 </div>
                                             </div>
                                         </div>
                                         <div
-                                            class="flex flex-col divide-y divide-base-100 bg-base-200"
+                                            class="divide-base-100 bg-base-200 flex flex-col divide-y"
                                         >
                                             @for (
                                                 item of order.items;
@@ -284,29 +285,27 @@ import { SpacePipe } from '@placeos/events';
                                                         }
                                                     </div>
                                                     <div
-                                                        class="rounded-sm bg-success px-2 py-1 text-xs text-success-content"
+                                                        class="bg-success text-success-content rounded-sm px-2 py-1 text-xs"
                                                     >
                                                         x{{ item.quantity }}
                                                     </div>
                                                     <div
-                                                        class="rounded-sm bg-info px-2 py-1 text-xs text-info-content"
+                                                        class="bg-info text-info-content rounded-sm px-2 py-1 text-xs"
                                                     >
                                                         {{
                                                             item.unit_price_with_options /
                                                                 100
-                                                                | currency
-                                                                    : currency_code
+                                                                | currency: code
                                                         }}
                                                         ea
                                                     </div>
                                                     <div
-                                                        class="rounded-sm bg-info px-2 py-1 text-xs text-info-content"
+                                                        class="bg-info text-info-content rounded-sm px-2 py-1 text-xs"
                                                     >
                                                         {{
                                                             item.total_cost /
                                                                 100
-                                                                | currency
-                                                                    : currency_code
+                                                                | currency: code
                                                         }}
                                                     </div>
                                                 </div>
@@ -321,7 +320,7 @@ import { SpacePipe } from '@placeos/events';
                         <div class="col-span-2 mt-4 w-full">
                             <div class="mb-2 flex items-center space-x-4">
                                 <div
-                                    class="flex items-center justify-center rounded-full border border-success text-success"
+                                    class="border-success text-success flex items-center justify-center rounded-full border"
                                 >
                                     <icon class="text-2xl">done</icon>
                                 </div>
@@ -333,7 +332,7 @@ import { SpacePipe } from '@placeos/events';
                                 @for (request of assets; track request) {
                                     <div
                                         request
-                                        class="w-full overflow-hidden rounded-xl border bg-base-100"
+                                        class="bg-base-100 w-full overflow-hidden rounded-xl border"
                                         [class.border-error]="
                                             end_time < request.deliver_at
                                         "
@@ -366,7 +365,7 @@ import { SpacePipe } from '@placeos/events';
                                                     request.conflict
                                                 ) {
                                                     <div
-                                                        class="flex h-6 w-6 items-center justify-center rounded-full bg-error text-error-content"
+                                                        class="bg-error text-error-content flex h-6 w-6 items-center justify-center rounded-full"
                                                         [matTooltip]="
                                                             err_tooltip(request)
                                                         "
@@ -378,7 +377,7 @@ import { SpacePipe } from '@placeos/events';
                                                 }
                                                 <div class="flex-1"></div>
                                                 <div
-                                                    class="rounded-sm bg-success px-2 py-1 text-xs text-success-content"
+                                                    class="bg-success text-success-content rounded-sm px-2 py-1 text-xs"
                                                 >
                                                     {{
                                                         'COMMON.ITEM_COUNT'
@@ -391,7 +390,7 @@ import { SpacePipe } from '@placeos/events';
                                             </div>
                                         </div>
                                         <div
-                                            class="flex flex-col divide-y divide-base-100 bg-base-200"
+                                            class="divide-base-100 bg-base-200 flex flex-col divide-y"
                                         >
                                             @for (
                                                 item of request.items;
@@ -408,7 +407,7 @@ import { SpacePipe } from '@placeos/events';
                                                         }}</span>
                                                     </div>
                                                     <div
-                                                        class="rounded-sm bg-success px-2 py-1 text-xs text-success-content"
+                                                        class="bg-success text-success-content rounded-sm px-2 py-1 text-xs"
                                                     >
                                                         x{{ item.quantity }}
                                                     </div>
@@ -423,9 +422,9 @@ import { SpacePipe } from '@placeos/events';
                 </div>
             }
             @if (event.body) {
-                <div class="relative space-y-2 py-4 pl-16 pr-4">
+                <div class="relative space-y-2 py-4 pr-4 pl-16">
                     <div
-                        class="absolute left-4 top-4 flex items-center justify-center rounded-full border border-success text-2xl text-success"
+                        class="border-success text-success absolute top-4 left-4 flex items-center justify-center rounded-full border text-2xl"
                     >
                         <icon>done</icon>
                     </div>
@@ -437,7 +436,7 @@ import { SpacePipe } from '@placeos/events';
             }
             @if (requires_approval) {
                 <div
-                    class="col-span-2 mt-2 rounded-sm border-none! bg-warning px-2 py-1 text-center text-sm text-warning-content"
+                    class="bg-warning text-warning-content col-span-2 mt-2 rounded-sm border-none! px-2 py-1 text-center text-sm"
                 >
                     {{ 'CALENDAR_EVENT.APPROVAL_REQUIRED_MSG' | translate }}
                 </div>
@@ -445,7 +444,7 @@ import { SpacePipe } from '@placeos/events';
         </main>
         @if (!(loading | async)) {
             <footer
-                class="flex items-center justify-end border-t border-base-200 p-2"
+                class="border-base-200 flex items-center justify-end border-t p-2"
             >
                 <button
                     btn
@@ -471,6 +470,7 @@ import { SpacePipe } from '@placeos/events';
         SpacePipe,
         LevelPipe,
         MatProgressSpinnerModule,
+        MatChipsModule,
     ],
 })
 export class MeetingFlowConfirmModalComponent

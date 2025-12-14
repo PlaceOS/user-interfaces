@@ -23,6 +23,7 @@ import {
     WorktimePreference,
 } from '@placeos/common';
 
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.component';
@@ -251,6 +252,7 @@ import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.componen
         MatCheckboxModule,
         FormsModule,
         IconComponent,
+        MatProgressSpinnerModule,
     ],
 })
 export class WFHSettingsModalComponent implements OnInit {

@@ -105,7 +105,7 @@ import { DashboardsService } from './dashboards.service';
                             mat-menu-item
                             [routerLink]="[
                                 '/dashboards',
-                                dashboard.id,
+                                dashboard()?.id,
                                 'alerts',
                                 'manage',
                                 alert.id,

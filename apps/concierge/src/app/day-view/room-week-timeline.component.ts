@@ -36,13 +36,13 @@ import { RoomBookingSearchComponent } from './room-booking-search.component';
     template: `
         @if (timezone && tz) {
             <div
-                class="mx-2 mt-2 w-[calc(100%-1rem)] rounded-lg bg-info p-2 text-center text-xs text-info-content"
+                class="bg-info text-info-content mx-2 mt-2 w-[calc(100%-1rem)] rounded-lg p-2 text-center text-xs"
             >
                 {{ 'APP.CONCIERGE.TIMEZONE_DIFF' | translate }}
             </div>
         }
         <div
-            class="relative z-20 flex items-center justify-center space-x-2 border-b border-base-200 p-2"
+            class="border-base-200 relative z-20 flex items-center justify-center space-x-2 border-b p-2"
         >
             <date-options
                 [date]="date | async"
@@ -53,12 +53,12 @@ import { RoomBookingSearchComponent } from './room-booking-search.component';
             ></date-options>
             @if (this_week | async) {
                 <div
-                    class="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-info"
+                    class="text-info absolute top-1/2 left-4 -translate-y-1/2 text-sm"
                 >
                     {{ 'COMMON.WEEK_THIS' | translate }}
                 </div>
             }
-            <div class="absolute right-8 top-1/2 -translate-y-1/2">
+            <div class="absolute top-1/2 right-8 -translate-y-1/2">
                 <room-booking-search
                     (selected)="viewEvent($event, $event.system?.id, true)"
                 ></room-booking-search>
@@ -67,21 +67,21 @@ import { RoomBookingSearchComponent } from './room-booking-search.component';
         <div timeline class="z-0 grid h-1/2 w-full flex-1 overflow-auto">
             <div
                 timezone
-                class="sticky left-0 top-0 z-30 flex items-center justify-center bg-base-100"
+                class="bg-base-100 sticky top-0 left-0 z-30 flex items-center justify-center"
             >
                 <div class="text-xs opacity-30">
                     {{ date | async | date: 'zzzz' : tz }}
                 </div>
                 <div
-                    class="absolute bottom-0 right-0 h-2 w-px bg-base-300"
+                    class="bg-base-300 absolute right-0 bottom-0 h-2 w-px"
                 ></div>
                 <div
-                    class="absolute bottom-0 right-0 h-px w-2 bg-base-300"
+                    class="bg-base-300 absolute right-0 bottom-0 h-px w-2"
                 ></div>
             </div>
             <div
                 day-headers
-                class="sticky top-0 z-20 flex min-w-[calc(100%-3rem)] items-center border-b border-base-300 bg-base-100"
+                class="border-base-300 bg-base-100 sticky top-0 z-20 flex min-w-[calc(100%-3rem)] items-center border-b"
                 [style.width]="(days | async)?.length * 12 + 'rem'"
             >
                 @for (date of days | async; track date) {
@@ -93,20 +93,20 @@ import { RoomBookingSearchComponent } from './room-booking-search.component';
                         </div>
                         @if (isToday(date)) {
                             <div
-                                class="absolute bottom-1 left-1/2 -translate-x-1/2 text-xs text-info"
+                                class="text-info absolute bottom-1 left-1/2 -translate-x-1/2 text-xs"
                             >
                                 {{ 'COMMON.TODAY' | translate }}
                             </div>
                         }
                         <div
-                            class="absolute -left-px bottom-0 h-2 w-px bg-base-300"
+                            class="bg-base-300 absolute bottom-0 -left-px h-2 w-px"
                         ></div>
                     </div>
                 }
             </div>
             <div
                 empty-block
-                class="sticky left-0 z-10 min-h-full border-r border-base-300 bg-base-100"
+                class="border-base-300 bg-base-100 sticky left-0 z-10 min-h-full border-r"
                 [style.height]="
                     (event_max_count | async)
                         ? (event_max_count | async) * 5.375 + 'rem'
@@ -120,7 +120,7 @@ import { RoomBookingSearchComponent } from './room-booking-search.component';
             >
                 @for (date of days | async; track date; let i = $index) {
                     <div
-                        class="min-w-48 flex-1 overflow-hidden border-r border-base-200 p-2"
+                        class="border-base-200 min-w-48 flex-1 overflow-hidden border-r p-2"
                     >
                         @for (
                             event of (events | async)[date] || [];
@@ -128,8 +128,8 @@ import { RoomBookingSearchComponent } from './room-booking-search.component';
                         ) {
                             <button
                                 matRipple
-                                class="flex w-full space-x-2 rounded-sm p-2 text-left hover:bg-base-200"
-                                (click)="viewEvent(event)"
+                                class="hover:bg-base-200 flex w-full space-x-2 rounded-sm p-2 text-left"
+                                (click)="viewEvent(event, event.system?.id)"
                             >
                                 <div
                                     class="my-1.5 h-2 w-2 rounded-full"
@@ -167,7 +167,7 @@ import { RoomBookingSearchComponent } from './room-booking-search.component';
                                     </div>
                                     <div class="truncate text-xs opacity-30">
                                         {{
-                                            (event.host | user)?.name ||
+                                            (event.host | user | async)?.name ||
                                                 event.host
                                         }}
                                     </div>

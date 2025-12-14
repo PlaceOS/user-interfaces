@@ -30,6 +30,7 @@ import { SpacePipe, SpacesService } from '@placeos/events';
 import {
     ExploreDesksService,
     ExploreParkingService,
+    ExploreSearchComponent,
     ExploreSpacesService,
     ExploreStateService,
     ExploreZonesService,
@@ -47,7 +48,7 @@ import { AccessibilityControlsComponent } from './accessibility-controls.compone
     template: `
         <div
             topbar
-            class="relative flex items-center justify-between border-b border-base-300 bg-base-100 px-4 py-2 text-base-content"
+            class="border-base-300 bg-base-100 text-base-content relative flex items-center justify-between border-b px-4 py-2"
         >
             <a matRipple routerLink="/" class="rounded-sm p-2 text-2xl">
                 <img
@@ -58,7 +59,7 @@ import { AccessibilityControlsComponent } from './accessibility-controls.compone
                 />
             </a>
             <div
-                class="absolute right-2 top-1/2 flex -translate-y-1/2 items-center"
+                class="absolute top-1/2 right-2 flex -translate-y-1/2 items-center"
             >
                 @if (can_search) {
                     <explore-search></explore-search>
@@ -68,12 +69,12 @@ import { AccessibilityControlsComponent } from './accessibility-controls.compone
                     matRipple
                     customTooltip
                     [content]="accessibility_controls"
-                    class="flex bg-base-200 sm:hidden"
+                    class="bg-base-200 flex sm:hidden"
                 >
                     <icon>accessible</icon>
                 </button>
                 <ng-template #accessibility_controls>
-                    <div class="w-[18rem] rounded-sm bg-base-100 p-2">
+                    <div class="bg-base-100 w-[18rem] rounded-sm p-2">
                         <accessibility-controls></accessibility-controls>
                     </div>
                 </ng-template>
@@ -82,7 +83,7 @@ import { AccessibilityControlsComponent } from './accessibility-controls.compone
         @if ((levels | async)?.length || legend.length) {
             <div
                 options
-                class="flex items-center space-x-2 bg-base-content p-2 text-base-100 sm:hidden"
+                class="bg-base-content text-base-100 flex items-center space-x-2 p-2 sm:hidden"
             >
                 @if ((levels | async)?.length) {
                     <button
@@ -115,7 +116,7 @@ import { AccessibilityControlsComponent } from './accessibility-controls.compone
                     <mat-menu #legendMenu="matMenu">
                         @for (value of legend; track value) {
                             <div
-                                class="flex w-full items-center space-x-4 rounded-sm px-4 py-2 hover:bg-base-200"
+                                class="hover:bg-base-200 flex w-full items-center space-x-4 rounded-sm px-4 py-2"
                             >
                                 <div
                                     class="h-3 w-3 rounded-full"
@@ -133,13 +134,13 @@ import { AccessibilityControlsComponent } from './accessibility-controls.compone
         <div class="flex h-1/2 flex-1">
             <div
                 sidebar
-                class="hidden w-[20rem] overflow-auto border-r border-base-300 bg-base-100 px-2 py-4 text-base-content sm:block"
+                class="border-base-300 bg-base-100 text-base-content hidden w-[20rem] overflow-auto border-r px-2 py-4 sm:block"
             >
                 @if ((levels | async)?.length) {
                     <button
                         btn
                         matRipple
-                        class="items clear flex w-full space-x-4 hover:bg-base-200"
+                        class="items clear hover:bg-base-200 flex w-full space-x-4"
                         (click)="show_levels = !show_levels"
                     >
                         <icon class="text-2xl">corporate_fare</icon>
@@ -156,7 +157,7 @@ import { AccessibilityControlsComponent } from './accessibility-controls.compone
                                 <button
                                     btn
                                     matRipple
-                                    class="clear w-full hover:bg-base-200 hover:opacity-100"
+                                    class="clear hover:bg-base-200 w-full hover:opacity-100"
                                     [class.opacity-30]="
                                         lvl.id !== (level | async)?.id
                                     "
@@ -175,7 +176,7 @@ import { AccessibilityControlsComponent } from './accessibility-controls.compone
                     <button
                         btn
                         matRipple
-                        class="items clear flex w-full space-x-4 hover:bg-base-200"
+                        class="items clear hover:bg-base-200 flex w-full space-x-4"
                         (click)="show_legend = !show_legend"
                     >
                         <icon class="text-2xl">place</icon>
@@ -190,7 +191,7 @@ import { AccessibilityControlsComponent } from './accessibility-controls.compone
                         <div class="space-y-2 py-4">
                             @for (value of legend; track value) {
                                 <div
-                                    class="flex w-full items-center space-x-4 rounded-sm px-4 py-2 hover:bg-base-200"
+                                    class="hover:bg-base-200 flex w-full items-center space-x-4 rounded-sm px-4 py-2"
                                 >
                                     <div
                                         class="h-3 w-3 rounded-full"
@@ -208,7 +209,7 @@ import { AccessibilityControlsComponent } from './accessibility-controls.compone
                 <button
                     btn
                     matRipple
-                    class="items clear flex w-full space-x-4 hover:bg-base-200"
+                    class="items clear hover:bg-base-200 flex w-full space-x-4"
                     (click)="show_accessibility = !show_accessibility"
                 >
                     <icon class="text-2xl">accessible</icon>
@@ -285,6 +286,7 @@ import { AccessibilityControlsComponent } from './accessibility-controls.compone
         CustomTooltipComponent,
         RouterModule,
         MatMenuModule,
+        ExploreSearchComponent,
     ],
 })
 export class ExploreComponent extends AsyncHandler implements OnInit {

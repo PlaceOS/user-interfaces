@@ -23,14 +23,14 @@ describe('ControlPageViewComponent', () => {
 
     it('should show basic view', () => {
         expect('source-select').not.toExist();
-        spectator.component.view = 'basic';
+        spectator.component.view.set('basic');
         spectator.detectChanges();
         expect('source-select').toExist();
     });
 
     it('should show advanced view', () => {
         expect('control-advanced-view').toExist();
-        spectator.component.view = 'basic';
+        spectator.component.view.set('basic');
         spectator.detectChanges();
         expect('control-advanced-view').not.toExist();
     });

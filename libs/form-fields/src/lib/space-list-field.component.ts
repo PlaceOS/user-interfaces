@@ -99,8 +99,7 @@ const EMPTY_FAVS: string[] = [];
                             <icon class="text-blue-500">place</icon>
                             <p>
                                 {{
-                                    space.location ||
-                                        level(space.zones)?.display_name ||
+                                    level(space.zones)?.display_name ||
                                         level(space.zones)?.name
                                 }}
                             </p>
@@ -128,7 +127,7 @@ const EMPTY_FAVS: string[] = [];
                                 matRipple
                                 name="edit-space"
                                 class="clear"
-                                (click)="changeSpaces(space)"
+                                (click)="changeSpaces()"
                             >
                                 <div class="flex items-center space-x-2">
                                     <icon>edit</icon>

@@ -20,6 +20,7 @@ import {
 } from 'date-fns';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
 import { CateringOrderStateService } from '../catering-order-modal/catering-order-state.service';
@@ -124,9 +125,7 @@ const ICONS = {
                 <settings-toggle
                     [name]="'CATERING.ORDERS_DELIVER_EXACT' | translate"
                     [ngModel]="at_time()"
-                    (ngModelChange)="
-                        at_timeChange.emit($event); at_time.set($event)
-                    "
+                    (ngModelChange)="at_timeChange.emit($event)"
                     [matTooltip]="exact_tooltip"
                 ></settings-toggle>
                 @if (day_options.length > 1) {
@@ -139,10 +138,7 @@ const ICONS = {
                     >
                         <mat-select
                             [ngModel]="offset_day()"
-                            (ngModelChange)="
-                                offset_dayChange.emit($event);
-                                offset_day.set($event)
-                            "
+                            (ngModelChange)="offset_dayChange.emit($event)"
                         >
                             @for (day of day_options; track day) {
                                 <mat-option [value]="day.id">
@@ -202,6 +198,7 @@ const ICONS = {
         MatInputModule,
         FormsModule,
         SettingsToggleComponent,
+        MatTooltipModule,
     ],
 })
 export class NewCateringItemFiltersComponent

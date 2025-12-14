@@ -30,20 +30,20 @@ import { ParkingReportService } from './parking-report.service';
             (window:resize)="updateCharts()"
         >
             <div
-                class="h-72 w-1/2 flex-1 rounded-sm border border-base-200 bg-base-100"
+                class="border-base-200 bg-base-100 h-72 w-1/2 flex-1 rounded-sm border"
             >
-                <div class="border-b border-base-200 p-4 text-xl font-bold">
+                <div class="border-base-200 border-b p-4 text-xl font-bold">
                     {{ 'APP.CONCIERGE.REPORTS_DAILY_HEADER' | translate }}
                 </div>
                 <div
                     id="daily-chart"
-                    class="ct-chart ct-octave relative -left-2 top-2 mx-auto h-56 w-full max-w-full"
+                    class="ct-chart ct-octave relative top-2 -left-2 mx-auto h-56 w-full max-w-full"
                 ></div>
             </div>
             <div
-                class="h-72 w-1/2 flex-1 rounded-sm border border-base-200 bg-base-100"
+                class="border-base-200 bg-base-100 h-72 w-1/2 flex-1 rounded-sm border"
             >
-                <div class="border-b border-base-200 p-4 text-xl font-bold">
+                <div class="border-base-200 border-b p-4 text-xl font-bold">
                     {{ 'APP.CONCIERGE.REPORTS_LEVEL_UTIL_HEADER' | translate }}
                 </div>
                 <div

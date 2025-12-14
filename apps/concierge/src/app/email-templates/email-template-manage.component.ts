@@ -32,12 +32,12 @@ import {
 @Component({
     selector: 'email-template-manage',
     template: `
-        <div class="absolute inset-0 overflow-auto bg-base-200">
+        <div class="bg-base-200 absolute inset-0 overflow-auto">
             <div
-                class="absolute left-1/2 top-0 h-full w-164 max-w-full -translate-x-1/2 border-x border-base-300 bg-base-100"
+                class="border-base-300 bg-base-100 absolute top-0 left-1/2 h-full w-164 max-w-full -translate-x-1/2 border-x"
             ></div>
             <header
-                class="sticky top-0 z-20 mx-auto my-2 flex w-full max-w-160 items-center justify-between rounded-sm border-none bg-base-200 px-4 py-2"
+                class="bg-base-200 sticky top-0 z-20 mx-auto my-2 flex w-full max-w-160 items-center justify-between rounded-sm border-none px-4 py-2"
             >
                 <h2 class="text-xl font-medium">
                     {{
@@ -89,7 +89,7 @@ import {
                             {{ 'COMMON.TRIGGER' | translate }}
                         </label>
                         <button
-                            class="inverse flex h-12 w-full items-center justify-between rounded-sm border border-base-300 px-2"
+                            class="inverse border-base-300 flex h-12 w-full items-center justify-between rounded-sm border px-2"
                             btn
                             matRipple
                             [matMenuTriggerFor]="trigger_menu"
@@ -260,7 +260,7 @@ import {
             </form>
             @if (!loading) {
                 <footer
-                    class="fixed bottom-0 left-1/2 z-20 mx-auto my-2 flex w-full max-w-[640px] -translate-x-1/2 items-center justify-end rounded-sm border-none bg-base-200 px-4 py-2"
+                    class="bg-base-200 fixed bottom-0 left-1/2 z-20 mx-auto my-2 flex w-full max-w-[640px] -translate-x-1/2 items-center justify-end rounded-sm border-none px-4 py-2"
                 >
                     <button btn matRipple class="w-40" (click)="save()">
                         {{ 'APP.CONCIERGE.EMAIL_TEMPLATES_SAVE' | translate }}
@@ -269,7 +269,7 @@ import {
             }
         </div>
         <ng-template #load_state>
-            <div class="absolute inset-0 bg-base-100">
+            <div class="bg-base-100 absolute inset-0">
                 <div
                     class="flex h-full w-full flex-col items-center justify-center space-y-2"
                 >

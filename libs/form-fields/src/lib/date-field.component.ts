@@ -81,8 +81,8 @@ export enum TimezoneDiffRange {
             <div class="relative w-[18rem] rounded-sm bg-base-100 px-2 py-4">
                 <date-calendar
                     [ngModel]="date() || now"
-                    [from]="from"
-                    [to]="until"
+                    [from]="from.valueOf()"
+                    [to]="until.valueOf()"
                     [offset_weekday]="week_start()"
                     (ngModelChange)="setValue($event)"
                 ></date-calendar>

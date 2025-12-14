@@ -3,6 +3,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { AsyncHandler } from '@placeos/common';
 
+import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
@@ -51,7 +52,7 @@ export interface AttachedResourceConfigModalData {
     selector: 'attached-resource-config-modal',
     template: `
         <header
-            class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none bg-base-200 p-2"
+            class="bg-base-200 sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none p-2"
         >
             <h2 class="px-2 text-xl font-medium">
                 {{
@@ -66,7 +67,7 @@ export interface AttachedResourceConfigModalData {
             }
         </header>
         <main
-            class="min-w-xl max-w-lg space-y-4 overflow-auto px-4 pb-4 pt-2 text-center"
+            class="max-w-lg min-w-xl space-y-4 overflow-auto px-4 pt-2 pb-4 text-center"
         >
             @if (can_save_notes) {
                 <settings-toggle
@@ -79,7 +80,7 @@ export interface AttachedResourceConfigModalData {
                 btn
                 matRipple
                 class="w-full"
-                (click)="rulesets.push({ id: new_id, rules: [] })"
+                (click)="rulesets.push({ id: new_id, name: '', rules: [] })"
             >
                 {{ 'RESOURCE.RULESET_NEW' | translate }}
             </button>
@@ -114,7 +115,7 @@ export interface AttachedResourceConfigModalData {
                                 mat-menu-item
                                 class="w-52"
                                 (click)="
-                                    set.rules.push(['', '']);
+                                    set.rules.push($any(['', '']));
                                     show_rules = set.id
                                 "
                             >
@@ -156,7 +157,7 @@ export interface AttachedResourceConfigModalData {
                                 (click)="rulesets.splice(i, 1)"
                             >
                                 <div
-                                    class="flex items-center space-x-2 text-error"
+                                    class="text-error flex items-center space-x-2"
                                 >
                                     <icon class="text-2xl">delete</icon>
                                     <div>
@@ -182,7 +183,7 @@ export interface AttachedResourceConfigModalData {
                                 class="relative flex h-16 items-center space-x-2 pl-7"
                             >
                                 <div
-                                    class="absolute left-3 top-1/2 h-32 w-4 -translate-y-full border-b-2 border-l-2 border-base-200"
+                                    class="border-base-200 absolute top-1/2 left-3 h-32 w-4 -translate-y-full border-b-2 border-l-2"
                                 ></div>
                                 <mat-form-field
                                     class="no-subscript flex-1"
@@ -219,7 +220,7 @@ export interface AttachedResourceConfigModalData {
                                 <button
                                     icon
                                     matRipple
-                                    class="h-12 w-12 rounded-sm border border-error text-error"
+                                    class="border-error text-error h-12 w-12 rounded-sm border"
                                     (click)="set.rules.splice(i, 1)"
                                 >
                                     <icon>delete</icon>
@@ -231,7 +232,7 @@ export interface AttachedResourceConfigModalData {
             }
         </main>
         <footer
-            class="flex items-center justify-end border-t border-solid border-base-200 px-4 py-2"
+            class="border-base-200 flex items-center justify-end border-t border-solid px-4 py-2"
         >
             <button btn matRipple class="w-36" (click)="saveChanges()">
                 {{ 'COMMON.SAVE' | translate }}
@@ -255,6 +256,7 @@ export interface AttachedResourceConfigModalData {
         SettingsToggleComponent,
         TranslatePipe,
         IconComponent,
+        FormsModule,
     ],
 })
 export class AttachedResourceConfigModalComponent extends AsyncHandler {
