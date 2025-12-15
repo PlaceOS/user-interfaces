@@ -27,4 +27,5 @@ export default {
         '^suneditor/src/plugins$':
             '<rootDir>/../../node_modules/suneditor/src/plugins/index.js',
     },
+    modulePathIgnorePatterns: ['e2e'],
 };
