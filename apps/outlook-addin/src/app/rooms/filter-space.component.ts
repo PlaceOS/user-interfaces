@@ -159,7 +159,7 @@ import { FeaturesFilterService } from './features-filter.service';
                     </section>
                     <section class="border-base-200 flex flex-col">
                         <div class="mx-auto w-[calc(100%-2rem)] max-w-90">
-                            <div class="my-2 text-lg">Facilities</div>
+                            <div class="my-2 text-lg">Features</div>
                             @for (feature of features$ | async; track feature) {
                                 <div>
                                     <div class="mb-1 flex flex-row">

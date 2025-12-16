@@ -77,9 +77,7 @@ import {
             </section>
             @if (space?.feature_list.length > 0) {
                 <section class="mx-auto flex w-[calc(100%-2rem)] flex-col py-3">
-                    <span class="mb-3 text-base font-bold"
-                        >Room Facilities</span
-                    >
+                    <span class="mb-3 text-base font-bold">Room Features</span>
                     @for (facility of space?.feature_list; track facility) {
                         <div class="mb-1 flex w-full flex-row">
                             <div>
